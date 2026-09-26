@@ -1,0 +1,16 @@
+{
+  "previous": {
+    "version": 1,
+    "sources": {
+      "github": {"updatedAt":"2026-09-25T08:00:00.000Z","timezone":"GitHub","metric":"contributions","days":[{"date":"2026-09-24","value":3}]},
+      "codex": {"updatedAt":"2026-09-25T08:00:00.000Z","timezone":"Codex","metric":"tokens","days":[{"date":"2026-09-24","value":10}]},
+      "claude": null
+    }
+  },
+  "attemptedAt": "2026-09-26T08:00:00.000Z",
+  "attempts": [
+    {"source":"github","result":"success","attemptedAt":"2026-09-26T08:00:00.000Z","validatedIncomingSnapshot":{"updatedAt":"2026-09-26T08:00:00.000Z","timezone":"GitHub","metric":"contributions","days":[{"date":"2026-09-26","value":0}]}},
+    {"source":"codex","result":"failed","attemptedAt":"2026-09-26T08:00:00.000Z","localErrorCode":"unsupported_method"},
+    {"source":"claude","result":"success","attemptedAt":"2026-09-26T08:00:00.000Z","validatedIncomingSnapshot":{"updatedAt":"2026-09-26T08:00:00.000Z","timezone":"Asia/Shanghai","metric":"tokens","days":[{"date":"2026-09-26","value":7}]}}
+  ]
+}

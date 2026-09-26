@@ -1,7 +1,10 @@
 //! Shared, side-effect-free ports and DTOs. Domain state belongs to its own crate.
 
 use serde::{Deserialize, Serialize};
+use std::ffi::OsString;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicI64, Ordering};
+use std::time::Duration;
 
 /// Milliseconds since the Unix epoch. Implementations must supply UTC time.
 pub trait Clock {
@@ -30,6 +33,52 @@ impl Clock for FakeClock {
     fn now_unix_ms(&self) -> i64 {
         self.now_ms.load(Ordering::SeqCst)
     }
+}
+
+/// Platform adapters decide how to cancel and kill their owned child process tree.
+pub trait Cancellation {
+    fn is_cancelled(&self) -> bool;
+}
+
+/// Private subprocess input. This type deliberately has no Serialize implementation.
+#[derive(Debug)]
+pub struct ProcessRequest {
+    pub executable: PathBuf,
+    pub arguments: Vec<OsString>,
+    pub environment: Vec<(OsString, OsString)>,
+    pub stdin: Option<Vec<u8>>,
+    pub timeout: Duration,
+    pub max_output_bytes: usize,
+}
+
+/// Transient private output for an adapter to validate, never a public/UI DTO.
+#[derive(Debug)]
+pub struct ProcessOutput {
+    pub exit_code: Option<i32>,
+    pub stdout: Vec<u8>,
+    pub stderr: Vec<u8>,
+}
+
+pub trait ProcessRunner {
+    fn run(
+        &self,
+        request: &ProcessRequest,
+        cancellation: &dyn Cancellation,
+    ) -> Result<ProcessOutput, StructuredError>;
+}
+
+/// Platform implementation must stage, flush, and atomically replace a managed file.
+/// B2/A1 prove the exact Windows durability and path restrictions before use.
+pub trait AtomicFile {
+    fn read(&self, path: &Path) -> Result<Option<Vec<u8>>, StructuredError>;
+    fn replace_durable(&self, path: &Path, bytes: &[u8]) -> Result<(), StructuredError>;
+}
+
+/// A process-scoped exclusive lock; the guard holds ownership until dropped.
+pub trait LockProvider {
+    type Guard;
+
+    fn try_acquire(&self, path: &Path) -> Result<Self::Guard, StructuredError>;
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]

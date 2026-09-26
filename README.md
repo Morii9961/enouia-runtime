@@ -18,7 +18,7 @@ Enouia initially takes only the Windows activity producer. Moriium retains About
 ## M0.1 workspace
 
 ```text
-enouia-common                  Clock + FakeClock, HealthComponent, structured error DTO
+enouia-common                  Clock + FakeClock, process/file/lock ports, health/error DTOs
         ↑
 enouia-activity-contract       ActivityData v1 + batch v1 normalization and serialization
         ↑

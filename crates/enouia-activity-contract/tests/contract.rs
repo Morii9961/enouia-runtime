@@ -273,3 +273,30 @@ fn deterministic_public_bytes_match_moriium_oracle_and_sha256() {
     reordered.sources.github.as_mut().unwrap().days.reverse();
     assert_eq!(public_data_bytes(&reordered).unwrap(), expected);
 }
+
+#[test]
+fn source_attempt_handoff_fixture_uses_valid_snapshots_and_one_run_clock() {
+    let fixture: Value = serde_json::from_str(include_str!(
+        "../../../tests/fixtures/activity/source-attempts-v1.json"
+    ))
+    .unwrap();
+    normalize_activity(&fixture["previous"]).unwrap();
+    let attempts = fixture["attempts"].as_array().unwrap();
+    assert_eq!(attempts.len(), 3);
+    for (index, source) in ["github", "codex", "claude"].iter().enumerate() {
+        let attempt = &attempts[index];
+        assert_eq!(attempt["source"], *source);
+        assert_eq!(attempt["attemptedAt"], fixture["attemptedAt"]);
+        if attempt["result"] == "success" {
+            let mut candidate = data();
+            candidate["sources"][*source] = attempt["validatedIncomingSnapshot"].clone();
+            normalize_activity(&candidate).unwrap();
+        } else {
+            assert_eq!(attempt["localErrorCode"], "unsupported_method");
+        }
+    }
+    assert_eq!(
+        attempts[0]["validatedIncomingSnapshot"]["days"][0]["value"],
+        0
+    );
+}
