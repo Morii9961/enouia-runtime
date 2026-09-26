@@ -44,4 +44,6 @@ The public file serializer emits compact UTF-8 JSON plus one LF in the v1 field 
 
 [M0.1 validation report](docs/validation/M0.1.md) records the Moriium source hashes, fixture provenance, executed checks, and known limits. [M0 validation](docs/validation/M0.md), [IPC schemas](contracts/ipc/activity-v1.schema.json), and the [boundary agreement](docs/CONTRACT_BOUNDARIES_M0.md) establish the local UI handoff. A1 starts with full Memory/Session schemas and provenance; B1 starts with pure merge and collector adapters against synthetic attempts. These remain separate later milestones.
 
+Future usage scope: [Claude Design integration note](docs/CLAUDE_DESIGN_USAGE.md) and [ADR-019](docs/adr/019-claude-design-usage.md) record the requested addition of official `claude_design` product tokens to the **existing** Claude calendar. Account access, component overlap, Shanghai-day aggregation, old-history reconciliation, and coordinated Moriium wording must be verified before activation. Current ActivityData v1 bytes and three-source meaning are unchanged.
+
 This project is published under the [MIT License](LICENSE).

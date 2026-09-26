@@ -138,6 +138,8 @@ Acceptance: three source calendars/tables and separate time boundaries; totals/r
 
 ## 5. Interfaces and integration ownership
 
+Future Activity extension (recorded after the v0.3 baseline): [ADR-019](adr/019-claude-design-usage.md) and the [Claude Design integration note](CLAUDE_DESIGN_USAGE.md) target official `claude_design` product tokens in the existing Claude daily series. This is outside B1's three-source compatibility acceptance. It needs separate component history, UTC-hour to Shanghai-day aggregation, controlled overlap checks, old-archive reconciliation, and a coordinated Moriium label change before any public value changes. Do not treat this note as a fourth-source schema change or a reason to block the baseline B1/B4 work.
+
 | Interface | Producer / consumer | Freeze and change rule |
 |---|---|---|
 | ActivityData/batch v1 | Runtime / Moriium | Existing public authority; change requires joint protocol acceptance |

@@ -115,3 +115,7 @@ Consequence: an unavailable source cannot be made fresh by updating a heartbeat 
 Decision now: keep all known activity dates; keep committed generations and migration/rollback evidence through cutover and observation; no automatic deletion. Source floor, GitHub query window, and 90-day public status history are not deletion policies. Configuration and data migration are versioned and reversible where compatible.
 
 Deferred: storage quota, generation compaction schedule, user-selected backup destination/frequency, and encryption policy. A later pruning implementation must preserve active pending, highest reserved sequence, verified snapshots, and current history. Restoring a backup always reopens high-water reconciliation before production upload.
+
+## ADR-019 — Claude Design in the existing Claude series (Direction approved; implementation deferred)
+
+The user wants official `claude_design` product tokens added to the existing Claude daily series, without a fourth public source or calendar. [ADR-019](019-claude-design-usage.md) records the conditional source, private component accounting, Shanghai-day conversion, and coordinated consumer-label gate. Current v0.3/v1 values keep their Code/Cowork meaning until that gate passes.
