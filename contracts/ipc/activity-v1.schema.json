@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Enouia local Activity IPC v1",
+  "description": "Typed local command arguments and responses. This is not the Moriium public ActivityData or upload protocol.",
+  "oneOf": [
+    { "$ref": "#/$defs/noArgumentRequest" },
+    { "$ref": "#/$defs/daysRequest" },
+    { "$ref": "#/$defs/pauseRequest" },
+    { "$ref": "#/$defs/runRequest" },
+    { "$ref": "#/$defs/overview" },
+    { "$ref": "#/$defs/days" },
+    { "$ref": "#/$defs/preview" },
+    { "$ref": "#/$defs/runAccepted" },
+    { "$ref": "#/$defs/runStatus" },
+    { "$ref": "#/$defs/pauseAcknowledged" },
+    { "$ref": "#/$defs/failure" }
+  ],
+  "$defs": {
+    "sourceId": { "enum": ["github", "codex", "claude"] },
+    "dayLabel": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "timestampOrNull": { "$ref": "common-v1.schema.json#/$defs/timestampOrNull" },
+    "runId": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,128}$" },
+    "safeSequenceOrNull": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "integer", "minimum": 1, "maximum": 9007199254740991 }
+      ]
+    },
+    "noArgumentRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation"],
+      "properties": {
+        "operation": { "enum": ["activity_get_overview", "activity_preview_public_payload", "activity_run_now", "activity_retry_pending"] }
+      }
+    },
+    "daysRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation", "source", "from", "to"],
+      "properties": {
+        "operation": { "const": "activity_get_days" },
+        "source": { "$ref": "#/$defs/sourceId" },
+        "from": { "$ref": "#/$defs/dayLabel" },
+        "to": { "$ref": "#/$defs/dayLabel" }
+      }
+    },
+    "pauseRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation", "paused"],
+      "properties": {
+        "operation": { "const": "activity_set_paused" },
+        "paused": { "type": "boolean" }
+      }
+    },
+    "runRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation", "runId"],
+      "properties": {
+        "operation": { "const": "activity_get_run" },
+        "runId": { "$ref": "#/$defs/runId" }
+      }
+    },
+    "sourceSummary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["timezone", "metric", "recordedDays", "firstDate", "lastDate", "total", "lastAttemptAt", "lastSuccessAt", "lastResult", "freshness"],
+      "properties": {
+        "timezone": { "enum": ["GitHub", "Codex", "Asia/Shanghai"] },
+        "metric": { "enum": ["contributions", "tokens"] },
+        "recordedDays": { "type": "integer", "minimum": 0 },
+        "firstDate": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/dayLabel" }] },
+        "lastDate": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/dayLabel" }] },
+        "total": { "type": "string", "pattern": "^(0|[1-9][0-9]*)$" },
+        "lastAttemptAt": { "$ref": "#/$defs/timestampOrNull" },
+        "lastSuccessAt": { "$ref": "#/$defs/timestampOrNull" },
+        "lastResult": { "enum": ["unknown", "success", "failed"] },
+        "freshness": { "enum": ["no_data", "fresh", "stale", "failed"] }
+      }
+    },
+    "sourceSummaries": {
+      "type": "object", "additionalProperties": false,
+      "required": ["github", "codex", "claude"],
+      "properties": {
+        "github": { "allOf": [{ "$ref": "#/$defs/sourceSummary" }, { "properties": { "timezone": { "const": "GitHub" }, "metric": { "const": "contributions" } } }] },
+        "codex": { "allOf": [{ "$ref": "#/$defs/sourceSummary" }, { "properties": { "timezone": { "const": "Codex" }, "metric": { "const": "tokens" } } }] },
+        "claude": { "allOf": [{ "$ref": "#/$defs/sourceSummary" }, { "properties": { "timezone": { "const": "Asia/Shanghai" }, "metric": { "const": "tokens" } } }] }
+      }
+    },
+    "overview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "sources", "schedule", "delivery", "health"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "kind": { "const": "activity_overview" },
+        "sources": { "$ref": "#/$defs/sourceSummaries" },
+        "schedule": {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "nextTriggerAt"],
+          "properties": {
+            "mode": { "enum": ["unconfigured", "idle", "running", "paused"] },
+            "nextTriggerAt": { "$ref": "#/$defs/timestampOrNull" }
+          }
+        },
+        "delivery": {
+          "type": "object", "additionalProperties": false,
+          "required": ["pendingSequence", "lastTransportAt", "publicationObservedAt", "publicHash", "state"],
+          "properties": {
+            "pendingSequence": { "$ref": "#/$defs/safeSequenceOrNull" },
+            "lastTransportAt": { "$ref": "#/$defs/timestampOrNull" },
+            "publicationObservedAt": { "$ref": "#/$defs/timestampOrNull" },
+            "publicHash": { "oneOf": [{ "type": "null" }, { "type": "string", "pattern": "^[a-f0-9]{64}$" }] },
+            "state": { "enum": ["unconfigured", "idle", "pending", "transported", "observed", "unverified", "paused"] }
+          }
+        },
+        "health": { "type": "array", "items": { "$ref": "common-v1.schema.json#/$defs/healthComponent" } }
+      }
+    },
+    "days": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "source", "days"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "kind": { "const": "activity_days" },
+        "source": { "$ref": "#/$defs/sourceId" },
+        "days": { "type": "array", "items": { "$ref": "../activity/activity-data-v1.schema.json#/$defs/day" } }
+      }
+    },
+    "preview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "data", "sha256"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "kind": { "const": "activity_public_preview" },
+        "data": { "$ref": "../activity/activity-data-v1.schema.json" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "runAccepted": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "runId"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "kind": { "const": "activity_run_accepted" },
+        "runId": { "$ref": "#/$defs/runId" }
+      }
+    },
+    "runStatus": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "runId", "stage", "error"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "kind": { "const": "activity_run_status" },
+        "runId": { "$ref": "#/$defs/runId" },
+        "stage": { "enum": ["queued", "collecting", "persisting", "uploading", "observing", "completed", "failed", "blocked"] },
+        "error": { "oneOf": [{ "type": "null" }, { "$ref": "common-v1.schema.json#/$defs/structuredError" }] }
+      }
+    },
+    "pauseAcknowledged": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "paused"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "kind": { "const": "activity_pause_acknowledged" },
+        "paused": { "type": "boolean" }
+      }
+    },
+    "failure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "kind", "error"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "kind": { "const": "activity_error" },
+        "error": { "$ref": "common-v1.schema.json#/$defs/structuredError" }
+      }
+    }
+  }
+}

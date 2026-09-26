@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "producer": "morii-workstation",
+  "sequence": 42,
+  "createdAt": "2026-09-26T08:00:01.000Z",
+  "privateRoot": "PRIVATE_ROOT_SENTINEL",
+  "sources": {
+    "privateSourceOutcome": "PRIVATE_OUTCOMES_MAP_SENTINEL",
+    "github": {"attemptedAt":"2026-09-26T08:00:00.000Z","succeededAt":"2000-01-01T00:00:00.000Z","result":"success","private":"PRIVATE_OUTCOME_SENTINEL"},
+    "codex": {"attemptedAt":"2026-09-26T08:00:00.000Z","result":"failed"},
+    "claude": {"attemptedAt":"2026-09-26T08:00:00.000Z","result":"success"}
+  },
+  "data": {
+    "version": 1,
+    "privateData": "PRIVATE_DATA_SENTINEL",
+    "sources": {
+      "privateSource": "PRIVATE_SOURCE_SENTINEL",
+      "github": {"updatedAt":"2026-09-26T08:00:00.000Z","timezone":"GitHub","metric":"contributions","private":"PRIVATE_SNAPSHOT_SENTINEL","days":[{"date":"2026-09-26","value":0,"private":"PRIVATE_DAY_SENTINEL"},{"date":"2026-09-25","value":7}]},
+      "codex": {"updatedAt":"2026-09-25T06:00:00.000Z","timezone":"Codex","metric":"tokens","days":[{"date":"2026-09-24","value":1234567}]},
+      "claude": {"updatedAt":"2026-09-26T08:00:00.000Z","timezone":"Asia/Shanghai","metric":"tokens","days":[{"date":"2026-09-26","value":2000000}]}
+    }
+  }
+}

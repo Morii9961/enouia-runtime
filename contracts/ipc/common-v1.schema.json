@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Enouia local IPC shared DTOs v1",
+  "description": "Local UI/backend data. No raw subprocess output, file paths, environment variables, or credentials.",
+  "oneOf": [
+    { "$ref": "#/$defs/healthComponent" },
+    { "$ref": "#/$defs/structuredError" }
+  ],
+  "$defs": {
+    "componentId": {
+      "enum": [
+        "core", "vault", "memory_index", "provider", "session",
+        "activity_collector_github", "activity_collector_codex", "activity_collector_claude",
+        "activity_archive", "activity_scheduler", "activity_delivery"
+      ]
+    },
+    "timestampOrNull": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "healthComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "state", "mode", "observedAt", "lastSuccessAt", "ageSeconds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/componentId" },
+        "state": { "enum": ["healthy", "degraded", "unavailable", "recovering"] },
+        "mode": { "enum": ["unconfigured", "idle", "running", "paused"] },
+        "observedAt": { "$ref": "#/$defs/timestampOrNull" },
+        "lastSuccessAt": { "$ref": "#/$defs/timestampOrNull" },
+        "ageSeconds": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 0 }] }
+      }
+    },
+    "structuredError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "component", "retryable"],
+      "properties": {
+        "code": {
+          "enum": [
+            "busy", "unconfigured", "unsupported_method", "source_invalid",
+            "clock_regression", "storage_failed", "delivery_unverified", "contract_invalid"
+          ]
+        },
+        "component": { "$ref": "#/$defs/componentId" },
+        "retryable": { "type": "boolean" }
+      }
+    }
+  }
+}
