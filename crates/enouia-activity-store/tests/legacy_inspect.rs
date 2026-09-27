@@ -1,10 +1,13 @@
 #![cfg(windows)]
 
 use enouia_activity_contract::{
-    normalize_activity, normalize_batch, public_data_bytes, sha256_hex,
+    ActivityData, ActivitySources, Day, Snapshot, normalize_activity, normalize_batch,
+    public_data_bytes, sha256_hex,
 };
 use enouia_activity_store::generation::GenerationError;
-use enouia_activity_store::legacy_inspect::{InspectError, inspect_legacy_trio};
+use enouia_activity_store::legacy_inspect::{
+    CompareError, InspectError, ValueChange, compare_archives, inspect_legacy_trio,
+};
 use enouia_common::FakeClock;
 use serde_json::{Value, json};
 use std::fs;
@@ -138,4 +141,108 @@ fn rejects_private_archive_extras_and_pending_above_reserved_sequence() {
         InspectError::InvalidImage(GenerationError::InvalidPending)
     );
     clean(&directory);
+}
+
+fn snapshot(time: &str, dates: &[(&str, u64)], source: &str) -> Snapshot {
+    let (timezone, metric) = match source {
+        "github" => ("GitHub", "contributions"),
+        "codex" => ("Codex", "tokens"),
+        "claude" => ("Asia/Shanghai", "tokens"),
+        _ => panic!("unexpected test source"),
+    };
+    Snapshot {
+        updated_at: time.to_owned(),
+        timezone: timezone.to_owned(),
+        metric: metric.to_owned(),
+        days: dates
+            .iter()
+            .map(|(date, value)| Day {
+                date: (*date).to_owned(),
+                value: *value,
+            })
+            .collect(),
+    }
+}
+
+#[test]
+fn reports_per_source_history_and_correction_conflicts_without_choosing_a_winner() {
+    let current = ActivityData {
+        version: 1,
+        sources: ActivitySources {
+            github: Some(snapshot(
+                "2026-01-03T00:00:00.000Z",
+                &[("2026-01-01", 10), ("2026-01-02", 20)],
+                "github",
+            )),
+            codex: Some(snapshot(
+                "2026-01-03T00:00:00.000Z",
+                &[("2026-01-01", 5)],
+                "codex",
+            )),
+            claude: None,
+        },
+    };
+    let candidate = ActivityData {
+        version: 1,
+        sources: ActivitySources {
+            github: Some(snapshot(
+                "2026-01-04T00:00:00.000Z",
+                &[("2026-01-02", 22), ("2026-01-03", 30)],
+                "github",
+            )),
+            codex: None,
+            claude: Some(snapshot(
+                "2026-01-04T00:00:00.000Z",
+                &[("2026-01-03", 7)],
+                "claude",
+            )),
+        },
+    };
+    let comparison = compare_archives(&current, &candidate).unwrap();
+    assert_eq!(comparison.github.current_only_dates, ["2026-01-01"]);
+    assert_eq!(comparison.github.candidate_only_dates, ["2026-01-03"]);
+    assert_eq!(
+        comparison.github.changed_values,
+        [ValueChange {
+            date: "2026-01-02".to_owned(),
+            current: 20,
+            candidate: 22,
+        }]
+    );
+    assert!(comparison.github.requires_reconciliation);
+    assert_ne!(
+        comparison.github.current_sha256,
+        comparison.github.candidate_sha256
+    );
+    assert_eq!(comparison.codex.current_only_dates, ["2026-01-01"]);
+    assert!(comparison.codex.requires_reconciliation);
+    assert_eq!(comparison.claude.candidate_only_dates, ["2026-01-03"]);
+    assert!(!comparison.claude.requires_reconciliation);
+}
+
+#[test]
+fn detects_success_time_regression_without_a_day_change() {
+    let current = ActivityData {
+        version: 1,
+        sources: ActivitySources {
+            github: Some(snapshot(
+                "2026-01-04T00:00:00.000Z",
+                &[("2026-01-01", 10)],
+                "github",
+            )),
+            codex: None,
+            claude: None,
+        },
+    };
+    let mut candidate = current.clone();
+    candidate.sources.github.as_mut().unwrap().updated_at = "2026-01-03T00:00:00.000Z".to_owned();
+    let comparison = compare_archives(&current, &candidate).unwrap();
+    assert!(comparison.github.success_time_regressed);
+    assert!(comparison.github.requires_reconciliation);
+    assert!(comparison.github.changed_values.is_empty());
+    candidate.sources.github.as_mut().unwrap().updated_at = "invalid".to_owned();
+    assert_eq!(
+        compare_archives(&current, &candidate).unwrap_err(),
+        CompareError::InvalidSnapshot
+    );
 }

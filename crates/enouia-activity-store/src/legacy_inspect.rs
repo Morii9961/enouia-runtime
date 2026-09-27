@@ -6,10 +6,12 @@ use crate::reader::{
     read_file, read_optional,
 };
 use enouia_activity_contract::{
-    ActivityData, Batch, MAX_SAFE_INTEGER, normalize_activity, public_data_bytes, sha256_hex,
+    ActivityData, Batch, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms, normalize_activity,
+    public_data_bytes, sha256_hex,
 };
 use enouia_common::Clock;
 use serde_json::Value;
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
@@ -33,6 +35,123 @@ pub struct LegacyInspection {
     pub raw_archive_sha256: String,
     pub raw_sequence_sha256: String,
     pub pending_sha256: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ValueChange {
+    pub date: String,
+    pub current: u64,
+    pub candidate: u64,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SourceComparison {
+    pub current_sha256: Option<String>,
+    pub candidate_sha256: Option<String>,
+    pub current_only_dates: Vec<String>,
+    pub candidate_only_dates: Vec<String>,
+    pub changed_values: Vec<ValueChange>,
+    pub success_time_regressed: bool,
+    pub requires_reconciliation: bool,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ArchiveComparison {
+    pub github: SourceComparison,
+    pub codex: SourceComparison,
+    pub claude: SourceComparison,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum CompareError {
+    InvalidSnapshot,
+    Serialize,
+}
+
+fn source_hash(snapshot: &Option<Snapshot>) -> Result<Option<String>, CompareError> {
+    snapshot
+        .as_ref()
+        .map(|snapshot| {
+            serde_json::to_vec(snapshot)
+                .map(|bytes| sha256_hex(&bytes))
+                .map_err(|_| CompareError::Serialize)
+        })
+        .transpose()
+}
+
+fn compare_source(
+    current: &Option<Snapshot>,
+    candidate: &Option<Snapshot>,
+) -> Result<SourceComparison, CompareError> {
+    let current_days: BTreeMap<&str, u64> = current
+        .as_ref()
+        .into_iter()
+        .flat_map(|snapshot| snapshot.days.iter())
+        .map(|day| (day.date.as_str(), day.value))
+        .collect();
+    let candidate_days: BTreeMap<&str, u64> = candidate
+        .as_ref()
+        .into_iter()
+        .flat_map(|snapshot| snapshot.days.iter())
+        .map(|day| (day.date.as_str(), day.value))
+        .collect();
+    let current_only_dates = current_days
+        .keys()
+        .filter(|date| !candidate_days.contains_key(**date))
+        .map(|date| (*date).to_owned())
+        .collect::<Vec<_>>();
+    let candidate_only_dates = candidate_days
+        .keys()
+        .filter(|date| !current_days.contains_key(**date))
+        .map(|date| (*date).to_owned())
+        .collect::<Vec<_>>();
+    let changed_values = current_days
+        .iter()
+        .filter_map(|(date, value)| {
+            candidate_days.get(date).and_then(|new_value| {
+                (value != new_value).then(|| ValueChange {
+                    date: (*date).to_owned(),
+                    current: *value,
+                    candidate: *new_value,
+                })
+            })
+        })
+        .collect::<Vec<_>>();
+    let success_time_regressed = match (current, candidate) {
+        (Some(current), Some(candidate)) => {
+            let current_time =
+                activity_timestamp_ms(&current.updated_at).ok_or(CompareError::InvalidSnapshot)?;
+            let candidate_time = activity_timestamp_ms(&candidate.updated_at)
+                .ok_or(CompareError::InvalidSnapshot)?;
+            candidate_time < current_time
+        }
+        _ => false,
+    };
+    let requires_reconciliation = !current_only_dates.is_empty()
+        || !changed_values.is_empty()
+        || success_time_regressed
+        || (current.is_some() && candidate.is_none());
+    Ok(SourceComparison {
+        current_sha256: source_hash(current)?,
+        candidate_sha256: source_hash(candidate)?,
+        current_only_dates,
+        candidate_only_dates,
+        changed_values,
+        success_time_regressed,
+        requires_reconciliation,
+    })
+}
+
+/// Compare two validated archives without merging or choosing an authority.
+pub fn compare_archives(
+    current: &ActivityData,
+    candidate: &ActivityData,
+) -> Result<ArchiveComparison, CompareError> {
+    Ok(ArchiveComparison {
+        github: compare_source(&current.sources.github, &candidate.sources.github)?,
+        codex: compare_source(&current.sources.codex, &candidate.sources.codex)?,
+        claude: compare_source(&current.sources.claude, &candidate.sources.claude)?,
+    })
 }
 
 fn exact_keys(value: &Value, keys: &[&str]) -> bool {
