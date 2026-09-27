@@ -13,10 +13,10 @@ const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0000_0400;
 const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x0020_0000;
 const MAX_CURRENT_BYTES: usize = 66;
 const MAX_MANIFEST_BYTES: usize = 16 * 1024;
-const MAX_SEQUENCE_BYTES: usize = 64;
-const MAX_PENDING_BYTES: usize = 4 * 1024 * 1024;
+pub(crate) const MAX_SEQUENCE_BYTES: usize = 64;
+pub(crate) const MAX_PENDING_BYTES: usize = 4 * 1024 * 1024;
 const MAX_DELIVERY_BYTES: usize = 1024 * 1024;
-const MAX_ARCHIVE_BYTES: usize = 64 * 1024 * 1024;
+pub(crate) const MAX_ARCHIVE_BYTES: usize = 64 * 1024 * 1024;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ReadError {
@@ -37,7 +37,7 @@ pub struct LoadedGeneration {
     pub validated: ValidatedGeneration,
 }
 
-fn checked_directory(path: &Path, missing: ReadError) -> Result<(), ReadError> {
+pub(crate) fn checked_directory(path: &Path, missing: ReadError) -> Result<(), ReadError> {
     let metadata = fs::symlink_metadata(path).map_err(|error| {
         if error.kind() == io::ErrorKind::NotFound {
             missing
@@ -54,7 +54,11 @@ fn checked_directory(path: &Path, missing: ReadError) -> Result<(), ReadError> {
     Ok(())
 }
 
-fn read_file(path: &Path, limit: usize, missing: ReadError) -> Result<Vec<u8>, ReadError> {
+pub(crate) fn read_file(
+    path: &Path,
+    limit: usize,
+    missing: ReadError,
+) -> Result<Vec<u8>, ReadError> {
     // Open the reparse point itself, then inspect the opened handle before read.
     let mut file: File = OpenOptions::new()
         .read(true)
@@ -88,7 +92,7 @@ fn read_file(path: &Path, limit: usize, missing: ReadError) -> Result<Vec<u8>, R
     Ok(bytes)
 }
 
-fn read_optional(path: &Path, limit: usize) -> Result<Option<Vec<u8>>, ReadError> {
+pub(crate) fn read_optional(path: &Path, limit: usize) -> Result<Option<Vec<u8>>, ReadError> {
     match read_file(path, limit, ReadError::MissingFile) {
         Ok(bytes) => Ok(Some(bytes)),
         Err(ReadError::MissingFile) => Ok(None),
