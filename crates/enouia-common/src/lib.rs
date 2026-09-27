@@ -67,6 +67,24 @@ pub trait ProcessRunner {
     ) -> Result<ProcessOutput, StructuredError>;
 }
 
+/// A bounded bidirectional JSON-lines process session. The platform adapter
+/// owns the child process tree and must interrupt blocked I/O on cancellation.
+/// `read_line` returns one line without LF and enforces its supplied limits.
+pub trait JsonLineSession {
+    fn write_line(
+        &mut self,
+        line: &[u8],
+        cancellation: &dyn Cancellation,
+    ) -> Result<(), StructuredError>;
+
+    fn read_line(
+        &mut self,
+        timeout: Duration,
+        max_bytes: usize,
+        cancellation: &dyn Cancellation,
+    ) -> Result<Vec<u8>, StructuredError>;
+}
+
 /// Platform implementation must stage, flush, and atomically replace a managed file.
 /// B2/A1 prove the exact Windows durability and path restrictions before use.
 pub trait AtomicFile {
