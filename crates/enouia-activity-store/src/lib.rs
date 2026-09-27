@@ -7,6 +7,8 @@ mod lock;
 #[cfg(windows)]
 pub mod reader;
 #[cfg(windows)]
+pub mod recovery;
+#[cfg(windows)]
 pub mod writer;
 
 #[cfg(windows)]

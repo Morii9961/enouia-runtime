@@ -115,9 +115,20 @@ pub fn read_current<C: Clock>(root: &Path, clock: &C) -> Result<LoadedGeneration
         .filter(|id| valid_generation_id(id))
         .ok_or(ReadError::InvalidCurrent)?
         .to_owned();
+    read_named_generation(&root, &id, clock)
+}
+
+pub(crate) fn read_named_generation<C: Clock>(
+    root: &Path,
+    id: &str,
+    clock: &C,
+) -> Result<LoadedGeneration, ReadError> {
+    if !valid_generation_id(id) {
+        return Err(ReadError::InvalidCurrent);
+    }
     let generations = root.join("generations");
     checked_directory(&generations, ReadError::MissingGeneration)?;
-    let generation = generations.join(&id);
+    let generation = generations.join(id);
     checked_directory(&generation, ReadError::MissingGeneration)?;
 
     let manifest = read_file(
@@ -144,10 +155,10 @@ pub fn read_current<C: Clock>(root: &Path, clock: &C) -> Result<LoadedGeneration
         )?,
     };
     let validated = image
-        .validate(&manifest, &id, clock)
+        .validate(&manifest, id, clock)
         .map_err(ReadError::InvalidGeneration)?;
     Ok(LoadedGeneration {
-        id,
+        id: id.to_owned(),
         image,
         validated,
     })

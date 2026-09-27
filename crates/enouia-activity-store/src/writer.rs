@@ -3,6 +3,7 @@
 use crate::ActivityLockGuard;
 use crate::generation::{GenerationError, GenerationImage, ValidatedGeneration};
 use crate::reader::{ReadError, read_current};
+use crate::recovery::{RecoveryError, audit_generations};
 use enouia_activity_contract::{ActivityData, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms};
 use enouia_common::Clock;
 use std::ffi::OsStr;
@@ -25,6 +26,7 @@ pub enum CommitPhase {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum CommitError {
     Current(ReadError),
+    Recovery(RecoveryError),
     PostSwitchValidation(ReadError),
     StaleGeneration,
     InvalidNext(GenerationError),
@@ -153,7 +155,12 @@ pub fn commit_with_hook<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
     mut hook: F,
 ) -> Result<(), CommitError> {
     let root = guard.root();
-    let old = read_current(root, clock).map_err(CommitError::Current)?;
+    let old = audit_generations(root, clock)
+        .map_err(|error| match error {
+            RecoveryError::Current(error) => CommitError::Current(error),
+            error => CommitError::Recovery(error),
+        })?
+        .current;
     if old.id != expected_id || old.id == next_id {
         return Err(CommitError::StaleGeneration);
     }

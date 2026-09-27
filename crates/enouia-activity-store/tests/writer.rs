@@ -4,6 +4,7 @@ use enouia_activity_contract::{normalize_activity, normalize_batch, public_data_
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
 use enouia_activity_store::reader::read_current;
+use enouia_activity_store::recovery::{RecoveryError, audit_generations};
 use enouia_activity_store::writer::{CommitError, CommitPhase, commit, commit_with_hook};
 use enouia_common::{FakeClock, LockProvider};
 use serde_json::{Value, json};
@@ -82,6 +83,22 @@ fn seed(root: &Path) {
     )
     .unwrap();
     fs::write(root.join("CURRENT"), b"g-0-seed\n").unwrap();
+}
+
+fn publish(root: &Path, id: &str, image: &GenerationImage) {
+    let path = root.join("generations").join(id);
+    fs::create_dir(&path).unwrap();
+    fs::write(path.join("activity.json"), &image.activity).unwrap();
+    fs::write(path.join("sequence.json"), &image.sequence).unwrap();
+    if let Some(pending) = &image.pending {
+        fs::write(path.join("pending.json"), pending).unwrap();
+    }
+    fs::write(path.join("delivery.json"), &image.delivery).unwrap();
+    fs::write(
+        path.join("manifest.json"),
+        image.manifest_bytes(id, &clock()).unwrap(),
+    )
+    .unwrap();
 }
 
 #[test]
@@ -231,6 +248,91 @@ fn pending_batch_reserves_one_sequence_and_cannot_be_cleared_or_replaced() {
         CommitError::InvalidTransition
     );
     assert_eq!(read_current(&root, &clock()).unwrap().id, "g-1-pending");
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn rolled_back_pointer_cannot_reuse_a_published_sequence() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let pending = pending_image();
+    commit(&guard, "g-0-seed", "g-1-published", &pending, &clock()).unwrap();
+    fs::write(root.join("CURRENT"), b"g-0-seed\n").unwrap();
+    assert_eq!(
+        audit_generations(&root, &clock()).err().unwrap(),
+        RecoveryError::HigherReservedSequence
+    );
+    assert_eq!(
+        commit(&guard, "g-0-seed", "g-1-reused", &pending, &clock()).unwrap_err(),
+        CommitError::Recovery(RecoveryError::HigherReservedSequence)
+    );
+    assert_eq!(read_current(&root, &clock()).unwrap().id, "g-0-seed");
+    assert!(!root.join("generations/g-1-reused").exists());
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn corrupt_unselected_generation_blocks_new_commit() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    commit(&guard, "g-0-seed", "g-0-current", &blank_image(), &clock()).unwrap();
+    fs::write(root.join("generations/g-0-seed/manifest.json"), b"{}\n").unwrap();
+    assert_eq!(
+        commit(&guard, "g-0-current", "g-0-next", &blank_image(), &clock()).unwrap_err(),
+        CommitError::Recovery(RecoveryError::CorruptGeneration(
+            enouia_activity_store::reader::ReadError::InvalidGeneration(
+                enouia_activity_store::generation::GenerationError::InvalidManifest
+            )
+        ))
+    );
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn same_sequence_conflict_blocks_commit_but_staging_remnant_does_not() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let pending = pending_image();
+    commit(&guard, "g-0-seed", "g-1-current", &pending, &clock()).unwrap();
+    let mut conflicting = blank_image();
+    conflicting.sequence = b"{\"sequence\":1}\n".to_vec();
+    publish(&root, "g-1-conflict", &conflicting);
+    assert_eq!(
+        audit_generations(&root, &clock()).err().unwrap(),
+        RecoveryError::ConflictingGeneration
+    );
+    fs::remove_dir_all(root.join("generations/g-1-conflict")).unwrap();
+    let result = commit_with_hook(
+        &guard,
+        "g-1-current",
+        "g-1-staged",
+        &pending,
+        &clock(),
+        |phase| {
+            if phase == CommitPhase::FileFlushed("activity.json") {
+                Err(())
+            } else {
+                Ok(())
+            }
+        },
+    );
+    assert_eq!(result.unwrap_err(), CommitError::InterruptedBeforeSwitch);
+    let audit = audit_generations(&root, &clock()).unwrap();
+    assert_eq!(audit.current.id, "g-1-current");
+    assert_eq!(audit.older_generations, 1);
+    assert_eq!(audit.staging_directories, 1);
     drop(guard);
     clean(&root);
 }
