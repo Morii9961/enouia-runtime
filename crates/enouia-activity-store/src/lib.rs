@@ -6,6 +6,8 @@ pub mod generation;
 mod lock;
 #[cfg(windows)]
 pub mod reader;
+#[cfg(windows)]
+pub mod writer;
 
 #[cfg(windows)]
-pub use lock::WindowsActivityLock;
+pub use lock::{ActivityLockGuard, WindowsActivityLock};

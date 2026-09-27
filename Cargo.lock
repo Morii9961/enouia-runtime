@@ -28,6 +28,7 @@ dependencies = [
  "enouia-common",
  "serde",
  "serde_json",
+ "windows-sys",
 ]
 
 [[package]]

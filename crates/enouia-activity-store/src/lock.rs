@@ -11,6 +11,13 @@ const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x0020_0000;
 /// terminating its process releases the OS lock; the file may remain on disk.
 pub struct ActivityLockGuard {
     _handle: File,
+    root: std::path::PathBuf,
+}
+
+impl ActivityLockGuard {
+    pub fn root(&self) -> &Path {
+        &self.root
+    }
 }
 
 #[derive(Default)]
@@ -73,6 +80,9 @@ impl LockProvider for WindowsActivityLock {
         {
             return Err(error(ErrorCode::StorageFailed));
         }
-        Ok(ActivityLockGuard { _handle: handle })
+        Ok(ActivityLockGuard {
+            _handle: handle,
+            root: parent,
+        })
     }
 }
