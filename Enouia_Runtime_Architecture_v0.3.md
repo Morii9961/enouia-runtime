@@ -311,6 +311,8 @@ These are safety decisions derived from the handoff, not reasons to silently alt
 3. Legacy collector uses `min(2026-01-01, githubLookbackStart)` for all sources; Runtime uses the stated AI floor for new AI days, keeps all imported older known days, and keeps full GitHub lookback.
 4. Legacy Cowork directory reads can swallow access errors; Runtime distinguishes absent roots from unreadable/incomplete stores.
 5. Runtime deduplicates store paths and uses generation transactions/flushes instead of treating independent file renames as a multi-file transaction.
+6. Legacy Claude merge preserves a previously higher daily value after a lower report; Runtime applies a lower value only after the complete report and all participating stores pass validation. This can lower a historical total without removing its date.
+7. Legacy Claude import checks each daily row but ignores the report-level `totals.totalTokens`; Runtime requires the report total to equal the sum of its daily rows, so a mismatch fails the whole source.
 
 Record these cases in the comparison report. All ordinary valid baseline reports must match old daily values exactly. If a required stricter check cannot be met by the installed tools, leave that source degraded and resolve the evidence; do not silently weaken the contract.
 

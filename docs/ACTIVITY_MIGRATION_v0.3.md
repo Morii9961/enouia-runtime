@@ -47,7 +47,7 @@ Feed both implementations the same prior archive, fixed clock, source responses,
 
 For each source emit a diff of missing dates, added dates, revised values, retained values, units/zones, updatedAt, attemptedAt, result, and derived succeededAt. Check immutable public file SHA-256 and manifest source times; pretty-print ordering is not a semantic diff, but published bytes must match their own hash and expected normalized data.
 
-Expected deliberate differences are only those in Architecture section 9: strict Codex lifetime requirement, clock-regression preservation, AI new-day admission floor, strict Cowork discovery errors/path deduplication, and stronger local transactions. Document each fixture as intentional. A stricter transport confirmation state is also expected: Runtime waits for observed publication or reconciliation rather than treating SSH exit 0 as sufficient. Any other divergence requires investigation before cutover.
+Expected deliberate differences are only those in Architecture section 9: strict Codex lifetime requirement, clock-regression preservation, AI new-day admission floor, strict Cowork discovery errors/path deduplication, stronger local transactions, validated Claude downward corrections, and report-level Claude total reconciliation. Document each fixture as intentional. A stricter transport confirmation state is also expected: Runtime waits for observed publication or reconciliation rather than treating SSH exit 0 as sufficient. Any other divergence requires investigation before cutover.
 
 ## 5. Acceptance matrix
 
@@ -55,12 +55,12 @@ Expected deliberate differences are only those in Architecture section 9: strict
 |---|---|---|
 | C01 | Three successful normal reports | Exact old/new daily values, source literals, normalized ActivityData; all attempt/success times match |
 | C02 | GitHub rolling lookback and shortened AI history | Every known historical date remains; reported corrections replace; no extra summation |
-| C03 | Existing value corrected downward/upward | Equal per-date corrections in both valid paths; lower total is not misclassified as lost history |
+| C03 | Existing value corrected downward/upward | GitHub/Codex and upward Claude corrections agree; a validated downward Claude correction retains the higher old value in legacy but replaces it in Runtime, with unchanged date set and an explicit negative delta |
 | C04 | Each source fails separately; then all fail | Failed snapshot/time retained; others advance; null stays null if no prior success; failure outcomes remain visible |
 | C05 | Valid unchanged/zero-valued reports vs malformed empty report | Zero growth remains successful/fresh; empty/malformed input fails without fabricated zero history |
 | C06 | Duplicate/impossible/leap dates, negative/unsafe totals, wrong units/zones | Rejection/normalization consistent with contract; checked sums never overflow |
 | C07 | Codex unsupported method, malformed response, missing/mismatched lifetime | Retain prior source; strict lifetime difference recorded; no fallback to percentages/log totals |
-| C08 | Claude cache/reasoning, multiple Cowork stores, duplicate paths, unreadable store | Include cache once, reasoning once; no double counting; incomplete source retains old aggregate |
+| C08 | Claude cache/reasoning, multiple Cowork stores, duplicate paths, unreadable store, inconsistent report total | Include cache once, reasoning once; no double counting; incomplete or total-mismatched source retains old aggregate; record the stricter report-total check |
 | C09 | Old previous dates beyond rolled-back local end; timestamp rollback | Block rather than delete dates/restamp history; clock repair resumes safely |
 | C10 | Private sentinels at every nesting level, raw error text | No sentinel/path/title/model/cost/session/credential in wire or exported diagnostic DTO |
 | C11 | Two concurrent manual/scheduled processes, stale legacy lock | One writer; no collection/sequence race; legacy stale-lock handling requires quiescence |
