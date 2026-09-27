@@ -134,7 +134,7 @@ fn parse_store(report: &Value) -> Result<BTreeMap<String, u64>, ErrorCode> {
     let mut days = BTreeMap::new();
     for row in rows {
         let date = row
-            .get("period")
+            .get("date")
             .and_then(Value::as_str)
             .ok_or(ErrorCode::SourceInvalid)?;
         let inputs = [

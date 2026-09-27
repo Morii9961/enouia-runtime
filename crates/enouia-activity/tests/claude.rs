@@ -50,10 +50,10 @@ fn invalid_or_incomplete_store_fails_the_whole_aggregate() {
 }
 
 #[test]
-fn invalid_dates_duplicates_and_legacy_date_key_are_rejected() {
+fn invalid_dates_duplicates_and_unified_period_key_are_rejected() {
     for invalid in ["2026-02-30", "2026-09-25"] {
         let mut reports = fixture_reports();
-        reports[0]["daily"][1]["period"] = json!(invalid);
+        reports[0]["daily"][1]["date"] = json!(invalid);
         assert_eq!(
             parse_reports(&reports, ATTEMPT).unwrap_err(),
             ErrorCode::SourceInvalid
@@ -61,8 +61,8 @@ fn invalid_dates_duplicates_and_legacy_date_key_are_rejected() {
     }
     let mut reports = fixture_reports();
     let row = reports[0]["daily"][0].as_object_mut().unwrap();
-    row.insert("date".to_owned(), json!("2026-09-25"));
-    row.remove("period");
+    row.insert("period".to_owned(), json!("2026-09-25"));
+    row.remove("date");
     assert_eq!(
         parse_reports(&reports, ATTEMPT).unwrap_err(),
         ErrorCode::SourceInvalid
@@ -80,7 +80,7 @@ fn unsafe_or_negative_arithmetic_fails_without_partial_data() {
         );
     }
     let store = json!({
-        "daily":[{"period":"2026-09-25","inputTokens":9_007_199_254_740_991_u64,"cacheReadTokens":0,"cacheCreationTokens":0,"outputTokens":0,"totalTokens":9_007_199_254_740_991_u64}],
+        "daily":[{"date":"2026-09-25","inputTokens":9_007_199_254_740_991_u64,"cacheReadTokens":0,"cacheCreationTokens":0,"outputTokens":0,"totalTokens":9_007_199_254_740_991_u64}],
         "totals":{"totalTokens":9_007_199_254_740_991_u64}
     });
     assert_eq!(
