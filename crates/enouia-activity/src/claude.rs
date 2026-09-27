@@ -3,9 +3,116 @@
 use enouia_activity_contract::{
     MAX_SAFE_INTEGER, Snapshot, checked_safe_sum, exact_activity_timestamp_ms, normalize_activity,
 };
-use enouia_common::ErrorCode;
+use enouia_common::{Cancellation, ErrorCode, ProcessRequest, ProcessRunner};
 use serde_json::{Value, json};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
+use std::ffi::OsString;
+use std::path::{Path, PathBuf};
+use std::time::Duration;
+
+use crate::{SourceAttempt, SourceId};
+
+const STORE_TIMEOUT: Duration = Duration::from_secs(120);
+const MAX_OUTPUT_BYTES: usize = 4 * 1024 * 1024;
+
+/// Store paths are already discovered inventory entries. Include the normal
+/// Claude store and every distinct local Cowork store; discovery owns reparse
+/// resolution and transcript checks before constructing this configuration.
+pub struct ClaudeConfig<'a> {
+    pub node_executable: &'a Path,
+    pub ccusage_cli: &'a Path,
+    pub stores: &'a [PathBuf],
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum CollectAbort {
+    Cancelled,
+}
+
+/// Run the pinned Claude-only daily command once for each configured store.
+/// Any failed or incomplete store fails this entire source attempt.
+pub fn collect<R: ProcessRunner>(
+    config: &ClaudeConfig<'_>,
+    attempted_at: &str,
+    runner: &R,
+    cancellation: &dyn Cancellation,
+) -> Result<SourceAttempt, CollectAbort> {
+    let failed = |error_code| SourceAttempt::Failed {
+        source: SourceId::Claude,
+        attempted_at: attempted_at.to_owned(),
+        error_code,
+    };
+    if cancellation.is_cancelled() {
+        return Err(CollectAbort::Cancelled);
+    }
+    if !config.node_executable.is_absolute()
+        || !config.ccusage_cli.is_absolute()
+        || config.stores.is_empty()
+        || config.stores.iter().any(|path| !path.is_absolute())
+    {
+        return Ok(failed(ErrorCode::Unconfigured));
+    }
+    if exact_activity_timestamp_ms(attempted_at).is_none() {
+        return Ok(failed(ErrorCode::SourceInvalid));
+    }
+    let mut unique = HashSet::new();
+    if config.stores.iter().any(|path| !unique.insert(path)) {
+        return Ok(failed(ErrorCode::Unconfigured));
+    }
+    let mut reports = Vec::with_capacity(config.stores.len());
+    for store in config.stores {
+        if cancellation.is_cancelled() {
+            return Err(CollectAbort::Cancelled);
+        }
+        let request = ProcessRequest {
+            executable: config.node_executable.to_path_buf(),
+            arguments: [
+                config.ccusage_cli.as_os_str().to_os_string(),
+                OsString::from("claude"),
+                OsString::from("daily"),
+                OsString::from("--json"),
+                OsString::from("--offline"),
+                OsString::from("--timezone"),
+                OsString::from("Asia/Shanghai"),
+            ]
+            .into(),
+            environment: vec![(
+                OsString::from("CLAUDE_CONFIG_DIR"),
+                store.as_os_str().to_os_string(),
+            )],
+            stdin: None,
+            timeout: STORE_TIMEOUT,
+            max_output_bytes: MAX_OUTPUT_BYTES,
+        };
+        let output = match runner.run(&request, cancellation) {
+            Ok(output) => output,
+            Err(_) if cancellation.is_cancelled() => return Err(CollectAbort::Cancelled),
+            Err(error) => return Ok(failed(error.code)),
+        };
+        if cancellation.is_cancelled() {
+            return Err(CollectAbort::Cancelled);
+        }
+        if output.exit_code != Some(0)
+            || output.stdout.len() > MAX_OUTPUT_BYTES
+            || output.stderr.len() > MAX_OUTPUT_BYTES - output.stdout.len()
+        {
+            return Ok(failed(ErrorCode::SourceInvalid));
+        }
+        let report = match serde_json::from_slice::<Value>(&output.stdout) {
+            Ok(report) => report,
+            Err(_) => return Ok(failed(ErrorCode::SourceInvalid)),
+        };
+        reports.push(report);
+    }
+    Ok(match parse_reports(&reports, attempted_at) {
+        Ok(snapshot) => SourceAttempt::Success {
+            source: SourceId::Claude,
+            attempted_at: attempted_at.to_owned(),
+            snapshot,
+        },
+        Err(error) => failed(error),
+    })
+}
 
 fn tokens(row: &Value, field: &str) -> Result<u64, ErrorCode> {
     row.get(field)
