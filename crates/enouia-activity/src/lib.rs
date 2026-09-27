@@ -1,4 +1,6 @@
-//! Pure Activity merge. Collector adapters, storage, and delivery live elsewhere.
+//! Activity collection and merge. Storage and delivery live elsewhere.
+
+pub mod github;
 
 use enouia_activity_contract::{
     ActivityData, ActivitySources, BatchSources, ContractError, Day, ResultKind, Snapshot,

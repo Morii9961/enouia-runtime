@@ -1,0 +1,17 @@
+{
+  "data": {
+    "user": {
+      "contributionsCollection": {
+        "contributionCalendar": {
+          "weeks": [
+            {"contributionDays": [
+              {"date": "2026-09-25", "contributionCount": 2, "privateTitle": "DO_NOT_EXPORT"},
+              {"date": "2026-09-26", "contributionCount": 0}
+            ]}
+          ]
+        }
+      }
+    }
+  },
+  "privatePayload": "DO_NOT_EXPORT"
+}
