@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/enouia-common", "crates/enouia-activity-contract"]
+members = ["crates/enouia-common", "crates/enouia-activity-contract", "crates/enouia-activity"]
 resolver = "3"
 
 [workspace.package]

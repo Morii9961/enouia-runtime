@@ -11,6 +11,20 @@ use std::collections::HashSet;
 pub use sha256::sha256_hex;
 pub const MAX_SAFE_INTEGER: u64 = 9_007_199_254_740_991;
 
+/// The frozen Shanghai calendar date used for activity acquisition bounds.
+pub fn shanghai_date(unix_ms: i64) -> Option<String> {
+    time::shanghai_date(unix_ms)
+}
+
+/// Compare a source success time with a fixed run clock without rewriting it.
+pub fn activity_timestamp_ms(value: &str) -> Option<i64> {
+    time::parse_timestamp(value)
+}
+
+pub fn exact_activity_timestamp_ms(value: &str) -> Option<i64> {
+    time::exact_utc_millis(value)
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ContractError {
     pub code: &'static str,

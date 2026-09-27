@@ -1,0 +1,10 @@
+[package]
+name = "enouia-activity"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+enouia-common = { path = "../enouia-common" }
+enouia-activity-contract = { path = "../enouia-activity-contract" }
+serde_json.workspace = true

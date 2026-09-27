@@ -1,6 +1,6 @@
 # Enouia Runtime v0.3 — implementation plan
 
-Date: 2026-09-26. Status: planned work; no implementation or production activation performed.
+Date: 2026-09-26. Status: M0.1 and B1.1 pure merge implemented; collector adapters, the remaining tracks, and production activation remain pending. See [B1.1 validation](validation/B1.1.md).
 
 Authority: [Architecture v0.3](../Enouia_Runtime_Architecture_v0.3.md). Procedure: [Activity migration runbook](ACTIVITY_MIGRATION_v0.3.md). Decisions: [ADR register](adr/README.md). Read the original handoff as evidence, but use v0.3 for current ownership and design. Architecture v0.3 is not the future product 0.3 provider milestone.
 
