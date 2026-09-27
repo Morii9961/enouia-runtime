@@ -24,7 +24,10 @@ dependencies = [
 name = "enouia-activity-store"
 version = "0.1.0"
 dependencies = [
+ "enouia-activity-contract",
  "enouia-common",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

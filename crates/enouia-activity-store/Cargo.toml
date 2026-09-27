@@ -6,3 +6,6 @@ rust-version.workspace = true
 
 [dependencies]
 enouia-common = { path = "../enouia-common" }
+enouia-activity-contract = { path = "../enouia-activity-contract" }
+serde.workspace = true
+serde_json.workspace = true
