@@ -3,6 +3,8 @@
 pub mod generation;
 
 #[cfg(windows)]
+pub mod legacy_export;
+#[cfg(windows)]
 mod lock;
 #[cfg(windows)]
 pub mod reader;
