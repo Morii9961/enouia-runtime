@@ -57,7 +57,7 @@ struct FileHashes {
     delivery: String,
 }
 
-fn valid_generation_id(id: &str) -> bool {
+pub(crate) fn valid_generation_id(id: &str) -> bool {
     id.len() > 2
         && id.len() <= 64
         && id.starts_with("g-")

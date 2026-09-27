@@ -1,9 +1,11 @@
 use enouia_common::{ComponentId, ErrorCode, LockProvider, StructuredError};
 use std::fs::{self, File, OpenOptions};
-use std::os::windows::fs::OpenOptionsExt;
+use std::os::windows::fs::{MetadataExt, OpenOptionsExt};
 use std::path::Path;
 
 const SHARING_VIOLATION: i32 = 32;
+const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0000_0400;
+const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x0020_0000;
 
 /// A lock guard owns the exclusive Windows file handle. Dropping the guard or
 /// terminating its process releases the OS lock; the file may remain on disk.
@@ -37,10 +39,10 @@ impl LockProvider for WindowsActivityLock {
             return Err(error(ErrorCode::StorageFailed));
         }
         let canonical_lock = parent.join("sync.lock");
-        // A pre-existing symlink is not a managed lock file. The generation
-        // store will apply its broader reparse-point policy before writes.
+        // A pre-existing reparse point is not a managed lock file. The
+        // generation store applies its broader root policy before writes.
         match fs::symlink_metadata(&canonical_lock) {
-            Ok(metadata) if metadata.file_type().is_symlink() => {
+            Ok(metadata) if metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0 => {
                 return Err(error(ErrorCode::StorageFailed));
             }
             Ok(_) => {}
@@ -53,6 +55,7 @@ impl LockProvider for WindowsActivityLock {
             .create(true)
             .truncate(false)
             .share_mode(0)
+            .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT)
             .open(canonical_lock)
             .map_err(|io_error| {
                 if io_error.raw_os_error() == Some(SHARING_VIOLATION) {
@@ -61,6 +64,15 @@ impl LockProvider for WindowsActivityLock {
                     error(ErrorCode::StorageFailed)
                 }
             })?;
+        if handle
+            .metadata()
+            .map_err(|_| error(ErrorCode::StorageFailed))?
+            .file_attributes()
+            & FILE_ATTRIBUTE_REPARSE_POINT
+            != 0
+        {
+            return Err(error(ErrorCode::StorageFailed));
+        }
         Ok(ActivityLockGuard { _handle: handle })
     }
 }

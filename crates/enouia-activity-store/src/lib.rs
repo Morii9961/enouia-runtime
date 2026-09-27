@@ -4,6 +4,8 @@ pub mod generation;
 
 #[cfg(windows)]
 mod lock;
+#[cfg(windows)]
+pub mod reader;
 
 #[cfg(windows)]
 pub use lock::WindowsActivityLock;

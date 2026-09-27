@@ -1,6 +1,6 @@
 # Enouia Runtime v0.3 — implementation plan
 
-Date: 2026-09-27. Status: M0.1, B1.1 pure merge, B1.2 GitHub/Codex/Claude adapters and Windows process adapters, and same-input legacy comparison implemented. B2.1 has the Windows single-writer lock and pure generation validation; disk transactions are pending. The remaining tracks and production activation remain pending. See [B1 validation](validation/B1-legacy-comparison.md), [B2 lock validation](validation/B2.1-Windows-lock.md), and [generation validation](validation/B2.1-generation-validation.md) alongside the source-specific B1.2 reports.
+Date: 2026-09-27. Status: M0.1, B1.1 pure merge, B1.2 GitHub/Codex/Claude adapters and Windows process adapters, and same-input legacy comparison implemented. B2.1 has the Windows single-writer lock, pure generation validation, and pinned disk reader; disk transactions are pending. The remaining tracks and production activation remain pending. See [B1 validation](validation/B1-legacy-comparison.md), [B2 lock validation](validation/B2.1-Windows-lock.md), [generation validation](validation/B2.1-generation-validation.md), and [reader validation](validation/B2.1-Windows-reader.md) alongside the source-specific B1.2 reports.
 
 Authority: [Architecture v0.3](../Enouia_Runtime_Architecture_v0.3.md). Procedure: [Activity migration runbook](ACTIVITY_MIGRATION_v0.3.md). Decisions: [ADR register](adr/README.md). Read the original handoff as evidence, but use v0.3 for current ownership and design. Architecture v0.3 is not the future product 0.3 provider milestone.
 
