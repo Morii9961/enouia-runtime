@@ -1,7 +1,7 @@
+use crate::job::{KillOnCloseJob, error as job_error};
 use enouia_common::{Cancellation, ComponentId, ErrorCode, JsonLineSession, StructuredError};
 use std::ffi::OsString;
 use std::io::{Read, Write};
-use std::os::windows::io::AsRawHandle;
 use std::os::windows::process::CommandExt;
 use std::path::Path;
 use std::process::{Child, Command, Stdio};
@@ -10,66 +10,10 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError, SyncSender, TrySendError};
 use std::thread;
 use std::time::{Duration, Instant};
-use windows_sys::Win32::Foundation::{CloseHandle, HANDLE};
-use windows_sys::Win32::System::JobObjects::{
-    AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
-    JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JobObjectExtendedLimitInformation,
-    SetInformationJobObject,
-};
 use windows_sys::Win32::System::Threading::CREATE_NO_WINDOW;
 
 fn error(code: ErrorCode) -> StructuredError {
-    StructuredError {
-        code,
-        component: ComponentId::ActivityCollectorCodex,
-        retryable: true,
-    }
-}
-
-struct KillOnCloseJob(HANDLE);
-
-impl KillOnCloseJob {
-    fn create() -> Result<Self, StructuredError> {
-        // SAFETY: null attributes/name create a private, non-inheritable job.
-        let handle = unsafe { CreateJobObjectW(std::ptr::null(), std::ptr::null()) };
-        if handle.is_null() {
-            return Err(error(ErrorCode::SourceInvalid));
-        }
-        let job = Self(handle);
-        let mut limits = JOBOBJECT_EXTENDED_LIMIT_INFORMATION::default();
-        limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-        // SAFETY: the pointer and byte count describe the initialized structure.
-        let ok = unsafe {
-            SetInformationJobObject(
-                job.0,
-                JobObjectExtendedLimitInformation,
-                &raw const limits as *const _,
-                std::mem::size_of_val(&limits) as u32,
-            )
-        };
-        if ok == 0 {
-            return Err(error(ErrorCode::SourceInvalid));
-        }
-        Ok(job)
-    }
-
-    fn assign(&self, child: &Child) -> Result<(), StructuredError> {
-        // SAFETY: Child owns the live process handle and this job is still open.
-        let ok = unsafe { AssignProcessToJobObject(self.0, child.as_raw_handle() as HANDLE) };
-        if ok == 0 {
-            Err(error(ErrorCode::SourceInvalid))
-        } else {
-            Ok(())
-        }
-    }
-}
-
-impl Drop for KillOnCloseJob {
-    fn drop(&mut self) {
-        // SAFETY: this wrapper owns the handle exactly once. Closing it kills
-        // all associated processes, including normally inherited children.
-        unsafe { CloseHandle(self.0) };
-    }
+    job_error(code, ComponentId::ActivityCollectorCodex)
 }
 
 /// Owns one local app-server process. `Drop` closes its kill-on-close job.
@@ -93,7 +37,7 @@ impl WindowsJsonLineSession {
         if !executable.is_absolute() || lifetime.is_zero() || max_output_bytes == 0 {
             return Err(error(ErrorCode::Unconfigured));
         }
-        let job = KillOnCloseJob::create()?;
+        let job = KillOnCloseJob::create(ComponentId::ActivityCollectorCodex)?;
         let mut command = Command::new(executable);
         command
             .args(arguments)
@@ -104,7 +48,7 @@ impl WindowsJsonLineSession {
         let mut child = command
             .spawn()
             .map_err(|_| error(ErrorCode::Unconfigured))?;
-        if let Err(failure) = job.assign(&child) {
+        if let Err(failure) = job.assign(&child, ComponentId::ActivityCollectorCodex) {
             let _ = child.kill();
             let _ = child.wait();
             return Err(failure);
