@@ -5,6 +5,7 @@ use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
 use enouia_activity_store::reader::read_current;
 use enouia_activity_store::recovery::{RecoveryError, audit_generations};
+use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
 use enouia_activity_store::writer::{CommitError, CommitPhase, commit, commit_with_hook};
 use enouia_common::{FakeClock, LockProvider};
 use serde_json::{Value, json};
@@ -333,6 +334,66 @@ fn same_sequence_conflict_blocks_commit_but_staging_remnant_does_not() {
     assert_eq!(audit.current.id, "g-1-current");
     assert_eq!(audit.older_generations, 1);
     assert_eq!(audit.staging_directories, 1);
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn run_start_retries_exact_pending_even_when_reserved_high_water_is_higher() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let mut image = pending_image();
+    image.sequence = b"{\"sequence\":5}\n".to_vec();
+    let exact_bytes = image.pending.clone().unwrap();
+    publish(&root, "g-5-imported", &image);
+    fs::write(root.join("CURRENT"), b"g-5-imported\n").unwrap();
+    assert_eq!(
+        decide_run_start(&guard, &clock()).unwrap(),
+        RunDecision::RetryPending {
+            generation_id: "g-5-imported".to_owned(),
+            sequence: 1,
+            exact_bytes,
+        }
+    );
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn run_start_allocates_only_after_recovery_and_stops_at_sequence_limit() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    assert!(matches!(
+        decide_run_start(&guard, &clock()).unwrap(),
+        RunDecision::Collect {
+            generation_id,
+            next_sequence: 1,
+            ..
+        } if generation_id == "g-0-seed"
+    ));
+    let mut image = blank_image();
+    image.sequence = format!(
+        "{{\"sequence\":{}}}\n",
+        enouia_activity_contract::MAX_SAFE_INTEGER
+    )
+    .into_bytes();
+    publish(&root, "g-max", &image);
+    fs::write(root.join("CURRENT"), b"g-max\n").unwrap();
+    assert_eq!(
+        decide_run_start(&guard, &clock()).unwrap_err(),
+        RunStartError::SequenceExhausted
+    );
+    fs::write(root.join("CURRENT"), b"g-0-seed\n").unwrap();
+    assert_eq!(
+        decide_run_start(&guard, &clock()).unwrap_err(),
+        RunStartError::Recovery(RecoveryError::HigherReservedSequence)
+    );
     drop(guard);
     clean(&root);
 }
