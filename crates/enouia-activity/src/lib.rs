@@ -1,5 +1,6 @@
 //! Activity collection and merge. Storage and delivery live elsewhere.
 
+pub mod claude;
 pub mod codex;
 pub mod github;
 

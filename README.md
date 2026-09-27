@@ -1,6 +1,6 @@
 # Enouia Runtime
 
-The current baseline is **architecture v0.3**. M0 provides an offline Rust workspace, Activity v1 contracts, and [shared IPC/Track A boundary agreements](docs/CONTRACT_BOUNDARIES_M0.md). The B1.1 pure merge, B1.2 GitHub adapter, Codex usage-result normalizer, Codex app-server session protocol, and Windows process adapters are implemented. No headless Activity executable, scheduled task, upload, UI, storage, or production cutover is present.
+The current baseline is **architecture v0.3**. M0 provides an offline Rust workspace, Activity v1 contracts, and [shared IPC/Track A boundary agreements](docs/CONTRACT_BOUNDARIES_M0.md). The B1.1 pure merge, B1.2 GitHub adapter, Codex usage-result normalizer, Codex app-server session protocol, Claude daily-report normalizer, and Windows process adapters are implemented. No headless Activity executable, scheduled task, upload, UI, storage, or production cutover is present.
 
 Read in this order:
 
@@ -22,7 +22,7 @@ enouia-common                  Clock + FakeClock, process/file/lock ports, healt
         ↑
 enouia-activity-contract       ActivityData v1 + batch v1 normalization and serialization
         ↑
-enouia-activity                B1.1 merge + B1.2 GitHub and Codex protocol adapters
+enouia-activity                B1.1 merge + B1.2 GitHub, Codex, and Claude adapters/normalizers
 enouia-windows-process         Windows job-owned JSON-lines session and bounded process runner
 ```
 
@@ -45,7 +45,7 @@ The public file serializer emits compact UTF-8 JSON plus one LF in the v1 field 
 
 [M0.1 validation report](docs/validation/M0.1.md) records the Moriium source hashes, fixture provenance, executed checks, and known limits. [M0 validation](docs/validation/M0.md), [IPC schemas](contracts/ipc/activity-v1.schema.json), and the [boundary agreement](docs/CONTRACT_BOUNDARIES_M0.md) establish the local UI handoff. A1 starts with full Memory/Session schemas and provenance; B1 starts with pure merge and collector adapters against synthetic attempts. These remain separate later milestones.
 
-[B1.1 validation](docs/validation/B1.1.md) covers the pure merge over the committed attempt fixture: date-keyed replacement, history retention, zero values, per-source failure, acquisition bounds, safe totals, and clock regression. The [GitHub adapter validation](docs/validation/B1.2-GitHub.md) covers a bounded authenticated-CLI request, strict calendar normalization, and a separate local CLI capability check. [Codex normalization validation](docs/validation/B1.2-Codex-normalization.md) covers complete daily-bucket and lifetime reconciliation; [Codex session validation](docs/validation/B1.2-Codex-session.md) covers the app-server handshake over a bounded JSON-lines port; [Windows session validation](docs/validation/B1.2-Windows-session.md) and [Windows runner validation](docs/validation/B1.2-Windows-runner.md) cover real synthetic child processes and job-owned lifetimes. Claude adapters, a live authenticated Codex capability check, and same-input legacy comparisons remain B1 work. `enouia-activity` depends only on the contract, common ports, and serde_json; it does not implement a subprocess runner, filesystem store, network client, Memory, or Context dependency.
+[B1.1 validation](docs/validation/B1.1.md) covers the pure merge over the committed attempt fixture: date-keyed replacement, history retention, zero values, per-source failure, acquisition bounds, safe totals, and clock regression. The [GitHub adapter validation](docs/validation/B1.2-GitHub.md) covers a bounded authenticated-CLI request, strict calendar normalization, and a separate local CLI capability check. [Codex normalization validation](docs/validation/B1.2-Codex-normalization.md) covers complete daily-bucket and lifetime reconciliation; [Codex session validation](docs/validation/B1.2-Codex-session.md) covers the app-server handshake over a bounded JSON-lines port; [Claude normalization validation](docs/validation/B1.2-Claude-normalization.md) covers daily token arithmetic and multi-store aggregation; [Windows session validation](docs/validation/B1.2-Windows-session.md) and [Windows runner validation](docs/validation/B1.2-Windows-runner.md) cover real synthetic child processes and job-owned lifetimes. Claude tool invocation and Cowork discovery, a live authenticated Codex capability check, and same-input legacy comparisons remain B1 work. `enouia-activity` depends only on the contract, common ports, and serde_json; it does not implement a subprocess runner, filesystem store, network client, Memory, or Context dependency.
 
 Future usage scope: [Claude Design integration note](docs/CLAUDE_DESIGN_USAGE.md) and [ADR-019](docs/adr/019-claude-design-usage.md) record the requested addition of official `claude_design` product tokens to the **existing** Claude calendar. Account access, component overlap, Shanghai-day aggregation, old-history reconciliation, and coordinated Moriium wording must be verified before activation. Current ActivityData v1 bytes and three-source meaning are unchanged.
 

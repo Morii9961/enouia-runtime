@@ -1,0 +1,18 @@
+[
+  {
+    "daily": [
+      {"period":"2026-09-25","inputTokens":3,"cacheReadTokens":5,"cacheCreationTokens":7,"outputTokens":11,"reasoningOutputTokens":2,"totalTokens":26,"private":"DO_NOT_EXPORT_A"},
+      {"period":"2026-09-26","inputTokens":0,"cacheReadTokens":0,"cacheCreationTokens":0,"outputTokens":0,"totalTokens":0}
+    ],
+    "totals": {"totalTokens":26},
+    "private":"DO_NOT_EXPORT_STORE_A"
+  },
+  {
+    "daily": [
+      {"period":"2026-09-25","inputTokens":2,"cacheReadTokens":3,"cacheCreationTokens":4,"outputTokens":5,"totalTokens":14},
+      {"period":"2026-09-26","inputTokens":1,"cacheReadTokens":0,"cacheCreationTokens":0,"outputTokens":0,"totalTokens":1}
+    ],
+    "totals": {"totalTokens":15},
+    "private":"DO_NOT_EXPORT_STORE_B"
+  }
+]
