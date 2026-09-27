@@ -1,0 +1,11 @@
+{
+  "summary": {
+    "lifetimeTokens": 10,
+    "privateQuota": "DO_NOT_EXPORT"
+  },
+  "dailyUsageBuckets": [
+    {"startDate": "2026-09-26", "tokens": 0, "privateModel": "DO_NOT_EXPORT"},
+    {"startDate": "2026-09-25", "tokens": 10}
+  ],
+  "privateSessions": "DO_NOT_EXPORT"
+}

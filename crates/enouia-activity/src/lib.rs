@@ -1,5 +1,6 @@
 //! Activity collection and merge. Storage and delivery live elsewhere.
 
+pub mod codex;
 pub mod github;
 
 use enouia_activity_contract::{
