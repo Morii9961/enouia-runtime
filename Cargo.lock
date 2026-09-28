@@ -27,6 +27,7 @@ dependencies = [
  "enouia-activity-contract",
  "enouia-activity-store",
  "enouia-common",
+ "enouia-windows-process",
  "serde_json",
 ]
 

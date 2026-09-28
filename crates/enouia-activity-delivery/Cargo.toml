@@ -9,3 +9,6 @@ enouia-common = { path = "../enouia-common" }
 enouia-activity-contract = { path = "../enouia-activity-contract" }
 enouia-activity-store = { path = "../enouia-activity-store" }
 serde_json.workspace = true
+
+[dev-dependencies]
+enouia-windows-process = { path = "../enouia-windows-process" }
