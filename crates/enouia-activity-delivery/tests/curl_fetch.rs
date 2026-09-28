@@ -2,13 +2,15 @@
 
 use enouia_activity_delivery::curl_fetch::CurlPublicFetcher;
 use enouia_activity_delivery::public_fetch::{FetchError, PublicFetcher};
-use enouia_common::{Cancellation, ComponentId};
+use enouia_common::{
+    Cancellation, ComponentId, ProcessOutput, ProcessRequest, ProcessRunner, StructuredError,
+};
 use enouia_windows_process::WindowsProcessRunner;
 use std::io::{Read, Write};
 use std::net::TcpListener;
 use std::path::PathBuf;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 struct NeverCancelled;
 
@@ -85,4 +87,71 @@ fn real_local_http_enforces_body_limit() {
     let result = fetcher.fetch(&url, 4, Duration::from_secs(5), &NeverCancelled);
     server.join().unwrap();
     assert!(matches!(result, Err(FetchError::TooLarge)));
+}
+
+struct SuccessfulRunner;
+
+impl ProcessRunner for SuccessfulRunner {
+    fn run(
+        &self,
+        request: &ProcessRequest,
+        _: &dyn Cancellation,
+    ) -> Result<ProcessOutput, StructuredError> {
+        assert_eq!(
+            request.arguments.last().unwrap(),
+            "http://localhost/status-data/current.json"
+        );
+        Ok(ProcessOutput {
+            exit_code: Some(0),
+            stdout: b"ok".to_vec(),
+            stderr: b"__ENOUIA_HTTP_STATUS__:200\r\n".to_vec(),
+        })
+    }
+}
+
+#[test]
+fn accepts_valid_loopback_origin_without_explicit_port() {
+    let executable = installed_curl();
+    let runner = SuccessfulRunner;
+    let fetcher = CurlPublicFetcher {
+        executable: &executable,
+        runner: &runner,
+    };
+    let response = fetcher
+        .fetch(
+            "http://localhost/status-data/current.json",
+            2,
+            Duration::from_secs(1),
+            &NeverCancelled,
+        )
+        .unwrap();
+    assert_eq!(response.status, 200);
+    assert_eq!(response.body, b"ok");
+}
+
+#[test]
+fn real_local_http_obeys_subsecond_deadline() {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}/slow", listener.local_addr().unwrap());
+    let server = thread::spawn(move || {
+        let (mut stream, _) = listener.accept().unwrap();
+        let mut request = [0; 1024];
+        assert!(stream.read(&mut request).unwrap() > 0);
+        thread::sleep(Duration::from_millis(500));
+    });
+    let executable = installed_curl();
+    let runner = WindowsProcessRunner::new(ComponentId::ActivityCollectorGithub);
+    let fetcher = CurlPublicFetcher {
+        executable: &executable,
+        runner: &runner,
+    };
+    let started = Instant::now();
+    let result = fetcher.fetch(&url, 16, Duration::from_millis(100), &NeverCancelled);
+    let elapsed = started.elapsed();
+    server.join().unwrap();
+    assert!(matches!(
+        result,
+        Err(FetchError::Timeout | FetchError::Unavailable)
+    ));
+    assert!(elapsed < Duration::from_millis(400), "elapsed {elapsed:?}");
 }

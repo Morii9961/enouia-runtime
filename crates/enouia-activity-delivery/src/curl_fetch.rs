@@ -25,7 +25,9 @@ impl<R: ProcessRunner> PublicFetcher for CurlPublicFetcher<'_, R> {
         if !self.executable.is_absolute()
             || !(url.starts_with("https://")
                 || url.starts_with("http://localhost:")
-                || url.starts_with("http://127.0.0.1:"))
+                || url.starts_with("http://localhost/")
+                || url.starts_with("http://127.0.0.1:")
+                || url.starts_with("http://127.0.0.1/"))
             || url.bytes().any(|byte| byte.is_ascii_control())
             || max_bytes == 0
             || max_bytes > 4 * 1024 * 1024
@@ -33,7 +35,7 @@ impl<R: ProcessRunner> PublicFetcher for CurlPublicFetcher<'_, R> {
         {
             return Err(FetchError::Unavailable);
         }
-        let seconds = timeout.as_secs().max(1).to_string();
+        let seconds = format!("{:.3}", timeout.as_secs_f64().max(0.001));
         let request = ProcessRequest {
             executable: self.executable.to_path_buf(),
             arguments: [
@@ -66,7 +68,7 @@ impl<R: ProcessRunner> PublicFetcher for CurlPublicFetcher<'_, R> {
             .collect(),
             environment: Vec::new(),
             stdin: None,
-            timeout: timeout + Duration::from_secs(1),
+            timeout,
             max_output_bytes: max_bytes + METADATA_ALLOWANCE,
         };
         let output = self
