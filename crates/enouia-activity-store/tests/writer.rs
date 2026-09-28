@@ -3,6 +3,7 @@
 use enouia_activity_contract::{normalize_activity, normalize_batch, public_data_bytes};
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
+use enouia_activity_store::pause::{PauseOutcome, set_paused_locked};
 use enouia_activity_store::reader::read_current;
 use enouia_activity_store::recovery::{RecoveryError, audit_generations};
 use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
@@ -123,6 +124,83 @@ fn delivery_only_commit_switches_pointer_after_new_generation_is_complete() {
         commit(&guard, "g-0-seed", "g-0-other", &next, &clock()).unwrap_err(),
         CommitError::StaleGeneration
     );
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn paused_flag_persists_without_consuming_sequence() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    assert_eq!(
+        set_paused_locked(&guard, &clock(), "g-0-paused", true).unwrap(),
+        PauseOutcome::Changed {
+            generation_id: "g-0-paused".to_owned(),
+            paused: true,
+        }
+    );
+    assert!(matches!(
+        decide_run_start(&guard, &clock()).unwrap(),
+        RunDecision::Paused {
+            pending_sequence: None,
+            ..
+        }
+    ));
+    assert_eq!(
+        set_paused_locked(&guard, &clock(), "g-0-unused", true).unwrap(),
+        PauseOutcome::Unchanged {
+            generation_id: "g-0-paused".to_owned(),
+        }
+    );
+    assert!(!root.join("generations/g-0-unused").exists());
+    assert_eq!(
+        set_paused_locked(&guard, &clock(), "g-0-resumed", false).unwrap(),
+        PauseOutcome::Changed {
+            generation_id: "g-0-resumed".to_owned(),
+            paused: false,
+        }
+    );
+    assert!(matches!(
+        decide_run_start(&guard, &clock()).unwrap(),
+        RunDecision::Collect {
+            next_sequence: 1,
+            ..
+        }
+    ));
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn pause_blocks_pending_retry_and_preserves_its_exact_bytes() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let pending = pending_image();
+    let exact = pending.pending.clone().unwrap();
+    commit(&guard, "g-0-seed", "g-1-pending", &pending, &clock()).unwrap();
+    set_paused_locked(&guard, &clock(), "g-1-paused", true).unwrap();
+    assert!(matches!(
+        decide_run_start(&guard, &clock()).unwrap(),
+        RunDecision::Paused {
+            pending_sequence: Some(1),
+            ..
+        }
+    ));
+    assert_eq!(
+        read_current(&root, &clock()).unwrap().image.pending,
+        Some(exact.clone())
+    );
+    set_paused_locked(&guard, &clock(), "g-1-resumed", false).unwrap();
+    assert!(matches!(
+        decide_run_start(&guard, &clock()).unwrap(),
+        RunDecision::RetryPending { sequence: 1, exact_bytes, .. } if exact_bytes == exact
+    ));
     drop(guard);
     clean(&root);
 }

@@ -95,6 +95,15 @@ fn valid_publication_receipt(value: &Value, high_water: u64) -> bool {
         && receipt.received_at_ms <= receipt.generated_at_ms.saturating_add(300_000)
 }
 
+pub(crate) fn paused_from_delivery(bytes: &[u8]) -> Option<bool> {
+    let value: Value = serde_json::from_slice(bytes).ok()?;
+    let object = value.as_object()?;
+    match object.get("paused") {
+        None => Some(false),
+        Some(value) => value.as_bool(),
+    }
+}
+
 pub(crate) fn valid_generation_id(id: &str) -> bool {
     id.len() > 2
         && id.len() <= 64
@@ -187,6 +196,7 @@ impl GenerationImage {
 
         if !serde_json::from_slice::<Value>(&self.delivery).is_ok_and(|value| {
             value.is_object()
+                && paused_from_delivery(&self.delivery).is_some()
                 && value
                     .get("publicationObserved")
                     .is_none_or(|receipt| valid_publication_receipt(receipt, sequence))

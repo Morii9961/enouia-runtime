@@ -172,7 +172,7 @@ fn after<F: FnMut(CommitPhase) -> Result<(), ()>>(
 }
 
 /// Normal commit under the root's live OS lock. Existing pending bytes cannot
-/// be cleared until the delivery-state acknowledgment protocol is implemented.
+/// be cleared through this entry point; public observation has a separate gate.
 pub fn commit<C: Clock>(
     guard: &ActivityLockGuard,
     expected_id: &str,

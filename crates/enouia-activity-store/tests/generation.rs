@@ -140,6 +140,13 @@ fn hashes_alone_do_not_validate_sequence_archive_or_pending() {
         image.manifest_bytes("g-42-abc", &clock()).unwrap_err(),
         GenerationError::InvalidDelivery
     );
+
+    let mut image = fixture_image();
+    image.delivery = b"{\"paused\":\"true\"}\n".to_vec();
+    assert_eq!(
+        image.manifest_bytes("g-42-abc", &clock()).unwrap_err(),
+        GenerationError::InvalidDelivery
+    );
 }
 
 #[test]

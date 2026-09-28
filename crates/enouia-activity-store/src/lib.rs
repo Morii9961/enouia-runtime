@@ -9,6 +9,8 @@ pub mod legacy_inspect;
 #[cfg(windows)]
 mod lock;
 #[cfg(windows)]
+pub mod pause;
+#[cfg(windows)]
 pub mod reader;
 #[cfg(windows)]
 pub mod recovery;

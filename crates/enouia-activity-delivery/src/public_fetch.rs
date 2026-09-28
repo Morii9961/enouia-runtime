@@ -49,6 +49,7 @@ pub struct OriginBoundObservation {
 pub enum PublicObservationError {
     Store(RunStartError),
     NoPending,
+    Paused,
     InvalidOrigin,
     InvalidPending,
     Cancelled,
@@ -126,14 +127,16 @@ pub fn observe_pending_locked<F: PublicFetcher, C: Clock>(
     fetcher: &F,
     cancellation: &dyn Cancellation,
 ) -> Result<OriginBoundObservation, PublicObservationError> {
-    let RunDecision::RetryPending {
-        sequence,
-        exact_bytes,
-        ..
-    } = decide_run_start(guard, clock).map_err(PublicObservationError::Store)?
-    else {
-        return Err(PublicObservationError::NoPending);
-    };
+    let (sequence, exact_bytes) =
+        match decide_run_start(guard, clock).map_err(PublicObservationError::Store)? {
+            RunDecision::RetryPending {
+                sequence,
+                exact_bytes,
+                ..
+            } => (sequence, exact_bytes),
+            RunDecision::Paused { .. } => return Err(PublicObservationError::Paused),
+            RunDecision::Collect { .. } => return Err(PublicObservationError::NoPending),
+        };
     if !valid_origin(origin) {
         return Err(PublicObservationError::InvalidOrigin);
     }

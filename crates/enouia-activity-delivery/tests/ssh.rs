@@ -6,6 +6,7 @@ use enouia_activity_delivery::ssh::{
 };
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
+use enouia_activity_store::pause::set_paused_locked;
 use enouia_common::{
     Cancellation, ComponentId, ErrorCode, FakeClock, LockProvider, ProcessOutput, ProcessRequest,
     ProcessRunner, StructuredError,
@@ -179,6 +180,28 @@ fn exit_zero_is_only_unverified_transport_and_keeps_exact_pending() {
         pending
     );
     assert_eq!(fs::read(root.join("CURRENT")).unwrap(), b"g-1-seed\n");
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn pause_prevents_ssh_transport_before_process_launch() {
+    let root = root();
+    let pending = seed(&root, true).unwrap();
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    set_paused_locked(&guard, &clock(), "g-1-paused", true).unwrap();
+    let runner = FakeRunner::exit(pending.clone(), 0, b"accepted\n");
+    assert_eq!(
+        send_pending_locked(&guard, &clock(), &config(), &runner, &Cancelled(false)),
+        Err(TransportError::Paused)
+    );
+    assert_eq!(runner.calls.get(), 0);
+    assert_eq!(
+        fs::read(root.join("generations/g-1-paused/pending.json")).unwrap(),
+        pending
+    );
     drop(guard);
     clean(&root);
 }

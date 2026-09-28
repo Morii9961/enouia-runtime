@@ -26,6 +26,7 @@ pub struct TransportCompletedUnverified {
 pub enum TransportError {
     Store(RunStartError),
     NoPending,
+    Paused,
     InvalidConfig,
     BatchTooLarge,
     Cancelled,
@@ -54,14 +55,16 @@ pub fn send_pending_locked<R: ProcessRunner, C: Clock>(
     runner: &R,
     cancellation: &dyn Cancellation,
 ) -> Result<TransportCompletedUnverified, TransportError> {
-    let RunDecision::RetryPending {
-        sequence,
-        exact_bytes,
-        ..
-    } = decide_run_start(guard, clock).map_err(TransportError::Store)?
-    else {
-        return Err(TransportError::NoPending);
-    };
+    let (sequence, exact_bytes) =
+        match decide_run_start(guard, clock).map_err(TransportError::Store)? {
+            RunDecision::RetryPending {
+                sequence,
+                exact_bytes,
+                ..
+            } => (sequence, exact_bytes),
+            RunDecision::Paused { .. } => return Err(TransportError::Paused),
+            RunDecision::Collect { .. } => return Err(TransportError::NoPending),
+        };
     if !config.executable.is_absolute() || !valid_alias(config.restricted_alias) {
         return Err(TransportError::InvalidConfig);
     }

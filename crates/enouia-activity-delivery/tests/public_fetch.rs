@@ -12,6 +12,7 @@ use enouia_activity_delivery::public_fetch::{
 };
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
+use enouia_activity_store::pause::set_paused_locked;
 use enouia_activity_store::reader::read_current;
 use enouia_activity_store::recovery::RecoveryError;
 use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
@@ -230,6 +231,28 @@ fn invalid_origin_or_redirect_cannot_observe_publication() {
         PublicObservationError::Redirected
     );
     assert_eq!(fetcher.calls.borrow().len(), 1);
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn pause_prevents_public_fetch_and_keeps_pending() {
+    let root = root();
+    let (batch, pending) = seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    set_paused_locked(&guard, &clock(), "g-42-paused", true).unwrap();
+    let fetcher = valid_fetcher(&batch);
+    assert_eq!(
+        observe_pending_locked(&guard, &clock(), ORIGIN, &fetcher, &NeverCancelled).unwrap_err(),
+        PublicObservationError::Paused
+    );
+    assert!(fetcher.calls.borrow().is_empty());
+    assert_eq!(
+        read_current(&root, &clock()).unwrap().image.pending,
+        Some(pending)
+    );
     drop(guard);
     clean(&root);
 }
