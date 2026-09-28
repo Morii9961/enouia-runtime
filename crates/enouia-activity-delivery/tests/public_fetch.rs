@@ -13,9 +13,11 @@ use enouia_activity_delivery::public_fetch::{
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
 use enouia_activity_store::reader::read_current;
-use enouia_activity_store::run_start::{RunDecision, decide_run_start};
+use enouia_activity_store::recovery::RecoveryError;
+use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
 use enouia_activity_store::writer::{
-    CommitError, PublicationEvidence, commit_publication_observed,
+    CommitError, CommitPhase, PublicationEvidence, commit_publication_observed,
+    commit_publication_observed_with_hook,
 };
 use enouia_common::{Cancellation, Clock, FakeClock, LockProvider};
 use serde_json::{Value, json};
@@ -417,4 +419,91 @@ fn stale_publication_does_not_clear_pending() {
     assert_eq!(selected.image.pending.unwrap(), pending);
     drop(guard);
     clean(&root);
+}
+
+#[test]
+fn acknowledgment_interruption_selects_only_complete_old_or_new_generation() {
+    for (phase, expected_error, expected_id) in [
+        (
+            CommitPhase::FileFlushed("manifest.json"),
+            CommitError::InterruptedBeforeSwitch,
+            "g-42-seed",
+        ),
+        (
+            CommitPhase::CurrentPrepared,
+            CommitError::InterruptedBeforeSwitch,
+            "g-42-seed",
+        ),
+        (
+            CommitPhase::CurrentSwitched,
+            CommitError::InterruptedAfterSwitch,
+            "g-42-observed",
+        ),
+    ] {
+        let root = root();
+        let (batch, pending) = seed(&root);
+        let guard = WindowsActivityLock
+            .try_acquire(&root.join("sync.lock"))
+            .unwrap();
+        let observed = observe_pending_locked(
+            &guard,
+            &clock(),
+            ORIGIN,
+            &valid_fetcher(&batch),
+            &NeverCancelled,
+        )
+        .unwrap();
+        let evidence = PublicationEvidence {
+            origin: ORIGIN.to_owned(),
+            sequence: observed.sequence,
+            exact_pending_sha256: observed.exact_pending_sha256,
+            manifest_sha256: observed.content.manifest_sha256,
+            activity_sha256: observed.content.activity_sha256,
+            generated_at_ms: observed.content.generated_at_ms,
+            published_at_ms: observed.content.published_at_ms,
+            received_at_ms: observed.content.received_at_ms,
+        };
+        assert_eq!(
+            commit_publication_observed_with_hook(
+                &guard,
+                "g-42-seed",
+                "g-42-observed",
+                &evidence,
+                &clock(),
+                |at| if at == phase { Err(()) } else { Ok(()) },
+            ),
+            Err(expected_error)
+        );
+        let selected = read_current(&root, &clock()).unwrap();
+        assert_eq!(selected.id, expected_id);
+        assert_eq!(selected.validated.highest_reserved, 42);
+        assert_eq!(selected.validated.archive, batch.data);
+        if phase != CommitPhase::CurrentSwitched {
+            assert_eq!(selected.image.pending.unwrap(), pending);
+            if phase == CommitPhase::CurrentPrepared {
+                assert!(matches!(
+                    decide_run_start(&guard, &clock()),
+                    Err(RunStartError::Recovery(
+                        RecoveryError::ConflictingGeneration
+                    ))
+                ));
+            } else {
+                assert!(matches!(
+                    decide_run_start(&guard, &clock()).unwrap(),
+                    RunDecision::RetryPending { sequence: 42, .. }
+                ));
+            }
+        } else {
+            assert!(selected.image.pending.is_none());
+            assert!(matches!(
+                decide_run_start(&guard, &clock()).unwrap(),
+                RunDecision::Collect {
+                    next_sequence: 43,
+                    ..
+                }
+            ));
+        }
+        drop(guard);
+        clean(&root);
+    }
 }

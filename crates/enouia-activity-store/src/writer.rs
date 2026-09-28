@@ -187,6 +187,18 @@ pub fn commit_publication_observed<C: Clock>(
     evidence: &PublicationEvidence,
     clock: &C,
 ) -> Result<(), CommitError> {
+    commit_publication_observed_with_hook(guard, expected_id, next_id, evidence, clock, |_| Ok(()))
+}
+
+/// Fault hook for the acknowledgment-specific pointer-switch boundary.
+pub fn commit_publication_observed_with_hook<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
+    guard: &ActivityLockGuard,
+    expected_id: &str,
+    next_id: &str,
+    evidence: &PublicationEvidence,
+    clock: &C,
+    hook: F,
+) -> Result<(), CommitError> {
     let current = audit_generations(guard.root(), clock)
         .map_err(CommitError::Recovery)?
         .current;
@@ -254,7 +266,7 @@ pub fn commit_publication_observed<C: Clock>(
         &image,
         clock,
         Some(evidence),
-        |_| Ok(()),
+        hook,
     )
 }
 
