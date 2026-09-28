@@ -16,7 +16,7 @@ use enouia_activity_store::reader::read_current;
 use enouia_activity_store::recovery::RecoveryError;
 use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
 use enouia_activity_store::writer::{
-    CommitError, CommitPhase, PublicationEvidence, commit_publication_observed,
+    CommitError, CommitPhase, PublicationEvidence, commit, commit_publication_observed,
     commit_publication_observed_with_hook,
 };
 use enouia_common::{Cancellation, Clock, FakeClock, LockProvider};
@@ -360,6 +360,22 @@ fn matching_publication_is_recorded_with_pending_clear_in_one_generation() {
     let delivery: Value = serde_json::from_slice(&selected.image.delivery).unwrap();
     assert_eq!(delivery["publicationObserved"]["sequence"], 42);
     assert_eq!(delivery["publicationObserved"]["origin"], ORIGIN);
+    let erased_receipt = GenerationImage {
+        activity: selected.image.activity.clone(),
+        sequence: selected.image.sequence.clone(),
+        pending: None,
+        delivery: b"{}\n".to_vec(),
+    };
+    assert_eq!(
+        commit(
+            &guard,
+            "g-42-observed",
+            "g-42-erased",
+            &erased_receipt,
+            &clock(),
+        ),
+        Err(CommitError::InvalidTransition)
+    );
     assert_eq!(
         delivery["publicationObserved"]["exactPendingSha256"],
         sha256_hex(&pending)

@@ -75,6 +75,16 @@ fn archive_retained(old: &ActivityData, next: &ActivityData) -> bool {
         && history_retained(&old.sources.claude, &next.sources.claude)
 }
 
+fn publication_receipt_retained(old: &GenerationImage, next: &GenerationImage) -> bool {
+    let Ok(old_delivery) = serde_json::from_slice::<Value>(&old.delivery) else {
+        return false;
+    };
+    let Ok(next_delivery) = serde_json::from_slice::<Value>(&next.delivery) else {
+        return false;
+    };
+    old_delivery.get("publicationObserved") == next_delivery.get("publicationObserved")
+}
+
 fn valid_transition(
     old: &ValidatedGeneration,
     old_image: &GenerationImage,
@@ -102,7 +112,9 @@ fn valid_transition(
                 && next.archive == old.archive
         }),
         (None, None) => {
-            next.highest_reserved == old.highest_reserved && next.archive == old.archive
+            next.highest_reserved == old.highest_reserved
+                && next.archive == old.archive
+                && publication_receipt_retained(old_image, next_image)
         }
         (None, Some(_)) => {
             old.highest_reserved < MAX_SAFE_INTEGER
