@@ -1,8 +1,11 @@
 #![cfg(windows)]
 
-use enouia_activity_contract::{normalize_activity, normalize_batch, public_data_bytes};
+use enouia_activity_contract::{
+    exact_activity_timestamp_ms, normalize_activity, normalize_batch, public_data_bytes, sha256_hex,
+};
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
+use enouia_activity_store::overview::{OverviewError, read_delivery_overview_locked};
 use enouia_activity_store::pause::{PauseOutcome, set_paused_locked};
 use enouia_activity_store::reader::read_current;
 use enouia_activity_store::recovery::{RecoveryError, audit_generations};
@@ -289,6 +292,55 @@ fn retry_state_requires_pending_and_a_bounded_future_time() {
         Err(RetryError::InvalidNextEligible)
     );
     assert_eq!(read_current(&root, &clock()).unwrap().id, "g-1-pending");
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn overview_derives_pending_age_and_sanitized_retry_state() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    assert!(
+        read_delivery_overview_locked(&guard, &clock())
+            .unwrap()
+            .pending
+            .is_none()
+    );
+    let pending = pending_image();
+    let exact = pending.pending.clone().unwrap();
+    let batch: Value = serde_json::from_slice(&exact).unwrap();
+    let created = exact_activity_timestamp_ms(batch["createdAt"].as_str().unwrap()).unwrap();
+    commit(&guard, "g-0-seed", "g-1-pending", &pending, &clock()).unwrap();
+    record_retry_failure_locked(
+        &guard,
+        &clock(),
+        "g-1-retry",
+        ErrorCode::DeliveryUnverified,
+        clock().now_unix_ms() + 60_000,
+        true,
+    )
+    .unwrap();
+    set_paused_locked(&guard, &clock(), "g-1-paused", true).unwrap();
+    let later = FakeClock::new(clock().now_unix_ms() + 3_600_000);
+    let overview = read_delivery_overview_locked(&guard, &later).unwrap();
+    assert!(overview.paused);
+    let pending_overview = overview.pending.unwrap();
+    assert_eq!(pending_overview.sequence, 1);
+    assert_eq!(pending_overview.exact_pending_sha256, sha256_hex(&exact));
+    assert_eq!(
+        pending_overview.age_ms,
+        u64::try_from(later.now_unix_ms() - created).unwrap()
+    );
+    assert_eq!(pending_overview.retry.unwrap().failure_count, 1);
+
+    let regressed = FakeClock::new(created - 1);
+    assert_eq!(
+        read_delivery_overview_locked(&guard, &regressed),
+        Err(OverviewError::ClockRegression)
+    );
     drop(guard);
     clean(&root);
 }
