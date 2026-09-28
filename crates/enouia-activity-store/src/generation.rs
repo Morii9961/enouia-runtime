@@ -4,7 +4,7 @@ use enouia_activity_contract::{
     ActivityData, Batch, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms, normalize_activity,
     public_data_bytes, sha256_hex, validate_imported_pending,
 };
-use enouia_common::Clock;
+use enouia_common::{Clock, ErrorCode};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashSet;
@@ -68,6 +68,38 @@ struct PublicationReceipt {
     generated_at_ms: i64,
     published_at_ms: i64,
     received_at_ms: i64,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct RetryState {
+    pub pending_sequence: u64,
+    pub exact_pending_sha256: String,
+    pub failure_count: u32,
+    pub last_error_code: ErrorCode,
+    pub next_eligible_at_ms: i64,
+    pub last_transport_at_ms: Option<i64>,
+}
+
+pub(crate) fn retry_from_delivery(bytes: &[u8]) -> Option<RetryState> {
+    let value: Value = serde_json::from_slice(bytes).ok()?;
+    serde_json::from_value(value.get("retry")?.clone()).ok()
+}
+
+fn valid_retry_state(value: &Value, pending: &Option<Batch>, bytes: Option<&[u8]>) -> bool {
+    let (Some(pending), Some(bytes)) = (pending, bytes) else {
+        return false;
+    };
+    let Ok(retry) = serde_json::from_value::<RetryState>(value.clone()) else {
+        return false;
+    };
+    retry.pending_sequence == pending.sequence
+        && retry.exact_pending_sha256 == sha256_hex(bytes)
+        && retry.failure_count > 0
+        && retry.next_eligible_at_ms >= 0
+        && retry
+            .last_transport_at_ms
+            .is_none_or(|at| at >= 0 && at <= retry.next_eligible_at_ms)
 }
 
 fn valid_hash(hash: &str) -> bool {
@@ -200,6 +232,9 @@ impl GenerationImage {
                 && value
                     .get("publicationObserved")
                     .is_none_or(|receipt| valid_publication_receipt(receipt, sequence))
+                && value
+                    .get("retry")
+                    .is_none_or(|retry| valid_retry_state(retry, &pending, self.pending.as_deref()))
         }) {
             return Err(GenerationError::InvalidDelivery);
         }

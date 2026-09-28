@@ -15,6 +15,8 @@ pub mod reader;
 #[cfg(windows)]
 pub mod recovery;
 #[cfg(windows)]
+pub mod retry;
+#[cfg(windows)]
 pub mod run_start;
 #[cfg(windows)]
 pub mod writer;

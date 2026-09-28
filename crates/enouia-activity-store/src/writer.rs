@@ -247,6 +247,7 @@ pub fn commit_publication_observed_with_hook<C: Clock, F: FnMut(CommitPhase) -> 
     let object = delivery
         .as_object_mut()
         .ok_or(CommitError::InvalidEvidence)?;
+    object.remove("retry");
     object.insert(
         "publicationObserved".to_owned(),
         json!({

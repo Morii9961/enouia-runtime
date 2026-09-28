@@ -15,12 +15,13 @@ use enouia_activity_store::generation::GenerationImage;
 use enouia_activity_store::pause::set_paused_locked;
 use enouia_activity_store::reader::read_current;
 use enouia_activity_store::recovery::RecoveryError;
+use enouia_activity_store::retry::record_retry_failure_locked;
 use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
 use enouia_activity_store::writer::{
     CommitError, CommitPhase, PublicationEvidence, commit, commit_publication_observed,
     commit_publication_observed_with_hook,
 };
-use enouia_common::{Cancellation, Clock, FakeClock, LockProvider};
+use enouia_common::{Cancellation, Clock, ErrorCode, FakeClock, LockProvider};
 use serde_json::{Value, json};
 use std::cell::RefCell;
 use std::collections::VecDeque;
@@ -456,6 +457,43 @@ fn stale_publication_does_not_clear_pending() {
     let selected = read_current(&root, &clock()).unwrap();
     assert_eq!(selected.id, "g-42-seed");
     assert_eq!(selected.image.pending.unwrap(), pending);
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn publication_acknowledgment_clears_stale_retry_state() {
+    let root = root();
+    let (batch, pending) = seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    record_retry_failure_locked(
+        &guard,
+        &clock(),
+        "g-42-retry",
+        ErrorCode::DeliveryUnverified,
+        clock().now_unix_ms() + 60_000,
+        true,
+    )
+    .unwrap();
+    observe_and_acknowledge_locked(
+        &guard,
+        &clock(),
+        ORIGIN,
+        &valid_fetcher(&batch),
+        "g-42-observed",
+        &NeverCancelled,
+    )
+    .unwrap();
+    let selected = read_current(&root, &clock()).unwrap();
+    let delivery: Value = serde_json::from_slice(&selected.image.delivery).unwrap();
+    assert!(delivery.get("retry").is_none());
+    assert!(selected.image.pending.is_none());
+    assert_eq!(
+        fs::read(root.join("generations/g-42-retry/pending.json")).unwrap(),
+        pending
+    );
     drop(guard);
     clean(&root);
 }

@@ -6,9 +6,10 @@ use enouia_activity_store::generation::GenerationImage;
 use enouia_activity_store::pause::{PauseOutcome, set_paused_locked};
 use enouia_activity_store::reader::read_current;
 use enouia_activity_store::recovery::{RecoveryError, audit_generations};
+use enouia_activity_store::retry::{RetryError, record_retry_failure_locked};
 use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
 use enouia_activity_store::writer::{CommitError, CommitPhase, commit, commit_with_hook};
-use enouia_common::{FakeClock, LockProvider};
+use enouia_common::{Clock, ErrorCode, FakeClock, LockProvider};
 use serde_json::{Value, json};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -201,6 +202,93 @@ fn pause_blocks_pending_retry_and_preserves_its_exact_bytes() {
         decide_run_start(&guard, &clock()).unwrap(),
         RunDecision::RetryPending { sequence: 1, exact_bytes, .. } if exact_bytes == exact
     ));
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn retry_failure_state_survives_generation_switch_without_changing_pending() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let pending = pending_image();
+    let exact = pending.pending.clone().unwrap();
+    commit(&guard, "g-0-seed", "g-1-pending", &pending, &clock()).unwrap();
+    let now = clock().now_unix_ms();
+    let first = record_retry_failure_locked(
+        &guard,
+        &clock(),
+        "g-1-retry-1",
+        ErrorCode::DeliveryUnverified,
+        now + 60_000,
+        true,
+    )
+    .unwrap();
+    assert_eq!(first.pending_sequence, 1);
+    assert_eq!(first.failure_count, 1);
+    assert_eq!(first.last_transport_at_ms, Some(now));
+    let second = record_retry_failure_locked(
+        &guard,
+        &clock(),
+        "g-1-retry-2",
+        ErrorCode::SourceInvalid,
+        now + 120_000,
+        false,
+    )
+    .unwrap();
+    assert_eq!(second.failure_count, 2);
+    assert_eq!(second.last_error_code, ErrorCode::SourceInvalid);
+    assert_eq!(second.last_transport_at_ms, Some(now));
+    let selected = read_current(&root, &clock()).unwrap();
+    assert_eq!(selected.id, "g-1-retry-2");
+    assert_eq!(selected.validated.highest_reserved, 1);
+    assert_eq!(selected.image.pending, Some(exact));
+    let delivery: Value = serde_json::from_slice(&selected.image.delivery).unwrap();
+    assert_eq!(delivery["retry"]["failureCount"], 2);
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn retry_state_requires_pending_and_a_bounded_future_time() {
+    let root = root();
+    seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    assert_eq!(
+        record_retry_failure_locked(
+            &guard,
+            &clock(),
+            "g-0-retry",
+            ErrorCode::DeliveryUnverified,
+            clock().now_unix_ms() + 60_000,
+            true,
+        ),
+        Err(RetryError::NoPending)
+    );
+    commit(
+        &guard,
+        "g-0-seed",
+        "g-1-pending",
+        &pending_image(),
+        &clock(),
+    )
+    .unwrap();
+    assert_eq!(
+        record_retry_failure_locked(
+            &guard,
+            &clock(),
+            "g-1-too-far",
+            ErrorCode::DeliveryUnverified,
+            clock().now_unix_ms() + 2 * 24 * 60 * 60 * 1000,
+            true,
+        ),
+        Err(RetryError::InvalidNextEligible)
+    );
+    assert_eq!(read_current(&root, &clock()).unwrap().id, "g-1-pending");
     drop(guard);
     clean(&root);
 }

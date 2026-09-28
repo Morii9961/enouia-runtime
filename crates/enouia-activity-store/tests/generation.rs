@@ -182,6 +182,34 @@ fn publication_receipt_has_a_strict_local_schema() {
 }
 
 #[test]
+fn retry_record_is_bound_to_exact_pending_bytes() {
+    let mut image = fixture_image();
+    let exact = image.pending.as_ref().unwrap();
+    let retry = json!({
+        "pendingSequence": 42,
+        "exactPendingSha256": enouia_activity_contract::sha256_hex(exact),
+        "failureCount": 1,
+        "lastErrorCode": "delivery_unverified",
+        "nextEligibleAtMs": 1_790_409_661_000_i64,
+        "lastTransportAtMs": 1_790_409_601_000_i64,
+    });
+    image.delivery = serde_json::to_vec(&json!({"retry": retry})).unwrap();
+    image.manifest_bytes("g-42-abc", &clock()).unwrap();
+    let mut malformed: Value = serde_json::from_slice(&image.delivery).unwrap();
+    malformed["retry"]["exactPendingSha256"] = json!("0".repeat(64));
+    image.delivery = serde_json::to_vec(&malformed).unwrap();
+    assert_eq!(
+        image.manifest_bytes("g-42-abc", &clock()),
+        Err(GenerationError::InvalidDelivery)
+    );
+    image.pending = None;
+    assert_eq!(
+        image.manifest_bytes("g-42-abc", &clock()),
+        Err(GenerationError::InvalidDelivery)
+    );
+}
+
+#[test]
 fn pending_bytes_are_validated_without_rewriting_private_or_mismatched_fields() {
     let mut image = fixture_image();
     let mut pending: Value = serde_json::from_slice(image.pending.as_ref().unwrap()).unwrap();
