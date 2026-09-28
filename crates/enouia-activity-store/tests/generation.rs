@@ -143,6 +143,38 @@ fn hashes_alone_do_not_validate_sequence_archive_or_pending() {
 }
 
 #[test]
+fn publication_receipt_has_a_strict_local_schema() {
+    let receipt = json!({
+        "origin": "https://public.example",
+        "sequence": 41,
+        "exactPendingSha256": "a".repeat(64),
+        "manifestSha256": "b".repeat(64),
+        "activitySha256": "c".repeat(64),
+        "generatedAtMs": 1_790_409_601_000_i64,
+        "publishedAtMs": 1_790_409_600_000_i64,
+        "receivedAtMs": 1_790_409_599_000_i64,
+    });
+    let mut image = fixture_image();
+    image.delivery = serde_json::to_vec(&json!({"publicationObserved": receipt})).unwrap();
+    image.manifest_bytes("g-42-abc", &clock()).unwrap();
+
+    let mut malformed: Value = serde_json::from_slice(&image.delivery).unwrap();
+    malformed["publicationObserved"]["manifestSha256"] = json!("BAD");
+    image.delivery = serde_json::to_vec(&malformed).unwrap();
+    assert_eq!(
+        image.manifest_bytes("g-42-abc", &clock()),
+        Err(GenerationError::InvalidDelivery)
+    );
+    malformed["publicationObserved"]["manifestSha256"] = json!("b".repeat(64));
+    malformed["publicationObserved"]["sequence"] = json!(43);
+    image.delivery = serde_json::to_vec(&malformed).unwrap();
+    assert_eq!(
+        image.manifest_bytes("g-42-abc", &clock()),
+        Err(GenerationError::InvalidDelivery)
+    );
+}
+
+#[test]
 fn pending_bytes_are_validated_without_rewriting_private_or_mismatched_fields() {
     let mut image = fixture_image();
     let mut pending: Value = serde_json::from_slice(image.pending.as_ref().unwrap()).unwrap();

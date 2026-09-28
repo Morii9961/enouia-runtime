@@ -57,6 +57,44 @@ struct FileHashes {
     delivery: String,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct PublicationReceipt {
+    origin: String,
+    sequence: u64,
+    exact_pending_sha256: String,
+    manifest_sha256: String,
+    activity_sha256: String,
+    generated_at_ms: i64,
+    published_at_ms: i64,
+    received_at_ms: i64,
+}
+
+fn valid_hash(hash: &str) -> bool {
+    hash.len() == 64
+        && hash
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
+fn valid_publication_receipt(value: &Value, high_water: u64) -> bool {
+    let Ok(receipt) = serde_json::from_value::<PublicationReceipt>(value.clone()) else {
+        return false;
+    };
+    !receipt.origin.is_empty()
+        && receipt.origin.len() <= 256
+        && receipt.sequence > 0
+        && receipt.sequence <= high_water
+        && valid_hash(&receipt.exact_pending_sha256)
+        && valid_hash(&receipt.manifest_sha256)
+        && valid_hash(&receipt.activity_sha256)
+        && receipt.generated_at_ms >= 0
+        && receipt.published_at_ms >= 0
+        && receipt.received_at_ms >= 0
+        && receipt.published_at_ms <= receipt.generated_at_ms.saturating_add(300_000)
+        && receipt.received_at_ms <= receipt.generated_at_ms.saturating_add(300_000)
+}
+
 pub(crate) fn valid_generation_id(id: &str) -> bool {
     id.len() > 2
         && id.len() <= 64
@@ -147,7 +185,12 @@ impl GenerationImage {
             })
             .transpose()?;
 
-        if !serde_json::from_slice::<Value>(&self.delivery).is_ok_and(|value| value.is_object()) {
+        if !serde_json::from_slice::<Value>(&self.delivery).is_ok_and(|value| {
+            value.is_object()
+                && value
+                    .get("publicationObserved")
+                    .is_none_or(|receipt| valid_publication_receipt(receipt, sequence))
+        }) {
             return Err(GenerationError::InvalidDelivery);
         }
         Ok(ValidatedGeneration {
