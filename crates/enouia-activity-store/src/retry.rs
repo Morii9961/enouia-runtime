@@ -1,7 +1,7 @@
 //! Locked retry-disposition state for one immutable pending batch.
 
 use crate::ActivityLockGuard;
-use crate::generation::{GenerationImage, RetryState, retry_from_delivery};
+use crate::generation::{GenerationImage, RetryState, paused_from_delivery, retry_from_delivery};
 use crate::recovery::{RecoveryError, audit_generations};
 use crate::writer::{CommitError, commit};
 use enouia_activity_contract::sha256_hex;
@@ -19,6 +19,80 @@ pub enum RetryError {
     CountExhausted,
     InvalidDelivery,
     Commit(CommitError),
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum RetryIntent {
+    Automatic,
+    Manual,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum TransportDecision {
+    Eligible {
+        generation_id: String,
+        sequence: u64,
+        exact_bytes: Vec<u8>,
+    },
+    Deferred {
+        generation_id: String,
+        sequence: u64,
+        next_eligible_at_ms: i64,
+    },
+    Paused,
+    NoPending,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RetryGateError {
+    Recovery(RecoveryError),
+    InvalidDelivery,
+    InvalidClock,
+}
+
+/// Decide whether one transport attempt may start. Public observation is a
+/// separate read-only path and may still resolve pending during the wait.
+pub fn decide_transport_retry_locked<C: Clock>(
+    guard: &ActivityLockGuard,
+    clock: &C,
+    intent: RetryIntent,
+) -> Result<TransportDecision, RetryGateError> {
+    let current = audit_generations(guard.root(), clock)
+        .map_err(RetryGateError::Recovery)?
+        .current;
+    if paused_from_delivery(&current.image.delivery).ok_or(RetryGateError::InvalidDelivery)? {
+        return Ok(TransportDecision::Paused);
+    }
+    let Some(pending) = current.validated.pending else {
+        return Ok(TransportDecision::NoPending);
+    };
+    let now = clock.now_unix_ms();
+    if now < 0 {
+        return Err(RetryGateError::InvalidClock);
+    }
+    let delivery: Value = serde_json::from_slice(&current.image.delivery)
+        .map_err(|_| RetryGateError::InvalidDelivery)?;
+    let retry = retry_from_delivery(&current.image.delivery);
+    if delivery.get("retry").is_some() && retry.is_none() {
+        return Err(RetryGateError::InvalidDelivery);
+    }
+    if let (RetryIntent::Automatic, Some(state)) = (intent, retry)
+        && now < state.next_eligible_at_ms
+    {
+        return Ok(TransportDecision::Deferred {
+            generation_id: current.id,
+            sequence: pending.sequence,
+            next_eligible_at_ms: state.next_eligible_at_ms,
+        });
+    }
+    Ok(TransportDecision::Eligible {
+        generation_id: current.id,
+        sequence: pending.sequence,
+        exact_bytes: current
+            .image
+            .pending
+            .ok_or(RetryGateError::InvalidDelivery)?,
+    })
 }
 
 /// Persist one sanitized failed-delivery disposition under the live writer

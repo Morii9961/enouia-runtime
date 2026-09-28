@@ -2,7 +2,9 @@
 
 use enouia_activity_contract::sha256_hex;
 use enouia_activity_store::ActivityLockGuard;
-use enouia_activity_store::run_start::{RunDecision, RunStartError, decide_run_start};
+use enouia_activity_store::retry::{
+    RetryGateError, RetryIntent, TransportDecision, decide_transport_retry_locked,
+};
 use enouia_common::{Cancellation, Clock, ErrorCode, ProcessRequest, ProcessRunner};
 use std::ffi::OsString;
 use std::path::Path;
@@ -24,9 +26,10 @@ pub struct TransportCompletedUnverified {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum TransportError {
-    Store(RunStartError),
+    Store(RetryGateError),
     NoPending,
     Paused,
+    Deferred(i64),
     InvalidConfig,
     BatchTooLarge,
     Cancelled,
@@ -55,15 +58,41 @@ pub fn send_pending_locked<R: ProcessRunner, C: Clock>(
     runner: &R,
     cancellation: &dyn Cancellation,
 ) -> Result<TransportCompletedUnverified, TransportError> {
+    send_pending_locked_with_intent(
+        guard,
+        clock,
+        config,
+        runner,
+        RetryIntent::Automatic,
+        cancellation,
+    )
+}
+
+/// Manual intent skips only the recorded wait. Pause and the writer lock
+/// remain effective, and process exit never clears pending.
+pub fn send_pending_locked_with_intent<R: ProcessRunner, C: Clock>(
+    guard: &ActivityLockGuard,
+    clock: &C,
+    config: &SshConfig<'_>,
+    runner: &R,
+    intent: RetryIntent,
+    cancellation: &dyn Cancellation,
+) -> Result<TransportCompletedUnverified, TransportError> {
     let (sequence, exact_bytes) =
-        match decide_run_start(guard, clock).map_err(TransportError::Store)? {
-            RunDecision::RetryPending {
+        match decide_transport_retry_locked(guard, clock, intent).map_err(TransportError::Store)? {
+            TransportDecision::Eligible {
                 sequence,
                 exact_bytes,
                 ..
             } => (sequence, exact_bytes),
-            RunDecision::Paused { .. } => return Err(TransportError::Paused),
-            RunDecision::Collect { .. } => return Err(TransportError::NoPending),
+            TransportDecision::Paused => return Err(TransportError::Paused),
+            TransportDecision::NoPending => return Err(TransportError::NoPending),
+            TransportDecision::Deferred {
+                next_eligible_at_ms,
+                ..
+            } => {
+                return Err(TransportError::Deferred(next_eligible_at_ms));
+            }
         };
     if !config.executable.is_absolute() || !valid_alias(config.restricted_alias) {
         return Err(TransportError::InvalidConfig);

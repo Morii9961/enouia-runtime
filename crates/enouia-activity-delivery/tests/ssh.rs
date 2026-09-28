@@ -3,13 +3,15 @@
 use enouia_activity_contract::{normalize_batch, public_data_bytes, sha256_hex};
 use enouia_activity_delivery::ssh::{
     SshConfig, TransportCompletedUnverified, TransportError, send_pending_locked,
+    send_pending_locked_with_intent,
 };
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
 use enouia_activity_store::pause::set_paused_locked;
+use enouia_activity_store::retry::{RetryIntent, record_retry_failure_locked};
 use enouia_common::{
-    Cancellation, ComponentId, ErrorCode, FakeClock, LockProvider, ProcessOutput, ProcessRequest,
-    ProcessRunner, StructuredError,
+    Cancellation, Clock, ComponentId, ErrorCode, FakeClock, LockProvider, ProcessOutput,
+    ProcessRequest, ProcessRunner, StructuredError,
 };
 use serde_json::{Value, json};
 use std::cell::Cell;
@@ -199,7 +201,65 @@ fn pause_prevents_ssh_transport_before_process_launch() {
     );
     assert_eq!(runner.calls.get(), 0);
     assert_eq!(
+        send_pending_locked_with_intent(
+            &guard,
+            &clock(),
+            &config(),
+            &runner,
+            RetryIntent::Manual,
+            &Cancelled(false),
+        ),
+        Err(TransportError::Paused)
+    );
+    assert_eq!(runner.calls.get(), 0);
+    assert_eq!(
         fs::read(root.join("generations/g-1-paused/pending.json")).unwrap(),
+        pending
+    );
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn automatic_transport_waits_but_manual_retry_can_send_exact_bytes() {
+    let root = root();
+    let pending = seed(&root, true).unwrap();
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let now = clock().now_unix_ms();
+    let next = now + 60_000;
+    record_retry_failure_locked(
+        &guard,
+        &clock(),
+        "g-1-wait",
+        ErrorCode::DeliveryUnverified,
+        next,
+        true,
+    )
+    .unwrap();
+    let runner = FakeRunner::exit(pending.clone(), 0, b"accepted\n");
+    assert_eq!(
+        send_pending_locked(&guard, &clock(), &config(), &runner, &Cancelled(false)),
+        Err(TransportError::Deferred(next))
+    );
+    assert_eq!(runner.calls.get(), 0);
+    let manual = send_pending_locked_with_intent(
+        &guard,
+        &clock(),
+        &config(),
+        &runner,
+        RetryIntent::Manual,
+        &Cancelled(false),
+    )
+    .unwrap();
+    assert_eq!(manual.exact_pending_sha256, sha256_hex(&pending));
+    assert_eq!(runner.calls.get(), 1);
+    let later = FakeClock::new(next);
+    send_pending_locked(&guard, &later, &config(), &runner, &Cancelled(false)).unwrap();
+    assert_eq!(runner.calls.get(), 2);
+    assert_eq!(
+        fs::read(root.join("generations/g-1-wait/pending.json")).unwrap(),
         pending
     );
     drop(guard);
