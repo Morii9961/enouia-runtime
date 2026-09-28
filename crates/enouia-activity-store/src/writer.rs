@@ -4,8 +4,11 @@ use crate::ActivityLockGuard;
 use crate::generation::{GenerationError, GenerationImage, ValidatedGeneration};
 use crate::reader::{ReadError, read_current};
 use crate::recovery::{RecoveryError, audit_generations};
-use enouia_activity_contract::{ActivityData, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms};
+use enouia_activity_contract::{
+    ActivityData, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms, public_data_bytes, sha256_hex,
+};
 use enouia_common::Clock;
+use serde_json::{Value, json};
 use std::ffi::OsStr;
 use std::fs::{self, File, OpenOptions};
 use std::io::Write;
@@ -31,10 +34,24 @@ pub enum CommitError {
     StaleGeneration,
     InvalidNext(GenerationError),
     InvalidTransition,
+    InvalidEvidence,
     Io,
     SwitchFailed,
     InterruptedBeforeSwitch,
     InterruptedAfterSwitch,
+}
+
+/// Evidence supplied by the trusted origin-bound public observer. The store
+/// rechecks local identity and hashes before allowing the pending transition.
+pub struct PublicationEvidence {
+    pub origin: String,
+    pub sequence: u64,
+    pub exact_pending_sha256: String,
+    pub manifest_sha256: String,
+    pub activity_sha256: String,
+    pub generated_at_ms: i64,
+    pub published_at_ms: i64,
+    pub received_at_ms: i64,
 }
 
 fn history_retained(old: &Option<Snapshot>, next: &Option<Snapshot>) -> bool {
@@ -63,6 +80,7 @@ fn valid_transition(
     old_image: &GenerationImage,
     next: &ValidatedGeneration,
     next_image: &GenerationImage,
+    publication: Option<&PublicationEvidence>,
 ) -> bool {
     if !archive_retained(&old.archive, &next.archive) {
         return false;
@@ -73,7 +91,16 @@ fn valid_transition(
                 && next.highest_reserved == old.highest_reserved
                 && next.archive == old.archive
         }
-        (Some(_), None) => false,
+        (Some(previous_bytes), None) => publication.is_some_and(|evidence| {
+            old.pending.as_ref().map(|batch| batch.sequence) == Some(evidence.sequence)
+                && sha256_hex(previous_bytes) == evidence.exact_pending_sha256
+                && old.pending.as_ref().is_some_and(|batch| {
+                    public_data_bytes(&batch.data)
+                        .is_ok_and(|bytes| sha256_hex(&bytes) == evidence.activity_sha256)
+                })
+                && next.highest_reserved == old.highest_reserved
+                && next.archive == old.archive
+        }),
         (None, None) => {
             next.highest_reserved == old.highest_reserved && next.archive == old.archive
         }
@@ -144,6 +171,93 @@ pub fn commit<C: Clock>(
     commit_with_hook(guard, expected_id, next_id, next_image, clock, |_| Ok(()))
 }
 
+fn valid_hash(hash: &str) -> bool {
+    hash.len() == 64
+        && hash
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
+/// Clear pending only after the trusted observer supplies a matching public
+/// result. The current archive and reserved sequence remain unchanged.
+pub fn commit_publication_observed<C: Clock>(
+    guard: &ActivityLockGuard,
+    expected_id: &str,
+    next_id: &str,
+    evidence: &PublicationEvidence,
+    clock: &C,
+) -> Result<(), CommitError> {
+    let current = audit_generations(guard.root(), clock)
+        .map_err(CommitError::Recovery)?
+        .current;
+    let pending = current
+        .image
+        .pending
+        .as_ref()
+        .ok_or(CommitError::InvalidEvidence)?;
+    if current.id != expected_id
+        || evidence.origin.is_empty()
+        || evidence.origin.len() > 256
+        || current
+            .validated
+            .pending
+            .as_ref()
+            .map(|batch| batch.sequence)
+            != Some(evidence.sequence)
+        || sha256_hex(pending) != evidence.exact_pending_sha256
+        || !current.validated.pending.as_ref().is_some_and(|batch| {
+            public_data_bytes(&batch.data)
+                .is_ok_and(|bytes| sha256_hex(&bytes) == evidence.activity_sha256)
+        })
+        || !valid_hash(&evidence.manifest_sha256)
+        || evidence.generated_at_ms < 0
+        || evidence.published_at_ms < 0
+        || evidence.received_at_ms < 0
+        || evidence.published_at_ms > evidence.generated_at_ms.saturating_add(300_000)
+        || evidence.received_at_ms > evidence.generated_at_ms.saturating_add(300_000)
+    {
+        return Err(CommitError::InvalidEvidence);
+    }
+    let mut delivery: Value = serde_json::from_slice(&current.image.delivery)
+        .map_err(|_| CommitError::InvalidEvidence)?;
+    let object = delivery
+        .as_object_mut()
+        .ok_or(CommitError::InvalidEvidence)?;
+    object.insert(
+        "publicationObserved".to_owned(),
+        json!({
+            "origin": evidence.origin,
+            "sequence": evidence.sequence,
+            "exactPendingSha256": evidence.exact_pending_sha256,
+            "manifestSha256": evidence.manifest_sha256,
+            "activitySha256": evidence.activity_sha256,
+            "generatedAtMs": evidence.generated_at_ms,
+            "publishedAtMs": evidence.published_at_ms,
+            "receivedAtMs": evidence.received_at_ms,
+        }),
+    );
+    let mut delivery = serde_json::to_vec(&delivery).map_err(|_| CommitError::InvalidEvidence)?;
+    delivery.push(b'\n');
+    if delivery.len() > 1024 * 1024 {
+        return Err(CommitError::InvalidEvidence);
+    }
+    let image = GenerationImage {
+        activity: current.image.activity,
+        sequence: current.image.sequence,
+        pending: None,
+        delivery,
+    };
+    commit_inner(
+        guard,
+        expected_id,
+        next_id,
+        &image,
+        clock,
+        Some(evidence),
+        |_| Ok(()),
+    )
+}
+
 /// Fault hook for crash-boundary tests. An error after CurrentSwitched means
 /// the caller must re-read CURRENT; it must not assume the old state survived.
 pub fn commit_with_hook<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
@@ -152,6 +266,18 @@ pub fn commit_with_hook<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
     next_id: &str,
     next_image: &GenerationImage,
     clock: &C,
+    hook: F,
+) -> Result<(), CommitError> {
+    commit_inner(guard, expected_id, next_id, next_image, clock, None, hook)
+}
+
+fn commit_inner<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
+    guard: &ActivityLockGuard,
+    expected_id: &str,
+    next_id: &str,
+    next_image: &GenerationImage,
+    clock: &C,
+    publication: Option<&PublicationEvidence>,
     mut hook: F,
 ) -> Result<(), CommitError> {
     let root = guard.root();
@@ -170,7 +296,7 @@ pub fn commit_with_hook<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
     let next = next_image
         .validate(&manifest, next_id, clock)
         .map_err(CommitError::InvalidNext)?;
-    if !valid_transition(&old.validated, &old.image, &next, next_image) {
+    if !valid_transition(&old.validated, &old.image, &next, next_image, publication) {
         return Err(CommitError::InvalidTransition);
     }
 

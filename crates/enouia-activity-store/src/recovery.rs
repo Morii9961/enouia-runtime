@@ -2,7 +2,9 @@
 
 use crate::generation::valid_generation_id;
 use crate::reader::{LoadedGeneration, ReadError, read_current, read_named_generation};
+use enouia_activity_contract::{public_data_bytes, sha256_hex};
 use enouia_common::Clock;
+use serde_json::Value;
 use std::fs;
 use std::os::windows::fs::MetadataExt;
 use std::path::Path;
@@ -23,6 +25,34 @@ pub struct RecoveryAudit {
     pub current: LoadedGeneration,
     pub older_generations: usize,
     pub staging_directories: usize,
+}
+
+fn recorded_pending_clear(current: &LoadedGeneration, older: &LoadedGeneration) -> bool {
+    let (Some(pending_bytes), Some(pending)) = (&older.image.pending, &older.validated.pending)
+    else {
+        return false;
+    };
+    if current.image.pending.is_some() {
+        return false;
+    }
+    let Ok(delivery) = serde_json::from_slice::<Value>(&current.image.delivery) else {
+        return false;
+    };
+    let receipt = &delivery["publicationObserved"];
+    receipt["origin"]
+        .as_str()
+        .is_some_and(|origin| !origin.is_empty())
+        && receipt["sequence"].as_u64() == Some(pending.sequence)
+        && receipt["exactPendingSha256"].as_str() == Some(sha256_hex(pending_bytes).as_str())
+        && public_data_bytes(&pending.data).is_ok_and(|bytes| {
+            receipt["activitySha256"].as_str() == Some(sha256_hex(&bytes).as_str())
+        })
+        && receipt["manifestSha256"].as_str().is_some_and(|hash| {
+            hash.len() == 64 && hash.bytes().all(|byte| byte.is_ascii_hexdigit())
+        })
+        && receipt["generatedAtMs"].as_i64().is_some()
+        && receipt["publishedAtMs"].as_i64().is_some()
+        && receipt["receivedAtMs"].as_i64().is_some()
 }
 
 /// Never chooses a fallback or deletes remnants. A published directory with
@@ -62,7 +92,8 @@ pub fn audit_generations<C: Clock>(root: &Path, clock: &C) -> Result<RecoveryAud
         }
         if other.validated.highest_reserved == current.validated.highest_reserved
             && (other.validated.archive != current.validated.archive
-                || other.image.pending != current.image.pending)
+                || (other.image.pending != current.image.pending
+                    && !recorded_pending_clear(&current, &other)))
         {
             return Err(RecoveryError::ConflictingGeneration);
         }

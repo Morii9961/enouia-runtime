@@ -3,13 +3,21 @@
 use enouia_activity_contract::{
     Batch, exact_activity_timestamp_ms, normalize_batch, public_data_bytes, sha256_hex,
 };
+use enouia_activity_delivery::acknowledgment::{
+    AcknowledgmentError, observe_and_acknowledge_locked,
+};
 use enouia_activity_delivery::observation::ObservationError;
 use enouia_activity_delivery::public_fetch::{
     FetchError, FetchedResponse, PublicFetcher, PublicObservationError, observe_pending_locked,
 };
 use enouia_activity_store::WindowsActivityLock;
 use enouia_activity_store::generation::GenerationImage;
-use enouia_common::{Cancellation, FakeClock, LockProvider};
+use enouia_activity_store::reader::read_current;
+use enouia_activity_store::run_start::{RunDecision, decide_run_start};
+use enouia_activity_store::writer::{
+    CommitError, PublicationEvidence, commit_publication_observed,
+};
+use enouia_common::{Cancellation, Clock, FakeClock, LockProvider};
 use serde_json::{Value, json};
 use std::cell::RefCell;
 use std::collections::VecDeque;
@@ -302,6 +310,111 @@ fn content_mismatch_after_valid_fetch_provenance_still_blocks() {
         observe_pending_locked(&guard, &clock(), ORIGIN, &fetcher, &NeverCancelled).unwrap_err(),
         PublicObservationError::Content(ObservationError::StaleManifest)
     );
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn matching_publication_is_recorded_with_pending_clear_in_one_generation() {
+    let root = root();
+    let (batch, pending) = seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let wrong_evidence = PublicationEvidence {
+        origin: ORIGIN.to_owned(),
+        sequence: 42,
+        exact_pending_sha256: "0".repeat(64),
+        manifest_sha256: "a".repeat(64),
+        activity_sha256: sha256_hex(&public_data_bytes(&batch.data).unwrap()),
+        generated_at_ms: clock().now_unix_ms(),
+        published_at_ms: clock().now_unix_ms(),
+        received_at_ms: clock().now_unix_ms(),
+    };
+    assert_eq!(
+        commit_publication_observed(
+            &guard,
+            "g-42-seed",
+            "g-42-forged",
+            &wrong_evidence,
+            &clock(),
+        ),
+        Err(CommitError::InvalidEvidence)
+    );
+    observe_and_acknowledge_locked(
+        &guard,
+        &clock(),
+        ORIGIN,
+        &valid_fetcher(&batch),
+        "g-42-observed",
+        &NeverCancelled,
+    )
+    .unwrap();
+    let selected = read_current(&root, &clock()).unwrap();
+    assert_eq!(selected.id, "g-42-observed");
+    assert!(selected.image.pending.is_none());
+    assert_eq!(selected.validated.highest_reserved, 42);
+    assert_eq!(selected.validated.archive, batch.data);
+    let delivery: Value = serde_json::from_slice(&selected.image.delivery).unwrap();
+    assert_eq!(delivery["publicationObserved"]["sequence"], 42);
+    assert_eq!(delivery["publicationObserved"]["origin"], ORIGIN);
+    assert_eq!(
+        delivery["publicationObserved"]["exactPendingSha256"],
+        sha256_hex(&pending)
+    );
+    assert_eq!(
+        fs::read(root.join("generations/g-42-seed/pending.json")).unwrap(),
+        pending
+    );
+    assert!(matches!(
+        decide_run_start(&guard, &clock()).unwrap(),
+        RunDecision::Collect {
+            next_sequence: 43,
+            ..
+        }
+    ));
+    drop(guard);
+    clean(&root);
+}
+
+#[test]
+fn stale_publication_does_not_clear_pending() {
+    let root = root();
+    let (batch, pending) = seed(&root);
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    let activity = public_data_bytes(&batch.data).unwrap();
+    let hash = sha256_hex(&activity);
+    let mut stale = serde_json::from_slice::<Value>(&manifest(&batch, &hash)).unwrap();
+    stale["validUntil"] = json!("2026-09-26T08:09:00.000Z");
+    let fetcher = FakeFetcher::new(vec![
+        Ok(response(
+            &format!("{ORIGIN}/status-data/current.json"),
+            serde_json::to_vec(&stale).unwrap(),
+        )),
+        Ok(response(
+            &format!("{ORIGIN}/status-data/activity/{hash}.json"),
+            activity,
+        )),
+    ]);
+    assert_eq!(
+        observe_and_acknowledge_locked(
+            &guard,
+            &clock(),
+            ORIGIN,
+            &fetcher,
+            "g-42-observed",
+            &NeverCancelled,
+        )
+        .unwrap_err(),
+        AcknowledgmentError::Observation(PublicObservationError::Content(
+            ObservationError::StaleManifest
+        ))
+    );
+    let selected = read_current(&root, &clock()).unwrap();
+    assert_eq!(selected.id, "g-42-seed");
+    assert_eq!(selected.image.pending.unwrap(), pending);
     drop(guard);
     clean(&root);
 }
