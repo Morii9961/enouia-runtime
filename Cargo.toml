@@ -9,3 +9,12 @@ rust-version = "1.98.1"
 [workspace.dependencies]
 serde = { version = "=1.0.229", features = ["derive"] }
 serde_json = "=1.0.151"
+
+# Full debug info was about three quarters of every test executable. Line tables keep file:line in
+# backtraces of our own code; panic messages carry their location without debug info.
+# Clean test build of the workspace: 600 MB -> 434 MB.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
