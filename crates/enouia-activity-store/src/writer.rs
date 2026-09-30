@@ -140,7 +140,7 @@ fn wide(value: &OsStr) -> Vec<u16> {
     value.encode_wide().chain(std::iter::once(0)).collect()
 }
 
-fn switch_current(staged: &Path, current: &Path) -> Result<(), CommitError> {
+fn switch_current(staged: &Path, current: &Path, replace: bool) -> Result<(), CommitError> {
     let from = wide(staged.as_os_str());
     let to = wide(current.as_os_str());
     // Both paths are in one canonical root. COPY_ALLOWED is intentionally absent.
@@ -148,7 +148,12 @@ fn switch_current(staged: &Path, current: &Path) -> Result<(), CommitError> {
         MoveFileExW(
             from.as_ptr(),
             to.as_ptr(),
-            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
+            MOVEFILE_WRITE_THROUGH
+                | if replace {
+                    MOVEFILE_REPLACE_EXISTING
+                } else {
+                    0
+                },
         )
     };
     if result == 0 {
@@ -325,6 +330,26 @@ fn commit_inner<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
         return Err(CommitError::InvalidTransition);
     }
 
+    write_generation(guard, next_id, next_image, &manifest, true, &mut hook)?;
+
+    let observed = read_current(root, clock).map_err(CommitError::PostSwitchValidation)?;
+    if observed.id != next_id {
+        return Err(CommitError::SwitchFailed);
+    }
+    Ok(())
+}
+
+/// Publish a validated image using the same flush and visibility boundaries for
+/// normal commits and first imports. Bootstrap never replaces an existing pointer.
+pub(crate) fn write_generation<F: FnMut(CommitPhase) -> Result<(), ()>>(
+    guard: &ActivityLockGuard,
+    next_id: &str,
+    next_image: &GenerationImage,
+    manifest: &[u8],
+    replace_current: bool,
+    hook: &mut F,
+) -> Result<(), CommitError> {
+    let root = guard.root();
     let generations = root.join("generations");
     let staging = generations.join(format!(".staging-{next_id}"));
     let final_path = generations.join(next_id);
@@ -337,25 +362,20 @@ fn commit_inner<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
         ("sequence.json", Some(next_image.sequence.as_slice())),
         ("pending.json", next_image.pending.as_deref()),
         ("delivery.json", Some(next_image.delivery.as_slice())),
-        ("manifest.json", Some(manifest.as_slice())),
+        ("manifest.json", Some(manifest)),
     ] {
         if let Some(bytes) = bytes {
             write_synced(&staging.join(name), bytes)?;
-            after(&mut hook, CommitPhase::FileFlushed(name))?;
+            after(hook, CommitPhase::FileFlushed(name))?;
         }
     }
     fs::rename(&staging, &final_path).map_err(|_| CommitError::Io)?;
-    after(&mut hook, CommitPhase::GenerationPublished)?;
+    after(hook, CommitPhase::GenerationPublished)?;
 
     let staged_current = root.join(format!("CURRENT.{next_id}.tmp"));
     write_synced(&staged_current, format!("{next_id}\n").as_bytes())?;
-    after(&mut hook, CommitPhase::CurrentPrepared)?;
-    switch_current(&staged_current, &root.join("CURRENT"))?;
-    after(&mut hook, CommitPhase::CurrentSwitched)?;
-
-    let observed = read_current(root, clock).map_err(CommitError::PostSwitchValidation)?;
-    if observed.id != next_id {
-        return Err(CommitError::SwitchFailed);
-    }
+    after(hook, CommitPhase::CurrentPrepared)?;
+    switch_current(&staged_current, &root.join("CURRENT"), replace_current)?;
+    after(hook, CommitPhase::CurrentSwitched)?;
     Ok(())
 }

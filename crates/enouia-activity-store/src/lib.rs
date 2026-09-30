@@ -8,6 +8,8 @@ pub mod overview;
 #[cfg(windows)]
 pub mod legacy_export;
 #[cfg(windows)]
+pub mod legacy_import;
+#[cfg(windows)]
 pub mod legacy_inspect;
 #[cfg(windows)]
 mod lock;
