@@ -20,6 +20,8 @@ The dependency guard checks twelve workspace modules with six negative cases. Th
 
 Start A1.2 by freezing Vault paths/file schemas and cross-file transaction/recovery rules against the pure contracts. Implement OS cryptographic ID entropy, validated in-root paths, canonical Memory/source/candidate/session files, Markdown Identity and a disposable SQLite/FTS index. Preserve source/meaning history and candidate decisions in files, rather than only the index. A partially prepared conversation source or checkpoint is not a complete validated bundle.
 
+The [Vault layout draft](VAULT_LAYOUT_DRAFT_v1.md) records candidate paths and the unresolved journal-versus-generation transaction choice. It is not yet a persistence contract; resolve that choice against the required crash matrix before writes.
+
 Before claiming durable behavior, prove interrupted writes leave complete recoverable data, failed index updates are repaired from canonical files, deleting/corrupting the index reproduces active records, path traversal/reparse escape is blocked, and disk-full keeps prior bytes. Recovery must report orphan/ambiguous cross-file states without silently dropping records. Memory repair must leave Activity state/high-water/pending exactly unchanged. Use temporary marked synthetic roots; no personal Vault or live account migration is established here.
 
 Then attach FTS/metadata retrieval to the ranked Context port, persist the actual capsule before Mock invocation, orchestrate user/Mock turns and checkpoint generation, and prove the synthetic MoriMeta continuation after actual process restart/index rebuild. Add UI only after those backend contracts/operations are reviewable and verified.
