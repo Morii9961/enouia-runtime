@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-01T02:29:44.258Z",
+  "state": "passed",
+  "scope": "actual_reference_publisher_process_death_partial_C16",
+  "node": "v24.15.0",
+  "binarySha256": "2d7f56c88922e311d4d90ab7a5da38b55b95b6c23c60b84250f7e53b9cacc6e7",
+  "harnessSha256": "374eff2da28c0746c0055e9ae5ac658a95d5128894d4afe9218e0c875a5a7e75",
+  "fixtureSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+  "referenceHead": "fd48f88c8b480480fd48a8efe36ef400b3be99b8",
+  "referenceDirtyFiles": [],
+  "referenceFiles": [
+    {
+      "path": "scripts/status-receive.mjs",
+      "sha256": "e32f12e127e38fd552301377cd3b31323269c7f2a394317e1b2f2334570bd98c"
+    },
+    {
+      "path": "scripts/status-publish.mjs",
+      "sha256": "5d95b17ac50025f2828b4c8421ebe8e26fefabe125fad18df8fada6c68b87a55"
+    },
+    {
+      "path": "scripts/lib/status-store.mjs",
+      "sha256": "98638b497acc0386264981457e41bd3c2dbabfdc6104260d1b5845edf5aa092c"
+    },
+    {
+      "path": "scripts/lib/status-batch.mjs",
+      "sha256": "50c1450e19094ff632ee658d983c11c0d25f6c58c76b2fd764cd4dc642134192"
+    },
+    {
+      "path": "src/lib/activity.ts",
+      "sha256": "6e13dc4d9d190f05032b6db3432aeb5754877b321ca74012fbdc6fe4fe47b273"
+    },
+    {
+      "path": "src/lib/status.ts",
+      "sha256": "fb4ce6c27bbef97215d44289cc7a9b1d3a5787740978d39caabae4dc669d9d80"
+    }
+  ],
+  "checks": [
+    "actual receiver/publisher seed a complete sequence-50 public snapshot",
+    "51: killed publisher leaves prior public manifest byte-exact",
+    "51: prior immutable bytes remain exact",
+    "51: new complete state/data exist before manifest switch",
+    "51: abandoned lock belongs to the already terminated owned child",
+    "51: restart refuses abandoned lock without auto-reclamation",
+    "51: paused import preserves killed-publisher candidate",
+    "51: actual curl reads old manifest and retains exact unresolved pending",
+    "51: explicit sandbox lock reconciliation permits actual publisher recovery",
+    "51: recovered manifest selects exact completed data/outcomes",
+    "51: actual Runtime observes recovered publication without SSH/new collection",
+    "51: recovery retains every original daily date and prior immutable data",
+    "52: killed publisher leaves prior public manifest byte-exact",
+    "52: prior immutable bytes remain exact",
+    "52: new complete state/data exist before manifest switch",
+    "52: abandoned lock belongs to the already terminated owned child",
+    "52: restart refuses abandoned lock without auto-reclamation",
+    "52: paused import preserves killed-publisher candidate",
+    "52: actual curl reads old manifest and retains exact unresolved pending",
+    "52: explicit sandbox lock reconciliation permits actual publisher recovery",
+    "52: recovered manifest selects exact completed data/outcomes",
+    "52: actual Runtime observes recovered publication without SSH/new collection",
+    "52: recovery retains every original daily date and prior immutable data",
+    "reference unchanged: scripts/status-receive.mjs",
+    "reference unchanged: scripts/status-publish.mjs",
+    "reference unchanged: scripts/lib/status-store.mjs",
+    "reference unchanged: scripts/lib/status-batch.mjs",
+    "reference unchanged: src/lib/activity.ts",
+    "reference unchanged: src/lib/status.ts"
+  ],
+  "cases": [
+    {
+      "sequence": 51,
+      "forcedTermination": true,
+      "oldPublicHash": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+      "newPublicHash": "396c8866451142ce5c1a2240ba4554789594dfcbb2bc43adcdf40c8c1474073e",
+      "exactPendingSha256": "c40cf49f51f149d60b7849d95739a44ca80043e7a1b5486dac6e675127f89f75",
+      "staleObservation": {
+        "collectionAttempted": false,
+        "errorCode": "unconfigured",
+        "exitCode": 5,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 51,
+        "sourceFailures": 2,
+        "state": "invalid_config",
+        "transportAttempted": true,
+        "transportCompleted": false
+      },
+      "recoveredObservation": {
+        "collectionAttempted": false,
+        "errorCode": null,
+        "exitCode": 2,
+        "nextEligibleAtMs": null,
+        "publicationObserved": true,
+        "schemaVersion": 1,
+        "sequence": 51,
+        "sourceFailures": 2,
+        "state": "publication_observed",
+        "transportAttempted": false,
+        "transportCompleted": false
+      },
+      "orphanStateSequence": 51,
+      "abandonedLockRefused": true,
+      "explicitSandboxLockReconciliation": true
+    },
+    {
+      "sequence": 52,
+      "forcedTermination": true,
+      "oldPublicHash": "396c8866451142ce5c1a2240ba4554789594dfcbb2bc43adcdf40c8c1474073e",
+      "newPublicHash": "ed89b891707b282954f21d659c677d060908304cc4c20725f170314c2ebbd168",
+      "exactPendingSha256": "24ec2a89ce09f235858979d517c311355bc5e096adb804ba15b76ed1e4acac1b",
+      "staleObservation": {
+        "collectionAttempted": false,
+        "errorCode": "unconfigured",
+        "exitCode": 5,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 52,
+        "sourceFailures": 2,
+        "state": "invalid_config",
+        "transportAttempted": true,
+        "transportCompleted": false
+      },
+      "recoveredObservation": {
+        "collectionAttempted": false,
+        "errorCode": null,
+        "exitCode": 2,
+        "nextEligibleAtMs": null,
+        "publicationObserved": true,
+        "schemaVersion": 1,
+        "sequence": 52,
+        "sourceFailures": 2,
+        "state": "publication_observed",
+        "transportAttempted": false,
+        "transportCompleted": false
+      },
+      "orphanStateSequence": 52,
+      "abandonedLockRefused": true,
+      "explicitSandboxLockReconciliation": true
+    }
+  ],
+  "limitations": [
+    "Actual copied publisher process is killed at its beforeManifest hook, after state/data writes.",
+    "Abandoned lock is explicitly removed only in the synthetic sandbox after the owned child has exited; no production lock recovery is automated.",
+    "HTTP is an ephemeral static loopback server and SSH is unavailable by construction.",
+    "Windows process death is not deployed Linux service behavior, power loss, disk-full, or full B4/production acceptance."
+  ]
+}

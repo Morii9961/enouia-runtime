@@ -70,4 +70,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [B4 store hard-kill rehearsal](docs/validation/B4-store-hard-kill.md) verifies 23 actual writer-process terminations across new pending, pause, and receipt commits. Readers retain complete old/new generations and recovery blocks ambiguous published orphans. Power-loss and storage fault durability remain unverified.
 
+[B4 publisher hard-kill rehearsal](docs/validation/B4-publisher-hard-kill.md) verifies old-manifest retention after actual copied publisher death, abandoned-lock refusal, explicit sandbox lock reconciliation, and actual Runtime/curl recovery observation over two new sequences. Deployed-service recovery remains pending.
+
 This project is published under the [MIT License](LICENSE).
