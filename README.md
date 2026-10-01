@@ -68,4 +68,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Pinned ccusage capability](docs/validation/B1.2-ccusage-capability.md) verifies the real 20.0.20 wrapper/native tool and actual Runtime two-store aggregation on synthetic transcripts, including Windows extended store paths. Persistent tool installation and personal inventory acceptance remain pending.
 
+[B4 store hard-kill rehearsal](docs/validation/B4-store-hard-kill.md) verifies 23 actual writer-process terminations across new pending, pause, and receipt commits. Readers retain complete old/new generations and recovery blocks ambiguous published orphans. Power-loss and storage fault durability remain unverified.
+
 This project is published under the [MIT License](LICENSE).
