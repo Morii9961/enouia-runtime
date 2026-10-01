@@ -62,4 +62,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Partial B4 reference acceptance](docs/validation/B4-reference-receiver.md) records actual receiver CLI, publisher and loopback HTTP checks using synthetic data and a copied reference snapshot. This optional development harness is independent of regular builds/tests; full migration and production acceptance remain open.
 
+[B4 frozen comparison](docs/validation/B4-frozen-comparison.md) records 30 identical-input cases, exact per-source daily/time/hash comparisons, declared policy differences, and two legacy GitHub validation differences that remain unaccepted. The pure Rust fixture bridge is an offline development example, not a new production collector.
+
 This project is published under the [MIT License](LICENSE).
