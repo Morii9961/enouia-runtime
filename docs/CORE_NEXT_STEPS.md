@@ -12,6 +12,8 @@ The code baseline through `275924d` is committed/pushed. Architecture v0.3 and a
 
 Latest full workspace result: **212 passed**, fmt and clippy all targets pass; release Activity builds. Release SHA-256: `246ab1e35ba568e6a4fb0a55f658aa9e9bfb945fb67292a966f218edea5e17ee`. Shared SHA utility moved unchanged into common; Activity's public API/semantics remain covered. Historical B4 reports retain their original source/binary hashes.
 
+Two subsequent targeted Context tests also pass (10 Context tests now): a real pending proposal cannot be selected; an oversized higher-ranked record is excluded while a later smaller record is admitted whole. Mandatory Identity is refused rather than truncated. No production code changed, so the full 212-test baseline remains applicable.
+
 The dependency guard checks twelve workspace modules with six negative cases. The Activity evidence index checks seven historical reports and 59 linked selectors across C01–C18, with eight negative cases. Both unresolved GitHub comparison cases remain unaccepted. Neither checker is behavioral production evidence.
 
 ## Next implementation boundary

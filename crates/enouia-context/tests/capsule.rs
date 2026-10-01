@@ -215,3 +215,73 @@ fn omitted_provenance_forged_budget_wrong_section_and_activity_field_fail() {
     json["activity"] = serde_json::json!({"tokens":99});
     assert!(serde_json::from_value::<ContextCapsule>(json).is_err());
 }
+
+#[test]
+fn oversized_high_rank_record_does_not_block_later_small_complete_record() {
+    let mut f = fixture();
+    let mut large = f.memory.memories[0].clone();
+    large.memory_id = id("mem_", 7);
+    large.content = "large synthetic content ".repeat(4_000);
+    let original = large.clone();
+    f.memory.memories.push(large);
+    let compiled = compile_ranked(
+        base(5_000),
+        vec![
+            ranked(7, 0, InclusionReason::RelevantMemory),
+            ranked(1, 1, InclusionReason::RelevantMemory),
+        ],
+        &f.memory,
+        &f.sessions,
+    )
+    .unwrap();
+    assert_eq!(
+        compiled.exclusions,
+        vec![ContextExclusion {
+            entry_id: id("mem_", 7),
+            reason: ExclusionReason::BudgetExceeded
+        }]
+    );
+    assert_eq!(
+        compiled.capsule.relevant_memories,
+        vec![f.memory.memories[0].clone()]
+    );
+    assert_eq!(f.memory.memories.last().unwrap(), &original);
+    let bytes = compiled
+        .capsule
+        .provider_bytes(&f.memory, &f.sessions)
+        .unwrap();
+    assert!(
+        !String::from_utf8(bytes)
+            .unwrap()
+            .contains("large synthetic content")
+    );
+}
+
+#[test]
+fn actual_pending_candidate_cannot_be_selected_and_identity_is_never_truncated() {
+    let mut f = fixture();
+    let mut proposal = f.memory.memories[0].clone();
+    proposal.memory_id = id("mem_", 7);
+    proposal.source_id = id("src_", 2);
+    proposal.content = "unapproved synthetic proposal".into();
+    f.memory.candidates.push(enouia_memory::CandidateRecord {
+        schema_version: 1,
+        candidate_id: id("cand_", 1),
+        created_at: proposal.created_at.clone(),
+        updated_at: proposal.updated_at.clone(),
+        proposal,
+        decision: enouia_memory::CandidateDecision::Pending {},
+    });
+    assert!(
+        compile_ranked(
+            base(20_000),
+            vec![ranked(7, 0, InclusionReason::RelevantMemory)],
+            &f.memory,
+            &f.sessions
+        )
+        .is_err()
+    );
+    let mut seed = base(20_000);
+    seed.identity[0].content = "mandatory identity ".repeat(3_000);
+    assert_eq!(seed.seal_budget().unwrap_err().code, "budget_exceeded");
+}

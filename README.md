@@ -82,7 +82,7 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Local Core IPC v1](docs/CORE_IPC_v1.md) defines typed Inspector, candidate review and Session requests with backend-owned canonical identity/provenance/times. [Seven offline checks](docs/validation/A1.1-core-ipc.md) verify closed DTOs and explicit model-only versus canonical-file commit results. UI and actual Context handlers remain pending.
 
-[Context Capsule v1](docs/CONTEXT_CAPSULE_v1.md) now provides exact canonical provenance, conservative local UTF-8 budgeting and deterministic whole-record selection from ranked inputs. [Eight offline checks](docs/validation/A1-context-capsule.md) verify the frozen synthetic capsule. FTS/query scoring, Provider calls, persistence and Inspector UI remain pending.
+[Context Capsule v1](docs/CONTEXT_CAPSULE_v1.md) now provides exact canonical provenance, conservative local UTF-8 budgeting and deterministic whole-record selection from ranked inputs. [Ten offline checks](docs/validation/A1-context-capsule.md) verify the frozen synthetic capsule and candidate/overflow boundaries. FTS/query scoring, real Provider calls, persistence and Inspector UI remain pending.
 
 [Offline Mock Provider v1](docs/PROVIDER_MOCK_v1.md) now consumes only prepared exact capsule bytes and returns included ProjectState content/state/open loops with a consumed hash. [Eight offline checks](docs/validation/A2-mock-provider.md) verify its deterministic behavior and candidate-only tool contracts. Real providers, persistence, retrieval and orchestration remain pending.
 
