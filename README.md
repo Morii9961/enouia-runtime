@@ -60,4 +60,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Installation/scheduler guide](docs/ACTIVITY_SCHEDULER.md) and [B3.2 validation](docs/validation/B3.2-scheduler.md) document disabled defaults, data-preserving uninstall, and the actual sandbox task checks.
 
+[Partial B4 reference acceptance](docs/validation/B4-reference-receiver.md) records actual receiver CLI, publisher and loopback HTTP checks using synthetic data and a copied reference snapshot. This optional development harness is independent of regular builds/tests; full migration and production acceptance remain open.
+
 This project is published under the [MIT License](LICENSE).
