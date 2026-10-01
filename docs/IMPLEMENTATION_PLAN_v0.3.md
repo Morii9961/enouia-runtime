@@ -60,6 +60,8 @@ Acceptance/tests: commit file then fail index update, restart/rebuild and recove
 
 ### A2.1 Context and Provider ports
 
+Progress: pure [ranked Capsule assembly](CONTEXT_CAPSULE_v1.md) and [offline Mock Provider](PROVIDER_MOCK_v1.md) are implemented with exact prepared-byte/hash checks. FTS/metadata retrieval, persisted invocation history and complete inspector/orchestration acceptance remain open.
+
 Owner paths: `enouia-context`, `enouia-provider`, `contracts/{context,provider}`.
 
 Implement FTS/metadata retrieval, stable ranking, deterministic budget truncation and reasons for exclusion, actual capsule inspection, and Mock Provider. Freeze the initial conservative token-estimation rule and overflow behavior in A1/M0 schema follow-up; do not add a real provider or embedding dependency. Each provider invocation consumes the recorded capsule rather than assembling hidden context.

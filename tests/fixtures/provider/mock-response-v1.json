@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "request_id": "req_00000000000000000000000000000001",
+  "capsule_id": "cap_00000000000000000000000000000001",
+  "consumed_capsule_sha256": "7ac11a64f3671a0566640a7ee86dea86f7acd411daf1bdf16740b6d0ce1c8d6d",
+  "consumed_bytes": 2171,
+  "text": "Mock: included ProjectState records:\nmem_00000000000000000000000000000004: Synthetic project_state content\nState: Model contracts in progress\nOpen loop: Implement session turn linkage",
+  "project_states": [
+    {
+      "memory_id": "mem_00000000000000000000000000000004",
+      "content": "Synthetic project_state content",
+      "state": "Model contracts in progress",
+      "open_loops": [
+        "Implement session turn linkage"
+      ]
+    }
+  ],
+  "tool_requests": []
+}

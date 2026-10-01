@@ -1,0 +1,13 @@
+# Offline Provider ports and Mock v1
+
+Date: 2026-10-01. Authority: Architecture v0.3 §6 and ADR-007. Scope: A2 Provider ports and deterministic Mock; no real inference provider, tools dispatcher, session orchestration or persistence.
+
+[Provider ports v1](../contracts/provider/ports-v1.schema.json) define ProviderRequest/Response/Capabilities and ToolRequest/Result. A request contains only its version, opaque `req_` ID and the actual Context Capsule. It has no endpoint, credential or hidden messages field. `ProviderRequest::prepare` validates the capsule against the complete canonical bundle and freezes its exact compact UTF-8 bytes. Prepared requests expose read-only capsule bytes/identity and cannot be constructed by direct DTO deserialization.
+
+The Provider port accepts only that prepared request and cancellation. It receives no canonical repository, source registry, filesystem or network handle. Mock reads included ProjectState records only, sorted by memory ID, echoes their content/state/open loops and otherwise says no ProjectState was included. It treats canonical content as the display text rather than inventing a separate title. Repeated requests give the same response. No network or authentication is configured, no tool is executed, and no candidate is automatically approved.
+
+Mock capabilities declare `mock-v1`, a 32,768-unit limit under the local UTF-8 policy, no network and no tools. Cancellation and input above that limit return explicit refusal without a reply. Its response records exact consumed capsule SHA-256 and byte count. Response validation checks request/capsule identity, matching consumed bytes/hash, project content/provenance and permitted tool calls. SHA-256 was relocated unchanged into the shared pure common utility; Activity retains its existing re-export and has no Core dependency.
+
+The only reserved tool is `propose_memory`: a validated draft and `tool_` call ID. A result may name a queued `cand_` ID or say unsupported. It cannot represent a direct canonical memory commit. No dispatcher is implemented; future orchestration must create a canonical candidate/source and require actual review. The initial Mock emits no tool requests.
+
+The frozen synthetic reply names one included project, contains its unresolved step, and records 2,171 consumed bytes with SHA-256 `7ac11a64f3671a0566640a7ee86dea86f7acd411daf1bdf16740b6d0ce1c8d6d`. Node crypto independently computed this fixture hash; Rust matches it exactly. Neither model serialization nor prepared bytes constitute a persisted invocation audit. Durable actual-capsule history, FTS retrieval, Mock turn/checkpoint orchestration and UI inspection remain A1.2/A2/A3 work.

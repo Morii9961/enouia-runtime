@@ -17,6 +17,8 @@ Date: 2026-10-01. Scope: A1.1 typed local interface contract. No Tauri handler, 
 
 Drafts contain content and type-specific proposed fields, never a canonical memory/source ID, status, creation/update time or schema version. Ordinary explicit save excludes SessionCheckpoint; its dedicated command enforces the session boundary. Candidate review may edit a checkpoint draft, but the backend still preserves candidate ID/provenance/kind and validates complete turn linkage. Inferred proposal creation is an internal backend operation, without an IPC command that pretends review happened.
 
+The shared draft type/schema belongs to Memory and is re-exported by this interface. Provider can propose the same draft without depending on a UI contract or creating a future Core/Provider dependency cycle.
+
 Closed request shapes reject unknown fields, including the no-argument snapshot command. Client path-like IDs fail validation. A client marker is not proof of authorization: the future handler must originate mutations from actual UI user interactions and revalidate current backend state. This crate implements DTO validation, not those handlers or a security sandbox.
 
 Responses are `core_snapshot`, `core_session`, `core_mutation_completed`, or `core_error`. Mutation results distinguish `model_only` from `canonical_files_committed`; tests/models may emit the first. A handler must emit the second only after canonical files and the associated Session/Memory boundary are committed, even when the disposable index remains degraded. The enum cannot itself prove a disk commit. Complete snapshot validation checks provenance and Session linkage; single-session validation checks shape and requires the read facade to have checked canonical provenance.

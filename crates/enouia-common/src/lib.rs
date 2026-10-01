@@ -1,5 +1,8 @@
 //! Shared, side-effect-free ports and DTOs. Domain state belongs to its own crate.
 
+mod sha256;
+pub use sha256::sha256_hex;
+
 use serde::{Deserialize, Serialize};
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};

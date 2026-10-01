@@ -1,6 +1,5 @@
 //! Independent Activity v1 wire contract. No Activity storage or Runtime Core dependency.
 
-mod sha256;
 mod time;
 
 use enouia_common::Clock;
@@ -8,7 +7,7 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 use std::collections::HashSet;
 
-pub use sha256::sha256_hex;
+pub use enouia_common::sha256_hex;
 pub const MAX_SAFE_INTEGER: u64 = 9_007_199_254_740_991;
 
 /// The frozen Shanghai calendar date used for activity acquisition bounds.

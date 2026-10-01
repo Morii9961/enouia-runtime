@@ -95,6 +95,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "enouia-provider"
+version = "0.1.0"
+dependencies = [
+ "enouia-common",
+ "enouia-context",
+ "enouia-memory",
+ "enouia-session",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "enouia-session"
 version = "0.1.0"
 dependencies = [

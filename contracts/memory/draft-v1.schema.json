@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Memory proposed draft v1",
+  "description": "Shared model input for explicit saves and reviewed Provider proposals. Backend assigns canonical identity, provenance and time.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "enum": [
+        "fact",
+        "preference",
+        "episode",
+        "project_state",
+        "session_checkpoint"
+      ]
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectId": {
+      "anyOf": [
+        {
+          "$ref": "models-v1.schema.json#/$defs/projectId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "validity": {
+      "anyOf": [
+        {
+          "$ref": "models-v1.schema.json#/$defs/validity"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "supersedes": {
+      "anyOf": [
+        {
+          "$ref": "models-v1.schema.json#/$defs/memoryId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "openLoops": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "sessionId": {
+      "anyOf": [
+        {
+          "$ref": "models-v1.schema.json#/$defs/sessionId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coveredTurns": {
+      "anyOf": [
+        {
+          "$ref": "models-v1.schema.json#/$defs/turnRange"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lastState": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "type",
+    "content"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "project_state"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "projectId": {
+            "$ref": "models-v1.schema.json#/$defs/projectId"
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sessionId": {
+            "type": "null"
+          },
+          "coveredTurns": {
+            "type": "null"
+          },
+          "lastState": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "projectId",
+          "state"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "session_checkpoint"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "sessionId": {
+            "$ref": "models-v1.schema.json#/$defs/sessionId"
+          },
+          "coveredTurns": {
+            "$ref": "models-v1.schema.json#/$defs/turnRange"
+          },
+          "lastState": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "type": "null"
+          },
+          "decisions": {
+            "maxItems": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "coveredTurns",
+          "lastState"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "fact"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "type": "null"
+          },
+          "decisions": {
+            "maxItems": 0
+          },
+          "openLoops": {
+            "maxItems": 0
+          },
+          "sessionId": {
+            "type": "null"
+          },
+          "coveredTurns": {
+            "type": "null"
+          },
+          "lastState": {
+            "type": "null"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "preference"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "type": "null"
+          },
+          "decisions": {
+            "maxItems": 0
+          },
+          "openLoops": {
+            "maxItems": 0
+          },
+          "sessionId": {
+            "type": "null"
+          },
+          "coveredTurns": {
+            "type": "null"
+          },
+          "lastState": {
+            "type": "null"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "episode"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "type": "null"
+          },
+          "decisions": {
+            "maxItems": 0
+          },
+          "openLoops": {
+            "maxItems": 0
+          },
+          "sessionId": {
+            "type": "null"
+          },
+          "coveredTurns": {
+            "type": "null"
+          },
+          "lastState": {
+            "type": "null"
+          }
+        },
+        "required": []
+      }
+    }
+  ]
+}

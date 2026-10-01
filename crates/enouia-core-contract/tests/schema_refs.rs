@@ -10,6 +10,10 @@ fn schema(path: &str) -> Value {
             include_str!("../../../contracts/session/session-v1.schema.json")
         }
         "common-v1.schema.json" => include_str!("../../../contracts/ipc/common-v1.schema.json"),
+        "../memory/draft-v1.schema.json" => {
+            include_str!("../../../contracts/memory/draft-v1.schema.json")
+        }
+        "models-v1.schema.json" => include_str!("../../../contracts/memory/models-v1.schema.json"),
         _ => panic!("unbundled schema: {path}"),
     })
     .unwrap()
@@ -47,6 +51,7 @@ fn core_schema_and_all_direct_contract_references_resolve_offline() {
         "../memory/models-v1.schema.json",
         "../session/session-v1.schema.json",
         "common-v1.schema.json",
+        "../memory/draft-v1.schema.json",
     ] {
         let root = schema(path);
         references(&root, &root);
@@ -56,7 +61,7 @@ fn core_schema_and_all_direct_contract_references_resolve_offline() {
 #[test]
 fn closed_drafts_have_no_canonical_identity_or_commit_fields() {
     let root = schema("core");
-    let draft = &root["$defs"]["memoryDraft"];
+    let draft = schema("../memory/draft-v1.schema.json");
     assert_eq!(draft["additionalProperties"], false);
     for key in [
         "memoryId",
