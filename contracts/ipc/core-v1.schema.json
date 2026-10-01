@@ -1,0 +1,700 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local Core IPC v1",
+  "description": "Draft-only UI mutation requests. IDs/provenance/clocks/actual review authorization and durable commit evidence remain backend responsibilities. Nested canonical records retain their snake_case model names.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/response"
+    }
+  ],
+  "$defs": {
+    "memoryDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "fact",
+            "preference",
+            "episode",
+            "project_state",
+            "session_checkpoint"
+          ]
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectId": {
+          "anyOf": [
+            {
+              "$ref": "../memory/models-v1.schema.json#/$defs/projectId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "validity": {
+          "anyOf": [
+            {
+              "$ref": "../memory/models-v1.schema.json#/$defs/validity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "supersedes": {
+          "anyOf": [
+            {
+              "$ref": "../memory/models-v1.schema.json#/$defs/memoryId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "openLoops": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "sessionId": {
+          "anyOf": [
+            {
+              "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coveredTurns": {
+          "anyOf": [
+            {
+              "$ref": "../memory/models-v1.schema.json#/$defs/turnRange"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastState": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "content"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "project_state"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "projectId": {
+                "$ref": "../memory/models-v1.schema.json#/$defs/projectId"
+              },
+              "state": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sessionId": {
+                "type": "null"
+              },
+              "coveredTurns": {
+                "type": "null"
+              },
+              "lastState": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "projectId",
+              "state"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "session_checkpoint"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "sessionId": {
+                "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+              },
+              "coveredTurns": {
+                "$ref": "../memory/models-v1.schema.json#/$defs/turnRange"
+              },
+              "lastState": {
+                "type": "string",
+                "minLength": 1
+              },
+              "state": {
+                "type": "null"
+              },
+              "decisions": {
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "coveredTurns",
+              "lastState"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "fact"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "type": "null"
+              },
+              "decisions": {
+                "maxItems": 0
+              },
+              "openLoops": {
+                "maxItems": 0
+              },
+              "sessionId": {
+                "type": "null"
+              },
+              "coveredTurns": {
+                "type": "null"
+              },
+              "lastState": {
+                "type": "null"
+              }
+            },
+            "required": []
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "preference"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "type": "null"
+              },
+              "decisions": {
+                "maxItems": 0
+              },
+              "openLoops": {
+                "maxItems": 0
+              },
+              "sessionId": {
+                "type": "null"
+              },
+              "coveredTurns": {
+                "type": "null"
+              },
+              "lastState": {
+                "type": "null"
+              }
+            },
+            "required": []
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "episode"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "type": "null"
+              },
+              "decisions": {
+                "maxItems": 0
+              },
+              "openLoops": {
+                "maxItems": 0
+              },
+              "sessionId": {
+                "type": "null"
+              },
+              "coveredTurns": {
+                "type": "null"
+              },
+              "lastState": {
+                "type": "null"
+              }
+            },
+            "required": []
+          }
+        }
+      ]
+    },
+    "candidateReview": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "const": "approve"
+            },
+            "edited": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/memoryDraft"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "action"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "const": "reject"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "action",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "request": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_get_snapshot"
+            }
+          },
+          "required": [
+            "operation"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_save_memory"
+            },
+            "saveMode": {
+              "enum": [
+                "inspector",
+                "remember"
+              ]
+            },
+            "draft": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/memoryDraft"
+                },
+                {
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "preference",
+                        "episode",
+                        "project_state"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "operation",
+            "saveMode",
+            "draft"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_review_candidate"
+            },
+            "candidateId": {
+              "$ref": "../memory/models-v1.schema.json#/$defs/candidateId"
+            },
+            "review": {
+              "$ref": "#/$defs/candidateReview"
+            }
+          },
+          "required": [
+            "operation",
+            "candidateId",
+            "review"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_undo_supersession"
+            },
+            "memoryId": {
+              "$ref": "../memory/models-v1.schema.json#/$defs/memoryId"
+            }
+          },
+          "required": [
+            "operation",
+            "memoryId"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_create_session"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "operation",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_get_session"
+            },
+            "sessionId": {
+              "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+            }
+          },
+          "required": [
+            "operation",
+            "sessionId"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_append_user_turn"
+            },
+            "sessionId": {
+              "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+            },
+            "content": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "operation",
+            "sessionId",
+            "content"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "core_create_checkpoint"
+            },
+            "sessionId": {
+              "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+            },
+            "coveredTurns": {
+              "$ref": "../memory/models-v1.schema.json#/$defs/turnRange"
+            },
+            "lastState": {
+              "type": "string",
+              "minLength": 1
+            },
+            "openLoops": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "operation",
+            "sessionId",
+            "coveredTurns",
+            "lastState",
+            "openLoops"
+          ]
+        }
+      ]
+    },
+    "response": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schemaVersion": {
+              "const": 1
+            },
+            "kind": {
+              "const": "core_snapshot"
+            },
+            "memory": {
+              "$ref": "../memory/models-v1.schema.json"
+            },
+            "sessions": {
+              "type": "array",
+              "items": {
+                "$ref": "../session/session-v1.schema.json"
+              }
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "kind",
+            "memory",
+            "sessions"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schemaVersion": {
+              "const": 1
+            },
+            "kind": {
+              "const": "core_session"
+            },
+            "session": {
+              "$ref": "../session/session-v1.schema.json"
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "kind",
+            "session"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schemaVersion": {
+              "const": 1
+            },
+            "kind": {
+              "const": "core_mutation_completed"
+            },
+            "commitState": {
+              "enum": [
+                "model_only",
+                "canonical_files_committed"
+              ]
+            },
+            "memoryId": {
+              "anyOf": [
+                {
+                  "$ref": "../memory/models-v1.schema.json#/$defs/memoryId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "candidateId": {
+              "anyOf": [
+                {
+                  "$ref": "../memory/models-v1.schema.json#/$defs/candidateId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sessionId": {
+              "anyOf": [
+                {
+                  "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "turnId": {
+              "anyOf": [
+                {
+                  "$ref": "../memory/models-v1.schema.json#/$defs/turnId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "kind",
+            "commitState",
+            "memoryId",
+            "candidateId",
+            "sessionId",
+            "turnId"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schemaVersion": {
+              "const": 1
+            },
+            "kind": {
+              "const": "core_error"
+            },
+            "error": {
+              "allOf": [
+                {
+                  "$ref": "common-v1.schema.json#/$defs/structuredError"
+                },
+                {
+                  "properties": {
+                    "component": {
+                      "enum": [
+                        "core",
+                        "vault",
+                        "memory_index",
+                        "provider",
+                        "session"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "kind",
+            "error"
+          ]
+        }
+      ]
+    }
+  }
+}

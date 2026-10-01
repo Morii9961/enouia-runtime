@@ -78,7 +78,7 @@ impl SessionRecord {
         Ok(result)
     }
 
-    fn validate_shape(&self) -> Result<(), ValidationError> {
+    pub fn validate_shape(&self) -> Result<(), ValidationError> {
         require(
             self.schema_version == 1,
             "unsupported_schema",
