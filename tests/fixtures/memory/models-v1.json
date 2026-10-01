@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "schema_version": 1,
+      "source_id": "src_00000000000000000000000000000001",
+      "kind": "manual_save",
+      "title": "Synthetic manual_save",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "session_id": null,
+      "turn_id": null,
+      "importer_version": null,
+      "raw_sha256": null
+    },
+    {
+      "schema_version": 1,
+      "source_id": "src_00000000000000000000000000000002",
+      "kind": "explicit_remember",
+      "title": "Synthetic explicit_remember",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "session_id": null,
+      "turn_id": null,
+      "importer_version": null,
+      "raw_sha256": null
+    },
+    {
+      "schema_version": 1,
+      "source_id": "src_00000000000000000000000000000003",
+      "kind": "conversation_turn",
+      "title": "Synthetic conversation_turn",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "session_id": "ses_00000000000000000000000000000001",
+      "turn_id": "turn_00000000000000000000000000000001",
+      "importer_version": null,
+      "raw_sha256": null
+    },
+    {
+      "schema_version": 1,
+      "source_id": "src_00000000000000000000000000000004",
+      "kind": "import",
+      "title": "Synthetic import",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "session_id": null,
+      "turn_id": null,
+      "importer_version": "synthetic-import-v1",
+      "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "memories": [
+    {
+      "schema_version": 1,
+      "memory_id": "mem_00000000000000000000000000000001",
+      "type": "fact",
+      "content": "Synthetic fact content",
+      "source_id": "src_00000000000000000000000000000001",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "updated_at": "2026-10-01T09:00:00.000Z",
+      "status": "active",
+      "project_id": null,
+      "tags": [
+        "synthetic"
+      ],
+      "validity": null,
+      "confidence": null,
+      "supersedes": null,
+      "state": null,
+      "decisions": [],
+      "open_loops": [],
+      "session_id": null,
+      "covered_turns": null,
+      "last_state": null
+    },
+    {
+      "schema_version": 1,
+      "memory_id": "mem_00000000000000000000000000000002",
+      "type": "preference",
+      "content": "Synthetic preference content",
+      "source_id": "src_00000000000000000000000000000001",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "updated_at": "2026-10-01T09:00:00.000Z",
+      "status": "active",
+      "project_id": null,
+      "tags": [
+        "synthetic"
+      ],
+      "validity": null,
+      "confidence": null,
+      "supersedes": null,
+      "state": null,
+      "decisions": [],
+      "open_loops": [],
+      "session_id": null,
+      "covered_turns": null,
+      "last_state": null
+    },
+    {
+      "schema_version": 1,
+      "memory_id": "mem_00000000000000000000000000000003",
+      "type": "episode",
+      "content": "Synthetic episode content",
+      "source_id": "src_00000000000000000000000000000001",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "updated_at": "2026-10-01T09:00:00.000Z",
+      "status": "active",
+      "project_id": null,
+      "tags": [
+        "synthetic"
+      ],
+      "validity": null,
+      "confidence": null,
+      "supersedes": null,
+      "state": null,
+      "decisions": [],
+      "open_loops": [],
+      "session_id": null,
+      "covered_turns": null,
+      "last_state": null
+    },
+    {
+      "schema_version": 1,
+      "memory_id": "mem_00000000000000000000000000000004",
+      "type": "project_state",
+      "content": "Synthetic project_state content",
+      "source_id": "src_00000000000000000000000000000001",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "updated_at": "2026-10-01T09:00:00.000Z",
+      "status": "active",
+      "project_id": "prj_00000000000000000000000000000001",
+      "tags": [
+        "synthetic"
+      ],
+      "validity": null,
+      "confidence": null,
+      "supersedes": null,
+      "state": "Model contracts in progress",
+      "decisions": [
+        "Keep Activity separate"
+      ],
+      "open_loops": [
+        "Implement session turn linkage"
+      ],
+      "session_id": null,
+      "covered_turns": null,
+      "last_state": null
+    },
+    {
+      "schema_version": 1,
+      "memory_id": "mem_00000000000000000000000000000005",
+      "type": "session_checkpoint",
+      "content": "Synthetic session_checkpoint content",
+      "source_id": "src_00000000000000000000000000000001",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "updated_at": "2026-10-01T09:00:00.000Z",
+      "status": "active",
+      "project_id": null,
+      "tags": [
+        "synthetic"
+      ],
+      "validity": null,
+      "confidence": null,
+      "supersedes": null,
+      "state": null,
+      "decisions": [],
+      "open_loops": [
+        "Continue offline model validation"
+      ],
+      "session_id": "ses_00000000000000000000000000000001",
+      "covered_turns": {
+        "first_turn_id": "turn_00000000000000000000000000000001",
+        "last_turn_id": "turn_00000000000000000000000000000002"
+      },
+      "last_state": "Synthetic checkpoint"
+    }
+  ],
+  "candidates": [
+    {
+      "schema_version": 1,
+      "candidate_id": "cand_00000000000000000000000000000001",
+      "created_at": "2026-10-01T09:00:00.000Z",
+      "updated_at": "2026-10-01T09:00:00.000Z",
+      "proposal": {
+        "schema_version": 1,
+        "memory_id": "mem_00000000000000000000000000000006",
+        "type": "fact",
+        "content": "Synthetic fact content",
+        "source_id": "src_00000000000000000000000000000003",
+        "created_at": "2026-10-01T09:00:00.000Z",
+        "updated_at": "2026-10-01T09:00:00.000Z",
+        "status": "active",
+        "project_id": null,
+        "tags": [
+          "synthetic"
+        ],
+        "validity": null,
+        "confidence": null,
+        "supersedes": null,
+        "state": null,
+        "decisions": [],
+        "open_loops": [],
+        "session_id": null,
+        "covered_turns": null,
+        "last_state": null
+      },
+      "decision": {
+        "status": "pending"
+      }
+    }
+  ]
+}
