@@ -1,0 +1,429 @@
+{
+  "schemaVersion": 1,
+  "scope": "historical_isolated_evidence_index",
+  "b4SignedOff": false,
+  "b5Activated": false,
+  "reports": [
+    {
+      "id": "receiver",
+      "path": "docs/validation/B4/reference-receiver.json",
+      "sha256": "8df55b20771403d43c4c4b4ba3613f11d574ae029f8381a7de8e9392b828da11",
+      "state": "passed",
+      "selectorCount": 31
+    },
+    {
+      "id": "frozen",
+      "path": "docs/validation/B4/frozen-comparison.json",
+      "sha256": "7e5b6b17c23f3fa6a9a8b713f65c8b6b47f7593ced01ebde69b43db168381a97",
+      "state": "completed_with_unresolved_differences",
+      "selectorCount": 30
+    },
+    {
+      "id": "handback",
+      "path": "docs/validation/B4/subprocess-handback.json",
+      "sha256": "a26c81a0437d5dc228a3dbbc32f5e9674ace00714712848944a532c8c71b953e",
+      "state": "passed",
+      "selectorCount": 34
+    },
+    {
+      "id": "ccusage",
+      "path": "docs/validation/B1.2/ccusage-capability.json",
+      "sha256": "612f681445bc4e0c1b32726be82684221b83cfcd62288222858407c8995aa917",
+      "state": "passed",
+      "selectorCount": 16
+    },
+    {
+      "id": "store",
+      "path": "docs/validation/B4/store-hard-kill.json",
+      "sha256": "7d915ef0442519b6a9bb354ea076a86c1df77106eec4cff9a082ae4e7eb30f37",
+      "state": "passed",
+      "selectorCount": 161
+    },
+    {
+      "id": "publisher",
+      "path": "docs/validation/B4/publisher-hard-kill.json",
+      "sha256": "0cb510efcf61bad14b57ac0f050b3ccc55daf0d60a9d224a2d11ce20055a49f7",
+      "state": "passed",
+      "selectorCount": 29
+    },
+    {
+      "id": "runner",
+      "path": "docs/validation/B4/runner-hard-kill.json",
+      "sha256": "6bbbf81d839af05e85aa257dcbe681d2db7d90f63fc73494584060a46e4162d4",
+      "state": "passed",
+      "selectorCount": 24
+    }
+  ],
+  "cases": [
+    {
+      "id": "C01",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C01-three-success"
+          ]
+        }
+      ],
+      "remaining": [
+        "Reconcile real frozen inputs and sign off all literal, daily and success-time comparisons."
+      ]
+    },
+    {
+      "id": "C02",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C02-rolling-retains-history"
+          ]
+        }
+      ],
+      "remaining": [
+        "Reconcile real shortened source windows against imported lifetime history."
+      ]
+    },
+    {
+      "id": "C03",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C03-github-down-codex-up-claude-up",
+            "C03-claude-down"
+          ]
+        }
+      ],
+      "remaining": [
+        "Sign off the deliberate Claude admission-floor correction and real downward corrections."
+      ]
+    },
+    {
+      "id": "C04",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C04-github-failure",
+            "C04-codex-failure",
+            "C04-claude-failure",
+            "C04-all-fail",
+            "C04-null-history-all-fail"
+          ]
+        },
+        {
+          "report": "receiver",
+          "selectors": [
+            "C04: real runner freezes three unconfigured failures",
+            "C04: every prior source date/value/time retained",
+            "C04: legacy envelope derives the exact Runtime outcomes"
+          ]
+        }
+      ],
+      "remaining": [
+        "Exercise authenticated tools failing independently on the target installation."
+      ]
+    },
+    {
+      "id": "C05",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C05-unchanged-zero-fresh",
+            "C05-all-empty"
+          ]
+        }
+      ],
+      "remaining": [
+        "Observe unchanged and explicit-zero real source cycles without malformed-report ambiguity."
+      ]
+    },
+    {
+      "id": "C06",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C06-impossible-github-date",
+            "C06-duplicate-github-date",
+            "C06-duplicate-codex-date",
+            "C06-duplicate-claude-date",
+            "C06-leap-date",
+            "C06-negative-github",
+            "C06-unsafe-github-value",
+            "C06-unsafe-github-sum"
+          ]
+        }
+      ],
+      "remaining": [
+        "Resolve duplicate GitHub dates and unsafe aggregate differences; finish wrong-unit/time-zone matrix."
+      ]
+    },
+    {
+      "id": "C07",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C07-unsupported-method",
+            "C07-missing-lifetime",
+            "C07-mismatched-lifetime"
+          ]
+        }
+      ],
+      "remaining": [
+        "Complete live Codex capability acceptance and sign off missing-lifetime policy."
+      ]
+    },
+    {
+      "id": "C08",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C08-report-total-mismatch",
+            "C08-cache-reasoning-disjoint-stores"
+          ]
+        },
+        {
+          "report": "ccusage",
+          "selectors": [
+            "Runtime aggregates real reports to exact dates 40 and 1"
+          ]
+        }
+      ],
+      "remaining": [
+        "Finish unreadable/duplicate real-store acceptance and sign off report-total policy."
+      ]
+    },
+    {
+      "id": "C09",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C09-clock-rollback",
+            "C09-end-date-rollback",
+            "C09-ai-admission-floor",
+            "C09-known-before-floor-retained",
+            "C09-future-input-ignored"
+          ]
+        }
+      ],
+      "remaining": [
+        "Finish clock repair/reconciliation workflow on installed configuration."
+      ]
+    },
+    {
+      "id": "C10",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "frozen",
+          "selectors": [
+            "C10-private-sentinels"
+          ]
+        }
+      ],
+      "remaining": [
+        "Finish privacy review across installed exports, diagnostics, UI and provider boundaries."
+      ]
+    },
+    {
+      "id": "C11",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "runner",
+          "selectors": [
+            "gh: live Runtime holds the single-writer OS lock"
+          ]
+        }
+      ],
+      "remaining": [
+        "Observe real scheduler/manual conflict and quiesce the actual legacy writer; ready-tree death does not cover spawn/job-assignment interval."
+      ]
+    },
+    {
+      "id": "C12",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "store",
+          "selectors": [
+            "new_batch/current_switched: CURRENT references one complete generation"
+          ]
+        },
+        {
+          "report": "runner",
+          "selectors": [
+            "ssh: Runtime/tool/grandchild live handles all signal within bound"
+          ]
+        }
+      ],
+      "remaining": [
+        "Complete disk-full, mid-write interruption and power-loss durability evidence."
+      ]
+    },
+    {
+      "id": "C13",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "handback",
+          "selectors": [
+            "C13: both retries send the exact original bytes and sequence"
+          ]
+        }
+      ],
+      "remaining": [
+        "Exercise actual restricted remote transport disconnects before/after receipt."
+      ]
+    },
+    {
+      "id": "C14",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "receiver",
+          "selectors": [
+            "C14: sequence 51 exit zero does not replace inbox",
+            "C14: sequence 50 exit zero does not replace inbox",
+            "C14: higher remote sequence changes public hash",
+            "C14-higher-remote: unsafe observation retains exact pending"
+          ]
+        }
+      ],
+      "remaining": [
+        "Reconcile actual higher remote sequences and receipt ambiguity against real producer history."
+      ]
+    },
+    {
+      "id": "C15",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "receiver",
+          "selectors": [
+            "C15: receiver accepts historical-date loss candidate",
+            "C15: publisher preserves last complete data on date loss",
+            "C15-refused-publication: unsafe observation retains exact pending"
+          ]
+        }
+      ],
+      "remaining": [
+        "Finish success-time-loss candidate and real degraded/public retention acceptance."
+      ]
+    },
+    {
+      "id": "C16",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "receiver",
+          "selectors": [
+            "C16-stale: unsafe observation retains exact pending",
+            "C16-hash: unsafe observation retains exact pending",
+            "C16-outcomes: unsafe observation retains exact pending",
+            "C16-redirect: unsafe observation retains exact pending",
+            "C16: interrupted manifest switch preserves previous public bytes",
+            "C16-interrupted-switch: unsafe observation retains exact pending",
+            "C16: publisher recovery completes new immutable version",
+            "C16-recovered-switch: actual curl observation acknowledges publication"
+          ]
+        },
+        {
+          "report": "publisher",
+          "selectors": [
+            "51: killed publisher leaves prior public manifest byte-exact"
+          ]
+        },
+        {
+          "report": "publisher",
+          "selectors": [
+            "51: restart refuses abandoned lock without auto-reclamation"
+          ]
+        }
+      ],
+      "remaining": [
+        "Finish deployed cache/hash/manifest interruption acceptance; abandoned-lock reconciliation needs an explicit operator procedure."
+      ]
+    },
+    {
+      "id": "C17",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "receiver",
+          "selectors": [
+            "C17-installed-observer: actual curl observation acknowledges publication",
+            "C17: copied executable and actual HTTP use only isolated roots"
+          ]
+        }
+      ],
+      "remaining": [
+        "Complete Core/Activity isolation, closed-UI, absent-source-checkout and installed scheduler acceptance."
+      ]
+    },
+    {
+      "id": "C18",
+      "status": "partial",
+      "signedOff": false,
+      "evidence": [
+        {
+          "report": "receiver",
+          "selectors": [
+            "C18 partial: rollback export carries latest high-water"
+          ]
+        },
+        {
+          "report": "handback",
+          "selectors": [
+            "C18: subsequent actual old run advances safely again"
+          ]
+        }
+      ],
+      "remaining": [
+        "Complete real inventory/freeze/import, cutover and rollback drill with all actual writers quiesced."
+      ]
+    }
+  ],
+  "remainingGates": [
+    "O1: actual old tasks/work root/archive/pending/high-water inventory and quiescence",
+    "O2: live receiver/publisher high-water, restricted SSH and static origin inventory",
+    "O3: installed tool capabilities, runtime-owned package location, login identity and local store inventory",
+    "O4: conflicting seed values/times, pending ambiguity and remote high-water reconciliation",
+    "O5: remaining power-loss/storage-fault durability and frontend-version evidence",
+    "O6: manual delivery reconciliation when public observation is inaccessible or indistinguishable",
+    "J1: Core/Activity UI isolation and three-language public consumers",
+    "B4: full matrix sign-off and unresolved comparison policy",
+    "B5: actual hourly/logon, battery/resume, production cutover and scheduled-run observation"
+  ]
+}
