@@ -338,3 +338,10 @@ fn id_allocation_is_opaque_namespaced_and_propagates_entropy_failure() {
         assert!(allocate_id(kind, &mut Entropy(false)).is_err());
     }
 }
+
+#[test]
+fn pending_decision_rejects_unknown_fields_instead_of_discarding_them() {
+    let mut json = serde_json::to_value(&fixture().candidates[0]).unwrap();
+    json["decision"]["reason"] = "unexpected pending metadata".into();
+    assert!(serde_json::from_value::<CandidateRecord>(json).is_err());
+}

@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
 pub enum CandidateDecision {
-    Pending,
+    Pending {},
     Approved { memory_id: String },
     Rejected { reason: String },
 }
@@ -55,7 +55,7 @@ impl CandidateRecord {
             "proposal.status",
         )?;
         match &self.decision {
-            CandidateDecision::Pending => require(
+            CandidateDecision::Pending {} => require(
                 self.updated_at == self.created_at && self.proposal.updated_at == self.created_at,
                 "invalid_candidate",
                 "updated_at",
@@ -320,7 +320,7 @@ impl MemoryLedger {
     pub fn propose(&mut self, candidate: CandidateRecord) -> Result<(), ValidationError> {
         candidate.validate()?;
         require(
-            candidate.decision == CandidateDecision::Pending,
+            candidate.decision == CandidateDecision::Pending {},
             "already_reviewed",
             "decision",
         )?;
@@ -350,7 +350,7 @@ impl MemoryLedger {
             field: "candidate_id",
         })?;
         require(
-            candidate.decision == CandidateDecision::Pending,
+            candidate.decision == CandidateDecision::Pending {},
             "already_reviewed",
             "decision",
         )?;
@@ -392,7 +392,7 @@ impl MemoryLedger {
             field: "candidate_id",
         })?;
         require(
-            candidate.decision == CandidateDecision::Pending,
+            candidate.decision == CandidateDecision::Pending {},
             "already_reviewed",
             "decision",
         )?;
