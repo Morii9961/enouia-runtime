@@ -64,4 +64,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [B4 frozen comparison](docs/validation/B4-frozen-comparison.md) records 30 identical-input cases, exact per-source daily/time/hash comparisons, declared policy differences, and two legacy GitHub validation differences that remain unaccepted. The pure Rust fixture bridge is an offline development example, not a new production collector.
 
+[B4 subprocess handback](docs/validation/B4-subprocess-handback.md) records exact-byte retry failures, real loopback publication observation, and the actual copied old producer taking over the latest sequence/history through two subsequent runs. All account/SSH tools remain synthetic; production migration and scheduled rollback are pending.
+
 This project is published under the [MIT License](LICENSE).
