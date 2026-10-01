@@ -1,3 +1,7 @@
+// Scheduled release runs must not allocate a console. Redirected stdout remains
+// the CLI's JSON channel; debug test binaries retain their ordinary console.
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
+
 #[cfg(windows)]
 fn main() -> std::process::ExitCode {
     use std::io::Write;
