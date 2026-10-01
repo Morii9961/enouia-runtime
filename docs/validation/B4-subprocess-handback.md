@@ -17,7 +17,7 @@ The [development-only tool example](../../crates/enouia-activity-runner/examples
 
 The recorded wire sequences are `42, 42, 51, 51, 52, 53`. Legacy replay validates and reserializes JSON, so its sequence-51 wire hash differs from the original pending hash while batch semantics remain equal. The exported pending itself stays byte-exact. No older backup or sequence reset is used during handback.
 
-The first diagnostic attempts exposed two fixture-tool Windows path issues: Node's main-module resolver rejects a canonical extended drive path, and the generated fake ccusage originally attempted to resolve an extended path before normalizing it. A minimal Node reproduction confirmed the first failure. The helper now converts only already-contained script paths for Node; the fake ccusage normalizes before resolution. These fixes affect development tools only, and do not prove real ccusage compatibility.
+The first diagnostic attempts exposed two fixture-tool Windows path issues: Node's main-module resolver rejects a canonical extended drive path, and the generated fake ccusage originally attempted to resolve an extended path before normalizing it. A minimal Node reproduction confirmed the first failure. The helper now converts only already-contained script paths for Node; the fake ccusage normalizes before resolution. These fixes affect development tools only. A subsequent [real pinned-package probe](B1.2-ccusage-capability.md) verifies extended store-path compatibility and actual two-store Runtime aggregation on synthetic transcripts.
 
 Reproduce with Rust 1.98.1/Node 24.15.0 after building the release runner:
 

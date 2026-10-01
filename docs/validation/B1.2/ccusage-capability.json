@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-01T02:14:59.494Z",
+  "state": "passed",
+  "scope": "pinned_ccusage_synthetic_transcript_capability",
+  "node": "v24.15.0",
+  "platform": "win32",
+  "architecture": "x64",
+  "packageVersion": "20.0.20",
+  "packageFiles": [
+    {
+      "path": "ccusage/package.json",
+      "sha256": "e2c520c3c6df5877ee8e72ec8255c84e0d0edda6d46500d982af2109ad1cb8f3"
+    },
+    {
+      "path": "ccusage/src/cli.js",
+      "sha256": "dc6a76a6bd41afae3005b63234034549875637e8e52a7664de4ee05ce8b0e5dc"
+    },
+    {
+      "path": "@ccusage/ccusage-win32-x64/package.json",
+      "sha256": "2ffaa8f5ea114d8c2edd222a09a714e8a260b8c46c8d8e104ffadb724debf65d"
+    },
+    {
+      "path": "@ccusage/ccusage-win32-x64/bin/ccusage.exe",
+      "sha256": "3fd2f3b9fba3a74881b9e75c76baa5574f99e19142394e855c5fbaaf22f245bc"
+    }
+  ],
+  "transcriptHashes": [
+    {
+      "store": "normal",
+      "sha256": "81d12ad6ef50e2c1a8733d3e7b47fe8ae264903877b5002766b89e26f65e7f83"
+    },
+    {
+      "store": "cowork",
+      "sha256": "1f6c3c0c1994fae5656555f3fed7cc874d9cfd799dd79708fe81f1e874a85ba2"
+    }
+  ],
+  "binarySha256": "2d7f56c88922e311d4d90ab7a5da38b55b95b6c23c60b84250f7e53b9cacc6e7",
+  "harnessSha256": "bc89a0c75e23fda3f3fcff148adbd0cd6af639ea13de6627b2965901aca83fdf",
+  "checks": [
+    "installed wrapper and native package are pinned to 20.0.20",
+    "real pinned ccusage accepts canonical extended store paths",
+    "normal report has Shanghai dates, explicit zero, and cache-inclusive total 26",
+    "real second store produces total 15 across two Shanghai dates",
+    "empty synthetic seed bootstraps paused at high-water zero",
+    "explicit resume succeeds before capability collection",
+    "actual runner collects Claude through discovery and real wrapper/native process",
+    "delivery disabled invokes no transport or public observation",
+    "pause succeeds before capability export",
+    "current capability batch exports while paused",
+    "Runtime aggregates real reports to exact dates 40 and 1",
+    "source success times agree while other sources remain explicitly failed/null",
+    "original package unchanged: ccusage/package.json",
+    "original package unchanged: ccusage/src/cli.js",
+    "original package unchanged: @ccusage/ccusage-win32-x64/package.json",
+    "original package unchanged: @ccusage/ccusage-win32-x64/bin/ccusage.exe"
+  ],
+  "normal": {
+    "days": [
+      {
+        "date": "2026-09-25",
+        "input": 3,
+        "cacheRead": 5,
+        "cacheCreation": 7,
+        "output": 11,
+        "value": 26
+      },
+      {
+        "date": "2026-09-26",
+        "input": 0,
+        "cacheRead": 0,
+        "cacheCreation": 0,
+        "output": 0,
+        "value": 0
+      }
+    ],
+    "total": 26
+  },
+  "cowork": {
+    "days": [
+      {
+        "date": "2026-09-25",
+        "input": 2,
+        "cacheRead": 3,
+        "cacheCreation": 4,
+        "output": 5,
+        "value": 14
+      },
+      {
+        "date": "2026-09-26",
+        "input": 1,
+        "cacheRead": 0,
+        "cacheCreation": 0,
+        "output": 0,
+        "value": 1
+      }
+    ],
+    "total": 15
+  },
+  "runtimeClaude": {
+    "updatedAt": "2026-10-01T02:14:59.168Z",
+    "timezone": "Asia/Shanghai",
+    "metric": "tokens",
+    "days": [
+      {
+        "date": "2026-09-25",
+        "value": 40
+      },
+      {
+        "date": "2026-09-26",
+        "value": 1
+      }
+    ]
+  },
+  "runtimeOutcomes": {
+    "github": {
+      "attemptedAt": "2026-10-01T02:14:59.168Z",
+      "succeededAt": null,
+      "result": "failed"
+    },
+    "codex": {
+      "attemptedAt": "2026-10-01T02:14:59.168Z",
+      "succeededAt": null,
+      "result": "failed"
+    },
+    "claude": {
+      "attemptedAt": "2026-10-01T02:14:59.168Z",
+      "succeededAt": "2026-10-01T02:14:59.168Z",
+      "result": "success"
+    }
+  },
+  "sequence": 1,
+  "limitations": [
+    "Only synthetic transcript files in an isolated profile were read.",
+    "The copied installed public package is a temporary independent tool root, not a persistent Runtime installation.",
+    "No personal inventory, authenticated source capability, scheduled collection, network send, or production activation.",
+    "Node main-module extended script paths remain unsupported; this probe uses an ordinary absolute wrapper path and extended store paths."
+  ],
+  "primarySources": [
+    "https://github.com/ccusage/ccusage/blob/v20.0.20/apps/ccusage/src/cli.js",
+    "https://github.com/ccusage/ccusage/blob/v20.0.20/rust/adapters/claude/src/paths.rs"
+  ]
+}

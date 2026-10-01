@@ -66,4 +66,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [B4 subprocess handback](docs/validation/B4-subprocess-handback.md) records exact-byte retry failures, real loopback publication observation, and the actual copied old producer taking over the latest sequence/history through two subsequent runs. All account/SSH tools remain synthetic; production migration and scheduled rollback are pending.
 
+[Pinned ccusage capability](docs/validation/B1.2-ccusage-capability.md) verifies the real 20.0.20 wrapper/native tool and actual Runtime two-store aggregation on synthetic transcripts, including Windows extended store paths. Persistent tool installation and personal inventory acceptance remain pending.
+
 This project is published under the [MIT License](LICENSE).
