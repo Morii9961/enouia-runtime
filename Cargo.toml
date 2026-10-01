@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/enouia-common", "crates/enouia-activity-contract", "crates/enouia-activity", "crates/enouia-windows-process", "crates/enouia-activity-store", "crates/enouia-activity-delivery", "crates/enouia-activity-runner", "crates/enouia-memory"]
+members = ["crates/enouia-common", "crates/enouia-activity-contract", "crates/enouia-activity", "crates/enouia-windows-process", "crates/enouia-activity-store", "crates/enouia-activity-delivery", "crates/enouia-activity-runner", "crates/enouia-memory", "crates/enouia-session"]
 resolver = "3"
 
 [workspace.package]

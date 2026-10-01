@@ -16,4 +16,4 @@ Supersession inserts a new active record, marks the previous active record super
 
 The snapshot DTO is versioned model interchange, not the frozen on-disk Vault directory layout. Sources, memories and candidates remain distinct. Its validated constructor rejects duplicate IDs, unresolved provenance, forged candidate approval and active supersession conflicts. Consumers must construct through this validation boundary before retrieval; merely deserializing a DTO is insufficient.
 
-The crate depends on serde only in production. It has no Activity, network, filesystem, database, provider or private-credential dependency. Session linkage, shared IPC commands, Context Capsule/token policy and the Vault/index implementation remain unfinished A1/A2 contracts.
+The crate depends on serde only in production. It has no Activity, network, filesystem, database, provider or private-credential dependency. [Session v1](SESSION_MODELS_v1.md) now validates turn/checkpoint linkage over a complete synthetic bundle. Shared IPC commands, Context Capsule/token policy and the Vault/index implementation remain unfinished A1/A2 contracts.

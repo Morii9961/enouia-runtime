@@ -42,7 +42,7 @@ Do not collapse B4 into “unit tests pass,” B5 into “code merged,” or J1 
 
 ### A1.1 Models and provenance
 
-Progress: the [Memory/source/candidate model portion](MEMORY_MODELS_v1.md) is implemented with synthetic schemas and lifecycle tests. Session events/turn-range resolution, IPC and Context budget contracts remain open; this does not complete A1.1 or start Vault persistence.
+Progress: [Memory/source/candidate models](MEMORY_MODELS_v1.md) and [Session events/checkpoint linkage](SESSION_MODELS_v1.md) are implemented with synthetic schemas and lifecycle tests. Shared IPC and Context budget contracts remain open; this does not complete A1.1 or start Vault persistence.
 
 Owner paths: `crates/enouia-memory`, `crates/enouia-session`, `contracts/{memory,ipc}`, `tests/fixtures/memory`.
 

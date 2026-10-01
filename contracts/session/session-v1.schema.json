@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Core append-only conversation v1",
+  "description": "Pure model, not a durable file layout. Rust validates contiguous event sequence, real dates, provenance, globally unique turn IDs, existing ordered covered turns and canonical checkpoint references.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "session_id": {
+      "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "$ref": "../memory/models-v1.schema.json#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "../memory/models-v1.schema.json#/$defs/timestamp"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "session_id",
+    "title",
+    "created_at",
+    "updated_at",
+    "events"
+  ],
+  "$defs": {
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "created_at": {
+          "$ref": "../memory/models-v1.schema.json#/$defs/timestamp"
+        },
+        "event": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "turn"
+                },
+                "turn_id": {
+                  "$ref": "../memory/models-v1.schema.json#/$defs/turnId"
+                },
+                "role": {
+                  "enum": [
+                    "user",
+                    "assistant"
+                  ]
+                },
+                "content": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_id": {
+                  "$ref": "../memory/models-v1.schema.json#/$defs/sourceId"
+                }
+              },
+              "required": [
+                "kind",
+                "turn_id",
+                "role",
+                "content",
+                "source_id"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "checkpoint"
+                },
+                "memory_id": {
+                  "$ref": "../memory/models-v1.schema.json#/$defs/memoryId"
+                }
+              },
+              "required": [
+                "kind",
+                "memory_id"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "sequence",
+        "created_at",
+        "event"
+      ]
+    }
+  }
+}

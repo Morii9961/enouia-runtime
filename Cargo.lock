@@ -74,6 +74,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "enouia-session"
+version = "0.1.0"
+dependencies = [
+ "enouia-memory",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "enouia-windows-process"
 version = "0.1.0"
 dependencies = [

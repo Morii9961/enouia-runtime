@@ -1,0 +1,13 @@
+# Core Session model v1
+
+Date: 2026-10-01. Authority: Architecture v0.3 §6 and ADR-006/007. Scope: A1.1 pure conversation/checkpoint linkage; storage, orchestrated provider turns and UI remain pending.
+
+[Session v1](../contracts/session/session-v1.schema.json) is a versioned session header and append-only ordered event list. An event contains a contiguous sequence starting at one, canonical UTC millisecond time, and either a user/assistant text turn or a checkpoint reference. Turn IDs are globally unique opaque IDs and resolve to a conversation source matching that exact session, turn and creation time. The session update time equals its last event time, or creation time while empty. Provider failures and tools have no invented conversation role in this model; future orchestration must handle them through separately agreed operational contracts.
+
+Checkpoint events reference canonical `session_checkpoint` Memory IDs, without copying Memory content into Session authority. The memory must name the same session and an existing first/last turn that precedes the event in chronological event order. Reversed, missing and future ranges fail. Checkpoint creation cannot precede the final covered turn or exceed the event time. Several checkpoints may cover separate or overlapping ranges; they never remove original conversation turns. New checkpoint append requires an active canonical record; history may retain references to a subsequently archived/superseded checkpoint.
+
+`SessionRecord::validate_with_memory` validates one session against the canonical source/memory registry. `validate_sessions` checks the complete bundle: unique sessions and global turn IDs, every conversation source resolving to its exact turn, and every canonical checkpoint represented by an event. A partially prepared new source/Memory record can exist while constructing an in-memory operation, but it is not a complete bundle. Future persistence/recovery must preserve and validate the cross-file boundary; silently dropping an orphan is not authorized.
+
+Append validates a cloned next state before changing the original. Errors preserve all prior events, header times and contents. Serde round trips preserve the model, and replaying turns/checkpoints reconstructs the same event list. This is semantic reconstruction only; there is no demonstrated filesystem restart or crash durability yet.
+
+`enouia-session` depends on the pure Memory model and serde. Activity still has no Memory/Session dependency. The synthetic continuity bundle covers four retained turns and two linked checkpoints; it contains no personal conversation. A1.1 shared Core IPC and A1/A2 Context token-budget contracts remain unfinished before Vault persistence/orchestration.

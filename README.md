@@ -78,4 +78,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [A1 Memory model v1](docs/MEMORY_MODELS_v1.md) now provides five-kind records, source provenance, explicit candidate review, retained supersession/undo and strict pure validation. [Sixteen offline checks](docs/validation/A1.1-memory-models.md) cover the synthetic model fixture. Durable Vault/Session/Context and UI work remain pending.
 
+[A1 Session model v1](docs/SESSION_MODELS_v1.md) links retained conversation events to canonical checkpoints with existing ordered turn ranges and exact source provenance. [Eleven offline checks](docs/validation/A1.1-session-models.md) cover two checkpoints over four synthetic turns. Semantic replay is verified; filesystem restart persistence remains pending.
+
 This project is published under the [MIT License](LICENSE).
