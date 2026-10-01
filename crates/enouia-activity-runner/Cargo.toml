@@ -17,3 +17,6 @@ enouia-activity = { path = "../enouia-activity" }
 enouia-activity-store = { path = "../enouia-activity-store" }
 enouia-activity-delivery = { path = "../enouia-activity-delivery" }
 enouia-windows-process = { path = "../enouia-windows-process" }
+
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_System_Threading"] }

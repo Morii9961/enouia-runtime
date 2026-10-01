@@ -43,6 +43,7 @@ dependencies = [
  "enouia-windows-process",
  "serde",
  "serde_json",
+ "windows-sys",
 ]
 
 [[package]]

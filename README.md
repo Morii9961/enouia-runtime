@@ -72,4 +72,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [B4 publisher hard-kill rehearsal](docs/validation/B4-publisher-hard-kill.md) verifies old-manifest retention after actual copied publisher death, abandoned-lock refusal, explicit sandbox lock reconciliation, and actual Runtime/curl recovery observation over two new sequences. Deployed-service recovery remains pending.
 
+[B4 runner hard-kill rehearsal](docs/validation/B4-runner-hard-kill.md) verifies ready synthetic collector/transport trees terminate with the actual release runner, committed state stays exact, and restart preserves sequence/pending behavior. The process-creation/job-assignment interval remains untested.
+
 This project is published under the [MIT License](LICENSE).

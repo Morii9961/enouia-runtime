@@ -62,6 +62,76 @@ fn node_script(path: &Path) -> PathBuf {
     }
     path.to_path_buf()
 }
+fn linger(root: &Path, role: &str) -> Result<u8, ()> {
+    let child_path = within(root, "ENOU_TEST_DESCENDANT")?;
+    let mut child = node_command(&child_path)
+        .arg("--fixture-descendant")
+        .stdin(Stdio::null())
+        .spawn()
+        .map_err(|_| ())?;
+    let ready = root.join(format!("traces/owned-{}", child.id()));
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    while !ready.is_file() {
+        if std::time::Instant::now() >= deadline {
+            let _ = child.kill();
+            let _ = child.wait();
+            return Err(());
+        }
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
+    fs::write(
+        root.join(format!("traces/owned-{}", std::process::id())),
+        b"owned fixture",
+    )
+    .map_err(|_| ())?;
+    let marker = json!({"parentPid":std::process::id(),"childPid":child.id()});
+    fs::write(
+        root.join(format!("traces/linger-{role}.json")),
+        serde_json::to_vec(&marker).map_err(|_| ())?,
+    )
+    .map_err(|_| ())?;
+    std::thread::sleep(std::time::Duration::from_secs(8));
+    let _ = child.wait();
+    Ok(0)
+}
+#[cfg(windows)]
+fn watch(root: &Path, args: &[String]) -> Result<u8, ()> {
+    use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
+    use windows_sys::Win32::Foundation::{WAIT_OBJECT_0, WAIT_TIMEOUT};
+    use windows_sys::Win32::System::Threading::{
+        OpenProcess, PROCESS_SYNCHRONIZE, WaitForSingleObject,
+    };
+    if args.len() != 3 {
+        return Err(());
+    }
+    let mut handles = Vec::new();
+    for arg in args {
+        let pid = arg.parse::<u32>().map_err(|_| ())?;
+        if !root.join(format!("traces/owned-{pid}")).is_file() {
+            return Err(());
+        }
+        // SAFETY: these PIDs are marked fixture processes; only synchronization access is requested.
+        let raw = unsafe { OpenProcess(PROCESS_SYNCHRONIZE, 0, pid) };
+        if raw.is_null() {
+            return Err(());
+        }
+        // SAFETY: OpenProcess transferred this one handle, which OwnedHandle closes once.
+        let handle = unsafe { OwnedHandle::from_raw_handle(raw) };
+        if unsafe { WaitForSingleObject(handle.as_raw_handle(), 0) } != WAIT_TIMEOUT {
+            return Err(());
+        }
+        handles.push(handle);
+    }
+    write_json(&json!({"state":"watching_owned_processes","count":handles.len()}))?;
+    for handle in &handles {
+        // SAFETY: handles remain open; waiting never terminates or mutates a process.
+        if unsafe { WaitForSingleObject(handle.as_raw_handle(), 1500) } != WAIT_OBJECT_0 {
+            return Err(());
+        }
+    }
+    write_json(&json!({"state":"all_owned_processes_terminated","count":handles.len()}))?;
+    Ok(0)
+}
 fn invoke() -> Result<u8, ()> {
     let root = root()?;
     let role = std::env::current_exe()
@@ -85,13 +155,30 @@ fn invoke() -> Result<u8, ()> {
     )
     .map_err(|_| ())?;
     match role.as_str() {
+        #[cfg(windows)]
+        "watch" => watch(&root, &args),
+        "descendant" if args == ["--fixture-descendant"] => {
+            fs::write(
+                root.join(format!("traces/owned-{}", std::process::id())),
+                b"owned fixture",
+            )
+            .map_err(|_| ())?;
+            std::thread::sleep(std::time::Duration::from_secs(8));
+            Ok(0)
+        }
         "gh" if args.first().map(String::as_str) == Some("api")
             && args.get(1).map(String::as_str) == Some("graphql") =>
         {
+            if std::env::var("ENOU_TEST_LINGER").ok().as_deref() == Some("gh") {
+                return linger(&root, "gh");
+            }
             write_json(&json_file(&root.join("fixtures/github.json"))?)?;
             Ok(0)
         }
         "codex" if args == ["app-server"] => {
+            if std::env::var("ENOU_TEST_LINGER").ok().as_deref() == Some("codex") {
+                return linger(&root, "codex");
+            }
             for line in std::io::stdin().lock().lines().take(8) {
                 let message: Value =
                     serde_json::from_str(&line.map_err(|_| ())?).map_err(|_| ())?;
@@ -140,6 +227,9 @@ fn invoke() -> Result<u8, ()> {
                 &bytes,
             )
             .map_err(|_| ())?;
+            if std::env::var("ENOU_TEST_LINGER").ok().as_deref() == Some("ssh") {
+                return linger(&root, "ssh");
+            }
             let mode = std::env::var("ENOU_TEST_TRANSPORT").map_err(|_| ())?;
             if mode == "before_receipt" {
                 return Ok(255);
