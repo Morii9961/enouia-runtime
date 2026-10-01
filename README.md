@@ -86,4 +86,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Offline Mock Provider v1](docs/PROVIDER_MOCK_v1.md) now consumes only prepared exact capsule bytes and returns included ProjectState content/state/open loops with a consumed hash. [Eight offline checks](docs/validation/A2-mock-provider.md) verify its deterministic behavior and candidate-only tool contracts. Real providers, persistence, retrieval and orchestration remain pending.
 
+[Resolved dependency boundaries](docs/validation/Core-dependency-boundaries.md) now guard the independent Activity/Core graph and pure model dependencies. The read-only checker includes six forbidden-dependency negative checks and consumes offline Cargo metadata.
+
 This project is published under the [MIT License](LICENSE).
