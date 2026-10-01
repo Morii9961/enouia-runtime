@@ -40,7 +40,11 @@ fn days_since_epoch(year: i64, month: u32, day: u32) -> i64 {
 /// are rejected rather than wrapped or fabricated.
 pub fn shanghai_date(unix_ms: i64) -> Option<String> {
     let shifted = unix_ms.checked_add(8 * 3_600_000)?;
-    let z = shifted.div_euclid(86_400_000).checked_add(719_468)?;
+    calendar_date(shifted)
+}
+
+fn calendar_date(unix_ms: i64) -> Option<String> {
+    let z = unix_ms.div_euclid(86_400_000).checked_add(719_468)?;
     let era = z.div_euclid(146_097);
     let doe = z - era * 146_097;
     let yoe = (doe - doe / 1_460 + doe / 36_524 - doe / 146_096) / 365;
@@ -53,6 +57,19 @@ pub fn shanghai_date(unix_ms: i64) -> Option<String> {
     (0..=9999)
         .contains(&year)
         .then(|| format!("{year:04}-{month:02}-{day:02}"))
+}
+
+/// Exact UTC wire form, with no dependency on the host's local timezone.
+pub fn format_utc_millis(unix_ms: i64) -> Option<String> {
+    let date = calendar_date(unix_ms)?;
+    let time = unix_ms.rem_euclid(86_400_000);
+    Some(format!(
+        "{date}T{:02}:{:02}:{:02}.{:03}Z",
+        time / 3_600_000,
+        time / 60_000 % 60,
+        time / 1_000 % 60,
+        time % 1_000
+    ))
 }
 
 /// Accepts date-only ISO or an ISO timestamp with an explicit UTC offset.
@@ -130,6 +147,25 @@ pub fn exact_utc_millis(value: &str) -> Option<i64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn formatting_round_trips_across_epoch_leap_and_year_boundaries() {
+        for time in [
+            "0000-01-01T00:00:00.000Z",
+            "1969-12-31T23:59:59.999Z",
+            "1970-01-01T00:00:00.000Z",
+            "2000-02-29T23:59:59.123Z",
+            "2026-09-30T16:00:00.001Z",
+            "9999-12-31T23:59:59.999Z",
+        ] {
+            assert_eq!(
+                format_utc_millis(exact_utc_millis(time).unwrap()).as_deref(),
+                Some(time)
+            );
+        }
+        assert!(format_utc_millis(i64::MAX).is_none());
+        assert!(format_utc_millis(i64::MIN).is_none());
+    }
 
     #[test]
     fn dates_are_real_and_offsets_compare_as_instants() {

@@ -38,7 +38,8 @@ pub enum TransportError {
     OutputTooLarge,
 }
 
-fn valid_alias(alias: &str) -> bool {
+/// Validate a configured restricted alias before any collection or transport.
+pub fn valid_alias(alias: &str) -> bool {
     let bytes = alias.as_bytes();
     !bytes.is_empty()
         && bytes.len() <= 80

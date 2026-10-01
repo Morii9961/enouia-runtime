@@ -62,7 +62,8 @@ pub enum PublicObservationError {
     Content(ObservationError),
 }
 
-fn valid_origin(origin: &str) -> bool {
+/// Validate the fixed public origin before launching the one-shot runner.
+pub fn valid_origin(origin: &str) -> bool {
     let (scheme, authority) = if let Some(authority) = origin.strip_prefix("https://") {
         ("https", authority)
     } else if let Some(authority) = origin.strip_prefix("http://") {

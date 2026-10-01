@@ -10,6 +10,7 @@ use enouia_activity_contract::{
     public_data_bytes, sha256_hex,
 };
 use enouia_common::Clock;
+use serde::Serialize;
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::fs;
@@ -37,14 +38,16 @@ pub struct LegacyInspection {
     pub pending_sha256: Option<String>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ValueChange {
     pub date: String,
     pub current: u64,
     pub candidate: u64,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SourceComparison {
     pub current_sha256: Option<String>,
     pub candidate_sha256: Option<String>,
@@ -55,7 +58,8 @@ pub struct SourceComparison {
     pub requires_reconciliation: bool,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ArchiveComparison {
     pub github: SourceComparison,
     pub codex: SourceComparison,

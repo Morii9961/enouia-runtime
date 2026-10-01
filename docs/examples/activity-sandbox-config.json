@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "mode": "sandbox",
+  "dataRoot": "C:\\EnouiaSandbox\\state",
+  "deliveryEnabled": false,
+  "maxRunSeconds": 900,
+  "github": {
+    "executable": "C:\\EnouiaSandbox\\tools\\gh.exe",
+    "login": "example-user"
+  },
+  "codex": {
+    "executable": "C:\\EnouiaSandbox\\tools\\codex.exe"
+  },
+  "claude": {
+    "nodeExecutable": "C:\\EnouiaSandbox\\tools\\node.exe",
+    "ccusageCli": "C:\\EnouiaSandbox\\tools\\ccusage\\dist\\index.js",
+    "normalStore": "C:\\EnouiaSandbox\\claude",
+    "roamingClaude": "C:\\EnouiaSandbox\\roaming\\Claude",
+    "localPackages": "C:\\EnouiaSandbox\\packages",
+    "expectedStores": []
+  },
+  "delivery": {
+    "sshExecutable": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+    "restrictedAlias": "enouia-sandbox",
+    "curlExecutable": "C:\\Windows\\System32\\curl.exe",
+    "publicOrigin": "http://127.0.0.1:9000",
+    "observationSeconds": 60,
+    "retrySeconds": 3600
+  }
+}

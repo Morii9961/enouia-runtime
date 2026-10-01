@@ -25,6 +25,10 @@ pub fn exact_activity_timestamp_ms(value: &str) -> Option<i64> {
     time::exact_utc_millis(value)
 }
 
+pub fn format_activity_timestamp(unix_ms: i64) -> Option<String> {
+    time::format_utc_millis(unix_ms)
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ContractError {
     pub code: &'static str,
