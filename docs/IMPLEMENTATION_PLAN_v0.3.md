@@ -6,6 +6,8 @@ Activity currently includes strict three-source adapters, generation storage/rec
 
 Authority: [Architecture v0.3](../Enouia_Runtime_Architecture_v0.3.md). Procedure: [Activity migration runbook](ACTIVITY_MIGRATION_v0.3.md). Decisions: [ADR register](adr/README.md). Read the original handoff as evidence, but use v0.3 for current ownership and design. Architecture v0.3 is not the future product 0.3 provider milestone.
 
+The [2026-10-01 Core continuation baseline](CORE_NEXT_STEPS.md) records implemented pure models/ports, current verification and the next Vault/recovery boundary. It is a handoff, not full milestone acceptance.
+
 ## 1. Delivery structure
 
 The phase is complete when the Windows Core vertical slice and Activity producer both pass their gates. Production cutover is separate from implementation completion. Track A may ship its local demo while Track B remains in isolated validation; Activity can be tested headlessly before the Core demo exists.
