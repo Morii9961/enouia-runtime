@@ -80,6 +80,8 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [A1 Session model v1](docs/SESSION_MODELS_v1.md) links retained conversation events to canonical checkpoints with existing ordered turn ranges and exact source provenance. [Eleven offline checks](docs/validation/A1.1-session-models.md) cover two checkpoints over four synthetic turns. Semantic replay is verified; filesystem restart persistence remains pending.
 
-[Local Core IPC v1](docs/CORE_IPC_v1.md) defines typed Inspector, candidate review and Session requests with backend-owned canonical identity/provenance/times. [Seven offline checks](docs/validation/A1.1-core-ipc.md) verify closed DTOs and explicit model-only versus canonical-file commit results. UI handlers and Context contracts remain pending.
+[Local Core IPC v1](docs/CORE_IPC_v1.md) defines typed Inspector, candidate review and Session requests with backend-owned canonical identity/provenance/times. [Seven offline checks](docs/validation/A1.1-core-ipc.md) verify closed DTOs and explicit model-only versus canonical-file commit results. UI and actual Context handlers remain pending.
+
+[Context Capsule v1](docs/CONTEXT_CAPSULE_v1.md) now provides exact canonical provenance, conservative local UTF-8 budgeting and deterministic whole-record selection from ranked inputs. [Eight offline checks](docs/validation/A1-context-capsule.md) verify the frozen synthetic capsule. FTS/query scoring, Provider calls, persistence and Inspector UI remain pending.
 
 This project is published under the [MIT License](LICENSE).

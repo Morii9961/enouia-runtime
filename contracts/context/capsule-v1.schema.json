@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Inspectable Core Context Capsule v1",
+  "description": "Rust checks canonical equality, source/turn provenance, active status, time order, derived open loops, exact compact UTF-8 byte estimate plus 256 reserve and whole-record overflow. This is a local policy, not an external provider tokenizer.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "capsule_id": {
+      "type": "string",
+      "pattern": "^cap_[0-9a-f]{32}$"
+    },
+    "generated_at": {
+      "$ref": "../memory/models-v1.schema.json#/$defs/timestamp"
+    },
+    "query": {
+      "type": "string",
+      "minLength": 1
+    },
+    "identity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "core.md",
+              "runtime_rules.md"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name",
+          "content"
+        ]
+      }
+    },
+    "user_context": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "../memory/models-v1.schema.json#/$defs/memory"
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "active"
+              },
+              "type": {
+                "enum": [
+                  "fact",
+                  "preference"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "relationship_context": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "../memory/models-v1.schema.json#/$defs/memory"
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "active"
+              },
+              "type": {
+                "enum": [
+                  "fact",
+                  "preference",
+                  "episode"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "active_projects": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "../memory/models-v1.schema.json#/$defs/memory"
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "active"
+              },
+              "type": {
+                "enum": [
+                  "project_state"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "relevant_memories": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "../memory/models-v1.schema.json#/$defs/memory"
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "active"
+              },
+              "type": {
+                "enum": [
+                  "fact",
+                  "preference",
+                  "episode"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "recent_session_checkpoints": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "../memory/models-v1.schema.json#/$defs/memory"
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "active"
+              },
+              "type": {
+                "enum": [
+                  "session_checkpoint"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "recent_turns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "turn_id": {
+            "$ref": "../memory/models-v1.schema.json#/$defs/turnId"
+          },
+          "session_id": {
+            "$ref": "../memory/models-v1.schema.json#/$defs/sessionId"
+          },
+          "role": {
+            "enum": [
+              "user",
+              "assistant"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_id": {
+            "$ref": "../memory/models-v1.schema.json#/$defs/sourceId"
+          },
+          "created_at": {
+            "$ref": "../memory/models-v1.schema.json#/$defs/timestamp"
+          }
+        },
+        "required": [
+          "turn_id",
+          "session_id",
+          "role",
+          "content",
+          "source_id",
+          "created_at"
+        ]
+      }
+    },
+    "open_loops": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "provenance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "$ref": "../memory/models-v1.schema.json#/$defs/sourceId"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "enum": [
+              "identity",
+              "user_context",
+              "relationship_context",
+              "active_project",
+              "relevant_memory",
+              "recent_checkpoint",
+              "recent_turn"
+            ]
+          }
+        },
+        "required": [
+          "entry_id",
+          "source_id",
+          "reason"
+        ]
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 256,
+          "maximum": 9007199254740991
+        },
+        "estimated_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "reserve_tokens": {
+          "const": 256
+        },
+        "policy": {
+          "const": "utf8_bytes_v1"
+        }
+      },
+      "required": [
+        "max_tokens",
+        "estimated_tokens",
+        "reserve_tokens",
+        "policy"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "capsule_id",
+    "generated_at",
+    "query",
+    "identity",
+    "user_context",
+    "relationship_context",
+    "active_projects",
+    "relevant_memories",
+    "recent_session_checkpoints",
+    "recent_turns",
+    "open_loops",
+    "provenance",
+    "budget"
+  ]
+}

@@ -10,4 +10,4 @@ Checkpoint events reference canonical `session_checkpoint` Memory IDs, without c
 
 Append validates a cloned next state before changing the original. Errors preserve all prior events, header times and contents. Serde round trips preserve the model, and replaying turns/checkpoints reconstructs the same event list. This is semantic reconstruction only; there is no demonstrated filesystem restart or crash durability yet.
 
-`enouia-session` depends on the pure Memory model and serde. Activity still has no Memory/Session dependency. The synthetic continuity bundle covers four retained turns and two linked checkpoints; it contains no personal conversation. A1.1 shared Core IPC and A1/A2 Context token-budget contracts remain unfinished before Vault persistence/orchestration.
+`enouia-session` depends on the pure Memory model and serde. Activity still has no Memory/Session dependency. The synthetic continuity bundle covers four retained turns and two linked checkpoints; it contains no personal conversation. Pure [Core IPC](CORE_IPC_v1.md) and [Capsule/token policy](CONTEXT_CAPSULE_v1.md) contracts now exist; Vault persistence and actual orchestration remain unfinished.
