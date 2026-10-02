@@ -1,0 +1,1915 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Proposed Core read/results v2 (backend design only)",
+  "description": "Closed wire shape. Semantic binding, provenance, authorization, exact bytes, page/process identity and durable outcome proof require future Rust handlers. Existing v1 IPC is unchanged.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/readRequest"
+    },
+    {
+      "$ref": "#/$defs/readResponse"
+    },
+    {
+      "$ref": "#/$defs/commandResponse"
+    },
+    {
+      "$ref": "#/$defs/backgroundRequest"
+    },
+    {
+      "$ref": "#/$defs/backgroundResponse"
+    }
+  ],
+  "$defs": {
+    "binding": {
+      "$ref": "../invocation/record-v1.schema.json#/$defs/binding"
+    },
+    "nullableBinding": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/binding"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "jobRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "jobId",
+        "processId"
+      ],
+      "properties": {
+        "jobId": {
+          "type": "string",
+          "pattern": "^job_[0-9a-f]{32}$"
+        },
+        "processId": {
+          "type": "string",
+          "pattern": "^run_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "nullableJob": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/jobRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resultRefs": {
+      "$ref": "../invocation/operation-receipt-v1.schema.json#/properties/result_refs"
+    },
+    "errorCode": {
+      "enum": [
+        "invalid_request",
+        "unsupported_version",
+        "not_supported",
+        "not_found",
+        "stale_generation",
+        "stale_page",
+        "event_gap",
+        "process_expired",
+        "preview_expired",
+        "request_conflict",
+        "session_busy",
+        "lock_busy",
+        "busy",
+        "index_unavailable",
+        "index_corrupt",
+        "query_limit",
+        "compile_refused",
+        "provider_refused",
+        "invalid_response",
+        "stale_session",
+        "stale_identity",
+        "cancelled",
+        "process_interrupted",
+        "storage_failed",
+        "response_limit",
+        "recovery_blocked"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "operationId",
+        "invocationId",
+        "sessionId",
+        "retryAction"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/errorCode"
+        },
+        "operationId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^op_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "invocationId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^inv_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sessionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^ses_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retryAction": {
+          "enum": [
+            "none",
+            "refresh",
+            "new_action",
+            "inspect_operation",
+            "inspect_recovery"
+          ]
+        }
+      }
+    },
+    "pageToken": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processId",
+        "nextToken",
+        "remainingCount"
+      ],
+      "properties": {
+        "processId": {
+          "type": "string",
+          "pattern": "^run_[0-9a-f]{32}$"
+        },
+        "nextToken": {
+          "$ref": "#/$defs/pageToken"
+        },
+        "remainingCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "operationView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operationId",
+        "commandKind",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "committedBinding",
+        "resultRefs",
+        "errorCode"
+      ],
+      "properties": {
+        "operationId": {
+          "type": "string",
+          "pattern": "^op_[0-9a-f]{32}$"
+        },
+        "commandKind": {
+          "$ref": "../invocation/operation-receipt-v1.schema.json#/properties/command_kind"
+        },
+        "status": {
+          "$ref": "../invocation/operation-receipt-v1.schema.json#/properties/status"
+        },
+        "createdAt": {
+          "$ref": "../invocation/record-v1.schema.json#/$defs/time"
+        },
+        "updatedAt": {
+          "$ref": "../invocation/record-v1.schema.json#/$defs/time"
+        },
+        "committedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "resultRefs": {
+          "$ref": "#/$defs/resultRefs"
+        },
+        "errorCode": {
+          "$ref": "../invocation/operation-receipt-v1.schema.json#/properties/error_code"
+        }
+      }
+    },
+    "queryText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "queryScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "query",
+        "projectId",
+        "sessionId",
+        "asOf",
+        "limit"
+      ],
+      "properties": {
+        "query": {
+          "$ref": "#/$defs/queryText"
+        },
+        "projectId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^prj_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sessionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^ses_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "asOf": {
+          "$ref": "../invocation/record-v1.schema.json#/$defs/time"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        }
+      }
+    },
+    "query_get_capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_capabilities"
+        }
+      }
+    },
+    "query_get_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "processId",
+        "pageToken",
+        "limit",
+        "collection"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_snapshot"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/nullableBinding"
+        },
+        "processId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^run_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pageToken": {
+          "$ref": "#/$defs/pageToken"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "collection": {
+          "enum": [
+            "memory",
+            "source",
+            "session",
+            "invocation",
+            "operation"
+          ]
+        }
+      }
+    },
+    "query_get_memory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "memoryId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_memory"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "memoryId": {
+          "type": "string",
+          "pattern": "^mem_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_get_session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "sessionId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_session"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "sessionId": {
+          "type": "string",
+          "pattern": "^ses_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_list_candidates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "status",
+        "processId",
+        "pageToken",
+        "limit"
+      ],
+      "properties": {
+        "kind": {
+          "const": "list_candidates"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "status": {
+          "enum": [
+            null,
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "processId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^run_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pageToken": {
+          "$ref": "#/$defs/pageToken"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      }
+    },
+    "query_get_candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "candidateId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_candidate"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "candidateId": {
+          "type": "string",
+          "pattern": "^cand_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_search_memory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "scope"
+      ],
+      "properties": {
+        "kind": {
+          "const": "search_memory"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "scope": {
+          "$ref": "#/$defs/queryScope"
+        }
+      }
+    },
+    "query_get_capsule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "invocationId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_capsule"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "invocationId": {
+          "type": "string",
+          "pattern": "^inv_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_get_preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "jobId",
+        "processId",
+        "capsuleId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_preview"
+        },
+        "jobId": {
+          "type": "string",
+          "pattern": "^job_[0-9a-f]{32}$"
+        },
+        "processId": {
+          "type": "string",
+          "pattern": "^run_[0-9a-f]{32}$"
+        },
+        "capsuleId": {
+          "type": "string",
+          "pattern": "^cap_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_get_invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "invocationId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_invocation"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "invocationId": {
+          "type": "string",
+          "pattern": "^inv_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_get_operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "operationId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_operation"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/nullableBinding"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^op_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_get_health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_health"
+        }
+      }
+    },
+    "query_get_job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "jobId",
+        "processId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_job"
+        },
+        "jobId": {
+          "type": "string",
+          "pattern": "^job_[0-9a-f]{32}$"
+        },
+        "processId": {
+          "type": "string",
+          "pattern": "^run_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_poll_job_events": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "jobId",
+        "processId",
+        "afterSequence",
+        "limit"
+      ],
+      "properties": {
+        "kind": {
+          "const": "poll_job_events"
+        },
+        "jobId": {
+          "type": "string",
+          "pattern": "^job_[0-9a-f]{32}$"
+        },
+        "processId": {
+          "type": "string",
+          "pattern": "^run_[0-9a-f]{32}$"
+        },
+        "afterSequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        }
+      }
+    },
+    "readRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "query"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "kind": {
+          "const": "core_read"
+        },
+        "query": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/query_get_capabilities"
+            },
+            {
+              "$ref": "#/$defs/query_get_snapshot"
+            },
+            {
+              "$ref": "#/$defs/query_get_memory"
+            },
+            {
+              "$ref": "#/$defs/query_get_session"
+            },
+            {
+              "$ref": "#/$defs/query_list_candidates"
+            },
+            {
+              "$ref": "#/$defs/query_get_candidate"
+            },
+            {
+              "$ref": "#/$defs/query_search_memory"
+            },
+            {
+              "$ref": "#/$defs/query_get_capsule"
+            },
+            {
+              "$ref": "#/$defs/query_get_preview"
+            },
+            {
+              "$ref": "#/$defs/query_get_invocation"
+            },
+            {
+              "$ref": "#/$defs/query_get_operation"
+            },
+            {
+              "$ref": "#/$defs/query_get_health"
+            },
+            {
+              "$ref": "#/$defs/query_get_job"
+            },
+            {
+              "$ref": "#/$defs/query_poll_job_events"
+            },
+            {
+              "$ref": "#/$defs/query_get_source"
+            }
+          ]
+        }
+      }
+    },
+    "exactCapsule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capsuleId",
+        "sha256",
+        "byteLength",
+        "encoding",
+        "bytes"
+      ],
+      "properties": {
+        "capsuleId": {
+          "type": "string",
+          "pattern": "^cap_[0-9a-f]{32}$"
+        },
+        "sha256": {
+          "$ref": "../invocation/record-v1.schema.json#/$defs/hash"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "encoding": {
+          "const": "base64"
+        },
+        "bytes": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 43692,
+          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "memories",
+        "sources",
+        "candidates",
+        "sessions",
+        "invocations",
+        "operations"
+      ],
+      "properties": {
+        "memories": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "sources": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "candidates": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "sessions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "invocations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "operations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "candidateSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateId",
+        "status"
+      ],
+      "properties": {
+        "candidateId": {
+          "type": "string",
+          "pattern": "^cand_[0-9a-f]{32}$"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        }
+      }
+    },
+    "searchHit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "memoryId",
+        "rank",
+        "lane",
+        "selection",
+        "matches",
+        "matchesOmitted",
+        "priority",
+        "scopeProjectId",
+        "scopeSessionId",
+        "checkpointSequence"
+      ],
+      "properties": {
+        "memoryId": {
+          "type": "string",
+          "pattern": "^mem_[0-9a-f]{32}$"
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 63
+        },
+        "lane": {
+          "enum": [
+            "active_project",
+            "recent_checkpoint",
+            "relevant_memory"
+          ]
+        },
+        "selection": {
+          "enum": [
+            "scope",
+            "literal"
+          ]
+        },
+        "matches": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "term",
+              "field",
+              "ordinal"
+            ],
+            "properties": {
+              "term": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "field": {
+                "enum": [
+                  "content",
+                  "state",
+                  "decision",
+                  "open_loop",
+                  "last_state",
+                  "tag"
+                ]
+              },
+              "ordinal": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            }
+          }
+        },
+        "matchesOmitted": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "scopeProjectId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^prj_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scopeSessionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^ses_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checkpointSequence": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "searchAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inactive",
+        "future",
+        "validity",
+        "project",
+        "unmatched",
+        "deduplicated",
+        "capped"
+      ],
+      "properties": {
+        "inactive": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "future": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "validity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "project": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "unmatched": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "deduplicated": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "capped": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "processId",
+        "readKinds",
+        "mutationKinds",
+        "backgroundKinds",
+        "commitModes",
+        "providers",
+        "maxReplyBytes"
+      ],
+      "properties": {
+        "kind": {
+          "const": "capabilities"
+        },
+        "processId": {
+          "type": "string",
+          "pattern": "^run_[0-9a-f]{32}$"
+        },
+        "readKinds": {
+          "type": "array",
+          "maxItems": 15,
+          "items": {
+            "enum": [
+              "get_capabilities",
+              "get_snapshot",
+              "get_memory",
+              "get_session",
+              "list_candidates",
+              "get_candidate",
+              "search_memory",
+              "get_capsule",
+              "get_preview",
+              "get_invocation",
+              "get_operation",
+              "get_health",
+              "get_job",
+              "poll_job_events",
+              "get_source"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "mutationKinds": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "$ref": "../invocation/operation-receipt-v1.schema.json#/properties/command_kind"
+          },
+          "uniqueItems": true
+        },
+        "backgroundKinds": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "enum": [
+              "index_rebuild",
+              "context_preview",
+              "cancel_job"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "commitModes": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "enum": [
+              "model_only",
+              "canonical_files_committed"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "providers": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "enum": [
+              "mock-v1"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "maxReplyBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 25165824
+        }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "counts",
+        "page",
+        "collection",
+        "items"
+      ],
+      "properties": {
+        "kind": {
+          "const": "snapshot_inventory"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "counts": {
+          "$ref": "#/$defs/counts"
+        },
+        "page": {
+          "$ref": "#/$defs/page"
+        },
+        "collection": {
+          "enum": [
+            "memory",
+            "source",
+            "session",
+            "invocation",
+            "operation"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/inventoryItem"
+          }
+        }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "record"
+      ],
+      "properties": {
+        "kind": {
+          "const": "memory"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "record": {
+          "$ref": "../memory/memory-v1.schema.json"
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "record"
+      ],
+      "properties": {
+        "kind": {
+          "const": "session"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "record": {
+          "$ref": "../session/session-v1.schema.json"
+        }
+      }
+    },
+    "candidates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "items",
+        "page"
+      ],
+      "properties": {
+        "kind": {
+          "const": "candidate_page"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/candidateSummary"
+          }
+        },
+        "page": {
+          "$ref": "#/$defs/page"
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "record"
+      ],
+      "properties": {
+        "kind": {
+          "const": "candidate"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "record": {
+          "$ref": "../memory/candidate-v1.schema.json"
+        }
+      }
+    },
+    "search": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "policy",
+        "outcome",
+        "hits",
+        "audit"
+      ],
+      "properties": {
+        "kind": {
+          "const": "memory_search"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "policy": {
+          "const": "scope_literal_v1"
+        },
+        "outcome": {
+          "enum": [
+            "matched",
+            "no_match"
+          ]
+        },
+        "hits": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/searchHit"
+          }
+        },
+        "audit": {
+          "$ref": "#/$defs/searchAudit"
+        }
+      }
+    },
+    "capsule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "inputBinding",
+        "invocationId",
+        "providerId",
+        "invocationStatus",
+        "capsule"
+      ],
+      "properties": {
+        "kind": {
+          "const": "recorded_capsule"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "inputBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "invocationId": {
+          "type": "string",
+          "pattern": "^inv_[0-9a-f]{32}$"
+        },
+        "providerId": {
+          "const": "mock-v1"
+        },
+        "invocationStatus": {
+          "$ref": "../invocation/record-v1.schema.json#/properties/status"
+        },
+        "capsule": {
+          "$ref": "#/$defs/exactCapsule"
+        }
+      }
+    },
+    "preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "job",
+        "expiresAt",
+        "persisted",
+        "capsule"
+      ],
+      "properties": {
+        "kind": {
+          "const": "preview_capsule"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "job": {
+          "$ref": "#/$defs/jobRef"
+        },
+        "expiresAt": {
+          "$ref": "../invocation/record-v1.schema.json#/$defs/time"
+        },
+        "persisted": {
+          "const": false
+        },
+        "capsule": {
+          "$ref": "#/$defs/exactCapsule"
+        }
+      }
+    },
+    "invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "record"
+      ],
+      "properties": {
+        "kind": {
+          "const": "invocation"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "record": {
+          "$ref": "../invocation/record-v1.schema.json"
+        }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "operation"
+      ],
+      "properties": {
+        "kind": {
+          "const": "operation"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "operation": {
+          "$ref": "#/$defs/operationView"
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "processId",
+        "binding",
+        "canonical",
+        "index",
+        "writeAllowed",
+        "issueCodes"
+      ],
+      "properties": {
+        "kind": {
+          "const": "health"
+        },
+        "processId": {
+          "type": "string",
+          "pattern": "^run_[0-9a-f]{32}$"
+        },
+        "binding": {
+          "$ref": "#/$defs/nullableBinding"
+        },
+        "canonical": {
+          "enum": [
+            "uninitialized",
+            "ready",
+            "read_only",
+            "blocked"
+          ]
+        },
+        "index": {
+          "enum": [
+            "absent",
+            "ready",
+            "stale",
+            "rebuilding",
+            "degraded"
+          ]
+        },
+        "writeAllowed": {
+          "type": "boolean"
+        },
+        "issueCodes": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "enum": [
+              "recovery_blocked",
+              "index_unavailable",
+              "index_corrupt",
+              "lock_busy",
+              "storage_failed"
+            ]
+          }
+        }
+      }
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "status"
+      ],
+      "properties": {
+        "kind": {
+          "const": "job"
+        },
+        "status": {
+          "$ref": "backend-jobs-v1.schema.json#/$defs/status"
+        }
+      }
+    },
+    "events": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "poll"
+      ],
+      "properties": {
+        "kind": {
+          "const": "job_events"
+        },
+        "poll": {
+          "$ref": "backend-jobs-v1.schema.json#/$defs/pollResponse"
+        }
+      }
+    },
+    "readError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "observedBinding",
+        "error"
+      ],
+      "properties": {
+        "kind": {
+          "const": "read_rejected"
+        },
+        "observedBinding": {
+          "$ref": "#/$defs/nullableBinding"
+        },
+        "error": {
+          "$ref": "#/$defs/error"
+        }
+      }
+    },
+    "readResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "result"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "kind": {
+          "const": "core_read_result"
+        },
+        "result": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/capabilities"
+            },
+            {
+              "$ref": "#/$defs/snapshot"
+            },
+            {
+              "$ref": "#/$defs/memory"
+            },
+            {
+              "$ref": "#/$defs/session"
+            },
+            {
+              "$ref": "#/$defs/candidates"
+            },
+            {
+              "$ref": "#/$defs/candidate"
+            },
+            {
+              "$ref": "#/$defs/search"
+            },
+            {
+              "$ref": "#/$defs/capsule"
+            },
+            {
+              "$ref": "#/$defs/preview"
+            },
+            {
+              "$ref": "#/$defs/invocation"
+            },
+            {
+              "$ref": "#/$defs/operation"
+            },
+            {
+              "$ref": "#/$defs/health"
+            },
+            {
+              "$ref": "#/$defs/job"
+            },
+            {
+              "$ref": "#/$defs/events"
+            },
+            {
+              "$ref": "#/$defs/readError"
+            },
+            {
+              "$ref": "#/$defs/source"
+            }
+          ]
+        }
+      }
+    },
+    "commandRejected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "clientRequestId",
+        "observedBinding",
+        "error"
+      ],
+      "properties": {
+        "kind": {
+          "const": "rejected"
+        },
+        "clientRequestId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 64,
+              "pattern": "^[A-Za-z0-9_-]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observedBinding": {
+          "$ref": "#/$defs/nullableBinding"
+        },
+        "error": {
+          "$ref": "#/$defs/error"
+        }
+      }
+    },
+    "commandDurable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "clientRequestId",
+        "observedBinding",
+        "operation",
+        "replayed",
+        "job"
+      ],
+      "properties": {
+        "kind": {
+          "const": "durable_operation"
+        },
+        "clientRequestId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "observedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "operation": {
+          "$ref": "#/$defs/operationView"
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "job": {
+          "$ref": "#/$defs/nullableJob"
+        }
+      }
+    },
+    "commandUnknown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "clientRequestId",
+        "expectedBinding",
+        "attemptedOperationId",
+        "observedBinding",
+        "writesBlocked"
+      ],
+      "properties": {
+        "kind": {
+          "const": "commit_unknown"
+        },
+        "clientRequestId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "attemptedOperationId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^op_[0-9a-f]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observedBinding": {
+          "$ref": "#/$defs/nullableBinding"
+        },
+        "writesBlocked": {
+          "const": true
+        }
+      }
+    },
+    "commandResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "outcome"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "kind": {
+          "const": "core_command_result"
+        },
+        "outcome": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/commandRejected"
+            },
+            {
+              "$ref": "#/$defs/commandDurable"
+            },
+            {
+              "$ref": "#/$defs/commandUnknown"
+            }
+          ]
+        }
+      }
+    },
+    "background_index_rebuild": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding"
+      ],
+      "properties": {
+        "kind": {
+          "const": "index_rebuild"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        }
+      }
+    },
+    "background_context_preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "scope",
+        "maxTokens"
+      ],
+      "properties": {
+        "kind": {
+          "const": "context_preview"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "scope": {
+          "$ref": "#/$defs/queryScope"
+        },
+        "maxTokens": {
+          "type": "integer",
+          "minimum": 256,
+          "maximum": 32768
+        }
+      }
+    },
+    "backgroundRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "clientRequestId",
+        "request"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "kind": {
+          "const": "core_background"
+        },
+        "clientRequestId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "request": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/background_index_rebuild"
+            },
+            {
+              "$ref": "#/$defs/background_context_preview"
+            },
+            {
+              "$ref": "#/$defs/background_cancel_job"
+            }
+          ]
+        }
+      }
+    },
+    "backgroundAccepted": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "clientRequestId",
+        "pinnedBinding",
+        "job",
+        "canonicalChanged"
+      ],
+      "properties": {
+        "kind": {
+          "const": "job_accepted"
+        },
+        "clientRequestId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "pinnedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "job": {
+          "$ref": "#/$defs/jobRef"
+        },
+        "canonicalChanged": {
+          "const": false
+        }
+      }
+    },
+    "backgroundResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "outcome"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 2
+        },
+        "kind": {
+          "const": "core_background_result"
+        },
+        "outcome": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/backgroundAccepted"
+            },
+            {
+              "$ref": "#/$defs/commandRejected"
+            },
+            {
+              "$ref": "#/$defs/backgroundCancelled"
+            }
+          ]
+        }
+      }
+    },
+    "inventoryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "memory",
+            "source",
+            "session",
+            "invocation",
+            "operation"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^(mem|src|ses|inv|op)_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "query_get_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedBinding",
+        "sourceId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "get_source"
+        },
+        "expectedBinding": {
+          "$ref": "#/$defs/binding"
+        },
+        "sourceId": {
+          "type": "string",
+          "pattern": "^src_[0-9a-f]{32}$"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "binding",
+        "record"
+      ],
+      "properties": {
+        "kind": {
+          "const": "source"
+        },
+        "binding": {
+          "$ref": "#/$defs/binding"
+        },
+        "record": {
+          "$ref": "../memory/source-v1.schema.json"
+        }
+      }
+    },
+    "background_cancel_job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "job"
+      ],
+      "properties": {
+        "kind": {
+          "const": "cancel_job"
+        },
+        "job": {
+          "$ref": "#/$defs/jobRef"
+        }
+      }
+    },
+    "backgroundCancelled": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "clientRequestId",
+        "job",
+        "state",
+        "canonicalChanged"
+      ],
+      "properties": {
+        "kind": {
+          "const": "job_cancel_observed"
+        },
+        "clientRequestId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "job": {
+          "$ref": "#/$defs/jobRef"
+        },
+        "state": {
+          "enum": [
+            "cancel_requested",
+            "cancelled",
+            "succeeded",
+            "failed",
+            "interrupted"
+          ]
+        },
+        "canonicalChanged": {
+          "const": false
+        }
+      }
+    }
+  }
+}

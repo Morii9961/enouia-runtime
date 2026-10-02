@@ -26,6 +26,8 @@ Status/event snapshots come from one serialized job state; a terminal result can
 
 Bound completed preview payloads to 4 MiB/process and ten minutes; eviction returns `preview_expired`, never fabricates a recorded capsule. Persisted actual invocation capsules are not disposable preview cache. A UI closes without automatically cancelling jobs; actual Core process death is a separate lifecycle fact and is not promised to leave embedded Core running.
 
+The [read/result wire](CORE_READ_RESULTS_v2_DESIGN.md) specifies proposed index/preview starts and process-local cancellation. Mock cancellation remains canonical; transient `cancel_job` cannot cancel a Mock submission or manufacture its receipt outcome.
+
 ## Acceptance before implementation claims
 
 The DTO/event shape schema is now specified; complete positive/negative synthetic traces and semantic validators are an implementation prerequisite. Prove actual backend worker queue/owner limits, cooperative cancellation, terminal race arbitration, callback after process/job replacement, event gaps, restart interruption and no frontend-thread blocking. Mock completion must match the canonical receipt/ledger; index success must match the verified selected binding. These are specified tests, not executed evidence.

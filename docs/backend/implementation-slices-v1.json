@@ -27,6 +27,10 @@
       "sha256": "acfc82faffd4d04d7da771ce94390a018b48dfdf1c97c818dc17084a4312eed9"
     },
     {
+      "path": "contracts/ipc/backend-read-results-v2.schema.json",
+      "sha256": "47e901eff9851f9f9a8274ffcd250368ec6ef328c043a3fca25d4d11a5d3812e"
+    },
+    {
       "path": "contracts/vault/memory-index-v1.sql",
       "sha256": "f735a1e555204a6bbb4de64b297126d726171490f274f2604bba4228b77e6f13"
     },
@@ -36,15 +40,19 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "00095bce6ff162ff610fb813f8370fda2d43bdfc744766a8fe180ec4a8bb356b"
+      "sha256": "d4f92dbf54b186a8d0b9d6c8eb4de2ae4899d8fbbdcdccc448348ebecec9c6b7"
     },
     {
       "path": "docs/CORE_COMMANDS_v2_DESIGN.md",
-      "sha256": "809bb19a63e16af523404038f9ab295e481b24b9e132ace03ce40b8825f185b7"
+      "sha256": "a2adeaf9341fcdcd9c0d3d0cb2fd4e04b819997dbf0ec7a9ffed212b8a27982f"
     },
     {
       "path": "docs/CORE_JOBS_v1.md",
-      "sha256": "1a38529b12c05cc414c05b525f38bef5feee78dc94b64649e07212ebf9df5c4d"
+      "sha256": "3c020d850c0c5c6b5fb54af00eb9f09e09e7dc329575c3a0f39e13f0389ce7f4"
+    },
+    {
+      "path": "docs/CORE_READ_RESULTS_v2_DESIGN.md",
+      "sha256": "66f1307b4d6e062f85c0c8814c41e42c1f226e8387cad3a37260346e1551e11c"
     },
     {
       "path": "docs/INVOCATION_LEDGER_v1.md",
@@ -84,11 +92,19 @@
     },
     {
       "path": "docs/adr/023-command-receipts-and-jobs.md",
-      "sha256": "f4ef590f53a4a733ed2c55f9422c936a3ceddaeca3490904db612c470a0401f0"
+      "sha256": "2a85ce38014d06d0230353c36a687d2504d53e388c3725ff7ea835aa0d8ecf59"
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "f52986894499124a3aad53a7032c075cc812b571139ba042ebb80ceb1f34aeef"
+      "sha256": "ae930dcf794534809b00ab1237b00609a1c089e6e27d8a08ba047d960d88ac38"
+    },
+    {
+      "path": "scripts/check-read-results-design.py",
+      "sha256": "940f45e3d9ddeb6ef6ff1697e690a33424c163fedea8a35f675b1500e8223a7e"
+    },
+    {
+      "path": "tests/fixtures/backend/read-results-v2.json",
+      "sha256": "d4245c49e969570cd6c515a6a6cdaa2e3a2a54cd956787e6d778699fcdab3a64"
     }
   ],
   "slices": [

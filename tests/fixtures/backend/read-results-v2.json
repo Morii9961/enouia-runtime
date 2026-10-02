@@ -1,0 +1,1031 @@
+{
+  "scope": "Synthetic selected wire/byte/semantic examples only; bindings do not identify real persisted generations",
+  "examples": [
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_capabilities"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_snapshot",
+        "expectedBinding": null,
+        "processId": null,
+        "pageToken": null,
+        "limit": 100,
+        "collection": "memory"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_memory",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "memoryId": "mem_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_session",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "sessionId": "ses_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "list_candidates",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "status": null,
+        "processId": null,
+        "pageToken": null,
+        "limit": 100
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_candidate",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "candidateId": "cand_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "search_memory",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "scope": {
+          "query": "MoriMeta",
+          "projectId": null,
+          "sessionId": null,
+          "asOf": "2026-10-02T09:00:00.000Z",
+          "limit": 64
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_capsule",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "invocationId": "inv_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_preview",
+        "jobId": "job_00000000000000000000000000000001",
+        "processId": "run_00000000000000000000000000000001",
+        "capsuleId": "cap_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_invocation",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "invocationId": "inv_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_operation",
+        "expectedBinding": null,
+        "operationId": "op_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_health"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_job",
+        "jobId": "job_00000000000000000000000000000001",
+        "processId": "run_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "poll_job_events",
+        "jobId": "job_00000000000000000000000000000001",
+        "processId": "run_00000000000000000000000000000001",
+        "afterSequence": 0,
+        "limit": 128
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read",
+      "query": {
+        "kind": "get_source",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "sourceId": "src_00000000000000000000000000000001"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_command_result",
+      "outcome": {
+        "kind": "durable_operation",
+        "clientRequestId": "synthetic_action_0001",
+        "observedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "operation": {
+          "operationId": "op_00000000000000000000000000000001",
+          "commandKind": "send_mock_turn",
+          "status": "accepted",
+          "createdAt": "2026-10-02T09:00:00.000Z",
+          "updatedAt": "2026-10-02T09:00:00.000Z",
+          "committedBinding": {
+            "schema_version": 1,
+            "vault_id": "vlt_00000000000000000000000000000001",
+            "generation_id": "gen_00000000000000000000000000000001",
+            "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          "resultRefs": {
+            "memoryId": null,
+            "sourceId": null,
+            "candidateId": null,
+            "sessionId": "ses_00000000000000000000000000000001",
+            "userTurnId": "turn_00000000000000000000000000000001",
+            "userSourceId": "src_00000000000000000000000000000001",
+            "assistantTurnId": null,
+            "assistantSourceId": null,
+            "invocationId": null
+          },
+          "errorCode": null
+        },
+        "replayed": false,
+        "job": {
+          "jobId": "job_00000000000000000000000000000001",
+          "processId": "run_00000000000000000000000000000001"
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_command_result",
+      "outcome": {
+        "kind": "durable_operation",
+        "clientRequestId": "synthetic_action_0001",
+        "observedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000002",
+          "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "operation": {
+          "operationId": "op_00000000000000000000000000000001",
+          "commandKind": "send_mock_turn",
+          "status": "completed",
+          "createdAt": "2026-10-02T09:00:00.000Z",
+          "updatedAt": "2026-10-02T09:00:00.000Z",
+          "committedBinding": {
+            "schema_version": 1,
+            "vault_id": "vlt_00000000000000000000000000000001",
+            "generation_id": "gen_00000000000000000000000000000002",
+            "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "resultRefs": {
+            "memoryId": null,
+            "sourceId": null,
+            "candidateId": null,
+            "sessionId": "ses_00000000000000000000000000000001",
+            "userTurnId": "turn_00000000000000000000000000000001",
+            "userSourceId": "src_00000000000000000000000000000001",
+            "assistantTurnId": "turn_00000000000000000000000000000002",
+            "assistantSourceId": "src_00000000000000000000000000000002",
+            "invocationId": "inv_00000000000000000000000000000001"
+          },
+          "errorCode": null
+        },
+        "replayed": true,
+        "job": null
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_command_result",
+      "outcome": {
+        "kind": "durable_operation",
+        "clientRequestId": "synthetic_action_0001",
+        "observedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000002",
+          "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "operation": {
+          "operationId": "op_00000000000000000000000000000001",
+          "commandKind": "send_mock_turn",
+          "status": "cancelled",
+          "createdAt": "2026-10-02T09:00:00.000Z",
+          "updatedAt": "2026-10-02T09:00:00.000Z",
+          "committedBinding": {
+            "schema_version": 1,
+            "vault_id": "vlt_00000000000000000000000000000001",
+            "generation_id": "gen_00000000000000000000000000000002",
+            "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "resultRefs": {
+            "memoryId": null,
+            "sourceId": null,
+            "candidateId": null,
+            "sessionId": "ses_00000000000000000000000000000001",
+            "userTurnId": "turn_00000000000000000000000000000001",
+            "userSourceId": "src_00000000000000000000000000000001",
+            "assistantTurnId": null,
+            "assistantSourceId": null,
+            "invocationId": null
+          },
+          "errorCode": "cancelled"
+        },
+        "replayed": false,
+        "job": null
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_command_result",
+      "outcome": {
+        "kind": "rejected",
+        "clientRequestId": null,
+        "observedBinding": null,
+        "error": {
+          "code": "invalid_request",
+          "operationId": null,
+          "invocationId": null,
+          "sessionId": null,
+          "retryAction": "none"
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_command_result",
+      "outcome": {
+        "kind": "commit_unknown",
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "attemptedOperationId": "op_00000000000000000000000000000001",
+        "observedBinding": null,
+        "writesBlocked": true
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "snapshot_inventory",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "counts": {
+          "memories": 0,
+          "sources": 0,
+          "candidates": 0,
+          "sessions": 0,
+          "invocations": 0,
+          "operations": 0
+        },
+        "page": {
+          "processId": "run_00000000000000000000000000000001",
+          "nextToken": null,
+          "remainingCount": 0
+        },
+        "collection": "memory",
+        "items": []
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "candidate_page",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "items": [],
+        "page": {
+          "processId": "run_00000000000000000000000000000001",
+          "nextToken": null,
+          "remainingCount": 0
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "memory_search",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "policy": "scope_literal_v1",
+        "outcome": "no_match",
+        "hits": [],
+        "audit": {
+          "inactive": 0,
+          "future": 0,
+          "validity": 0,
+          "project": 0,
+          "unmatched": 0,
+          "deduplicated": 0,
+          "capped": 0
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "operation",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000002",
+          "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "operation": {
+          "operationId": "op_00000000000000000000000000000001",
+          "commandKind": "send_mock_turn",
+          "status": "completed",
+          "createdAt": "2026-10-02T09:00:00.000Z",
+          "updatedAt": "2026-10-02T09:00:00.000Z",
+          "committedBinding": {
+            "schema_version": 1,
+            "vault_id": "vlt_00000000000000000000000000000001",
+            "generation_id": "gen_00000000000000000000000000000002",
+            "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "resultRefs": {
+            "memoryId": null,
+            "sourceId": null,
+            "candidateId": null,
+            "sessionId": "ses_00000000000000000000000000000001",
+            "userTurnId": "turn_00000000000000000000000000000001",
+            "userSourceId": "src_00000000000000000000000000000001",
+            "assistantTurnId": "turn_00000000000000000000000000000002",
+            "assistantSourceId": "src_00000000000000000000000000000002",
+            "invocationId": "inv_00000000000000000000000000000001"
+          },
+          "errorCode": null
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "health",
+        "processId": "run_00000000000000000000000000000001",
+        "binding": null,
+        "canonical": "blocked",
+        "index": "absent",
+        "writeAllowed": false,
+        "issueCodes": [
+          "recovery_blocked"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "read_rejected",
+        "observedBinding": null,
+        "error": {
+          "code": "invalid_request",
+          "operationId": null,
+          "invocationId": null,
+          "sessionId": null,
+          "retryAction": "none"
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "recorded_capsule",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000002",
+          "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "inputBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "invocationId": "inv_00000000000000000000000000000001",
+        "providerId": "mock-v1",
+        "invocationStatus": "prepared",
+        "capsule": {
+          "capsuleId": "cap_00000000000000000000000000000001",
+          "sha256": "7ac11a64f3671a0566640a7ee86dea86f7acd411daf1bdf16740b6d0ce1c8d6d",
+          "byteLength": 2171,
+          "encoding": "base64",
+          "bytes": "eyJzY2hlbWFfdmVyc2lvbiI6MSwiY2Fwc3VsZV9pZCI6ImNhcF8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMSIsImdlbmVyYXRlZF9hdCI6IjIwMjYtMTAtMDFUMDk6MDA6MDYuMDAwWiIsInF1ZXJ5Ijoi5ZCI5oiQ6aG555uu5LiL5LiA5q2l5piv5LuA5LmI77yfIiwiaWRlbnRpdHkiOlt7Im5hbWUiOiJjb3JlLm1kIiwiY29udGVudCI6IlN5bnRoZXRpYyBpZGVudGl0eSBvbmx5In1dLCJ1c2VyX2NvbnRleHQiOltdLCJyZWxhdGlvbnNoaXBfY29udGV4dCI6W10sImFjdGl2ZV9wcm9qZWN0cyI6W3sic2NoZW1hX3ZlcnNpb24iOjEsIm1lbW9yeV9pZCI6Im1lbV8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNCIsInR5cGUiOiJwcm9qZWN0X3N0YXRlIiwiY29udGVudCI6IlN5bnRoZXRpYyBwcm9qZWN0X3N0YXRlIGNvbnRlbnQiLCJzb3VyY2VfaWQiOiJzcmNfMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMVQwOTowMDowMC4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMDFUMDk6MDA6MDAuMDAwWiIsInN0YXR1cyI6ImFjdGl2ZSIsInByb2plY3RfaWQiOiJwcmpfMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEiLCJ0YWdzIjpbInN5bnRoZXRpYyJdLCJ2YWxpZGl0eSI6bnVsbCwiY29uZmlkZW5jZSI6bnVsbCwic3VwZXJzZWRlcyI6bnVsbCwic3RhdGUiOiJNb2RlbCBjb250cmFjdHMgaW4gcHJvZ3Jlc3MiLCJkZWNpc2lvbnMiOlsiS2VlcCBBY3Rpdml0eSBzZXBhcmF0ZSJdLCJvcGVuX2xvb3BzIjpbIkltcGxlbWVudCBzZXNzaW9uIHR1cm4gbGlua2FnZSJdLCJzZXNzaW9uX2lkIjpudWxsLCJjb3ZlcmVkX3R1cm5zIjpudWxsLCJsYXN0X3N0YXRlIjpudWxsfV0sInJlbGV2YW50X21lbW9yaWVzIjpbXSwicmVjZW50X3Nlc3Npb25fY2hlY2twb2ludHMiOlt7InNjaGVtYV92ZXJzaW9uIjoxLCJtZW1vcnlfaWQiOiJtZW1fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDUiLCJ0eXBlIjoic2Vzc2lvbl9jaGVja3BvaW50IiwiY29udGVudCI6IlN5bnRoZXRpYyBzZXNzaW9uX2NoZWNrcG9pbnQgY29udGVudCIsInNvdXJjZV9pZCI6InNyY18wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMyIsImNyZWF0ZWRfYXQiOiIyMDI2LTEwLTAxVDA5OjAwOjAyLjAwMFoiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0wMVQwOTowMDowMi4wMDBaIiwic3RhdHVzIjoiYWN0aXZlIiwicHJvamVjdF9pZCI6bnVsbCwidGFncyI6WyJzeW50aGV0aWMiXSwidmFsaWRpdHkiOm51bGwsImNvbmZpZGVuY2UiOm51bGwsInN1cGVyc2VkZXMiOm51bGwsInN0YXRlIjpudWxsLCJkZWNpc2lvbnMiOltdLCJvcGVuX2xvb3BzIjpbIkNvbnRpbnVlIG9mZmxpbmUgbW9kZWwgdmFsaWRhdGlvbiJdLCJzZXNzaW9uX2lkIjoic2VzXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxIiwiY292ZXJlZF90dXJucyI6eyJmaXJzdF90dXJuX2lkIjoidHVybl8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMSIsImxhc3RfdHVybl9pZCI6InR1cm5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDIifSwibGFzdF9zdGF0ZSI6IlN5bnRoZXRpYyBjaGVja3BvaW50In1dLCJyZWNlbnRfdHVybnMiOltdLCJvcGVuX2xvb3BzIjpbIkltcGxlbWVudCBzZXNzaW9uIHR1cm4gbGlua2FnZSIsIkNvbnRpbnVlIG9mZmxpbmUgbW9kZWwgdmFsaWRhdGlvbiJdLCJwcm92ZW5hbmNlIjpbeyJlbnRyeV9pZCI6ImlkZW50aXR5OmNvcmUubWQiLCJzb3VyY2VfaWQiOm51bGwsInJlYXNvbiI6ImlkZW50aXR5In0seyJlbnRyeV9pZCI6Im1lbV8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNCIsInNvdXJjZV9pZCI6InNyY18wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMSIsInJlYXNvbiI6ImFjdGl2ZV9wcm9qZWN0In0seyJlbnRyeV9pZCI6Im1lbV8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNSIsInNvdXJjZV9pZCI6InNyY18wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMyIsInJlYXNvbiI6InJlY2VudF9jaGVja3BvaW50In1dLCJidWRnZXQiOnsibWF4X3Rva2VucyI6MjAwMDAsImVzdGltYXRlZF90b2tlbnMiOjI0MjcsInJlc2VydmVfdG9rZW5zIjoyNTYsInBvbGljeSI6InV0ZjhfYnl0ZXNfdjEifX0="
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "preview_capsule",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "job": {
+          "jobId": "job_00000000000000000000000000000001",
+          "processId": "run_00000000000000000000000000000001"
+        },
+        "expiresAt": "2026-10-02T09:10:00.000Z",
+        "persisted": false,
+        "capsule": {
+          "capsuleId": "cap_00000000000000000000000000000001",
+          "sha256": "7ac11a64f3671a0566640a7ee86dea86f7acd411daf1bdf16740b6d0ce1c8d6d",
+          "byteLength": 2171,
+          "encoding": "base64",
+          "bytes": "eyJzY2hlbWFfdmVyc2lvbiI6MSwiY2Fwc3VsZV9pZCI6ImNhcF8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMSIsImdlbmVyYXRlZF9hdCI6IjIwMjYtMTAtMDFUMDk6MDA6MDYuMDAwWiIsInF1ZXJ5Ijoi5ZCI5oiQ6aG555uu5LiL5LiA5q2l5piv5LuA5LmI77yfIiwiaWRlbnRpdHkiOlt7Im5hbWUiOiJjb3JlLm1kIiwiY29udGVudCI6IlN5bnRoZXRpYyBpZGVudGl0eSBvbmx5In1dLCJ1c2VyX2NvbnRleHQiOltdLCJyZWxhdGlvbnNoaXBfY29udGV4dCI6W10sImFjdGl2ZV9wcm9qZWN0cyI6W3sic2NoZW1hX3ZlcnNpb24iOjEsIm1lbW9yeV9pZCI6Im1lbV8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNCIsInR5cGUiOiJwcm9qZWN0X3N0YXRlIiwiY29udGVudCI6IlN5bnRoZXRpYyBwcm9qZWN0X3N0YXRlIGNvbnRlbnQiLCJzb3VyY2VfaWQiOiJzcmNfMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMVQwOTowMDowMC4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjYtMTAtMDFUMDk6MDA6MDAuMDAwWiIsInN0YXR1cyI6ImFjdGl2ZSIsInByb2plY3RfaWQiOiJwcmpfMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEiLCJ0YWdzIjpbInN5bnRoZXRpYyJdLCJ2YWxpZGl0eSI6bnVsbCwiY29uZmlkZW5jZSI6bnVsbCwic3VwZXJzZWRlcyI6bnVsbCwic3RhdGUiOiJNb2RlbCBjb250cmFjdHMgaW4gcHJvZ3Jlc3MiLCJkZWNpc2lvbnMiOlsiS2VlcCBBY3Rpdml0eSBzZXBhcmF0ZSJdLCJvcGVuX2xvb3BzIjpbIkltcGxlbWVudCBzZXNzaW9uIHR1cm4gbGlua2FnZSJdLCJzZXNzaW9uX2lkIjpudWxsLCJjb3ZlcmVkX3R1cm5zIjpudWxsLCJsYXN0X3N0YXRlIjpudWxsfV0sInJlbGV2YW50X21lbW9yaWVzIjpbXSwicmVjZW50X3Nlc3Npb25fY2hlY2twb2ludHMiOlt7InNjaGVtYV92ZXJzaW9uIjoxLCJtZW1vcnlfaWQiOiJtZW1fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDUiLCJ0eXBlIjoic2Vzc2lvbl9jaGVja3BvaW50IiwiY29udGVudCI6IlN5bnRoZXRpYyBzZXNzaW9uX2NoZWNrcG9pbnQgY29udGVudCIsInNvdXJjZV9pZCI6InNyY18wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMyIsImNyZWF0ZWRfYXQiOiIyMDI2LTEwLTAxVDA5OjAwOjAyLjAwMFoiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0wMVQwOTowMDowMi4wMDBaIiwic3RhdHVzIjoiYWN0aXZlIiwicHJvamVjdF9pZCI6bnVsbCwidGFncyI6WyJzeW50aGV0aWMiXSwidmFsaWRpdHkiOm51bGwsImNvbmZpZGVuY2UiOm51bGwsInN1cGVyc2VkZXMiOm51bGwsInN0YXRlIjpudWxsLCJkZWNpc2lvbnMiOltdLCJvcGVuX2xvb3BzIjpbIkNvbnRpbnVlIG9mZmxpbmUgbW9kZWwgdmFsaWRhdGlvbiJdLCJzZXNzaW9uX2lkIjoic2VzXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxIiwiY292ZXJlZF90dXJucyI6eyJmaXJzdF90dXJuX2lkIjoidHVybl8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMSIsImxhc3RfdHVybl9pZCI6InR1cm5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDIifSwibGFzdF9zdGF0ZSI6IlN5bnRoZXRpYyBjaGVja3BvaW50In1dLCJyZWNlbnRfdHVybnMiOltdLCJvcGVuX2xvb3BzIjpbIkltcGxlbWVudCBzZXNzaW9uIHR1cm4gbGlua2FnZSIsIkNvbnRpbnVlIG9mZmxpbmUgbW9kZWwgdmFsaWRhdGlvbiJdLCJwcm92ZW5hbmNlIjpbeyJlbnRyeV9pZCI6ImlkZW50aXR5OmNvcmUubWQiLCJzb3VyY2VfaWQiOm51bGwsInJlYXNvbiI6ImlkZW50aXR5In0seyJlbnRyeV9pZCI6Im1lbV8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNCIsInNvdXJjZV9pZCI6InNyY18wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMSIsInJlYXNvbiI6ImFjdGl2ZV9wcm9qZWN0In0seyJlbnRyeV9pZCI6Im1lbV8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNSIsInNvdXJjZV9pZCI6InNyY18wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMyIsInJlYXNvbiI6InJlY2VudF9jaGVja3BvaW50In1dLCJidWRnZXQiOnsibWF4X3Rva2VucyI6MjAwMDAsImVzdGltYXRlZF90b2tlbnMiOjI0MjcsInJlc2VydmVfdG9rZW5zIjoyNTYsInBvbGljeSI6InV0ZjhfYnl0ZXNfdjEifX0="
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "source",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "record": {
+          "schema_version": 1,
+          "source_id": "src_00000000000000000000000000000001",
+          "kind": "manual_save",
+          "title": "Synthetic manual_save",
+          "created_at": "2026-10-01T09:00:00.000Z",
+          "session_id": null,
+          "turn_id": null,
+          "importer_version": null,
+          "raw_sha256": null
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "memory",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "record": {
+          "schema_version": 1,
+          "memory_id": "mem_00000000000000000000000000000001",
+          "type": "fact",
+          "content": "Synthetic fact content",
+          "source_id": "src_00000000000000000000000000000001",
+          "created_at": "2026-10-01T09:00:00.000Z",
+          "updated_at": "2026-10-01T09:00:00.000Z",
+          "status": "active",
+          "project_id": null,
+          "tags": [
+            "synthetic"
+          ],
+          "validity": null,
+          "confidence": null,
+          "supersedes": null,
+          "state": null,
+          "decisions": [],
+          "open_loops": [],
+          "session_id": null,
+          "covered_turns": null,
+          "last_state": null
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "memory_search",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "policy": "scope_literal_v1",
+        "outcome": "matched",
+        "hits": [
+          {
+            "memoryId": "mem_00000000000000000000000000000001",
+            "rank": 0,
+            "lane": "relevant_memory",
+            "selection": "literal",
+            "matches": [
+              {
+                "term": "morimeta",
+                "field": "content",
+                "ordinal": 0
+              }
+            ],
+            "matchesOmitted": 0,
+            "priority": 2,
+            "scopeProjectId": null,
+            "scopeSessionId": null,
+            "checkpointSequence": null
+          }
+        ],
+        "audit": {
+          "inactive": 0,
+          "future": 0,
+          "validity": 0,
+          "project": 0,
+          "unmatched": 0,
+          "deduplicated": 0,
+          "capped": 0
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_background",
+      "clientRequestId": "synthetic_action_0001",
+      "request": {
+        "kind": "index_rebuild",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_background",
+      "clientRequestId": "synthetic_action_0001",
+      "request": {
+        "kind": "context_preview",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "scope": {
+          "query": "MoriMeta",
+          "projectId": null,
+          "sessionId": null,
+          "asOf": "2026-10-02T09:00:00.000Z",
+          "limit": 64
+        },
+        "maxTokens": 32768
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_background_result",
+      "outcome": {
+        "kind": "job_accepted",
+        "clientRequestId": "synthetic_action_0001",
+        "pinnedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "job": {
+          "jobId": "job_00000000000000000000000000000001",
+          "processId": "run_00000000000000000000000000000001"
+        },
+        "canonicalChanged": false
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "session",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "record": {
+          "schema_version": 1,
+          "session_id": "ses_00000000000000000000000000000001",
+          "title": "Synthetic continuity model",
+          "created_at": "2026-10-01T09:00:00.000Z",
+          "updated_at": "2026-10-01T09:00:05.000Z",
+          "events": [
+            {
+              "sequence": 1,
+              "created_at": "2026-10-01T09:00:00.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000001",
+                "role": "user",
+                "content": "Synthetic turn 1",
+                "source_id": "src_00000000000000000000000000000002"
+              }
+            },
+            {
+              "sequence": 2,
+              "created_at": "2026-10-01T09:00:01.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000002",
+                "role": "assistant",
+                "content": "Synthetic turn 2",
+                "source_id": "src_00000000000000000000000000000003"
+              }
+            },
+            {
+              "sequence": 3,
+              "created_at": "2026-10-01T09:00:02.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 4,
+              "created_at": "2026-10-01T09:00:03.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000003",
+                "role": "user",
+                "content": "Synthetic turn 3",
+                "source_id": "src_00000000000000000000000000000004"
+              }
+            },
+            {
+              "sequence": 5,
+              "created_at": "2026-10-01T09:00:04.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000004",
+                "role": "assistant",
+                "content": "Synthetic turn 4",
+                "source_id": "src_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 6,
+              "created_at": "2026-10-01T09:00:05.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000006"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "candidate",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "record": {
+          "schema_version": 1,
+          "candidate_id": "cand_00000000000000000000000000000001",
+          "created_at": "2026-10-01T09:00:00.000Z",
+          "updated_at": "2026-10-01T09:00:00.000Z",
+          "proposal": {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000006",
+            "type": "fact",
+            "content": "Synthetic fact content",
+            "source_id": "src_00000000000000000000000000000003",
+            "created_at": "2026-10-01T09:00:00.000Z",
+            "updated_at": "2026-10-01T09:00:00.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          "decision": {
+            "status": "pending"
+          }
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "invocation",
+        "binding": {
+          "schema_version": 1,
+          "vault_id": "vlt_00000000000000000000000000000001",
+          "generation_id": "gen_00000000000000000000000000000001",
+          "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "record": {
+          "schema_version": 1,
+          "invocation_id": "inv_00000000000000000000000000000001",
+          "request_id": "req_00000000000000000000000000000001",
+          "capsule_id": "cap_00000000000000000000000000000001",
+          "capsule_sha256": "7ac11a64f3671a0566640a7ee86dea86f7acd411daf1bdf16740b6d0ce1c8d6d",
+          "capsule_bytes": 2171,
+          "session_id": "ses_00000000000000000000000000000001",
+          "user_turn_id": "turn_00000000000000000000000000000003",
+          "input_binding": {
+            "schema_version": 1,
+            "vault_id": "vlt_00000000000000000000000000000001",
+            "generation_id": "gen_00000000000000000000000000000001",
+            "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          "provider_id": "mock-v1",
+          "prepared_at": "2026-10-02T09:00:00.000Z",
+          "updated_at": "2026-10-02T09:00:00.000Z",
+          "status": "prepared",
+          "dispatch_at": null,
+          "cancel_requested_at": null,
+          "terminal_at": null,
+          "error_code": null,
+          "result": null
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "capabilities",
+        "processId": "run_00000000000000000000000000000001",
+        "readKinds": [
+          "get_capabilities",
+          "get_snapshot",
+          "get_memory",
+          "get_session",
+          "list_candidates",
+          "get_candidate",
+          "search_memory",
+          "get_capsule",
+          "get_preview",
+          "get_invocation",
+          "get_operation",
+          "get_health",
+          "get_job",
+          "poll_job_events",
+          "get_source"
+        ],
+        "mutationKinds": [],
+        "backgroundKinds": [],
+        "commitModes": [],
+        "providers": [],
+        "maxReplyBytes": 25165824
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "job",
+        "status": {
+          "schemaVersion": 1,
+          "kind": "job_status",
+          "jobId": "job_00000000000000000000000000000001",
+          "processId": "run_00000000000000000000000000000001",
+          "jobKind": "context_preview",
+          "state": "queued",
+          "startedAt": null,
+          "updatedAt": "2026-10-02T09:00:00.000Z",
+          "pinnedBinding": {
+            "schema_version": 1,
+            "vault_id": "vlt_00000000000000000000000000000001",
+            "generation_id": "gen_00000000000000000000000000000001",
+            "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          "resultBinding": null,
+          "phase": "queued",
+          "processed": 0,
+          "total": null,
+          "eventSequence": 1,
+          "canCancel": true,
+          "operationId": null,
+          "invocationId": null,
+          "previewCapsuleId": null,
+          "errorCode": null
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_read_result",
+      "result": {
+        "kind": "job_events",
+        "poll": {
+          "schemaVersion": 1,
+          "kind": "job_events",
+          "jobId": "job_00000000000000000000000000000001",
+          "processId": "run_00000000000000000000000000000001",
+          "status": {
+            "schemaVersion": 1,
+            "kind": "job_status",
+            "jobId": "job_00000000000000000000000000000001",
+            "processId": "run_00000000000000000000000000000001",
+            "jobKind": "context_preview",
+            "state": "queued",
+            "startedAt": null,
+            "updatedAt": "2026-10-02T09:00:00.000Z",
+            "pinnedBinding": {
+              "schema_version": 1,
+              "vault_id": "vlt_00000000000000000000000000000001",
+              "generation_id": "gen_00000000000000000000000000000001",
+              "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+            },
+            "resultBinding": null,
+            "phase": "queued",
+            "processed": 0,
+            "total": null,
+            "eventSequence": 1,
+            "canCancel": true,
+            "operationId": null,
+            "invocationId": null,
+            "previewCapsuleId": null,
+            "errorCode": null
+          },
+          "events": [
+            {
+              "sequence": 1,
+              "observedAt": "2026-10-02T09:00:00.000Z",
+              "status": {
+                "schemaVersion": 1,
+                "kind": "job_status",
+                "jobId": "job_00000000000000000000000000000001",
+                "processId": "run_00000000000000000000000000000001",
+                "jobKind": "context_preview",
+                "state": "queued",
+                "startedAt": null,
+                "updatedAt": "2026-10-02T09:00:00.000Z",
+                "pinnedBinding": {
+                  "schema_version": 1,
+                  "vault_id": "vlt_00000000000000000000000000000001",
+                  "generation_id": "gen_00000000000000000000000000000001",
+                  "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+                },
+                "resultBinding": null,
+                "phase": "queued",
+                "processed": 0,
+                "total": null,
+                "eventSequence": 1,
+                "canCancel": true,
+                "operationId": null,
+                "invocationId": null,
+                "previewCapsuleId": null,
+                "errorCode": null
+              }
+            }
+          ],
+          "nextCursor": 1,
+          "eventGap": false
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_background",
+      "clientRequestId": "synthetic_action_0001",
+      "request": {
+        "kind": "cancel_job",
+        "job": {
+          "jobId": "job_00000000000000000000000000000001",
+          "processId": "run_00000000000000000000000000000001"
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "kind": "core_background_result",
+      "outcome": {
+        "kind": "job_cancel_observed",
+        "clientRequestId": "synthetic_action_0001",
+        "job": {
+          "jobId": "job_00000000000000000000000000000001",
+          "processId": "run_00000000000000000000000000000001"
+        },
+        "state": "cancel_requested",
+        "canonicalChanged": false
+      }
+    }
+  ]
+}

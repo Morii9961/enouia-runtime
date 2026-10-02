@@ -29,6 +29,10 @@ ARTIFACTS = {
     "docs/adr/020-core-vault-generations.md", "docs/adr/021-index-and-retrieval.md",
     "docs/adr/022-invocation-and-session.md", "docs/adr/023-command-receipts-and-jobs.md",
     "scripts/check-backend-readiness.py",
+    "docs/CORE_READ_RESULTS_v2_DESIGN.md",
+    "contracts/ipc/backend-read-results-v2.schema.json",
+    "scripts/check-read-results-design.py",
+    "tests/fixtures/backend/read-results-v2.json",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,
@@ -102,6 +106,7 @@ def check_changed_scope(baseline):
             "scripts/check-invocation-design.py", "scripts/check-command-design.py",
             "scripts/check-backend-readiness.py", "tests/fixtures/invocation/bindings-v1.json",
             "tests/fixtures/backend/command-v2.json",
+            "scripts/check-read-results-design.py", "tests/fixtures/backend/read-results-v2.json",
         }, "non-design change: " + name)
     return len(names)
 

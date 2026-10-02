@@ -4,7 +4,7 @@ Scope: closed storage wire **shape**, Windows capability/ordering proposal and c
 
 ## Executed integrity check
 
-Run `python scripts/check-backend-readiness.py --self-test` against the [readiness manifest](../backend/implementation-slices-v1.json). This verifies twenty exact SHA-256 design artifact hashes, P01-P10 identities and their acyclic reviewed dependencies, fourteen explicitly unaccepted O01-O14 rows and design-only source diff coverage from `d58ab4a`. Fourteen negative plans test hash/missing/traversal/duplicate/coverage failures, duplicate/unknown/cyclic/changed dependencies, unsupported implementation/acceptance/activation claims, numeric booleans and extra fields.
+Run `python scripts/check-backend-readiness.py --self-test` against the [readiness manifest](../backend/implementation-slices-v1.json). The initial consolidation verified twenty exact SHA-256 design artifact hashes; the read/result follow-up expands the current manifest to twenty-four. The current check verifies those hashes, P01-P10 identities and their acyclic reviewed dependencies, fourteen explicitly unaccepted O01-O14 rows and design-only source diff coverage from `d58ab4a`. Fourteen negative plans test hash/missing/traversal/duplicate/coverage failures, duplicate/unknown/cyclic/changed dependencies, unsupported implementation/acceptance/activation claims, numeric booleans and extra fields.
 
 The source-diff allowlist is narrow: docs, README/AGENTS, the named Core design contracts/probes and their fixtures. It refuses changed production modules, Cargo metadata, frontend code and existing Activity contracts. This is source evidence, not a before/after comparison of real Activity state or high-water/pending files.
 

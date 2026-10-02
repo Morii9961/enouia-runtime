@@ -58,4 +58,6 @@ Pin the actual packaged SQLite crate/library/build options, exact Windows access
 
 Within current design scope, the storage/index/retrieval/invocation/command/job boundaries and acceptance order are specified. The machine-readable [readiness manifest](backend/implementation-slices-v1.json) binds the design artifacts and planned dependency graph. Its [integrity checker](../scripts/check-backend-readiness.py) checks documentation/hash/plan integrity only; it does not execute P01–P10 or sign off O01–O14.
 
+The [read/result wire](CORE_READ_RESULTS_v2_DESIGN.md) additionally freezes proposed canonical inspection, sanitized outcome and background control shapes with selected synthetic examples. Full handler pairing/lineage/paging/authorization/race traces remain acceptance work.
+
 Narrow existing design evidence: [index query probe](validation/A1.2-index-retrieval-design.md), [invocation byte/shape probe](validation/A2-invocation-ledger-design.md), [command digest vector](validation/Core-command-jobs-design.md). Keep these labels when handing the backend contracts to the independently progressing frontend.
