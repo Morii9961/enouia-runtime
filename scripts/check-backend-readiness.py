@@ -33,6 +33,10 @@ ARTIFACTS = {
     "contracts/ipc/backend-read-results-v2.schema.json",
     "scripts/check-read-results-design.py",
     "tests/fixtures/backend/read-results-v2.json",
+    "docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md",
+    "contracts/ipc/command-digest-v2.json",
+    "scripts/check-command-digests-design.py",
+    "tests/fixtures/backend/command-digests-v2.json",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,
@@ -107,6 +111,7 @@ def check_changed_scope(baseline):
             "scripts/check-backend-readiness.py", "tests/fixtures/invocation/bindings-v1.json",
             "tests/fixtures/backend/command-v2.json",
             "scripts/check-read-results-design.py", "tests/fixtures/backend/read-results-v2.json",
+            "scripts/check-command-digests-design.py", "tests/fixtures/backend/command-digests-v2.json",
         }, "non-design change: " + name)
     return len(names)
 

@@ -1,0 +1,127 @@
+{
+  "policy": "command_digest_v2",
+  "status": "backend_design_not_activated",
+  "topFields": [
+    "schemaVersion",
+    "expectedBinding",
+    "operation"
+  ],
+  "bindingFields": [
+    "schema_version",
+    "vault_id",
+    "generation_id",
+    "manifest_sha256"
+  ],
+  "operationFields": {
+    "save_memory": [
+      "kind",
+      "saveMode",
+      "draft"
+    ],
+    "review_candidate": [
+      "kind",
+      "candidateId",
+      "review"
+    ],
+    "undo_supersession": [
+      "kind",
+      "memoryId"
+    ],
+    "create_session": [
+      "kind",
+      "title"
+    ],
+    "append_user_turn": [
+      "kind",
+      "sessionId",
+      "content"
+    ],
+    "create_checkpoint": [
+      "kind",
+      "sessionId",
+      "coveredTurns",
+      "lastState",
+      "openLoops"
+    ],
+    "update_identity": [
+      "kind",
+      "name",
+      "content"
+    ],
+    "send_mock_turn": [
+      "kind",
+      "sessionId",
+      "content",
+      "projectId",
+      "maxTokens"
+    ],
+    "continue_user_turn": [
+      "kind",
+      "sessionId",
+      "userTurnId",
+      "projectId",
+      "maxTokens"
+    ],
+    "resume_invocation": [
+      "kind",
+      "invocationId"
+    ],
+    "cancel_invocation": [
+      "kind",
+      "invocationId"
+    ],
+    "cancel_submission": [
+      "kind",
+      "operationId"
+    ]
+  },
+  "draftFields": [
+    "type",
+    "content",
+    "projectId",
+    "tags",
+    "validity",
+    "confidence",
+    "supersedes",
+    "state",
+    "decisions",
+    "openLoops",
+    "sessionId",
+    "coveredTurns",
+    "lastState"
+  ],
+  "reviewFields": {
+    "approve": [
+      "action",
+      "edited"
+    ],
+    "reject": [
+      "action",
+      "reason"
+    ]
+  },
+  "turnRangeFields": [
+    "first_turn_id",
+    "last_turn_id"
+  ],
+  "validityFields": [
+    "starts_at",
+    "ends_at"
+  ],
+  "optionalDraftDefaults": {
+    "projectId": null,
+    "tags": [],
+    "validity": null,
+    "confidence": null,
+    "supersedes": null,
+    "state": null,
+    "decisions": [],
+    "openLoops": [],
+    "sessionId": null,
+    "coveredTurns": null,
+    "lastState": null
+  },
+  "wireAndSemanticByteLimit": 1048576,
+  "numericBoundary": "Confidence is decoded as finite f64; representative decimal fixtures only. Arbitrary float formatting and Rust serializer parity are unaccepted activation gates. No source-text or array normalization.",
+  "encoding": "compact UTF-8 without BOM or terminal LF; preserve original text, array order and negative-zero typed intent; fixed field order; exclude clientRequestId only"
+}

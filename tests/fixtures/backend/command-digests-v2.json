@@ -1,0 +1,552 @@
+{
+  "scope": "Frozen Python design examples only; no real generations/reviews, Rust parity, command handlers or retained receipts",
+  "vectors": [
+    {
+      "name": "save_minimal_fact",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "inspector",
+          "draft": {
+            "type": "fact",
+            "content": "Synthetic explicit fact 中文"
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"inspector\",\"draft\":{\"type\":\"fact\",\"content\":\"Synthetic explicit fact 中文\",\"projectId\":null,\"tags\":[],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 549,
+      "sha256": "703f46ef9e057f96b4c1d269533f2017079ee1ac7b60ee34b2af487f7e8d27b7"
+    },
+    {
+      "name": "review_approve_unedited",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "review_candidate",
+          "candidateId": "cand_00000000000000000000000000000001",
+          "review": {
+            "action": "approve"
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"review_candidate\",\"candidateId\":\"cand_00000000000000000000000000000001\",\"review\":{\"action\":\"approve\",\"edited\":null}}}",
+      "byteLength": 386,
+      "sha256": "f8878d9cb557edbe307b90e3f2187c7e6fd1db58b9a76a3f6a25f162eb4710ab"
+    },
+    {
+      "name": "undo_supersession",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "undo_supersession",
+          "memoryId": "mem_00000000000000000000000000000001"
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"undo_supersession\",\"memoryId\":\"mem_00000000000000000000000000000001\"}}",
+      "byteLength": 339,
+      "sha256": "7edb41fdc366dba42c9f265ae8f33848cc4ed08a3c55e7bcd8930efb35c0ac26"
+    },
+    {
+      "name": "create_session_legacy",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "create_session",
+          "title": "Synthetic continuation"
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"create_session\",\"title\":\"Synthetic continuation\"}}",
+      "byteLength": 319,
+      "sha256": "eecf5e231d493f57b482df62f33f6b4a010dc6541befe21d2508dd0381389a4b"
+    },
+    {
+      "name": "append_unicode_turn",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "append_user_turn",
+          "sessionId": "ses_00000000000000000000000000000001",
+          "content": "原文引号 \"、反斜杠 \\、换行\n、零字符\u0000、emoji 😀"
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"append_user_turn\",\"sessionId\":\"ses_00000000000000000000000000000001\",\"content\":\"原文引号 \\\"、反斜杠 \\\\、换行\\n、零字符\\u0000、emoji 😀\"}}",
+      "byteLength": 424,
+      "sha256": "7ec263c2c2814188281765c8b376b1929880246e289abdd5365fc6bff9ad4cc9"
+    },
+    {
+      "name": "checkpoint_ordered_range",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "create_checkpoint",
+          "sessionId": "ses_00000000000000000000000000000001",
+          "coveredTurns": {
+            "first_turn_id": "turn_00000000000000000000000000000001",
+            "last_turn_id": "turn_00000000000000000000000000000002"
+          },
+          "lastState": "人工确认的状态",
+          "openLoops": [
+            "保留原始顺序",
+            "同一句不去重"
+          ]
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"create_checkpoint\",\"sessionId\":\"ses_00000000000000000000000000000001\",\"coveredTurns\":{\"first_turn_id\":\"turn_00000000000000000000000000000001\",\"last_turn_id\":\"turn_00000000000000000000000000000002\"},\"lastState\":\"人工确认的状态\",\"openLoops\":[\"保留原始顺序\",\"同一句不去重\"]}}",
+      "byteLength": 560,
+      "sha256": "dfaa9051d7492105248c6f44e14e5bfdb1da4f695cbd7a9bde99cdac00a3c359"
+    },
+    {
+      "name": "identity_rules",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "update_identity",
+          "name": "runtime_rules.md",
+          "content": "Explicit synthetic rule\nKeep original ending\n"
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"update_identity\",\"name\":\"runtime_rules.md\",\"content\":\"Explicit synthetic rule\\nKeep original ending\\n\"}}",
+      "byteLength": 373,
+      "sha256": "eb581663a08e355e7879e8b5a757fb9a01144f82f161da34bc44b760764f6bae"
+    },
+    {
+      "name": "send_mock_no_project",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "send_mock_turn",
+          "sessionId": "ses_00000000000000000000000000000001",
+          "content": "继续合成测试项目",
+          "projectId": null,
+          "maxTokens": 32768
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"send_mock_turn\",\"sessionId\":\"ses_00000000000000000000000000000001\",\"content\":\"继续合成测试项目\",\"projectId\":null,\"maxTokens\":32768}}",
+      "byteLength": 409,
+      "sha256": "ea0b44e48862f17f2fa9b4456c88c9a95f9bab54c1fd7e5ba871472e5aa69f47"
+    },
+    {
+      "name": "continue_retained_input",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "continue_user_turn",
+          "sessionId": "ses_00000000000000000000000000000001",
+          "userTurnId": "turn_00000000000000000000000000000001",
+          "projectId": "prj_00000000000000000000000000000001",
+          "maxTokens": 256
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"continue_user_turn\",\"sessionId\":\"ses_00000000000000000000000000000001\",\"userTurnId\":\"turn_00000000000000000000000000000001\",\"projectId\":\"prj_00000000000000000000000000000001\",\"maxTokens\":256}}",
+      "byteLength": 461,
+      "sha256": "7dc89e99cd8b2847e6bb0cc3f9d8fd71c3b8f9e337734618dd72090a9e684a11"
+    },
+    {
+      "name": "resume_prepared",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "resume_invocation",
+          "invocationId": "inv_00000000000000000000000000000001"
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"resume_invocation\",\"invocationId\":\"inv_00000000000000000000000000000001\"}}",
+      "byteLength": 343,
+      "sha256": "3fc3a0ace90f563c8fdae6f1d77faa13bf6c143ffd08fee37b87bdabbcedf102"
+    },
+    {
+      "name": "cancel_invocation",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "cancel_invocation",
+          "invocationId": "inv_00000000000000000000000000000001"
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"cancel_invocation\",\"invocationId\":\"inv_00000000000000000000000000000001\"}}",
+      "byteLength": 343,
+      "sha256": "a78195fef8cd78e3def2ed57bdce3e85d1dc94f3f3058156a55cbda050e927f6"
+    },
+    {
+      "name": "cancel_queued_submission",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "cancel_submission",
+          "operationId": "op_00000000000000000000000000000001"
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"cancel_submission\",\"operationId\":\"op_00000000000000000000000000000001\"}}",
+      "byteLength": 341,
+      "sha256": "9d4b5b940574d385489ed97ef024d28089c4f22712f75d12061320817557144e"
+    },
+    {
+      "name": "save_preference_remember",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "remember",
+          "draft": {
+            "type": "preference",
+            "content": "Synthetic preferred workflow",
+            "tags": [
+              "Beta",
+              "alpha"
+            ]
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"remember\",\"draft\":{\"type\":\"preference\",\"content\":\"Synthetic preferred workflow\",\"projectId\":null,\"tags\":[\"Beta\",\"alpha\"],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 566,
+      "sha256": "d96459110d92aea23b87cea75d202d29fda2e1c7684ae8bdc456b40810d28e40"
+    },
+    {
+      "name": "save_episode",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "inspector",
+          "draft": {
+            "type": "episode",
+            "content": "Synthetic retained episode",
+            "validity": {
+              "starts_at": "2026-10-01T00:00:00.000Z"
+            }
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"inspector\",\"draft\":{\"type\":\"episode\",\"content\":\"Synthetic retained episode\",\"projectId\":null,\"tags\":[],\"validity\":{\"starts_at\":\"2026-10-01T00:00:00.000Z\",\"ends_at\":null},\"confidence\":null,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 599,
+      "sha256": "ef0a6a454a79cc4a656980e40ed04f70ed6657bd508d307dce0faef514c233be"
+    },
+    {
+      "name": "save_project_state",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "inspector",
+          "draft": {
+            "type": "project_state",
+            "content": "Synthetic project narrative",
+            "projectId": "prj_00000000000000000000000000000001",
+            "state": "Current design boundary",
+            "decisions": [
+              "Original second",
+              "Original first"
+            ],
+            "openLoops": [
+              "Verify fixture provenance"
+            ]
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"inspector\",\"draft\":{\"type\":\"project_state\",\"content\":\"Synthetic project narrative\",\"projectId\":\"prj_00000000000000000000000000000001\",\"tags\":[],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":\"Current design boundary\",\"decisions\":[\"Original second\",\"Original first\"],\"openLoops\":[\"Verify fixture provenance\"],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 671,
+      "sha256": "2604e10131b606f1b447c4d8ce2d79387085ac5fa5dc4a4c55f338f1e46537c0"
+    },
+    {
+      "name": "review_edited_fact",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "review_candidate",
+          "candidateId": "cand_00000000000000000000000000000001",
+          "review": {
+            "action": "approve",
+            "edited": {
+              "type": "fact",
+              "content": "Original human edit ",
+              "supersedes": "mem_00000000000000000000000000000001"
+            }
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"review_candidate\",\"candidateId\":\"cand_00000000000000000000000000000001\",\"review\":{\"action\":\"approve\",\"edited\":{\"type\":\"fact\",\"content\":\"Original human edit \",\"projectId\":null,\"tags\":[],\"validity\":null,\"confidence\":null,\"supersedes\":\"mem_00000000000000000000000000000001\",\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}}",
+      "byteLength": 640,
+      "sha256": "e22e11a00d3ec342a78ea0778cba9e2c3df9e3b5fbf657922d51887b3fbb8f46"
+    },
+    {
+      "name": "review_rejected",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "review_candidate",
+          "candidateId": "cand_00000000000000000000000000000001",
+          "review": {
+            "action": "reject",
+            "reason": "明确拒绝，保留原始空格 "
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"review_candidate\",\"candidateId\":\"cand_00000000000000000000000000000001\",\"review\":{\"action\":\"reject\",\"reason\":\"明确拒绝，保留原始空格 \"}}}",
+      "byteLength": 417,
+      "sha256": "8402482ee8046cde599947f088d7d3e750d74a8972906567cbba1f8890d03282"
+    },
+    {
+      "name": "review_edited_checkpoint",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "review_candidate",
+          "candidateId": "cand_00000000000000000000000000000001",
+          "review": {
+            "action": "approve",
+            "edited": {
+              "type": "session_checkpoint",
+              "content": "Explicit reviewed checkpoint",
+              "sessionId": "ses_00000000000000000000000000000001",
+              "coveredTurns": {
+                "first_turn_id": "turn_00000000000000000000000000000001",
+                "last_turn_id": "turn_00000000000000000000000000000002"
+              },
+              "lastState": "Synthetic last state",
+              "openLoops": [
+                "Review recovery evidence"
+              ]
+            }
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"review_candidate\",\"candidateId\":\"cand_00000000000000000000000000000001\",\"review\":{\"action\":\"approve\",\"edited\":{\"type\":\"session_checkpoint\",\"content\":\"Explicit reviewed checkpoint\",\"projectId\":null,\"tags\":[],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[\"Review recovery evidence\"],\"sessionId\":\"ses_00000000000000000000000000000001\",\"coveredTurns\":{\"first_turn_id\":\"turn_00000000000000000000000000000001\",\"last_turn_id\":\"turn_00000000000000000000000000000002\"},\"lastState\":\"Synthetic last state\"}}}}",
+      "byteLength": 814,
+      "sha256": "57468d2a4a44d8ee696e09abf4212e4f51ad77710978689c74f757a08e5e5abf"
+    },
+    {
+      "name": "save_confidence_half",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "inspector",
+          "draft": {
+            "type": "fact",
+            "content": "Synthetic explicit fact 中文",
+            "confidence": 0.5
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"inspector\",\"draft\":{\"type\":\"fact\",\"content\":\"Synthetic explicit fact 中文\",\"projectId\":null,\"tags\":[],\"validity\":null,\"confidence\":0.5,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 548,
+      "sha256": "e4c89054b5bbeb4e1c409194db2a6a2fc22683530b72e879365389ec99228f59"
+    },
+    {
+      "name": "save_confidence_integer_one",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "inspector",
+          "draft": {
+            "type": "fact",
+            "content": "Synthetic explicit fact 中文",
+            "confidence": 1
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"inspector\",\"draft\":{\"type\":\"fact\",\"content\":\"Synthetic explicit fact 中文\",\"projectId\":null,\"tags\":[],\"validity\":null,\"confidence\":1.0,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 548,
+      "sha256": "07f410e185ee7be2589671888c235a7f76059985f1d749766b160c7e41a78394"
+    },
+    {
+      "name": "save_confidence_negative_zero",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "inspector",
+          "draft": {
+            "type": "fact",
+            "content": "Synthetic explicit fact 中文",
+            "confidence": -0.0
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"inspector\",\"draft\":{\"type\":\"fact\",\"content\":\"Synthetic explicit fact 中文\",\"projectId\":null,\"tags\":[],\"validity\":null,\"confidence\":-0.0,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 549,
+      "sha256": "e734fe0854d54baa8b4c302557b132f447e41f5e880cd72efaa38658339ba4b0"
+    },
+    {
+      "name": "save_fact_ordered_tags",
+      "request": {
+        "schemaVersion": 2,
+        "clientRequestId": "synthetic_action_0001",
+        "expectedBinding": {
+          "schema_version": 1,
+          "vault_id": "vlt_11111111111111111111111111111111",
+          "generation_id": "gen_22222222222222222222222222222222",
+          "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "operation": {
+          "kind": "save_memory",
+          "saveMode": "inspector",
+          "draft": {
+            "type": "fact",
+            "content": "Synthetic explicit fact 中文",
+            "tags": [
+              "x",
+              "y"
+            ],
+            "validity": {
+              "starts_at": "2026-10-01T00:00:00.000Z",
+              "ends_at": "2026-10-01T00:00:00.000Z"
+            }
+          }
+        }
+      },
+      "semanticUtf8": "{\"schemaVersion\":2,\"expectedBinding\":{\"schema_version\":1,\"vault_id\":\"vlt_11111111111111111111111111111111\",\"generation_id\":\"gen_22222222222222222222222222222222\",\"manifest_sha256\":\"3333333333333333333333333333333333333333333333333333333333333333\"},\"operation\":{\"kind\":\"save_memory\",\"saveMode\":\"inspector\",\"draft\":{\"type\":\"fact\",\"content\":\"Synthetic explicit fact 中文\",\"projectId\":null,\"tags\":[\"x\",\"y\"],\"validity\":{\"starts_at\":\"2026-10-01T00:00:00.000Z\",\"ends_at\":\"2026-10-01T00:00:00.000Z\"},\"confidence\":null,\"supersedes\":null,\"state\":null,\"decisions\":[],\"openLoops\":[],\"sessionId\":null,\"coveredTurns\":null,\"lastState\":null}}}",
+      "byteLength": 629,
+      "sha256": "372150f313823b2c4be107993a149aa5b37bc982e221ee82ba87eeae53ea3e03"
+    }
+  ]
+}

@@ -31,6 +31,10 @@
       "sha256": "47e901eff9851f9f9a8274ffcd250368ec6ef328c043a3fca25d4d11a5d3812e"
     },
     {
+      "path": "contracts/ipc/command-digest-v2.json",
+      "sha256": "8e61fd0376da338275524a5bd245febcb55375560bc2bc9eab16915e7d32faae"
+    },
+    {
       "path": "contracts/vault/memory-index-v1.sql",
       "sha256": "f735a1e555204a6bbb4de64b297126d726171490f274f2604bba4228b77e6f13"
     },
@@ -40,11 +44,15 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "d4f92dbf54b186a8d0b9d6c8eb4de2ae4899d8fbbdcdccc448348ebecec9c6b7"
+      "sha256": "48705185baa8aaa51dce0a032594918eba99299c4c40714c84e91847a21913ca"
+    },
+    {
+      "path": "docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md",
+      "sha256": "04460a5292fb1b990a2022645e059ea1637f1aefc3bf41c2e585009e0ac2b31a"
     },
     {
       "path": "docs/CORE_COMMANDS_v2_DESIGN.md",
-      "sha256": "a2adeaf9341fcdcd9c0d3d0cb2fd4e04b819997dbf0ec7a9ffed212b8a27982f"
+      "sha256": "05e0e12bbce6c61b2128a759997fa16ec19d58a80f1106f62a609c265842d5d7"
     },
     {
       "path": "docs/CORE_JOBS_v1.md",
@@ -96,11 +104,19 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "ae930dcf794534809b00ab1237b00609a1c089e6e27d8a08ba047d960d88ac38"
+      "sha256": "516b9c039d16205ffa0af8bac1482387e42f8fe282efc258cbe775ea4719959a"
+    },
+    {
+      "path": "scripts/check-command-digests-design.py",
+      "sha256": "c865f88d77ebc59f03307d9cd36d4572cfee5dd8e50d379f8235323ad2aea958"
     },
     {
       "path": "scripts/check-read-results-design.py",
       "sha256": "940f45e3d9ddeb6ef6ff1697e690a33424c163fedea8a35f675b1500e8223a7e"
+    },
+    {
+      "path": "tests/fixtures/backend/command-digests-v2.json",
+      "sha256": "01b75ced1063e7073760ece29931b31b44f92d6da1748c32c91440a1d9e31564"
     },
     {
       "path": "tests/fixtures/backend/read-results-v2.json",

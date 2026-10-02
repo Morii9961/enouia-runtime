@@ -1,0 +1,9 @@
+# Command digest design vectors — 2026-10-02
+
+Executed `python scripts/check-command-digests-design.py`: **22** frozen byte vectors covering **12** command kinds, **132** comparisons, **4** original-text/array/numeric distinctions and **22** negative examples passed. The previous create-Session digest remains exact. Field-order/default/byte-limit recipe checks passed as well.
+
+Six comparisons per vector are frozen bytes/length/hash, recursive incoming-key reordering, alternate client token, explicit typed defaults, pretty JSON wire decoding and different expected generation. Separate distinctions cover preserved trailing text space, ordered tag arrays, integer-versus-f64 one equivalence and negative-versus-positive zero. Negative examples cover extra fields, boolean version, malformed token, invented approval/source, required fields, duplicate tags, blank/kind text, non-finite numbers, ID trailing newline, impossible calendar date, UTF-8/array limits, lone surrogate, duplicate wire keys at two depths, NaN/Infinity, malformed UTF-8, BOM and excessive wire bytes.
+
+The standard-library probe imports the already committed **selected schema** checker with bytecode disabled. This remains a limited offline design evaluator, not a general JSON Schema engine or full Memory/Session validator. Python-produced golden strings bind the declared design; arbitrary f64/Rust byte parity, actual canonical candidate/range/graph resolution, human authorization, two-process retries, lost acknowledgement, receipt storage and durable restart are unverified.
+
+No canonical IDs were allocated, files published to a Vault, command handlers enabled, Activity state modified, production Rust/Cargo dependency changed or frontend started. Full P07/O02 acceptance is still pending. Existing pure Rust draft declarations informed field ordering through source inspection; no new Rust codec was implemented by this design.
