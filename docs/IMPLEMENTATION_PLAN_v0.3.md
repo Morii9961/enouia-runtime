@@ -1,12 +1,14 @@
 # Enouia Runtime v0.3 — implementation plan
 
-Date: 2026-10-01. Status: M0.1 and Activity B1-B3 implementation are present and locally verified. B4 remains partial; B5 production activation and Core A1-A3/J1 remain pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seven historical machine reports, records both unresolved GitHub comparisons, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
+Date: 2026-10-02. Status: M0.1 and Activity B1-B3 implementation are present and locally verified. B4 remains partial; B5 production activation and Core A1-A3/J1 remain pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seven historical machine reports, records both unresolved GitHub comparisons, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
+
+Current user scope: backend design only. Frontend A3/J1 design and implementation wait for Claude Design completion. Existing backend models/ports remain available; future UI milestones in this plan do not override that scope.
 
 Activity currently includes strict three-source adapters, generation storage/recovery, persisted pause and exact-pending retries, migration inspection/import/export, restricted transport with public observation, and scheduler packaging. Development evidence covers frozen comparison, isolated legacy handback, pinned native ccusage on synthetic stores, store/publisher process death, and ready tool-tree cleanup after release-runner death. Live inventory/authentication, deployment, scheduler triggers/battery/resume, full storage durability and UI acceptance still require evidence. Individual B1-B3 validation reports remain under docs/validation.
 
 Authority: [Architecture v0.3](../Enouia_Runtime_Architecture_v0.3.md). Procedure: [Activity migration runbook](ACTIVITY_MIGRATION_v0.3.md). Decisions: [ADR register](adr/README.md). Read the original handoff as evidence, but use v0.3 for current ownership and design. Architecture v0.3 is not the future product 0.3 provider milestone.
 
-The [2026-10-01 Core continuation baseline](CORE_NEXT_STEPS.md) records implemented pure models/ports, current verification and the next Vault/recovery boundary. It is a handoff, not full milestone acceptance.
+The [Core continuation baseline](CORE_NEXT_STEPS.md) records implemented pure models/ports, historical verification and current backend design progress. It is a handoff, not full milestone acceptance.
 
 ## 1. Delivery structure
 
@@ -53,6 +55,8 @@ Freeze schema v1 for all five memory kinds, source registry records, candidates,
 Acceptance/tests: all kinds round-trip without lossy fields; a source ID resolves; invalid dates/statuses/IDs fail; supersession preserves older content and rejects cycles; rejected or unapproved candidates are excluded from retrieval; a conversation can have multiple checkpoints linked to covered turns.
 
 ### A1.2 Vault, index, sessions, and recovery
+
+Design progress: [ADR-020](adr/020-core-vault-generations.md) selects complete immutable Core generations and one pinned selector. [Storage v1](VAULT_STORAGE_v1.md) defines closed field/path contracts, legal transitions, commit observation, retained ambiguity and index binding; [V01-V22](VAULT_RECOVERY_MATRIX_v1.md) defines required evidence. No storage schema adapter, Vault writer/index or executed recovery row is implemented by this design. The current design-only scope continues with index/retrieval contracts before any separately authorized persistence implementation.
 
 Owner paths: Memory/Session persistence and `enouia-common` atomic-file utility, with shared changes reviewed at M0 boundaries.
 

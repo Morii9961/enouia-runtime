@@ -132,6 +132,8 @@ Reserve `services/runtime-service`, `bridge/mcp`, and conversational `importers/
 
 Default installed data root: `%LOCALAPPDATA%\EnouiaRuntime`. Support an explicit absolute override. Reject production roots inside source/build/install directories or a cloud-synchronized folder; use a local filesystem whose replacement semantics have been tested. Resolve and check symlinks/reparse points before managed writes. Backups may be exported separately to user-selected storage. The current repository being on `E:` does not make it the default data location.
 
+Core persistence follow-up (2026-10-02): [ADR-020](docs/adr/020-core-vault-generations.md) adopts a complete-generation backend design. [Storage v1](docs/VAULT_STORAGE_v1.md) specifies generation-contained Vault files and a disposable generation-bound index. The illustrative stable Core paths below are superseded only after that ADR's adapter activation gates pass; no data migration or writer is activated. Activity layout remains as specified below. The user's current work scope is backend design; frontend work waits for Claude Design completion.
+
 ```text
 EnouiaRuntime/
   config/runtime.json                    # config_version: 1; no secrets

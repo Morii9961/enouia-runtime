@@ -119,3 +119,7 @@ Deferred: storage quota, generation compaction schedule, user-selected backup de
 ## ADR-019 — Claude Design in the existing Claude series (Direction approved; implementation deferred)
 
 The user wants official `claude_design` product tokens added to the existing Claude daily series, without a fourth public source or calendar. [ADR-019](019-claude-design-usage.md) records the conditional source, private component accounting, Shanghai-day conversion, and coordinated consumer-label gate. Current v0.3/v1 values keep their Code/Cowork meaning until that gate passes.
+
+## ADR-020 — Core Vault generations and pinned reads (Design adopted; implementation/activation pending)
+
+[ADR-020](020-core-vault-generations.md) selects complete immutable Core generations, a sole hash-bound pointer, generation-contained Identity/Memory/source/candidate/Session files, immutable referenced raw bytes and a disposable generation-bound index. [Storage v1](../VAULT_STORAGE_v1.md) specifies the design; [V01-V22](../VAULT_RECOVERY_MATRIX_v1.md) are pending evidence. The illustrative stable Vault paths change only when its adapter activation gates pass. Activity layout and public contracts remain independent. Frontend work waits for Claude Design completion under the current backend-only scope.

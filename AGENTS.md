@@ -2,6 +2,8 @@
 
 Architecture v0.3 and the ADR register define the current implementation boundaries. A later ADR changes behavior only after its stated activation gates pass. Keep Activity & Usage independent of Memory/Context, and keep the Runtime build independent of the Moriium checkout and private credentials.
 
+Current user scope (2026-10-02): work on backend design only. Frontend design and implementation wait until Claude Design is complete. Backend IPC/domain contracts may be designed without starting the Windows UI. A design decision does not itself authorize persistence implementation, personal migration or production activation.
+
 When Codex materially contributes to a commit in this repository, include this exact trailer after a blank line in the commit message:
 
 ```text

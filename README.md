@@ -88,4 +88,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Resolved dependency boundaries](docs/validation/Core-dependency-boundaries.md) now guard the independent Activity/Core graph and pure model dependencies. The read-only checker includes six forbidden-dependency negative checks and consumes offline Cargo metadata.
 
+[Core Vault storage v1](docs/VAULT_STORAGE_v1.md) and [ADR-020](docs/adr/020-core-vault-generations.md) now select complete immutable generations and one hash-bound pointer for the backend persistence design. The [V01-V22 recovery matrix](docs/VAULT_RECOVERY_MATRIX_v1.md) specifies required future evidence; no Vault adapter, executable storage schema fixtures or recovery tests are implemented by this design. Current work is backend design only; frontend design/implementation waits until Claude Design is complete. The [Core continuation note](docs/CORE_NEXT_STEPS.md) records the next index/retrieval design boundary.
+
 This project is published under the [MIT License](LICENSE).

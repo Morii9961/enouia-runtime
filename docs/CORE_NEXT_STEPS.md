@@ -1,4 +1,4 @@
-# Core continuation baseline — 2026-10-01
+# Core continuation baseline — updated 2026-10-02
 
 The code baseline through `275924d` is committed/pushed. Architecture v0.3 and activated ADRs remain the authority. This note does not sign off full A1/A2, Activity B4/B5 or production activation.
 
@@ -18,13 +18,17 @@ The dependency guard checks twelve workspace modules with six negative cases. Th
 
 ## Next implementation boundary
 
-Start A1.2 by freezing Vault paths/file schemas and cross-file transaction/recovery rules against the pure contracts. Implement OS cryptographic ID entropy, validated in-root paths, canonical Memory/source/candidate/session files, Markdown Identity and a disposable SQLite/FTS index. Preserve source/meaning history and candidate decisions in files, rather than only the index. A partially prepared conversation source or checkpoint is not a complete validated bundle.
+Current user scope is backend design only; frontend design/implementation waits until Claude Design is complete. The [Vault storage contract](VAULT_STORAGE_v1.md), [ADR-020](adr/020-core-vault-generations.md) and [22-row recovery matrix](VAULT_RECOVERY_MATRIX_v1.md) now specify complete immutable generations, a sole hash-bound pointer, retained historical bundles, exact canonical commit observation and disposable index binding. This is design progress, not persistence implementation or executed recovery evidence.
 
-The [Vault layout draft](VAULT_LAYOUT_DRAFT_v1.md) records candidate paths and the unresolved journal-versus-generation transaction choice. It is not yet a persistence contract; resolve that choice against the required crash matrix before writes.
+The [Vault layout draft](VAULT_LAYOUT_DRAFT_v1.md) is retained as the earlier alternatives record. The journal-versus-generation choice is resolved in ADR-020. Closed executable storage schemas/fixtures, transition validators and exact Windows handle/replace/flush adapter details still need implementation and acceptance; no personal Vault or live migration is established.
+
+Within backend design, next specify the disposable SQLite/FTS metadata/query contract, deterministic retrieval ranking and cancellation/stale-generation rules against this pointer binding. Do not install a database, write a Vault or start UI work just to complete that design.
+
+When persistence implementation is separately authorized, begin with storage schemas/byte fixtures and pure validators, followed by OS cryptographic entropy, validated in-root paths, canonical Memory/source/candidate/session files and Markdown Identity. Add the disposable SQLite/FTS index after the canonical transaction boundary is verified. Preserve source/meaning history and candidate decisions in files, rather than only the index. A partially prepared conversation source or checkpoint is not a complete validated bundle.
 
 Before claiming durable behavior, prove interrupted writes leave complete recoverable data, failed index updates are repaired from canonical files, deleting/corrupting the index reproduces active records, path traversal/reparse escape is blocked, and disk-full keeps prior bytes. Recovery must report orphan/ambiguous cross-file states without silently dropping records. Memory repair must leave Activity state/high-water/pending exactly unchanged. Use temporary marked synthetic roots; no personal Vault or live account migration is established here.
 
-Then attach FTS/metadata retrieval to the ranked Context port, persist the actual capsule before Mock invocation, orchestrate user/Mock turns and checkpoint generation, and prove the synthetic MoriMeta continuation after actual process restart/index rebuild. Add UI only after those backend contracts/operations are reviewable and verified.
+Then attach FTS/metadata retrieval to the ranked Context port, persist the actual capsule before Mock invocation, orchestrate user/Mock turns and checkpoint generation, and prove the synthetic MoriMeta continuation after actual process restart/index rebuild. Add UI only after those backend contracts/operations are reviewable and verified and the user confirms Claude Design is complete.
 
 Activity remains an independent track. Full matrix sign-off, real inventory/reconciliation/tool capabilities, actual scheduled triggers/battery/resume, power-loss/storage faults, the process spawn/job-assignment interval, real deployed publication and cutover/rollback still need evidence. Use [B4 coverage](validation/B4-coverage.md) and the operational O1–O6 definitions rather than treating offline checks as acceptance.
 
