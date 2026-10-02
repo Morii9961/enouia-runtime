@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "baseline": "d58ab4a",
+  "scope": {
+    "backendDesignOnly": true,
+    "runtimePersistenceImplemented": false,
+    "v2HandlersEnabled": false,
+    "jobsImplemented": false,
+    "frontendChanged": false,
+    "productionActivated": false
+  },
+  "artifacts": [
+    {
+      "path": "contracts/invocation/operation-receipt-v1.schema.json",
+      "sha256": "5cbd2797efd4b344d13606e4603ec88eb1fbb42bbd5c83929919043e3313a8eb"
+    },
+    {
+      "path": "contracts/invocation/record-v1.schema.json",
+      "sha256": "42d28e115634d4e2b92b96c0282ab5a7e5175ae75b3c547612e4243ea0944fdf"
+    },
+    {
+      "path": "contracts/ipc/backend-command-v2.schema.json",
+      "sha256": "087d0be6c09efcfc23eac6ef588e51654aad2e48e2c7fb5ea37efe271ccc9311"
+    },
+    {
+      "path": "contracts/ipc/backend-jobs-v1.schema.json",
+      "sha256": "acfc82faffd4d04d7da771ce94390a018b48dfdf1c97c818dc17084a4312eed9"
+    },
+    {
+      "path": "contracts/vault/memory-index-v1.sql",
+      "sha256": "f735a1e555204a6bbb4de64b297126d726171490f274f2604bba4228b77e6f13"
+    },
+    {
+      "path": "contracts/vault/storage-v1.schema.json",
+      "sha256": "209d21e34ab1308b1421db65cc3ce04f65647ff9524de167d421745bbb586c44"
+    },
+    {
+      "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
+      "sha256": "00095bce6ff162ff610fb813f8370fda2d43bdfc744766a8fe180ec4a8bb356b"
+    },
+    {
+      "path": "docs/CORE_COMMANDS_v2_DESIGN.md",
+      "sha256": "809bb19a63e16af523404038f9ab295e481b24b9e132ace03ce40b8825f185b7"
+    },
+    {
+      "path": "docs/CORE_JOBS_v1.md",
+      "sha256": "1a38529b12c05cc414c05b525f38bef5feee78dc94b64649e07212ebf9df5c4d"
+    },
+    {
+      "path": "docs/INVOCATION_LEDGER_v1.md",
+      "sha256": "acf36ebed628d93d34e58269ea9e9211695e2c5bb8258ffbfc87ee9fa6a2e6a6"
+    },
+    {
+      "path": "docs/MEMORY_INDEX_v1.md",
+      "sha256": "e4d139b60948bc90b92a40b5cd6a46c599b47b22ec5439cfdd2c804b034b788c"
+    },
+    {
+      "path": "docs/MEMORY_RETRIEVAL_v1.md",
+      "sha256": "4b4158cb42b0fb522eb290b1a363024671d1c4ec89fddeb5d138a3a603c3e070"
+    },
+    {
+      "path": "docs/VAULT_RECOVERY_MATRIX_v1.md",
+      "sha256": "6e1c68e715046f4ab259e5d5f1f65c011eceb3d2c6e98b70633149fa51533eb0"
+    },
+    {
+      "path": "docs/VAULT_STORAGE_v1.md",
+      "sha256": "db46925f879d0f47b41389a67436815c02227de0d75fed8a257a1abc76295a9e"
+    },
+    {
+      "path": "docs/WINDOWS_VAULT_PORTS_v1.md",
+      "sha256": "42fa7b275cc04f109ff928b1fed4d5ff0a7555fe0931c4ad9e744673513f7eef"
+    },
+    {
+      "path": "docs/adr/020-core-vault-generations.md",
+      "sha256": "e1db47f0ba42f3c0fbdfd2cb5b7d8612482b718b6ff459e673d4f6a10c57bcf3"
+    },
+    {
+      "path": "docs/adr/021-index-and-retrieval.md",
+      "sha256": "61fe13b0c9dc79b6e6a14ad2372581395b1211e3a25bd84ee58cf37a1d325e5e"
+    },
+    {
+      "path": "docs/adr/022-invocation-and-session.md",
+      "sha256": "067979003b528d28a850fe6944d7e1e30fd5b119d99a83ea0feea25b3e967531"
+    },
+    {
+      "path": "docs/adr/023-command-receipts-and-jobs.md",
+      "sha256": "f4ef590f53a4a733ed2c55f9422c936a3ceddaeca3490904db612c470a0401f0"
+    },
+    {
+      "path": "scripts/check-backend-readiness.py",
+      "sha256": "f52986894499124a3aad53a7032c075cc812b571139ba042ebb80ceb1f34aeef"
+    }
+  ],
+  "slices": [
+    {
+      "id": "P01",
+      "dependsOn": [],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P02",
+      "dependsOn": [
+        "P01"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P03",
+      "dependsOn": [
+        "P02"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P04",
+      "dependsOn": [
+        "P03"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P05",
+      "dependsOn": [
+        "P03",
+        "P04"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P06",
+      "dependsOn": [
+        "P05"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P07",
+      "dependsOn": [
+        "P03",
+        "P04"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P08",
+      "dependsOn": [
+        "P06",
+        "P07"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P09",
+      "dependsOn": [
+        "P05",
+        "P07",
+        "P08"
+      ],
+      "state": "not_implemented"
+    },
+    {
+      "id": "P10",
+      "dependsOn": [
+        "P04",
+        "P06",
+        "P08",
+        "P09"
+      ],
+      "state": "not_implemented"
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "O01",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O02",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O03",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O04",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O05",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O06",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O07",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O08",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O09",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O10",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O11",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O12",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O13",
+      "state": "not_accepted"
+    },
+    {
+      "id": "O14",
+      "state": "not_accepted"
+    }
+  ]
+}

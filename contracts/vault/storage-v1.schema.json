@@ -1,0 +1,26 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Core Vault selector/manifest/mutation v1 (backend design)",
+  "description":"Closed shape only. Rust must validate exact bytes, allowed file kinds, manifest/path/ID equality, lineage, transition, resource totals and complete canonical model/Session/invocation/receipt correspondence.",
+  "oneOf":[{"$ref":"#/$defs/current"},{"$ref":"#/$defs/manifest"},{"$ref":"#/$defs/mutation"}],
+  "$defs":{
+    "hash":{"$ref":"../invocation/record-v1.schema.json#/$defs/hash"},
+    "time":{"$ref":"../invocation/record-v1.schema.json#/$defs/time"},
+    "vaultId":{"type":"string","pattern":"^vlt_[0-9a-f]{32}$"},
+    "generationId":{"type":"string","pattern":"^gen_[0-9a-f]{32}$"},
+    "transactionId":{"type":"string","pattern":"^txn_[0-9a-f]{32}$"},
+    "path":{"type":"string","pattern":"^(mutation\\.json|identity/(core|runtime_rules)\\.md|sources/src_[0-9a-f]{32}\\.json|memory/mem_[0-9a-f]{32}\\.json|candidates/cand_[0-9a-f]{32}\\.json|sessions/ses_[0-9a-f]{32}\\.json|invocations/inv_[0-9a-f]{32}\\.json|capsules/cap_[0-9a-f]{32}\\.json|requests/req_[0-9a-f]{32}\\.json|responses/req_[0-9a-f]{32}\\.json|operations/op_[0-9a-f]{32}\\.json)$"},
+    "parent":{"anyOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["generation_id","manifest_sha256"],"properties":{"generation_id":{"$ref":"#/$defs/generationId"},"manifest_sha256":{"$ref":"#/$defs/hash"}}}]},
+    "current":{"$ref":"../invocation/record-v1.schema.json#/$defs/binding"},
+    "file":{"type":"object","additionalProperties":false,"required":["path","byte_length","sha256"],"properties":{"path":{"$ref":"#/$defs/path"},"byte_length":{"type":"integer","minimum":0,"maximum":16777216},"sha256":{"$ref":"#/$defs/hash"}}},
+    "raw":{"type":"object","additionalProperties":false,"required":["sha256","byte_length"],"properties":{"sha256":{"$ref":"#/$defs/hash"},"byte_length":{"type":"integer","minimum":0,"maximum":67108864}}},
+    "manifest":{
+      "type":"object","additionalProperties":false,"required":["schema_version","vault_id","generation_id","transaction_id","created_at","parent","files","raw_objects"],
+      "properties":{"schema_version":{"const":1},"vault_id":{"$ref":"#/$defs/vaultId"},"generation_id":{"$ref":"#/$defs/generationId"},"transaction_id":{"$ref":"#/$defs/transactionId"},"created_at":{"$ref":"#/$defs/time"},"parent":{"$ref":"#/$defs/parent"},"files":{"type":"array","minItems":3,"maxItems":10000,"items":{"$ref":"#/$defs/file"}},"raw_objects":{"type":"array","maxItems":1024,"items":{"$ref":"#/$defs/raw"}}}
+    },
+    "mutation":{
+      "type":"object","additionalProperties":false,"required":["schema_version","vault_id","generation_id","transaction_id","created_at","parent","operation","changed_paths"],
+      "properties":{"schema_version":{"const":1},"vault_id":{"$ref":"#/$defs/vaultId"},"generation_id":{"$ref":"#/$defs/generationId"},"transaction_id":{"$ref":"#/$defs/transactionId"},"created_at":{"$ref":"#/$defs/time"},"parent":{"$ref":"#/$defs/parent"},"operation":{"enum":["bootstrap","save_memory","propose_candidate","review_candidate","undo_supersession","create_session","append_user_turn","create_checkpoint","update_identity","prepare_invocation","mark_invocation_dispatch","request_invocation_cancel","finalize_invocation","recover_invocation","accept_mock_submission","attach_mock_preparation","finalize_mock_submission","resume_mock_submission","cancel_mock_submission","recover_operations"]},"changed_paths":{"type":"array","minItems":1,"maxItems":10000,"uniqueItems":true,"items":{"$ref":"#/$defs/path"}}}
+    }
+  }
+}
