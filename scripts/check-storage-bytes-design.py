@@ -59,6 +59,7 @@ def validate(value):
         objects[item["name"]] = raw
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     seen, transactions, used = {}, set(), set()
+    last_generation = None
     for row in value["generations"]:
         require(set(row) == {"manifest", "files"}, "generation fields")
         require(row["manifest"] in objects, "manifest object missing")
@@ -100,6 +101,7 @@ def validate(value):
             changed = sorted(IDENTITY)
         else:
             require(parent["generation_id"] in seen, "ancestor missing or forward reference")
+            require(parent["generation_id"] == last_generation, "selected fixture history must extend previous selection")
             previous = seen[parent["generation_id"]]
             require(parent["manifest_sha256"] == previous["manifest_hash"], "parent exact bytes")
             require(manifest["vault_id"] == previous["manifest"]["vault_id"], "Vault continuity")
@@ -109,6 +111,7 @@ def validate(value):
             require(changed, "empty identity mutation")
         require(mutation["changed_paths"] == changed, "changed paths equality")
         seen[gid] = {"manifest": manifest, "manifest_hash": digest(raw), "files": files, "timestamp": timestamp}
+        last_generation = gid
     require(len(value["selectors"]) == len(seen) and seen, "selector coverage")
     selected = set()
     for name in value["selectors"]:
@@ -189,6 +192,13 @@ def negative_checks(fixture):
     case("rehash transaction reuse", lambda v: header(v, lambda b: b.update(transaction_id="txn_" + format(10, "032x"))))
     case("rehash lost parent", lambda v: header(v, lambda b: b.update(parent=None)))
     case("rehash wrong parent hash", lambda v: header(v, lambda b: b["parent"].update(manifest_sha256="0" * 64)))
+    def fork(value):
+        first = next(i for i in value["objects"] if i["name"] == "manifest0")
+        header(value, lambda b: b.update(parent={"generation_id": "gen_" + format(1, "032x"), "manifest_sha256": first["sha256"]}))
+        # Both Identity files differ from this old ancestor. Rehash them into a
+        # superficially valid branch, not just an incorrect changed-path list.
+        mutation(value, lambda b: b.update(changed_paths=sorted(IDENTITY)))
+    case("rehash valid old-ancestor fork", fork)
     for label, value in cases:
         try:
             validate(value)

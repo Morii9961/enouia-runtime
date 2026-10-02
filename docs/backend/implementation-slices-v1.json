@@ -92,7 +92,7 @@
     },
     {
       "path": "docs/STORAGE_BYTES_v1_DESIGN.md",
-      "sha256": "cd00fbe9fed71783568bde8aab43ea115767663f8ec16883f7918ed888c55aff"
+      "sha256": "1dae0b36fe26fe1b0d936c61540674bc9091ee2a1e703e33c3df2781c957ed0b"
     },
     {
       "path": "docs/VAULT_RECOVERY_MATRIX_v1.md",
@@ -144,7 +144,7 @@
     },
     {
       "path": "scripts/check-storage-bytes-design.py",
-      "sha256": "17277c17e3e46719c66135dfdeff910e7b4f742fbbccaf9954132d6865b9f8b0"
+      "sha256": "543bc8594e30e091f582f7263efa22d50778892e8e98df2c0d508a4a6d2abba5"
     },
     {
       "path": "tests/fixtures/backend/command-digests-v2.json",

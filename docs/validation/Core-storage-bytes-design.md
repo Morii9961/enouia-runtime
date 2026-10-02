@@ -1,6 +1,6 @@
 # Identity-only storage byte vectors — 2026-10-02
 
-Executed `python scripts/check-storage-bytes-design.py`: **3** selected synthetic Identity-only generations, **13** exact byte objects, **29** mutated-bundle refusals and **5** malformed JSON decoding refusals passed.
+Executed `python scripts/check-storage-bytes-design.py`: **3** selected synthetic Identity-only generations, **13** exact byte objects, **30** mutated-bundle refusals and **5** malformed JSON decoding refusals passed. The thirtieth case adds a fully rehashed old-ancestor fork with correct changed paths; the declared continuous-selection history rejects it independently of byte integrity.
 
 The bootstrap and two Identity edits are frozen as Base64 bytes, length/hash metadata, inventories and exact selectors. The helper reconstructs no Runtime root and writes no canonical files. Rehashed negative mutation/header examples exercise historical semantic conditions after byte consistency; other negative examples exercise earlier shape/inventory/byte gates.
 
