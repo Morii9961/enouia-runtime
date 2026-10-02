@@ -44,7 +44,7 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "edd7b799d75ddec0446a88e3241991673fbd58b8b33ce94ec264be3ee63e0dda"
+      "sha256": "8209f2d15a25907d063df42013f4389e94cbe36d34c0ebb2eb4615c980b9fd56"
     },
     {
       "path": "docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md",
@@ -79,6 +79,10 @@
       "sha256": "cbcbf1896adf6ee024dcbf84feaac7dd0ad75ba5caefd471ce52606a95114a34"
     },
     {
+      "path": "docs/STORAGE_BYTES_v1_DESIGN.md",
+      "sha256": "cd00fbe9fed71783568bde8aab43ea115767663f8ec16883f7918ed888c55aff"
+    },
+    {
       "path": "docs/VAULT_RECOVERY_MATRIX_v1.md",
       "sha256": "6e1c68e715046f4ab259e5d5f1f65c011eceb3d2c6e98b70633149fa51533eb0"
     },
@@ -108,7 +112,7 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "2f0df46cd6e8cca49fab5c1aeb1bd050e697354d551d839007ca5710ee77fa12"
+      "sha256": "2aa3d087dfdafed4f9b3b0634bb784aea910c1b8a40f4f2c3b61148812f7af9c"
     },
     {
       "path": "scripts/check-command-digests-design.py",
@@ -123,6 +127,10 @@
       "sha256": "940f45e3d9ddeb6ef6ff1697e690a33424c163fedea8a35f675b1500e8223a7e"
     },
     {
+      "path": "scripts/check-storage-bytes-design.py",
+      "sha256": "17277c17e3e46719c66135dfdeff910e7b4f742fbbccaf9954132d6865b9f8b0"
+    },
+    {
       "path": "tests/fixtures/backend/command-digests-v2.json",
       "sha256": "01b75ced1063e7073760ece29931b31b44f92d6da1748c32c91440a1d9e31564"
     },
@@ -133,6 +141,10 @@
     {
       "path": "tests/fixtures/backend/read-results-v2.json",
       "sha256": "d4245c49e969570cd6c515a6a6cdaa2e3a2a54cd956787e6d778699fcdab3a64"
+    },
+    {
+      "path": "tests/fixtures/backend/storage-bytes-v1.json",
+      "sha256": "48e4b732cefe9cf23dc3ace61abc6a5be868e43415e3ec42fe92eb05fc84a33d"
     },
     {
       "path": "tests/fixtures/invocation/bindings-v1.json",

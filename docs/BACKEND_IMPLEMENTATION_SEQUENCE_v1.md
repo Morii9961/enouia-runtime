@@ -64,4 +64,6 @@ The [all-command digest pack](COMMAND_DIGEST_VECTORS_v2_DESIGN.md) now specifies
 
 The [selected orchestration histories](ORCHESTRATION_TRACES_v1_DESIGN.md) now freeze 26 receipt/ledger/gap/cancel/retry/restart cases. P08 still requires real typed wire/model/file/Provider/OS-owner integration and equivalent actual process histories.
 
+The [Identity-only storage byte corpus](STORAGE_BYTES_v1_DESIGN.md) freezes legal empty bootstrap and two edits with exact selectors/parent hashes. It is a selected P01 input; complete Rust model graph and actual store acceptance remain pending.
+
 Narrow existing design evidence: [index query probe](validation/A1.2-index-retrieval-design.md), [invocation byte/shape probe](validation/A2-invocation-ledger-design.md), [command digest vector](validation/Core-command-jobs-design.md). Keep these labels when handing the backend contracts to the independently progressing frontend.

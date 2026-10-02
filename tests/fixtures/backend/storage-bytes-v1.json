@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "evidence": "synthetic_identity_only_design_bytes",
+  "objects": [
+    {
+      "name": "core0",
+      "base64": "RW5vdWlhIHN5bnRoZXRpYyBpZGVudGl0eQo=",
+      "byteLength": 26,
+      "sha256": "736b3d3354475e6a251ae30ed8cfc0770068361dee876e33a7d3c939cff2f71c"
+    },
+    {
+      "name": "core1",
+      "base64": "RW5vdWlhIHN5bnRoZXRpYyBpZGVudGl0eQrouqvku73kv67mlLnmoLfkvovjgIIK",
+      "byteLength": 48,
+      "sha256": "f3c43cfa9a91223c0956d12b7f281da207ca96e1f873ccb5bf3bfe7b98307bcb"
+    },
+    {
+      "name": "rules0",
+      "base64": "RXhwbGljaXQgc2F2ZXMgYW5kIHJldmlld2VkIGNhbmRpZGF0ZXMgb25seS4K",
+      "byteLength": 45,
+      "sha256": "a67ba47fabc4aaaad085dd8e94b22aba45b253a44ab85fe1204f6e34f65a5d52"
+    },
+    {
+      "name": "rules1",
+      "base64": "RXhwbGljaXQgc2F2ZXMgYW5kIHJldmlld2VkIGNhbmRpZGF0ZXMgb25seS4KUmV0YWluIHByZXZpb3VzIG1lYW5pbmdzLgo=",
+      "byteLength": 71,
+      "sha256": "798c0a31f3e53afa2de755ffe82bad73400f7e605930607eef8c7ef9ae8379f4"
+    },
+    {
+      "name": "mutation0",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxIiwidHJhbnNhY3Rpb25faWQiOiJ0eG5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGEiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMlQwMDowMDowMC4wMDBaIiwicGFyZW50IjpudWxsLCJvcGVyYXRpb24iOiJib290c3RyYXAiLCJjaGFuZ2VkX3BhdGhzIjpbImlkZW50aXR5L2NvcmUubWQiLCJpZGVudGl0eS9ydW50aW1lX3J1bGVzLm1kIl19Cg==",
+      "byteLength": 325,
+      "sha256": "e0014ff6a5304143ab7f9f04ca3ebe4898606bf5e1307afa535f0e1c5bf60346"
+    },
+    {
+      "name": "manifest0",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxIiwidHJhbnNhY3Rpb25faWQiOiJ0eG5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGEiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMlQwMDowMDowMC4wMDBaIiwicGFyZW50IjpudWxsLCJmaWxlcyI6W3sicGF0aCI6ImlkZW50aXR5L2NvcmUubWQiLCJieXRlX2xlbmd0aCI6MjYsInNoYTI1NiI6IjczNmIzZDMzNTQ0NzVlNmEyNTFhZTMwZWQ4Y2ZjMDc3MDA2ODM2MWRlZTg3NmUzM2E3ZDNjOTM5Y2ZmMmY3MWMifSx7InBhdGgiOiJpZGVudGl0eS9ydW50aW1lX3J1bGVzLm1kIiwiYnl0ZV9sZW5ndGgiOjQ1LCJzaGEyNTYiOiJhNjdiYTQ3ZmFiYzRhYWFhZDA4NWRkOGU5NGIyMmFiYTQ1YjI1M2E0NGFiODVmZTEyMDRmNmUzNGY2NWE1ZDUyIn0seyJwYXRoIjoibXV0YXRpb24uanNvbiIsImJ5dGVfbGVuZ3RoIjozMjUsInNoYTI1NiI6ImUwMDE0ZmY2YTUzMDQxNDNhYjdmOWYwNGNhM2ViZTQ4OTg2MDZiZjVlMTMwN2FmYTUzNWYwZTFjNWJmNjAzNDYifV0sInJhd19vYmplY3RzIjpbXX0K",
+      "byteLength": 633,
+      "sha256": "c235bc2d167e80b110cd347ad05110e036610bb344fcf158edb5f75e8b3b4b3b"
+    },
+    {
+      "name": "current0",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAxIiwibWFuaWZlc3Rfc2hhMjU2IjoiYzIzNWJjMmQxNjdlODBiMTEwY2QzNDdhZDA1MTEwZTAzNjYxMGJiMzQ0ZmNmMTU4ZWRiNWY3NWU4YjNiNGIzYiJ9Cg==",
+      "byteLength": 211,
+      "sha256": "4262f125fafa806ff70fe62ca55adc79004c2e81ed61b52cf2a7384ce81a3437"
+    },
+    {
+      "name": "mutation1",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyIiwidHJhbnNhY3Rpb25faWQiOiJ0eG5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGIiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMlQwMDowMDowMS4wMDBaIiwicGFyZW50Ijp7ImdlbmVyYXRpb25faWQiOiJnZW5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEiLCJtYW5pZmVzdF9zaGEyNTYiOiJjMjM1YmMyZDE2N2U4MGIxMTBjZDM0N2FkMDUxMTBlMDM2NjEwYmIzNDRmY2YxNThlZGI1Zjc1ZThiM2I0YjNiIn0sIm9wZXJhdGlvbiI6InVwZGF0ZV9pZGVudGl0eSIsImNoYW5nZWRfcGF0aHMiOlsiaWRlbnRpdHkvY29yZS5tZCJdfQo=",
+      "byteLength": 440,
+      "sha256": "c18ed55e3abbe3b84ae54372d3e614113022e3f56df124a3c74f361916cdf7ed"
+    },
+    {
+      "name": "manifest1",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyIiwidHJhbnNhY3Rpb25faWQiOiJ0eG5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGIiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMlQwMDowMDowMS4wMDBaIiwicGFyZW50Ijp7ImdlbmVyYXRpb25faWQiOiJnZW5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDEiLCJtYW5pZmVzdF9zaGEyNTYiOiJjMjM1YmMyZDE2N2U4MGIxMTBjZDM0N2FkMDUxMTBlMDM2NjEwYmIzNDRmY2YxNThlZGI1Zjc1ZThiM2I0YjNiIn0sImZpbGVzIjpbeyJwYXRoIjoiaWRlbnRpdHkvY29yZS5tZCIsImJ5dGVfbGVuZ3RoIjo0OCwic2hhMjU2IjoiZjNjNDNjZmE5YTkxMjIzYzA5NTZkMTJiN2YyODFkYTIwN2NhOTZlMWY4NzNjY2I1YmYzYmZlN2I5ODMwN2JjYiJ9LHsicGF0aCI6ImlkZW50aXR5L3J1bnRpbWVfcnVsZXMubWQiLCJieXRlX2xlbmd0aCI6NDUsInNoYTI1NiI6ImE2N2JhNDdmYWJjNGFhYWFkMDg1ZGQ4ZTk0YjIyYWJhNDViMjUzYTQ0YWI4NWZlMTIwNGY2ZTM0ZjY1YTVkNTIifSx7InBhdGgiOiJtdXRhdGlvbi5qc29uIiwiYnl0ZV9sZW5ndGgiOjQ0MCwic2hhMjU2IjoiYzE4ZWQ1NWUzYWJiZTNiODRhZTU0MzcyZDNlNjE0MTEzMDIyZTNmNTZkZjEyNGEzYzc0ZjM2MTkxNmNkZjdlZCJ9XSwicmF3X29iamVjdHMiOltdfQo=",
+      "byteLength": 770,
+      "sha256": "5015bdef83d42bb38817cc1611b215163ef0637f0893412a12ea42206eced845"
+    },
+    {
+      "name": "current1",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAyIiwibWFuaWZlc3Rfc2hhMjU2IjoiNTAxNWJkZWY4M2Q0MmJiMzg4MTdjYzE2MTFiMjE1MTYzZWYwNjM3ZjA4OTM0MTJhMTJlYTQyMjA2ZWNlZDg0NSJ9Cg==",
+      "byteLength": 211,
+      "sha256": "666209595b5e5d21ae6e5fd56f2f7ad23cdec448fe26aa8c2a35be6a030587c8"
+    },
+    {
+      "name": "mutation2",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAzIiwidHJhbnNhY3Rpb25faWQiOiJ0eG5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGMiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMlQwMDowMDowMi4wMDBaIiwicGFyZW50Ijp7ImdlbmVyYXRpb25faWQiOiJnZW5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDIiLCJtYW5pZmVzdF9zaGEyNTYiOiI1MDE1YmRlZjgzZDQyYmIzODgxN2NjMTYxMWIyMTUxNjNlZjA2MzdmMDg5MzQxMmExMmVhNDIyMDZlY2VkODQ1In0sIm9wZXJhdGlvbiI6InVwZGF0ZV9pZGVudGl0eSIsImNoYW5nZWRfcGF0aHMiOlsiaWRlbnRpdHkvcnVudGltZV9ydWxlcy5tZCJdfQo=",
+      "byteLength": 449,
+      "sha256": "52c86275577c7a7061acf23dec4078dccb03170b81cb8e34d5b413989dabd172"
+    },
+    {
+      "name": "manifest2",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAzIiwidHJhbnNhY3Rpb25faWQiOiJ0eG5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGMiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0wMlQwMDowMDowMi4wMDBaIiwicGFyZW50Ijp7ImdlbmVyYXRpb25faWQiOiJnZW5fMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDIiLCJtYW5pZmVzdF9zaGEyNTYiOiI1MDE1YmRlZjgzZDQyYmIzODgxN2NjMTYxMWIyMTUxNjNlZjA2MzdmMDg5MzQxMmExMmVhNDIyMDZlY2VkODQ1In0sImZpbGVzIjpbeyJwYXRoIjoiaWRlbnRpdHkvY29yZS5tZCIsImJ5dGVfbGVuZ3RoIjo0OCwic2hhMjU2IjoiZjNjNDNjZmE5YTkxMjIzYzA5NTZkMTJiN2YyODFkYTIwN2NhOTZlMWY4NzNjY2I1YmYzYmZlN2I5ODMwN2JjYiJ9LHsicGF0aCI6ImlkZW50aXR5L3J1bnRpbWVfcnVsZXMubWQiLCJieXRlX2xlbmd0aCI6NzEsInNoYTI1NiI6Ijc5OGMwYTMxZjNlNTNhZmEyZGU3NTVmZmU4MmJhZDczNDAwZjdlNjA1OTMwNjA3ZWVmOGM3ZWY5YWU4Mzc5ZjQifSx7InBhdGgiOiJtdXRhdGlvbi5qc29uIiwiYnl0ZV9sZW5ndGgiOjQ0OSwic2hhMjU2IjoiNTJjODYyNzU1NzdjN2E3MDYxYWNmMjNkZWM0MDc4ZGNjYjAzMTcwYjgxY2I4ZTM0ZDViNDEzOTg5ZGFiZDE3MiJ9XSwicmF3X29iamVjdHMiOltdfQo=",
+      "byteLength": 770,
+      "sha256": "49d6c749d2645b6cc08bcab2f5afbfa3279fe885c48a7a93868af3d381595b9b"
+    },
+    {
+      "name": "current2",
+      "base64": "eyJzY2hlbWFfdmVyc2lvbiI6MSwidmF1bHRfaWQiOiJ2bHRfMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiLCJnZW5lcmF0aW9uX2lkIjoiZ2VuXzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAzIiwibWFuaWZlc3Rfc2hhMjU2IjoiNDlkNmM3NDlkMjY0NWI2Y2MwOGJjYWIyZjVhZmJmYTMyNzlmZTg4NWM0OGE3YTkzODY4YWYzZDM4MTU5NWI5YiJ9Cg==",
+      "byteLength": 211,
+      "sha256": "8f016ff49eddcdb557962287a6a3b193b29c8f51a1fbf84c0a150dc10684ce23"
+    }
+  ],
+  "generations": [
+    {
+      "manifest": "manifest0",
+      "files": {
+        "identity/core.md": "core0",
+        "identity/runtime_rules.md": "rules0",
+        "mutation.json": "mutation0"
+      }
+    },
+    {
+      "manifest": "manifest1",
+      "files": {
+        "identity/core.md": "core1",
+        "identity/runtime_rules.md": "rules0",
+        "mutation.json": "mutation1"
+      }
+    },
+    {
+      "manifest": "manifest2",
+      "files": {
+        "identity/core.md": "core1",
+        "identity/runtime_rules.md": "rules1",
+        "mutation.json": "mutation2"
+      }
+    }
+  ],
+  "selectors": [
+    "current0",
+    "current1",
+    "current2"
+  ]
+}

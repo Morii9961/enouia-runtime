@@ -41,6 +41,9 @@ ARTIFACTS = {
     "scripts/check-orchestration-traces-design.py",
     "tests/fixtures/backend/orchestration-traces-v1.json",
     "tests/fixtures/invocation/bindings-v1.json",
+    "docs/STORAGE_BYTES_v1_DESIGN.md",
+    "scripts/check-storage-bytes-design.py",
+    "tests/fixtures/backend/storage-bytes-v1.json",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,
@@ -117,6 +120,7 @@ def check_changed_scope(baseline):
             "scripts/check-read-results-design.py", "tests/fixtures/backend/read-results-v2.json",
             "scripts/check-command-digests-design.py", "tests/fixtures/backend/command-digests-v2.json",
             "scripts/check-orchestration-traces-design.py", "tests/fixtures/backend/orchestration-traces-v1.json",
+            "scripts/check-storage-bytes-design.py", "tests/fixtures/backend/storage-bytes-v1.json",
         }, "non-design change: " + name)
     return len(names)
 
