@@ -1,0 +1,5681 @@
+{
+  "scope": "Symbolic selected design histories only; aliases/digest labels/generation ordinals are not real IPC IDs, SHA bindings or persisted commits",
+  "unknownSelectionMeaning": "Counters after unknown selection describe only the last validated snapshot. They do not prove absence of a possibly committed answer.",
+  "traces": [
+    {
+      "id": "T01-complete-and-explicit-checkpoint",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "checkpoint",
+            "operation": "checkpoint1",
+            "token": "checkpoint_action",
+            "digest": "checkpoint_digest",
+            "checkpoint": "cp1",
+            "covered": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "expectedGeneration": 4
+          },
+          "reply": "explicit_checkpoint_committed",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1",
+              "checkpoint:cp1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 1,
+            "operationStates": {
+              "op1": "completed",
+              "checkpoint1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "checkpoint1": 5
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T02-accepted-gap-busy",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "mutate_same_session"
+          },
+          "reply": "session_busy",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op2",
+            "token": "action2",
+            "digest": "request2",
+            "input": "u2",
+            "expectedGeneration": 1
+          },
+          "reply": "session_busy",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "checkpoint",
+            "operation": "checkpoint1",
+            "token": "checkpoint_action",
+            "digest": "checkpoint_digest",
+            "checkpoint": "cp1",
+            "covered": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "expectedGeneration": 1
+          },
+          "reply": "session_busy",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "T03-queued-input-cancel",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 1
+          },
+          "reply": "queued_input_cancelled",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "cancelled",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 2
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "cancelled",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 2
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "T04-prepared-no-call-cancel",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 2
+          },
+          "reply": "prepared_cancelled",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "cancelled",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "cancel1": 3
+            },
+            "invocationStates": {
+              "inv1": "cancelled"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "cancelled",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "cancel1": 3
+            },
+            "invocationStates": {
+              "inv1": "cancelled"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T05-cancel-wins-response",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 3
+          },
+          "reply": "cancel_intent_saved",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancel_requested"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "late_result_ignored",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancel_requested"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "confirm_cancel",
+            "invocation": "inv1"
+          },
+          "reply": "cancelled",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "cancelled",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 5,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancelled"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "cancelled",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 5,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancelled"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T06-completion-wins-cancel",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 4
+          },
+          "reply": "terminal_target_observed",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "cancel1": 5
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "replay_completed",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "cancel1": 5
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T07-compile-refusal-retains-input",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "compile_refused",
+            "operation": "op1"
+          },
+          "reply": "compile_refused_input_retained",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "failed"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "failed"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "T08-provider-refusal-retains-input",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "provider_refused",
+            "invocation": "inv1"
+          },
+          "reply": "provider_refused",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "failed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "failed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "failed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "failed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T09-dispatch-intent-before-call-restart",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "late_result_ignored",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T10-dispatched-call-restart",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "late_result_ignored",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T11-prepared-restart-explicit-resume",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 3
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 3
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "resume",
+            "operation": "op2",
+            "token": "resume_action",
+            "digest": "resume_digest",
+            "invocation": "inv1",
+            "expectedGeneration": 3
+          },
+          "reply": "prepared_explicitly_resumed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "op2": 4
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "op2": 4
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "op2": 4
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 6,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "op2": 6
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T12-accepted-restart-explicit-continue",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "continue",
+            "operation": "op2",
+            "token": "continue_action",
+            "digest": "continue_digest",
+            "input": "u1",
+            "expectedGeneration": 2
+          },
+          "reply": "retained_input_accepted",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "op2": 3
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op2",
+            "invocation": "inv2",
+            "capsule": "frozen2"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "op2": 4
+            },
+            "invocationStates": {
+              "inv2": "prepared"
+            },
+            "inputGenerations": {
+              "inv2": 3
+            },
+            "symbolicCalls": {
+              "inv2": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv2"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "op2": 4
+            },
+            "invocationStates": {
+              "inv2": "dispatching"
+            },
+            "inputGenerations": {
+              "inv2": 3
+            },
+            "symbolicCalls": {
+              "inv2": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv2"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "op2": 4
+            },
+            "invocationStates": {
+              "inv2": "dispatching"
+            },
+            "inputGenerations": {
+              "inv2": 3
+            },
+            "symbolicCalls": {
+              "inv2": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv2"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 6,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv2"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "op2": 6
+            },
+            "invocationStates": {
+              "inv2": "completed"
+            },
+            "inputGenerations": {
+              "inv2": 3
+            },
+            "symbolicCalls": {
+              "inv2": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T13-terminal-invocation-new-attempt",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "resume",
+            "operation": "op2",
+            "token": "resume_action",
+            "digest": "resume_digest",
+            "invocation": "inv1",
+            "expectedGeneration": 4
+          },
+          "reply": "resume_requires_prepared",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "continue",
+            "operation": "op2",
+            "token": "continue_action",
+            "digest": "continue_digest",
+            "input": "u1",
+            "expectedGeneration": 4
+          },
+          "reply": "retained_input_accepted",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "op2": 5
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op2",
+            "invocation": "inv2",
+            "capsule": "frozen2"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 6,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "op2": 6
+            },
+            "invocationStates": {
+              "inv1": "interrupted",
+              "inv2": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1,
+              "inv2": 5
+            },
+            "symbolicCalls": {
+              "inv1": 1,
+              "inv2": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv2"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 7,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "op2": 6
+            },
+            "invocationStates": {
+              "inv1": "interrupted",
+              "inv2": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1,
+              "inv2": 5
+            },
+            "symbolicCalls": {
+              "inv1": 1,
+              "inv2": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv2"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 7,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "running"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "op2": 6
+            },
+            "invocationStates": {
+              "inv1": "interrupted",
+              "inv2": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1,
+              "inv2": 5
+            },
+            "symbolicCalls": {
+              "inv1": 1,
+              "inv2": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv2"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 8,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv2"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "op2": 8
+            },
+            "invocationStates": {
+              "inv1": "interrupted",
+              "inv2": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1,
+              "inv2": 5
+            },
+            "symbolicCalls": {
+              "inv1": 1,
+              "inv2": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "late_result_ignored",
+          "expected": {
+            "generation": 8,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv2"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "op2": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4,
+              "op2": 8
+            },
+            "invocationStates": {
+              "inv1": "interrupted",
+              "inv2": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1,
+              "inv2": 5
+            },
+            "symbolicCalls": {
+              "inv1": 1,
+              "inv2": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T14-lost-ack-historical-replay",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "unrelated_memory"
+          },
+          "reply": "unrelated_commit",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "replay_completed",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T15-conflicting-token-preserves-first",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "different_request",
+            "input": "u2",
+            "expectedGeneration": 0
+          },
+          "reply": "request_conflict",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "T16-stale-new-input-refused",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 99
+          },
+          "reply": "stale_generation",
+          "expected": {
+            "generation": 0,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [],
+            "inputs": 0,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {},
+            "receiptGenerations": {},
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "T17-unrelated-memory-frozen-input",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "unrelated_memory"
+          },
+          "reply": "unrelated_commit",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 5
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T18-identity-change-refuses-dispatch",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "identity_change"
+          },
+          "reply": "identity_commit",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "stale_identity",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "failed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "stale"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "failed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "stale"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T19-selector-unknown-blocks-retry",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "unknown_completion",
+            "invocation": "inv1"
+          },
+          "reply": "commit_unknown",
+          "expected": {
+            "generation": 3,
+            "selection": "unknown",
+            "writesBlocked": true,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "commit_unknown",
+          "expected": {
+            "generation": 3,
+            "selection": "unknown",
+            "writesBlocked": true,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 3
+          },
+          "reply": "commit_unknown",
+          "expected": {
+            "generation": 3,
+            "selection": "unknown",
+            "writesBlocked": true,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "unrelated_memory"
+          },
+          "reply": "commit_unknown",
+          "expected": {
+            "generation": 3,
+            "selection": "unknown",
+            "writesBlocked": true,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T20-live-owner-no-recovery",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "owner_live",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T21-transient-cancel-cannot-cancel-Mock",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "transient_cancel_mock"
+          },
+          "reply": "not_supported_use_canonical_control",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T22-prepared-orphan-needs-invocation-control",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 3
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 3
+          },
+          "reply": "terminal_target_observed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "mutate_same_session"
+          },
+          "reply": "session_busy",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel_invocation",
+            "operation": "cancel2",
+            "token": "inv_cancel_action",
+            "digest": "inv_cancel_digest",
+            "invocation": "inv1",
+            "expectedGeneration": 4
+          },
+          "reply": "prepared_cancelled",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "cancel1": "completed",
+              "cancel2": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 3,
+              "cancel1": 4,
+              "cancel2": 5
+            },
+            "invocationStates": {
+              "inv1": "cancelled"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T23-cancel-intent-restart",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 3
+          },
+          "reply": "cancel_intent_saved",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancel_requested"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancel_requested"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 5,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "late_result_ignored",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 5,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "observe_terminal",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 5,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "interrupted"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T24-identical-cancel-intent-retry",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 3
+          },
+          "reply": "cancel_intent_saved",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancel_requested"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "cancel",
+            "operation": "cancel1",
+            "targetOperation": "op1",
+            "token": "cancel_action",
+            "digest": "cancel_digest",
+            "expectedGeneration": 0
+          },
+          "reply": "replay_completed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancel_requested"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "late_result_ignored",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 2,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancel_requested"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "confirm_cancel",
+            "invocation": "inv1"
+          },
+          "reply": "cancelled",
+          "expected": {
+            "generation": 5,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "cancelled",
+              "cancel1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 5,
+              "cancel1": 4
+            },
+            "invocationStates": {
+              "inv1": "cancelled"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T25-duplicate-dispatch-intent",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "dispatch_intent_saved",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "dispatch",
+            "invocation": "inv1"
+          },
+          "reply": "invalid_transition",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "call",
+            "invocation": "inv1"
+          },
+          "reply": "symbolic_provider_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "dispatching"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "complete",
+            "invocation": "inv1"
+          },
+          "reply": "answer_committed",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1",
+              "assistant:inv1"
+            ],
+            "inputs": 1,
+            "answers": 1,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "completed"
+            },
+            "receiptGenerations": {
+              "op1": 4
+            },
+            "invocationStates": {
+              "inv1": "completed"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "T26-prepared-resume-identity-refused",
+      "steps": [
+        {
+          "action": {
+            "action": "submit",
+            "operation": "op1",
+            "token": "action1",
+            "digest": "request1",
+            "input": "u1",
+            "expectedGeneration": 0
+          },
+          "reply": "input_accepted",
+          "expected": {
+            "generation": 1,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "accepted"
+            },
+            "receiptGenerations": {
+              "op1": 1
+            },
+            "invocationStates": {},
+            "inputGenerations": {},
+            "symbolicCalls": {}
+          }
+        },
+        {
+          "action": {
+            "action": "prepare",
+            "operation": "op1",
+            "invocation": "inv1",
+            "capsule": "frozen1"
+          },
+          "reply": "prepared",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "owner_excluded"
+          },
+          "reply": "symbolic_owner_exclusion",
+          "expected": {
+            "generation": 2,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "running"
+            },
+            "receiptGenerations": {
+              "op1": 2
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "restart"
+          },
+          "reply": "recovery_observed_no_automatic_call",
+          "expected": {
+            "generation": 3,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 3
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "identity_change"
+          },
+          "reply": "identity_commit",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 3
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        },
+        {
+          "action": {
+            "action": "resume",
+            "operation": "op2",
+            "token": "resume_action",
+            "digest": "resume_digest",
+            "invocation": "inv1",
+            "expectedGeneration": 4
+          },
+          "reply": "stale_identity",
+          "expected": {
+            "generation": 4,
+            "selection": "known",
+            "writesBlocked": false,
+            "events": [
+              "user:u1"
+            ],
+            "inputs": 1,
+            "answers": 0,
+            "checkpoints": 0,
+            "operationStates": {
+              "op1": "interrupted"
+            },
+            "receiptGenerations": {
+              "op1": 3
+            },
+            "invocationStates": {
+              "inv1": "prepared"
+            },
+            "inputGenerations": {
+              "inv1": 1
+            },
+            "symbolicCalls": {
+              "inv1": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -44,7 +44,7 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "48705185baa8aaa51dce0a032594918eba99299c4c40714c84e91847a21913ca"
+      "sha256": "edd7b799d75ddec0446a88e3241991673fbd58b8b33ce94ec264be3ee63e0dda"
     },
     {
       "path": "docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md",
@@ -52,7 +52,7 @@
     },
     {
       "path": "docs/CORE_COMMANDS_v2_DESIGN.md",
-      "sha256": "05e0e12bbce6c61b2128a759997fa16ec19d58a80f1106f62a609c265842d5d7"
+      "sha256": "8c842ace711045fe50ad1d9c05c7cd6e9a1fcc98700537077daff8996a2ee76a"
     },
     {
       "path": "docs/CORE_JOBS_v1.md",
@@ -64,7 +64,7 @@
     },
     {
       "path": "docs/INVOCATION_LEDGER_v1.md",
-      "sha256": "acf36ebed628d93d34e58269ea9e9211695e2c5bb8258ffbfc87ee9fa6a2e6a6"
+      "sha256": "cdf1295a0c57d0acee910ded3bdf4d0025d18109d9cc5254d5b11b98201a736b"
     },
     {
       "path": "docs/MEMORY_INDEX_v1.md",
@@ -73,6 +73,10 @@
     {
       "path": "docs/MEMORY_RETRIEVAL_v1.md",
       "sha256": "4b4158cb42b0fb522eb290b1a363024671d1c4ec89fddeb5d138a3a603c3e070"
+    },
+    {
+      "path": "docs/ORCHESTRATION_TRACES_v1_DESIGN.md",
+      "sha256": "cbcbf1896adf6ee024dcbf84feaac7dd0ad75ba5caefd471ce52606a95114a34"
     },
     {
       "path": "docs/VAULT_RECOVERY_MATRIX_v1.md",
@@ -104,11 +108,15 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "516b9c039d16205ffa0af8bac1482387e42f8fe282efc258cbe775ea4719959a"
+      "sha256": "2f0df46cd6e8cca49fab5c1aeb1bd050e697354d551d839007ca5710ee77fa12"
     },
     {
       "path": "scripts/check-command-digests-design.py",
       "sha256": "c865f88d77ebc59f03307d9cd36d4572cfee5dd8e50d379f8235323ad2aea958"
+    },
+    {
+      "path": "scripts/check-orchestration-traces-design.py",
+      "sha256": "50cd9e82fdaa3f5a55b624f1547c3d0ef93c6df3c94b463aabde4b245b1260c7"
     },
     {
       "path": "scripts/check-read-results-design.py",
@@ -119,8 +127,16 @@
       "sha256": "01b75ced1063e7073760ece29931b31b44f92d6da1748c32c91440a1d9e31564"
     },
     {
+      "path": "tests/fixtures/backend/orchestration-traces-v1.json",
+      "sha256": "a8da266623b7dfecc53def103b301b0e38ef621bf51d494c262fd6cbf097475e"
+    },
+    {
       "path": "tests/fixtures/backend/read-results-v2.json",
       "sha256": "d4245c49e969570cd6c515a6a6cdaa2e3a2a54cd956787e6d778699fcdab3a64"
+    },
+    {
+      "path": "tests/fixtures/invocation/bindings-v1.json",
+      "sha256": "9b7ada758959e73a1db9caa995ab8f15027a8d1aa26c306cd38234f70d1c09b7"
     }
   ],
   "slices": [

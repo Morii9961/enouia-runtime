@@ -37,6 +37,10 @@ ARTIFACTS = {
     "contracts/ipc/command-digest-v2.json",
     "scripts/check-command-digests-design.py",
     "tests/fixtures/backend/command-digests-v2.json",
+    "docs/ORCHESTRATION_TRACES_v1_DESIGN.md",
+    "scripts/check-orchestration-traces-design.py",
+    "tests/fixtures/backend/orchestration-traces-v1.json",
+    "tests/fixtures/invocation/bindings-v1.json",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,
@@ -112,6 +116,7 @@ def check_changed_scope(baseline):
             "tests/fixtures/backend/command-v2.json",
             "scripts/check-read-results-design.py", "tests/fixtures/backend/read-results-v2.json",
             "scripts/check-command-digests-design.py", "tests/fixtures/backend/command-digests-v2.json",
+            "scripts/check-orchestration-traces-design.py", "tests/fixtures/backend/orchestration-traces-v1.json",
         }, "non-design change: " + name)
     return len(names)
 
