@@ -26,3 +26,5 @@ Responses are `core_snapshot`, `core_session`, `core_mutation_completed`, or `co
 Errors reuse shared structured code/component/retryability. Core error components exclude Activity. No raw process output, credential, filesystem path or personal authentication data is added to an error DTO. Local inspectors may display private Memory content/provenance through typed responses; those DTOs must never become Activity public data or an implicit provider prompt.
 
 The interface crate depends on common, Memory, Session and serde. Activity has no reverse dependency. Context compile/actual-capsule inspection and asynchronous index operations remain later contracts; no generic filesystem, arbitrary SQL, collector or assistant-message mutation request is exposed.
+
+Backend follow-up: [proposed command v2](CORE_COMMANDS_v2_DESIGN.md) and [job/event v1](CORE_JOBS_v1.md) now specify exact binding, durable retry receipts, typed reads and bounded workers/events. These are sibling design artifacts, not changes to this v1 schema or implemented handler support. Any frontend integration must negotiate actual capabilities rather than assuming proposed v2 exists.

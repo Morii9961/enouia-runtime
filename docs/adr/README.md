@@ -131,3 +131,7 @@ The user wants official `claude_design` product tokens added to the existing Cla
 ## ADR-022 — Exact capsule ledger and atomic Session answers (Design adopted; implementation/activation pending)
 
 [ADR-022](022-invocation-and-session.md) specifies persisted preparation before dispatch, retained historical inputs, one active invocation per Session, cancellation arbitration and assistant/source/result completion as one canonical transaction. [Ledger v1](../INVOCATION_LEDGER_v1.md) adds closed record and byte-format contracts. Capsule bytes alone omit LF to match the actual prepared Provider bytes. Schema/fixture checks are design evidence; persistence and actual process recovery remain pending.
+
+## ADR-023 — Canonical operation retry receipts and disposable jobs (Design adopted; implementation/activation pending)
+
+[ADR-023](023-command-receipts-and-jobs.md), [command v2 design](../CORE_COMMANDS_v2_DESIGN.md) and [jobs v1](../CORE_JOBS_v1.md) specify closed mutation/receipt/job shapes, exact-generation mutation guards, identical-request replay/conflicting reuse, accepted input versus completed output, queued cancellation and bounded process-owned worker/events. Existing v1 IPC remains unchanged and no v2 capability is enabled. Complete semantic/race/handler evidence remains pending.

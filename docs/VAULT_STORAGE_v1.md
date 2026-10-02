@@ -63,6 +63,8 @@ Only these relative path forms are valid: `mutation.json`, the two fixed Identit
 
 Additive backend design under [ADR-022](adr/022-invocation-and-session.md): future validated adapters also admit `invocations/inv_<hex>.json`, `capsules/cap_<hex>.json`, `requests/req_<hex>.json` and `responses/req_<hex>.json`, with preparation/dispatch/cancellation/finalization/recovery mutation kinds. Capsule files alone contain exact compact Provider bytes **without LF**; other JSON retains the rule above. The [ledger contract](INVOCATION_LEDGER_v1.md) defines identity/input/Session binding. These additions remain inactive until their complete-bundle and adapter gates pass; they do not create a second canonical selector.
 
+[ADR-023](adr/023-command-receipts-and-jobs.md) further specifies generation-contained `operations/op_<hex>.json` and same-commit command receipt transitions. [Command v2 design](CORE_COMMANDS_v2_DESIGN.md) binds retries to canonical files rather than SQLite. Receipt copies retain the generation ID where their version last changed; they must not embed their own manifest hash. Read/result/job observations derive exact bindings after publication. These are additional inactive adapter gates, not an IPC/writer activation.
+
 ### mutation.json
 
 | Field | Type and invariant |

@@ -1,0 +1,24 @@
+{
+  "scope": "Mutation-envelope/digest example only; no actual command handler or canonical receipt lookup",
+  "expected_request_sha256": "eecf5e231d493f57b482df62f33f6b4a010dc6541befe21d2508dd0381389a4b",
+  "request": {
+    "schemaVersion": 2,
+    "clientRequestId": "synthetic_action_0001",
+    "expectedBinding": {
+      "schema_version": 1,
+      "vault_id": "vlt_11111111111111111111111111111111",
+      "generation_id": "gen_22222222222222222222222222222222",
+      "manifest_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "operation": {"kind": "create_session", "title": "Synthetic continuation"}
+  },
+  "expected_lookup": [
+    {"receipt_status": "completed", "same_digest": true, "outcome": "replay_completed"},
+    {"receipt_status": "accepted", "same_digest": true, "outcome": "return_existing"},
+    {"receipt_status": "running", "same_digest": true, "outcome": "return_existing"},
+    {"receipt_status": "failed", "same_digest": true, "outcome": "return_terminal"},
+    {"receipt_status": "cancelled", "same_digest": true, "outcome": "return_terminal"},
+    {"receipt_status": "interrupted", "same_digest": true, "outcome": "return_terminal"},
+    {"receipt_status": "completed", "same_digest": false, "outcome": "request_conflict"}
+  ]
+}

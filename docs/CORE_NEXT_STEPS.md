@@ -26,7 +26,9 @@ The [disposable index design](MEMORY_INDEX_v1.md), [retrieval policy](MEMORY_RET
 
 The [invocation ledger](INVOCATION_LEDGER_v1.md) and [ADR-022](adr/022-invocation-and-session.md) now specify exact recorded capsules before dispatch, immutable input provenance, cancellation/restart/lost-response outcomes and one assistant/source/result commit. Its closed record schema and isolated byte/shape fixture checks do not implement canonical storage or Session orchestration.
 
-Continue across backend design slices as explicitly requested by the user. Next freeze typed backend read/mutation/async-job contracts and client retry receipt behavior, then consolidate the implementation/acceptance sequence. Do not install a database, write a Vault or start UI work just to complete that design.
+The [command v2 proposal](CORE_COMMANDS_v2_DESIGN.md), [async job/event v1](CORE_JOBS_v1.md) and [ADR-023](adr/023-command-receipts-and-jobs.md) now specify expected binding, canonical retry receipts, accepted input versus completed answers, queued-submission cancellation, bounded worker/event/cursor behavior and process restart semantics. Closed mutation/receipt/job shapes and a create-Session digest vector are design artifacts; handlers and complete read/result/semantic trace fixtures remain pending.
+
+Continue across backend design slices as explicitly requested by the user. Next consolidate the implementation/acceptance sequence and freeze the initial storage shape/Windows adapter design boundaries. Do not install a database, write a Vault or start UI work just to complete that design.
 
 When persistence implementation is separately authorized, begin with storage schemas/byte fixtures and pure validators, followed by OS cryptographic entropy, validated in-root paths, canonical Memory/source/candidate/session files and Markdown Identity. Add the disposable SQLite/FTS index after the canonical transaction boundary is verified. Preserve source/meaning history and candidate decisions in files, rather than only the index. A partially prepared conversation source or checkpoint is not a complete validated bundle.
 

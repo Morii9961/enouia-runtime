@@ -1,0 +1,32 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Canonical operation retry receipt v1 (backend design)",
+  "description":"Shape only. The hosting generation ID has no self-manifest hash; derive commit binding after validation. Rust must check digest uniqueness, transitions and exact result references.",
+  "type":"object", "additionalProperties":false,
+  "required":["schema_version","operation_id","client_key_sha256","request_sha256","digest_policy","command_kind","expected_binding","created_at","updated_at","status","committed_generation_id","result_refs","error_code"],
+  "properties":{
+    "schema_version":{"const":1},
+    "operation_id":{"type":"string","pattern":"^op_[0-9a-f]{32}$"},
+    "client_key_sha256":{"$ref":"record-v1.schema.json#/$defs/hash"},
+    "request_sha256":{"$ref":"record-v1.schema.json#/$defs/hash"},
+    "digest_policy":{"const":"command_digest_v2"},
+    "command_kind":{"enum":["save_memory","review_candidate","undo_supersession","create_session","append_user_turn","create_checkpoint","update_identity","send_mock_turn","continue_user_turn","resume_invocation","cancel_invocation","cancel_submission"]},
+    "expected_binding":{"$ref":"record-v1.schema.json#/$defs/binding"},
+    "created_at":{"$ref":"record-v1.schema.json#/$defs/time"},
+    "updated_at":{"$ref":"record-v1.schema.json#/$defs/time"},
+    "status":{"enum":["accepted","running","completed","failed","cancelled","interrupted"]},
+    "committed_generation_id":{"type":"string","pattern":"^gen_[0-9a-f]{32}$"},
+    "result_refs":{"type":"object","additionalProperties":false,"required":["memoryId","sourceId","candidateId","sessionId","userTurnId","userSourceId","assistantTurnId","assistantSourceId","invocationId"],"properties":{
+      "memoryId":{"anyOf":[{"type":"string","pattern":"^mem_[0-9a-f]{32}$"},{"type":"null"}]},
+      "sourceId":{"anyOf":[{"type":"string","pattern":"^src_[0-9a-f]{32}$"},{"type":"null"}]},
+      "candidateId":{"anyOf":[{"type":"string","pattern":"^cand_[0-9a-f]{32}$"},{"type":"null"}]},
+      "sessionId":{"anyOf":[{"type":"string","pattern":"^ses_[0-9a-f]{32}$"},{"type":"null"}]},
+      "userTurnId":{"anyOf":[{"type":"string","pattern":"^turn_[0-9a-f]{32}$"},{"type":"null"}]},
+      "userSourceId":{"anyOf":[{"type":"string","pattern":"^src_[0-9a-f]{32}$"},{"type":"null"}]},
+      "assistantTurnId":{"anyOf":[{"type":"string","pattern":"^turn_[0-9a-f]{32}$"},{"type":"null"}]},
+      "assistantSourceId":{"anyOf":[{"type":"string","pattern":"^src_[0-9a-f]{32}$"},{"type":"null"}]},
+      "invocationId":{"anyOf":[{"type":"string","pattern":"^inv_[0-9a-f]{32}$"},{"type":"null"}]}
+    }},
+    "error_code":{"enum":[null,"cancelled","compile_refused","provider_refused","invalid_response","process_interrupted","stale_session","stale_identity"]}
+  }
+}

@@ -94,4 +94,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Invocation ledger v1](docs/INVOCATION_LEDGER_v1.md) and [ADR-022](docs/adr/022-invocation-and-session.md) now specify prepared/dispatch/cancel/complete boundaries and atomic assistant/source/result commits. `python scripts/check-invocation-design.py` verifies synthetic exact-byte/shape examples; [validation](docs/validation/A2-invocation-ledger-design.md) states their limits. No ledger adapter or actual Session continuation is implemented by this design.
 
+[Command v2 proposal](docs/CORE_COMMANDS_v2_DESIGN.md), [jobs/events v1](docs/CORE_JOBS_v1.md) and [ADR-023](docs/adr/023-command-receipts-and-jobs.md) now specify exact-generation guards, canonical retry receipts and bounded asynchronous observations. `python scripts/check-command-design.py` checks the closed create-Session/digest design vector and schema operation parity; [validation](docs/validation/Core-command-jobs-design.md) distinguishes those checks from actual IPC/idempotency/worker behavior. Existing v1 IPC is unchanged.
+
 This project is published under the [MIT License](LICENSE).
