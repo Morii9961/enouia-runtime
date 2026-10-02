@@ -61,6 +61,8 @@ The pointer is bounded to 1 KiB and names no arbitrary path. Derive its generati
 
 Only these relative path forms are valid: `mutation.json`, the two fixed Identity paths, and `sources/src_<hex>.json`, `memory/mem_<hex>.json`, `candidates/cand_<hex>.json`, `sessions/ses_<hex>.json`. Filename ID equals the embedded model ID. Reject absolute paths, `..`, backslashes, colons/alternate streams, device names, case variants, trailing dots/spaces and duplicate case-folded paths. No manifest entry directs an arbitrary file read.
 
+Additive backend design under [ADR-022](adr/022-invocation-and-session.md): future validated adapters also admit `invocations/inv_<hex>.json`, `capsules/cap_<hex>.json`, `requests/req_<hex>.json` and `responses/req_<hex>.json`, with preparation/dispatch/cancellation/finalization/recovery mutation kinds. Capsule files alone contain exact compact Provider bytes **without LF**; other JSON retains the rule above. The [ledger contract](INVOCATION_LEDGER_v1.md) defines identity/input/Session binding. These additions remain inactive until their complete-bundle and adapter gates pass; they do not create a second canonical selector.
+
 ### mutation.json
 
 | Field | Type and invariant |

@@ -4,6 +4,8 @@ Architecture v0.3 and the ADR register define the current implementation boundar
 
 Current user scope (2026-10-02, latest update): continue backend design; frontend work is proceeding separately. Do not edit or start frontend work in this task. Backend IPC/domain contracts may be designed for that work without starting the Windows UI here. A design decision does not itself authorize persistence implementation, personal migration or production activation.
 
+The user explicitly requested continuous work across backend design slices. Verify, commit and push each completed slice, then proceed to the next backend design boundary without stopping for a routine continuation prompt. This supersedes earlier per-milestone stopping preferences within the current design scope.
+
 When Codex materially contributes to a commit in this repository, include this exact trailer after a blank line in the commit message:
 
 ```text

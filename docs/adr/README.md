@@ -127,3 +127,7 @@ The user wants official `claude_design` product tokens added to the existing Cla
 ## ADR-021 — Disposable index and deterministic literal retrieval (Design adopted; implementation/activation pending)
 
 [ADR-021](021-index-and-retrieval.md) selects a fresh complete generation-bound index and versioned literal-query/rank policies. [Index v1](../MEMORY_INDEX_v1.md), [retrieval v1](../MEMORY_RETRIEVAL_v1.md) and the [SQL design](../../contracts/vault/memory-index-v1.sql) specify backend behavior. An in-memory synthetic SQL probe validates a narrow query/projection subset; persisted rebuild/recovery, complete Context lanes and Runtime handlers remain pending. Existing canonical/IPC/Activity contracts are unchanged.
+
+## ADR-022 — Exact capsule ledger and atomic Session answers (Design adopted; implementation/activation pending)
+
+[ADR-022](022-invocation-and-session.md) specifies persisted preparation before dispatch, retained historical inputs, one active invocation per Session, cancellation arbitration and assistant/source/result completion as one canonical transaction. [Ledger v1](../INVOCATION_LEDGER_v1.md) adds closed record and byte-format contracts. Capsule bytes alone omit LF to match the actual prepared Provider bytes. Schema/fixture checks are design evidence; persistence and actual process recovery remain pending.

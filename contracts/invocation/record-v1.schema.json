@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Core invocation ledger record v1 (backend design)",
+  "description": "Shape only. Rust must additionally validate dates, legal transitions, input lineage, exact request/capsule/response bytes and complete Session/source linkage before activation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "invocation_id", "request_id", "capsule_id", "capsule_sha256", "capsule_bytes", "session_id", "user_turn_id", "input_binding", "provider_id", "prepared_at", "updated_at", "status", "dispatch_at", "cancel_requested_at", "terminal_at", "error_code", "result"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "invocation_id": {"type": "string", "pattern": "^inv_[0-9a-f]{32}$"},
+    "request_id": {"type": "string", "pattern": "^req_[0-9a-f]{32}$"},
+    "capsule_id": {"type": "string", "pattern": "^cap_[0-9a-f]{32}$"},
+    "capsule_sha256": {"$ref": "#/$defs/hash"},
+    "capsule_bytes": {"type": "integer", "minimum": 1, "maximum": 32768},
+    "session_id": {"type": "string", "pattern": "^ses_[0-9a-f]{32}$"},
+    "user_turn_id": {"type": "string", "pattern": "^turn_[0-9a-f]{32}$"},
+    "input_binding": {"$ref": "#/$defs/binding"},
+    "provider_id": {"const": "mock-v1"},
+    "prepared_at": {"$ref": "#/$defs/time"},
+    "updated_at": {"$ref": "#/$defs/time"},
+    "status": {"enum": ["prepared", "dispatching", "cancel_requested", "completed", "failed", "cancelled", "interrupted", "stale"]},
+    "dispatch_at": {"anyOf": [{"$ref": "#/$defs/time"}, {"type": "null"}]},
+    "cancel_requested_at": {"anyOf": [{"$ref": "#/$defs/time"}, {"type": "null"}]},
+    "terminal_at": {"anyOf": [{"$ref": "#/$defs/time"}, {"type": "null"}]},
+    "error_code": {"enum": [null, "cancelled", "provider_refused", "invalid_response", "process_interrupted", "stale_session", "stale_identity"]},
+    "result": {"anyOf": [{"$ref": "#/$defs/result"}, {"type": "null"}]}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "time": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"},
+    "binding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "vault_id", "generation_id", "manifest_sha256"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "vault_id": {"type": "string", "pattern": "^vlt_[0-9a-f]{32}$"},
+        "generation_id": {"type": "string", "pattern": "^gen_[0-9a-f]{32}$"},
+        "manifest_sha256": {"$ref": "#/$defs/hash"}
+      }
+    },
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["response_sha256", "response_bytes", "assistant_turn_id", "assistant_source_id"],
+      "properties": {
+        "response_sha256": {"$ref": "#/$defs/hash"},
+        "response_bytes": {"type": "integer", "minimum": 1, "maximum": 1048576},
+        "assistant_turn_id": {"type": "string", "pattern": "^turn_[0-9a-f]{32}$"},
+        "assistant_source_id": {"type": "string", "pattern": "^src_[0-9a-f]{32}$"}
+      }
+    }
+  }
+}

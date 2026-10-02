@@ -1,0 +1,49 @@
+{
+  "scope": "Byte-binding and record-shape examples only; input generation/Session completion are not persisted or validated by this fixture",
+  "capsule_sha256": "7ac11a64f3671a0566640a7ee86dea86f7acd411daf1bdf16740b6d0ce1c8d6d",
+  "capsule_bytes": 2171,
+  "response_sha256": "dcbc59b02b4a41c168ad635d6a0d91e04de57c63da913d65250d85834a657a1f",
+  "response_bytes": 657,
+  "prepared": {
+    "schema_version": 1,
+    "invocation_id": "inv_00000000000000000000000000000001",
+    "request_id": "req_00000000000000000000000000000001",
+    "capsule_id": "cap_00000000000000000000000000000001",
+    "capsule_sha256": "7ac11a64f3671a0566640a7ee86dea86f7acd411daf1bdf16740b6d0ce1c8d6d",
+    "capsule_bytes": 2171,
+    "session_id": "ses_00000000000000000000000000000001",
+    "user_turn_id": "turn_00000000000000000000000000000003",
+    "input_binding": {
+      "schema_version": 1,
+      "vault_id": "vlt_00000000000000000000000000000001",
+      "generation_id": "gen_00000000000000000000000000000001",
+      "manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "provider_id": "mock-v1",
+    "prepared_at": "2026-10-02T09:00:00.000Z",
+    "updated_at": "2026-10-02T09:00:00.000Z",
+    "status": "prepared",
+    "dispatch_at": null,
+    "cancel_requested_at": null,
+    "terminal_at": null,
+    "error_code": null,
+    "result": null
+  },
+  "completed_patch": {
+    "status": "completed",
+    "dispatch_at": "2026-10-02T09:00:01.000Z",
+    "terminal_at": "2026-10-02T09:00:02.000Z",
+    "updated_at": "2026-10-02T09:00:02.000Z",
+    "result": {
+      "response_sha256": "dcbc59b02b4a41c168ad635d6a0d91e04de57c63da913d65250d85834a657a1f",
+      "response_bytes": 657,
+      "assistant_turn_id": "turn_00000000000000000000000000000005",
+      "assistant_source_id": "src_00000000000000000000000000000008"
+    }
+  },
+  "legal_edges": [
+    ["prepared", "dispatching"], ["prepared", "cancelled"], ["prepared", "failed"], ["prepared", "stale"],
+    ["dispatching", "completed"], ["dispatching", "cancel_requested"], ["dispatching", "failed"], ["dispatching", "stale"], ["dispatching", "interrupted"],
+    ["cancel_requested", "cancelled"], ["cancel_requested", "interrupted"]
+  ]
+}

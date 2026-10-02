@@ -92,4 +92,6 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [Disposable index v1](docs/MEMORY_INDEX_v1.md), [retrieval v1](docs/MEMORY_RETRIEVAL_v1.md) and [ADR-021](docs/adr/021-index-and-retrieval.md) now define a generation-bound candidate SQL schema, literal query behavior, deterministic ranks and rebuild/cancellation rules. `python scripts/check-retrieval-design.py` runs the isolated synthetic in-memory SQL design check; [validation](docs/validation/A1.2-index-retrieval-design.md) records 18 lexical cases in two rebuild orders and 48 assertions on development SQLite 3.53.1. This is not a persisted Runtime index, complete Context integration or a packaged SQLite dependency.
 
+[Invocation ledger v1](docs/INVOCATION_LEDGER_v1.md) and [ADR-022](docs/adr/022-invocation-and-session.md) now specify prepared/dispatch/cancel/complete boundaries and atomic assistant/source/result commits. `python scripts/check-invocation-design.py` verifies synthetic exact-byte/shape examples; [validation](docs/validation/A2-invocation-ledger-design.md) states their limits. No ledger adapter or actual Session continuation is implemented by this design.
+
 This project is published under the [MIT License](LICENSE).
