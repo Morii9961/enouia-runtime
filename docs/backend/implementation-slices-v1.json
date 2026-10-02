@@ -35,6 +35,10 @@
       "sha256": "8e61fd0376da338275524a5bd245febcb55375560bc2bc9eab16915e7d32faae"
     },
     {
+      "path": "contracts/ipc/disposable-lifecycle-v1.json",
+      "sha256": "50771ae2930bd41061e744f7224017eec92a04510baa1a7e55939ec44092cbf4"
+    },
+    {
       "path": "contracts/vault/memory-index-v1.sql",
       "sha256": "f735a1e555204a6bbb4de64b297126d726171490f274f2604bba4228b77e6f13"
     },
@@ -44,7 +48,7 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "8209f2d15a25907d063df42013f4389e94cbe36d34c0ebb2eb4615c980b9fd56"
+      "sha256": "fdb99d9c2ff793f19028934963e7212331072f970126d3c93169b7d4ae954fa9"
     },
     {
       "path": "docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md",
@@ -56,11 +60,15 @@
     },
     {
       "path": "docs/CORE_JOBS_v1.md",
-      "sha256": "3c020d850c0c5c6b5fb54af00eb9f09e09e7dc329575c3a0f39e13f0389ce7f4"
+      "sha256": "7b068d7bace8e6667a6c9ac1f31d4472cdda37a0cd39d0e282343d586aeac25b"
     },
     {
       "path": "docs/CORE_READ_RESULTS_v2_DESIGN.md",
-      "sha256": "66f1307b4d6e062f85c0c8814c41e42c1f226e8387cad3a37260346e1551e11c"
+      "sha256": "17255c6ad7369dcf22ffe7d4861dc205cd6dd721a19dc145d6fb80adfd147982"
+    },
+    {
+      "path": "docs/DISPOSABLE_LIFECYCLE_v1_DESIGN.md",
+      "sha256": "7e827c15a11094188779d7c119f8a3808f7b9389d1c48c7d37f90d498f7d52e8"
     },
     {
       "path": "docs/INVOCATION_LEDGER_v1.md",
@@ -112,11 +120,15 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "2aa3d087dfdafed4f9b3b0634bb784aea910c1b8a40f4f2c3b61148812f7af9c"
+      "sha256": "2d004c7ebeaa40d05f650f582b8ac8660276f51ae34257f6f975af4e28a9ad0d"
     },
     {
       "path": "scripts/check-command-digests-design.py",
       "sha256": "c865f88d77ebc59f03307d9cd36d4572cfee5dd8e50d379f8235323ad2aea958"
+    },
+    {
+      "path": "scripts/check-disposable-lifecycle-design.py",
+      "sha256": "01b01086f11adeee2add58cb192702c0a4753740e8aac38388c8548c781fce21"
     },
     {
       "path": "scripts/check-orchestration-traces-design.py",
@@ -133,6 +145,10 @@
     {
       "path": "tests/fixtures/backend/command-digests-v2.json",
       "sha256": "01b75ced1063e7073760ece29931b31b44f92d6da1748c32c91440a1d9e31564"
+    },
+    {
+      "path": "tests/fixtures/backend/disposable-lifecycle-v1.json",
+      "sha256": "2106e0c66c6a4b507c462103b1ba6c6c57dc54551a8d7937e7e30806c5d265f8"
     },
     {
       "path": "tests/fixtures/backend/orchestration-traces-v1.json",

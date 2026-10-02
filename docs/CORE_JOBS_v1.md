@@ -30,4 +30,6 @@ The [read/result wire](CORE_READ_RESULTS_v2_DESIGN.md) specifies proposed index/
 
 ## Acceptance before implementation claims
 
+The [disposable lifecycle clarification](DISPOSABLE_LIFECYCLE_v1_DESIGN.md) freezes monotonic fixed-age expiry, capacity boundaries, retained-key admission ordering and gap-cursor recovery. Its snapshot corpus is design evidence, not a real job/cache implementation.
+
 The DTO/event shape schema is now specified; complete positive/negative synthetic traces and semantic validators are an implementation prerequisite. Prove actual backend worker queue/owner limits, cooperative cancellation, terminal race arbitration, callback after process/job replacement, event gaps, restart interruption and no frontend-thread blocking. Mock completion must match the canonical receipt/ledger; index success must match the verified selected binding. These are specified tests, not executed evidence.

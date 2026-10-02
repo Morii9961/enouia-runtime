@@ -12,6 +12,8 @@ Affected-file checks also parse JSON/Python, resolve local schema references and
 
 ## Unaccepted implementation gates
 
+The disposable-lifecycle follow-up expands the current manifest to thirty-nine artifacts. Its declared-snapshot oracle does not execute workers, cache eviction, monotonic timing or IPC handlers; P09/O11 remain unaccepted.
+
 The storage-byte follow-up expands the current manifest to thirty-five artifacts. Its selected three-generation Identity corpus checks bytes and limited historical conditions in Python; it does not sign off the semantic Rust storage gate or any adapter boundary.
 
 All P01-P10 remain `not_implemented`; all O01-O14 remain `not_accepted`. Windows sources inform the proposed ports but do not demonstrate ancestry/reparse/alias safety, ACL correctness, lock/process lifetime, selector replacement or storage/power durability. The exact packaged SQLite dependency and complete read/result/operation semantic traces remain future implementation inputs.

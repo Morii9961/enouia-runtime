@@ -64,6 +64,8 @@ All background status/event/ref reads use the process-owned lifecycle/caps from 
 
 ## Privacy, limits and acceptance
 
+The [disposable lifecycle design](DISPOSABLE_LIFECYCLE_v1_DESIGN.md) clarifies repeatable page handles, query/binding refusal, monotonic expiry, preview generation distinctions and event-gap recovery. Its summaries do not add wire fields.
+
 Enforce an initial 24 MiB exact serialized reply ceiling and refuse `response_limit` before transport. JSON `maxLength` is supplementary; actual UTF-8 byte/nonblank/calendar/budget limits require backend checks. Typed content reads are authorized local private inspection and may contain intentional user text; diagnostic/status/capability fields exclude raw paths, queries, credentials and native error output. No read DTO becomes Activity public data or implicit Provider input.
 
 The [selected wire probe](../scripts/check-read-results-design.py) and [synthetic examples](../tests/fixtures/backend/read-results-v2.json) check this schema keyword subset, selected cross-field distinctions and the frozen 2,171-byte capsule. The probe is not a general JSON Schema engine, Rust semantic validator, durable receipt store or IPC implementation. Full request/result pairing, canonical lineage/refs, every command digest, page/token expiry/races, worker controls and health/authorization traces remain activation gates; see [evidence](validation/Core-read-results-design.md).

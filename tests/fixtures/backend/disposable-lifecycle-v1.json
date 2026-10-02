@@ -1,0 +1,744 @@
+{
+  "schemaVersion": 1,
+  "evidence": "declared_snapshot_design_decisions",
+  "cases": [
+    {
+      "id": "page-first",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "page",
+        "start": 0,
+        "end": 100,
+        "remaining": 150,
+        "hasNext": true
+      }
+    },
+    {
+      "id": "page-last",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 200,
+        "count": 250
+      },
+      "expected": {
+        "code": "page",
+        "start": 200,
+        "end": 250,
+        "remaining": 0,
+        "hasNext": false
+      }
+    },
+    {
+      "id": "page-before-expiry",
+      "kind": "page",
+      "input": {
+        "now": 599999,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "page",
+        "start": 0,
+        "end": 100,
+        "remaining": 150,
+        "hasNext": true
+      }
+    },
+    {
+      "id": "page-at-expiry",
+      "kind": "page",
+      "input": {
+        "now": 600000,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "process_expired"
+      }
+    },
+    {
+      "id": "page-process-replaced",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": false,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "process_expired"
+      }
+    },
+    {
+      "id": "page-evicted",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": true,
+        "found": false,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "process_expired"
+      }
+    },
+    {
+      "id": "page-query-changed",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": false,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "invalid_request"
+      }
+    },
+    {
+      "id": "page-parent-substituted",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": false,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "stale_page"
+      }
+    },
+    {
+      "id": "page-generation-advanced",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": false,
+        "limit": 100,
+        "offset": 0,
+        "count": 250
+      },
+      "expected": {
+        "code": "stale_page"
+      }
+    },
+    {
+      "id": "page-empty",
+      "kind": "page",
+      "input": {
+        "now": 0,
+        "issued": 0,
+        "processMatch": true,
+        "found": true,
+        "queryMatch": true,
+        "originalBindingMatch": true,
+        "currentBindingMatch": true,
+        "limit": 100,
+        "offset": 0,
+        "count": 0
+      },
+      "expected": {
+        "code": "page",
+        "start": 0,
+        "end": 0,
+        "remaining": 0,
+        "hasNext": false
+      }
+    },
+    {
+      "id": "events-oldest-boundary",
+      "kind": "events",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "sequence": 300,
+        "after": 44,
+        "limit": 2
+      },
+      "expected": {
+        "code": "events",
+        "gap": false,
+        "sequences": [
+          45,
+          46
+        ],
+        "next": 46
+      }
+    },
+    {
+      "id": "events-one-too-old",
+      "kind": "events",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "sequence": 300,
+        "after": 43,
+        "limit": 2
+      },
+      "expected": {
+        "code": "events",
+        "gap": true,
+        "sequences": [],
+        "next": 300
+      }
+    },
+    {
+      "id": "events-ahead",
+      "kind": "events",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "sequence": 300,
+        "after": 301,
+        "limit": 2
+      },
+      "expected": {
+        "code": "events",
+        "gap": true,
+        "sequences": [],
+        "next": 300
+      }
+    },
+    {
+      "id": "events-at-head",
+      "kind": "events",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "sequence": 300,
+        "after": 300,
+        "limit": 2
+      },
+      "expected": {
+        "code": "events",
+        "gap": false,
+        "sequences": [],
+        "next": 300
+      }
+    },
+    {
+      "id": "events-tail",
+      "kind": "events",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "sequence": 300,
+        "after": 299,
+        "limit": 2
+      },
+      "expected": {
+        "code": "events",
+        "gap": false,
+        "sequences": [
+          300
+        ],
+        "next": 300
+      }
+    },
+    {
+      "id": "events-initial",
+      "kind": "events",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "sequence": 1,
+        "after": 0,
+        "limit": 2
+      },
+      "expected": {
+        "code": "events",
+        "gap": false,
+        "sequences": [
+          1
+        ],
+        "next": 1
+      }
+    },
+    {
+      "id": "events-process-replaced",
+      "kind": "events",
+      "input": {
+        "processMatch": false,
+        "found": true,
+        "sequence": 300,
+        "after": 44,
+        "limit": 2
+      },
+      "expected": {
+        "code": "process_expired"
+      }
+    },
+    {
+      "id": "events-terminal-evicted",
+      "kind": "events",
+      "input": {
+        "processMatch": true,
+        "found": false,
+        "sequence": 300,
+        "after": 44,
+        "limit": 2
+      },
+      "expected": {
+        "code": "process_expired"
+      }
+    },
+    {
+      "id": "preview-before-expiry",
+      "kind": "preview",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "jobMatch": true,
+        "capsuleMatch": true,
+        "now": 599999,
+        "issued": 0,
+        "currentBindingMatch": true
+      },
+      "expected": {
+        "code": "preview",
+        "persisted": false,
+        "inputIsCurrent": true
+      }
+    },
+    {
+      "id": "preview-generation-advanced",
+      "kind": "preview",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "jobMatch": true,
+        "capsuleMatch": true,
+        "now": 599999,
+        "issued": 0,
+        "currentBindingMatch": false
+      },
+      "expected": {
+        "code": "preview",
+        "persisted": false,
+        "inputIsCurrent": false
+      }
+    },
+    {
+      "id": "preview-at-expiry",
+      "kind": "preview",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "jobMatch": true,
+        "capsuleMatch": true,
+        "now": 600000,
+        "issued": 0,
+        "currentBindingMatch": true
+      },
+      "expected": {
+        "code": "preview_expired"
+      }
+    },
+    {
+      "id": "preview-replaced-process",
+      "kind": "preview",
+      "input": {
+        "processMatch": false,
+        "found": true,
+        "jobMatch": true,
+        "capsuleMatch": true,
+        "now": 599999,
+        "issued": 0,
+        "currentBindingMatch": true
+      },
+      "expected": {
+        "code": "process_expired"
+      }
+    },
+    {
+      "id": "preview-evicted",
+      "kind": "preview",
+      "input": {
+        "processMatch": true,
+        "found": false,
+        "jobMatch": true,
+        "capsuleMatch": true,
+        "now": 599999,
+        "issued": 0,
+        "currentBindingMatch": true
+      },
+      "expected": {
+        "code": "preview_expired"
+      }
+    },
+    {
+      "id": "preview-wrong-job",
+      "kind": "preview",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "jobMatch": false,
+        "capsuleMatch": true,
+        "now": 599999,
+        "issued": 0,
+        "currentBindingMatch": true
+      },
+      "expected": {
+        "code": "preview_expired"
+      }
+    },
+    {
+      "id": "preview-wrong-capsule",
+      "kind": "preview",
+      "input": {
+        "processMatch": true,
+        "found": true,
+        "jobMatch": true,
+        "capsuleMatch": false,
+        "now": 599999,
+        "issued": 0,
+        "currentBindingMatch": true
+      },
+      "expected": {
+        "code": "preview_expired"
+      }
+    },
+    {
+      "id": "admit-fourth",
+      "kind": "admission",
+      "input": {
+        "active": 3,
+        "queued": 0,
+        "keys": 3,
+        "indexKind": false,
+        "indexOwned": false,
+        "retainedMatch": false,
+        "conflict": false
+      },
+      "expected": {
+        "code": "start",
+        "allocate": true
+      }
+    },
+    {
+      "id": "admit-queue",
+      "kind": "admission",
+      "input": {
+        "active": 4,
+        "queued": 31,
+        "keys": 3,
+        "indexKind": false,
+        "indexOwned": false,
+        "retainedMatch": false,
+        "conflict": false
+      },
+      "expected": {
+        "code": "queue",
+        "allocate": true
+      }
+    },
+    {
+      "id": "admit-full",
+      "kind": "admission",
+      "input": {
+        "active": 4,
+        "queued": 32,
+        "keys": 3,
+        "indexKind": false,
+        "indexOwned": false,
+        "retainedMatch": false,
+        "conflict": false
+      },
+      "expected": {
+        "code": "busy",
+        "allocate": false
+      }
+    },
+    {
+      "id": "admit-key-full",
+      "kind": "admission",
+      "input": {
+        "active": 3,
+        "queued": 0,
+        "keys": 164,
+        "indexKind": false,
+        "indexOwned": false,
+        "retainedMatch": false,
+        "conflict": false
+      },
+      "expected": {
+        "code": "busy",
+        "allocate": false
+      }
+    },
+    {
+      "id": "admit-index-owned",
+      "kind": "admission",
+      "input": {
+        "active": 3,
+        "queued": 0,
+        "keys": 3,
+        "indexKind": true,
+        "indexOwned": true,
+        "retainedMatch": false,
+        "conflict": false
+      },
+      "expected": {
+        "code": "busy",
+        "allocate": false
+      }
+    },
+    {
+      "id": "admit-other-work-index-owned",
+      "kind": "admission",
+      "input": {
+        "active": 3,
+        "queued": 0,
+        "keys": 3,
+        "indexKind": false,
+        "indexOwned": true,
+        "retainedMatch": false,
+        "conflict": false
+      },
+      "expected": {
+        "code": "start",
+        "allocate": true
+      }
+    },
+    {
+      "id": "admit-full-replay",
+      "kind": "admission",
+      "input": {
+        "active": 4,
+        "queued": 32,
+        "keys": 164,
+        "indexKind": false,
+        "indexOwned": false,
+        "retainedMatch": true,
+        "conflict": false
+      },
+      "expected": {
+        "code": "replay",
+        "allocate": false
+      }
+    },
+    {
+      "id": "admit-conflict",
+      "kind": "admission",
+      "input": {
+        "active": 3,
+        "queued": 0,
+        "keys": 3,
+        "indexKind": false,
+        "indexOwned": false,
+        "retainedMatch": false,
+        "conflict": true
+      },
+      "expected": {
+        "code": "request_conflict"
+      }
+    },
+    {
+      "id": "retain-page-cap",
+      "kind": "retention",
+      "input": {
+        "kind": "page",
+        "now": 0,
+        "issued": 0,
+        "bytes": 0,
+        "retained": 64,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "retain"
+      }
+    },
+    {
+      "id": "evict-page-65",
+      "kind": "retention",
+      "input": {
+        "kind": "page",
+        "now": 0,
+        "issued": 0,
+        "bytes": 0,
+        "retained": 65,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "evict"
+      }
+    },
+    {
+      "id": "page-over-pinned",
+      "kind": "retention",
+      "input": {
+        "kind": "page",
+        "now": 0,
+        "issued": 0,
+        "bytes": 0,
+        "retained": 65,
+        "pinned": true,
+        "oldest": true
+      },
+      "expected": {
+        "code": "busy"
+      }
+    },
+    {
+      "id": "preview-byte-cap",
+      "kind": "retention",
+      "input": {
+        "kind": "preview",
+        "now": 0,
+        "issued": 0,
+        "bytes": 4194304,
+        "retained": 64,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "retain"
+      }
+    },
+    {
+      "id": "preview-byte-over",
+      "kind": "retention",
+      "input": {
+        "kind": "preview",
+        "now": 0,
+        "issued": 0,
+        "bytes": 4194305,
+        "retained": 64,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "evict"
+      }
+    },
+    {
+      "id": "terminal-entry-cap",
+      "kind": "retention",
+      "input": {
+        "kind": "terminal",
+        "now": 0,
+        "issued": 0,
+        "bytes": 0,
+        "retained": 128,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "retain"
+      }
+    },
+    {
+      "id": "terminal-entry-over",
+      "kind": "retention",
+      "input": {
+        "kind": "terminal",
+        "now": 0,
+        "issued": 0,
+        "bytes": 0,
+        "retained": 129,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "evict"
+      }
+    },
+    {
+      "id": "terminal-before-expiry",
+      "kind": "retention",
+      "input": {
+        "kind": "terminal",
+        "now": 1799999,
+        "issued": 0,
+        "bytes": 0,
+        "retained": 64,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "retain"
+      }
+    },
+    {
+      "id": "terminal-at-expiry",
+      "kind": "retention",
+      "input": {
+        "kind": "terminal",
+        "now": 1800000,
+        "issued": 0,
+        "bytes": 0,
+        "retained": 64,
+        "pinned": false,
+        "oldest": true
+      },
+      "expected": {
+        "code": "expire"
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "evidence": "backend_design_policy_only",
+  "clock": "process_monotonic_milliseconds",
+  "page": {"ttlMs": 600000, "processCap": 256, "vaultCap": 64, "maxItems": 100},
+  "preview": {"ttlMs": 600000, "processBytes": 4194304, "capsuleBytes": 32768},
+  "jobs": {"activeCap": 4, "queuedCap": 32, "terminalCap": 128, "terminalTtlMs": 1800000, "actionKeyCap": 164},
+  "events": {"retainedCap": 256, "pollCap": 128}
+}
