@@ -1,0 +1,43 @@
+{
+  "scope": "Synthetic SQL projection probe; not a canonical Vault bundle",
+  "as_of": "2026-10-02T12:00:00.000Z",
+  "documents": [
+    {"id": 1, "kind": "fact", "status": "active", "updated_at": "2026-10-02T09:00:00.000Z", "values": [["content", "MoriMeta 后端设计"], ["tag", "backend"]]},
+    {"id": 2, "kind": "fact", "status": "superseded", "updated_at": "2026-10-02T11:59:00.000Z", "values": [["content", "MoriMeta 后端设计"]]},
+    {"id": 3, "kind": "project_state", "status": "active", "project": 1, "updated_at": "2026-10-02T09:30:00.000Z", "values": [["content", "MoriMeta Runtime"], ["state", "恢复协议"]]},
+    {"id": 4, "kind": "episode", "status": "active", "updated_at": "2026-10-02T10:00:00.000Z", "values": [["content", "北海道冬季摄影"]]},
+    {"id": 5, "kind": "fact", "status": "active", "updated_at": "2026-10-02T10:00:00.000Z", "values": [["content", "发布后端设计"], ["tag", "backend"]]},
+    {"id": 6, "kind": "preference", "status": "active", "updated_at": "2026-10-02T08:00:00.000Z", "values": [["content", "literal OR NOT \"quoted\" 100% _ underscore"]]},
+    {"id": 7, "kind": "fact", "status": "active", "updated_at": "2026-10-02T08:00:00.000Z", "values": [["content", "foo"], ["tag", "bar"]]},
+    {"id": 8, "kind": "fact", "status": "active", "updated_at": "2026-10-03T08:00:00.000Z", "values": [["content", "后端设计"]]},
+    {"id": 9, "kind": "fact", "status": "active", "updated_at": "2026-10-02T11:59:00.000Z", "valid_until": "2026-10-02T11:00:00.000Z", "values": [["content", "后端设计"]]},
+    {"id": 10, "kind": "fact", "status": "active", "candidate_marker": true, "updated_at": "2026-10-02T11:59:00.000Z", "values": [["content", "后端设计"]]},
+    {"id": 11, "kind": "fact", "status": "active", "project": 2, "updated_at": "2026-10-02T11:00:00.000Z", "values": [["content", "MoriMeta后端设计"], ["tag", "backend"]]},
+    {"id": 12, "kind": "fact", "status": "active", "updated_at": "2026-10-02T08:00:00.000Z", "valid_from": "2026-10-02T12:00:00.000Z", "valid_until": "2026-10-02T12:00:00.000Z", "values": [["content", "endpoint-only"]]},
+    {"id": 13, "kind": "fact", "status": "active", "updated_at": "2026-10-02T10:00:00.000Z", "values": [["content", "tie-example"]]},
+    {"id": 14, "kind": "fact", "status": "active", "updated_at": "2026-10-02T10:00:00.000Z", "values": [["content", "tie-example"]]},
+    {"id": 15, "kind": "fact", "status": "archived", "updated_at": "2026-10-02T11:59:00.000Z", "values": [["content", "后端设计"]]},
+    {"id": 16, "kind": "fact", "status": "active", "updated_at": "2026-10-02T11:59:00.000Z", "valid_from": "2026-10-03T00:00:00.000Z", "values": [["content", "后端设计"]]},
+    {"id": 17, "kind": "fact", "status": "active", "updated_at": "2026-10-02T11:30:00.000Z", "values": [["content", "backend text-only"]]}
+  ],
+  "cases": [
+    {"query": "后端", "expected": [11, 5, 1]},
+    {"query": "backend", "expected": [11, 5, 1, 17]},
+    {"query": "MORIMETA", "expected": [11, 3, 1]},
+    {"query": "北海道", "expected": [4]},
+    {"query": "北海", "expected": [4]},
+    {"query": "北", "expected": [4]},
+    {"query": "NOT", "expected": [6]},
+    {"query": "\"quoted\"", "expected": [6]},
+    {"query": "100%", "expected": [6]},
+    {"query": "_", "expected": [6]},
+    {"query": "foo bar", "expected": [7]},
+    {"query": "foobar", "expected": []},
+    {"query": "后端", "project": 1, "expected": [5, 1]},
+    {"query": "后端 backend", "expected": [11, 5, 1]},
+    {"query": "backend　后端 backend", "expected": [11, 5, 1]},
+    {"query": "endpoint-only", "expected": [12]},
+    {"query": "tie-example", "expected": [13, 14]},
+    {"query": "后端", "limit": 1, "expected": [11]}
+  ]
+}

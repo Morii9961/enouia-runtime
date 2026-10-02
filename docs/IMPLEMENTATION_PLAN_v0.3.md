@@ -2,7 +2,7 @@
 
 Date: 2026-10-02. Status: M0.1 and Activity B1-B3 implementation are present and locally verified. B4 remains partial; B5 production activation and Core A1-A3/J1 remain pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seven historical machine reports, records both unresolved GitHub comparisons, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
 
-Current user scope: backend design only. Frontend A3/J1 design and implementation wait for Claude Design completion. Existing backend models/ports remain available; future UI milestones in this plan do not override that scope.
+Current user scope: backend design; frontend work is now progressing separately. Existing backend models/ports remain available for coordination. This task edits no frontend files; future UI milestones in this plan do not override that scope.
 
 Activity currently includes strict three-source adapters, generation storage/recovery, persisted pause and exact-pending retries, migration inspection/import/export, restricted transport with public observation, and scheduler packaging. Development evidence covers frozen comparison, isolated legacy handback, pinned native ccusage on synthetic stores, store/publisher process death, and ready tool-tree cleanup after release-runner death. Live inventory/authentication, deployment, scheduler triggers/battery/resume, full storage durability and UI acceptance still require evidence. Individual B1-B3 validation reports remain under docs/validation.
 
@@ -56,7 +56,7 @@ Acceptance/tests: all kinds round-trip without lossy fields; a source ID resolve
 
 ### A1.2 Vault, index, sessions, and recovery
 
-Design progress: [ADR-020](adr/020-core-vault-generations.md) selects complete immutable Core generations and one pinned selector. [Storage v1](VAULT_STORAGE_v1.md) defines closed field/path contracts, legal transitions, commit observation, retained ambiguity and index binding; [V01-V22](VAULT_RECOVERY_MATRIX_v1.md) defines required evidence. No storage schema adapter, Vault writer/index or executed recovery row is implemented by this design. The current design-only scope continues with index/retrieval contracts before any separately authorized persistence implementation.
+Design progress: [ADR-020](adr/020-core-vault-generations.md) selects complete immutable Core generations and one pinned selector. [Storage v1](VAULT_STORAGE_v1.md) defines closed field/path contracts, legal transitions, commit observation, retained ambiguity and index binding; [V01-V22](VAULT_RECOVERY_MATRIX_v1.md) defines required evidence. [Index v1](MEMORY_INDEX_v1.md) and [ADR-021](adr/021-index-and-retrieval.md) now define the disposable SQL schema, projection checks and rebuild/publication boundaries, with an isolated in-memory design probe. No Vault adapter, persisted index or executed recovery row is implemented by this design.
 
 Owner paths: Memory/Session persistence and `enouia-common` atomic-file utility, with shared changes reviewed at M0 boundaries.
 
@@ -67,6 +67,8 @@ Acceptance/tests: commit file then fail index update, restart/rebuild and recove
 ### A2.1 Context and Provider ports
 
 Progress: pure [ranked Capsule assembly](CONTEXT_CAPSULE_v1.md) and [offline Mock Provider](PROVIDER_MOCK_v1.md) are implemented with exact prepared-byte/hash checks. FTS/metadata retrieval, persisted invocation history and complete inspector/orchestration acceptance remain open.
+
+[Retrieval v1](MEMORY_RETRIEVAL_v1.md) now specifies literal query normalization, CJK short-term handling, deterministic scoped lanes and rank ordinals, canonical eligibility, explanations and stale/cancel refusal. Its 18-case SQL probe is a design check, not a Runtime retrieval implementation, full Context-lane test or performance measurement. Capsule invocation/orchestration contracts are the next backend design slice.
 
 Owner paths: `enouia-context`, `enouia-provider`, `contracts/{context,provider}`.
 

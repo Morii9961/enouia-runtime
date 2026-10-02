@@ -2,6 +2,8 @@
 
 Date: 2026-10-02. Status: adopted backend design; persistence implementation and activation pending. Authority: Architecture v0.3 §5/6/14, ADR-001/002/003/006. The user's current scope is backend design only; frontend design starts after Claude Design is complete.
 
+Later scope update on the same date: the user reports frontend work is progressing separately. Backend design continues here without changing that work; this supersedes the frontend waiting instruction above, not the persistence activation gates.
+
 ## Problem
 
 One approval may create a canonical memory, supersede a predecessor, retain the candidate decision and append a Session checkpoint reference. Appending a turn also creates its conversation source. `MemoryLedger::from_snapshot` and `validate_sessions` require a complete bundle. Replacing each file independently would expose incomplete provenance or checkpoint linkage after interruption.
