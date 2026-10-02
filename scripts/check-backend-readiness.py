@@ -48,6 +48,7 @@ ARTIFACTS = {
     "contracts/ipc/disposable-lifecycle-v1.json",
     "scripts/check-disposable-lifecycle-design.py",
     "tests/fixtures/backend/disposable-lifecycle-v1.json",
+    "docs/BACKEND_ADMISSION_v2_DESIGN.md",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,

@@ -12,6 +12,8 @@ Affected-file checks also parse JSON/Python, resolve local schema references and
 
 ## Unaccepted implementation gates
 
+The admission-matrix follow-up expands the current manifest to forty artifacts. It reviews declared handler/health/retry prerequisites without executing authorization or IPC admission.
+
 The disposable-lifecycle follow-up expands the current manifest to thirty-nine artifacts. Its declared-snapshot oracle does not execute workers, cache eviction, monotonic timing or IPC handlers; P09/O11 remain unaccepted.
 
 The storage-byte follow-up expands the current manifest to thirty-five artifacts. Its selected three-generation Identity corpus checks bytes and limited historical conditions in Python; it does not sign off the semantic Rust storage gate or any adapter boundary.

@@ -47,8 +47,12 @@
       "sha256": "209d21e34ab1308b1421db65cc3ce04f65647ff9524de167d421745bbb586c44"
     },
     {
+      "path": "docs/BACKEND_ADMISSION_v2_DESIGN.md",
+      "sha256": "c4e2ff1c11f4b2608be6556cf2f290f79ce7c18b2815f66d8030c1000244addb"
+    },
+    {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "fdb99d9c2ff793f19028934963e7212331072f970126d3c93169b7d4ae954fa9"
+      "sha256": "451ba05b25332bc68e599a3a24e98baec8e4df7c0425f35e0265787ac19421d7"
     },
     {
       "path": "docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md",
@@ -120,7 +124,7 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "2d004c7ebeaa40d05f650f582b8ac8660276f51ae34257f6f975af4e28a9ad0d"
+      "sha256": "bf002738909a51403c048ea0a8a93bfe152ab8443006818f6551f1d3486c7acb"
     },
     {
       "path": "scripts/check-command-digests-design.py",

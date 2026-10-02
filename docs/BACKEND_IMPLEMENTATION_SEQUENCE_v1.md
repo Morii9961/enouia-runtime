@@ -68,4 +68,6 @@ The [Identity-only storage byte corpus](STORAGE_BYTES_v1_DESIGN.md) freezes lega
 
 The [disposable lifecycle corpus](DISPOSABLE_LIFECYCLE_v1_DESIGN.md) freezes 42 selected expiry/capacity/page/event/preview decisions. P09 still requires actual workers, caches, clocks, coherent snapshots and ownership/race acceptance.
 
+The [capability/admission matrix](BACKEND_ADMISSION_v2_DESIGN.md) specifies actual handler prerequisites, current health versus build capability, receipt-first retry ordering and refusal boundaries. It introduces no activation or new wire fields.
+
 Narrow existing design evidence: [index query probe](validation/A1.2-index-retrieval-design.md), [invocation byte/shape probe](validation/A2-invocation-ledger-design.md), [command digest vector](validation/Core-command-jobs-design.md). Keep these labels when handing the backend contracts to the independently progressing frontend.
