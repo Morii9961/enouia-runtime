@@ -70,4 +70,6 @@ The [disposable lifecycle corpus](DISPOSABLE_LIFECYCLE_v1_DESIGN.md) freezes 42 
 
 The [capability/admission matrix](BACKEND_ADMISSION_v2_DESIGN.md) specifies actual handler prerequisites, current health versus build capability, receipt-first retry ordering and refusal boundaries. It introduces no activation or new wire fields.
 
+The [Memory/Session history corpus](CANONICAL_HISTORY_v1_DESIGN.md) now verifies seventeen selected transitions through existing pure Rust models, including edited/rejected candidate retention, supersession undo and composed checkpoint review. It is a P01 input, not actual storage or full generic transition acceptance.
+
 Narrow existing design evidence: [index query probe](validation/A1.2-index-retrieval-design.md), [invocation byte/shape probe](validation/A2-invocation-ledger-design.md), [command digest vector](validation/Core-command-jobs-design.md). Keep these labels when handing the backend contracts to the independently progressing frontend.

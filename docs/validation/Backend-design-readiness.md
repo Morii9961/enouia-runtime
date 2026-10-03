@@ -12,6 +12,8 @@ Affected-file checks also parse JSON/Python, resolve local schema references and
 
 ## Unaccepted implementation gates
 
+The 2026-10-03 pure-history follow-up expands the current manifest to forty-four artifacts. An isolated Rust probe verifies selected existing Memory/Session operations and proposed in-memory composition; no production module, Cargo dependency or Vault adapter is added.
+
 The admission-matrix follow-up expands the current manifest to forty artifacts. It reviews declared handler/health/retry prerequisites without executing authorization or IPC admission.
 
 The disposable-lifecycle follow-up expands the current manifest to thirty-nine artifacts. Its declared-snapshot oracle does not execute workers, cache eviction, monotonic timing or IPC handlers; P09/O11 remain unaccepted.

@@ -49,6 +49,10 @@ ARTIFACTS = {
     "scripts/check-disposable-lifecycle-design.py",
     "tests/fixtures/backend/disposable-lifecycle-v1.json",
     "docs/BACKEND_ADMISSION_v2_DESIGN.md",
+    "docs/CANONICAL_HISTORY_v1_DESIGN.md",
+    "scripts/design/canonical-history-v1.rs",
+    "scripts/check-canonical-history-design.py",
+    "tests/fixtures/backend/canonical-history-v1.json",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,
@@ -127,6 +131,8 @@ def check_changed_scope(baseline):
             "scripts/check-orchestration-traces-design.py", "tests/fixtures/backend/orchestration-traces-v1.json",
             "scripts/check-storage-bytes-design.py", "tests/fixtures/backend/storage-bytes-v1.json",
             "scripts/check-disposable-lifecycle-design.py", "tests/fixtures/backend/disposable-lifecycle-v1.json",
+            "scripts/design/canonical-history-v1.rs", "scripts/check-canonical-history-design.py",
+            "tests/fixtures/backend/canonical-history-v1.json",
         }, "non-design change: " + name)
     return len(names)
 

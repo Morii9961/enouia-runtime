@@ -52,7 +52,11 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "451ba05b25332bc68e599a3a24e98baec8e4df7c0425f35e0265787ac19421d7"
+      "sha256": "c6b4d9095fc48afe699d2f2e4446829fc9d7379e630886bdb5082d15147a4bb3"
+    },
+    {
+      "path": "docs/CANONICAL_HISTORY_v1_DESIGN.md",
+      "sha256": "902ae8fff4d5ee3ec32e81b1af0ec1a11613a6620da74b45d67bd54ccb86e9bd"
     },
     {
       "path": "docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md",
@@ -124,7 +128,11 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "bf002738909a51403c048ea0a8a93bfe152ab8443006818f6551f1d3486c7acb"
+      "sha256": "0e3e41bef004dc655ffcbf04ce060836a53ede6c18b54fe514bbf1561b894dec"
+    },
+    {
+      "path": "scripts/check-canonical-history-design.py",
+      "sha256": "e220f78d7fe09ac8dc05c993ce0c612b3a685fcd1bd97cd7535505d85fc2debc"
     },
     {
       "path": "scripts/check-command-digests-design.py",
@@ -145,6 +153,14 @@
     {
       "path": "scripts/check-storage-bytes-design.py",
       "sha256": "543bc8594e30e091f582f7263efa22d50778892e8e98df2c0d508a4a6d2abba5"
+    },
+    {
+      "path": "scripts/design/canonical-history-v1.rs",
+      "sha256": "78755885bce805bc5c710f6fda2d592aba3e1ffa2baef98152ea7cc59524fb41"
+    },
+    {
+      "path": "tests/fixtures/backend/canonical-history-v1.json",
+      "sha256": "658e65e69ede2b0c3f114b0d90d53aac70002079aff91152e580baa88c81fc70"
     },
     {
       "path": "tests/fixtures/backend/command-digests-v2.json",
