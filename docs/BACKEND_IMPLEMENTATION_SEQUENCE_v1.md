@@ -76,4 +76,6 @@ The [model storage byte corpus](MODEL_STORAGE_BYTES_v1_DESIGN.md) binds that his
 
 The [pure Mock continuity corpus](PURE_MOCK_CONTINUITY_v1_DESIGN.md) composes actual existing Context/Mock/Session APIs after that model history, freezes exact consumed bytes and keeps checkpoint creation explicit. It does not execute canonical orchestration, index retrieval or real process restart and cannot accept P08/P10.
 
+The [operator inspection/export design](VAULT_OPERATOR_v1_DESIGN.md) adds read-only reports and exact reviewed full-history plans under ADR-024. Native inspection/copy, actual review and publication remain P04 gates; selector repair/import remain unsupported.
+
 Narrow existing design evidence: [index query probe](validation/A1.2-index-retrieval-design.md), [invocation byte/shape probe](validation/A2-invocation-ledger-design.md), [command digest vector](validation/Core-command-jobs-design.md). Keep these labels when handing the backend contracts to the independently progressing frontend.

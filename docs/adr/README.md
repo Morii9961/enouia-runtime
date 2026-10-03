@@ -135,3 +135,7 @@ The user wants official `claude_design` product tokens added to the existing Cla
 ## ADR-023 — Canonical operation retry receipts and disposable jobs (Design adopted; implementation/activation pending)
 
 [ADR-023](023-command-receipts-and-jobs.md), [command v2 design](../CORE_COMMANDS_v2_DESIGN.md) and [jobs v1](../CORE_JOBS_v1.md) specify closed mutation/receipt/job shapes, exact-generation mutation guards, identical-request replay/conflicting reuse, accepted input versus completed output, queued cancellation and bounded process-owned worker/events. Existing v1 IPC remains unchanged and no v2 capability is enabled. Complete semantic/race/handler evidence remains pending.
+
+## ADR-024 — Read-only operator inspection/export (Design adopted; implementation/activation pending)
+
+[ADR-024](024-read-only-operator-inspection-export.md) and [operator v1](../VAULT_OPERATOR_v1_DESIGN.md) separate inspection/reviewed full-history export from canonical mutation/recovery selection. Named export with missing CURRENT is non-authoritative. Closed shapes/plans do not execute inspection/copy, authorize private export or enable repair/import.

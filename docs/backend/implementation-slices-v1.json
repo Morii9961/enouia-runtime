@@ -39,6 +39,10 @@
       "sha256": "50771ae2930bd41061e744f7224017eec92a04510baa1a7e55939ec44092cbf4"
     },
     {
+      "path": "contracts/operator/inspection-export-v1.schema.json",
+      "sha256": "824c39c0076ee6818e17fd97b4ce1b763c38e7be35ee76a8b59874bfb0990d21"
+    },
+    {
       "path": "contracts/vault/memory-index-v1.sql",
       "sha256": "f735a1e555204a6bbb4de64b297126d726171490f274f2604bba4228b77e6f13"
     },
@@ -52,7 +56,7 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "ee308bea60309f5a1f418de54b9438db1463c654c607ec21d6693b1e56cce033"
+      "sha256": "a7dd8c6a822a06baf2153cba902306033898f152c0bc2cef51bc27924bc03008"
     },
     {
       "path": "docs/CANONICAL_HISTORY_v1_DESIGN.md",
@@ -107,8 +111,12 @@
       "sha256": "1dae0b36fe26fe1b0d936c61540674bc9091ee2a1e703e33c3df2781c957ed0b"
     },
     {
+      "path": "docs/VAULT_OPERATOR_v1_DESIGN.md",
+      "sha256": "415d2ce147b183000c3091eaf5b6627046781b49699ae5582be5e63a35004377"
+    },
+    {
       "path": "docs/VAULT_RECOVERY_MATRIX_v1.md",
-      "sha256": "6e1c68e715046f4ab259e5d5f1f65c011eceb3d2c6e98b70633149fa51533eb0"
+      "sha256": "7d2e0ced9aa16125911e695f2d162439af9a6d2232e12b1ee9755f58c71b578d"
     },
     {
       "path": "docs/VAULT_STORAGE_v1.md",
@@ -135,8 +143,12 @@
       "sha256": "2a85ce38014d06d0230353c36a687d2504d53e388c3725ff7ea835aa0d8ecf59"
     },
     {
+      "path": "docs/adr/024-read-only-operator-inspection-export.md",
+      "sha256": "84e324b96aa6ebd6946c3e0209e5c93c165f4dc1331aeeb640838a01450a7583"
+    },
+    {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "8752f91ea7f6d7c7e8614aa90306ff5b3a834cad39793d6bfd3a98efe38baa74"
+      "sha256": "4045e98f2e633b551bff8b58af59c3c9122367270e0907a32c08aea6ecf7beef"
     },
     {
       "path": "scripts/check-canonical-history-design.py",
@@ -157,6 +169,10 @@
     {
       "path": "scripts/check-model-storage-design.py",
       "sha256": "52bf50dd78bb2a8f1aa2572a38759ccf2feb222e3ba2f6b226f0964d3ef5f2fb"
+    },
+    {
+      "path": "scripts/check-operator-design.py",
+      "sha256": "8f17d1cc4dde214d6caac308bdf35297df25726ec369639941231d84c458373c"
     },
     {
       "path": "scripts/check-orchestration-traces-design.py",
@@ -201,6 +217,10 @@
     {
       "path": "tests/fixtures/backend/model-storage-v1.json",
       "sha256": "eb480b7bc25e2c1c90e82da1975e1d1ba6039225d4349b4931fc7e1b04f85727"
+    },
+    {
+      "path": "tests/fixtures/backend/operator-export-v1.json",
+      "sha256": "da8e8251b9797ca4f39406583e1b896ffeddf4d99f1dcbbca16954a0411aa969"
     },
     {
       "path": "tests/fixtures/backend/orchestration-traces-v1.json",
