@@ -79,3 +79,5 @@ The [pure Mock continuity corpus](PURE_MOCK_CONTINUITY_v1_DESIGN.md) composes ac
 The [operator inspection/export design](VAULT_OPERATOR_v1_DESIGN.md) adds read-only reports and exact reviewed full-history plans under ADR-024. Native inspection/copy, actual review and publication remain P04 gates; selector repair/import remain unsupported.
 
 Narrow existing design evidence: [index query probe](validation/A1.2-index-retrieval-design.md), [invocation byte/shape probe](validation/A2-invocation-ledger-design.md), [command digest vector](validation/Core-command-jobs-design.md). Keep these labels when handing the backend contracts to the independently progressing frontend.
+
+The [joined Mock generation corpus](JOINED_MOCK_GENERATIONS_v1_DESIGN.md) connects exact verified pure model/Provider bytes to selected accepted/prepared/dispatch/completed metadata inventories. It distinguishes original intent, retained input and receipt last-change bindings, without running canonical handlers or accepting P08/O06.

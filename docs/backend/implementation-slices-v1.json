@@ -56,7 +56,7 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "a7dd8c6a822a06baf2153cba902306033898f152c0bc2cef51bc27924bc03008"
+      "sha256": "4b518f0f55338c8ef66fa2920444f95901cb938b503e03b5502d91e22b9d7ef3"
     },
     {
       "path": "docs/CANONICAL_HISTORY_v1_DESIGN.md",
@@ -85,6 +85,10 @@
     {
       "path": "docs/INVOCATION_LEDGER_v1.md",
       "sha256": "cdf1295a0c57d0acee910ded3bdf4d0025d18109d9cc5254d5b11b98201a736b"
+    },
+    {
+      "path": "docs/JOINED_MOCK_GENERATIONS_v1_DESIGN.md",
+      "sha256": "9ec69dcacacb56085b12f13052fc6c9d9c6e9de0fe971e9519461ba286bb7e41"
     },
     {
       "path": "docs/MEMORY_INDEX_v1.md",
@@ -148,7 +152,7 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "4045e98f2e633b551bff8b58af59c3c9122367270e0907a32c08aea6ecf7beef"
+      "sha256": "74af31395c40af444536b982de1f8ddb64a776a670254c052603ec3c794ef384"
     },
     {
       "path": "scripts/check-canonical-history-design.py",
@@ -161,6 +165,10 @@
     {
       "path": "scripts/check-disposable-lifecycle-design.py",
       "sha256": "01b01086f11adeee2add58cb192702c0a4753740e8aac38388c8548c781fce21"
+    },
+    {
+      "path": "scripts/check-joined-mock-design.py",
+      "sha256": "b4054920c1737795302fa957a571a533a42869fec09d4374c594e9aa572eb6d0"
     },
     {
       "path": "scripts/check-mock-continuity-design.py",
@@ -205,6 +213,10 @@
     {
       "path": "tests/fixtures/backend/disposable-lifecycle-v1.json",
       "sha256": "2106e0c66c6a4b507c462103b1ba6c6c57dc54551a8d7937e7e30806c5d265f8"
+    },
+    {
+      "path": "tests/fixtures/backend/joined-mock-v1.json",
+      "sha256": "6b8a87949ca9580243d0a3cb5abd3dd9fb9dc8fbc483e2a3c18d94871b13a22d"
     },
     {
       "path": "tests/fixtures/backend/mock-continuity-bytes-v1.json",

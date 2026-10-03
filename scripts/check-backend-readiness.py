@@ -66,6 +66,9 @@ ARTIFACTS = {
     "contracts/operator/inspection-export-v1.schema.json",
     "scripts/check-operator-design.py",
     "tests/fixtures/backend/operator-export-v1.json",
+    "docs/JOINED_MOCK_GENERATIONS_v1_DESIGN.md",
+    "scripts/check-joined-mock-design.py",
+    "tests/fixtures/backend/joined-mock-v1.json",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,
@@ -150,6 +153,7 @@ def check_changed_scope(baseline):
             "scripts/design/mock-continuity-v1.rs", "scripts/check-mock-continuity-design.py",
             "tests/fixtures/backend/mock-continuity-v1.json", "tests/fixtures/backend/mock-continuity-bytes-v1.json",
             "scripts/check-operator-design.py", "tests/fixtures/backend/operator-export-v1.json",
+            "scripts/check-joined-mock-design.py", "tests/fixtures/backend/joined-mock-v1.json",
         }, "non-design change: " + name)
     return len(names)
 
