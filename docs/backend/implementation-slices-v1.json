@@ -52,7 +52,7 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "667634db98cca8377b6a9ef67fe488383cd6c6c6f9547aa0409983276dea3cf8"
+      "sha256": "ee308bea60309f5a1f418de54b9438db1463c654c607ec21d6693b1e56cce033"
     },
     {
       "path": "docs/CANONICAL_HISTORY_v1_DESIGN.md",
@@ -99,6 +99,10 @@
       "sha256": "cbcbf1896adf6ee024dcbf84feaac7dd0ad75ba5caefd471ce52606a95114a34"
     },
     {
+      "path": "docs/PURE_MOCK_CONTINUITY_v1_DESIGN.md",
+      "sha256": "c2938fec786ef9f5940b9016fc3eb8e823589139bc0a53cc01987d8cda22005e"
+    },
+    {
       "path": "docs/STORAGE_BYTES_v1_DESIGN.md",
       "sha256": "1dae0b36fe26fe1b0d936c61540674bc9091ee2a1e703e33c3df2781c957ed0b"
     },
@@ -132,7 +136,7 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "baa838117fc3114624a5214286101d6597906a7a32daf587ef2f3d3aee6fc3a9"
+      "sha256": "8752f91ea7f6d7c7e8614aa90306ff5b3a834cad39793d6bfd3a98efe38baa74"
     },
     {
       "path": "scripts/check-canonical-history-design.py",
@@ -145,6 +149,10 @@
     {
       "path": "scripts/check-disposable-lifecycle-design.py",
       "sha256": "01b01086f11adeee2add58cb192702c0a4753740e8aac38388c8548c781fce21"
+    },
+    {
+      "path": "scripts/check-mock-continuity-design.py",
+      "sha256": "5bbd22c04409306e5356fc7eda4c35f7e460e34d995c2cb252836b6c884c2747"
     },
     {
       "path": "scripts/check-model-storage-design.py",
@@ -167,6 +175,10 @@
       "sha256": "547cb4a06e2513fcb5ac94e6056ca33de6855232a70c744febf6ccfbbdf207ec"
     },
     {
+      "path": "scripts/design/mock-continuity-v1.rs",
+      "sha256": "adba01e7a97f2fde01cd742fd5c8726a0232a45d6660ef89638fba5808b81de1"
+    },
+    {
       "path": "tests/fixtures/backend/canonical-history-v1.json",
       "sha256": "658e65e69ede2b0c3f114b0d90d53aac70002079aff91152e580baa88c81fc70"
     },
@@ -177,6 +189,14 @@
     {
       "path": "tests/fixtures/backend/disposable-lifecycle-v1.json",
       "sha256": "2106e0c66c6a4b507c462103b1ba6c6c57dc54551a8d7937e7e30806c5d265f8"
+    },
+    {
+      "path": "tests/fixtures/backend/mock-continuity-bytes-v1.json",
+      "sha256": "f46c2eeea2b50b71c434ca10e9bd9df5689bf01758ba950075af5a4dcf0985a7"
+    },
+    {
+      "path": "tests/fixtures/backend/mock-continuity-v1.json",
+      "sha256": "c303506ab45fc691c1e5120aa186f8b5efb87025198fa2fe6b002d3daef8efba"
     },
     {
       "path": "tests/fixtures/backend/model-storage-v1.json",

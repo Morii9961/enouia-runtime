@@ -12,6 +12,8 @@ Affected-file checks also parse JSON/Python, resolve local schema references and
 
 ## Unaccepted implementation gates
 
+The pure Mock continuity follow-up expands the current manifest to fifty-two artifacts. It verifies selected existing pure API composition and exact consumed bytes, without creating Runtime orchestration, ledger/receipts, file ports, IPC or actual restart.
+
 The full-model byte follow-up expands the current manifest to forty-seven artifacts. Eighteen synthetic storage maps are compared with existing Rust model serialization, while metadata DTOs, generic operation transitions and actual store/publication remain unimplemented.
 
 The 2026-10-03 pure-history follow-up expands the current manifest to forty-four artifacts. An isolated Rust probe verifies selected existing Memory/Session operations and proposed in-memory composition; no production module, Cargo dependency or Vault adapter is added.

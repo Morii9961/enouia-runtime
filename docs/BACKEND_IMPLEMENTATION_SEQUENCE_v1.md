@@ -74,4 +74,6 @@ The [Memory/Session history corpus](CANONICAL_HISTORY_v1_DESIGN.md) now verifies
 
 The [model storage byte corpus](MODEL_STORAGE_BYTES_v1_DESIGN.md) binds that history to eighteen synthetic selector/manifest/mutation inventories with fresh Rust model serialization comparisons. Metadata DTOs, arbitrary transition admission and actual file/selector adapters remain unaccepted.
 
+The [pure Mock continuity corpus](PURE_MOCK_CONTINUITY_v1_DESIGN.md) composes actual existing Context/Mock/Session APIs after that model history, freezes exact consumed bytes and keeps checkpoint creation explicit. It does not execute canonical orchestration, index retrieval or real process restart and cannot accept P08/P10.
+
 Narrow existing design evidence: [index query probe](validation/A1.2-index-retrieval-design.md), [invocation byte/shape probe](validation/A2-invocation-ledger-design.md), [command digest vector](validation/Core-command-jobs-design.md). Keep these labels when handing the backend contracts to the independently progressing frontend.

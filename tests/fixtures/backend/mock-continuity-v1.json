@@ -1,0 +1,1705 @@
+{
+  "schema_version": 1,
+  "evidence": "synthetic_pure_mock_continuity_only",
+  "config": {
+    "session_id": "ses_00000000000000000000000000000001",
+    "user_turn_id": "turn_00000000000000000000000000000004",
+    "user_source_id": "src_0000000000000000000000000000000a",
+    "user_at": "2026-10-03T00:00:17.000Z",
+    "text": "合成项目当前状态和未完成事项是什么？",
+    "capsule_id": "cap_00000000000000000000000000006001",
+    "request_id": "req_00000000000000000000000000005001",
+    "prepared_at": "2026-10-03T00:00:18.000Z",
+    "identity": [
+      {
+        "name": "core.md",
+        "content": "Synthetic model-storage identity.\n"
+      },
+      {
+        "name": "runtime_rules.md",
+        "content": "Explicit fixture actions only; no live Runtime activation.\n"
+      }
+    ],
+    "ranked": [
+      {
+        "memory_id": "mem_00000000000000000000000000000004",
+        "rank": 0,
+        "section": "active_project"
+      },
+      {
+        "memory_id": "mem_00000000000000000000000000000009",
+        "rank": 1,
+        "section": "recent_checkpoint"
+      },
+      {
+        "memory_id": "mem_00000000000000000000000000000006",
+        "rank": 2,
+        "section": "active_project"
+      },
+      {
+        "memory_id": "mem_00000000000000000000000000000009",
+        "rank": 3,
+        "section": "recent_checkpoint"
+      }
+    ],
+    "assistant_turn_id": "turn_00000000000000000000000000000005",
+    "assistant_source_id": "src_0000000000000000000000000000000b",
+    "completed_at": "2026-10-03T00:00:20.000Z",
+    "checkpoint_memory_id": "mem_0000000000000000000000000000000a",
+    "checkpoint_source_id": "src_0000000000000000000000000000000c",
+    "checkpoint_at": "2026-10-03T00:00:21.000Z",
+    "checkpoint_content": "Synthetic explicit human checkpoint after Mock response.",
+    "checkpoint_last_state": "Human-authored synthetic continuity state; no automatic summary."
+  },
+  "expected": {
+    "input": {
+      "memory": {
+        "schema_version": 1,
+        "sources": [
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000001",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 1",
+            "created_at": "2026-10-03T00:00:01.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000002",
+            "kind": "explicit_remember",
+            "title": "Synthetic explicit_remember 2",
+            "created_at": "2026-10-03T00:00:02.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000003",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 3",
+            "created_at": "2026-10-03T00:00:03.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000004",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 4",
+            "created_at": "2026-10-03T00:00:04.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000005",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 5",
+            "created_at": "2026-10-03T00:00:05.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000001",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000006",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 6",
+            "created_at": "2026-10-03T00:00:06.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000002",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000007",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 7",
+            "created_at": "2026-10-03T00:00:07.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000008",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 8",
+            "created_at": "2026-10-03T00:00:15.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000003",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000009",
+            "kind": "explicit_remember",
+            "title": "Synthetic explicit_remember 9",
+            "created_at": "2026-10-03T00:00:16.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_0000000000000000000000000000000a",
+            "kind": "conversation_turn",
+            "title": "Synthetic pure continuity source",
+            "created_at": "2026-10-03T00:00:17.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000004",
+            "importer_version": null,
+            "raw_sha256": null
+          }
+        ],
+        "memories": [
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000001",
+            "type": "fact",
+            "content": "Synthetic fact kept exactly.",
+            "source_id": "src_00000000000000000000000000000001",
+            "created_at": "2026-10-03T00:00:01.000Z",
+            "updated_at": "2026-10-03T00:00:01.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000002",
+            "type": "preference",
+            "content": "Synthetic preference: retain whitespace.\n",
+            "source_id": "src_00000000000000000000000000000002",
+            "created_at": "2026-10-03T00:00:02.000Z",
+            "updated_at": "2026-10-03T00:00:02.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000003",
+            "type": "episode",
+            "content": "Synthetic completed episode.",
+            "source_id": "src_00000000000000000000000000000003",
+            "created_at": "2026-10-03T00:00:03.000Z",
+            "updated_at": "2026-10-03T00:00:03.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000004",
+            "type": "project_state",
+            "content": "Synthetic original project state.",
+            "source_id": "src_00000000000000000000000000000004",
+            "created_at": "2026-10-03T00:00:04.000Z",
+            "updated_at": "2026-10-03T00:00:10.000Z",
+            "status": "active",
+            "project_id": "prj_00000000000000000000000000000001",
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": "Original state",
+            "decisions": [
+              "Explicit saves only"
+            ],
+            "open_loops": [
+              "Finish design"
+            ],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000005",
+            "type": "session_checkpoint",
+            "content": "First explicit checkpoint; original turns remain.",
+            "source_id": "src_00000000000000000000000000000007",
+            "created_at": "2026-10-03T00:00:07.000Z",
+            "updated_at": "2026-10-03T00:00:07.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000001",
+              "last_turn_id": "turn_00000000000000000000000000000002"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000006",
+            "type": "project_state",
+            "content": "Human-edited approved project meaning.",
+            "source_id": "src_00000000000000000000000000000004",
+            "created_at": "2026-10-03T00:00:08.000Z",
+            "updated_at": "2026-10-03T00:00:10.000Z",
+            "status": "archived",
+            "project_id": "prj_00000000000000000000000000000001",
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": 0.5,
+            "supersedes": "mem_00000000000000000000000000000004",
+            "state": "Human-approved state",
+            "decisions": [
+              "Human-approved decision"
+            ],
+            "open_loops": [
+              "Candidate original loop"
+            ],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000008",
+            "type": "session_checkpoint",
+            "content": "Human-reviewed checkpoint over the same retained turns.",
+            "source_id": "src_00000000000000000000000000000007",
+            "created_at": "2026-10-03T00:00:13.000Z",
+            "updated_at": "2026-10-03T00:00:14.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000001",
+              "last_turn_id": "turn_00000000000000000000000000000002"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000009",
+            "type": "session_checkpoint",
+            "content": "Final explicit remembered checkpoint.",
+            "source_id": "src_00000000000000000000000000000009",
+            "created_at": "2026-10-03T00:00:16.000Z",
+            "updated_at": "2026-10-03T00:00:16.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000003",
+              "last_turn_id": "turn_00000000000000000000000000000003"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          }
+        ],
+        "candidates": [
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000001",
+            "created_at": "2026-10-03T00:00:08.000Z",
+            "updated_at": "2026-10-03T00:00:09.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000006",
+              "type": "project_state",
+              "content": "Original unedited proposed project meaning.",
+              "source_id": "src_00000000000000000000000000000004",
+              "created_at": "2026-10-03T00:00:08.000Z",
+              "updated_at": "2026-10-03T00:00:08.000Z",
+              "status": "active",
+              "project_id": "prj_00000000000000000000000000000001",
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": "mem_00000000000000000000000000000004",
+              "state": "Proposed state",
+              "decisions": [
+                "Candidate original decision"
+              ],
+              "open_loops": [
+                "Candidate original loop"
+              ],
+              "session_id": null,
+              "covered_turns": null,
+              "last_state": null
+            },
+            "decision": {
+              "status": "approved",
+              "memory_id": "mem_00000000000000000000000000000006"
+            }
+          },
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000002",
+            "created_at": "2026-10-03T00:00:11.000Z",
+            "updated_at": "2026-10-03T00:00:12.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000007",
+              "type": "preference",
+              "content": "Rejected proposal remains visible as original proposal.",
+              "source_id": "src_00000000000000000000000000000002",
+              "created_at": "2026-10-03T00:00:11.000Z",
+              "updated_at": "2026-10-03T00:00:11.000Z",
+              "status": "active",
+              "project_id": null,
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": null,
+              "state": null,
+              "decisions": [],
+              "open_loops": [],
+              "session_id": null,
+              "covered_turns": null,
+              "last_state": null
+            },
+            "decision": {
+              "status": "rejected",
+              "reason": "Synthetic human rejection"
+            }
+          },
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000003",
+            "created_at": "2026-10-03T00:00:13.000Z",
+            "updated_at": "2026-10-03T00:00:14.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000008",
+              "type": "session_checkpoint",
+              "content": "Original proposed checkpoint is retained.",
+              "source_id": "src_00000000000000000000000000000007",
+              "created_at": "2026-10-03T00:00:13.000Z",
+              "updated_at": "2026-10-03T00:00:13.000Z",
+              "status": "active",
+              "project_id": null,
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": null,
+              "state": null,
+              "decisions": [],
+              "open_loops": [
+                "Explicit continuation remains possible"
+              ],
+              "session_id": "ses_00000000000000000000000000000001",
+              "covered_turns": {
+                "first_turn_id": "turn_00000000000000000000000000000001",
+                "last_turn_id": "turn_00000000000000000000000000000002"
+              },
+              "last_state": "Synthetic retained checkpoint"
+            },
+            "decision": {
+              "status": "approved",
+              "memory_id": "mem_00000000000000000000000000000008"
+            }
+          }
+        ]
+      },
+      "sessions": [
+        {
+          "schema_version": 1,
+          "session_id": "ses_00000000000000000000000000000001",
+          "title": "Synthetic continuity history",
+          "created_at": "2026-10-03T00:00:00.000Z",
+          "updated_at": "2026-10-03T00:00:17.000Z",
+          "events": [
+            {
+              "sequence": 1,
+              "created_at": "2026-10-03T00:00:05.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000001",
+                "role": "user",
+                "content": "第一条合成输入。\n保留原始换行。",
+                "source_id": "src_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 2,
+              "created_at": "2026-10-03T00:00:06.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000002",
+                "role": "user",
+                "content": "Second synthetic input; no hidden assistant answer.",
+                "source_id": "src_00000000000000000000000000000006"
+              }
+            },
+            {
+              "sequence": 3,
+              "created_at": "2026-10-03T00:00:07.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 4,
+              "created_at": "2026-10-03T00:00:14.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000008"
+              }
+            },
+            {
+              "sequence": 5,
+              "created_at": "2026-10-03T00:00:15.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000003",
+                "role": "user",
+                "content": "Third synthetic user input after explicit review.",
+                "source_id": "src_00000000000000000000000000000008"
+              }
+            },
+            {
+              "sequence": 6,
+              "created_at": "2026-10-03T00:00:16.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000009"
+              }
+            },
+            {
+              "sequence": 7,
+              "created_at": "2026-10-03T00:00:17.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000004",
+                "role": "user",
+                "content": "合成项目当前状态和未完成事项是什么？",
+                "source_id": "src_0000000000000000000000000000000a"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "capsule_bytes": "{\"schema_version\":1,\"capsule_id\":\"cap_00000000000000000000000000006001\",\"generated_at\":\"2026-10-03T00:00:18.000Z\",\"query\":\"合成项目当前状态和未完成事项是什么？\",\"identity\":[{\"name\":\"core.md\",\"content\":\"Synthetic model-storage identity.\\n\"},{\"name\":\"runtime_rules.md\",\"content\":\"Explicit fixture actions only; no live Runtime activation.\\n\"}],\"user_context\":[],\"relationship_context\":[],\"active_projects\":[{\"schema_version\":1,\"memory_id\":\"mem_00000000000000000000000000000004\",\"type\":\"project_state\",\"content\":\"Synthetic original project state.\",\"source_id\":\"src_00000000000000000000000000000004\",\"created_at\":\"2026-10-03T00:00:04.000Z\",\"updated_at\":\"2026-10-03T00:00:10.000Z\",\"status\":\"active\",\"project_id\":\"prj_00000000000000000000000000000001\",\"tags\":[\"synthetic\"],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":\"Original state\",\"decisions\":[\"Explicit saves only\"],\"open_loops\":[\"Finish design\"],\"session_id\":null,\"covered_turns\":null,\"last_state\":null}],\"relevant_memories\":[],\"recent_session_checkpoints\":[{\"schema_version\":1,\"memory_id\":\"mem_00000000000000000000000000000009\",\"type\":\"session_checkpoint\",\"content\":\"Final explicit remembered checkpoint.\",\"source_id\":\"src_00000000000000000000000000000009\",\"created_at\":\"2026-10-03T00:00:16.000Z\",\"updated_at\":\"2026-10-03T00:00:16.000Z\",\"status\":\"active\",\"project_id\":null,\"tags\":[\"synthetic\"],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":null,\"decisions\":[],\"open_loops\":[\"Explicit continuation remains possible\"],\"session_id\":\"ses_00000000000000000000000000000001\",\"covered_turns\":{\"first_turn_id\":\"turn_00000000000000000000000000000003\",\"last_turn_id\":\"turn_00000000000000000000000000000003\"},\"last_state\":\"Synthetic retained checkpoint\"}],\"recent_turns\":[{\"turn_id\":\"turn_00000000000000000000000000000004\",\"session_id\":\"ses_00000000000000000000000000000001\",\"role\":\"user\",\"content\":\"合成项目当前状态和未完成事项是什么？\",\"source_id\":\"src_0000000000000000000000000000000a\",\"created_at\":\"2026-10-03T00:00:17.000Z\"}],\"open_loops\":[\"Finish design\",\"Explicit continuation remains possible\"],\"provenance\":[{\"entry_id\":\"identity:core.md\",\"source_id\":null,\"reason\":\"identity\"},{\"entry_id\":\"identity:runtime_rules.md\",\"source_id\":null,\"reason\":\"identity\"},{\"entry_id\":\"turn_00000000000000000000000000000004\",\"source_id\":\"src_0000000000000000000000000000000a\",\"reason\":\"recent_turn\"},{\"entry_id\":\"mem_00000000000000000000000000000004\",\"source_id\":\"src_00000000000000000000000000000004\",\"reason\":\"active_project\"},{\"entry_id\":\"mem_00000000000000000000000000000009\",\"source_id\":\"src_00000000000000000000000000000009\",\"reason\":\"recent_checkpoint\"}],\"budget\":{\"max_tokens\":32768,\"estimated_tokens\":3013,\"reserve_tokens\":256,\"policy\":\"utf8_bytes_v1\"}}",
+    "request_bytes": "{\"schema_version\":1,\"request_id\":\"req_00000000000000000000000000005001\",\"capsule\":{\"schema_version\":1,\"capsule_id\":\"cap_00000000000000000000000000006001\",\"generated_at\":\"2026-10-03T00:00:18.000Z\",\"query\":\"合成项目当前状态和未完成事项是什么？\",\"identity\":[{\"name\":\"core.md\",\"content\":\"Synthetic model-storage identity.\\n\"},{\"name\":\"runtime_rules.md\",\"content\":\"Explicit fixture actions only; no live Runtime activation.\\n\"}],\"user_context\":[],\"relationship_context\":[],\"active_projects\":[{\"schema_version\":1,\"memory_id\":\"mem_00000000000000000000000000000004\",\"type\":\"project_state\",\"content\":\"Synthetic original project state.\",\"source_id\":\"src_00000000000000000000000000000004\",\"created_at\":\"2026-10-03T00:00:04.000Z\",\"updated_at\":\"2026-10-03T00:00:10.000Z\",\"status\":\"active\",\"project_id\":\"prj_00000000000000000000000000000001\",\"tags\":[\"synthetic\"],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":\"Original state\",\"decisions\":[\"Explicit saves only\"],\"open_loops\":[\"Finish design\"],\"session_id\":null,\"covered_turns\":null,\"last_state\":null}],\"relevant_memories\":[],\"recent_session_checkpoints\":[{\"schema_version\":1,\"memory_id\":\"mem_00000000000000000000000000000009\",\"type\":\"session_checkpoint\",\"content\":\"Final explicit remembered checkpoint.\",\"source_id\":\"src_00000000000000000000000000000009\",\"created_at\":\"2026-10-03T00:00:16.000Z\",\"updated_at\":\"2026-10-03T00:00:16.000Z\",\"status\":\"active\",\"project_id\":null,\"tags\":[\"synthetic\"],\"validity\":null,\"confidence\":null,\"supersedes\":null,\"state\":null,\"decisions\":[],\"open_loops\":[\"Explicit continuation remains possible\"],\"session_id\":\"ses_00000000000000000000000000000001\",\"covered_turns\":{\"first_turn_id\":\"turn_00000000000000000000000000000003\",\"last_turn_id\":\"turn_00000000000000000000000000000003\"},\"last_state\":\"Synthetic retained checkpoint\"}],\"recent_turns\":[{\"turn_id\":\"turn_00000000000000000000000000000004\",\"session_id\":\"ses_00000000000000000000000000000001\",\"role\":\"user\",\"content\":\"合成项目当前状态和未完成事项是什么？\",\"source_id\":\"src_0000000000000000000000000000000a\",\"created_at\":\"2026-10-03T00:00:17.000Z\"}],\"open_loops\":[\"Finish design\",\"Explicit continuation remains possible\"],\"provenance\":[{\"entry_id\":\"identity:core.md\",\"source_id\":null,\"reason\":\"identity\"},{\"entry_id\":\"identity:runtime_rules.md\",\"source_id\":null,\"reason\":\"identity\"},{\"entry_id\":\"turn_00000000000000000000000000000004\",\"source_id\":\"src_0000000000000000000000000000000a\",\"reason\":\"recent_turn\"},{\"entry_id\":\"mem_00000000000000000000000000000004\",\"source_id\":\"src_00000000000000000000000000000004\",\"reason\":\"active_project\"},{\"entry_id\":\"mem_00000000000000000000000000000009\",\"source_id\":\"src_00000000000000000000000000000009\",\"reason\":\"recent_checkpoint\"}],\"budget\":{\"max_tokens\":32768,\"estimated_tokens\":3013,\"reserve_tokens\":256,\"policy\":\"utf8_bytes_v1\"}}}\n",
+    "response_bytes": "{\"schema_version\":1,\"request_id\":\"req_00000000000000000000000000005001\",\"capsule_id\":\"cap_00000000000000000000000000006001\",\"consumed_capsule_sha256\":\"30b3ae2a0142d48c3e09ccc5b514c29ddccc4e22e67c20c5b855e94bbe4290dc\",\"consumed_bytes\":2757,\"text\":\"Mock: included ProjectState records:\\nmem_00000000000000000000000000000004: Synthetic original project state.\\nState: Original state\\nOpen loop: Finish design\",\"project_states\":[{\"memory_id\":\"mem_00000000000000000000000000000004\",\"content\":\"Synthetic original project state.\",\"state\":\"Original state\",\"open_loops\":[\"Finish design\"]}],\"tool_requests\":[]}\n",
+    "completed": {
+      "memory": {
+        "schema_version": 1,
+        "sources": [
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000001",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 1",
+            "created_at": "2026-10-03T00:00:01.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000002",
+            "kind": "explicit_remember",
+            "title": "Synthetic explicit_remember 2",
+            "created_at": "2026-10-03T00:00:02.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000003",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 3",
+            "created_at": "2026-10-03T00:00:03.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000004",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 4",
+            "created_at": "2026-10-03T00:00:04.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000005",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 5",
+            "created_at": "2026-10-03T00:00:05.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000001",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000006",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 6",
+            "created_at": "2026-10-03T00:00:06.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000002",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000007",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 7",
+            "created_at": "2026-10-03T00:00:07.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000008",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 8",
+            "created_at": "2026-10-03T00:00:15.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000003",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000009",
+            "kind": "explicit_remember",
+            "title": "Synthetic explicit_remember 9",
+            "created_at": "2026-10-03T00:00:16.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_0000000000000000000000000000000a",
+            "kind": "conversation_turn",
+            "title": "Synthetic pure continuity source",
+            "created_at": "2026-10-03T00:00:17.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000004",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_0000000000000000000000000000000b",
+            "kind": "conversation_turn",
+            "title": "Synthetic pure continuity source",
+            "created_at": "2026-10-03T00:00:20.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000005",
+            "importer_version": null,
+            "raw_sha256": null
+          }
+        ],
+        "memories": [
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000001",
+            "type": "fact",
+            "content": "Synthetic fact kept exactly.",
+            "source_id": "src_00000000000000000000000000000001",
+            "created_at": "2026-10-03T00:00:01.000Z",
+            "updated_at": "2026-10-03T00:00:01.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000002",
+            "type": "preference",
+            "content": "Synthetic preference: retain whitespace.\n",
+            "source_id": "src_00000000000000000000000000000002",
+            "created_at": "2026-10-03T00:00:02.000Z",
+            "updated_at": "2026-10-03T00:00:02.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000003",
+            "type": "episode",
+            "content": "Synthetic completed episode.",
+            "source_id": "src_00000000000000000000000000000003",
+            "created_at": "2026-10-03T00:00:03.000Z",
+            "updated_at": "2026-10-03T00:00:03.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000004",
+            "type": "project_state",
+            "content": "Synthetic original project state.",
+            "source_id": "src_00000000000000000000000000000004",
+            "created_at": "2026-10-03T00:00:04.000Z",
+            "updated_at": "2026-10-03T00:00:10.000Z",
+            "status": "active",
+            "project_id": "prj_00000000000000000000000000000001",
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": "Original state",
+            "decisions": [
+              "Explicit saves only"
+            ],
+            "open_loops": [
+              "Finish design"
+            ],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000005",
+            "type": "session_checkpoint",
+            "content": "First explicit checkpoint; original turns remain.",
+            "source_id": "src_00000000000000000000000000000007",
+            "created_at": "2026-10-03T00:00:07.000Z",
+            "updated_at": "2026-10-03T00:00:07.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000001",
+              "last_turn_id": "turn_00000000000000000000000000000002"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000006",
+            "type": "project_state",
+            "content": "Human-edited approved project meaning.",
+            "source_id": "src_00000000000000000000000000000004",
+            "created_at": "2026-10-03T00:00:08.000Z",
+            "updated_at": "2026-10-03T00:00:10.000Z",
+            "status": "archived",
+            "project_id": "prj_00000000000000000000000000000001",
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": 0.5,
+            "supersedes": "mem_00000000000000000000000000000004",
+            "state": "Human-approved state",
+            "decisions": [
+              "Human-approved decision"
+            ],
+            "open_loops": [
+              "Candidate original loop"
+            ],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000008",
+            "type": "session_checkpoint",
+            "content": "Human-reviewed checkpoint over the same retained turns.",
+            "source_id": "src_00000000000000000000000000000007",
+            "created_at": "2026-10-03T00:00:13.000Z",
+            "updated_at": "2026-10-03T00:00:14.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000001",
+              "last_turn_id": "turn_00000000000000000000000000000002"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000009",
+            "type": "session_checkpoint",
+            "content": "Final explicit remembered checkpoint.",
+            "source_id": "src_00000000000000000000000000000009",
+            "created_at": "2026-10-03T00:00:16.000Z",
+            "updated_at": "2026-10-03T00:00:16.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000003",
+              "last_turn_id": "turn_00000000000000000000000000000003"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          }
+        ],
+        "candidates": [
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000001",
+            "created_at": "2026-10-03T00:00:08.000Z",
+            "updated_at": "2026-10-03T00:00:09.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000006",
+              "type": "project_state",
+              "content": "Original unedited proposed project meaning.",
+              "source_id": "src_00000000000000000000000000000004",
+              "created_at": "2026-10-03T00:00:08.000Z",
+              "updated_at": "2026-10-03T00:00:08.000Z",
+              "status": "active",
+              "project_id": "prj_00000000000000000000000000000001",
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": "mem_00000000000000000000000000000004",
+              "state": "Proposed state",
+              "decisions": [
+                "Candidate original decision"
+              ],
+              "open_loops": [
+                "Candidate original loop"
+              ],
+              "session_id": null,
+              "covered_turns": null,
+              "last_state": null
+            },
+            "decision": {
+              "status": "approved",
+              "memory_id": "mem_00000000000000000000000000000006"
+            }
+          },
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000002",
+            "created_at": "2026-10-03T00:00:11.000Z",
+            "updated_at": "2026-10-03T00:00:12.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000007",
+              "type": "preference",
+              "content": "Rejected proposal remains visible as original proposal.",
+              "source_id": "src_00000000000000000000000000000002",
+              "created_at": "2026-10-03T00:00:11.000Z",
+              "updated_at": "2026-10-03T00:00:11.000Z",
+              "status": "active",
+              "project_id": null,
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": null,
+              "state": null,
+              "decisions": [],
+              "open_loops": [],
+              "session_id": null,
+              "covered_turns": null,
+              "last_state": null
+            },
+            "decision": {
+              "status": "rejected",
+              "reason": "Synthetic human rejection"
+            }
+          },
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000003",
+            "created_at": "2026-10-03T00:00:13.000Z",
+            "updated_at": "2026-10-03T00:00:14.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000008",
+              "type": "session_checkpoint",
+              "content": "Original proposed checkpoint is retained.",
+              "source_id": "src_00000000000000000000000000000007",
+              "created_at": "2026-10-03T00:00:13.000Z",
+              "updated_at": "2026-10-03T00:00:13.000Z",
+              "status": "active",
+              "project_id": null,
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": null,
+              "state": null,
+              "decisions": [],
+              "open_loops": [
+                "Explicit continuation remains possible"
+              ],
+              "session_id": "ses_00000000000000000000000000000001",
+              "covered_turns": {
+                "first_turn_id": "turn_00000000000000000000000000000001",
+                "last_turn_id": "turn_00000000000000000000000000000002"
+              },
+              "last_state": "Synthetic retained checkpoint"
+            },
+            "decision": {
+              "status": "approved",
+              "memory_id": "mem_00000000000000000000000000000008"
+            }
+          }
+        ]
+      },
+      "sessions": [
+        {
+          "schema_version": 1,
+          "session_id": "ses_00000000000000000000000000000001",
+          "title": "Synthetic continuity history",
+          "created_at": "2026-10-03T00:00:00.000Z",
+          "updated_at": "2026-10-03T00:00:20.000Z",
+          "events": [
+            {
+              "sequence": 1,
+              "created_at": "2026-10-03T00:00:05.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000001",
+                "role": "user",
+                "content": "第一条合成输入。\n保留原始换行。",
+                "source_id": "src_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 2,
+              "created_at": "2026-10-03T00:00:06.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000002",
+                "role": "user",
+                "content": "Second synthetic input; no hidden assistant answer.",
+                "source_id": "src_00000000000000000000000000000006"
+              }
+            },
+            {
+              "sequence": 3,
+              "created_at": "2026-10-03T00:00:07.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 4,
+              "created_at": "2026-10-03T00:00:14.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000008"
+              }
+            },
+            {
+              "sequence": 5,
+              "created_at": "2026-10-03T00:00:15.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000003",
+                "role": "user",
+                "content": "Third synthetic user input after explicit review.",
+                "source_id": "src_00000000000000000000000000000008"
+              }
+            },
+            {
+              "sequence": 6,
+              "created_at": "2026-10-03T00:00:16.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000009"
+              }
+            },
+            {
+              "sequence": 7,
+              "created_at": "2026-10-03T00:00:17.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000004",
+                "role": "user",
+                "content": "合成项目当前状态和未完成事项是什么？",
+                "source_id": "src_0000000000000000000000000000000a"
+              }
+            },
+            {
+              "sequence": 8,
+              "created_at": "2026-10-03T00:00:20.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000005",
+                "role": "assistant",
+                "content": "Mock: included ProjectState records:\nmem_00000000000000000000000000000004: Synthetic original project state.\nState: Original state\nOpen loop: Finish design",
+                "source_id": "src_0000000000000000000000000000000b"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "checkpointed": {
+      "memory": {
+        "schema_version": 1,
+        "sources": [
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000001",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 1",
+            "created_at": "2026-10-03T00:00:01.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000002",
+            "kind": "explicit_remember",
+            "title": "Synthetic explicit_remember 2",
+            "created_at": "2026-10-03T00:00:02.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000003",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 3",
+            "created_at": "2026-10-03T00:00:03.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000004",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 4",
+            "created_at": "2026-10-03T00:00:04.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000005",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 5",
+            "created_at": "2026-10-03T00:00:05.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000001",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000006",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 6",
+            "created_at": "2026-10-03T00:00:06.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000002",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000007",
+            "kind": "manual_save",
+            "title": "Synthetic manual_save 7",
+            "created_at": "2026-10-03T00:00:07.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000008",
+            "kind": "conversation_turn",
+            "title": "Synthetic conversation_turn 8",
+            "created_at": "2026-10-03T00:00:15.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000003",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_00000000000000000000000000000009",
+            "kind": "explicit_remember",
+            "title": "Synthetic explicit_remember 9",
+            "created_at": "2026-10-03T00:00:16.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_0000000000000000000000000000000a",
+            "kind": "conversation_turn",
+            "title": "Synthetic pure continuity source",
+            "created_at": "2026-10-03T00:00:17.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000004",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_0000000000000000000000000000000b",
+            "kind": "conversation_turn",
+            "title": "Synthetic pure continuity source",
+            "created_at": "2026-10-03T00:00:20.000Z",
+            "session_id": "ses_00000000000000000000000000000001",
+            "turn_id": "turn_00000000000000000000000000000005",
+            "importer_version": null,
+            "raw_sha256": null
+          },
+          {
+            "schema_version": 1,
+            "source_id": "src_0000000000000000000000000000000c",
+            "kind": "manual_save",
+            "title": "Synthetic pure continuity source",
+            "created_at": "2026-10-03T00:00:21.000Z",
+            "session_id": null,
+            "turn_id": null,
+            "importer_version": null,
+            "raw_sha256": null
+          }
+        ],
+        "memories": [
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000001",
+            "type": "fact",
+            "content": "Synthetic fact kept exactly.",
+            "source_id": "src_00000000000000000000000000000001",
+            "created_at": "2026-10-03T00:00:01.000Z",
+            "updated_at": "2026-10-03T00:00:01.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000002",
+            "type": "preference",
+            "content": "Synthetic preference: retain whitespace.\n",
+            "source_id": "src_00000000000000000000000000000002",
+            "created_at": "2026-10-03T00:00:02.000Z",
+            "updated_at": "2026-10-03T00:00:02.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000003",
+            "type": "episode",
+            "content": "Synthetic completed episode.",
+            "source_id": "src_00000000000000000000000000000003",
+            "created_at": "2026-10-03T00:00:03.000Z",
+            "updated_at": "2026-10-03T00:00:03.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000004",
+            "type": "project_state",
+            "content": "Synthetic original project state.",
+            "source_id": "src_00000000000000000000000000000004",
+            "created_at": "2026-10-03T00:00:04.000Z",
+            "updated_at": "2026-10-03T00:00:10.000Z",
+            "status": "active",
+            "project_id": "prj_00000000000000000000000000000001",
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": "Original state",
+            "decisions": [
+              "Explicit saves only"
+            ],
+            "open_loops": [
+              "Finish design"
+            ],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000005",
+            "type": "session_checkpoint",
+            "content": "First explicit checkpoint; original turns remain.",
+            "source_id": "src_00000000000000000000000000000007",
+            "created_at": "2026-10-03T00:00:07.000Z",
+            "updated_at": "2026-10-03T00:00:07.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000001",
+              "last_turn_id": "turn_00000000000000000000000000000002"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000006",
+            "type": "project_state",
+            "content": "Human-edited approved project meaning.",
+            "source_id": "src_00000000000000000000000000000004",
+            "created_at": "2026-10-03T00:00:08.000Z",
+            "updated_at": "2026-10-03T00:00:10.000Z",
+            "status": "archived",
+            "project_id": "prj_00000000000000000000000000000001",
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": 0.5,
+            "supersedes": "mem_00000000000000000000000000000004",
+            "state": "Human-approved state",
+            "decisions": [
+              "Human-approved decision"
+            ],
+            "open_loops": [
+              "Candidate original loop"
+            ],
+            "session_id": null,
+            "covered_turns": null,
+            "last_state": null
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000008",
+            "type": "session_checkpoint",
+            "content": "Human-reviewed checkpoint over the same retained turns.",
+            "source_id": "src_00000000000000000000000000000007",
+            "created_at": "2026-10-03T00:00:13.000Z",
+            "updated_at": "2026-10-03T00:00:14.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000001",
+              "last_turn_id": "turn_00000000000000000000000000000002"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_00000000000000000000000000000009",
+            "type": "session_checkpoint",
+            "content": "Final explicit remembered checkpoint.",
+            "source_id": "src_00000000000000000000000000000009",
+            "created_at": "2026-10-03T00:00:16.000Z",
+            "updated_at": "2026-10-03T00:00:16.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000003",
+              "last_turn_id": "turn_00000000000000000000000000000003"
+            },
+            "last_state": "Synthetic retained checkpoint"
+          },
+          {
+            "schema_version": 1,
+            "memory_id": "mem_0000000000000000000000000000000a",
+            "type": "session_checkpoint",
+            "content": "Synthetic explicit human checkpoint after Mock response.",
+            "source_id": "src_0000000000000000000000000000000c",
+            "created_at": "2026-10-03T00:00:21.000Z",
+            "updated_at": "2026-10-03T00:00:21.000Z",
+            "status": "active",
+            "project_id": null,
+            "tags": [
+              "synthetic"
+            ],
+            "validity": null,
+            "confidence": null,
+            "supersedes": null,
+            "state": null,
+            "decisions": [],
+            "open_loops": [
+              "Explicit continuation remains possible"
+            ],
+            "session_id": "ses_00000000000000000000000000000001",
+            "covered_turns": {
+              "first_turn_id": "turn_00000000000000000000000000000004",
+              "last_turn_id": "turn_00000000000000000000000000000005"
+            },
+            "last_state": "Human-authored synthetic continuity state; no automatic summary."
+          }
+        ],
+        "candidates": [
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000001",
+            "created_at": "2026-10-03T00:00:08.000Z",
+            "updated_at": "2026-10-03T00:00:09.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000006",
+              "type": "project_state",
+              "content": "Original unedited proposed project meaning.",
+              "source_id": "src_00000000000000000000000000000004",
+              "created_at": "2026-10-03T00:00:08.000Z",
+              "updated_at": "2026-10-03T00:00:08.000Z",
+              "status": "active",
+              "project_id": "prj_00000000000000000000000000000001",
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": "mem_00000000000000000000000000000004",
+              "state": "Proposed state",
+              "decisions": [
+                "Candidate original decision"
+              ],
+              "open_loops": [
+                "Candidate original loop"
+              ],
+              "session_id": null,
+              "covered_turns": null,
+              "last_state": null
+            },
+            "decision": {
+              "status": "approved",
+              "memory_id": "mem_00000000000000000000000000000006"
+            }
+          },
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000002",
+            "created_at": "2026-10-03T00:00:11.000Z",
+            "updated_at": "2026-10-03T00:00:12.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000007",
+              "type": "preference",
+              "content": "Rejected proposal remains visible as original proposal.",
+              "source_id": "src_00000000000000000000000000000002",
+              "created_at": "2026-10-03T00:00:11.000Z",
+              "updated_at": "2026-10-03T00:00:11.000Z",
+              "status": "active",
+              "project_id": null,
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": null,
+              "state": null,
+              "decisions": [],
+              "open_loops": [],
+              "session_id": null,
+              "covered_turns": null,
+              "last_state": null
+            },
+            "decision": {
+              "status": "rejected",
+              "reason": "Synthetic human rejection"
+            }
+          },
+          {
+            "schema_version": 1,
+            "candidate_id": "cand_00000000000000000000000000000003",
+            "created_at": "2026-10-03T00:00:13.000Z",
+            "updated_at": "2026-10-03T00:00:14.000Z",
+            "proposal": {
+              "schema_version": 1,
+              "memory_id": "mem_00000000000000000000000000000008",
+              "type": "session_checkpoint",
+              "content": "Original proposed checkpoint is retained.",
+              "source_id": "src_00000000000000000000000000000007",
+              "created_at": "2026-10-03T00:00:13.000Z",
+              "updated_at": "2026-10-03T00:00:13.000Z",
+              "status": "active",
+              "project_id": null,
+              "tags": [
+                "synthetic"
+              ],
+              "validity": null,
+              "confidence": null,
+              "supersedes": null,
+              "state": null,
+              "decisions": [],
+              "open_loops": [
+                "Explicit continuation remains possible"
+              ],
+              "session_id": "ses_00000000000000000000000000000001",
+              "covered_turns": {
+                "first_turn_id": "turn_00000000000000000000000000000001",
+                "last_turn_id": "turn_00000000000000000000000000000002"
+              },
+              "last_state": "Synthetic retained checkpoint"
+            },
+            "decision": {
+              "status": "approved",
+              "memory_id": "mem_00000000000000000000000000000008"
+            }
+          }
+        ]
+      },
+      "sessions": [
+        {
+          "schema_version": 1,
+          "session_id": "ses_00000000000000000000000000000001",
+          "title": "Synthetic continuity history",
+          "created_at": "2026-10-03T00:00:00.000Z",
+          "updated_at": "2026-10-03T00:00:21.000Z",
+          "events": [
+            {
+              "sequence": 1,
+              "created_at": "2026-10-03T00:00:05.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000001",
+                "role": "user",
+                "content": "第一条合成输入。\n保留原始换行。",
+                "source_id": "src_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 2,
+              "created_at": "2026-10-03T00:00:06.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000002",
+                "role": "user",
+                "content": "Second synthetic input; no hidden assistant answer.",
+                "source_id": "src_00000000000000000000000000000006"
+              }
+            },
+            {
+              "sequence": 3,
+              "created_at": "2026-10-03T00:00:07.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000005"
+              }
+            },
+            {
+              "sequence": 4,
+              "created_at": "2026-10-03T00:00:14.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000008"
+              }
+            },
+            {
+              "sequence": 5,
+              "created_at": "2026-10-03T00:00:15.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000003",
+                "role": "user",
+                "content": "Third synthetic user input after explicit review.",
+                "source_id": "src_00000000000000000000000000000008"
+              }
+            },
+            {
+              "sequence": 6,
+              "created_at": "2026-10-03T00:00:16.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_00000000000000000000000000000009"
+              }
+            },
+            {
+              "sequence": 7,
+              "created_at": "2026-10-03T00:00:17.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000004",
+                "role": "user",
+                "content": "合成项目当前状态和未完成事项是什么？",
+                "source_id": "src_0000000000000000000000000000000a"
+              }
+            },
+            {
+              "sequence": 8,
+              "created_at": "2026-10-03T00:00:20.000Z",
+              "event": {
+                "kind": "turn",
+                "turn_id": "turn_00000000000000000000000000000005",
+                "role": "assistant",
+                "content": "Mock: included ProjectState records:\nmem_00000000000000000000000000000004: Synthetic original project state.\nState: Original state\nOpen loop: Finish design",
+                "source_id": "src_0000000000000000000000000000000b"
+              }
+            },
+            {
+              "sequence": 9,
+              "created_at": "2026-10-03T00:00:21.000Z",
+              "event": {
+                "kind": "checkpoint",
+                "memory_id": "mem_0000000000000000000000000000000a"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "exclusions": [
+      {
+        "entry_id": "mem_00000000000000000000000000000006",
+        "reason": "inactive"
+      },
+      {
+        "entry_id": "mem_00000000000000000000000000000009",
+        "reason": "duplicate"
+      }
+    ]
+  }
+}
