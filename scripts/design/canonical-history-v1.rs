@@ -11,6 +11,44 @@ struct Bundle {
     sessions: Vec<SessionRecord>,
 }
 
+#[derive(Serialize)]
+struct SerializedModel {
+    name: String,
+    files: BTreeMap<String, String>,
+}
+
+fn serialized(name: &str, bundle: &Bundle) -> SerializedModel {
+    let mut files = BTreeMap::new();
+    for source in &bundle.memory.sources {
+        files.insert(
+            format!("sources/{}.json", source.source_id),
+            serde_json::to_string(source).unwrap() + "\n",
+        );
+    }
+    for record in &bundle.memory.memories {
+        files.insert(
+            format!("memory/{}.json", record.memory_id),
+            serde_json::to_string(record).unwrap() + "\n",
+        );
+    }
+    for candidate in &bundle.memory.candidates {
+        files.insert(
+            format!("candidates/{}.json", candidate.candidate_id),
+            serde_json::to_string(candidate).unwrap() + "\n",
+        );
+    }
+    for session in &bundle.sessions {
+        files.insert(
+            format!("sessions/{}.json", session.session_id),
+            serde_json::to_string(session).unwrap() + "\n",
+        );
+    }
+    SerializedModel {
+        name: name.into(),
+        files,
+    }
+}
+
 #[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 enum Action {
@@ -293,6 +331,7 @@ fn main() {
     assert_eq!(corpus.initial.memory, MemorySnapshot::default());
     assert!(corpus.initial.sessions.is_empty());
     let mut states = BTreeMap::from([("initial".to_string(), corpus.initial.clone())]);
+    let mut serialized_models = vec![serialized("bootstrap", &corpus.initial)];
     let mut current = corpus.initial;
     let mut byte_records = 0;
     for step in &corpus.steps {
@@ -306,6 +345,7 @@ fn main() {
         let restored: Bundle = serde_json::from_slice(&raw).unwrap();
         assert_eq!(raw, serde_json::to_vec(&restored).unwrap());
         byte_records += 1;
+        serialized_models.push(serialized(&step.name, &next));
         states.insert(step.name.clone(), next.clone());
         current = next;
     }
@@ -333,6 +373,12 @@ fn main() {
         retained(&current, &rewritten).unwrap_err().code,
         "changed_session_history"
     );
+    if let Some(output) = std::env::args().nth(2) {
+        // Wrapper supplies a checked, ignored development output path. This is
+        // an inert object-map export, not canonical generation publication.
+        std::fs::write(output, serde_json::to_vec(&serialized_models).unwrap())
+            .expect("write inert design model bytes");
+    }
     println!(
         "PASS DESIGN pure Rust history: {} transitions; {} typed byte roundtrips; {} refused actions with retained input; 2 valid-graph history rewrites refused",
         corpus.steps.len(),

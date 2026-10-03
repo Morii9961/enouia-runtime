@@ -13,6 +13,7 @@ MARKER = "Enouia inert canonical-history design probe v1\n"
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cargo", help="Installed Cargo binary; no installation or download")
+    parser.add_argument("--emit-model-files", action="store_true", help="Emit inert exact model JSON bytes under target, not a Vault")
     args = parser.parse_args()
     cargo = args.cargo or shutil.which("cargo")
     if not cargo:
@@ -24,7 +25,7 @@ def main():
     if BUILD.exists() and (not marker.is_file() or marker.read_text(encoding="utf-8") != MARKER):
         raise SystemExit("refusing an unmarked existing build directory")
     BUILD.mkdir(parents=True, exist_ok=True)
-    for name in ("design-probe.txt", "src", "src/main.rs", "Cargo.toml"):
+    for name in ("design-probe.txt", "src", "src/main.rs", "Cargo.toml", "model-files-v1.json"):
         if not (BUILD / name).resolve().is_relative_to(BUILD.resolve()):
             raise SystemExit("generated design file escaped build directory")
     marker.write_text(MARKER, encoding="utf-8", newline="\n")
@@ -48,10 +49,12 @@ debug = false
 '''
     (BUILD / "Cargo.toml").write_text(manifest, encoding="utf-8", newline="\n")
     shutil.copyfile(ROOT / "scripts/design/canonical-history-v1.rs", BUILD / "src/main.rs")
-    subprocess.run([cargo, "run", "--offline", "--manifest-path", str(BUILD / "Cargo.toml"),
+    command = [cargo, "run", "--offline", "--manifest-path", str(BUILD / "Cargo.toml"),
                     "--target-dir", str(ROOT / "target/design-probes/build"), "--",
-                    str(ROOT / "tests/fixtures/backend/canonical-history-v1.json")], cwd=ROOT,
-                   env=os.environ.copy(), check=True)
+                    str(ROOT / "tests/fixtures/backend/canonical-history-v1.json")]
+    if args.emit_model_files:
+        command.append(str(BUILD / "model-files-v1.json"))
+    subprocess.run(command, cwd=ROOT, env=os.environ.copy(), check=True)
 
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@
     },
     {
       "path": "docs/BACKEND_IMPLEMENTATION_SEQUENCE_v1.md",
-      "sha256": "c6b4d9095fc48afe699d2f2e4446829fc9d7379e630886bdb5082d15147a4bb3"
+      "sha256": "667634db98cca8377b6a9ef67fe488383cd6c6c6f9547aa0409983276dea3cf8"
     },
     {
       "path": "docs/CANONICAL_HISTORY_v1_DESIGN.md",
@@ -89,6 +89,10 @@
     {
       "path": "docs/MEMORY_RETRIEVAL_v1.md",
       "sha256": "4b4158cb42b0fb522eb290b1a363024671d1c4ec89fddeb5d138a3a603c3e070"
+    },
+    {
+      "path": "docs/MODEL_STORAGE_BYTES_v1_DESIGN.md",
+      "sha256": "af394caff71b3778c3918a2bd820ac26fe521ec2147ac2167eee056113678af0"
     },
     {
       "path": "docs/ORCHESTRATION_TRACES_v1_DESIGN.md",
@@ -128,11 +132,11 @@
     },
     {
       "path": "scripts/check-backend-readiness.py",
-      "sha256": "0e3e41bef004dc655ffcbf04ce060836a53ede6c18b54fe514bbf1561b894dec"
+      "sha256": "baa838117fc3114624a5214286101d6597906a7a32daf587ef2f3d3aee6fc3a9"
     },
     {
       "path": "scripts/check-canonical-history-design.py",
-      "sha256": "e220f78d7fe09ac8dc05c993ce0c612b3a685fcd1bd97cd7535505d85fc2debc"
+      "sha256": "33324dc5c8df96ced8d39ca8398779f79832eb43d7fbe7ad19b17ba7af8a9a7a"
     },
     {
       "path": "scripts/check-command-digests-design.py",
@@ -141,6 +145,10 @@
     {
       "path": "scripts/check-disposable-lifecycle-design.py",
       "sha256": "01b01086f11adeee2add58cb192702c0a4753740e8aac38388c8548c781fce21"
+    },
+    {
+      "path": "scripts/check-model-storage-design.py",
+      "sha256": "52bf50dd78bb2a8f1aa2572a38759ccf2feb222e3ba2f6b226f0964d3ef5f2fb"
     },
     {
       "path": "scripts/check-orchestration-traces-design.py",
@@ -156,7 +164,7 @@
     },
     {
       "path": "scripts/design/canonical-history-v1.rs",
-      "sha256": "78755885bce805bc5c710f6fda2d592aba3e1ffa2baef98152ea7cc59524fb41"
+      "sha256": "547cb4a06e2513fcb5ac94e6056ca33de6855232a70c744febf6ccfbbdf207ec"
     },
     {
       "path": "tests/fixtures/backend/canonical-history-v1.json",
@@ -169,6 +177,10 @@
     {
       "path": "tests/fixtures/backend/disposable-lifecycle-v1.json",
       "sha256": "2106e0c66c6a4b507c462103b1ba6c6c57dc54551a8d7937e7e30806c5d265f8"
+    },
+    {
+      "path": "tests/fixtures/backend/model-storage-v1.json",
+      "sha256": "eb480b7bc25e2c1c90e82da1975e1d1ba6039225d4349b4931fc7e1b04f85727"
     },
     {
       "path": "tests/fixtures/backend/orchestration-traces-v1.json",

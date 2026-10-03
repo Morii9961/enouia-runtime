@@ -53,6 +53,9 @@ ARTIFACTS = {
     "scripts/design/canonical-history-v1.rs",
     "scripts/check-canonical-history-design.py",
     "tests/fixtures/backend/canonical-history-v1.json",
+    "docs/MODEL_STORAGE_BYTES_v1_DESIGN.md",
+    "scripts/check-model-storage-design.py",
+    "tests/fixtures/backend/model-storage-v1.json",
 }
 SCOPE = {
     "backendDesignOnly": True, "runtimePersistenceImplemented": False,
@@ -133,6 +136,7 @@ def check_changed_scope(baseline):
             "scripts/check-disposable-lifecycle-design.py", "tests/fixtures/backend/disposable-lifecycle-v1.json",
             "scripts/design/canonical-history-v1.rs", "scripts/check-canonical-history-design.py",
             "tests/fixtures/backend/canonical-history-v1.json",
+            "scripts/check-model-storage-design.py", "tests/fixtures/backend/model-storage-v1.json",
         }, "non-design change: " + name)
     return len(names)
 
