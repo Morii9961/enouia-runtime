@@ -1,0 +1,27 @@
+{
+  "name": "@enouia/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.15.0" },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test --test-isolation=none tests/*.test.mjs",
+    "check": "tsc --noEmit --strict --target es2022 --module esnext --moduleResolution bundler src/demo-state.ts",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build --no-bundle"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.12.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.12.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "vite": "8.3.1",
+    "typescript": "7.0.2"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "identifier": "main-window",
+  "description": "Only window controls for the bundled desktop demo.",
+  "windows": ["main"],
+  "permissions": [
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-close",
+    "core:window:allow-start-dragging"
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-04",
+  "scope": "fictional-frontend-demo",
+  "baseline": "854d52f73876a695861824c270a3117190201c3f",
+  "deliveries": [
+    {
+      "name": "Quiet Runtime design system.zip",
+      "sha256": "a9c5dc7db4804493507c3881d726107214883382eb19df88156f81aaf88b2829"
+    },
+    {
+      "name": "Enouia Runtime.html",
+      "sha256": "b34fc1c95ae333b83de323e3ac4ec3d7d2c230f3710223c411950101e3f345ed"
+    },
+    {
+      "name": "Quiet Runtime Tokens.html",
+      "sha256": "6111dceca835e495dceea06ef6d56bb0fd85cc94e98b16b9964fda1065bc8e94"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "apps/desktop/index.html",
+      "sha256": "e22a082fc6f8c8e6cff6526732d9ea5057196122a13ec4ccf64ec2cd0fb0dd0e"
+    },
+    {
+      "path": "apps/desktop/package-lock.json",
+      "sha256": "0d5c2323bb8d5b87140322b2aa3e38229c27a8af741c5a7209dc80f9c8c48ada"
+    },
+    {
+      "path": "apps/desktop/package.json",
+      "sha256": "854aeaad5a35c807fd923613b6efa479c0434ffab7419ad2da2e96831dbb5b21"
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "0ef0e998fe319b5a1981ae98ad849871336bf4c985fa7a6cf64fff50978f7a5e"
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.toml",
+      "sha256": "6ca368809261931204d86e4d47d701ec534988f05df4b73e4b527c0fa39dd646"
+    },
+    {
+      "path": "apps/desktop/src-tauri/build.rs",
+      "sha256": "6aeeab41bc35efde4e3c2b644a6248f7fc06d24ae30b75c0d33491cbb0c1fa31"
+    },
+    {
+      "path": "apps/desktop/src-tauri/capabilities/main-window.json",
+      "sha256": "fbd2c19c00026f26f562bd6a8a9b483928fed493361579f748e81d3567467c9a"
+    },
+    {
+      "path": "apps/desktop/src-tauri/icons/icon.ico",
+      "sha256": "ad0e50fb911ce0f6d22b522fbe11810a06f0583a9c97084a7bf0789a1411a53f"
+    },
+    {
+      "path": "apps/desktop/src-tauri/icons/icon.svg",
+      "sha256": "14eac827204d38d4f8b6bd4922b06e5078af81c2cc0e93a46423665e5e633cb4"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/main.rs",
+      "sha256": "f4b210a480a7c199174ef4ce1bd8564c66fa9d05f3c093078b026db5a3825c8b"
+    },
+    {
+      "path": "apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "8b8c01b817a0dc37bcb2f84b992b6c4bf350e684496fa6952782bb66cd5cfeb9"
+    },
+    {
+      "path": "apps/desktop/src/App.jsx",
+      "sha256": "2dc9d6008ae3c381d81ac44299703576d806ab54379adb5ba441ff1ef8f6a764"
+    },
+    {
+      "path": "apps/desktop/src/demo-data.js",
+      "sha256": "eef3723945af831f443b272e826c8628835e9aa1c309cf0e0f43c97231d220f5"
+    },
+    {
+      "path": "apps/desktop/src/demo-state.ts",
+      "sha256": "accbf83d8642e1de0c1a5b67992b171f1573699a407c5b029c289ca5ea17c850"
+    },
+    {
+      "path": "apps/desktop/src/main.jsx",
+      "sha256": "dcc967744ad7ec88cd7374835f9a90bf00fb9e4fc51d100334bcb6607d6dc4d1"
+    },
+    {
+      "path": "apps/desktop/src/quiet-runtime.css",
+      "sha256": "0fb648da72233a5ad745b2e22d7ea9455d97fc8ff824206ae2166cfcee5f1e42"
+    },
+    {
+      "path": "apps/desktop/src/screens/Activity.jsx",
+      "sha256": "4bc583c2eae99afd696c6de109ca31ac98d4897c57e5aca7c49d8c14b5289a49"
+    },
+    {
+      "path": "apps/desktop/src/screens/Context.jsx",
+      "sha256": "d1c90ffecfc861b63059644aa3b5e8f122d30b4447ed9e0df9aead3c481f1d48"
+    },
+    {
+      "path": "apps/desktop/src/screens/Home.jsx",
+      "sha256": "a2160a19fea5ec99869aed613131e882250c9a79b059055855417c05107aaa5d"
+    },
+    {
+      "path": "apps/desktop/src/screens/Memory.jsx",
+      "sha256": "11b999bf8cf219162cbfd862673fd53724025acc5da91a2d6c59e29831301c5d"
+    },
+    {
+      "path": "apps/desktop/src/screens/Runtime.jsx",
+      "sha256": "595ccaf8fbf9779f37295c43a4d378053683a40ff29d46c67162a3b0d42457a2"
+    },
+    {
+      "path": "apps/desktop/src/screens/Sessions.jsx",
+      "sha256": "2471d4301c1ec44d4c2b7bb200e26166adf0eefcfb7759952b38115fafff4aea"
+    },
+    {
+      "path": "apps/desktop/src/screens/Settings.jsx",
+      "sha256": "f68edbd499a21a1e17f40c329417b963006ab0d73e606d112e24fdc25d7a9791"
+    },
+    {
+      "path": "apps/desktop/src/window-controls.js",
+      "sha256": "b04c8d1c0fa0a470b662b6ecb1bf01085db935d58b83ea334b3c8b546afc89cb"
+    },
+    {
+      "path": "apps/desktop/vite.config.js",
+      "sha256": "2522274c6046519c760b0561114b56b7f63caef5d68fa19f9d10f3598cf83f9f"
+    }
+  ],
+  "layout": [
+    {
+      "width": 1280,
+      "height": 720,
+      "name": "Home",
+      "grid": "1070px",
+      "horizontalOverflow": false,
+      "page": "Home",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "name": "Memory",
+      "grid": "236px 532px 440px",
+      "horizontalOverflow": false,
+      "page": "Memory Vault",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "name": "Context",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Context Surface",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "name": "Sessions",
+      "grid": "260px 648px 300px",
+      "horizontalOverflow": false,
+      "page": "Sessions",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "name": "Activity",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Activity",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "name": "Runtime",
+      "grid": "240px 968px",
+      "horizontalOverflow": false,
+      "page": "Runtime Inspector",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "name": "Settings",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Settings",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "name": "Home",
+      "grid": "1240px",
+      "horizontalOverflow": false,
+      "page": "Home",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "name": "Memory",
+      "grid": "236px 692px 440px",
+      "horizontalOverflow": false,
+      "page": "Memory Vault",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "name": "Context",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Context Surface",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "name": "Sessions",
+      "grid": "260px 808px 300px",
+      "horizontalOverflow": false,
+      "page": "Sessions",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "name": "Activity",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Activity",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "name": "Runtime",
+      "grid": "240px 1128px",
+      "horizontalOverflow": false,
+      "page": "Runtime Inspector",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "name": "Settings",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Settings",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "Home",
+      "grid": "1720px",
+      "horizontalOverflow": false,
+      "page": "Home",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "Memory",
+      "grid": "236px 1172px 440px",
+      "horizontalOverflow": false,
+      "page": "Memory Vault",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "Context",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Context Surface",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "Sessions",
+      "grid": "260px 1288px 300px",
+      "horizontalOverflow": false,
+      "page": "Sessions",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "Activity",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Activity",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "Runtime",
+      "grid": "240px 1608px",
+      "horizontalOverflow": false,
+      "page": "Runtime Inspector",
+      "visibleSurfaceCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "Settings",
+      "grid": "none",
+      "horizontalOverflow": false,
+      "page": "Settings",
+      "visibleSurfaceCount": 1
+    }
+  ],
+  "sessions": [
+    {
+      "title": "Vault adapter planning",
+      "writeRows": [
+        "Turns 1–8mem_609c12…3f9f",
+        "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.Canonical · turn 6",
+        "Doesn’t want anime-style artwork anywhere in my interface.Candidate · turn 9",
+        "Frontend adopts the Quiet Runtime design language: tokens and primitives before screens.Candidate · turn 11",
+        "cap_1ab388…a1b8"
+      ]
+    },
+    {
+      "title": "Evening, reading notes",
+      "writeRows": [
+        "Prefers short, direct answers without extra explanation.Canonical · turn 1",
+        "Usually works past 23:00. Keep notifications quiet late at night.Canonical · turn 3",
+        "Started rereading Klara and the Sun. Finds its quiet attentiveness comforting.Canonical · turn 5",
+        "Plans to visit Hangzhou in the last week of October.Candidate · turn 7"
+      ]
+    },
+    {
+      "title": "B4 rehearsal review",
+      "writeRows": [
+        "Finished the B4 store hard-kill rehearsal: 23 writer terminations, and readers always kept a complete generation.Canonical · turn 2",
+        "Vault storage shape is still open: append-only log or complete generations.Superseded · turn 4"
+      ]
+    },
+    {
+      "title": "Vault adapter planning",
+      "writeRows": [
+        "Turns 1–8mem_609c12…3f9f",
+        "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.Canonical · turn 6",
+        "Doesn’t want anime-style artwork anywhere in my interface.Candidate · turn 9",
+        "Frontend adopts the Quiet Runtime design language: tokens and primitives before screens.Candidate · turn 11",
+        "cap_1ab388…a1b8"
+      ]
+    },
+    {
+      "title": "Evening, reading notes",
+      "writeRows": [
+        "Prefers short, direct answers without extra explanation.Canonical · turn 1",
+        "Usually works past 23:00. Keep notifications quiet late at night.Canonical · turn 3",
+        "Started rereading Klara and the Sun. Finds its quiet attentiveness comforting.Canonical · turn 5",
+        "Plans to visit Hangzhou in the last week of October.Candidate · turn 7"
+      ]
+    }
+  ],
+  "startup": {
+    "state": "process_started",
+    "heldForSeconds": 6,
+    "mainWindowPresent": true,
+    "title": "Enouia Runtime · Demo",
+    "scope": "hidden-startup-only-not-native-interaction-acceptance"
+  },
+  "binary": {
+    "profile": "debug",
+    "target": "x86_64-pc-windows-gnu",
+    "sha256": "a220760776cc7374eea580f084c2e70e35fc86f842eaa3ed91b35b07aa080aab"
+  },
+  "limitations": [
+    "not-native-interaction-acceptance",
+    "not-backend-integration",
+    "not-production-activation"
+  ]
+}

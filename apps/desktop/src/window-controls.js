@@ -1,0 +1,12 @@
+import { isTauri } from '@tauri-apps/api/core';
+
+export const nativeWindow = isTauri();
+
+export async function controlWindow(action) {
+  if (!nativeWindow) return;
+  const { getCurrentWindow } = await import('@tauri-apps/api/window');
+  const window = getCurrentWindow();
+  if (action === 'minimize') await window.minimize();
+  else if (action === 'maximize') await window.toggleMaximize();
+  else if (action === 'close') await window.close();
+}
