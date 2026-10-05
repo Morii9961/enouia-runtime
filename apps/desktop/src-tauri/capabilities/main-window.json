@@ -1,13 +1,18 @@
 {
   "identifier": "main-window",
-  "description": "The main window: window controls plus the Memory adapter commands. No fs, shell, http, dialog, opener, provider or Activity permission exists.",
-  "windows": ["main"],
+  "description": "The main window: window controls, the Memory adapter, explicit exit and its own login-startup setting. No fs, shell, http, dialog, opener, provider or Activity permission exists.",
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:window:allow-minimize",
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
     "core:window:allow-start-dragging",
     "allow-memory-call",
-    "allow-memory-pick"
+    "allow-memory-pick",
+    "allow-exit-app",
+    "allow-startup-status",
+    "allow-startup-set"
   ]
 }

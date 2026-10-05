@@ -3,7 +3,7 @@
 // shown comes from the Core. Memory and source text render as plain text
 // nodes, never as HTML or Markdown.
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { call, describe, newKey, type J } from "./client";
+import { CallError, call, describe, newKey, type J } from "./client";
 import { useAction, useLatestRead, type Failure } from "./hooks";
 
 /** A short local timestamp for a Core ISO time; the raw value on failure. */
@@ -76,7 +76,7 @@ export function Operation({ id, onDone, request = call }: { id: string; onDone?:
           {status.cancelRequested ? "Cancelling…" : "Cancel"}
         </button>
       )}
-      {status.error && <span className="mem-warn">{status.error.code}</span>}
+      {status.error && <span className="mem-warn">{describe(new CallError(status.error))}</span>}
       <ErrorBox error={cancel.error} />
     </div>
   );

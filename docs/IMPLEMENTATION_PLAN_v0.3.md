@@ -46,7 +46,7 @@ Do not collapse B4 into “unit tests pass,” B5 into “code merged,” or J1 
 
 ## 3. Track A — Runtime Core work packages
 
-2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): Track A is replaced by Enouia Memory's MV stages plus Runtime integration slices. The A1/A2 packages below are history for Runtime's frozen local Core crates; Memory implemented their equivalents in its MV-1 to MV-6. A3's owner path is `apps/desktop`, not `apps/windows`. Its remaining Runtime work is the pending parity rows in [Memory integration v1](MEMORY_INTEGRATION_v1.md).
+2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): Track A is replaced by Enouia Memory's MV stages plus Runtime integration slices. The A1/A2 packages below are history for Runtime's frozen local Core crates; Memory implemented their equivalents in its MV-1 to MV-6. A3's owner path is `apps/desktop`, not `apps/windows`. Its remaining Runtime work is the pending parity rows in [Memory integration v1](MEMORY_INTEGRATION_v1.md); the companion shell shipped in [ADR-026](adr/026-companion-shell.md).
 
 ### A1.1 Models and provenance
 

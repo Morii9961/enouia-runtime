@@ -367,6 +367,10 @@ function Import() {
   const list = useLatestRead();
   const refresh = useCallback(() => void list.run(() => call("import_list"), (r) => setImports(r.items)), [list.run]);
   useEffect(refresh, [refresh]);
+  // The Core refuses to start a file again while its earlier import is
+  // interrupted (`import.resume_existing`); that import resumes instead.
+  const earlier = preview?.duplicateOf ? imports.find((m) => m.importId === preview.duplicateOf) : undefined;
+  const interrupted = earlier?.status === "parsing" || earlier?.status === "archived";
   return (
     <>
       <Center title={TITLES.import} count={`${imports.length} recorded`} busy={action.busy}>
@@ -378,18 +382,21 @@ function Import() {
               if (!p) return;
               setPicked(p);
               setPreview(await call("import_preview", { importToken: p.token }));
+              refresh();
             })}>Choose file…</button>
           </div>
           <ErrorBox error={action.error} />
           {preview && (
             <div className="mem-card">
               <p><strong>{preview.displayName}</strong> · {preview.bytes} bytes · {preview.inputKind} · {preview.recognized ? `recognized, ${preview.units} units` : "unsupported format (still archived as is)"}</p>
-              {preview.duplicateOf && <p className="mem-warn">Identical to import {preview.duplicateOf}; it will be recorded as a duplicate.</p>}
+              {preview.duplicateOf && (interrupted
+                ? <p className="mem-warn">Identical to import {preview.duplicateOf}, which was interrupted. Resume it from the list below instead of starting it again.</p>
+                : <p className="mem-warn">Identical to import {preview.duplicateOf}; it will be recorded as a duplicate.</p>)}
               {preview.warnings.length > 0 && <p className="mem-muted">Warnings: {preview.warnings.join(", ")}</p>}
               <label className="mem-label" htmlFor="mem-alias">Account alias</label>
               <div className="mem-actions">
                 <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} pattern="[a-z0-9][a-z0-9_-]*" autoComplete="off" />
-                <button type="button" className="mem-button mem-primary" disabled={!picked || action.busy} onClick={() => void action.run(async (key) => {
+                <button type="button" className="mem-button mem-primary" disabled={!picked || action.busy || interrupted} onClick={() => void action.run(async (key) => {
                   const started = await call("import_start", { importToken: picked.token, accountAlias: alias }, key);
                   setOp(started.operationId);
                   setPicked(null);
@@ -398,7 +405,7 @@ function Import() {
               </div>
             </div>
           )}
-          {op && <Operation id={op} onDone={refresh} />}
+          {op && <Operation key={op} id={op} onDone={refresh} />}
           <ErrorBox error={list.error} />
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
@@ -410,9 +417,12 @@ function Import() {
                   <td>{m.counts.sources_created}</td>
                   <td>{m.counts.attachments_missing}</td>
                   <td>{m.warnings.join(", ")}</td>
-                  <td>{m.status === "parsing" && (
-                    <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async (key) =>
-                      setOp((await call("import_resume", { importId: m.importId, accountAlias: m.accountScope ?? alias }, key)).operationId))}>Resume</button>
+                  <td>{(m.status === "parsing" || m.status === "archived") && (
+                    <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async (key) => {
+                      setOp((await call("import_resume", { importId: m.importId, accountAlias: m.accountScope ?? alias }, key)).operationId);
+                      setPicked(null);
+                      setPreview(null);
+                    })}>Resume</button>
                   )}</td>
                 </tr>
               ))}
@@ -475,7 +485,7 @@ function VaultPanel() {
             </p>
           )}
           <ErrorBox error={action.error} />
-          {op && <Operation id={op} onDone={() => void refresh()} />}
+          {op && <Operation key={op} id={op} onDone={() => void refresh()} />}
           {restore && (
             <p className="mem-card">
               Backup is valid: commit #{restore.sequence} ({shortId(restore.commitId)}), {restore.files} files, {restore.sameVaultAsOpen ? "same Vault as the open one" : "from another Vault"}. An actual restore runs in the Memory CLI into an empty folder (<code>restore</code>).
@@ -486,10 +496,11 @@ function VaultPanel() {
       <Inspector>
         <h3 className="mem-h3">Components</h3>
         <ComponentList status={status} />
-        <h3 className="mem-h3">Three different stops</h3>
+        <h3 className="mem-h3">Four different stops</h3>
         <ul className="mem-list mem-muted">
+          <li><strong>Closing the window</strong> only hides it to the tray. Memory keeps running, and so does any operation.</li>
           <li><strong>Lock Vault</strong> cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Everything is refused until you unlock.</li>
-          <li><strong>Closing the window</strong> does the same release, keeps the window until it finishes, then exits Runtime. The Activity producer keeps its own schedule.</li>
+          <li><strong>Exit</strong> (tray or Settings) does the same release, then ends Runtime. The Activity producer keeps its own schedule.</li>
           <li><strong>Pausing sync</strong> does not exist yet: Memory has no sync before its gateway stage.</li>
         </ul>
       </Inspector>

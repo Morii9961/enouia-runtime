@@ -20,14 +20,16 @@ use enouia_memory_workspace::{Config, HostSurface, PickKind, Workspace};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, PoisonError, RwLock};
-use tauri::{State, WebviewWindow};
+use std::sync::{Arc, Mutex, PoisonError, RwLock};
+use tauri::{Manager, State, WebviewWindow};
 
-/// The embedded Core, the lifecycle gate and the closing latch.
+/// The embedded Core, the lifecycle gate, the closing latch and what the
+/// shell reports about itself in `workspace_status`.
 pub struct MemoryHost {
     core: Arc<Workspace>,
     gate: Arc<RwLock<()>>,
     closing: AtomicBool,
+    companion: Mutex<Value>,
 }
 
 impl MemoryHost {
@@ -36,12 +38,21 @@ impl MemoryHost {
             core: Arc::new(Workspace::new(Config::default())),
             gate: Arc::new(RwLock::new(())),
             closing: AtomicBool::new(false),
+            companion: Mutex::new(
+                json!({"tray": "absent", "hotkey": {"state": "absent"}, "overlay": "absent"}),
+            ),
         }
     }
 
-    /// True for the first close request only, so one shutdown runs.
+    /// True for the first close request only, so one shutdown runs. From
+    /// then on status reports `companion.exiting`, so every window can say
+    /// that Memory is finishing its operations.
     pub fn begin_close(&self) -> bool {
-        !self.closing.swap(true, Ordering::SeqCst)
+        let first = !self.closing.swap(true, Ordering::SeqCst);
+        if first {
+            self.publish_companion();
+        }
+        first
     }
 
     /// Open a root named on the command line by the owner. A rejected root
@@ -56,13 +67,65 @@ impl MemoryHost {
         let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
         self.core.shutdown();
     }
+
+    /// Forward one envelope through the lifecycle gate (blocking).
+    pub fn forward(&self, request: &Value) -> Value {
+        forward(&self.core, &self.gate, request)
+    }
+
+    /// Lock the Vault for the tray (blocking; run off the event loop).
+    pub fn lock_vault(&self) -> Value {
+        self.forward(&json!({
+            "schemaVersion": 1, "requestId": "req_00000000-0000-4000-8000-000000000001",
+            "command": "vault_lock", "idempotencyKey": null, "arguments": {},
+        }))
+    }
+
+    /// What the shell provides (tray, quick search, hotkey), echoed in status.
+    pub fn set_companion(&self, value: Value) {
+        *self
+            .companion
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = value;
+        self.publish_companion();
+    }
+
+    fn publish_companion(&self) {
+        // Held while publishing, so a late update cannot drop `exiting`.
+        let companion = self
+            .companion
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let mut value = companion.clone();
+        if self.closing.load(Ordering::SeqCst)
+            && let Some(fields) = value.as_object_mut()
+        {
+            fields.insert("exiting".to_owned(), json!(true));
+        }
+        self.core.set_companion(value);
+    }
 }
 
-/// Runtime windows mapped onto the Core's caller surfaces. Only the main
-/// window hosts Memory; Runtime has no quick-search window yet.
+fn forward(core: &Workspace, gate: &RwLock<()>, request: &Value) -> Value {
+    match self::gate(request) {
+        Gate::Exclusive => {
+            let _exclusive = gate.write().unwrap_or_else(PoisonError::into_inner);
+            core.call(request)
+        }
+        Gate::Shared => {
+            let _shared = gate.read().unwrap_or_else(PoisonError::into_inner);
+            core.call(request)
+        }
+        Gate::Open => core.call(request),
+    }
+}
+
+/// Runtime windows mapped onto the Core's caller surfaces: the main window
+/// is the full workspace; the quick-search window may only search.
 pub fn surface(window: &str) -> Option<HostSurface> {
     match window {
         "main" => Some(HostSurface::Workspace),
+        "overlay" => Some(HostSurface::QuickSearch),
         _ => None,
     }
 }
@@ -108,21 +171,16 @@ pub async fn memory_call(
     if !surface(window.label()).is_some_and(|s| s.allows(&request)) {
         return Err("permission_denied".to_owned());
     }
+    let locking = request.get("command").and_then(Value::as_str) == Some("vault_lock");
     let core = host.core.clone();
     let gate = host.gate.clone();
-    tauri::async_runtime::spawn_blocking(move || match self::gate(&request) {
-        Gate::Exclusive => {
-            let _exclusive = gate.write().unwrap_or_else(PoisonError::into_inner);
-            core.call(&request)
-        }
-        Gate::Shared => {
-            let _shared = gate.read().unwrap_or_else(PoisonError::into_inner);
-            core.call(&request)
-        }
-        Gate::Open => core.call(&request),
-    })
-    .await
-    .map_err(|_| "worker_failed".to_owned())
+    let response = tauri::async_runtime::spawn_blocking(move || forward(&core, &gate, &request))
+        .await
+        .map_err(|_| "worker_failed".to_owned())?;
+    if locking {
+        crate::companion::hide_quick_search(window.app_handle());
+    }
+    Ok(response)
 }
 
 /// Open a native dialog and hand the page a token for the choice.
@@ -177,9 +235,10 @@ mod tests {
     use enouia_memory_contract::workspace::{COMMANDS, is_write};
 
     #[test]
-    fn only_the_main_window_reaches_memory() {
+    fn windows_map_to_their_memory_surfaces() {
         assert_eq!(surface("main"), Some(HostSurface::Workspace));
-        for window in ["", "Main", "main ", "overlay", "activity", "foreign"] {
+        assert_eq!(surface("overlay"), Some(HostSurface::QuickSearch));
+        for window in ["", "Main", "main ", "Overlay", "activity", "foreign"] {
             assert_eq!(surface(window), None, "{window}");
         }
     }
@@ -189,6 +248,7 @@ mod tests {
         let spoof = json!({"command": "remember", "window": "main", "surface": "workspace"});
         assert!(!surface("overlay").is_some_and(|s| s.allows(&spoof)));
         assert!(surface("main").is_some_and(|s| s.allows(&spoof)));
+        assert!(surface("overlay").is_some_and(|s| s.allows(&json!({"command": "memory_search"}))));
     }
 
     #[test]
@@ -231,6 +291,26 @@ mod tests {
         let host = MemoryHost::new();
         assert!(host.begin_close());
         assert!(!host.begin_close());
+    }
+
+    #[test]
+    fn status_reports_an_exit_in_progress() {
+        let host = MemoryHost::new();
+        let companion = || {
+            host.forward(&json!({
+                "schemaVersion": 1, "requestId": "req_00000000-0000-4000-8000-000000000002",
+                "command": "workspace_status", "idempotencyKey": null, "arguments": {},
+            }))["result"]["companion"]
+                .clone()
+        };
+        host.set_companion(json!({"tray": "present", "hotkey": {"state": "registered"}}));
+        assert_eq!(companion()["exiting"], Value::Null);
+        assert!(host.begin_close());
+        assert_eq!(companion()["exiting"], true);
+        // A late hotkey report keeps the exit visible.
+        host.set_companion(json!({"tray": "present", "hotkey": {"state": "conflict"}}));
+        assert_eq!(companion()["exiting"], true);
+        assert_eq!(companion()["hotkey"]["state"], "conflict");
     }
 
     #[test]

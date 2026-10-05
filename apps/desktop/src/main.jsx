@@ -1,6 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
+import QuickSearch from './memory/QuickSearch.tsx';
+import { nativeWindow } from './window-controls.js';
 import './quiet-runtime.css';
 import './memory/memory.css';
 
@@ -18,6 +20,9 @@ class SurfaceBoundary extends React.Component {
   }
 }
 
+// The shell's quick-search window loads the same page with ?view=overlay.
+const quickSearch = nativeWindow && new URLSearchParams(location.search).get('view') === 'overlay';
+
 createRoot(document.getElementById('root')).render(
-  <React.StrictMode><SurfaceBoundary><App /></SurfaceBoundary></React.StrictMode>,
+  <React.StrictMode><SurfaceBoundary>{quickSearch ? <QuickSearch /> : <App />}</SurfaceBoundary></React.StrictMode>,
 );

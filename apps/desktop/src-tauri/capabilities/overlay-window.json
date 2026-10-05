@@ -1,0 +1,12 @@
+{
+  "identifier": "overlay-window",
+  "description": "Quick search may call only its search-scoped Memory channel and show or hide windows. It cannot pick files, exit, review, write or change startup.",
+  "windows": [
+    "overlay"
+  ],
+  "permissions": [
+    "allow-memory-call",
+    "allow-show-main",
+    "allow-hide-window"
+  ]
+}

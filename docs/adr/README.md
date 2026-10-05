@@ -169,3 +169,15 @@ The user wants official `claude_design` product tokens added to the existing Cla
 ## ADR-025 — Enouia Memory owns the Memory domain; Runtime hosts its local client (Adopted; adapter active)
 
 [ADR-025](025-enouia-memory-integration.md) makes the Enouia Memory repository the authority for Identity, Memory, review, Sessions, Vault, index, Context, the Provider path and every cloud stage. `apps/desktop/src-tauri` embeds `enouia-memory-workspace` at the exact revision in the [pin record](../integration/memory-pin.json), behind a Runtime-owned adapter (`memory_call`, `memory_pick`) described in [Memory integration v1](../MEMORY_INTEGRATION_v1.md). In the native shell, the Memory, Context and Sessions surfaces and the Vault status on Home and Settings use the pinned Core; browser previews, Activity and the Runtime Inspector stay fictional. Runtime's local Core crates and ADR-020 to 024 are frozen history. Activity & Usage stays independent and never passes through the adapter. A real-app smoke covers selected W01, W03 and W04 paths and the index-rebuild part of W02. Full Runtime-hosted W01–W05 acceptance, the tray, hotkey and overlay, login startup and the installer remain pending.
+
+Update (2026-10-05, ADR-026): the tray, hotkey and quick search, and login startup are implemented, and the smoke now covers W01–W04. Still pending: the installer and the rest of W05 (Narrator, a real contrast theme, an installed artifact, an actual sign-in start, and a tray menu clicked by hand).
+
+## ADR-026 — Companion shell for Memory's local client (Adopted; implemented)
+
+[ADR-026](026-companion-shell.md) completes Runtime as Memory's local client:
+- Closing a window hides it, and Exit (tray or Settings) shuts the Memory Core down before the process ends.
+- A tray offers Show, Lock and Exit.
+- Ctrl+Alt+M (or `--hotkey-key`) opens a quick-search window scoped to `memory_search` by native window identity, with its own minimal capability.
+- Opt-in login startup writes only Runtime's own Run value and starts in the tray with no Vault.
+
+Activity is untouched. The installer remains pending.

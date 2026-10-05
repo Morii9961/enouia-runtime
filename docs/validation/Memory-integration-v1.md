@@ -1,79 +1,93 @@
-# Memory integration v1 — local evidence
+# Memory integration — local evidence
 
-Date: 2026-10-05. Scope: [ADR-025](../adr/025-enouia-memory-integration.md). Runtime's desktop shell embeds Enouia Memory's workspace Core and connects the Memory, Context and Sessions surfaces. All data is synthetic, in temporary folders outside any Git working tree. No personal Vault was opened, and no Activity state, scheduler, account or deployment was touched.
+Date: 2026-10-05. Scope:
+- [ADR-025](../adr/025-enouia-memory-integration.md): Runtime embeds Enouia Memory's workspace Core and connects the Memory, Context and Sessions surfaces.
+- [ADR-026](../adr/026-companion-shell.md): tray, quick search, login startup and the four stops.
+- The pin bump to Memory's ADR-MEM-46 hardening.
+
+All data is synthetic, in temporary folders outside any Git working tree. No personal Vault was opened. No Activity state, scheduler, account or deployment was touched.
 
 ## Inputs
 
 | Item | Value |
 |---|---|
-| Enouia Memory revision | `a181308b3496c07281c1030cc53b7c9f1bbb7705` (ADR-MEM-45, `HostSurface`, integration surface manifest). Docs-only follow-ups after it do not change the surface. |
-| Memory surface aggregate | `a499b083913a4dc84b24eaccdb98fe4dd197cece6cac5589d2e1f1b9959aba3a` |
-| Toolchain | Rust 1.98.1 `x86_64-pc-windows-gnu`, MSYS2 UCRT64 GCC 16.1.0 (bundled SQLite), Node 24.15.0, Tauri 2.12.0, tauri-build 2.7.0, rfd 0.17.2, `@types/react`/`@types/react-dom` 19.3.0 (dev only) |
-| Lockfile change | Additions only: the seven `enouia-memory-*` packages at the pinned revision, plus `rusqlite` 0.40.2, `libsqlite3-sys` 0.38.2, `fallible-iterator`, `fallible-streaming-iterator`, `vcpkg`, `rfd`. The Memory closure resolves to the same versions as Memory's own lockfile. |
+| Enouia Memory revision | `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`. ADR-MEM-45 handoff, ADR-MEM-46 Core hardening, and resumable early-cancelled imports. The later Memory commit `71200a7` is test-only and logged as no Runtime action. |
+| Memory surface aggregate at the pin | `c49bbaa9f82c21a812a34a247e4a5595cd51707ab406bb8205444f8259a17212` |
+| Toolchain | Rust 1.98.1 `x86_64-pc-windows-gnu`, MSYS2 UCRT64 GCC 16.1.0 (bundled SQLite), Node 24.15.0, Tauri 2.12.0 with `tray-icon`, tauri-build 2.7.0, rfd 0.17.2, windows-sys 0.61.2, `@types/react`/`@types/react-dom` 19.3.0 (dev only) |
+| Lockfile | The Memory packages resolve at the pinned revision; only their `source` lines change between pins. The first integration added `rusqlite`/`libsqlite3-sys`/`rfd` and helpers. The companion added only the desktop crate's own `windows-sys` edge; the tray crates were already locked. The Memory closure has the same versions as Memory's own lockfile. |
 
 ## Checks
 
 | Command | Result |
 |---|---|
-| Memory: `cargo fmt --all -- --check`, `cargo test --workspace --locked`, `cargo clippy --workspace --all-targets --locked -- -D warnings` | Pass. 208 tests: the 201 before plus `HostSurface`, two boundary tests and four surface-manifest tests. |
-| Memory: `python tools/schema-check/check_schemas.py`, `python tools/integration/runtime_surface.py` | OK (34 schemas, 63 workspace messages); surface aggregate logged |
-| `apps/desktop/src-tauri`: `cargo fetch --locked` once online, then offline `cargo fmt -- --check`, `cargo test --locked`, `cargo clippy --locked --all-targets -- -D warnings` | Pass. 7 adapter unit tests (window scope, spoofed fields, gate classes, single close, picker kinds, `--memory-vault`, page client `WRITES` equal to the pinned contract's write commands) and 3 pinned-Core tests over every field the surfaces render. |
-| `apps/desktop`: `npm run check`, `npm test`, `npm run build`, `npm run desktop:build` | Pass. `tsc` covers `src/memory` and `demo-state.ts`. 9 Node tests (4 demo state, 5 Memory client). Release executable with embedded assets, no installer. |
-| `node scripts/check-domain-boundaries.mjs <metadata> --self-test` | Domain workspace passes with 0 Memory packages and 10 negative checks. Desktop workspace passes with 7 Memory packages at the pinned revision and 7 negative checks. |
-| `node scripts/check-memory-integration.mjs --self-test --memory-checkout <Memory checkout>` | `memory_pin_consistent`, 8 negative checks. The surface matches the manifest committed at the pinned revision (read with `git show`; the checkout's HEAD was a later docs-only commit). |
-| Root workspace: `cargo fmt --all -- --check`, `cargo test --workspace --locked`, `cargo clippy --workspace --all-targets --locked -- -D warnings`; `node scripts/check-activity-evidence.mjs --self-test` | Pass, 214 tests, unchanged by this change; evidence index unchanged (8 negative checks, 2 unresolved comparisons as before) |
-| Frozen readiness artifacts (`docs/backend/implementation-slices-v1.json`) | All 60 SHA-256 values still match. The checker's git-scope rule is historical and already failed before this change (see the [readiness note](Backend-design-readiness.md)). |
+| Memory at the pin: `cargo fmt --all -- --check`, `cargo test --workspace --locked`, `cargo clippy --workspace --all-targets --locked -- -D warnings`, `python tools/schema-check/check_schemas.py`, `python tools/integration/runtime_surface.py` | Pass. 217 tests; schemas OK; surface logged. |
+| `apps/desktop/src-tauri`: `cargo fetch --locked` once online, then offline `cargo fmt -- --check`, `cargo test --locked`, `cargo clippy --locked --all-targets -- -D warnings` | Pass. 12 unit tests and 3 pinned-Core tests over every field the surfaces render.<ul><li>Adapter: window scope including quick search, spoofed fields, gate classes, single exit, the exit reported in status, picker kinds, `--memory-vault`, and page `WRITES` equal to the pinned contract.</li><li>Companion: hotkey letter.</li><li>Startup: command quoting, no path disclosure, and a registry round trip on an isolated test key that is removed with its parent afterwards.</li></ul> |
+| `apps/desktop`: `npm run check`, `npm test`, `npm run build`, `npm run desktop:build` | Pass. `tsc` covers `src/memory` and `demo-state.ts`. 11 Node tests: 4 demo state and 7 Memory client (envelope, keys, errors, rule text including the import rules, picker, shell commands). Release executable with embedded assets, no installer. |
+| `node scripts/check-domain-boundaries.mjs <metadata> --self-test` | Domain workspace: 0 Memory packages, 10 negative checks. Desktop workspace: 7 Memory packages at the pinned revision, 7 negative checks. |
+| `node scripts/check-memory-integration.mjs --self-test --memory-checkout <Memory checkout>` | `memory_pin_consistent`, 8 negative checks. The surface equals the manifest committed at the pinned revision, read with `git show` while the checkout's HEAD was later. |
+| Root workspace: fmt, `cargo test --workspace --locked`, clippy; `node scripts/check-activity-evidence.mjs --self-test` | Pass: 214 tests, unchanged by this change; evidence index unchanged. |
+| Frozen readiness artifacts | All 60 SHA-256 values still match. The checker's git-scope rule is historical (see the [readiness note](Backend-design-readiness.md)). |
 
 ## Real-app check
 
-`node apps/desktop/e2e/memory-smoke.mjs <release exe> <vault> <synthetic.md> <out>` started the release executable with WebView2 remote debugging on loopback and a test-only WebView2 profile. It drove the real page over the DevTools protocol (real Tauri IPC, real pinned Core) and filled the process's own native Open dialog through UI Automation. The Vault was created first with the pinned revision's `enouia-memory init <dir> --confirm-new-vault`. **28/28 checks passed.**
+`node apps/desktop/e2e/memory-smoke.mjs <release exe> <vault> <synthetic.md> <out> K` started the release executable. **57/57 checks passed.** How it ran:
+
+- The app ran with WebView2 remote debugging on loopback and a test-only WebView2 profile.
+- The harness drove the real windows over the DevTools protocol (real Tauri IPC, real pinned Core). It identifies pages by native window label.
+- It filled the process's own native Open and folder dialogs through UI Automation.
+- After confirming the hotkey was registered, it pressed Ctrl+Alt+K once through SendInput.
+- The Vault was created first with the pinned revision's `enouia-memory init`.
+- No `EnouiaRuntime` Run value existed beforehand, and none remained afterwards. The isolated test registry keys were removed too.
 
 | Area | Checks |
 |---|---|
-| Data root | `D.no_default_root`: without `--memory-vault` nothing opens and the badge reads "No Vault open" |
+| Data root | Without `--memory-vault` nothing opens. |
 | Status and labels | <ul><li>The badge reads "Memory · Vault open · Activity & Inspector demo".</li><li>Home and Settings read `workspace_status`.</li><li>Activity and the Runtime Inspector stay visibly labelled fictional.</li></ul> |
-| W01 paths | <ul><li>Remember, then a plan dialog with the exact text and an 8-hex code, then confirm.</li><li>Source excerpt visible and labelled as data.</li><li>A correction becomes a candidate showing the current fact; it is rejected through a plan.</li><li>Import through the native file picker, operation succeeded.</li><li>Local Mock answer; inspect its context and the hash-verified actual request.</li><li>Compile preview shows "Preview only".</li><li>After exit and restart, the memory and session persist.</li></ul> |
-| W02 (partial) | Index rebuild runs as an operation and succeeds |
-| W03 | Lock refuses work with retryable `vault_locked`, then unlock. Closing the window shuts the Core down and the process exits with code 0. |
-| W04 | <ul><li>Markup in memory text renders as text: no element is created and no script runs.</li><li>`plugin:fs` and `plugin:shell` are refused by the ACL.</li><li>A path in place of a token is refused (`workspace.token`), as is an unknown picker kind (`workspace.pick_kind`).</li><li>Remote `fetch` is blocked by the CSP.</li><li>Neither the Vault path nor the import folder appears in page text.</li></ul> |
-| W05 (partial) | <ul><li>Ctrl+4 does nothing while a review dialog is open.</li><li>After the run, the WebView2 profile's autofill table is empty. Before autofill was disabled, an independent review found three typed Memory field values stored there.</li></ul> |
+| W01 | <ul><li>Remember, then a plan dialog with the exact text and an 8-hex code, then confirm.</li><li>Source excerpt shown as data.</li><li>A correction becomes a candidate, rejected through a plan.</li><li>Import through the native file picker.</li><li>A second Vault created through the native folder picker, then the first reopened through it.</li><li>Local Mock answer with its context and the hash-verified actual request.</li><li>Memories and the session persist across Exit and restart.</li></ul> |
+| W02 | <ul><li>Another process held the Vault writer lock, so a write failed as `busy` with Retry. After release, Retry resent the same key and exactly one candidate appeared.</li><li>Load more pages past 25 records.</li><li>A 3,000-conversation synthetic ChatGPT import was cancelled at once: the operation ended `cancelled` and Resume was offered. Choosing the same file again pointed to Resume with Start disabled. The resumed import succeeded.</li><li>Index rebuild runs as an operation.</li></ul> |
+| W03 | <ul><li>Lock refuses work (retryable `vault_locked`) and clears quick search.</li><li>Closing the window hides it while Memory keeps answering.</li><li>Exit ends the process (code 0) after the Core shuts down.</li><li>A second Runtime process could not open the same Vault (one Core per Vault).</li></ul> |
+| W04 | <ul><li>Markup renders as text.</li><li>`plugin:fs` and `plugin:shell` are refused.</li><li>A path in place of a token is refused, as is an unknown picker kind.</li><li>Remote `fetch` is blocked by the CSP.</li><li>No Vault or import path appears in page text.</li><li>Quick search finds approved memories, but `remember`, `review_confirm`, `forget_plan` and `vault_lock` from it answer `permission_denied` and write nothing. Its `memory_pick`, `exit_app` and `startup_set` are refused by the ACL.</li><li>The main window has no `show_main` grant.</li></ul> |
+| W05 (partial) | <ul><li>Ctrl+4 is inert under a review dialog.</li><li>Focus moves to Context after inspecting an answer.</li><li>Hotkey Ctrl+Alt+K registered. A second process reports the conflict.</li><li>The real key press showed quick search, empty. After focus left the input, Escape hid it and cleared its results.</li><li>`--autostart` starts hidden with no Vault, and quick search's "Open Enouia Runtime" shows the window.</li><li>The login-startup switch wrote exactly `"<exe>" --autostart` under `EnouiaRuntime` and removed it again.</li><li>The WebView2 profile kept no autofill copy of typed memory text.</li></ul> |
 
-Screenshots and `report.json` stayed in a temporary folder and were reviewed visually. They are not committed.
+Screenshots and `report.json` stayed in a temporary folder and were reviewed visually; they are not committed.
 
-## Independent review
+## Independent reviews
 
-A three-dimension review (adapter and checkers, frontend port fidelity, documentation across both repositories) produced findings, and each one got an adversarial verification. 18 were confirmed and fixed in this change:
+Each review had dimension reviewers, and every finding got an adversarial verification. Confirmed findings were fixed before the commits. Refuted findings were not acted on.
 
-- Lock or close during a verify or backup, which cannot be cancelled, no longer freezes status and progress: plain reads are ungated, and the window stays open until the Core has shut down.
-- `--memory-checkout` is bound to the pinned revision.
-- WebView2 autofill is disabled.
-- Shortcuts are inert under review dialogs.
-- Ranked search results are no longer drawn as a dated timeline (this also fixed duplicate React keys).
-- An unknown review count is shown as unknown.
-- The status-error text is consistent across surfaces.
-- Plan dialogs survive a native close while busy and are keyed per plan.
-- Settings rows no longer remount on every poll.
-- Focus moves to Context after inspecting an answer.
-- Truthful demo labels and keyboard hints.
-- Documentation:
-  - acceptance status is precise
-  - the continuous-work clause is not widened
-  - the runbook covers exact pins and the revision checkout
-  - the demo record names its commit
-  - Memory's register relation matches Runtime's register
-
-7 findings were refuted.
+- **Memory integration (ADR-025): 18 confirmed.**
+  - Lock and exit no longer freeze status and progress.
+  - The pin check is bound to the pinned revision.
+  - Autofill is disabled.
+  - Shortcuts are inert under dialogs.
+  - Ranked search is no longer drawn as a timeline.
+  - Unknown review counts are shown as unknown.
+  - Plan dialogs survive a native close.
+  - Truthful labels.
+  - Precise acceptance status in the docs.
+- **Memory Core (ADR-MEM-46): 6 confirmed, all fixed in Memory before Runtime adopted them.**
+  - A pre-existing unlock deadlock.
+  - A host lock that in-flight reads could hold.
+  - `close()` ordering.
+  - Panic after cancel.
+  - Readable reference-shell text.
+- **Companion shell (ADR-026): 9 confirmed, all fixed.**
+  - Every path to the main window hides quick search first.
+  - Escape works after a click moves focus off the input.
+  - Re-choosing an interrupted import points to Resume, and failed operations show owner text.
+  - Exit shows its progress in every window instead of an empty Vault.
+  - A disabled startup switch looks disabled.
+  - The smoke removes only a Run value it wrote, also on Ctrl+C, and needs an absolute exe.
+  - ADR-025, the register and the frontend doc state the current pending set.
+  - The untested tray menu is listed under Limits.
+- **Found during real-app runs and fixed:**
+  - Imports cancelled before their first batch looked finished (Memory).
+  - A progress view could show the previous operation's result (Runtime).
 
 ## Limits
 
-- **Not run on the Runtime host:**
-  - W02 cancel/retry/paging/error recovery
-  - the folder picker for opening or creating a Vault (the Vault came from `--memory-vault`; creating a Vault through a registered pick is covered by the pinned-Core test)
-  - one-Core-per-Vault exclusion
-  - Narrator, a real contrast theme, an installed artifact
-  - login startup, tray, global hotkey and the quick-search overlay
-
-  These remain in Memory's reference shell until ported (see [parity](../MEMORY_INTEGRATION_v1.md#parity-with-memorys-reference-shell)).
-- **Lock during a long operation:** the smoke test did not drive a lock or close while a verify or backup was running. The gate classes are unit-tested.
-- **Real data:** no real export, real Provider, backup destination or personal data was used.
-- **Fixed host:** checks ran on one Windows 11 development host.
+- **Not run:** Narrator, a real Windows contrast theme, an installed artifact, code signing and an actual sign-in start. The installer is pending (`bundle.active` is false).
+- **Tray:** no run clicked the notification area. The tray's Show and Exit call the same functions as the tested quick-search link and Settings Exit. The tray's Lock is reached only from the tray and is untested.
+- **Single-unit imports:** a single-file Markdown import is one batch. It holds the writer lock for its whole parse (23–48 s for a 6,000-section synthetic file), so other writes answer retryable `busy` meanwhile. Recorded in Memory's handoff as known Core behaviour.
+- **Lock during uncancellable work:** the smoke did not lock or exit while a verify or backup was running. The gate classes are unit-tested.
+- **Real data:** no real export, real Provider, backup destination or personal data was used. The checks ran on one Windows 11 development host.

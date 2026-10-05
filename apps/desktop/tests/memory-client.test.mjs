@@ -4,7 +4,7 @@
 // covered by src-tauri/tests/memory_core.rs.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CallError, call, describe, pick, retryable, setTransport } from '../src/memory/client.ts';
+import { CallError, call, describe, pick, retryable, setTransport, shell } from '../src/memory/client.ts';
 
 const KEY = /^[A-Za-z0-9_-]{16,128}$/;
 const REQUEST_ID = /^req_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -72,4 +72,30 @@ test('picks return a token, null on cancel, and CallError on refusal', async () 
   await assert.rejects(pick('backup_destination'), (err) => err instanceof CallError && err.error.retryable === false);
   assert.deepEqual(sent.map((s) => s.command), ['memory_pick', 'memory_pick', 'memory_pick']);
   assert.deepEqual(sent.map((s) => s.args), [{ kind: 'vault_root' }, { kind: 'import_file' }, { kind: 'backup_destination' }]);
+});
+
+test('rules that say more than their code read as owner text', () => {
+  const inUse = new CallError({ code: 'busy', retryable: false, rules: ['workspace.vault_in_use'] });
+  assert.equal(describe(inUse), 'This Vault is open in another app. Lock it or exit there first');
+  assert.equal(retryable(inUse), false);
+  const repo = new CallError({ code: 'invalid_request', retryable: false, rules: ['workspace.root_rejected', 'root.inside_repository'] });
+  assert.equal(describe(repo), 'That folder is inside a Git working tree, which cannot hold a Vault');
+  const unknown = new CallError({ code: 'invalid_request', retryable: false, rules: ['workspace.root_rejected', 'root.something_new'] });
+  assert.equal(describe(unknown), 'The request does not match the contract (workspace.root_rejected, root.something_new)');
+  assert.equal(describe('startup_different_installation'), 'Another Enouia Runtime installation owns login startup. Turn it off there first');
+  const again = new CallError({ code: 'invalid_request', retryable: false, rules: ['import.resume_existing'] });
+  assert.equal(describe(again), "This file's earlier import was interrupted. Resume it from the import list instead of starting it again");
+  const changed = new CallError({ code: 'invalid_request', retryable: false, rules: ['import.adapter_changed'] });
+  assert.match(describe(changed), /can no longer be resumed/);
+});
+
+test('shell commands are the declared window and startup commands', async () => {
+  const sent = recorder(() => ({ supported: true, enabled: false, state: 'disabled' }));
+  await shell.showMain();
+  await shell.hideWindow();
+  await shell.exit();
+  await shell.startupStatus();
+  await shell.startupSet(true);
+  assert.deepEqual(sent.map((s) => s.command), ['show_main', 'hide_window', 'exit_app', 'startup_status', 'startup_set']);
+  assert.deepEqual(sent[4].args, { enabled: true });
 });

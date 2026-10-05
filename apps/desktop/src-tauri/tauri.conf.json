@@ -20,9 +20,23 @@
       "decorations": false,
       "backgroundColor": "#0C1117",
       "generalAutofillEnabled": false
+    }, {
+      "label": "overlay",
+      "title": "Enouia Runtime · Quick search",
+      "url": "index.html?view=overlay",
+      "width": 560,
+      "height": 380,
+      "visible": false,
+      "alwaysOnTop": true,
+      "resizable": false,
+      "skipTaskbar": true,
+      "center": true,
+      "decorations": false,
+      "backgroundColor": "#0C1117",
+      "generalAutofillEnabled": false
     }],
     "security": {
-      "capabilities": ["main-window"],
+      "capabilities": ["main-window", "overlay-window"],
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'",
       "freezePrototype": true
     }

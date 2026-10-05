@@ -1,8 +1,8 @@
 // Memory status shared by the connected surfaces: one serial poll of
 // `workspace_status`, the header badge, the Home and Settings panels, and the
 // gate that keeps Vault-dependent surfaces closed until a Vault is open.
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { call, pick, type J } from "./client";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { call, pick, shell, type J } from "./client";
 import { useAction, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Tag, when } from "./ui";
 
@@ -24,8 +24,14 @@ const VAULT: Record<string, string> = { open: "Vault open", locked: "Vault locke
 
 export function vaultLabel(status: J): string {
   if (!status) return "Memory status unknown";
+  if (exiting(status)) return "Exiting, finishing operations";
   return VAULT[status.vault?.state] ?? String(status.vault?.state);
 }
+
+/** The shell reports an Exit in progress (tray or Settings, ADR-026). */
+export const exiting = (status: J): boolean => status?.companion?.exiting === true;
+
+const EXITING = "Enouia Runtime is exiting. Memory is cancelling imports and index work, letting a running verify or backup finish, and releasing the Vault.";
 
 /** Waiting for, or unable to read, the Memory status. */
 export function StatusPending() {
@@ -112,6 +118,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
   if (!status) {
     return <div className="mem-gate"><ErrorBox error={error} /><StatusPending /></div>;
   }
+  if (exiting(status)) return <div className="mem-gate"><p role="status" className="mem-muted">{EXITING}</p></div>;
   if (status.vault?.state !== "open") return <div className="mem-gate"><VaultConnect /></div>;
   return <>{children}</>;
 }
@@ -210,6 +217,70 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
         <span className="qr35">Manage</span>
         <span><button type="button" className="mem-link" onClick={openMemory}>Open the Memory Vault surface</button></span>
       </div>
+      <CompanionSettings status={status} />
     </div>
+  );
+}
+
+const HOTKEY: Record<string, string> = {
+  registered: "ready",
+  conflict: "taken by another program, so it is not registered",
+  unsupported: "not supported on this system",
+  absent: "not set up",
+};
+
+/** Window, quick search and login startup (ADR-026). */
+function CompanionSettings({ status }: { status: J }) {
+  const { refresh } = useStatus();
+  const [startup, setStartup] = useState<J>(null);
+  const [note, setNote] = useState("");
+  const action = useAction();
+  const leave = useAction();
+  const leaving = exiting(status) || leave.busy;
+  useEffect(() => { void action.run(async () => setStartup(await shell.startupStatus())); }, [action.run]);
+  const hotkey = status?.companion?.hotkey;
+  const enabled = startup?.enabled ?? false;
+  const locked = !startup?.supported || action.busy || startup?.state === "different_installation";
+  return (
+    <>
+      <div className="qr198 mem-section">Window and startup</div>
+      <Row k="Closing">Closing the window hides it to the tray; Memory keeps running. Exit from the tray or below.</Row>
+      <Row k="Quick search">
+        {hotkey?.combo ? <span className="qr217">{hotkey.combo}</span> : "—"} {HOTKEY[hotkey?.state] ?? hotkey?.state ?? ""}
+        {hotkey?.state === "conflict" && <span className="mem-muted"> · start Runtime with --hotkey-key and another letter</span>}
+      </Row>
+      <div className="qr216">
+        <span className="qr35" id="mem-startup-label">Start at login</span>
+        <span className="mem-actions">
+          <button type="button" role="switch" aria-checked={enabled} aria-labelledby="mem-startup-label" aria-describedby="mem-startup-description"
+            disabled={locked} className="qr215 mem-switch"
+            style={{ border: "1px solid " + (enabled ? "#9FC2D2" : "#3A4958"), background: enabled ? "#9FC2D2" : "transparent" }}
+            onClick={() => void action.run(async () => {
+              const next = !enabled;
+              setStartup(await shell.startupSet(next));
+              setNote(next ? "Runtime will start in the tray when you sign in." : "Runtime will not start at sign-in.");
+            })}>
+            <span className="qr214" style={{ left: enabled ? "23px" : "3px", background: enabled ? "#0C1117" : "#9BA9B6" }} />
+          </button>
+          <span id="mem-startup-description" className="mem-muted">
+            Off by default. Starts only the tray; no Vault is opened.
+            {startup?.state === "different_installation" && " Another installation owns this setting; turn it off there first."}
+            {startup && !startup.supported && " Not supported on this system."}
+          </span>
+        </span>
+      </div>
+      <p role="status" aria-atomic="true" className="mem-note">{note}</p>
+      <ErrorBox error={action.error} />
+      <div className="qr216">
+        <span className="qr35">Exit</span>
+        <span>
+          <button type="button" className="mem-button mem-danger" disabled={leaving}
+            onClick={() => void leave.run(async () => { await shell.exit(); await refresh(); })}>Exit Enouia Runtime</button>
+          <span className="mem-muted"> Releases the Vault first. The Activity producer keeps its own schedule.</span>
+        </span>
+      </div>
+      {leaving && <p role="status" className="mem-note">{EXITING}</p>}
+      <ErrorBox error={leave.error} />
+    </>
   );
 }

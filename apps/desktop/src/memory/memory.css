@@ -20,6 +20,7 @@
 .mem-button{height:28px;padding:0 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--primary);font-size:12.5px;cursor:pointer;transition:background-color 140ms ease}
 .mem-button:hover:not(:disabled){background:var(--elevated)}
 .mem-button:disabled{opacity:0.45;cursor:default}
+.mem-switch:disabled{opacity:0.45;cursor:default}
 .mem-primary{border-color:rgba(159,194,210,0.55);color:var(--ice)}
 .mem-danger{border-color:rgba(221,160,160,0.5);color:var(--error)}
 .mem-link{padding:0;border:0;background:transparent;color:var(--ice);font-size:12.5px;cursor:pointer}
@@ -64,3 +65,8 @@
 .mem-context{height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);min-height:0}
 .mem-context-main{min-height:0;overflow:auto;padding:20px 24px 28px;display:flex;flex-direction:column;gap:14px;border-right:1px solid var(--hairline)}
 .mem-state-line{margin:0;font-size:13px}
+.mem-section{padding-top:20px}
+.mem-quick{box-sizing:border-box;height:100vh;padding:18px 18px 14px;display:flex;flex-direction:column;gap:12px;background:var(--canvas);border:1px solid var(--border)}
+.mem-quick .qr22{margin:0}
+.mem-quick-results{list-style:none;margin:0;padding:0;flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.mem-quick-results li{padding:8px 6px;border-top:1px solid var(--hairline);display:flex;gap:8px;align-items:baseline}
