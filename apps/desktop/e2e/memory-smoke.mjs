@@ -28,12 +28,12 @@ const check = (id, ok, detail = '') => {
   console.log(`${ok ? 'PASS' : 'FAIL'} ${id} ${detail}`);
 };
 
-function launch(args) {
-  const child = spawn(exe, args, {
+function launch(args, { port = PORT, profile = 'webview2' } = {}) {
+  const child = spawn(exe, [...args, '--hotkey-key', 'Q'], {
     env: {
       ...process.env,
-      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${PORT} --remote-debugging-address=127.0.0.1`,
-      WEBVIEW2_USER_DATA_FOLDER: join(out, 'webview2'),
+      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
+      WEBVIEW2_USER_DATA_FOLDER: join(out, profile),
     },
     stdio: 'ignore',
   });
@@ -65,11 +65,11 @@ function session(url) {
   return { send, evaluate, close: () => ws.close() };
 }
 
-async function connect() {
+async function connect(overlay = false, port = PORT) {
   for (let i = 0; i < 160; i++) {
     try {
-      const targets = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
-      const page = targets.find((t) => t.type === 'page' && t.url.startsWith('http://tauri.localhost/'));
+      const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
+      const page = targets.find((t) => t.type === 'page' && t.url.startsWith('http://tauri.localhost/') && t.url.includes('view=overlay') === overlay);
       if (page) {
         const s = session(page.webSocketDebuggerUrl);
         await waitFor(s, "document.readyState === 'complete' && !!document.querySelector('#root > *')", 'page initialized');
@@ -130,6 +130,129 @@ const click = (s, sel, text) => s.evaluate(`__t.click(${JSON.stringify(sel)}, ${
 const set = (s, sel, value) => s.evaluate(`__t.set(${JSON.stringify(sel)}, ${JSON.stringify(value)})`);
 const dialogClosed = "!document.querySelector('dialog[open]')";
 
+// Actual Windows input to this test process; CDP key events cannot trigger
+// RegisterHotKey. Refuse input unless the foreground window belongs to it.
+function pressHotkey(pid) {
+  const script = `Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public class RuntimeKeys {
+  [StructLayout(LayoutKind.Sequential)] public struct KEYBDINPUT { public ushort vk, scan; public uint flags, time; public UIntPtr extra; }
+  [StructLayout(LayoutKind.Explicit, Size=40)] public struct INPUT { [FieldOffset(0)] public uint type; [FieldOffset(8)] public KEYBDINPUT key; }
+  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+  [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
+  [DllImport("user32.dll", SetLastError=true)] public static extern uint SendInput(uint count, INPUT[] inputs, int size);
+  public static void Press(uint expected) {
+    uint current; GetWindowThreadProcessId(GetForegroundWindow(), out current);
+    if (current != expected) throw new Exception("test process is not foreground");
+    var keys = new ushort[] {17, 18, 81, 81, 18, 17};
+    var inputs = new INPUT[6];
+    for (int i=0; i<6; i++) { inputs[i].type=1; inputs[i].key.vk=keys[i]; inputs[i].key.flags=i>=3 ? 2u : 0u; }
+    if (SendInput(6, inputs, Marshal.SizeOf(typeof(INPUT))) != 6) throw new Exception("SendInput failed");
+  }
+}
+'@
+[RuntimeKeys]::Press(${pid})`;
+  execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: 15000, windowsHide: true });
+}
+
+async function quickSearch(main, app) {
+  let status = await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('Q.hotkey_registered', status.hotkey.state === 'registered' && status.hotkey.combo === 'Ctrl+Alt+Q', JSON.stringify(status.hotkey));
+  await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
+  pressHotkey(app.pid);
+  await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => s.overlayVisible)", 'OS hotkey opened overlay');
+  const overlay = await connect(true);
+  await overlay.evaluate(`window.__focusTrace = []; ['focus','blur'].forEach(name => window.addEventListener(name, () => window.__focusTrace.push({name, at:Date.now()})));`);
+  check('Q.os_hotkey_opens_search', await overlay.evaluate("document.activeElement?.id === 'quick-query'"));
+  const search = async (text) => {
+    await overlay.evaluate("window.__focusTrace.push({name:'before-set', focused:document.hasFocus(), at:Date.now()})");
+    await set(overlay, '#quick-query', text);
+    await overlay.evaluate("window.__focusTrace.push({name:'after-set', query:document.querySelector('#quick-query').value, focused:document.hasFocus(), at:Date.now()})");
+    await overlay.evaluate("document.querySelector('form').requestSubmit()");
+    await overlay.evaluate("window.__focusTrace.push({name:'after-submit', query:document.querySelector('#quick-query').value, focused:document.hasFocus(), at:Date.now()})");
+  };
+  await search('paper sketchbook');
+  try { await waitFor(overlay, "[...document.querySelectorAll('.quick-results li')].some(row => row.textContent.includes('paper sketchbook'))", 'approved search result'); }
+  catch (error) {
+    check('Q.search_diagnostic', false, JSON.stringify(await overlay.evaluate("({query:document.querySelector('#quick-query').value, focused:document.hasFocus(), busy:document.querySelector('main').getAttribute('aria-busy'), trace:window.__focusTrace})")));
+    check('Q.window_diagnostic', false, JSON.stringify(await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')")));
+    await shot(overlay, '08-quick-search-failed');
+    throw error;
+  }
+  check('Q.approved_search', await overlay.evaluate("document.querySelectorAll('.quick-results li').length === 1"));
+  await shot(overlay, '08-quick-search');
+  await search('<img src=x');
+  await waitFor(overlay, has('<img src=x'), 'literal search markup');
+  check('Q.text_only', await overlay.evaluate("!document.querySelector('main img') && window.__xss === undefined"));
+
+  for (const command of ['workspace_status', 'memory_list', 'memory_detail', 'source_excerpt', 'remember', 'vault_lock']) {
+    const result = await overlay.evaluate(`__t.invoke('memory_call', { request: {...__t.request(${JSON.stringify(command)}, {}), window:'main', surface:'workspace'} })`);
+    check(`Q.scope_${command}`, result.err === 'permission_denied', JSON.stringify(result));
+  }
+  for (const command of ['memory_pick', 'shell_status', 'shell_search', 'shell_exit']) {
+    const result = await overlay.evaluate(`__t.invoke(${JSON.stringify(command)}, {kind:'vault_root'})`);
+    check(`Q.acl_${command}`, !!result.err && /not allowed|permission_denied/.test(result.err), JSON.stringify(result));
+  }
+  // Delay a real Core response, edit while pending, then release it. A stale
+  // result must not repopulate the page. This is synthetic delivery timing.
+  const heldSearch = async () => {
+    await set(overlay, '#quick-query', 'paper sketchbook');
+    await overlay.evaluate(`(() => { window.__held = false;
+      const callbacks = window.__TAURI_INTERNALS__.callbacks;
+      const before = new Set(callbacks.keys());
+      document.querySelector('form').requestSubmit();
+      const added = [...callbacks.keys()].filter(id => !before.has(id));
+      if (added.length !== 2) throw new Error('search must register its success/error callbacks');
+      const original = callbacks.get(added[0]);
+      callbacks.set(added[0], result => { window.__held = true; window.__release = () => original(result); }); })()`);
+  };
+  await heldSearch();
+  await waitFor(overlay, 'window.__held === true', 'delayed search');
+  await set(overlay, '#quick-query', 'new query');
+  await overlay.evaluate('window.__release()');
+  await sleep(300);
+  const edited = await overlay.evaluate("({query:document.querySelector('#quick-query').value, rows:document.querySelectorAll('.quick-results li').length, error:!!document.querySelector('[role=alert]'), focused:document.hasFocus(), trace:window.__focusTrace})");
+  check('Q.edit_discards_delayed_result', edited.rows === 0 && !edited.error && (edited.query === 'new query' || (!edited.focused && edited.query === '')), JSON.stringify(edited));
+  await heldSearch();
+  await waitFor(overlay, 'window.__held === true', 'delayed hidden search');
+  await overlay.send('Input.dispatchKeyEvent', { type:'keyDown', key:'Escape', code:'Escape', windowsVirtualKeyCode:27 });
+  await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => !s.overlayVisible)", 'escape hides');
+  await overlay.evaluate('window.__release()');
+  await sleep(300);
+  check('Q.hide_discards_delayed_result', await overlay.evaluate("document.querySelector('#quick-query').value === '' && !document.querySelector('.quick-results li')"));
+  await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
+  await search('paper sketchbook');
+  await waitFor(overlay, "[...document.querySelectorAll('.quick-results li')].some(row => row.textContent.includes('paper sketchbook'))", 'search before lock');
+  await main.evaluate("__t.invoke('memory_call', {request:__t.request('vault_lock',{})})");
+  await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => !s.overlayVisible)", 'lock hides');
+  check('Q.lock_clears_text', await overlay.evaluate("document.querySelector('#quick-query').value === '' && !document.querySelector('.quick-results li')"));
+  await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
+  await search('paper sketchbook');
+  await waitFor(overlay, has('The Vault is not open, or it is locked'), 'locked search refusal');
+  check('Q.locked_error_visible', true);
+  await overlay.evaluate("__t.click('button','Open main window')");
+  await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => s.visible && !s.overlayVisible)", 'overlay returns to main');
+  check('Q.open_main', true);
+  await main.evaluate("__t.invoke('memory_call', {request:__t.request('vault_unlock',{})})");
+  overlay.close();
+
+  const rival = launch([], { port: PORT + 1, profile: 'conflict-webview2' });
+  const other = await connect(false, PORT + 1);
+  const conflict = await other.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('Q.conflict_reported', conflict.hotkey.state === 'conflict', JSON.stringify(conflict.hotkey));
+  await nav(other, 'Settings');
+  await waitFor(other, has('shortcut already in use'), 'visible conflict');
+  await click(other, '[aria-label="Windows shell"] button', 'Open Quick Search');
+  await waitFor(other, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => s.overlayVisible)", 'conflict fallback');
+  check('Q.conflict_has_manual_fallback', true);
+  await other.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+  const exit = await Promise.race([rival.exited, sleep(20000).then(() => 'timeout')]);
+  check('Q.conflict_process_exits', exit === 0);
+  other.close();
+  await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
+}
+
 // Fill the native Open dialog of `pid` through UI Automation: the file name
 // edit (control 1148) gets the path by WM_SETTEXT, then its Open button
 // (control 1) gets BM_CLICK. Only windows of this process are touched.
@@ -173,6 +296,15 @@ async function acceptFirstCandidate(s, expected, probeShortcut = false) {
 }
 
 async function main() {
+  if (process.argv[6] === '--quick-only') {
+    const app = launch(['--memory-vault', vault]);
+    const s = await connect();
+    await quickSearch(s, app);
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    await app.exited;
+    s.close();
+    return;
+  }
   // No default root: without --memory-vault nothing is opened.
   let app = launch([]);
   let s = await connect();
@@ -311,6 +443,7 @@ async function main() {
   await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
   const shown = await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
   check('W03.main_restored', shown.visible === true);
+  await quickSearch(s, app);
   await nav(s, 'Settings');
   await click(s, '[aria-label="Windows shell"] button', 'Exit Runtime');
   const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
@@ -334,6 +467,8 @@ async function main() {
   app = launch(['--memory-vault', vault]);
   s = await connect();
   await waitFor(s, has('Memory · Vault open'), 'reopened');
+  const rebound = await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('Q.hotkey_released_on_exit', rebound.hotkey.state === 'registered', JSON.stringify(rebound.hotkey));
   await nav(s, 'Memory');
   await rail(s, 'Current memories');
   await waitFor(s, has('paper sketchbook'), 'memory after restart');

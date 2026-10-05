@@ -47,12 +47,13 @@ On this restricted host, Vite/Tauri builds require approved execution outside th
 - Reduced motion disables ring animation and all transitions; system preference is respected.
 - The pause switch is explicitly a demo. It does not call `activity_set_paused`.
 - Window buttons work only inside Tauri and are disabled in browser preview.
+- Native Ctrl+Alt+M opens read-only Quick Search. Tray and Settings also open it. Escape or blur hides and clears it; Open main window returns to the existing workspace. Shortcut conflicts are visible in Settings. The full [scope and lifecycle](MEMORY_INTEGRATION_v1.md) remain host-owned.
 
 ## Backend integration boundary
 
 The view fixtures in `demo-data.ts` and `DemoMemory` in `demo-state.ts` are **not canonical Rust DTOs**. Never forward them as backend requests. The Memory boundary has been replaced by the typed Memory client (`src/memory/client.ts`) over the adapter (ADR-025); Activity and Runtime Inspector still keep the demo boundary until their handlers and ADR activation gates pass. Canonical IDs, source records, timestamps, durability and acknowledgements must be backend-owned. Only an acknowledged result may update the production UI; errors/disconnects must retain pending state. Proposed v2 jobs and read contracts cannot be activated by simply copying the v1 handoff mapping.
 
-Keep Activity & Usage outside Memory/Context. The delivered Activity page is an event timeline, not the future three-source usage calendar. The native tray is implemented with [local lifecycle evidence](validation/Tray-lifecycle-v1.md). Global hotkey/overlay, login startup, real Provider continuation (Memory MV-7), live Activity control, migration, installer/signing and production activation remain separate integration work. This slice does not claim A3/J1 acceptance.
+Keep Activity & Usage outside Memory/Context. The delivered Activity page is an event timeline, not the future three-source usage calendar. The native tray and global hotkey/overlay are implemented with [tray lifecycle](validation/Tray-lifecycle-v1.md) and [Quick Search evidence](validation/Quick-search-v1.md). Login startup, real Provider continuation (Memory MV-7), live Activity control, migration, installer/signing and production activation remain separate integration work. This slice does not claim A3/J1 acceptance.
 
 ## Reference APIs
 

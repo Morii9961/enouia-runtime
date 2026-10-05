@@ -5,6 +5,7 @@
 //! network, provider or Activity command, and closing it never pauses the
 //! independently installed Activity producer.
 
+mod hotkey;
 mod memory;
 mod shell;
 
@@ -25,6 +26,8 @@ fn main() {
             memory::memory_pick,
             shell::shell_status,
             shell::shell_show,
+            shell::shell_search,
+            shell::shell_hide,
             shell::shell_exit
         ])
         .setup(|app| {
@@ -36,6 +39,10 @@ fn main() {
             // the last access point unless its tray was installed.
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
+                if window.label() == "overlay" {
+                    shell::hide_overlay(window.app_handle());
+                    return;
+                }
                 if window
                     .app_handle()
                     .state::<shell::ShellState>()
@@ -43,6 +50,9 @@ fn main() {
                 {
                     let _ = window.hide();
                 }
+            }
+            if matches!(event, WindowEvent::Focused(false)) && window.label() == "overlay" {
+                shell::hide_overlay(window.app_handle());
             }
         })
         .build(tauri::generate_context!())

@@ -17,16 +17,17 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 ## Adapter (`apps/desktop/src-tauri`)
 
 - **State.** One `Workspace::new(Config::default())` per process, held by `MemoryHost` in `src/memory.rs`.
-- **`memory_call(request)`** forwards one workspace IPC v1 envelope. Core errors come back inside the envelope (`kind: "memory_error"`, `{code, retryable, rules}`). Host failures are the plain strings `permission_denied` and `worker_failed`.
+- **`memory_call(request)`** forwards one workspace IPC v1 envelope. Core errors come back inside the envelope (`kind: "memory_error"`, `{code, retryable, rules}`). Host failures are plain strings: `permission_denied`, `worker_failed`, `runtime_closing`, `runtime_busy`.
 - **`memory_pick(kind)`** opens a native dialog for `import_file`, `vault_root`, `backup_destination` or `export_folder` and registers the choice with the Core. It returns `{token, displayName, bytes}`, `{cancelled: true}` or `{error}`. The page never receives a path.
-- **Scope.** The native window label maps to Memory's `HostSurface`. Only `main` maps, to `HostSurface::Workspace`; every other label is refused. Request fields cannot widen the scope.
+- **Scope.** Native `main` maps to `HostSurface::Workspace`, and `overlay` to `HostSurface::QuickSearch` (only `memory_search`). Every other label is refused. Request fields cannot widen the scope. The picker remains main-only.
 - **Threading and lifecycle.**
   - Every call runs on `spawn_blocking`.
   - `vault_open`, `vault_create`, `vault_lock` and `vault_unlock` take a gate exclusively. Commits and commands that start operations (import, index rebuild, verify, backup) take it shared, so no work can start on a Vault handle that is closing.
   - Plain reads are not gated. While a lock waits for verify or backup, which cannot be cancelled, status and progress still answer.
+  - Vault lifecycle admission hides and clears the overlay before its worker starts. A counted guard refuses search and overlay reopening through all queued lifecycle transitions; status and progress remain available.
   - Closing hides the window to the installed tray and retains the same Core. Tray or Settings Exit starts one asynchronous shutdown: new work is refused, status/progress remain available, import and index work are cancelled, verify/backup are joined, and the Vault and index are released before exit. A failed shutdown worker restores a recoverable window.
 - **Data root.** No root is remembered or opened by default. The owner opens or creates one through the native dialog; creating one needs the typed phrase `create new vault`. The owner can also name a root with `--memory-vault <dir>`. The root must not sit under a Git working tree, a sync folder, Program Files or Windows, and the Core refuses such roots.
-- **Permissions.** `build.rs` declares `memory_call`, `memory_pick` and the main-only host lifecycle commands `shell_status`, `shell_show`, `shell_exit`. The `main-window` capability grants these plus window controls; there is no filesystem, process execution, HTTP, dialog, opener, provider or Activity plugin permission. The CSP is `default-src 'self'` with `connect-src ipc: http://ipc.localhost`, `form-action 'none'`, `base-uri 'none'` and `freezePrototype`. WebView2 general autofill is off (`generalAutofillEnabled: false`), and Memory inputs set `autocomplete="off"`, so the WebView profile keeps no copy of typed memory text.
+- **Permissions.** `build.rs` declares the two Memory commands and host window commands. `main-window` grants Memory/picker, window controls, `shell_status`, `shell_show`, `shell_search` and `shell_exit`. `quick-search` grants only scoped `memory_call`, `shell_show` (existing main), `shell_hide` (itself) and event listen/unlisten for clearing. Native identities are checked again in Rust. There is no filesystem, process execution, HTTP, dialog, opener, provider or Activity plugin permission. The CSP is `default-src 'self'` with `connect-src ipc: http://ipc.localhost`, `form-action 'none'`, `base-uri 'none'` and `freezePrototype`. WebView2 general autofill is off on both windows, and Memory inputs set `autocomplete="off"`, so the WebView profile keeps no copy of typed memory text.
 - **No copies.** The adapter writes no logs and persists nothing. Memory text exists only in the Vault and in the page's memory while a surface shows it.
 
 ## Frontend (`apps/desktop/src`)
@@ -43,6 +44,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
   - **Context.** Compile preview, the inclusion and exclusion decisions, and dispatches with the verified actual request.
   - **Home and Settings** show the Vault state and Memory's component states from `workspace_status`. Memory's fixed `activity` row is not shown; Activity keeps its own surface. The Runtime Inspector's component descriptions stay documentation references.
 - **Rendering.** Memory and source text render as plain text nodes only. There is no Markdown or HTML rendering and no link navigation. Source excerpts are labelled as data, not instructions.
+- **Quick Search** (`src/shell/QuickSearch.tsx`). Ctrl+Alt+M opens a hidden native window for literal search of approved memories, limited to eight current results. Escape, blur, close, returning to main and Vault lifecycle transitions clear query/results and invalidate delayed reads. It provides no detail, source excerpt, picker or mutation. The tray and Settings provide manual opening when a shortcut conflicts. `--hotkey-key <single ASCII letter>` explicitly selects another Ctrl+Alt combination for that launch; the default is M and no preference is persisted. The owned Windows message thread unregisters and joins on exit. Settings and Core companion status report registration, conflict or unavailability.
 
 ## Build and checks
 
@@ -75,7 +77,7 @@ cd ../../..
 node scripts/check-memory-integration.mjs --self-test
 ```
 
-`apps/desktop/e2e/memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>` drives the built executable over WebView2 remote debugging on loopback, which is enabled only in that test's environment. It uses a synthetic Vault created outside any Git working tree, for example with the pinned Memory revision's `enouia-memory init <dir> --confirm-new-vault`, plus a synthetic Markdown file for the import picker. Screenshots and `report.json` go to the output folder, which is not committed. See the [validation report](validation/Memory-integration-v1.md).
+`apps/desktop/e2e/memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>` drives the built executable over WebView2 remote debugging on loopback, which is enabled only in that test's environment. It uses a synthetic Vault created outside any Git working tree, for example with the pinned Memory revision's `enouia-memory init <dir> --confirm-new-vault`, plus a synthetic Markdown file for the import picker. It tests Ctrl+Alt+Q via Windows input only while its own process is foreground, and launches a second isolated test process for shortcut conflict. An optional `--quick-only` repeats the overlay checks against a synthetic Vault already seeded by the full smoke. Screenshots and `report.json` go to the output folder, which is not committed. See the [validation report](validation/Memory-integration-v1.md).
 
 ## Bumping the pin
 
@@ -96,7 +98,7 @@ Never commit a path dependency, branch, `[patch]` or a lockfile produced by a lo
 | Typed workspace channel, picker tokens, window scope, lifecycle, exit shutdown | Implemented |
 | Memory explorer, review, remember, correction, forget/purge plans, import, Vault and recovery, Sessions, Context | Implemented |
 | Tray (show, lock, exit), close-to-tray | Implemented; [local lifecycle evidence](validation/Tray-lifecycle-v1.md). Physical tray menu interaction and shutdown during a long verify/backup remain unverified. |
-| Global hotkey and quick-search overlay (`HostSurface::QuickSearch`) | Pending |
+| Global hotkey and quick-search overlay (`HostSurface::QuickSearch`) | Implemented; [local native evidence](validation/Quick-search-v1.md), including OS input, conflict, scoped refusals, clear-on-hide and exit/re-registration |
 | Opt-in login startup, current-user installer, upgrade and downgrade rules | Pending (`bundle.active` is false) |
 | Runtime-hosted W01–W05 acceptance | Partial. The smoke covers selected W01, W03 and W04 paths and index rebuild (W02). Still pending: cancel/retry/paging/error recovery (W02), the Vault folder picker (W01), one-Core-per-Vault (W03), and Narrator, contrast theme and installed artifact (W05). |
 

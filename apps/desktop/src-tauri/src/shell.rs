@@ -1,11 +1,12 @@
 //! Runtime-owned window/tray lifecycle; no Activity or Memory domain logic.
+use crate::hotkey::Hotkey;
 use crate::memory::MemoryHost;
 use serde_json::{Value, json};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, PoisonError};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
-use tauri::{AppHandle, Manager, State, WebviewWindow};
+use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
 
 #[derive(Default)]
 pub struct ShellState {
@@ -13,6 +14,8 @@ pub struct ShellState {
     shutdown_complete: AtomicBool,
     locking: AtomicBool,
     error: Mutex<Option<&'static str>>,
+    hotkey: Mutex<Option<Hotkey>>,
+    hotkey_status: Mutex<Value>,
 }
 
 impl ShellState {
@@ -34,6 +37,8 @@ impl ShellState {
             "closeBehavior": "hide", "closing": host.is_closing(),
             "locking": self.locking.load(Ordering::SeqCst),
             "error": *self.error.lock().unwrap_or_else(PoisonError::into_inner),
+            "overlay": "available",
+            "hotkey": self.hotkey_status.lock().unwrap_or_else(PoisonError::into_inner).clone(),
         })
     }
 }
@@ -43,11 +48,45 @@ fn allows_shell(window: &str) -> bool {
 }
 
 pub fn show_main(app: &AppHandle) -> Result<(), String> {
+    hide_overlay(app);
     let window = app.get_webview_window("main").ok_or("window_unavailable")?;
     window.show().map_err(|_| "window_failed")?;
     window.unminimize().map_err(|_| "window_failed")?;
     window.set_focus().map_err(|_| "window_failed")?;
     Ok(())
+}
+
+pub fn hide_overlay(app: &AppHandle) {
+    if let Some(window) = app.get_webview_window("overlay") {
+        let _ = window.emit("overlay-clear", ());
+        let _ = window.hide();
+    }
+}
+
+pub fn show_overlay(app: &AppHandle) -> Result<(), String> {
+    if app.state::<MemoryHost>().is_closing()
+        || app.state::<ShellState>().locking.load(Ordering::SeqCst)
+    {
+        return Err("runtime_closing".into());
+    }
+    if app.state::<MemoryHost>().lifecycle_busy() {
+        return Err("runtime_busy".into());
+    }
+    let window = app
+        .get_webview_window("overlay")
+        .ok_or("window_unavailable")?;
+    let _ = window.emit("overlay-clear", ());
+    window.show().map_err(|_| "window_failed")?;
+    window.set_focus().map_err(|_| "window_failed")?;
+    Ok(())
+}
+
+fn publish_companion(app: &AppHandle) {
+    let state = app.state::<ShellState>();
+    app.state::<MemoryHost>().set_companion(json!({
+        "tray": "present", "overlay": "available",
+        "hotkey": state.hotkey_status.lock().unwrap_or_else(PoisonError::into_inner).clone()
+    }));
 }
 
 /// One asynchronous shutdown; the message loop remains responsive while Core
@@ -66,10 +105,21 @@ pub fn request_exit(app: &AppHandle) {
     let host = host.inner().clone();
     tauri::async_runtime::spawn(async move {
         let worker = host.clone();
-        if tauri::async_runtime::spawn_blocking(move || worker.shutdown())
-            .await
-            .is_ok()
-        {
+        let worker_app = app.clone();
+        if matches!(
+            tauri::async_runtime::spawn_blocking(move || {
+                worker.shutdown();
+                let state = worker_app.state::<ShellState>();
+                let mut owned = state.hotkey.lock().unwrap_or_else(PoisonError::into_inner);
+                if let Some(hotkey) = owned.as_mut() {
+                    hotkey.stop()?;
+                }
+                *owned = None;
+                Ok::<(), &'static str>(())
+            })
+            .await,
+            Ok(Ok(()))
+        ) {
             app.state::<ShellState>()
                 .shutdown_complete
                 .store(true, Ordering::SeqCst);
@@ -89,6 +139,7 @@ fn request_lock(app: &AppHandle) {
     if state.locking.swap(true, Ordering::SeqCst) {
         return;
     }
+    hide_overlay(app);
     state.error(None);
     let host = app.state::<MemoryHost>().inner().clone();
     let app = app.clone();
@@ -113,6 +164,11 @@ fn dispatch(app: &AppHandle, action: &str) {
             }
         }
         "lock" => request_lock(app),
+        "search" => {
+            if show_overlay(app).is_err() {
+                app.state::<ShellState>().error(Some("window_failed"));
+            }
+        }
         "exit" => request_exit(app),
         _ => {}
     }
@@ -139,8 +195,9 @@ fn tray_icon() -> tauri::image::Image<'static> {
 pub fn install(app: &tauri::App) -> tauri::Result<()> {
     let show = MenuItem::with_id(app, "show", "Show Enouia Runtime", true, None::<&str>)?;
     let lock = MenuItem::with_id(app, "lock", "Lock Memory Vault", true, None::<&str>)?;
+    let search = MenuItem::with_id(app, "search", "Quick Search", true, None::<&str>)?;
     let exit = MenuItem::with_id(app, "exit", "Exit Enouia Runtime", true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&show, &lock, &exit])?;
+    let menu = Menu::with_items(app, &[&show, &search, &lock, &exit])?;
     TrayIconBuilder::with_id("runtime")
         .icon(tray_icon())
         .tooltip("Enouia Runtime")
@@ -163,9 +220,41 @@ pub fn install(app: &tauri::App) -> tauri::Result<()> {
     app.state::<ShellState>()
         .tray_ready
         .store(true, Ordering::SeqCst);
-    app.state::<MemoryHost>().set_companion(json!({
-        "tray": "present", "overlay": "unavailable", "hotkey": {"state": "unavailable"}
-    }));
+    let args = std::env::args().collect::<Vec<_>>();
+    let (owned, status) = match crate::hotkey::letter(&args) {
+        Some(letter) => {
+            let pressed_app = app.handle().clone();
+            let failed_app = app.handle().clone();
+            Hotkey::start(
+                letter,
+                move || {
+                    let app = pressed_app.clone();
+                    // Never block the hotkey thread waiting for the UI thread.
+                    let _ = pressed_app.run_on_main_thread(move || {
+                        let _ = show_overlay(&app);
+                    });
+                },
+                move || {
+                    let state = failed_app.state::<ShellState>();
+                    state
+                        .hotkey_status
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner)["state"] = json!("unavailable");
+                    publish_companion(&failed_app);
+                },
+            )
+        }
+        None => (None, json!({"state":"unavailable", "reason":"invalid_key"})),
+    };
+    *app.state::<ShellState>()
+        .hotkey
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner) = owned;
+    *app.state::<ShellState>()
+        .hotkey_status
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner) = status;
+    publish_companion(app.handle());
     Ok(())
 }
 
@@ -184,15 +273,40 @@ pub fn shell_status(
             .is_visible()
             .map_err(|_| "window_failed".to_owned())?
     );
+    status["overlayVisible"] = json!(app_overlay_visible(&window));
     Ok(status)
 }
 
 #[tauri::command]
 pub fn shell_show(app: AppHandle, window: WebviewWindow) -> Result<(), String> {
-    if !allows_shell(window.label()) {
+    if !matches!(window.label(), "main" | "overlay") {
         return Err("permission_denied".to_owned());
     }
     show_main(&app)
+}
+
+fn app_overlay_visible(window: &WebviewWindow) -> bool {
+    window
+        .app_handle()
+        .get_webview_window("overlay")
+        .is_some_and(|overlay| overlay.is_visible().unwrap_or(false))
+}
+
+#[tauri::command]
+pub fn shell_search(app: AppHandle, window: WebviewWindow) -> Result<(), String> {
+    if !allows_shell(window.label()) {
+        return Err("permission_denied".into());
+    }
+    show_overlay(&app)
+}
+
+#[tauri::command]
+pub fn shell_hide(app: AppHandle, window: WebviewWindow) -> Result<(), String> {
+    if window.label() != "overlay" {
+        return Err("permission_denied".into());
+    }
+    hide_overlay(&app);
+    Ok(())
 }
 
 #[tauri::command]
@@ -222,7 +336,7 @@ mod tests {
         let state = ShellState::default();
         assert_eq!(
             state.status(&host),
-            json!({"tray":"unavailable", "closeBehavior":"hide", "closing":false, "locking":false, "error":null})
+            json!({"tray":"unavailable", "closeBehavior":"hide", "closing":false, "locking":false, "error":null, "overlay":"available", "hotkey":null})
         );
         state.tray_ready.store(true, Ordering::SeqCst);
         state.error(Some("lock_failed"));

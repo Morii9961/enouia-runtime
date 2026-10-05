@@ -11,6 +11,7 @@
     "allow-memory-pick",
     "allow-shell-status",
     "allow-shell-show",
+    "allow-shell-search",
     "allow-shell-exit"
   ]
 }

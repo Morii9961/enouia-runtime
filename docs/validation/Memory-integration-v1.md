@@ -1,5 +1,7 @@
 # Memory integration v1 — local evidence
 
+Follow-up (2026-10-05): [global hotkey and Quick Search](Quick-search-v1.md) records the companion's scoped native checks. This report retains its original baseline.
+
 Follow-up (2026-10-05): [tray and explicit exit](Tray-lifecycle-v1.md) adds host lifecycle evidence, with 32 native smoke checks on a fresh synthetic Vault.
 
 Follow-up (2026-10-05): [full frontend type checking](Frontend-typecheck-v1.md) covers the entire frontend and repeats the native smoke on a fresh synthetic Vault. This report retains the integration baseline and its original check counts.

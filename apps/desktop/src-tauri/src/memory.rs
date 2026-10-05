@@ -19,7 +19,7 @@ use enouia_memory_contract::workspace::{is_long_running, is_write};
 use enouia_memory_workspace::{Config, HostSurface, PickKind, Workspace};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, PoisonError, RwLock};
 use tauri::{State, WebviewWindow};
 
@@ -29,6 +29,7 @@ pub struct MemoryHost {
     core: Arc<Workspace>,
     gate: Arc<RwLock<()>>,
     closing: Arc<AtomicBool>,
+    lifecycle: Arc<AtomicUsize>,
 }
 
 impl MemoryHost {
@@ -37,6 +38,7 @@ impl MemoryHost {
             core: Arc::new(Workspace::new(Config::default())),
             gate: Arc::new(RwLock::new(())),
             closing: Arc::new(AtomicBool::new(false)),
+            lifecycle: Arc::new(AtomicUsize::new(0)),
         }
     }
 
@@ -53,11 +55,27 @@ impl MemoryHost {
         self.closing.store(false, Ordering::SeqCst);
     }
 
+    pub fn lifecycle_busy(&self) -> bool {
+        self.lifecycle.load(Ordering::SeqCst) > 0
+    }
+
+    fn lifecycle_guard(&self, request: &Value) -> Option<LifecycleGuard> {
+        if gate(request) != Gate::Exclusive {
+            return None;
+        }
+        self.lifecycle.fetch_add(1, Ordering::SeqCst);
+        Some(LifecycleGuard(self.lifecycle.clone()))
+    }
+
     /// Native tray actions and page calls share the same lifecycle gate.
     /// Once exit begins, only observations may still reach the Core.
     pub fn forward(&self, request: &Value) -> Result<Value, String> {
+        let _lifecycle = self.lifecycle_guard(request);
         let invoke = || {
             let command = request.get("command").and_then(Value::as_str).unwrap_or("");
+            if command == "memory_search" && self.lifecycle_busy() {
+                return Err("runtime_busy".into());
+            }
             if self.is_closing()
                 && !matches!(
                     command,
@@ -107,11 +125,18 @@ impl MemoryHost {
     }
 }
 
-/// Runtime windows mapped onto the Core's caller surfaces. Only the main
-/// window hosts Memory; Runtime has no quick-search window yet.
+struct LifecycleGuard(Arc<AtomicUsize>);
+impl Drop for LifecycleGuard {
+    fn drop(&mut self) {
+        self.0.fetch_sub(1, Ordering::SeqCst);
+    }
+}
+
+/// Scope comes only from native window identity, never page request fields.
 pub fn surface(window: &str) -> Option<HostSurface> {
     match window {
         "main" => Some(HostSurface::Workspace),
+        "overlay" => Some(HostSurface::QuickSearch),
         _ => None,
     }
 }
@@ -150,6 +175,7 @@ pub fn vault_argument(args: &[String]) -> Option<PathBuf> {
 /// envelope; host failures are plain strings outside the Memory codes.
 #[tauri::command]
 pub async fn memory_call(
+    app: tauri::AppHandle,
     host: State<'_, MemoryHost>,
     window: WebviewWindow,
     request: Value,
@@ -157,10 +183,17 @@ pub async fn memory_call(
     if !surface(window.label()).is_some_and(|s| s.allows(&request)) {
         return Err("permission_denied".to_owned());
     }
+    let lifecycle = host.lifecycle_guard(&request);
+    if lifecycle.is_some() {
+        crate::shell::hide_overlay(&app);
+    }
     let host = host.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || host.forward(&request))
-        .await
-        .map_err(|_| "worker_failed".to_owned())?
+    tauri::async_runtime::spawn_blocking(move || {
+        let _lifecycle = lifecycle;
+        host.forward(&request)
+    })
+    .await
+    .map_err(|_| "worker_failed".to_owned())?
 }
 
 /// Open a native dialog and hand the page a token for the choice.
@@ -253,11 +286,43 @@ mod tests {
     }
 
     #[test]
-    fn only_the_main_window_reaches_memory() {
+    fn windows_receive_only_their_pinned_surface_scope() {
         assert_eq!(surface("main"), Some(HostSurface::Workspace));
-        for window in ["", "Main", "main ", "overlay", "activity", "foreign"] {
+        assert_eq!(surface("overlay"), Some(HostSurface::QuickSearch));
+        for window in [
+            "", "Main", "main ", "Overlay", "overlay ", "activity", "foreign",
+        ] {
             assert_eq!(surface(window), None, "{window}");
         }
+    }
+
+    #[test]
+    fn quick_search_rejects_every_other_catalog_command() {
+        for command in COMMANDS {
+            assert_eq!(
+                surface("overlay")
+                    .unwrap()
+                    .allows(&json!({"command":command})),
+                command == "memory_search",
+                "{command}"
+            );
+        }
+    }
+
+    #[test]
+    fn search_is_refused_through_all_queued_lifecycle_transitions() {
+        let host = MemoryHost::new();
+        let lock = host.lifecycle_guard(&json!({"command":"vault_lock"}));
+        let open = host.lifecycle_guard(&json!({"command":"vault_open"}));
+        assert!(host.lifecycle_busy());
+        drop(lock);
+        assert_eq!(
+            host.forward(&json!({"command":"memory_search"})),
+            Err("runtime_busy".into())
+        );
+        drop(open);
+        assert!(!host.lifecycle_busy());
+        assert!(host.forward(&json!({"command":"memory_search"})).is_ok());
     }
 
     #[test]

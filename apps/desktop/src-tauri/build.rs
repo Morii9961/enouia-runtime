@@ -8,6 +8,8 @@ fn main() {
             "shell_status",
             "shell_show",
             "shell_exit",
+            "shell_search",
+            "shell_hide",
         ]),
     ))
     .expect("tauri build");
