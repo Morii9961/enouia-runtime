@@ -1,5 +1,7 @@
 # Offline Provider ports and Mock v1
 
+Historical Runtime-local design, frozen by [ADR-025](adr/025-enouia-memory-integration.md); the Memory domain is defined by Enouia Memory.
+
 Date: 2026-10-01. Authority: Architecture v0.3 §6 and ADR-007. Scope: A2 Provider ports and deterministic Mock; no real inference provider, tools dispatcher, session orchestration or persistence.
 
 [Provider ports v1](../contracts/provider/ports-v1.schema.json) define ProviderRequest/Response/Capabilities and ToolRequest/Result. A request contains only its version, opaque `req_` ID and the actual Context Capsule. It has no endpoint, credential or hidden messages field. `ProviderRequest::prepare` validates the capsule against the complete canonical bundle and freezes its exact compact UTF-8 bytes. Prepared requests expose read-only capsule bytes/identity and cannot be constructed by direct DTO deserialization.

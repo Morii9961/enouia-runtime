@@ -1,5 +1,7 @@
 # A1.2 Vault layout proposal
 
+Historical Runtime-local design, frozen by [ADR-025](adr/025-enouia-memory-integration.md); the Memory domain is defined by Enouia Memory.
+
 Date: 2026-10-01. Status: draft for the next implementation step, not a frozen persistence contract or implemented durability claim. The pure A1 schemas remain authoritative; Architecture v0.3 requires staged/validated/flushed canonical writes followed by disposable index updates.
 
 Historical proposal retained. On 2026-10-02, [ADR-020](adr/020-core-vault-generations.md) selected complete immutable Core generations with a pinned pointer. [Vault storage v1](VAULT_STORAGE_v1.md) replaces the candidate layout/transaction choice below as the current backend design; [the acceptance matrix](VAULT_RECOVERY_MATRIX_v1.md) specifies pending implementation evidence. No persistence adapter or durability claim is established by that selection.

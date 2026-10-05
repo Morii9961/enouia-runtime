@@ -21,6 +21,8 @@ Companion documents:
 - [ADR register](docs/adr/README.md).
 - [Design validation evidence and source hashes](docs/DESIGN_VALIDATION_v0.3.md). M0 rechecks these for drift before freezing executable fixtures.
 
+2026-10-04 follow-up (ADR-025): the Enouia Memory repository now owns the Memory domain, and Runtime is the Windows client that hosts its local frontend; see [ADR-025](docs/adr/025-enouia-memory-integration.md) and [Memory integration v1](docs/MEMORY_INTEGRATION_v1.md). Where the Identity, Memory, Context, Session and Provider requirements below differ from the Memory repository, they are historical. The Activity requirements are unchanged.
+
 ## 2. Product principles retained from v0.2
 
 Enouia is a local-first runtime for identity, memory, context, sessions, tools, and continuity. Models, clients, and servers are replaceable. Model replacement must not reset identity. Windows is the first client surface, not the owner of the domain model.
@@ -53,6 +55,8 @@ The first phase delivers two independent vertical slices: Track A proves local m
 | VPS receiver, publisher, public manifest/JSON | Moriium | Existing restricted SSH and static files |
 | Author database and `/api/status/` | Moriium author system | Completely outside this integration |
 | CLI login and SSH key lifecycle | User's local tools / OS | Reference local sessions; never copy authentication files |
+
+2026-10-04 follow-up (ADR-025): Identity, Memory, Context, Sessions and the Provider abstraction are now owned by the Enouia Memory repository, not a Runtime Core. Runtime hosts Memory's local client through a pinned dependency and a Runtime-owned adapter. Memory's later stages (real Provider, MCP, gateway, replicas) are planned there. The other rows are unchanged.
 
 Runtime MUST run from an installed package with the Moriium checkout absent and an unrelated working directory. It MUST NOT import Moriium modules, execute Moriium package scripts, read its build tree at runtime, query its author database, or discover credentials in that repository. A one-time explicitly selected archive import and development comparison against the old source are allowed; neither establishes a runtime dependency.
 
@@ -94,6 +98,8 @@ The UI never hosts an hourly timer. The scheduled runner works while the UI is c
 
 Dependency rule: `enouia-activity` may depend on `enouia-common` and `enouia-activity-contract`; it MUST NOT depend on `enouia-core`, `enouia-memory`, `enouia-context`, `enouia-session`, or `enouia-provider`. Core may compose read-only Activity status through a facade. No circular domain dependencies. Schema-generated UI DTOs describe interfaces without making React a validator authority.
 
+2026-10-04 follow-up (ADR-025): instead of a Runtime `enouia-core` (never created), `apps/desktop/src-tauri` embeds Enouia Memory's `enouia-memory-workspace` at a pinned revision behind a Runtime-owned adapter, until Memory MV-8's Host replaces it. The Runtime-local `enouia-memory`, `enouia-context`, `enouia-session`, `enouia-provider` and `enouia-core-contract` crates are frozen history. The Activity modules and their dependency rule are unchanged.
+
 ## 5. Target repository and installed data layout
 
 Create directories only as their milestone needs them. The following is the target, not a claim that scaffold code already exists.
@@ -130,9 +136,13 @@ enouia-runtime/
 
 Reserve `services/runtime-service`, `bridge/mcp`, and conversational `importers/{chatgpt,claude,generic}` for later milestones. The Claude conversation importer is unrelated to the Claude activity adapter.
 
+2026-10-04 follow-up (ADR-025): the desktop app lives in `apps/desktop`, not `apps/windows`. `services/runtime-service`, `bridge/mcp` and the conversational importers belong to the Enouia Memory repository, not to this layout.
+
 Default installed data root: `%LOCALAPPDATA%\EnouiaRuntime`. Support an explicit absolute override. Reject production roots inside source/build/install directories or a cloud-synchronized folder; use a local filesystem whose replacement semantics have been tested. Resolve and check symlinks/reparse points before managed writes. Backups may be exported separately to user-selected storage. The current repository being on `E:` does not make it the default data location.
 
 Core persistence follow-up (2026-10-02): [ADR-020](docs/adr/020-core-vault-generations.md) adopts a complete-generation backend design. [Storage v1](docs/VAULT_STORAGE_v1.md) specifies generation-contained Vault files and a disposable generation-bound index. The illustrative stable Core paths below are superseded only after that ADR's adapter activation gates pass; no data migration or writer is activated. Activity layout remains as specified below. The user's latest work scope is backend design here, with frontend work progressing separately.
+
+2026-10-04 follow-up (ADR-025): Memory's Vault root is an explicit owner choice handled by Enouia Memory, through the native dialog or `--memory-vault`; there is no default or remembered root. Runtime's data root holds Activity only, so the `vault/` and `indexes/` entries below are historical.
 
 ```text
 EnouiaRuntime/
@@ -422,6 +432,8 @@ Rollback is a **writer handback with current state**, not restoration of an old 
 M0 freezes shared contracts and scaffolds the repository. Then A1–A3 (Core) and B1–B4 (Activity) are parallel work tracks; neither domain implementation waits for the other's feature completion. Shared IPC/health contracts and the final Windows shell integration are explicit join points. B5 is cutover, not a coding task. See the [milestone table](docs/IMPLEMENTATION_PLAN_v0.3.md) for task-level dependencies and acceptance.
 
 Retain the longer-term v0.2 route after this phase: product 0.2 conversational ChatGPT import into immutable raw sources and reviewed candidates; product 0.3 real provider adapters with the same identity/context foundation; product 0.4 authenticated local MCP/tunnel tools (`context_get`, `memory_search`, `memory_read`, `memory_propose`, `memory_update`, `session_checkpoint`); product 0.5 replaceable HTTPS VPS bridge with auth/rate limiting/minimal logs; product 0.6 disposable warm replica of an explicit allowed context subset. MCP provides semantic continuity, not transparent capture of all conversation tokens. Exports remain bootstrap/backup/repair inputs.
+
+2026-10-04 follow-up (ADR-025): Enouia Memory's MV-7 to MV-10 (real Provider, Memory Host and MCP, gateway, replicas) replace the Memory items of product 0.3–0.6 above, and conversational import also belongs to Memory. Runtime receives these through pin bumps or, after MV-8, a Host client. Track A is replaced by Memory's MV stages plus Runtime integration slices; J1 stays the join point.
 
 The future bridge must not own canonical Memory or Context Compiler rules. Delete-the-VPS Test means recreating the bridge does not lose canonical Memory; similarly, loss of Moriium delivery availability must not destroy the Activity archive. A warm replica cannot become the only copy of identity, preferences, project state, or checkpoints. These future milestones do not extend this phase's server ownership.
 

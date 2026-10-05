@@ -9,16 +9,27 @@ import Runtime from "./screens/Runtime.jsx";
 import Settings from "./screens/Settings.jsx";
 import { controlWindow, nativeWindow } from './window-controls.js';
 import { approveDemoCandidate, reviseDemoMemory } from './demo-state.ts';
+import { ConnectedHome, MemoryBadge, MemorySettings, MemoryStatusProvider } from './memory/status.tsx';
+import MemorySurface from './memory/MemorySurface.tsx';
+import SessionsSurface from './memory/SessionsSurface.tsx';
+import ContextSurface from './memory/ContextSurface.tsx';
+
+// Inside the native shell the Memory, Context and Sessions surfaces use the
+// pinned Enouia Memory Core (ADR-025). A browser preview has no shell, so it
+// keeps the fictional demo.
+const memoryConnected = nativeWindow;
 
 export default class App extends React.Component {
   static D = demoData;
 
-  state = { page: null, collection: 'all', sel: 'm1', q: '', editing: false, draft: '', notice: '', mems: null, ctxOpen: 'm1', sessionKey: 's1', actFilter: 'all', actOpen: 'a1', rtKey: 'core', paused: false, motionPref: 'system', copied: false };
+  state = { page: null, memCapsule: null, collection: 'all', sel: 'm1', q: '', editing: false, draft: '', notice: '', mems: null, ctxOpen: 'm1', sessionKey: 's1', actFilter: 'all', actOpen: 'a1', rtKey: 'core', paused: false, motionPref: 'system', copied: false };
   ctxScroll = React.createRef();
   PAGES = ['home', 'memory', 'context', 'sessions', 'activity', 'runtime', 'settings'];
 
   componentDidMount() {
     this._key = (e) => {
+      // A modal review dialog owns the keyboard until it closes.
+      if (document.querySelector('dialog[open]')) return;
       const tag = (e.target && e.target.tagName) || '';
       if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '7') { e.preventDefault(); this.go(this.PAGES[+e.key - 1]); return; }
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
@@ -26,6 +37,7 @@ export default class App extends React.Component {
       if (e.target && e.target.closest && e.target.closest('nav')) return;
       const d = e.key === 'ArrowDown' ? 1 : -1;
       const page = this.page();
+      if (this.connected() && (page === 'memory' || page === 'sessions')) return;
       if (page === 'memory') { const list = this._visible || []; const i = list.indexOf(this._selectedKey); const n = list[Math.max(0, Math.min(list.length - 1, i + d))]; if (n) { e.preventDefault(); this.select(n); } }
       if (page === 'sessions') { const keys = App.D.SESS.map((s) => s.key); const i = keys.indexOf(this.state.sessionKey); const n = keys[Math.max(0, Math.min(keys.length - 1, i + d))]; e.preventDefault(); this.setState({ sessionKey: n }); }
     };
@@ -37,6 +49,11 @@ export default class App extends React.Component {
   componentWillUnmount() { window.removeEventListener('keydown', this._key); if (this._mq && this._mq.removeEventListener) this._mq.removeEventListener('change', this._mqf); }
 
   page() { return this.state.page || this.props.startPage || 'home'; }
+  connected() { return this.props.memoryConnected ?? memoryConnected; }
+  inspectCapsule(id) {
+    this.setState({ memCapsule: id, page: 'context', editing: false, copied: false, notice: '' },
+      () => requestAnimationFrame(() => document.getElementById('mem-context-title')?.focus()));
+  }
   mems() { return this.state.mems || App.D.MEM; }
   byKey(k) { return this.mems().find((m) => m.key === k); }
   go(p) { if (this.PAGES.includes(p)) this.setState({ page: p, editing: false, copied: false, notice: '' }); }
@@ -265,7 +282,8 @@ export default class App extends React.Component {
   render() {
     const view = this.renderVals();
     const { pageTitle, nav, railKey, isHome, isMemory, isContext, isSessions, isActivity, isRuntime, isSettings } = view;
-    return (
+    const connected = this.connected();
+    const surface = (
 <div className="qr234" data-motion={this.state.motionPref}>
 <header className="qr227" data-tauri-drag-region>
 <div className="qr220">
@@ -287,12 +305,12 @@ Enouia Runtime
 <div className="qr30">
 
 </div>
-<div className="qr224" role="status" title="Fictional demo data. No backend connection. Reload clears changes.">
+{this.connected() ? <MemoryBadge /> : <div className="qr224" role="status" title="Fictional demo data. No backend connection. Reload clears changes.">
 <span className="qr223">
 
 </span>
 Demo · local only
-</div>
+</div>}
 {this.state.windowError ? <span role="alert">{this.state.windowError}</span> : null}
 <div className="qr226">
 <button aria-label="Minimize" className="window-control" disabled={!nativeWindow} onClick={() => this.windowAction('minimize')} type="button">
@@ -453,29 +471,30 @@ Settings
 </nav>
 <main className="qr232">
 {isHome ? <>
-{<Home view={view} />}
+{connected ? <ConnectedHome nav={view.nav} ring={view.ring} /> : <Home view={view} />}
 </> : null}
 {isMemory ? <>
-{<Memory view={view} />}
+{connected ? <MemorySurface /> : <Memory view={view} />}
 </> : null}
 {isContext ? <>
-{<Context view={view} />}
+{connected ? <ContextSurface capsuleId={this.state.memCapsule} /> : <Context view={view} />}
 </> : null}
 {isSessions ? <>
-{<Sessions view={view} />}
+{connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} /> : <Sessions view={view} />}
 </> : null}
 {isActivity ? <>
 {<Activity view={view} />}
 </> : null}
 {isRuntime ? <>
-{<Runtime view={view} />}
+{<Runtime view={connected ? { ...view, rtSubtitle: 'Fictional · frozen Runtime-local design (ADR-025) · live Memory status is in Settings' } : view} />}
 </> : null}
 {isSettings ? <>
-{<Settings view={view} />}
+{<Settings view={connected ? { ...view, memorySettings: <MemorySettings openMemory={() => this.go('memory')} />, keyboardHint: 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves within the memory list.' } : view} />}
 </> : null}
 </main>
 </div>
 </div>
     );
+    return connected ? <MemoryStatusProvider>{surface}</MemoryStatusProvider> : surface;
   }
 }

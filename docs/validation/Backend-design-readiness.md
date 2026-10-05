@@ -1,5 +1,7 @@
 # Backend design readiness integrity — 2026-10-02
 
+Note (2026-10-04, [ADR-025](../adr/025-enouia-memory-integration.md)): this readiness record is historical. Enouia Memory now owns the Memory domain, so the planned Runtime backend slices will not be implemented here. The hash integrity of the 60 frozen artifacts still holds. The checker's git-scope rule rejects any change outside the design corpus since its baseline, so it has failed since the frontend commit `b49379d`; it is not a gate for desktop or integration work.
+
 Scope: closed storage wire **shape**, Windows capability/ordering proposal and consolidated backend implementation/acceptance sequence. No production Rust/Cargo, frontend or existing Activity contract changes occur in this consolidation slice.
 
 ## Executed integrity check

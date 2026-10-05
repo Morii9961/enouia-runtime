@@ -16,3 +16,20 @@ tauri-build = { version = "=2.7.0", features = [] }
 
 [dependencies]
 tauri = { version = "=2.12.0", features = [] }
+# Enouia Memory's embedded workspace Core at a pinned revision (ADR-025,
+# ADR-MEM-45). Change `rev` only together with Cargo.lock and
+# docs/integration/memory-pin.json; never a branch, path or [patch].
+enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "a181308b3496c07281c1030cc53b7c9f1bbb7705" }
+# The pinned contract's command catalog (long-running and write commands).
+enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "a181308b3496c07281c1030cc53b7c9f1bbb7705" }
+# Native dialogs for the Memory picker; pinned to the reference shell's version.
+rfd = { version = "=0.17.2", default-features = false }
+# Must equal Enouia Memory's exact workspace pin.
+serde_json = "=1.0.151"
+
+# Same debug-info policy as the domain workspace: line tables for our code only.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false

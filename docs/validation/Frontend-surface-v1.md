@@ -1,5 +1,7 @@
 # Quiet Runtime frontend v1 — local evidence
 
+Note (2026-10-04, [ADR-025](../adr/025-enouia-memory-integration.md)): the desktop sources changed after this record for the Memory integration. Its hashes describe the demo as committed in `b49379d`, built on baseline `854d52f`; current desktop evidence is [Memory integration v1](Memory-integration-v1.md).
+
 Date: 2026-10-04. Baseline: `854d52f`. Scope: the seven-page fictional desktop demo and its optional Tauri Windows shell. This report does not activate backend ADRs, persistence, live Activity control, real Provider calls, migration, deployment or A3/J1 acceptance.
 
 ## Executed checks

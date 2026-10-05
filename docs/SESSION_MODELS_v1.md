@@ -1,5 +1,7 @@
 # Core Session model v1
 
+Historical Runtime-local design, frozen by [ADR-025](adr/025-enouia-memory-integration.md); the Memory domain is defined by Enouia Memory.
+
 Date: 2026-10-01. Authority: Architecture v0.3 §6 and ADR-006/007. Scope: A1.1 pure conversation/checkpoint linkage; storage, orchestrated provider turns and UI remain pending.
 
 [Session v1](../contracts/session/session-v1.schema.json) is a versioned session header and append-only ordered event list. An event contains a contiguous sequence starting at one, canonical UTC millisecond time, and either a user/assistant text turn or a checkpoint reference. Turn IDs are globally unique opaque IDs and resolve to a conversation source matching that exact session, turn and creation time. The session update time equals its last event time, or creation time while empty. Provider failures and tools have no invented conversation role in this model; future orchestration must handle them through separately agreed operational contracts.

@@ -1,5 +1,7 @@
 # Local Core IPC v1
 
+Historical Runtime-local design, frozen by [ADR-025](adr/025-enouia-memory-integration.md); the Memory domain is defined by Enouia Memory.
+
 Date: 2026-10-01. Scope: A1.1 typed local interface contract. No Tauri handler, UI, filesystem command, provider or deployment is implemented here.
 
 [core-v1 schema](../contracts/ipc/core-v1.schema.json) and `enouia-core-contract` define eight requests and four response families. Request/response wrappers use camelCase; nested canonical Memory/Source/Session records and turn ranges keep their existing snake_case contract names. Every response carries `schemaVersion: 1` and a discriminating `kind`.

@@ -28,6 +28,8 @@ For the Track B handoff, `Collector.collect` yields exactly one local `SourceAtt
 
 ## Track A handoff to A1
 
+2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): the Track A handoff is now Runtime's Memory adapter over Enouia Memory's workspace IPC v1 at the pinned revision ([Memory integration v1](MEMORY_INTEGRATION_v1.md)). The A1 agreement below is history for Runtime's frozen local Core crates. Ownership of the `activity` route is unchanged.
+
 M0 fixes ownership and names, leaving full persistence schemas to A1 before any Vault write:
 
 - Canonical Memory records are versioned JSON, one record per memory. The five first-phase kinds are `fact`, `preference`, `episode`, `project_state`, and `session_checkpoint`. The required common fields from Architecture §6 remain `schema_version`, `memory_id`, `type`, `content`, `source_id`, `created_at`, `updated_at`, and `status`. ProjectState and checkpoint fields, provenance, validity, confidence, and supersession need full A1 schemas and fixtures.

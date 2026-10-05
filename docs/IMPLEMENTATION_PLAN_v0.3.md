@@ -2,6 +2,8 @@
 
 Date: 2026-10-02. Status: M0.1 and Activity B1-B3 implementation are present and locally verified. B4 remains partial; B5 production activation and Core A1-A3/J1 remain pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seven historical machine reports, records both unresolved GitHub comparisons, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
 
+Status note (2026-10-04, [ADR-025](adr/025-enouia-memory-integration.md)): the Enouia Memory repository now owns the Memory domain. Track A is replaced by Memory's MV stages plus Runtime integration slices, and the desktop shell embeds Memory's workspace Core at a pinned revision ([Memory integration v1](MEMORY_INTEGRATION_v1.md)). Track B, J1 as the join point, B4 and B5 are unchanged. The scope paragraph below predates the frontend and Memory integration work; [AGENTS.md](../AGENTS.md) holds the current scope.
+
 Current user scope: backend design; frontend work is now progressing separately. Existing backend models/ports remain available for coordination. This task edits no frontend files; future UI milestones in this plan do not override that scope.
 
 Activity currently includes strict three-source adapters, generation storage/recovery, persisted pause and exact-pending retries, migration inspection/import/export, restricted transport with public observation, and scheduler packaging. Development evidence covers frozen comparison, isolated legacy handback, pinned native ccusage on synthetic stores, store/publisher process death, and ready tool-tree cleanup after release-runner death. Live inventory/authentication, deployment, scheduler triggers/battery/resume, full storage durability and UI acceptance still require evidence. Individual B1-B3 validation reports remain under docs/validation.
@@ -43,6 +45,8 @@ B2 may start after B1's pure contracts/fixtures are stable while remaining adapt
 Do not collapse B4 into “unit tests pass,” B5 into “code merged,” or J1 into “screen renders.” A release report names which milestone is complete and which external gates remain open.
 
 ## 3. Track A — Runtime Core work packages
+
+2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): Track A is replaced by Enouia Memory's MV stages plus Runtime integration slices. The A1/A2 packages below are history for Runtime's frozen local Core crates; Memory implemented their equivalents in its MV-1 to MV-6. A3's owner path is `apps/desktop`, not `apps/windows`. Its remaining Runtime work is the pending parity rows in [Memory integration v1](MEMORY_INTEGRATION_v1.md).
 
 ### A1.1 Models and provenance
 

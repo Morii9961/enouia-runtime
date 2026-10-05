@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function Runtime({ view }) {
-  const { rt, rtList, rtStrip } = view;
+  const { rt, rtList, rtStrip, rtSubtitle } = view;
   return (
 <section data-screen-label="Runtime Inspector" className="qr210">
 <aside className="qr191">
@@ -10,7 +10,7 @@ export default function Runtime({ view }) {
 Runtime
 </h1>
 <div className="qr101">
-architecture v0.3 · documentation reference
+{rtSubtitle ?? 'architecture v0.3 · documentation reference'}
 </div>
 </div>
 <div className="qr27">

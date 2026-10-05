@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function Settings({ view }) {
-  const { motionOpts, paused, sw, togglePaused } = view;
+  const { keyboardHint, memorySettings, motionOpts, paused, sw, togglePaused } = view;
   return (
 <section data-screen-label="Settings" className="qr187">
 <div className="qr219">
@@ -68,6 +68,7 @@ Demo switch only · scheduler is not connected
 </button>
 </div>
 </div>
+{memorySettings ?? <>
 <div className="qr65">
 <div className="qr198">
 Vault
@@ -89,8 +90,9 @@ core.md · runtime_rules.md
 </span>
 </div>
 </div>
+</>}
 <div className="qr218">
-Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves through memories and sessions.
+{keyboardHint ?? 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves through memories and sessions.'}
 </div>
 </div>
 </section>

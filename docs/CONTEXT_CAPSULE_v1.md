@@ -1,5 +1,7 @@
 # Inspectable Context Capsule v1
 
+Historical Runtime-local design, frozen by [ADR-025](adr/025-enouia-memory-integration.md); the Memory domain is defined by Enouia Memory.
+
 Date: 2026-10-01. Authority: Architecture v0.3 §6 and ADR-007. Scope: A1 contract follow-up and A2 pure ranked-capsule assembly. Filesystem/FTS retrieval, Provider orchestration and UI remain pending.
 
 [Capsule v1](../contracts/context/capsule-v1.schema.json) retains all architecture fields: capsule ID/time/query, Identity, user and relationship context, active projects, relevant memories, recent checkpoints/turns, open loops, provenance and `budget.max_tokens`. Capsule IDs use `cap_` plus 32 lowercase hex digits. Canonical record fields remain unchanged. Selected memories must be active, no later than capsule generation, and exactly equal to records in the validated Memory/Session bundle. Selected turns must match the original session/turn/role/content/source/time. Candidate proposals and Activity data have no capsule field or lookup path.

@@ -12,17 +12,19 @@
   "app": {
     "windows": [{
       "label": "main",
-      "title": "Enouia Runtime · Demo",
+      "title": "Enouia Runtime",
       "width": 1440,
       "height": 900,
       "minWidth": 1100,
       "minHeight": 700,
       "decorations": false,
-      "backgroundColor": "#0C1117"
+      "backgroundColor": "#0C1117",
+      "generalAutofillEnabled": false
     }],
     "security": {
       "capabilities": ["main-window"],
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'none'; base-uri 'self'"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'",
+      "freezePrototype": true
     }
   },
   "bundle": { "active": false }

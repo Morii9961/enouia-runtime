@@ -1,5 +1,7 @@
 # Core Memory model v1
 
+Historical Runtime-local design, frozen by [ADR-025](adr/025-enouia-memory-integration.md); the Memory domain is defined by Enouia Memory.
+
 Date: 2026-10-01. Authority: Architecture v0.3 §6 and ADR-002/003/006. Scope: A1.1 pure Memory models and explicit review; no Vault persistence, personal migration, Session orchestration, retrieval engine or provider.
 
 The [closed JSON model schemas](../contracts/memory/models-v1.schema.json) and `enouia-memory` describe Fact, Preference, Episode, ProjectState and SessionCheckpoint. Content remains text. ProjectState requires project ID and nonblank state, with decisions/open loops; checkpoint requires session ID, a covered first/last turn and last state, with open loops. Fields belonging to a different kind fail validation. Ordinary records may optionally carry a project ID, unique tags, validity interval, confidence and a `supersedes` link.

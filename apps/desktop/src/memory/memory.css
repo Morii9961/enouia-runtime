@@ -1,0 +1,66 @@
+/* Memory surfaces in the native shell. Quiet Runtime tokens from
+   quiet-runtime.css; no remote resources. */
+.mem-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.mem-muted{font-size:12.5px;color:var(--tertiary)}
+.mem-warn{color:var(--pending)}
+.mem-note{font-size:12.5px;color:var(--ok)}
+.mem-mono{font-family:'Cascadia Code','Cascadia Mono',Consolas,monospace;font-size:12px}
+.mem-pad{padding:16px 24px}
+.mem-stack{display:flex;flex-direction:column;gap:10px}
+.mem-grow{flex:1;min-width:0}
+.mem-h2{margin:0;font-size:16px;line-height:24px;font-weight:600;color:var(--primary)}
+.mem-h3{margin:0;font-size:13px;font-weight:600;color:var(--secondary);letter-spacing:0.02em}
+.mem-h4{margin:0;font-size:12px;font-weight:600;color:var(--tertiary);letter-spacing:0.02em}
+.mem-content{margin:0;font-size:14px;line-height:21px;color:var(--warm);white-space:pre-wrap;overflow-wrap:anywhere}
+.mem-label{font-size:12.5px;color:var(--secondary)}
+.mem-input,.mem-textarea{box-sizing:border-box;border:1px solid var(--border);border-radius:4px;background:var(--well);color:var(--primary);font-size:13px}
+.mem-input{height:30px;padding:0 10px}
+.mem-textarea{width:100%;min-height:72px;padding:8px 10px;line-height:19px;resize:vertical}
+.mem-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.mem-button{height:28px;padding:0 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--primary);font-size:12.5px;cursor:pointer;transition:background-color 140ms ease}
+.mem-button:hover:not(:disabled){background:var(--elevated)}
+.mem-button:disabled{opacity:0.45;cursor:default}
+.mem-primary{border-color:rgba(159,194,210,0.55);color:var(--ice)}
+.mem-danger{border-color:rgba(221,160,160,0.5);color:var(--error)}
+.mem-link{padding:0;border:0;background:transparent;color:var(--ice);font-size:12.5px;cursor:pointer}
+.mem-link:hover{text-decoration:underline;color:var(--primary)}
+.mem-tag{display:inline-flex;align-items:center;height:20px;padding:0 7px;border:1px solid var(--border);border-radius:4px;font-size:11.5px;color:var(--secondary)}
+.mem-tag-warn{border-color:rgba(216,188,138,0.5);color:var(--pending)}
+.mem-tag-ok{border-color:rgba(157,191,160,0.45);color:var(--ok)}
+.mem-tag-muted{color:var(--tertiary)}
+.mem-error{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;margin:8px 0;border:1px solid rgba(221,160,160,0.45);border-radius:4px;background:rgba(221,160,160,0.06);color:var(--error);font-size:12.5px}
+.mem-card{margin:0;padding:14px 16px;border:1px solid var(--hairline);border-radius:6px;background:var(--surface);display:flex;flex-direction:column;gap:10px;font-size:13px}
+.mem-gate{padding:28px 24px;max-width:620px}
+.mem-row-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--tertiary)}
+.mem-facts{display:grid;grid-template-columns:140px minmax(0,1fr);gap:6px 14px;margin:0;font-size:12.5px}
+.mem-facts dt{color:var(--tertiary)}
+.mem-facts dd{margin:0;color:var(--primary);overflow-wrap:anywhere}
+.mem-list{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:12.5px}
+.mem-evidence{list-style:none;margin-left:-18px;display:flex;flex-direction:column;gap:6px}
+.mem-figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.mem-source,.mem-diff{margin:0;padding:10px 12px;border:1px solid var(--hairline);border-radius:4px;background:var(--well);color:var(--primary);font-family:'Cascadia Code','Cascadia Mono',Consolas,monospace;font-size:12px;line-height:18px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto}
+.mem-candidate{display:flex;flex-direction:column;gap:8px;padding:14px 24px;border-top:1px solid var(--hairline)}
+.mem-old{margin:0;font-size:12.5px;color:var(--tertiary);text-decoration:line-through;text-decoration-color:rgba(127,141,154,0.5)}
+.mem-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.mem-table th{text-align:left;font-weight:600;color:var(--tertiary);padding:6px 8px;border-bottom:1px solid var(--hairline)}
+.mem-table td{padding:6px 8px;border-bottom:1px solid #151D26;color:var(--primary);vertical-align:top;overflow-wrap:anywhere}
+.mem-operation{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--hairline);border-radius:4px;font-size:12.5px}
+.mem-state{font-size:12px;color:var(--secondary)}
+.mem-state-succeeded,.mem-state-ok,.mem-state-healthy,.mem-state-available{color:var(--ok)}
+.mem-state-failed,.mem-state-error,.mem-state-unavailable{color:var(--error)}
+.mem-state-running,.mem-state-queued,.mem-state-recovering,.mem-state-cancelled,.mem-state-degraded{color:var(--pending)}
+.mem-components{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.mem-components li{display:grid;grid-template-columns:120px 96px minmax(0,1fr);gap:10px;font-size:12.5px}
+.mem-dialog{width:min(720px,90vw);max-height:84vh;padding:20px 22px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--primary);display:flex;flex-direction:column;gap:12px}
+.mem-dialog:not([open]){display:none}
+.mem-dialog::backdrop{background:rgba(5,8,11,0.6)}
+.mem-dialog h2{margin:0;font-size:16px;font-weight:600}
+.mem-dialog h2:focus{outline:none}
+.mem-sessions{height:100%;display:grid;grid-template-columns:260px minmax(0,1fr) minmax(320px,400px);min-height:0}
+.mem-session-row .qr24{font-family:'Cascadia Code','Cascadia Mono',Consolas,monospace;font-size:12px}
+.mem-transcript{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.mem-event{display:flex;flex-direction:column;gap:4px;padding-left:12px;border-left:2px solid var(--hairline)}
+.mem-event-assistant_output,.mem-event-assistant{border-left-color:rgba(159,194,210,0.5)}
+.mem-context{height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);min-height:0}
+.mem-context-main{min-height:0;overflow:auto;padding:20px 24px 28px;display:flex;flex-direction:column;gap:14px;border-right:1px solid var(--hairline)}
+.mem-state-line{margin:0;font-size:13px}
