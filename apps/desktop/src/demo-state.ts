@@ -4,7 +4,7 @@ export type DemoMemory = {
   kind: 'fact' | 'preference' | 'episode' | 'project_state' | 'session_checkpoint';
   status: 'active' | 'candidate' | 'superseded' | 'archived';
   content: string;
-  src: { kind: string; at?: string; s?: string; t?: number; importer?: string; sha?: string };
+  src: { kind: 'conversation' | 'import' | 'manual_save' | 'explicit_remember'; at?: string; s?: string; t?: number; importer?: string; sha?: string };
   created: string;
   updated?: string;
   reviewed?: string | null;
@@ -15,6 +15,12 @@ export type DemoMemory = {
   tags?: string[];
   originalProposal?: DemoMemory;
   editedInReview?: boolean;
+  decisions?: string[];
+  openLoops?: string[];
+  covered?: [number, number];
+  lastState?: string;
+  validFrom?: string;
+  validTo?: string;
 };
 
 export function approveDemoCandidate(memories: DemoMemory[], key: string, draft: string | null, at: string): DemoMemory[] {

@@ -1,6 +1,7 @@
 import React from "react";
+import type { DemoView } from "../App";
 
-export default function Context({ view }) {
+export default function Context({ view }: { view: DemoView }) {
   const { ctx, ctxScroll } = view;
   return (
 <section data-screen-label="Context Surface" className="qr132">
@@ -35,7 +36,7 @@ Query{' '}
 </div>
 <div className="qr15">
 <div className="qr95">
-{ctx.segs.map((sg, sgIndex) => <React.Fragment key={sg.key ?? sg.id ?? sg.k ?? sgIndex}>
+{ctx.segs.map((sg, sgIndex) => <React.Fragment key={sg.label}>
 <span title={sg.label} className="qr94" style={{"width": sg.w, "background": sg.c}}>
 
 </span>
@@ -63,7 +64,7 @@ Records admitted whole, never truncated
 </div>
 <div className="qr131">
 <div className="qr105">
-{ctx.sections.map((s, sIndex) => <React.Fragment key={s.key ?? s.id ?? s.k ?? sIndex}>
+{ctx.sections.map((s, sIndex) => <React.Fragment key={s.domId}>
 <button onClick={s.jump} className="qr102" style={{"background": s.bg}} type="button">
 <span className="qr100" style={{"background": s.c}}>
 
@@ -90,7 +91,7 @@ Excluded
 </div>
 <div ref={ctxScroll} className="qr130">
 <div className="qr129">
-{ctx.sections.map((s, sIndex) => <React.Fragment key={s.key ?? s.id ?? s.k ?? sIndex}>
+{ctx.sections.map((s, sIndex) => <React.Fragment key={s.domId}>
 <div id={s.domId} className="qr121">
 <div className="qr107">
 <h2 className="qr106">
@@ -110,7 +111,7 @@ Excluded
 {s.note}
 </div>
 <div className="qr120">
-{s.items.map((it, itIndex) => <React.Fragment key={it.key ?? it.id ?? it.k ?? itIndex}>
+{s.items.map((it, itIndex) => <React.Fragment key={it.key}>
 <div className="qr119" style={{"background": it.bg}}>
 <button onClick={it.toggle} aria-expanded={it.open} className="qr114" type="button">
 <span className="qr42">
@@ -145,7 +146,7 @@ Excluded
 </button>
 {it.open ? <>
 <div className="qr118">
-{it.trace.map((tr, trIndex) => <React.Fragment key={tr.key ?? tr.id ?? tr.k ?? trIndex}>
+{it.trace.map((tr, trIndex) => <React.Fragment key={tr.k}>
 <div className="qr117">
 <span className="qr115">
 {tr.n}
@@ -185,7 +186,7 @@ Excluded
 Considered and left out, each with an explicit reason.
 </div>
 <div className="qr120">
-{ctx.excluded.map((ex, exIndex) => <React.Fragment key={ex.key ?? ex.id ?? ex.k ?? exIndex}>
+{ctx.excluded.map((ex, exIndex) => <React.Fragment key={ex.ref}>
 <button onClick={ex.onClick} className="qr126" type="button">
 <span className="qr124">
 <span className="qr123">

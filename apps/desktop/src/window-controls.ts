@@ -1,8 +1,9 @@
+import type { WindowAction } from './demo-types';
 import { isTauri } from '@tauri-apps/api/core';
 
 export const nativeWindow = isTauri();
 
-export async function controlWindow(action) {
+export async function controlWindow(action: WindowAction) {
   if (!nativeWindow) return;
   const { getCurrentWindow } = await import('@tauri-apps/api/window');
   const window = getCurrentWindow();

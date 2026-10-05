@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
+    "build": "npm run check && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "check": "tsc --project tsconfig.json",

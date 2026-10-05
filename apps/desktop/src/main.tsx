@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.jsx';
+import App from './App.tsx';
 import './quiet-runtime.css';
 import './memory/memory.css';
 
-class SurfaceBoundary extends React.Component {
+class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
   render() {
@@ -18,6 +18,8 @@ class SurfaceBoundary extends React.Component {
   }
 }
 
-createRoot(document.getElementById('root')).render(
+const root = document.getElementById('root');
+if (!root) throw new Error('The desktop root element is missing.');
+createRoot(root).render(
   <React.StrictMode><SurfaceBoundary><App /></SurfaceBoundary></React.StrictMode>,
 );

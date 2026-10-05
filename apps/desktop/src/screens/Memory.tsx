@@ -1,7 +1,8 @@
 import React from "react";
+import type { DemoView } from "../App";
 
-export default function Memory({ view }) {
-  const { act, colCount, colTitle, collections, copyLabel, draft, editing, groups, hasNotice, hasSel, noSel, notEditing, notice, onDraft, onQuery, q, sel, timelineEmpty } = view;
+export default function Memory({ view }: { view: DemoView }) {
+  const { act, colCount, colTitle, collections, copyLabel, draft, editing, groups, hasNotice, noSel, notEditing, notice, onDraft, onQuery, q, sel, timelineEmpty } = view;
   return (
 <section data-screen-label="Memory Vault" className="qr89">
 <aside className="qr28">
@@ -24,12 +25,12 @@ What I keep, and why.
 </svg>
 <input value={q} onChange={onQuery} placeholder="Literal search" aria-label="Search memories" className="qr21" />
 </label>
-{collections.map((grp, grpIndex) => <React.Fragment key={grp.key ?? grp.id ?? grp.k ?? grpIndex}>
+{collections.map((grp, grpIndex) => <React.Fragment key={grp.label}>
 <div className="qr27">
 <div className="qr23">
 {grp.label}
 </div>
-{grp.items.map((c, cIndex) => <React.Fragment key={c.key ?? c.id ?? c.k ?? cIndex}>
+{grp.items.map((c, cIndex) => <React.Fragment key={c.key}>
 <button onClick={c.onClick} aria-pressed={c.active} className="qr26" style={{"background": c.bg, "color": c.fg}} type="button">
 <span className="qr24">
 {c.label}
@@ -63,12 +64,12 @@ Newest first · ↑ ↓ to move
 Nothing here matches.
 </div>
 </> : null}
-{groups.map((g, gIndex) => <React.Fragment key={g.key ?? g.id ?? g.k ?? gIndex}>
+{groups.map((g, gIndex) => <React.Fragment key={g.key}>
 <div>
 <div className="qr33">
 {g.label}
 </div>
-{g.items.map((m, mIndex) => <React.Fragment key={m.key ?? m.id ?? m.k ?? mIndex}>
+{g.items.map((m, mIndex) => <React.Fragment key={m.key}>
 <button onClick={m.onClick} aria-pressed={m.selected} className="qr43" style={{"background": m.bg}} type="button">
 <span className="qr34">
 {m.time}
@@ -126,7 +127,7 @@ conf {m.conf}
 Select a memory to see where it came from.
 </div>
 </> : null}
-{hasSel ? <>
+{sel ? <>
 <div className="qr79">
 <div className="qr54">
 <div className="qr50">
@@ -155,7 +156,7 @@ Select a memory to see where it came from.
 </div>
 </> : null}
 {editing ? <>
-<textarea value={draft} onChange={onDraft} aria-label="Memory content" rows="5" className="qr53">
+<textarea value={draft} onChange={onDraft} aria-label="Memory content" rows={5} className="qr53">
 
 </textarea>
 <div className="qr19">
@@ -168,7 +169,7 @@ Select a memory to see where it came from.
 <div className="qr55">
 Decisions
 </div>
-{sel.decisions.map((d, dIndex) => <React.Fragment key={d.key ?? d.id ?? d.k ?? dIndex}>
+{sel.decisions.map((d, dIndex) => <React.Fragment key={dIndex}>
 <div className="qr57">
 <span className="qr56">
 —
@@ -195,7 +196,7 @@ Last state · {sel.coveredText}
 <div className="qr55">
 Open loops
 </div>
-{sel.openLoops.map((o, oIndex) => <React.Fragment key={o.key ?? o.id ?? o.k ?? oIndex}>
+{sel.openLoops.map((o, oIndex) => <React.Fragment key={oIndex}>
 <div className="qr57">
 <span className="qr59">
 
@@ -215,7 +216,7 @@ Why I remember this
 {sel.why}
 </div>
 <div className="qr65">
-{sel.provRows.map((r, rIndex) => <React.Fragment key={r.key ?? r.id ?? r.k ?? rIndex}>
+{sel.provRows.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr64">
 <span className="qr35">
 {r.k}
@@ -244,7 +245,7 @@ Why I remember this
 Record
 </div>
 <div className="qr65">
-{sel.recRows.map((r, rIndex) => <React.Fragment key={r.key ?? r.id ?? r.k ?? rIndex}>
+{sel.recRows.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr64">
 <span className="qr35">
 {r.k}
@@ -289,7 +290,7 @@ Confidence
 <div className="qr55">
 Lineage
 </div>
-{sel.lineRows.map((r, rIndex) => <React.Fragment key={r.key ?? r.id ?? r.k ?? rIndex}>
+{sel.lineRows.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr64">
 <span className="qr35">
 {r.k}
@@ -323,7 +324,7 @@ No related records.
 </div>
 </> : null}
 <div className="qr65">
-{sel.related.map((rl, rlIndex) => <React.Fragment key={rl.key ?? rl.id ?? rl.k ?? rlIndex}>
+{sel.related.map((rl, rlIndex) => <React.Fragment key={rl.key}>
 <button onClick={rl.onClick} className="qr78" type="button">
 <span className="qr77">
 {rl.text}

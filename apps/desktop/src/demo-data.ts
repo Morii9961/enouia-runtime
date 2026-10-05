@@ -1,20 +1,22 @@
+import type { DemoMemory } from './demo-state';
+import type { DemoSession, ContextSection, DemoActivity, DemoRuntime } from './demo-types';
 // Fictional Claude Design fixture. Never a Runtime snapshot.
 export const demoData = (function () {
-    const hx = (seed) => { let out = ''; for (let k = 0; k < 4; k++) { let h = (0x811c9dc5 ^ Math.imul(k + 1, 0x9e3779b1)) >>> 0; const s = seed + '#' + k; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; out += (h >>> 0).toString(16).padStart(8, '0'); } return out; };
-    const ID = (p, s) => p + '_' + hx(p + s);
-    const short = (id) => { const i = id.indexOf('_'); return id.slice(0, i + 1) + id.slice(i + 1, i + 7) + '…' + id.slice(-4); };
+    const hx = (seed: string) => { let out = ''; for (let k = 0; k < 4; k++) { let h = (0x811c9dc5 ^ Math.imul(k + 1, 0x9e3779b1)) >>> 0; const s = seed + '#' + k; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; out += (h >>> 0).toString(16).padStart(8, '0'); } return out; };
+    const ID = (p: string, s: string) => p + '_' + hx(p + s);
+    const short = (id: string) => { const i = id.indexOf('_'); return id.slice(0, i + 1) + id.slice(i + 1, i + 7) + '…' + id.slice(-4); };
     const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const MOL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const DY = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const sh = (iso) => new Date(Date.parse(iso) + 8 * 36e5);
-    const pad = (n) => String(n).padStart(2, '0');
-    const tTime = (iso) => { const d = sh(iso); return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()); };
-    const tDate = (iso) => { const d = sh(iso); return d.getUTCDate() + ' ' + MO[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); };
-    const tFull = (iso) => tDate(iso) + ', ' + tTime(iso);
-    const tDay = (iso) => { const d = sh(iso); return DY[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + MOL[d.getUTCMonth()]; };
-    const dayKey = (iso) => { const d = sh(iso); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); };
-    const PRJ = { enouia: { id: ID('prj', 'enouia'), name: 'Enouia Runtime' }, moriium: { id: ID('prj', 'moriium'), name: 'Moriium' } };
-    const SESS = [
+    const sh = (iso: string) => new Date(Date.parse(iso) + 8 * 36e5);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const tTime = (iso: string) => { const d = sh(iso); return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()); };
+    const tDate = (iso: string) => { const d = sh(iso); return d.getUTCDate() + ' ' + MO[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); };
+    const tFull = (iso: string) => tDate(iso) + ', ' + tTime(iso);
+    const tDay = (iso: string) => { const d = sh(iso); return DY[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + MOL[d.getUTCMonth()]; };
+    const dayKey = (iso: string) => { const d = sh(iso); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); };
+    const PRJ: Record<string, { id: string; name: string }> = { enouia: { id: ID('prj', 'enouia'), name: 'Enouia Runtime' }, moriium: { id: ID('prj', 'moriium'), name: 'Moriium' } };
+    const sessionFixtures: Omit<DemoSession, 'id'>[] = [
       { key: 's1', title: 'Vault adapter planning', created: '2026-10-01T05:58:12.004Z', checkpoints: [{ after: 8, mem: 'm7', at: '2026-10-01T06:20:11.604Z' }], turns: [
         ['user', 'Let’s pick up the Vault work. Where did we leave the storage shape?', '2026-10-01T05:58:40.112Z'],
         ['assistant', 'Complete immutable generations, with one hash-bound pointer. The recovery matrix still needs its evidence.', '2026-10-01T05:58:52.630Z'],
@@ -43,9 +45,9 @@ export const demoData = (function () {
         ['user', 'So the storage shape is still open?', '2026-09-25T09:12:02.311Z'],
         ['assistant', 'Between an append-only log and complete generations, yes.', '2026-09-25T09:12:19.084Z'] ] },
     ];
-    SESS.forEach((s) => { s.id = ID('ses', s.key); });
-    const IMP = { kind: 'import', importer: 'notes-import 0.1.0', sha: hx('raw-notes-a') + hx('raw-notes-b'), at: '2026-09-12T03:20:00.000Z' };
-    const MEM = [
+    const SESS: DemoSession[] = sessionFixtures.map(s => ({ ...s, id: ID('ses', s.key) }));
+    const IMP: DemoMemory['src'] = { kind: 'import', importer: 'notes-import 0.1.0', sha: hx('raw-notes-a') + hx('raw-notes-b'), at: '2026-09-12T03:20:00.000Z' };
+    const MEM: DemoMemory[] = [
       { key: 'm1', kind: 'project_state', status: 'active', project: 'enouia', content: 'Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.', decisions: ['Complete immutable generations with one hash-bound pointer', 'The index stays disposable and rebuildable'], openLoops: ['Choose the index rebuild trigger', 'Accept the first Windows port boundary'], src: { kind: 'conversation', s: 's1', t: 6 }, created: '2026-10-01T06:12:09.020Z', updated: '2026-10-01T06:12:09.020Z', reviewed: '2026-10-01T06:12:40.551Z', conf: 0.92, tags: ['vault', 'backend'], supersedes: 'm0' },
       { key: 'm0', kind: 'project_state', status: 'superseded', project: 'enouia', content: 'Vault storage shape is still open: append-only log or complete generations.', decisions: [], openLoops: ['Decide the Vault storage shape'], src: { kind: 'conversation', s: 's3', t: 4 }, created: '2026-09-25T09:12:20.400Z', updated: '2026-10-01T06:12:09.020Z', reviewed: '2026-09-25T09:13:02.118Z', conf: 0.8, tags: ['vault'], supersededBy: 'm1' },
       { key: 'm2', kind: 'preference', status: 'active', content: 'Prefers short, direct answers without extra explanation.', src: { kind: 'explicit_remember', s: 's2', t: 1 }, created: '2026-09-29T14:32:02.004Z', updated: '2026-09-29T14:32:02.004Z', conf: 1, tags: ['communication'], supersedes: 'm2x' },
@@ -63,7 +65,7 @@ export const demoData = (function () {
     ];
     const CAP = ID('cap', 'last');
     const CAPHASH = hx('capbytes1') + hx('capbytes2');
-    const CTX = [
+    const CTX: ContextSection[] = [
       { key: 'identity', label: 'Identity', field: 'identity', c: '#EEE7DC', note: 'Who I am. Read only from the identity allowlist.', items: [{ key: 'core', file: 'core.md', text: 'Enouia is a persistent local companion. It speaks plainly, keeps what it is told, and shows where everything came from.', reason: 'allowlisted identity file', bytes: 214 }] },
       { key: 'projects', label: 'Current Projects', field: 'active_projects', c: '#9FC2D2', note: 'Active project state, with its decisions and open loops.', items: [{ key: 'm1', mem: 'm1', reason: 'active project · ranked first', rank: 1, bytes: 396 }] },
       { key: 'events', label: 'Recent Events', field: 'recent_checkpoints · relevant_memories', c: '#7FA6B8', note: 'The latest checkpoint for this session and episodes that matched the query.', items: [{ key: 'm7', mem: 'm7', reason: 'latest checkpoint for this session', rank: null, bytes: 341 }, { key: 'm5', mem: 'm5', reason: 'relevant memory · literal match “vault”', rank: 3, bytes: 188 }] },
@@ -80,7 +82,7 @@ export const demoData = (function () {
     ];
     const RUN = 'run_20261001T040000Z';
     const PUB = hx('pub1') + hx('pub2');
-    const ACT = [
+    const ACT: DemoActivity[] = [
       { k: 'a1', at: '2026-10-01T06:44:02.318Z', cat: 'context', title: 'Context compiled', text: 'For “vault adapter rebuild trigger” · 7 memories, 2 turns', details: [['capsule', CAP], ['estimate', '2,427 / 4,096 units'], ['policy', 'utf8_bytes_v1 + 256 reserve'], ['excluded', '4 records'], ['consumed by', 'mock provider v1'], ['consumed sha256', CAPHASH]], link: ['context', null, 'Open on Context Surface'] },
       { k: 'a2', at: '2026-10-01T06:43:40.900Z', cat: 'memory', title: 'Candidate proposed', text: 'A project state update for Enouia Runtime is waiting for your review', details: [['candidate', ID('cand', 'c3')], ['reserves', ID('mem', 'c3')], ['kind', 'project_state'], ['source', 'conversation · turn 11'], ['confidence', '0.83']], link: ['memory', 'c3', 'Review in Candidate Inbox'] },
       { k: 'a3', at: '2026-10-01T06:38:04.900Z', cat: 'memory', title: 'Candidate proposed', text: 'A preference about my interface is waiting for your review', details: [['candidate', ID('cand', 'c1')], ['reserves', ID('mem', 'c1')], ['kind', 'preference'], ['source', 'conversation · turn 9'], ['confidence', '0.78']], link: ['memory', 'c1', 'Review in Candidate Inbox'] },
@@ -95,7 +97,7 @@ export const demoData = (function () {
       { k: 'a12', at: '2026-09-29T14:32:02.004Z', cat: 'memory', title: 'Memory saved', text: 'You asked me to remember: short, direct answers', details: [['command', 'core_save_memory'], ['saveMode', 'explicit_remember'], ['memory', ID('mem', 'm2')], ['supersedes', ID('mem', 'm2x')], ['result', 'model_only']], link: ['memory', 'm2', 'Open memory'] },
       { k: 'a13', at: '2026-09-29T14:31:40.220Z', cat: 'session', title: 'Session started', text: '“Evening, reading notes”', details: [['command', 'core_create_session'], ['session', ID('ses', 's2')]], link: ['sessions', 's2', 'Open session'] },
     ];
-    const RT = [
+    const RT: DemoRuntime[] = [
       { k: 'core', code: 'core', name: 'Core', state: 'Models validated', tone: 'ok', desc: 'Pure Memory, Session and IPC models. The ledger runs in memory and validates every transition; nothing is persisted yet.', rows: [['crates', 'enouia-memory · enouia-session · enouia-core-contract'], ['memory model', 'v1 · 5 kinds'], ['session model', 'v1 · append-only events'], ['ledger', 'in-memory MemoryLedger'], ['id format', 'prefix_ + 32 lowercase hex'], ['timestamps', 'UTC ms · Z'], ['id allocator', 'entropy port · production allocator pending']], checks: [['A1.1 memory models', '17 checks'], ['A1.1 session models', '11 checks'], ['A1.1 core IPC', '7 checks']], limits: ['No durable audit events', 'No filesystem restart persistence'] },
       { k: 'vault', code: 'vault', name: 'Vault', state: 'Design only', tone: 'pending', desc: 'Complete immutable generations selected by one hash-bound pointer. The adapter and recovery tests are not implemented.', rows: [['storage contract', 'vault/storage-v1'], ['decision', 'ADR-020'], ['recovery matrix', 'V01–V22 · evidence pending'], ['ports', '14 operation boundaries · 0 accepted'], ['location', 'not configured'], ['mutation result', 'model_only']], checks: [['backend readiness', '32 artifact hashes · historical design check']], limits: ['No Vault adapter', 'No executable storage fixtures', 'Power-loss durability unverified'] },
       { k: 'index', code: 'index', name: 'Index', state: 'Design probe', tone: 'pending', desc: 'Disposable, generation-bound SQL index with literal query behaviour and deterministic ranks. Verified only in an isolated in-memory probe.', rows: [['index', 'memory-index v1'], ['retrieval', 'retrieval v1 · literal, scoped'], ['decision', 'ADR-021'], ['probe engine', 'SQLite 3.53.1 (development)'], ['persisted', 'no'], ['authority', 'never · rebuildable']], checks: [['index/retrieval design', '18 cases · 48 assertions']], limits: ['Not a persisted runtime index', 'No packaged SQLite dependency'] },
@@ -108,7 +110,7 @@ export const demoData = (function () {
   })();
 
 // A recorded demo capsule must never follow later in-window edits.
-function freezeDemo(value) {
+function freezeDemo(value: unknown) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     Object.values(value).forEach(freezeDemo);
     Object.freeze(value);

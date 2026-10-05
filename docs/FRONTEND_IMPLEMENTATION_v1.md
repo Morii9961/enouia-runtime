@@ -19,9 +19,9 @@ Use Node 24.15.0 or later and npm. Direct dependencies and the complete lockfile
 ```powershell
 cd apps/desktop
 npm ci
-npm run check     # tsc over src/demo-state.ts and src/memory
-npm test          # demo state and Memory client tests
-npm run build
+npm run check     # strict tsc over all src files and vite.config.js
+npm test          # demo state, Memory client and actual React view rendering
+npm run build     # type check, then production assets
 npm run preview
 # Native development; requires Cargo on PATH
 npm run desktop:dev
@@ -33,7 +33,7 @@ npm run desktop:build -- --debug
 
 The development and preview servers bind only to 127.0.0.1, ports 1420 and 1421. Production assets load no external resources. The domain Rust workspace does not depend on Node, the desktop shell, Moriium, private source deliveries or credentials.
 
-On this restricted host, Node child-process creation requires approved execution outside the sandbox for Vite/Tauri builds. Node's unit tests use `--test-isolation=none` and do not need subprocesses. The source cache had incompatible npm request metadata; a private loopback development helper served only pre-existing cached tarballs/metadata. Committed package-lock URLs point to the public npm registry with original integrity values. This helper is neither part of the build nor a Runtime dependency.
+On this restricted host, Vite/Tauri builds require approved execution outside the sandbox. The tests use `--test-isolation=none`; the React rendering tests also use Vite's TSX loader and were verified outside the sandbox. The source cache had incompatible npm request metadata during the original demo delivery; a private loopback development helper served only pre-existing cached tarballs/metadata. Committed package-lock URLs point to the public npm registry with original integrity values. This helper is neither part of the build nor a Runtime dependency.
 
 ## Controls
 
@@ -50,7 +50,7 @@ On this restricted host, Node child-process creation requires approved execution
 
 ## Backend integration boundary
 
-The view fixtures in `demo-data.js` and `DemoMemory` in `demo-state.ts` are **not canonical Rust DTOs**. Never forward them as backend requests. The Memory boundary has been replaced by the typed Memory client (`src/memory/client.ts`) over the adapter (ADR-025); Activity and Runtime Inspector still keep the demo boundary until their handlers and ADR activation gates pass. Canonical IDs, source records, timestamps, durability and acknowledgements must be backend-owned. Only an acknowledged result may update the production UI; errors/disconnects must retain pending state. Proposed v2 jobs and read contracts cannot be activated by simply copying the v1 handoff mapping.
+The view fixtures in `demo-data.ts` and `DemoMemory` in `demo-state.ts` are **not canonical Rust DTOs**. Never forward them as backend requests. The Memory boundary has been replaced by the typed Memory client (`src/memory/client.ts`) over the adapter (ADR-025); Activity and Runtime Inspector still keep the demo boundary until their handlers and ADR activation gates pass. Canonical IDs, source records, timestamps, durability and acknowledgements must be backend-owned. Only an acknowledged result may update the production UI; errors/disconnects must retain pending state. Proposed v2 jobs and read contracts cannot be activated by simply copying the v1 handoff mapping.
 
 Keep Activity & Usage outside Memory/Context. The delivered Activity page is an event timeline, not the future three-source usage calendar. Native tray, global hotkey/overlay, login startup, real Provider continuation (Memory MV-7), live Activity control, migration, installer/signing and production activation remain separate integration work. This slice does not claim A3/J1 acceptance.
 
@@ -59,3 +59,5 @@ Keep Activity & Usage outside Memory/Context. The delivered Activity page is an 
 The implementation checked the official [React Component API](https://react.dev/reference/react/Component), [Vite build/preview guidance](https://vite.dev/guide/static-deploy.html), [Tauri frontend configuration](https://v2.tauri.app/start/frontend/), [window API](https://v2.tauri.app/reference/javascript/api/namespacewindow/) and [capability boundaries](https://v2.tauri.app/security/capabilities/). Installed package sources and actual build results govern the pinned versions.
 
 See [frontend validation](validation/Frontend-surface-v1.md) for the demo baseline's evidence and [Memory integration validation](validation/Memory-integration-v1.md) for the connected shell.
+
+The full compiler and rendering gate added on 2026-10-05 is recorded in [frontend type-check validation](validation/Frontend-typecheck-v1.md).
