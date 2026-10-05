@@ -22,11 +22,11 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 - **Scope.** The native window label maps to Memory's `HostSurface`. Only `main` maps, to `HostSurface::Workspace`; every other label is refused. Request fields cannot widen the scope.
 - **Threading and lifecycle.**
   - Every call runs on `spawn_blocking`.
-  - `vault_open`, `vault_create`, `vault_lock` and `vault_unlock` take a gate exclusively. The commands that start operations (import, index rebuild, verify, backup) take it shared, so no operation can start on a Vault handle that is closing.
+  - `vault_open`, `vault_create`, `vault_lock` and `vault_unlock` take a gate exclusively. Commits and commands that start operations (import, index rebuild, verify, backup) take it shared, so no work can start on a Vault handle that is closing.
   - Plain reads are not gated. While a lock waits for verify or backup, which cannot be cancelled, status and progress still answer.
-  - Closing the window keeps it open while the shell takes the gate and calls `shutdown()`. That cancels import and index work, waits for verify and backup, and releases the Vault and index. Then the process exits.
+  - Closing hides the window to the installed tray and retains the same Core. Tray or Settings Exit starts one asynchronous shutdown: new work is refused, status/progress remain available, import and index work are cancelled, verify/backup are joined, and the Vault and index are released before exit. A failed shutdown worker restores a recoverable window.
 - **Data root.** No root is remembered or opened by default. The owner opens or creates one through the native dialog; creating one needs the typed phrase `create new vault`. The owner can also name a root with `--memory-vault <dir>`. The root must not sit under a Git working tree, a sync folder, Program Files or Windows, and the Core refuses such roots.
-- **Permissions.** `build.rs` declares only `memory_call` and `memory_pick`. The `main-window` capability grants those two commands plus window controls; there is no `fs`, `shell`, `http`, dialog, opener, provider or Activity permission. The CSP is `default-src 'self'` with `connect-src ipc: http://ipc.localhost`, `form-action 'none'`, `base-uri 'none'` and `freezePrototype`. WebView2 general autofill is off (`generalAutofillEnabled: false`), and Memory inputs set `autocomplete="off"`, so the WebView profile keeps no copy of typed memory text.
+- **Permissions.** `build.rs` declares `memory_call`, `memory_pick` and the main-only host lifecycle commands `shell_status`, `shell_show`, `shell_exit`. The `main-window` capability grants these plus window controls; there is no filesystem, process execution, HTTP, dialog, opener, provider or Activity plugin permission. The CSP is `default-src 'self'` with `connect-src ipc: http://ipc.localhost`, `form-action 'none'`, `base-uri 'none'` and `freezePrototype`. WebView2 general autofill is off (`generalAutofillEnabled: false`), and Memory inputs set `autocomplete="off"`, so the WebView profile keeps no copy of typed memory text.
 - **No copies.** The adapter writes no logs and persists nothing. Memory text exists only in the Vault and in the page's memory while a surface shows it.
 
 ## Frontend (`apps/desktop/src`)
@@ -95,7 +95,7 @@ Never commit a path dependency, branch, `[patch]` or a lockfile produced by a lo
 |---|---|
 | Typed workspace channel, picker tokens, window scope, lifecycle, exit shutdown | Implemented |
 | Memory explorer, review, remember, correction, forget/purge plans, import, Vault and recovery, Sessions, Context | Implemented |
-| Tray (show, lock, exit), close-to-tray | Pending. Runtime's close exits; the Core shuts down first. |
+| Tray (show, lock, exit), close-to-tray | Implemented; [local lifecycle evidence](validation/Tray-lifecycle-v1.md). Physical tray menu interaction and shutdown during a long verify/backup remain unverified. |
 | Global hotkey and quick-search overlay (`HostSurface::QuickSearch`) | Pending |
 | Opt-in login startup, current-user installer, upgrade and downgrade rules | Pending (`bundle.active` is false) |
 | Runtime-hosted W01–W05 acceptance | Partial. The smoke covers selected W01, W03 and W04 paths and index rebuild (W02). Still pending: cancel/retry/paging/error recovery (W02), the Vault folder picker (W01), one-Core-per-Vault (W03), and Narrator, contrast theme and installed artifact (W05). |

@@ -8,6 +8,9 @@
     "core:window:allow-close",
     "core:window:allow-start-dragging",
     "allow-memory-call",
-    "allow-memory-pick"
+    "allow-memory-pick",
+    "allow-shell-status",
+    "allow-shell-show",
+    "allow-shell-exit"
   ]
 }

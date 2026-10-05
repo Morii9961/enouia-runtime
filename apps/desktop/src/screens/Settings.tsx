@@ -2,7 +2,7 @@ import React from "react";
 import type { DemoView } from "../App";
 
 export default function Settings({ view }: { view: DemoView }) {
-  const { keyboardHint, memorySettings, motionOpts, paused, sw, togglePaused } = view;
+  const { keyboardHint, memorySettings, motionOpts, paused, sw, togglePaused, shellSettings } = view;
   return (
 <section data-screen-label="Settings" className="qr187">
 <div className="qr219">
@@ -92,6 +92,7 @@ core.md · runtime_rules.md
 </div>
 </div>
 </>}
+{shellSettings}
 <div className="qr218">
 {keyboardHint ?? 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves through memories and sessions.'}
 </div>

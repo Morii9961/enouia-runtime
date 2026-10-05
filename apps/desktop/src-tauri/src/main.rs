@@ -6,6 +6,7 @@
 //! independently installed Activity producer.
 
 mod memory;
+mod shell;
 
 use memory::MemoryHost;
 use tauri::{Manager, RunEvent, WindowEvent};
@@ -18,29 +19,41 @@ fn main() {
     }
     let app = tauri::Builder::default()
         .manage(host)
+        .manage(shell::ShellState::default())
         .invoke_handler(tauri::generate_handler![
             memory::memory_call,
-            memory::memory_pick
+            memory::memory_pick,
+            shell::shell_status,
+            shell::shell_show,
+            shell::shell_exit
         ])
+        .setup(|app| {
+            shell::install(app)?;
+            Ok(())
+        })
         .on_window_event(|window, event| {
-            // Keep the window until the Core has finished: shutdown cancels
-            // import and index work and waits for verify or backup, which
-            // cannot be cancelled. Then the process exits.
+            // Closing hides; explicit exit owns Core shutdown. Never hide
+            // the last access point unless its tray was installed.
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
-                let app = window.app_handle().clone();
-                if app.state::<MemoryHost>().begin_close() {
-                    let _ = window.set_title("Enouia Runtime · finishing Memory operations");
-                    std::thread::spawn(move || {
-                        app.state::<MemoryHost>().shutdown();
-                        app.exit(0);
-                    });
+                if window
+                    .app_handle()
+                    .state::<shell::ShellState>()
+                    .tray_ready()
+                {
+                    let _ = window.hide();
                 }
             }
         })
         .build(tauri::generate_context!())
         .expect("could not start Enouia Runtime");
     app.run(|app, event| {
+        if let RunEvent::ExitRequested { api, .. } = &event
+            && !app.state::<shell::ShellState>().exit_ready()
+        {
+            api.prevent_exit();
+            shell::request_exit(app);
+        }
         if let RunEvent::Exit = event {
             app.state::<MemoryHost>().shutdown();
         }

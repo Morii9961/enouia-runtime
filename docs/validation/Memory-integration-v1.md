@@ -1,5 +1,7 @@
 # Memory integration v1 — local evidence
 
+Follow-up (2026-10-05): [tray and explicit exit](Tray-lifecycle-v1.md) adds host lifecycle evidence, with 32 native smoke checks on a fresh synthetic Vault.
+
 Follow-up (2026-10-05): [full frontend type checking](Frontend-typecheck-v1.md) covers the entire frontend and repeats the native smoke on a fresh synthetic Vault. This report retains the integration baseline and its original check counts.
 
 Date: 2026-10-05. Scope: [ADR-025](../adr/025-enouia-memory-integration.md). Runtime's desktop shell embeds Enouia Memory's workspace Core and connects the Memory, Context and Sessions surfaces. All data is synthetic, in temporary folders outside any Git working tree. No personal Vault was opened, and no Activity state, scheduler, account or deployment was touched.

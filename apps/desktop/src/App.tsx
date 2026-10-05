@@ -13,6 +13,7 @@ import { ConnectedHome, MemoryBadge, MemorySettings, MemoryStatusProvider } from
 import MemorySurface from './memory/MemorySurface.tsx';
 import SessionsSurface from './memory/SessionsSurface.tsx';
 import ContextSurface from './memory/ContextSurface.tsx';
+import ShellSettings from './shell/ShellSettings';
 import type { DemoMemory } from './demo-state';
 import type { Page, WindowAction, DetailRow, SessionEvent, CollectionDefinition, MemoryActions, DemoActivity } from './demo-types';
 
@@ -24,7 +25,7 @@ type AppState = {
   rtKey: string; paused: boolean; motionPref: string; copied: boolean; windowError?: string;
 };
 export type DemoView = ReturnType<App['renderVals']> & {
-  rtSubtitle?: string; memorySettings?: React.ReactNode; keyboardHint?: string;
+  rtSubtitle?: string; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
 };
 
 // Inside the native shell the Memory, Context and Sessions surfaces use the
@@ -530,7 +531,7 @@ Settings
 {<Runtime view={connected ? { ...view, rtSubtitle: 'Fictional · frozen Runtime-local design (ADR-025) · live Memory status is in Settings' } : view} />}
 </> : null}
 {isSettings ? <>
-{<Settings view={connected ? { ...view, memorySettings: <MemorySettings openMemory={() => this.go('memory')} />, keyboardHint: 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves within the memory list.' } : view} />}
+{<Settings view={connected ? { ...view, memorySettings: <MemorySettings openMemory={() => this.go('memory')} />, shellSettings: <ShellSettings />, keyboardHint: 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves within the memory list.' } : view} />}
 </> : null}
 </main>
 </div>

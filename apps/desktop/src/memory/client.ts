@@ -83,6 +83,7 @@ const CODES: Record<string, string> = {
 const HOST: Record<string, string> = {
   permission_denied: "This window may not reach Memory",
   worker_failed: "The Memory worker stopped unexpectedly",
+  runtime_closing: "Runtime is finishing Memory operations before exiting",
 };
 
 /** Human text for an error: the code, its rule identifiers, nothing else. */

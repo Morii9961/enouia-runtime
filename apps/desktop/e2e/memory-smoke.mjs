@@ -292,15 +292,29 @@ async function main() {
   await waitFor(s, has('Memory Vault'), 'settings');
   check('S.settings_vault_status', await s.evaluate(`${has('Vault open')} && ${has('Components')}`));
   await shot(s, '06-settings');
+  await waitFor(s, has('Available · Show / Lock Memory Vault / Exit'), 'shell settings');
+  check('S.shell_status', await s.evaluate(has('Hide to tray · Memory operations keep running')));
+  await s.evaluate("document.querySelector('[aria-label=\"Windows shell\"]').scrollIntoView({block:'end'})");
+  await shot(s, '07-shell-settings');
   await nav(s, 'Activity');
   check('A.activity_still_demo', await s.evaluate(has('Fictional')));
   await nav(s, 'Runtime');
   check('A.inspector_labelled_fictional', await s.evaluate(has('Fictional · frozen Runtime-local design')));
 
-  // Closing the window shuts the Core down and ends the process.
+  // Close-to-tray keeps the same page and Core alive; explicit exit owns shutdown.
   await s.evaluate("document.querySelector('button[aria-label=\"Close\"]').click()");
+  await sleep(400);
+  const hidden = await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('W03.close_hides_to_tray', hidden.visible === false && hidden.tray === 'present' && !hidden.closing);
+  const stillOpen = await s.evaluate("__t.invoke('memory_call', { request: __t.request('workspace_status', {}) })");
+  check('W03.hidden_core_stays_open', stillOpen.ok?.result?.vault?.state === 'open', JSON.stringify(stillOpen.ok?.result?.vault?.state));
+  await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
+  const shown = await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('W03.main_restored', shown.visible === true);
+  await nav(s, 'Settings');
+  await click(s, '[aria-label="Windows shell"] button', 'Exit Runtime');
   const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
-  check('W03.close_exits', code !== 'timeout', `exit ${code}`);
+  check('W03.explicit_exit', code === 0, `exit ${code}`);
   s.close();
   await sleep(800);
 
