@@ -15,14 +15,24 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { join, resolve } from 'node:path';
+import { createServer } from 'node:net';
 
 const inputs = process.argv.slice(2, 6);
 if (inputs.length !== 4) throw new Error('usage: memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>');
 const [exe, vault, importFile, out] = inputs.map(path => resolve(path));
 mkdirSync(out, { recursive: true });
-const PORT = 9341;
+async function unusedPort() {
+  const listener = createServer();
+  await new Promise((resolve, reject) => { listener.once('error', reject); listener.listen(0, '127.0.0.1', resolve); });
+  const port = listener.address().port;
+  await new Promise((resolve, reject) => listener.close(error => error ? reject(error) : resolve()));
+  return port;
+}
+const PORT = await unusedPort();
 const report = { checks: [], screenshots: [] };
 const children = new Set();
+const processesByPort = new Map();
+const sessions = new Set();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const check = (id, ok, detail = '') => {
   report.checks.push({ id, ok: Boolean(ok), detail });
@@ -39,12 +49,15 @@ function launch(args, { port = PORT, profile = 'webview2' } = {}) {
     stdio: 'ignore',
   });
   children.add(child);
+  processesByPort.set(port, child);
   child.exited = new Promise((r) => child.once('exit', (code) => { children.delete(child); r(code); }));
   return child;
 }
 
 function session(url) {
   const ws = new WebSocket(url);
+  sessions.add(ws);
+  ws.onclose = () => sessions.delete(ws);
   let id = 0;
   const pending = new Map();
   ws.onmessage = (m) => {
@@ -66,18 +79,61 @@ function session(url) {
   return { send, evaluate, close: () => ws.close() };
 }
 
+// The port may be claimed between selection and launch. Refuse CDP unless
+// its listener belongs to a WebView2 descendant of our own spawned host.
+function assertDebugOwner(port) {
+  const child = processesByPort.get(port);
+  if (!child || child.exitCode !== null) throw new Error('test host is not running');
+  const script = `$ErrorActionPreference = 'Stop'
+$listeners = @(Get-NetTCPConnection -State Listen -LocalPort ${port})
+if ($listeners.Count -ne 1) { throw 'unexpected debug listeners' }
+$ancestor = [uint32]$listeners[0].OwningProcess
+for ($depth = 0; $depth -lt 16 -and $ancestor -ne 0; $depth++) {
+  if ($ancestor -eq ${child.pid}) { Write-Output 'owned'; exit 0 }
+  $entry = Get-CimInstance Win32_Process -Filter ("ProcessId = " + $ancestor)
+  if (-not $entry) { break }
+  $ancestor = [uint32]$entry.ParentProcessId
+}
+throw 'debug listener does not belong to test process'`;
+  try {
+    execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { windowsHide: true, timeout: 15000, stdio: ['ignore', 'ignore', 'pipe'] });
+  } catch {
+    throw new Error('debug listener does not belong to test process');
+  }
+}
+
+async function debugOwnerRefusal(app) {
+  const foreign = createServer();
+  await new Promise((resolve, reject) => { foreign.once('error', reject); foreign.listen(0, '127.0.0.1', resolve); });
+  const port = foreign.address().port;
+  processesByPort.set(port, app); // This Node listener is not a child of app.
+  let refused = false;
+  try { assertDebugOwner(port); }
+  catch (error) { refused = error.message === 'debug listener does not belong to test process'; }
+  finally {
+    processesByPort.delete(port);
+    await new Promise(resolve => foreign.close(resolve));
+  }
+  check('W04.foreign_debug_listener_refused', refused);
+  if (!refused) throw new Error('debug ownership guard failed');
+}
+
 async function connect(overlay = false, port = PORT) {
   for (let i = 0; i < 160; i++) {
     try {
       const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
       const page = targets.find((t) => t.type === 'page' && t.url.startsWith('http://tauri.localhost/') && t.url.includes('view=overlay') === overlay);
       if (page) {
+        assertDebugOwner(port);
         const s = session(page.webSocketDebuggerUrl);
         await waitFor(s, "document.readyState === 'complete' && !!document.querySelector('#root > *')", 'page initialized');
         await s.evaluate(HELPERS);
         return s;
       }
-    } catch { /* not up yet */ }
+    } catch (error) {
+      if (error.message === 'debug listener does not belong to test process' || error.message === 'test host is not running') throw error;
+      /* not up yet */
+    }
     await sleep(250);
   }
   throw new Error('no page');
@@ -238,8 +294,9 @@ async function quickSearch(main, app) {
   await main.evaluate("__t.invoke('memory_call', {request:__t.request('vault_unlock',{})})");
   overlay.close();
 
-  const rival = launch(['--memory-vault', vault], { port: PORT + 1, profile: 'conflict-webview2' });
-  const other = await connect(false, PORT + 1);
+  const rivalPort = await unusedPort();
+  const rival = launch(['--memory-vault', vault], { port: rivalPort, profile: 'conflict-webview2' });
+  const other = await connect(false, rivalPort);
   await waitFor(other, has('Memory · No Vault open'), 'second process refused occupied Vault');
   check('W03.second_process_cannot_open_same_vault', true);
   await waitFor(other, has('already reserved by another Runtime'), 'occupied Vault explanation');
@@ -271,7 +328,7 @@ $C = [System.Windows.Automation.PropertyCondition]
 $root = $A::RootElement
 $dialog = $null
 for ($i = 0; $i -lt 80 -and -not $dialog; $i++) {
-  $wins = $root.FindAll([System.Windows.Automation.TreeScope]::Descendants, (New-Object $C($A::ClassNameProperty, '#32770')))
+  $wins = $root.FindAll([System.Windows.Automation.TreeScope]::Children, (New-Object $C($A::ClassNameProperty, '#32770')))
   foreach ($w in $wins) { if ($w.Current.ProcessId -eq ${pid}) { $dialog = $w } }
   if (-not $dialog) { Start-Sleep -Milliseconds 250 }
 }
@@ -289,7 +346,7 @@ if (-not $edit -or -not $open) {
   try {
     execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true, timeout: 30000 });
   } catch (error) {
-    throw new Error(`native ${folder ? 'folder' : 'file'} picker: ${String(error.stderr).slice(-1600)}`);
+    throw new Error(`native ${folder ? 'folder' : 'file'} picker (${error.code ?? error.status}): ${String(error.stderr).slice(-1600)}`);
   }
 }
 
@@ -310,7 +367,80 @@ async function acceptFirstCandidate(s, expected, probeShortcut = false) {
   return plan;
 }
 
+// Hold one real operation observation in Tauri's debug callback map. This
+// controls delivery only; cancellation and completion still run in Core.
+async function holdOperationObservation(s) {
+  await s.evaluate(`(() => {
+    window.__operationHeld = false;
+    const callbacks = window.__TAURI_INTERNALS__.callbacks;
+    const originalSet = callbacks.set;
+    callbacks.set = function(id, callback) {
+      return originalSet.call(this, id, value => {
+        if (!window.__operationHeld && value?.result?.operationId && typeof value.result.state === 'string') {
+          callbacks.set = originalSet;
+          window.__operationHeld = true;
+          window.__operationObserved = value.result;
+          window.__releaseOperation = replacement => callback(replacement ?? value);
+        } else callback(value);
+      });
+    };
+  })()`);
+}
+
+async function operationChecks(s, app) {
+  await nav(s, 'Memory');
+  await rail(s, 'Import');
+  await click(s, 'button', 'Choose file');
+  fillOpenDialog(app.pid, importFile);
+  await waitFor(s, has('recognized,'), 'long synthetic import preview');
+  await click(s, 'button', 'Start import');
+  await waitFor(s, "!![...document.querySelectorAll('.mem-operation button')].find(b => b.textContent === 'Cancel' && !b.disabled)", 'cooperative cancel available');
+  check('W02.import_has_cancel', true);
+  await click(s, '.mem-operation button', 'Cancel');
+  await waitFor(s, "!!document.querySelector('.mem-state-cancelled')", 'import cancellation acknowledged by Core', 60000);
+  const stopped = await s.evaluate("__t.invoke('memory_call', { request: __t.request('operation_list',{}) })");
+  check('W02.import_cancelled_in_core', stopped.ok?.result?.items?.some(op => op.kind === 'import' && op.state === 'cancelled'));
+  await waitFor(s, "!![...document.querySelectorAll('button')].find(b => b.textContent === 'Resume')", 'interrupted import resumable');
+  await holdOperationObservation(s);
+  await click(s, 'button', 'Resume');
+  await waitFor(s, 'window.__operationHeld', 'new operation observation deferred');
+  check('W02.new_operation_clears_previous_result', await s.evaluate("document.body.innerText.includes('Operation queued…') && !document.querySelector('.mem-state-cancelled')"));
+  await s.evaluate('window.__releaseOperation()');
+  await waitFor(s, "!!document.querySelector('.mem-state-succeeded')", 'import resume succeeded', 120000);
+  const imports = await s.evaluate("__t.invoke('memory_call', { request: __t.request('import_list',{}) })");
+  check('W02.import_resume_completes', imports.ok?.result?.items?.some(row => row.status === 'completed' && row.counts.sources_created === 500), JSON.stringify(imports.ok?.result?.items?.map(row => ({status:row.status, sources:row.counts.sources_created}))));
+  await shot(s, '10-import-resumed');
+
+  await rail(s, 'Vault & recovery');
+  await holdOperationObservation(s);
+  await click(s, 'button', 'Verify Vault');
+  await waitFor(s, 'window.__operationHeld', 'verify observation deferred');
+  // A synthetic read failure exercises the UI retry, not a failed Core job.
+  await s.evaluate(`window.__releaseOperation({kind:'memory_error', result:null,
+    error:{code:'busy',retryable:true,rules:['fixture.operation_read']}})`);
+  await waitFor(s, has('Could not read the operation'), 'operation read error');
+  check('W02.operation_read_error_visible', true);
+  await click(s, '[role="alert"] button', 'Retry');
+  await waitFor(s, "!!document.querySelector('.mem-state-succeeded')", 'retry reads verified result', 60000);
+  const verified = await s.evaluate("__t.invoke('memory_call', { request: __t.request('operation_list',{}) })");
+  check('W02.operation_read_retry_recovers', verified.ok?.result?.items?.some(op => op.kind === 'vault_verify' && op.state === 'succeeded' && op.result.clean));
+  check('W02.verify_has_no_cancel', await s.evaluate("!document.querySelector('.mem-operation button')"));
+  await shot(s, '11-verify-retry');
+}
+
 async function main() {
+  if (process.argv[6] === '--operations-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'operation fixture open');
+    await operationChecks(s, app);
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W02.operation_host_exits', code === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--quick-only') {
     const app = launch(['--memory-vault', vault]);
     const s = await connect();
@@ -322,6 +452,7 @@ async function main() {
   }
   // No default root: without --memory-vault nothing is opened.
   let app = launch([]);
+  await debugOwnerRefusal(app);
   let s = await connect();
   await waitFor(s, has('No Vault open'), 'no vault');
   check('D.no_default_root', await s.evaluate(has('Memory · No Vault open')));
@@ -507,6 +638,7 @@ try {
 } catch (err) {
   check('run', false, String(err.message ?? err));
 } finally {
+  for (const ws of sessions) ws.close();
   for (const child of children) child.kill();
   const passed = report.checks.filter((c) => c.ok).length;
   report.summary = `${passed}/${report.checks.length}`;

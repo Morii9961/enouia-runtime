@@ -15,6 +15,7 @@ const server = await createServer({
 });
 after(() => server.close());
 const { default: App } = await server.ssrLoadModule('/src/App.tsx');
+const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
@@ -72,4 +73,30 @@ test('every session renders its own ordered turns, writes and checkpoints', () =
       Array.from({ length: view.ses.events.length }, (_, i) => i + 1));
     assert.ok(renderToStaticMarkup(app.render()).includes(session.title));
   }
+});
+
+test('operation feedback offers cancellation only for active cooperative workers', () => {
+  const view = (kind, state, cancelRequested = false) => renderToStaticMarkup(
+    OperationFeedback({ status: { kind, state, cancelRequested, progress: { done: 4, total: 4 } }, onCancel() {} }),
+  );
+  for (const kind of ['import', 'import_resume', 'index_rebuild']) {
+    for (const state of ['queued', 'running']) {
+      assert.match(view(kind, state), />Cancel<\/button>/);
+      assert.doesNotMatch(view(kind, state), /Finishes before/);
+      const requested = view(kind, state, true);
+      assert.match(requested, /disabled=""/);
+      assert.match(requested, /Cancellation requested/);
+      assert.match(requested, /Waiting for the next safe point/);
+      assert.doesNotMatch(requested, /mem-state-cancelled/);
+    }
+  }
+  for (const kind of ['vault_verify', 'backup_export']) {
+    assert.doesNotMatch(view(kind, 'running'), /<button/);
+    assert.match(view(kind, 'running'), /Finishes before locking or exiting/);
+  }
+  for (const state of ['succeeded', 'failed', 'cancelled']) {
+    assert.doesNotMatch(view('import', state), /<button/);
+    assert.match(view('import', state), new RegExp(`mem-state-${state}`));
+  }
+  assert.match(view('import', 'running'), /mem-state-running/);
 });

@@ -38,6 +38,12 @@ export function Tag({ children, tone }: { children: ReactNode; tone?: "warn" | "
 
 /** Poll a long operation until it ends; progress is not completion. */
 export function Operation({ id, onDone, request = call }: { id: string; onDone?: (status: J) => void; request?: typeof call }) {
+  // A new operation starts with fresh observations, retry and cancellation
+  // state; it must never inherit the previous operation's terminal result.
+  return <OperationWatch key={id} id={id} onDone={onDone} request={request} />;
+}
+
+function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status: J) => void; request: typeof call }) {
   const [status, setStatus] = useState<J>(null);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
@@ -64,20 +70,32 @@ export function Operation({ id, onDone, request = call }: { id: string; onDone?:
   }, [id, retry, request]);
   if (error) return <ErrorBox error={{ text: `Could not read the operation: ${error}`, retry: () => setRetry((n) => n + 1) }} />;
   if (!status) return <p role="status" className="mem-muted">Operation queued…</p>;
+  return <OperationFeedback status={status} cancelling={cancel.busy} error={cancel.error}
+    onCancel={() => void cancel.run(() => request("operation_cancel", { operationId: id }))} />;
+}
+
+/** Cancellation is cooperative, and only import/index workers observe it. */
+export function OperationFeedback({ status, cancelling = false, error = null, onCancel }: {
+  status: J; cancelling?: boolean; error?: Failure; onCancel: () => void;
+}) {
   const { done, total } = status.progress;
+  const active = status.state === "queued" || status.state === "running";
+  const cancellable = ["import", "import_resume", "index_rebuild"].includes(status.kind);
   return (
     <div className="mem-operation" role="status" aria-live="polite" aria-atomic="true">
       <span className="mem-mono">{status.kind}</span>
       <span className={`mem-state mem-state-${status.state}`}>{status.state}</span>
       <span className="mem-muted">progress {done}{total != null ? ` / ${total}` : ""}</span>
-      {status.state === "running" && (
-        <button type="button" className="mem-button" disabled={status.cancelRequested || cancel.busy}
-          onClick={() => void cancel.run(() => request("operation_cancel", { operationId: id }))}>
-          {status.cancelRequested ? "Cancelling…" : "Cancel"}
+      {active && cancellable && (
+        <button type="button" className="mem-button" disabled={status.cancelRequested || cancelling}
+          onClick={onCancel}>
+          {status.cancelRequested ? "Cancellation requested" : "Cancel"}
         </button>
       )}
+      {active && cancellable && status.cancelRequested && <span className="mem-muted">Waiting for the next safe point.</span>}
+      {active && !cancellable && <span className="mem-muted">Finishes before locking or exiting.</span>}
       {status.error && <span className="mem-warn">{status.error.code}</span>}
-      <ErrorBox error={cancel.error} />
+      <ErrorBox error={error} />
     </div>
   );
 }
