@@ -594,6 +594,46 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--plan-keyboard-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'keyboard fixture open');
+    const saved = await s.evaluate("__t.invoke('memory_call',{request:{...__t.request('remember',{text:'Synthetic keyboard review fixture',claimKey:'fixture.keyboard_review'}),idempotencyKey:'ui_'+crypto.randomUUID()}})");
+    if (!saved.ok) throw new Error(JSON.stringify(saved));
+    await nav(s, 'Memory');
+    await rail(s, 'Candidate inbox');
+    await waitFor(s, "!!document.querySelector('article.mem-candidate button')", 'keyboard candidate ready');
+    await s.evaluate("__t.byText('article.mem-candidate button','Accept').focus()");
+    await click(s, 'article.mem-candidate button', 'Accept');
+    await waitFor(s, "!!document.querySelector('dialog[open]')", 'keyboard review plan');
+    check('W05.plan_initial_focus', await s.evaluate("document.activeElement.id === 'mem-plan-title'"));
+    check('W05.plan_accessible_description', await s.evaluate("document.querySelector('dialog').getAttribute('aria-labelledby') === 'mem-plan-title' && document.querySelector('dialog').getAttribute('aria-describedby') === 'mem-plan-description'"));
+    const key = async (name, code, keyCode, modifiers = 0) => {
+      for (const type of ['keyDown', 'keyUp']) {
+        const r = await s.send('Input.dispatchKeyEvent', { type, key: name, code, windowsVirtualKeyCode: keyCode, modifiers });
+        if (r.error) throw new Error(r.error.message);
+      }
+    };
+    await key('Tab', 'Tab', 9, 8);
+    check('W05.plan_reverse_tab_stays_inside', await s.evaluate("document.activeElement === __t.byText('dialog[open] button','Confirm')"));
+    await key('Tab', 'Tab', 9);
+    check('W05.plan_forward_tab_wraps', await s.evaluate("document.activeElement === document.querySelector('dialog[open] pre')"));
+    await key('4', 'Digit4', 52, 2);
+    check('W05.plan_shortcut_stays_inert', await s.evaluate("!!document.querySelector('dialog[open]') && !!document.querySelector('[data-screen-label=\"Memory Vault\"]')"));
+    await shot(s, '17-review-plan-keyboard');
+    await key('Escape', 'Escape', 27);
+    await waitFor(s, dialogClosed, 'keyboard review cancelled');
+    check('W05.cancel_restores_trigger_focus', await s.evaluate("document.activeElement === __t.byText('article.mem-candidate button','Accept')"));
+    const memories = await s.evaluate("__t.invoke('memory_call',{request:__t.request('memory_list',{cursor:null,limit:25,includeInactive:false})})");
+    const candidates = await s.evaluate("__t.invoke('memory_call',{request:__t.request('candidate_list',{cursor:null,limit:25})})");
+    check('W01.keyboard_cancel_does_not_commit', memories.ok?.result?.total === 0 && candidates.ok?.result?.total === 1, JSON.stringify({ memories: memories.ok?.result?.total ?? memories.err, candidates: candidates.ok?.result?.total ?? candidates.err }));
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const exit = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W05.keyboard_host_exits', exit === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--contrast-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

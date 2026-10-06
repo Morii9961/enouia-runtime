@@ -93,6 +93,8 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 
 `--contrast-only` uses a fresh synthetic Vault, emulates forced-colors media in the owned WebView2 page, checks navigation/collection selection and CDP-scoped Tab focus, then clears the emulation. The import argument is unused. This does not change Windows theme settings or complete W05.
 
+`--plan-keyboard-only` creates one synthetic candidate in a fresh Vault and checks review-plan focus, Tab containment, navigation suppression, Escape cancellation, focus return and the absence of an approved memory. Its keys stay inside the owned CDP page, and the import argument is unused. See [keyboard acceptance evidence](validation/Plan-keyboard-v1.md); this does not establish Narrator acceptance.
+
 ## Bumping the pin
 
 1. Read the new rows in Memory's compatibility log, `docs/integration/RUNTIME.md`. Review `git log <old>..<new> -- crates contracts apps/workspace` in the Memory repository.
