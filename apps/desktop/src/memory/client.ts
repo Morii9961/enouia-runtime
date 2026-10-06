@@ -85,6 +85,9 @@ const HOST: Record<string, string> = {
   worker_failed: "The Memory worker stopped unexpectedly",
   runtime_closing: "Runtime is finishing Memory operations before exiting",
   runtime_busy: "The Vault is changing state. Try again after it finishes",
+  root_in_use: "This Vault is already reserved by another Runtime. Exit that Runtime before opening it here",
+  root_admission_failed: "Runtime could not reserve this Vault folder. Choose the folder again after checking access",
+  root_token_unavailable: "Choose the Vault folder again before opening it",
 };
 
 /** Human text for an error: the code, its rule identifiers, nothing else. */

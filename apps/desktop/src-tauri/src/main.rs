@@ -7,6 +7,7 @@
 
 mod hotkey;
 mod memory;
+mod root_lease;
 mod shell;
 
 use memory::MemoryHost;

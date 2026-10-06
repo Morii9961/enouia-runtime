@@ -1,5 +1,7 @@
 # Memory integration v1 — local evidence
 
+Follow-up (2026-10-06): [Runtime Vault admission](Root-admission-v1.md) adds directory-identity protection between cooperating Runtime processes and native folder-picker evidence. Memory's per-commit lock and fixed revision remain unchanged.
+
 Follow-up (2026-10-05): [global hotkey and Quick Search](Quick-search-v1.md) records the companion's scoped native checks. This report retains its original baseline.
 
 Follow-up (2026-10-05): [tray and explicit exit](Tray-lifecycle-v1.md) adds host lifecycle evidence, with 32 native smoke checks on a fresh synthetic Vault.

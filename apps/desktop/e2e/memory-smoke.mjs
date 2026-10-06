@@ -14,10 +14,11 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
-const [exe, vault, importFile, out] = process.argv.slice(2);
-if (!out) throw new Error('usage: memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>');
+const inputs = process.argv.slice(2, 6);
+if (inputs.length !== 4) throw new Error('usage: memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>');
+const [exe, vault, importFile, out] = inputs.map(path => resolve(path));
 mkdirSync(out, { recursive: true });
 const PORT = 9341;
 const report = { checks: [], screenshots: [] };
@@ -237,8 +238,16 @@ async function quickSearch(main, app) {
   await main.evaluate("__t.invoke('memory_call', {request:__t.request('vault_unlock',{})})");
   overlay.close();
 
-  const rival = launch([], { port: PORT + 1, profile: 'conflict-webview2' });
+  const rival = launch(['--memory-vault', vault], { port: PORT + 1, profile: 'conflict-webview2' });
   const other = await connect(false, PORT + 1);
+  await waitFor(other, has('Memory · No Vault open'), 'second process refused occupied Vault');
+  check('W03.second_process_cannot_open_same_vault', true);
+  await waitFor(other, has('already reserved by another Runtime'), 'occupied Vault explanation');
+  const admission = await other.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('W03.occupied_vault_is_explained', admission.vaultAdmissionError === 'root_in_use');
+  await shot(other, '09-vault-occupied');
+  const primary = await main.evaluate("__t.invoke('memory_call', {request:__t.request('workspace_status',{})})");
+  check('W03.first_process_keeps_vault', primary.ok?.result?.vault?.state === 'open');
   const conflict = await other.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
   check('Q.conflict_reported', conflict.hotkey.state === 'conflict', JSON.stringify(conflict.hotkey));
   await nav(other, 'Settings');
@@ -253,10 +262,9 @@ async function quickSearch(main, app) {
   await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
 }
 
-// Fill the native Open dialog of `pid` through UI Automation: the file name
-// edit (control 1148) gets the path by WM_SETTEXT, then its Open button
-// (control 1) gets BM_CLICK. Only windows of this process are touched.
-function fillOpenDialog(pid, path) {
+// Fill this process's native dialog through UI Automation. File-name edit
+// 1148 and folder-name edit 1152 differ; button 1 confirms either dialog.
+function fillOpenDialog(pid, path, folder = false) {
   const script = `Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 $A = [System.Windows.Automation.AutomationElement]
 $C = [System.Windows.Automation.PropertyCondition]
@@ -270,12 +278,19 @@ for ($i = 0; $i -lt 80 -and -not $dialog; $i++) {
 if (-not $dialog) { throw 'no dialog' }
 Add-Type -Namespace E2E -Name User32 -MemberDefinition '[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern System.IntPtr SendMessage(System.IntPtr h, uint m, System.IntPtr w, string l);'
 $all = $dialog.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
-$edit = $all | Where-Object { $_.Current.ClassName -eq 'Edit' -and $_.Current.AutomationId -eq '1148' } | Select-Object -First 1
+$edit = $all | Where-Object { $_.Current.ClassName -eq 'Edit' -and $_.Current.AutomationId -eq '${folder ? '1152' : '1148'}' } | Select-Object -First 1
 $open = $all | Where-Object { $_.Current.ClassName -eq 'Button' -and $_.Current.AutomationId -eq '1' } | Select-Object -First 1
-if (-not $edit -or -not $open) { throw 'dialog controls not found' }
+if (-not $edit -or -not $open) {
+  $controls = $all | Where-Object { $_.Current.ClassName -in @('Edit','Button') } | ForEach-Object { $_.Current.ClassName + ':' + $_.Current.AutomationId + ':' + $_.Current.Name }
+  throw ('dialog controls not found: ' + ($controls -join ' | '))
+}
 [E2E.User32]::SendMessage([System.IntPtr]$edit.Current.NativeWindowHandle, 0x000C, [System.IntPtr]::Zero, '${path.replace(/'/g, "''")}') | Out-Null
 [E2E.User32]::SendMessage([System.IntPtr]$open.Current.NativeWindowHandle, 0x00F5, [System.IntPtr]::Zero, $null) | Out-Null`;
-  execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { stdio: ['ignore', 'ignore', 'pipe'] });
+  try {
+    execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true, timeout: 30000 });
+  } catch (error) {
+    throw new Error(`native ${folder ? 'folder' : 'file'} picker: ${String(error.stderr).slice(-1600)}`);
+  }
 }
 
 async function acceptFirstCandidate(s, expected, probeShortcut = false) {
@@ -310,11 +325,18 @@ async function main() {
   let s = await connect();
   await waitFor(s, has('No Vault open'), 'no vault');
   check('D.no_default_root', await s.evaluate(has('Memory · No Vault open')));
+  await nav(s, 'Memory');
+  await click(s, 'button', 'Open an existing Vault');
+  fillOpenDialog(app.pid, vault, true);
+  await waitFor(s, has('Memory · Vault open'), 'Vault opened through native folder picker');
+  check('W01.vault_folder_picker', true);
+  check('W04.folder_picker_keeps_path_native', !(await s.evaluate('__t.text()')).includes(vault));
   s.close(); app.kill(); await app.exited; await sleep(800);
 
   app = launch(['--memory-vault', vault]);
   s = await connect();
   await waitFor(s, has('Memory · Vault open'), 'vault open badge');
+  check('W03.process_termination_releases_root', true);
   check('S.badge_states_memory_and_activity', await s.evaluate(`${has('Memory · Vault open')} && ${has('Activity & Inspector demo')}`));
   check('S.home_reads_status', await s.evaluate(`${has('Vault open')} && ${has('Nothing waiting for review')}`));
   await shot(s, '01-home');
@@ -413,7 +435,7 @@ async function main() {
   const shell = await s.evaluate("__t.invoke('plugin:shell|execute', { program: 'cmd' })");
   check('W04.no_shell_plugin', Boolean(shell.err), shell.err ?? '');
   const path = await s.evaluate(`__t.invoke('memory_call', { request: __t.request('vault_open', { rootToken: ${JSON.stringify(vault)} }) })`);
-  check('W04.path_refused_as_token', path.ok?.error?.rules?.includes('workspace.token'), JSON.stringify(path.ok?.error ?? path));
+  check('W04.path_refused_as_token', path.err === 'root_token_unavailable', JSON.stringify(path));
   const kind = await s.evaluate("__t.invoke('memory_pick', { kind: 'vault' })");
   check('W04.unknown_pick_kind', kind.ok?.error?.rules?.includes('workspace.pick_kind'), JSON.stringify(kind));
   const remote = await s.evaluate("fetch('https://example.com/').then(() => 'fetched', () => 'blocked')");

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { admissionErrors } from './VaultAdmissionNotice';
 
-type ShellStatus = { tray: 'present' | 'unavailable'; closing: boolean; locking: boolean; error: string | null; visible: boolean; hotkey: { state: string; combo?: string; reason?: string } };
+type ShellStatus = { tray: 'present' | 'unavailable'; closing: boolean; locking: boolean; error: string | null; visible: boolean; vaultAdmissionError: string | null; hotkey: { state: string; combo?: string; reason?: string } };
 const errors: Record<string, string> = {
   lock_failed: 'The Vault could not lock. Open Memory to inspect its status.',
   shutdown_failed: 'Memory shutdown did not finish. Try exiting again.',
@@ -49,6 +50,7 @@ export default function ShellSettings() {
       }}>Open Quick Search</button></div>
       {status?.locking && <div role="status" className="qr108">Finishing Memory operations before locking…</div>}
       {status?.closing && <div role="status" className="qr108">Finishing Memory operations before exiting…</div>}
+      {status?.vaultAdmissionError && <div role="alert" className="mem-error">{admissionErrors[status.vaultAdmissionError] ?? 'Runtime could not open the requested Vault.'}</div>}
       {(error || status?.error) && <div role="alert" className="qr108">{error || errors[status?.error ?? ''] || 'A window action failed. Try again.'}</div>}
       <div className="qr216"><span className="qr35">Exit</span><button className="mem-button" type="button" disabled={busy || status?.closing} onClick={() => void exit()}>Exit Runtime</button></div>
     </div>

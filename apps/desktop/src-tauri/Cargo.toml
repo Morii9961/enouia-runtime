@@ -28,8 +28,8 @@ rfd = { version = "=0.17.2", default-features = false }
 serde_json = "=1.0.151"
 
 [target.'cfg(windows)'.dependencies]
-# Already in the locked Tauri graph; own only the native hotkey message loop.
-windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_System_Threading", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }
+# Already in the locked Tauri graph; native hotkey and Vault admission handles.
+windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_Security", "Win32_Storage_FileSystem", "Win32_System_Threading", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }
 
 # Same debug-info policy as the domain workspace: line tables for our code only.
 [profile.dev]

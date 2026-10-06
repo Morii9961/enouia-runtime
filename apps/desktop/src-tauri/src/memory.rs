@@ -11,16 +11,19 @@
 //! - keeps blocking work off the UI thread,
 //! - runs Vault lifecycle commands exclusively of commits and commands that
 //!   start operations, while plain reads (status, progress) stay ungated,
+//! - reserves a native Vault directory for cooperating Runtime processes,
 //! - shuts the Core down before the process exits.
 //!
 //! It writes no logs and persists nothing. Activity never passes through it.
 
+use crate::root_lease::{Directory, RootLease};
 use enouia_memory_contract::workspace::{is_long_running, is_write};
 use enouia_memory_workspace::{Config, HostSurface, PickKind, Workspace};
 use serde_json::{Value, json};
+use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use std::sync::{Arc, PoisonError, RwLock};
+use std::sync::{Arc, Mutex, PoisonError, RwLock};
 use tauri::{State, WebviewWindow};
 
 /// The embedded Core, the lifecycle gate and the closing latch.
@@ -30,6 +33,9 @@ pub struct MemoryHost {
     gate: Arc<RwLock<()>>,
     closing: Arc<AtomicBool>,
     lifecycle: Arc<AtomicUsize>,
+    root_lease: Arc<Mutex<Option<RootLease>>>,
+    roots: Arc<Mutex<VecDeque<(String, PathBuf)>>>,
+    admission_error: Arc<Mutex<Option<&'static str>>>,
 }
 
 impl MemoryHost {
@@ -39,6 +45,9 @@ impl MemoryHost {
             gate: Arc::new(RwLock::new(())),
             closing: Arc::new(AtomicBool::new(false)),
             lifecycle: Arc::new(AtomicUsize::new(0)),
+            root_lease: Arc::new(Mutex::new(None)),
+            roots: Arc::new(Mutex::new(VecDeque::new())),
+            admission_error: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -57,6 +66,71 @@ impl MemoryHost {
 
     pub fn lifecycle_busy(&self) -> bool {
         self.lifecycle.load(Ordering::SeqCst) > 0
+    }
+
+    pub fn admission_error(&self) -> Option<&'static str> {
+        *self
+            .admission_error
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// Paths come only from our native dialog, never request fields. This
+    /// bounded table adds host admission without replacing Core token rules.
+    pub fn register_pick(&self, kind: PickKind, path: &Path) -> Value {
+        match self.core.register_pick(kind, path) {
+            Ok(pick) => {
+                if kind == PickKind::VaultRoot {
+                    let mut roots = self.roots.lock().unwrap_or_else(PoisonError::into_inner);
+                    if roots.len() == 64 {
+                        roots.pop_front();
+                    }
+                    roots.push_back((pick.token.clone(), path.to_path_buf()));
+                }
+                json!({"token":pick.token, "displayName":pick.display_name, "bytes":pick.bytes})
+            }
+            Err(error) => json!({"error":error}),
+        }
+    }
+
+    fn change_root(&self, request: &Value) -> Result<Value, String> {
+        let token = request["arguments"]["rootToken"].as_str().unwrap_or("");
+        let root = self
+            .roots
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .iter()
+            .find(|(known, _)| known == token)
+            .map(|(_, root)| root.clone())
+            .ok_or("root_token_unavailable")?;
+        let directory = Directory::inspect(&root)?;
+        let mut lease = self
+            .root_lease
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let next = if lease
+            .as_ref()
+            .is_some_and(|current| current.id == directory.id)
+        {
+            None // Reopening our own directory keeps its existing lease.
+        } else {
+            Some(RootLease::acquire(directory)?)
+        };
+        let response = self.core.call(request);
+        if response["kind"] != "memory_error" {
+            if let Some(next) = next {
+                *lease = Some(next);
+            }
+            *self
+                .admission_error
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner) = None;
+        } else if self.core.call(&status_request())["result"]["vault"]["state"] == "none" {
+            // Core may have closed the previous Vault before rejecting the
+            // new root. Do not retain a reservation for a closed Core.
+            *lease = None;
+        }
+        Ok(response)
     }
 
     fn lifecycle_guard(&self, request: &Value) -> Option<LifecycleGuard> {
@@ -84,7 +158,11 @@ impl MemoryHost {
             {
                 return Err("runtime_closing".to_owned());
             }
-            Ok(self.core.call(request))
+            if matches!(command, "vault_open" | "vault_create") {
+                self.change_root(request)
+            } else {
+                Ok(self.core.call(request))
+            }
         };
         match gate(request) {
             Gate::Exclusive => {
@@ -115,14 +193,43 @@ impl MemoryHost {
     /// leaves no Vault open; the page shows that state.
     pub fn open_root(&self, root: &Path) {
         let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
-        let _ = self.core.open_root(root);
+        let admitted = Directory::inspect(root).and_then(RootLease::acquire);
+        let error = match admitted {
+            Ok(lease) => match self.core.open_root(root) {
+                Ok(()) => {
+                    *self
+                        .root_lease
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner) = Some(lease);
+                    None
+                }
+                Err(_) => Some("root_open_failed"),
+            },
+            Err(error) => Some(error),
+        };
+        *self
+            .admission_error
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = error;
     }
 
     /// Cancel and join operations, then release the Vault and the index.
     pub fn shutdown(&self) {
         let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
         self.core.shutdown();
+        *self
+            .root_lease
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = None;
+        self.roots
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clear();
     }
+}
+
+fn status_request() -> Value {
+    json!({"schemaVersion":1,"requestId":"req_00000000-0000-4000-8000-000000000001","command":"workspace_status","idempotencyKey":null,"arguments":{}})
 }
 
 struct LifecycleGuard(Arc<AtomicUsize>);
@@ -209,8 +316,8 @@ pub async fn memory_pick(
     if host.is_closing() {
         return Err("runtime_closing".to_owned());
     }
-    let core = host.core.clone();
-    tauri::async_runtime::spawn_blocking(move || pick(&core, &kind))
+    let host = host.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || pick(&host, &kind))
         .await
         .map_err(|_| "worker_failed".to_owned())
 }
@@ -227,7 +334,7 @@ fn pick_kind(kind: &str) -> Option<(PickKind, &'static str)> {
     }
 }
 
-fn pick(core: &Workspace, kind: &str) -> Value {
+fn pick(host: &MemoryHost, kind: &str) -> Value {
     let Some((kind, title)) = pick_kind(kind) else {
         return json!({"error": {"code": "invalid_request", "retryable": false, "rules": ["workspace.pick_kind"]}});
     };
@@ -239,16 +346,153 @@ fn pick(core: &Workspace, kind: &str) -> Value {
     let Some(path) = chosen else {
         return json!({"cancelled": true});
     };
-    match core.register_pick(kind, &path) {
-        Ok(p) => json!({"token": p.token, "displayName": p.display_name, "bytes": p.bytes}),
-        Err(e) => json!({"error": e}),
-    }
+    host.register_pick(kind, &path)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use enouia_memory_contract::workspace::{COMMANDS, is_write};
+
+    #[cfg(windows)]
+    fn request(command: &str, args: Value) -> Value {
+        json!({"schemaVersion":1,"requestId":"req_00000000-0000-4000-8000-000000000001","command":command,"idempotencyKey":null,"arguments":args})
+    }
+
+    #[cfg(windows)]
+    struct Roots(PathBuf);
+    #[cfg(windows)]
+    impl Roots {
+        fn new() -> Self {
+            let root = std::env::temp_dir().join(format!(
+                "runtime-admission-{}-{}",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            for name in ["a", "b", "empty"] {
+                std::fs::create_dir_all(root.join(name)).unwrap();
+            }
+            Self(root)
+        }
+        fn token(&self, host: &MemoryHost, name: &str) -> String {
+            host.register_pick(PickKind::VaultRoot, &self.0.join(name))["token"]
+                .as_str()
+                .unwrap()
+                .into()
+        }
+        fn create(&self, host: &MemoryHost, name: &str) {
+            let token = self.token(host, name);
+            let result = host
+                .forward(&request(
+                    "vault_create",
+                    json!({"rootToken":token,"confirmPhrase":"create new vault"}),
+                ))
+                .unwrap();
+            assert_ne!(result["kind"], "memory_error", "{result}");
+            assert_eq!(result["result"]["vault"]["state"], "open");
+        }
+    }
+    #[cfg(windows)]
+    impl Drop for Roots {
+        fn drop(&mut self) {
+            std::fs::remove_dir_all(&self.0).unwrap();
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn root_admission_covers_tokens_lock_switch_and_shutdown() {
+        let roots = Roots::new();
+        let first = MemoryHost::new();
+        let second = MemoryHost::new();
+        roots.create(&first, "a");
+        second.open_root(&roots.0.join("a"));
+        assert_eq!(second.admission_error(), Some("root_in_use"));
+        assert_eq!(
+            second.forward(&status_request()).unwrap()["result"]["vault"]["state"],
+            "none"
+        );
+        assert_ne!(first.lock_vault().unwrap()["kind"], "memory_error");
+        second.open_root(&roots.0.join("a"));
+        assert_eq!(second.admission_error(), Some("root_in_use"));
+        assert_eq!(
+            first.forward(&request("vault_unlock", json!({}))).unwrap()["result"]["vault"]["state"],
+            "open"
+        );
+        let same = roots.token(&first, "a");
+        assert_ne!(
+            first
+                .forward(&request("vault_open", json!({"rootToken":same})))
+                .unwrap()["kind"],
+            "memory_error"
+        );
+        roots.create(&second, "b");
+        let busy = roots.token(&first, "b");
+        assert_eq!(
+            first.forward(&request("vault_open", json!({"rootToken":busy}))),
+            Err("root_in_use".into())
+        );
+        assert_eq!(
+            first.forward(&status_request()).unwrap()["result"]["vault"]["rootName"],
+            "a"
+        );
+        second.shutdown();
+        assert_ne!(
+            first
+                .forward(&request("vault_open", json!({"rootToken":busy})))
+                .unwrap()["kind"],
+            "memory_error"
+        );
+        second.open_root(&roots.0.join("a"));
+        assert_eq!(second.admission_error(), None);
+        assert_eq!(
+            second.forward(&status_request()).unwrap()["result"]["vault"]["state"],
+            "open"
+        );
+        first.shutdown();
+        second.shutdown();
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn failed_root_change_matches_core_lifetime_and_page_paths_are_refused() {
+        let roots = Roots::new();
+        let host = MemoryHost::new();
+        let other = MemoryHost::new();
+        roots.create(&host, "a");
+        let token = roots.token(&host, "empty");
+        let bad_phrase = host
+            .forward(&request(
+                "vault_create",
+                json!({"rootToken":token,"confirmPhrase":"incorrect"}),
+            ))
+            .unwrap();
+        assert_eq!(bad_phrase["kind"], "memory_error");
+        other.open_root(&roots.0.join("a"));
+        assert_eq!(other.admission_error(), Some("root_in_use"));
+        let missing = host
+            .forward(&request("vault_open", json!({"rootToken":token})))
+            .unwrap();
+        assert_eq!(missing["kind"], "memory_error");
+        assert_eq!(
+            host.forward(&status_request()).unwrap()["result"]["vault"]["state"],
+            "none"
+        );
+        other.open_root(&roots.0.join("a"));
+        assert_eq!(other.admission_error(), None);
+        assert_eq!(
+            host.forward(&request(
+                "vault_open",
+                json!({"rootToken":roots.0.join("a").to_string_lossy()})
+            )),
+            Err("root_token_unavailable".into())
+        );
+        host.shutdown();
+        other.shutdown();
+    }
 
     #[test]
     fn tray_workers_share_one_core_gate_and_closing_latch() {

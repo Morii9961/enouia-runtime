@@ -488,8 +488,8 @@ function VaultPanel() {
         <ComponentList status={status} />
         <h3 className="mem-h3">Three different stops</h3>
         <ul className="mem-list mem-muted">
-          <li><strong>Lock Vault</strong> cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Everything is refused until you unlock.</li>
-          <li><strong>Closing the window</strong> does the same release, keeps the window until it finishes, then exits Runtime. The Activity producer keeps its own schedule.</li>
+          <li><strong>Lock Vault</strong> cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Everything is refused until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
+          <li><strong>Closing the window</strong> hides Runtime to the tray while Memory work continues. Explicit Exit cancels or joins operations and releases the Vault before the process exits. The Activity producer keeps its own schedule.</li>
           <li><strong>Pausing sync</strong> does not exist yet: Memory has no sync before its gateway stage.</li>
         </ul>
       </Inspector>

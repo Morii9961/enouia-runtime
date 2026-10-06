@@ -4,6 +4,8 @@ The user authorized frontend implementation on 2026-10-04 after Claude Design co
 
 Update (2026-10-04, [ADR-025](adr/025-enouia-memory-integration.md)): inside the native shell, the Memory, Context and Sessions surfaces now use Enouia Memory's workspace Core at a pinned revision. See [Memory integration v1](MEMORY_INTEGRATION_v1.md) for the adapter, the connected surfaces and their checks. The fictional demo described below remains the browser preview and the Activity and Runtime Inspector content.
 
+Update (2026-10-06): [Runtime Vault admission](validation/Root-admission-v1.md) reserves a Vault directory for cooperating Runtime processes and explains refused startup choices. Locking retains the reservation until switching Vaults or exiting. Other Memory clients still require explicit ownership separation.
+
 ## Implemented surface
 
 `apps/desktop` contains seven separate React surfaces: Home/Presence, Memory Vault, Context Surface, Sessions, Activity, Runtime Inspector and Settings. Layout, typography, colors, spacing and interactions are adapted from the supplied source, without the proprietary `support.js`, template interpreter, standalone bundler or remotely loaded fonts. Windows system Segoe UI Variable and Cascadia Code are used when present, with local system fallbacks.
