@@ -17,7 +17,9 @@ const server = await createServer({
 after(() => server.close());
 const { default: App } = await server.ssrLoadModule('/src/App.tsx');
 const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
-const { Explorer } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
+const { Explorer, Inbox } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
+const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx');
+const { MemoryStatusProvider } = await server.ssrLoadModule('/src/memory/status.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
@@ -112,4 +114,14 @@ test('an unobserved explorer reports waiting and never invents an empty result',
     assert.match(html, /Refresh results/);
     assert.doesNotMatch(html, /Nothing matches this search|No approved memories here yet|0 records/);
   }
+});
+
+test('unobserved candidates and sessions stay unknown rather than reporting empty lists', () => {
+  const inbox = renderToStaticMarkup(createElement(MemoryStatusProvider, null, createElement(Inbox)));
+  assert.match(inbox, /Waiting for candidates/);
+  assert.match(inbox, /Reading candidates/);
+  assert.doesNotMatch(inbox, /0 waiting|Nothing waiting for review/);
+  const sessions = renderToStaticMarkup(createElement(Sessions, { inspect() {} }));
+  assert.match(sessions, /Reading sessions/);
+  assert.doesNotMatch(sessions, /No sessions yet/);
 });

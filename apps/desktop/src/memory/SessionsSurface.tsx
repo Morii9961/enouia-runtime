@@ -21,7 +21,7 @@ export default function SessionsSurface({ inspect }: { inspect: (capsuleId: stri
 }
 
 export function Sessions({ inspect, request = call }: { inspect: (capsuleId: string) => void; request?: typeof call }) {
-  const [sessions, setSessions] = useState<J[]>([]);
+  const [sessions, setSessions] = useState<J[] | null>(null);
   const [current, setCurrent] = useState<Branch | null>(null);
   const [detail, setDetail] = useState<J>(null);
   const [text, setText] = useState("");
@@ -66,7 +66,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const busy = action.busy || detailRead.busy;
   return (
     <section data-screen-label="Sessions" className="mem-sessions">
-      <aside className="qr28" aria-label="Sessions">
+      <aside className="qr28" aria-label="Sessions" aria-busy={listRead.busy || (sessions == null && !listRead.error)}>
         <div className="qr20">
           <h1 className="qr18">Sessions</h1>
           <div className="qr19">Conversations kept as they happened.</div>
@@ -80,9 +80,10 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
             })}>New session</button>
         </div>
         <ErrorBox error={listRead.error} />
-        {!listRead.busy && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
+        {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">Reading sessions…</p>}
+        {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
         <div className="qr27">
-          {sessions.map((s) => s.branches.map((b: J) => {
+          {sessions?.map((s) => s.branches.map((b: J) => {
             const active = current?.branchId === b.branchId;
             return (
               <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={action.busy} aria-pressed={active}

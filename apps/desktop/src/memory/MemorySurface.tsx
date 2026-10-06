@@ -272,7 +272,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
 export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const { refresh } = useStatus();
   const [items, setItems] = useState<J[]>([]);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState<number | null>(null);
   const [plan, setPlan] = useState<J>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
@@ -304,11 +304,12 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   };
   return (
     <>
-      <Center title={TITLES.inbox} count={`${total} waiting`} busy={action.busy || reads.busy}>
+      <Center title={TITLES.inbox} count={reads.error ? "Candidates unavailable" : total == null ? "Waiting for candidates" : `${total} waiting`}
+        busy={action.busy || reads.busy || (total == null && !reads.error)}>
         <ErrorBox error={action.error} />
         <ErrorBox error={reads.error} />
-        {reads.busy && <p role="status" className="mem-muted mem-pad">Refreshing candidates…</p>}
-        {!reads.busy && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
+        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : "Refreshing candidates…"}</p>}
+        {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
         {items.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
           return (

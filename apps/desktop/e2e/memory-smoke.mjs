@@ -597,6 +597,54 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--lists-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'list fixture open');
+    await holdOperationObservation(s, true);
+    await nav(s, 'Sessions');
+    await waitFor(s, 'window.__operationHeld', 'initial session list held');
+    check('W02.session_list_wait_explained', await s.evaluate("document.querySelector('aside[aria-label=Sessions] [role=status]')?.textContent.includes('Reading sessions') === true"));
+    check('W02.pending_sessions_not_empty', !(await s.evaluate('__t.text()')).includes('No sessions yet.'));
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.session_list_read']}})");
+    await waitFor(s, "!!document.querySelector('aside[aria-label=Sessions] [role=alert]')", 'session read error');
+    check('W02.failed_sessions_not_empty', !(await s.evaluate('__t.text()')).includes('No sessions yet.'));
+    await click(s, 'aside[aria-label=Sessions] [role=alert] button', 'Retry');
+    await waitFor(s, has('No sessions yet.'), 'observed empty session list');
+    check('W02.observed_empty_sessions', await s.evaluate("!document.querySelector('aside[aria-label=Sessions] [role=alert]')"));
+    await click(s, 'button', 'New session');
+    await waitFor(s, "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled", 'real session created');
+    check('W01.new_session_after_list_retry', await s.evaluate("document.querySelectorAll('aside[aria-label=Sessions] button[aria-pressed]').length === 1 && !__t.text().includes('No sessions yet.')"));
+
+    await nav(s, 'Memory');
+    await waitFor(s, has('No approved memories here yet.'), 'initial memory page settled');
+    const saved = await s.evaluate("__t.invoke('memory_call',{request:{...__t.request('remember',{text:'Synthetic list read recovery candidate',claimKey:'fixture.list_read'}),idempotencyKey:'ui-'+crypto.randomUUID()}})");
+    if (!saved.ok) throw new Error(JSON.stringify(saved));
+    await holdOperationObservation(s, true);
+    await rail(s, 'Candidate inbox');
+    await waitFor(s, 'window.__operationHeld', 'candidate page held');
+    check('W02.pending_candidate_count_unknown', await s.evaluate("document.querySelector('.qr31')?.textContent.includes('Waiting for candidates') === true && !document.querySelector('.qr31')?.textContent.includes('0 waiting')"));
+    await set(s, '#mem-remember', 'Unsent recovery draft');
+    await set(s, '#mem-claim', 'fixture.unsent');
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.candidate_list_read']}})");
+    await waitFor(s, "!!document.querySelector('[aria-label=\"Candidate inbox\"] [role=alert]') || !!document.querySelector('.qr45 [role=alert]')", 'candidate read error');
+    check('W02.failed_candidates_not_empty', !(await s.evaluate('__t.text()')).includes('Nothing waiting for review.'));
+    check('W02.failed_candidate_count_unknown', await s.evaluate("document.querySelector('.qr31')?.textContent.includes('Candidates unavailable') === true && !document.querySelector('.qr31')?.textContent.includes('0 waiting')"));
+    await click(s, '.qr45 [role=alert] button', 'Retry');
+    await waitFor(s, "[...document.querySelectorAll('article.mem-candidate textarea')].some(field => field.value === 'Synthetic list read recovery candidate')", 'candidate recovered');
+    check('W02.candidate_list_retry_recovers', await s.evaluate("document.querySelectorAll('article.mem-candidate').length === 1 && document.querySelector('.qr31')?.textContent.includes('1 waiting')"));
+    check('W02.list_retry_preserves_unsent_draft', await s.evaluate("document.querySelector('#mem-remember').value === 'Unsent recovery draft' && document.querySelector('#mem-claim').value === 'fixture.unsent'"));
+    await acceptFirstCandidate(s, 'Synthetic list read recovery candidate');
+    await waitFor(s, has('Nothing waiting for review.'), 'observed empty candidate list');
+    check('W01.observed_empty_candidates', await s.evaluate("document.querySelector('.qr31')?.textContent.includes('0 waiting') === true && !document.querySelector('.qr45 [role=alert]')"));
+    await shot(s, '19-list-read-recovery');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const exit = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W02.list_host_exits', exit === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--confirm-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
