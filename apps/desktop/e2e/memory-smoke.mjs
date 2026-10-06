@@ -61,15 +61,23 @@ function session(url) {
     const msg = JSON.parse(m.data);
     if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); }
   };
-  const ready = new Promise((r) => (ws.onopen = r));
-  // A page that goes away answers every pending request with an error, so
-  // an unexpected exit fails the run instead of hanging it.
+  const CLOSED = { result: { exceptionDetails: { exception: { description: 'DevTools connection closed' } } } };
+  let closed = false;
+  let opened;
+  const ready = new Promise((r) => (opened = r));
+  ws.onopen = () => opened();
+  // A page that goes away answers every pending and every later request
+  // with an error, so an unexpected exit fails the run instead of hanging
+  // it. WebSocket.send on a closed socket is silently ignored.
   ws.onclose = () => {
-    for (const reply of pending.values()) reply({ result: { exceptionDetails: { exception: { description: 'DevTools connection closed' } } } });
+    closed = true;
+    opened();
+    for (const reply of pending.values()) reply(CLOSED);
     pending.clear();
   };
   const send = async (method, params = {}) => {
     await ready;
+    if (closed || ws.readyState !== WebSocket.OPEN) return CLOSED;
     const n = ++id;
     ws.send(JSON.stringify({ id: n, method, params }));
     return new Promise((r) => pending.set(n, r));

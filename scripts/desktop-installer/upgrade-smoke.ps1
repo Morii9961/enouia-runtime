@@ -120,6 +120,7 @@ New-Item -ItemType Directory -Path $root | Out-Null
 New-Item -ItemType Directory -Path $vaultDir | Out-Null
 New-Item -ItemType Directory -Path $appVaultDir | Out-Null
 $failure = $null
+$cleanupFailure = $null
 $app = $null
 try {
     $null = Invoke-MemoryCli @('init', $vaultDir, '--confirm-new-vault')
@@ -185,18 +186,24 @@ try {
     $uninstaller = Join-Path $installDir 'uninstall.exe'
     if (Test-Path -LiteralPath $uninstaller) {
         # Refuse cleanup if the global registration was changed by another
-        # installation. Only execute an uninstaller inside our fresh root.
-        Assert-OwnedRegistration ''
-        Assert-NoRunningRuntime
-        $ownedUninstaller = (Resolve-Path -LiteralPath $uninstaller).Path
-        if (-not $ownedUninstaller.StartsWith($root + '\', [StringComparison]::OrdinalIgnoreCase)) {
-            throw 'Uninstaller escaped the test root.'
+        # installation. Only execute an uninstaller inside our fresh root. A
+        # refusal is reported after the cleanup below, which always runs.
+        try {
+            Assert-OwnedRegistration ''
+            Assert-NoRunningRuntime
+            $ownedUninstaller = (Resolve-Path -LiteralPath $uninstaller).Path
+            if (-not $ownedUninstaller.StartsWith($root + '\', [StringComparison]::OrdinalIgnoreCase)) {
+                throw 'Uninstaller escaped the test root.'
+            }
+            $process = Start-Process -FilePath $ownedUninstaller -ArgumentList "/S _?=$installDir" -WindowStyle Hidden -PassThru -Wait
+            $checks.uninstall_exit_zero = $process.ExitCode -eq 0
+            $checks.app_removed = -not (Test-Path -LiteralPath $installedExe)
+            $checks.registration_removed = -not (Test-Path -LiteralPath $uninstallKey)
+            $checks.startup_value_removed_by_uninstall = $null -eq (Get-Item -LiteralPath $runKey).GetValue('EnouiaRuntime', $null)
+        } catch {
+            $cleanupFailure = $_
+            Write-Output "Uninstall refused; the synthetic installation stays at $installDir"
         }
-        $process = Start-Process -FilePath $ownedUninstaller -ArgumentList "/S _?=$installDir" -WindowStyle Hidden -PassThru -Wait
-        $checks.uninstall_exit_zero = $process.ExitCode -eq 0
-        $checks.app_removed = -not (Test-Path -LiteralPath $installedExe)
-        $checks.registration_removed = -not (Test-Path -LiteralPath $uninstallKey)
-        $checks.startup_value_removed_by_uninstall = $null -eq (Get-Item -LiteralPath $runKey).GetValue('EnouiaRuntime', $null)
     }
     # Never leave the drill's startup value behind, and never touch another.
     if ((Get-Item -LiteralPath $runKey).GetValue('EnouiaRuntime', $null) -ceq $startupCommand) {
@@ -224,4 +231,5 @@ try {
     Write-Output "Synthetic evidence: $root"
 }
 if ($failure) { throw $failure }
+if ($cleanupFailure) { throw $cleanupFailure }
 if ($checks.Count -ne 26 -or $checks.Values -contains $false) { throw 'Upgrade drill failed.' }

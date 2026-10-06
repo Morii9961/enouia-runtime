@@ -57,7 +57,7 @@ Both were fixed first in Memory's reference installer (Memory `bdceb41` and `090
 
 The [installer validation report](../validation/Desktop-installer-v1.md) covers:
 
-- 25 static ownership checks;
+- 26 static ownership checks;
 - 7 version-guard cases, 5 startup-cleanup cases and 2 locked-file cases;
 - an 8-check install and uninstall drill;
 - a 26-check upgrade drill on real packages. It covers:
