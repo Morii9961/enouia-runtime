@@ -46,6 +46,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
   - **Context.** Compile preview, the inclusion and exclusion decisions, and dispatches with the verified actual request.
   - **Home and Settings** show the Vault state and Memory's component states from `workspace_status`. Memory's fixed `activity` row is not shown; Activity keeps its own surface. The Runtime Inspector's component descriptions stay documentation references.
 - **Rendering.** Memory and source text render as plain text nodes only. There is no Markdown or HTML rendering and no link navigation. Source excerpts are labelled as data, not instructions.
+- **Session timing.** Only the latest detail read changes selection and restores that branch's question/checkpoint drafts. An outstanding write blocks branch switching; acknowledgement clears only the submitted draft field. See [native draft/timing evidence](validation/Session-drafts-v1.md).
 - **Explorer reads.** Each submitted query owns fresh rows and selection. Unobserved results remain unknown, and errors do not imply an empty search. Load more appends a Core page; a stale cursor keeps already observed rows with its error. Refresh results restarts at the first page with a new submission. See [paging and read-recovery evidence](validation/Explorer-feedback-v1.md).
 - **List reads.** Candidate counts and session lists stay unknown before observation, and failed reads cannot claim an empty list. Retry preserves unsent drafts. See [candidate/session read evidence](validation/List-read-feedback-v1.md); controlled read errors do not prove real storage recovery.
 - **Context reads.** Preview preparation, capsule reads and request reads have distinct waiting feedback. Selected-but-unread capsules are not labelled unselected, and dispatch metadata does not claim unread actual-request contents. A new preview clears the old selection, and a failed replacement preserves its query without implying an active read. See [Context read evidence](validation/Context-read-feedback-v1.md).
@@ -104,6 +105,8 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 `--lists-only` holds initial session/candidate list results, injects controlled read errors and checks recovery against real empty/nonempty Core pages. It also creates a session, confirms a synthetic candidate and checks retained unsent draft fields. The import argument is unused.
 
 `--context-only` checks saved preview/read states and controlled delivery/read failures, approves and indexes a synthetic fixture, and verifies a local Mock dispatch's actual request against the selected capsule. Replacement-preview retry keeps its query and remains unsent. The import argument is unused; no live Provider is called.
+
+`--sessions-only` creates two synthetic sessions, holds an older real detail reply until a newer selection has completed, and checks each branch's unsent question/checkpoint drafts. It also holds a real local Mock answer receipt, checks the write guard, then verifies the transcript and provisional checkpoint through Core. The import argument is unused.
 
 ## Bumping the pin
 

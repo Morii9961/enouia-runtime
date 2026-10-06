@@ -379,6 +379,8 @@ async function holdOperationObservation(s, memoryPage = false) {
     : memoryPage === 'compile' ? 'value?.result?.state === "saved_preview" && typeof value.result.capsuleId === "string"'
     : memoryPage === 'context' ? 'typeof value?.result?.delivery === "string" && !!value.result.capsule'
     : memoryPage === 'dispatch' ? 'typeof value?.result?.verified === "boolean" && Array.isArray(value.result.messages)'
+    : memoryPage === 'session' ? 'Array.isArray(value?.result?.transcript)'
+    : memoryPage === 'ask' ? 'Array.isArray(value?.result?.statements) && Array.isArray(value.result.sources) && typeof value.result.capsuleId === "string"'
     : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
@@ -600,6 +602,79 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--sessions-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'session timing fixture open');
+    await nav(s, 'Sessions');
+    const active = "document.querySelector('.mem-session-row[aria-pressed=true]')?.title";
+    const editable = "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled";
+    const drafts = "({text:document.querySelector('#mem-ask')?.value,summary:document.querySelector('#mem-cp')?.value})";
+    await click(s, 'button', 'New session');
+    await waitFor(s, editable, 'first session ready');
+    const a = await s.evaluate(active);
+    const branch = title => { const [sessionId, branchId] = title.split(' · '); return {sessionId, branchId}; };
+    const select = title => s.evaluate(`[...document.querySelectorAll('.mem-session-row')].find(row => row.title === ${JSON.stringify(title)}).click()`);
+    const detail = title => s.evaluate(`__t.invoke('memory_call',{request:__t.request('session_detail',${JSON.stringify(branch(title))})})`);
+    await set(s, '#mem-ask', 'Unsent question in session A');
+    await set(s, '#mem-cp', 'Unsent checkpoint in session A');
+    await click(s, 'button', 'New session');
+    await waitFor(s, `${editable} && ${active} !== ${JSON.stringify(a)}`, 'second session ready');
+    const b = await s.evaluate(active);
+    check('W02.new_session_has_own_drafts', await s.evaluate("document.querySelector('#mem-ask').value === '' && document.querySelector('#mem-cp').value === ''"));
+    await set(s, '#mem-ask', 'Synthetic question in session B');
+    await set(s, '#mem-cp', 'Synthetic checkpoint in session B');
+
+    await holdOperationObservation(s, 'session');
+    await select(a);
+    await waitFor(s, 'window.__operationHeld', 'older session A detail held');
+    await s.evaluate('window.__releaseOlderSession = window.__releaseOperation');
+    check('W02.pending_selection_keeps_observed_branch', await s.evaluate(`${active} === ${JSON.stringify(b)}`));
+    check('W02.pending_detail_preserves_current_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
+    check('W02.pending_detail_explained', await s.evaluate("document.querySelector('[aria-label=\"Session transcript\"] [role=status]')?.textContent.includes('Reading the session') === true"));
+    await select(b);
+    await waitFor(s, editable, 'newer session B detail delivered');
+    await s.evaluate('window.__releaseOlderSession()');
+    await sleep(300);
+    check('W02.older_detail_cannot_replace_selection', await s.evaluate(`${active} === ${JSON.stringify(b)} && ${editable}`));
+    check('W02.older_detail_cannot_replace_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
+
+    await holdOperationObservation(s, 'ask');
+    await click(s, 'form button', 'Send');
+    await waitFor(s, 'window.__operationHeld', 'real session B answer receipt held');
+    const answered = await s.evaluate('window.__operationObserved');
+    check('W02.pending_answer_blocks_branch_switch', await s.evaluate("[...document.querySelectorAll('.mem-session-row')].every(row => row.disabled)"));
+    await select(a); // A disabled native button does not dispatch its click.
+    check('W02.pending_answer_keeps_branch', await s.evaluate(`${active} === ${JSON.stringify(b)}`));
+    check('W02.pending_answer_preserves_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
+    check('W02.pending_answer_blocks_composers', await s.evaluate("document.querySelector('#mem-ask').disabled && document.querySelector('#mem-cp').disabled"));
+    await shot(s, '23-session-answer-pending');
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, `${editable} && document.querySelector('#mem-ask').value === ''`, 'session B acknowledged and refreshed');
+    check('W02.answer_clears_only_submitted_field', await s.evaluate("document.querySelector('#mem-cp').value === 'Synthetic checkpoint in session B'"));
+    check('W01.actual_local_mock_answer_visible', answered.status && await s.evaluate(has(`Answer · ${answered.status}`)));
+    const afterAskA = await detail(a);
+    const afterAskB = await detail(b);
+    check('W01.answer_is_saved_in_requested_branch', afterAskA.ok?.result?.transcript?.length === 0 && afterAskB.ok?.result?.transcript?.some(event => event.text === 'Synthetic question in session B'));
+    await click(s, 'form button', 'Save checkpoint');
+    await waitFor(s, `${editable} && document.querySelector('#mem-cp').value === ''`, 'session B checkpoint acknowledged');
+    const afterCheckpointB = await detail(b);
+    const memories = await s.evaluate("__t.invoke('memory_call',{request:__t.request('memory_list',{cursor:null,limit:25,includeInactive:false})})");
+    check('W01.checkpoint_stays_provisional', afterCheckpointB.ok?.result?.checkpoints?.length === 1 && afterCheckpointB.ok.result.checkpoints[0].status === 'provisional' && memories.ok?.result?.total === 0);
+    await select(a);
+    await waitFor(s, `${editable} && ${active} === ${JSON.stringify(a)}`, 'session A selected again');
+    check('W02.return_restores_branch_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Unsent question in session A',summary:'Unsent checkpoint in session A'}));
+    check('W02.return_clears_other_branch_answer', !(await s.evaluate('__t.text()')).includes('Answer ·'));
+    const afterCheckpointA = await detail(a);
+    check('W01.unsent_branch_remains_unwritten', afterCheckpointA.ok?.result?.transcript?.length === 0 && afterCheckpointA.ok.result.checkpoints?.length === 0);
+    await shot(s, '24-session-restored-drafts');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const exit = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W02.session_timing_host_exits', exit === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--context-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
