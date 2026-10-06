@@ -3,7 +3,9 @@
 //! search window, and the window lifecycle commands. Closing a window hides
 //! it and Memory keeps running. Leaving Runtime is an explicit Exit (tray or
 //! Settings), which shuts the Memory Core down before the process ends.
-//! Nothing here touches Activity.
+//! Ending the Windows session, or an installer's Restart Manager request
+//! (ADR-027), runs the same shutdown: tao turns WM_ENDSESSION into
+//! `RunEvent::Exit` (see main.rs). Nothing here touches Activity.
 
 use crate::memory::MemoryHost;
 use serde_json::{Value, json};

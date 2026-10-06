@@ -41,5 +41,20 @@
       "freezePrototype": true
     }
   },
-  "bundle": { "active": false }
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "shortDescription": "Windows client for Enouia Memory's local part",
+    "icon": ["icons/icon.ico"],
+    "windows": {
+      "allowDowngrades": false,
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": true,
+        "template": "./windows/installer.nsi",
+        "installerHooks": "./windows/hooks.nsh"
+      }
+    }
+  }
 }

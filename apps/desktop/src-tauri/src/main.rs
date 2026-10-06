@@ -3,7 +3,8 @@
 //! Enouia Runtime's Windows shell. It hosts Enouia Memory's local client
 //! through the Memory adapter (ADR-025) and the companion shell (ADR-026):
 //! tray, quick search and opt-in login startup. Closing a window hides it;
-//! Exit is explicit and shuts the Memory Core down first. It registers no
+//! Exit is explicit and shuts the Memory Core down first, as does the end of
+//! the Windows session or an installer's request to close (ADR-027). It registers no
 //! filesystem, shell, network, provider or Activity command, and it never
 //! pauses the independently installed Activity producer.
 
@@ -57,6 +58,9 @@ fn main() {
         })
         .build(context)
         .expect("could not start Enouia Runtime");
+    // Every way the event loop ends reaches here: Exit, and WM_ENDSESSION at
+    // sign-out, shutdown or an installer's Restart Manager request, which tao
+    // turns into `RunEvent::Exit` before it ends the process (ADR-027).
     app.run(|app, event| {
         if let RunEvent::Exit = event {
             app.state::<MemoryHost>().shutdown();

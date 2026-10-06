@@ -63,7 +63,7 @@ Runtime meanwhile kept designing a parallel Core: the `enouia-memory`, `enouia-s
 - The desktop build needs a MinGW C compiler, for Memory's bundled SQLite, and one online fetch per pin before offline builds.
 - There is no default or remembered Vault root. The owner opens or creates one in the native dialog, or names it with `--memory-vault`.
 - Only one embedded Core may have a Vault open at a time. Memory enforces this since ADR-MEM-46: a second Core gets `workspace.vault_in_use`.
-- Tray, global hotkey and quick search, and login startup were ported in [ADR-026](026-companion-shell.md). The installer remains a separate slice. The parity list is in [Memory integration v1](../MEMORY_INTEGRATION_v1.md).
+- Tray, global hotkey and quick search, and login startup were ported in [ADR-026](026-companion-shell.md); the installer in [ADR-027](027-desktop-installer.md). The parity list is in [Memory integration v1](../MEMORY_INTEGRATION_v1.md).
 - When Memory MV-8 replaces the embedded Core with the single Memory Host, Runtime's adapter becomes a Host client behind the same envelope. That is a breaking surface change, coordinated through both logs.
 
 ## Activation gates
@@ -81,7 +81,7 @@ Still pending:
 
 - Part of Memory's W05 acceptance on Runtime's host. Since ADR-026 (2026-10-05) the smoke covers W01–W04, including the folder picker, cancel and resume, Retry with the same key, paging and one Core per Vault (see the [validation](../validation/Memory-integration-v1.md)). Still open:
   - Narrator and a real contrast theme
-  - an installed artifact and an actual Windows sign-in start
+  - an actual Windows sign-in start (the installed artifact is covered by [ADR-027](027-desktop-installer.md))
   - the tray icon and its menu, which no automated run has clicked
-- The installer (the companion features shipped in ADR-026).
+- Signing the installer (the companion features shipped in ADR-026, the unsigned installer in ADR-027).
 - Any real Vault use, which needs the owner's own backup and recovery preparation under Memory's privacy gates.

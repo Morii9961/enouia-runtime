@@ -86,7 +86,7 @@ Each review had dimension reviewers, and every finding got an adversarial verifi
 
 ## Limits
 
-- **Not run:** Narrator, a real Windows contrast theme, an installed artifact, code signing and an actual sign-in start. The installer is pending (`bundle.active` is false).
+- **Not run:** Narrator, a real Windows contrast theme, code signing and an actual sign-in start. The installed artifact is covered by the [installer evidence](Desktop-installer-v1.md) (ADR-027), which also adds two session-end checks to this smoke.
 - **Tray:** no run clicked the notification area. The tray's Show and Exit call the same functions as the tested quick-search link and Settings Exit. The tray's Lock is reached only from the tray and is untested.
 - **Single-unit imports:** a single-file Markdown import is one batch. It holds the writer lock for its whole parse (23–48 s for a 6,000-section synthetic file), so other writes answer retryable `busy` meanwhile. Recorded in Memory's handoff as known Core behaviour.
 - **Lock during uncancellable work:** the smoke did not lock or exit while a verify or backup was running. The gate classes are unit-tested.

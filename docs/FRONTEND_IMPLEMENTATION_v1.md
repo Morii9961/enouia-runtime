@@ -26,6 +26,7 @@ npm run preview
 # Native development; requires Cargo on PATH
 npm run desktop:dev
 # Build an embedded-assets Windows executable, without installer or deployment
+# (npm run desktop:bundle adds the current-user installer, ADR-027)
 npm run desktop:build
 # Debug executable for local acceptance
 npm run desktop:build -- --debug
@@ -52,7 +53,7 @@ On this restricted host, Node child-process creation requires approved execution
 
 The view fixtures in `demo-data.js` and `DemoMemory` in `demo-state.ts` are **not canonical Rust DTOs**. Never forward them as backend requests. The Memory boundary has been replaced by the typed Memory client (`src/memory/client.ts`) over the adapter (ADR-025); Activity and Runtime Inspector still keep the demo boundary until their handlers and ADR activation gates pass. Canonical IDs, source records, timestamps, durability and acknowledgements must be backend-owned. Only an acknowledged result may update the production UI; errors/disconnects must retain pending state. Proposed v2 jobs and read contracts cannot be activated by simply copying the v1 handoff mapping.
 
-Keep Activity & Usage outside Memory/Context. The delivered Activity page is an event timeline, not the future three-source usage calendar. Real Provider continuation (Memory MV-7), live Activity control, migration, installer/signing and production activation remain separate integration work; the tray, global hotkey and quick search, and login startup shipped with [ADR-026](adr/026-companion-shell.md). This slice does not claim A3/J1 acceptance.
+Keep Activity & Usage outside Memory/Context. The delivered Activity page is an event timeline, not the future three-source usage calendar. Real Provider continuation (Memory MV-7), live Activity control, migration, signing and production activation remain separate integration work. The tray, global hotkey and quick search, and login startup shipped with [ADR-026](adr/026-companion-shell.md), and the unsigned current-user installer with [ADR-027](adr/027-desktop-installer.md). This slice does not claim A3/J1 acceptance.
 
 ## Reference APIs
 

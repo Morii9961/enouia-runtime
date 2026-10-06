@@ -24,7 +24,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
   - Every call runs on `spawn_blocking`.
   - `vault_open`, `vault_create`, `vault_lock` and `vault_unlock` take a gate exclusively. The commands that start operations (import, index rebuild, verify, backup) take it shared, so no operation can start on a Vault handle that is closing.
   - Plain reads are not gated. While a lock waits for verify or backup, which cannot be cancelled, status and progress still answer.
-  - Closing a window only hides it (ADR-026). Exit, from the tray or Settings, takes the gate and calls `shutdown()`: that cancels import and index work, waits for verify and backup, and releases the Vault and index. Then the process exits. Only the first exit request runs, and from then on `workspace_status` reports `companion.exiting` so the page shows the exit instead of an empty Vault.
+  - Closing a window only hides it (ADR-026). Exit, from the tray or Settings, takes the gate and calls `shutdown()`: that cancels import and index work, waits for verify and backup, and releases the Vault and index. Then the process exits. Only the first exit request runs, and from then on `workspace_status` reports `companion.exiting` so the page shows the exit instead of an empty Vault. The end of the Windows session, or an installer's Restart Manager close, reaches the same shutdown through `RunEvent::Exit` (ADR-027).
   - The tray's Lock runs on a worker thread, never on the event loop. A lock also hides quick search.
 - **Data root.** No root is remembered or opened by default. The owner opens or creates one through the native dialog; creating one needs the typed phrase `create new vault`. The owner can also name a root with `--memory-vault <dir>`. The root must not sit under a Git working tree, a sync folder, Program Files or Windows, and the Core refuses such roots.
 - **Companion (ADR-026).** Tray (Show, Lock Memory Vault, Exit; left click shows). Global hotkey Ctrl+Alt+M, or another letter with `--hotkey-key`, opens quick search; a conflict is reported in Settings. Opt-in login startup writes only `HKCU\…\Run\EnouiaRuntime` = `"<exe>" --autostart`, which starts in the tray with no Vault.
@@ -72,6 +72,7 @@ npm run check
 npm test
 npm run build
 npm run desktop:build                 # embedded-assets executable, no installer
+npm run desktop:bundle                # the same plus the current-user NSIS installer (ADR-027)
 cd src-tauri
 cargo metadata --offline --locked --format-version 1 > target/desktop-metadata.json
 node ../../../scripts/check-domain-boundaries.mjs target/desktop-metadata.json --self-test
@@ -86,6 +87,7 @@ node scripts/check-memory-integration.mjs --self-test
 - It writes and removes Runtime's own Run value. It never touches a value that existed before the run, and removes its own value again on failure or Ctrl+C.
 - Once the hotkey is confirmed registered, it presses Ctrl+Alt+<letter> once through SendInput, so keep the desktop idle while it runs.
 - It starts a second Runtime process to check one Core per Vault and the hotkey conflict.
+- It ends with a Restart Manager close of every process running the executable it was given, as an installer would.
 
 Screenshots and `report.json` go to the output folder, which is not committed. See the [validation report](validation/Memory-integration-v1.md).
 
@@ -110,8 +112,9 @@ Never commit a path dependency, branch, `[patch]` or a lockfile produced by a lo
 | Tray (show, lock, exit), close-to-tray, explicit exit | Implemented (ADR-026) |
 | Global hotkey and quick search (`HostSurface::QuickSearch`) | Implemented (ADR-026) |
 | Opt-in login startup | Implemented (ADR-026) |
-| Current-user installer, upgrade and downgrade rules | Pending (`bundle.active` is false) |
-| Runtime-hosted W01–W05 acceptance | W01–W04 covered by the smoke on synthetic Vaults: picker and folder picker, review, sources, correction, import cancel and resume, paging, Retry with the same key under a held writer lock, sessions and context, lock, close and exit, one Core per Vault, and quick-search scope. W05 partly: shortcuts, focus, hotkey registration and conflict, the real hotkey opening quick search, Escape hiding and clearing it, a hidden `--autostart` start, and the login-startup value are covered. Pending: Narrator, a real contrast theme, an installed artifact, an actual sign-in start, and the tray icon and its menu, which no automated run clicks. |
+| Current-user installer, upgrade and downgrade rules | Implemented ([ADR-027](adr/027-desktop-installer.md)): `npm run desktop:bundle`, unsigned |
+| Code signing of the installer and executable | Pending |
+| Runtime-hosted W01–W05 acceptance | W01–W04 covered by the smoke on synthetic Vaults: picker and folder picker, review, sources, correction, import cancel and resume, paging, Retry with the same key under a held writer lock, sessions and context, lock, close and exit, one Core per Vault, and quick-search scope. W05 partly: shortcuts, focus, hotkey registration and conflict, the real hotkey opening quick search, Escape hiding and clearing it, a hidden `--autostart` start, and the login-startup value are covered. An installed artifact is covered by the installer drills (ADR-027). Pending: Narrator, a real contrast theme, an actual sign-in start, and the tray icon and its menu, which no automated run clicks. |
 
 Memory's reference shell stays Memory's acceptance harness. Use Runtime as the client; the Core refuses a second embedded Core on the same Vault.
 

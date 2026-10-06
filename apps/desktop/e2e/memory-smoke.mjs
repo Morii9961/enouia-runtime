@@ -15,7 +15,9 @@
 // The login-startup check writes and then removes Runtime's own Run value;
 // it never touches a value that existed before the run. Once the hotkey is
 // confirmed registered, the run presses Ctrl+Alt+<letter> once through
-// SendInput, so keep the desktop idle while it runs.
+// SendInput, so keep the desktop idle while it runs. The last run ends with
+// a Restart Manager close of every process running <absolute exe>, as an
+// installer would; run nothing else from that path meanwhile.
 // Synthetic data only. The debug ports exist only for this test process.
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -60,6 +62,12 @@ function session(url) {
     if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); }
   };
   const ready = new Promise((r) => (ws.onopen = r));
+  // A page that goes away answers every pending request with an error, so
+  // an unexpected exit fails the run instead of hanging it.
+  ws.onclose = () => {
+    for (const reply of pending.values()) reply({ result: { exceptionDetails: { exception: { description: 'DevTools connection closed' } } } });
+    pending.clear();
+  };
   const send = async (method, params = {}) => {
     await ready;
     const n = ++id;
@@ -79,7 +87,11 @@ async function connect(port, quick = false) {
     try {
       const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
       const want = quick ? 'overlay' : 'main';
-      for (const page of targets.filter((t) => t.type === 'page' && t.url.startsWith('http://tauri.localhost/'))) {
+      // The URL picks the candidate, so no extra DevTools client attaches to
+      // the other window; the native label then confirms it.
+      const candidates = targets.filter((t) => t.type === 'page' && t.url.startsWith('http://tauri.localhost/') &&
+        t.url.includes('view=overlay') === quick);
+      for (const page of candidates) {
         const s = session(page.webSocketDebuggerUrl);
         await waitFor(s, "document.readyState === 'complete' && !!document.querySelector('#root > *')", 'page initialized');
         // The native window label, not the URL, identifies the window.
@@ -197,6 +209,55 @@ if(title.ToString()==want) result=IsWindowVisible(h)?"visible":"hidden";
 }}
 '@
 [WindowProbe]::Probe(${pid}, '${title}')`);
+}
+
+// A cancelled session end, as Windows sends it when sign-out or shutdown is
+// cancelled: WM_QUERYENDSESSION, then WM_ENDSESSION(FALSE), to every
+// top-level window of the process (ADR-027).
+function cancelSessionEnd(pid) {
+  return powershell(`Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class SessionEnd {
+public delegate bool EnumProc(IntPtr h, IntPtr p);
+[DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc e, IntPtr p);
+[DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint p);
+[DllImport("user32.dll")] public static extern IntPtr SendMessageTimeout(IntPtr h, uint m, IntPtr w, IntPtr l, uint f, uint t, out IntPtr r);
+public static int Cancel(uint pid) {
+int count = 0;
+EnumWindows((h,p)=> { uint id; GetWindowThreadProcessId(h,out id); if(id==pid) {
+IntPtr r; SendMessageTimeout(h,0x11,IntPtr.Zero,IntPtr.Zero,2,10000,out r);
+SendMessageTimeout(h,0x16,IntPtr.Zero,IntPtr.Zero,2,10000,out r);
+count++;
+} return true; },IntPtr.Zero);
+return count;
+}}
+'@
+[SessionEnd]::Cancel(${pid})`);
+}
+
+// Close every process running this executable through Restart Manager with
+// RmForceShutdown, exactly as the installer's running-app check does.
+function restartManagerClose(executable) {
+  return powershell(`Add-Type -TypeDefinition @'
+using System;
+using System.Text;
+using System.Runtime.InteropServices;
+public static class Rm {
+[DllImport("rstrtmgr.dll", CharSet=CharSet.Unicode)] static extern int RmStartSession(out uint h, int flags, StringBuilder key);
+[DllImport("rstrtmgr.dll", CharSet=CharSet.Unicode)] static extern int RmRegisterResources(uint h, uint nFiles, string[] files, uint nApps, IntPtr apps, uint nServices, string[] services);
+[DllImport("rstrtmgr.dll")] static extern int RmShutdown(uint h, uint flags, IntPtr callback);
+[DllImport("rstrtmgr.dll")] static extern int RmEndSession(uint h);
+public static string Close(string file) {
+uint h; var key = new StringBuilder(64);
+int r = RmStartSession(out h, 0, key); if (r != 0) return "start " + r;
+try {
+r = RmRegisterResources(h, 1, new[] { file }, 0, IntPtr.Zero, 0, null); if (r != 0) return "register " + r;
+return "shutdown " + RmShutdown(h, 1, IntPtr.Zero);
+} finally { RmEndSession(h); }
+}}
+'@
+[Rm]::Close('${executable.replace(/'/g, "''")}')`);
 }
 
 const RUN_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
@@ -594,9 +655,18 @@ async function main() {
   await nav(s, 'Sessions');
   await waitFor(s, "document.querySelectorAll('.mem-session-row').length > 0", 'session after restart');
   check('W01.persists_after_restart', true);
-  void s.evaluate("__t.invoke('exit_app')").catch(() => 0);
-  await Promise.race([app.exited, sleep(20000)]);
+
+  // Session end (ADR-027). A cancelled end changes nothing. A Restart
+  // Manager close, as from the installer, reaches tao's WM_ENDSESSION path:
+  // RunEvent::Exit runs the Memory shutdown, then the process exits 0. A
+  // forced termination would end it with another code.
+  const windows = cancelSessionEnd(app.pid);
+  await sleep(800);
+  check('W03.cancelled_session_end_keeps_running', Number(windows) > 0 && (await statusOf(s)).vault.state === 'open', `${windows} windows`);
   s.close();
+  const closed = restartManagerClose(exe);
+  const ended = await Promise.race([app.exited, sleep(30000).then(() => 'timeout')]);
+  check('W03.restart_manager_close_runs_exit', closed === 'shutdown 0' && ended === 0, `${closed}, exit ${ended}`);
 }
 
 try {

@@ -41,10 +41,10 @@ Until Runtime provided these, Runtime and the reference shell each covered part 
 
 ## Consequences
 
-- Runtime now provides the whole local Memory client except the installer. Memory's reference shell stays Memory's acceptance harness, not something the owner needs alongside Runtime.
+- Runtime now provides the whole local Memory client; the installer followed in [ADR-027](027-desktop-installer.md). Memory's reference shell stays Memory's acceptance harness, not something the owner needs alongside Runtime.
 - **Closing no longer exits.** An owner who expects close to quit must use Exit. Settings and the Memory Vault page explain the four stops.
 - **Hotkey conflicts.** Two Runtime processes, or Runtime and the reference shell, compete for the same hotkey. The second reports a conflict, and the second embedded Core is refused by Memory's host lock.
-- **Installer still pending.** `bundle.active` stays false. A current-user installer needs its own ownership rules and a downgrade guard, as Memory's has, and is a separate slice.
+- **Installer.** Delivered separately in [ADR-027](027-desktop-installer.md), with Memory's ownership rules and downgrade guard. ADR-027 also confirms that the end of a Windows session, or an installer's Restart Manager close, runs the Memory shutdown through `RunEvent::Exit`.
 
 ## Evidence
 
@@ -60,4 +60,4 @@ The [validation report](../validation/Memory-integration-v1.md) covers this ADR.
   - close hides, Exit ends the process
   - one Core per Vault across two processes
 
-Still pending: Narrator and a real contrast theme, an installed artifact, signing, an actual Windows sign-in start, and the tray icon and its menu. No automated run clicks the notification area; the tray's Show and Exit call the same functions the tested paths call, while the tray's Lock runs only from the tray.
+Still pending: Narrator and a real contrast theme, signing, an actual Windows sign-in start, and the tray icon and its menu. The installed artifact is covered by ADR-027's installer drills. No automated run clicks the notification area; the tray's Show and Exit call the same functions the tested paths call, while the tray's Lock runs only from the tray.

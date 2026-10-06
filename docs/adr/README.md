@@ -170,7 +170,7 @@ The user wants official `claude_design` product tokens added to the existing Cla
 
 [ADR-025](025-enouia-memory-integration.md) makes the Enouia Memory repository the authority for Identity, Memory, review, Sessions, Vault, index, Context, the Provider path and every cloud stage. `apps/desktop/src-tauri` embeds `enouia-memory-workspace` at the exact revision in the [pin record](../integration/memory-pin.json), behind a Runtime-owned adapter (`memory_call`, `memory_pick`) described in [Memory integration v1](../MEMORY_INTEGRATION_v1.md). In the native shell, the Memory, Context and Sessions surfaces and the Vault status on Home and Settings use the pinned Core; browser previews, Activity and the Runtime Inspector stay fictional. Runtime's local Core crates and ADR-020 to 024 are frozen history. Activity & Usage stays independent and never passes through the adapter. A real-app smoke covers selected W01, W03 and W04 paths and the index-rebuild part of W02. Full Runtime-hosted W01–W05 acceptance, the tray, hotkey and overlay, login startup and the installer remain pending.
 
-Update (2026-10-05, ADR-026): the tray, hotkey and quick search, and login startup are implemented, and the smoke now covers W01–W04. Still pending: the installer and the rest of W05 (Narrator, a real contrast theme, an installed artifact, an actual sign-in start, and a tray menu clicked by hand).
+Update (2026-10-05, ADR-026): the tray, hotkey and quick search, and login startup are implemented, and the smoke now covers W01–W04. Update (2026-10-06, ADR-027): the unsigned current-user installer is implemented. Still pending: signing and the rest of W05 (Narrator, a real contrast theme, an actual sign-in start, and a tray menu clicked by hand).
 
 ## ADR-026 — Companion shell for Memory's local client (Adopted; implemented)
 
@@ -180,4 +180,16 @@ Update (2026-10-05, ADR-026): the tray, hotkey and quick search, and login start
 - Ctrl+Alt+M (or `--hotkey-key`) opens a quick-search window scoped to `memory_search` by native window identity, with its own minimal capability.
 - Opt-in login startup writes only Runtime's own Run value and starts in the tray with no Vault.
 
-Activity is untouched. The installer remains pending.
+Activity is untouched. The installer followed in ADR-027.
+
+## ADR-027 — Current-user installer for the desktop shell (Adopted; implemented)
+
+[ADR-027](027-desktop-installer.md) adds an unsigned current-user NSIS installer (`npm run desktop:bundle`).
+
+- Its template is a byte-identical copy of Memory's derived Tauri 2.12.0 template, without the app-data deletion option or the generic Run-value deletion.
+- Runtime's hooks:
+  - make a file that cannot be replaced fail the install (`AllowSkipFiles off`);
+  - refuse a newer or unrecognized installed version;
+  - after the running-app check and outside update mode, remove only Runtime's exact startup command.
+- Uninstall owns application files only. Vaults, backups, the WebView2 profile and Activity stay in place.
+- No session-end code is added. The template closes a running Runtime through Restart Manager, and the pinned tao turns its `WM_ENDSESSION` into `RunEvent::Exit`, which runs the Memory shutdown. A real Restart Manager close in the smoke and the upgrade drill confirms this.

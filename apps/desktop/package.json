@@ -13,7 +13,8 @@
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "check": "tsc --project tsconfig.json",
     "desktop:dev": "tauri dev",
-    "desktop:build": "tauri build --no-bundle"
+    "desktop:build": "tauri build --no-bundle",
+    "desktop:bundle": "tauri build --bundles nsis"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.0",
