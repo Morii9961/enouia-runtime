@@ -277,3 +277,8 @@ input:focus-visible,textarea:focus-visible{outline:1px solid var(--ice);outline-
 .surface-error{padding:48px;max-width:760px;margin:auto}
 [data-motion="reduced"] *{animation:none !important;transition:none !important}
 .qr230:hover{color:var(--primary)}
+/* System contrast themes remove background-only selection differences. */
+@media (forced-colors: active){
+  button[aria-current="page"]:not(:focus-visible),button[aria-pressed="true"]:not(:focus-visible){outline:3px solid Highlight;outline-offset:-4px}
+  :focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid CanvasText;outline-offset:3px}
+}

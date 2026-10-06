@@ -553,7 +553,59 @@ async function pickerChecks(s, app) {
   await shot(s, '13-backup-preview');
 }
 
+// Browser media emulation checks only: this never changes the owner's
+// Windows theme or sends input outside the owned WebView2 debug session.
+async function contrastChecks(s) {
+  const media = await s.send('Emulation.setEmulatedMedia', { features: [{ name: 'forced-colors', value: 'active' }] });
+  if (media.error) throw new Error(media.error.message);
+  check('W05.forced_colors_media_emulated', await s.evaluate("matchMedia('(forced-colors: active)').matches"));
+  await click(s, 'button[aria-label]', 'Memory');
+  await waitFor(s, "!!document.querySelector('button[aria-pressed=true]')", 'memory collection');
+  await s.evaluate('document.activeElement.blur()');
+  const selected = await s.evaluate(`(() => {
+    const selectors = ['button[aria-current=page]', 'button[aria-pressed=true]'];
+    return selectors.map(selector => {
+      const el = document.querySelector(selector); const style = getComputedStyle(el);
+      return { label: el.getAttribute('aria-label') || el.textContent, style: style.outlineStyle, width: parseFloat(style.outlineWidth), adjustment: style.forcedColorAdjust };
+    });
+  })()`);
+  check('W05.current_navigation_has_selection_cue', selected[0].style !== 'none' && selected[0].width >= 2, JSON.stringify(selected[0]));
+  check('W05.current_collection_has_selection_cue', selected[1].style !== 'none' && selected[1].width >= 2, JSON.stringify(selected[1]));
+  check('W05.system_colors_remain_enabled', selected.every(item => item.adjustment === 'auto'));
+  await shot(s, '14-forced-colors-selected');
+  await s.evaluate("document.querySelector('button[aria-label=Home]').focus()");
+  for (const type of ['keyDown', 'keyUp']) {
+    const key = await s.send('Input.dispatchKeyEvent', { type, key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+    if (key.error) throw new Error(key.error.message);
+  }
+  const focus = await s.evaluate(`(() => {
+    const el = document.activeElement; const style = getComputedStyle(el);
+    return { label: el.getAttribute('aria-label'), visible: el.matches(':focus-visible'), style: style.outlineStyle, width: parseFloat(style.outlineWidth), offset: parseFloat(style.outlineOffset) };
+  })()`);
+  check('W05.keyboard_focus_has_separate_cue', focus.label === 'Memory' && focus.visible && focus.style !== 'none' && focus.width >= 2 && focus.offset >= 2, JSON.stringify(focus));
+  await shot(s, '15-forced-colors-keyboard');
+  const clear = await s.send('Emulation.setEmulatedMedia', { features: [] });
+  if (clear.error) throw new Error(clear.error.message);
+  check('W05.media_emulation_cleared', !(await s.evaluate("matchMedia('(forced-colors: active)').matches")));
+  await s.evaluate('document.activeElement.blur()');
+  const ordinary = await s.evaluate("getComputedStyle(document.querySelector('button[aria-current=page]')).outlineStyle");
+  check('W05.ordinary_selection_appearance_preserved', ordinary === 'none');
+  await shot(s, '16-ordinary-selection');
+}
+
 async function main() {
+  if (process.argv[6] === '--contrast-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'contrast fixture open');
+    await contrastChecks(s);
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W05.contrast_host_exits', code === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--picks-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
