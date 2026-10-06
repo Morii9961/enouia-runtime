@@ -60,9 +60,11 @@ function session(url) {
   ws.onclose = () => sessions.delete(ws);
   let id = 0;
   const pending = new Map();
+  const observers = new Map();
   ws.onmessage = (m) => {
     const msg = JSON.parse(m.data);
     if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); }
+    if (msg.method) observers.get(msg.method)?.(msg.params);
   };
   const ready = new Promise((r) => (ws.onopen = r));
   const send = async (method, params = {}) => {
@@ -76,7 +78,7 @@ function session(url) {
     if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description ?? 'eval failed');
     return r.result?.result?.value;
   };
-  return { send, evaluate, close: () => ws.close() };
+  return { send, evaluate, observe: (method, callback) => observers.set(method, callback), close: () => ws.close() };
 }
 
 // The port may be claimed between selection and launch. Refuse CDP unless
@@ -373,6 +375,7 @@ async function holdOperationObservation(s, memoryPage = false) {
   const matches = memoryPage === true ? 'Array.isArray(value?.result?.items)'
     : memoryPage === 'preview' ? "typeof value?.result?.recognized === 'boolean'"
     : memoryPage === 'restore' ? 'value?.result?.valid === true'
+    : memoryPage === 'confirm' ? 'typeof value?.result?.commitId === "string" && Array.isArray(value.result.reviewIds)'
     : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
@@ -594,6 +597,83 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--confirm-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'confirm fixture open');
+    const saved = await s.evaluate("__t.invoke('memory_call',{request:{...__t.request('remember',{text:'Synthetic pending confirmation fixture',claimKey:'fixture.confirm_timing'}),idempotencyKey:'ui-'+crypto.randomUUID()}})");
+    if (!saved.ok) throw new Error(JSON.stringify(saved));
+    await nav(s, 'Memory');
+    await rail(s, 'Candidate inbox');
+    await waitFor(s, "!!document.querySelector('article.mem-candidate button')", 'confirm candidate ready');
+    await s.evaluate("__t.byText('article.mem-candidate button','Accept').focus()");
+    await click(s, 'article.mem-candidate button', 'Accept');
+    await waitFor(s, "!!document.querySelector('dialog[open]')", 'confirm plan ready');
+    const plannedId = await s.evaluate("JSON.parse(document.querySelector('dialog[open] pre').textContent)[0].record_id");
+    // Observe request bodies in this owned debug session. Tauri's invoke
+    // property stays immutable; never replace the application's transport.
+    const confirmations = [];
+    s.observe('Network.requestWillBeSent', ({ request }) => {
+      if (request.url !== 'http://ipc.localhost/memory_call' || !request.postData) return;
+      const payload = JSON.parse(request.postData).request;
+      if (payload?.command === 'review_confirm') confirmations.push(payload);
+    });
+    const network = await s.send('Network.enable', { maxPostDataSize: 4096 });
+    if (network.error) throw new Error(network.error.message);
+    await holdOperationObservation(s, 'confirm');
+    await click(s, 'dialog[open] button', 'Confirm');
+    await waitFor(s, 'window.__operationHeld', 'real commit result delivery held');
+    check('W02.pending_confirm_disables_actions', await s.evaluate("[...document.querySelectorAll('dialog[open] button')].every(button => button.disabled)"));
+    check('W02.pending_confirm_explained', await s.evaluate("document.querySelector('dialog[open] [role=status]')?.textContent.includes('Waiting for Memory') === true"));
+    check('W05.pending_confirm_refuses_platform_close', await s.evaluate("document.querySelector('dialog[open]').getAttribute('closedby') === 'none'"));
+    for (let count = 0; count < 2; count++) {
+      for (const type of ['keyDown', 'keyUp']) await s.send('Input.dispatchKeyEvent', {type, key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    }
+    const afterEscape = await s.evaluate("({open:!!document.querySelector('dialog[open]'),mounted:!!document.querySelector('dialog'),waiting:!!document.querySelector('dialog [role=status]')})");
+    check('W05.pending_confirm_survives_escape', afterEscape.open, JSON.stringify(afterEscape));
+    await waitFor(s, "!!document.querySelector('dialog[open]')", 'pending plan remains or reopens after Escape');
+    // Disable the attribute in the test page to exercise the keydown
+    // fallback independently; this does not emulate an older WebView.
+    await s.evaluate("document.querySelector('dialog[open]').removeAttribute('closedby')");
+    for (let count = 0; count < 2; count++) {
+      for (const type of ['keyDown', 'keyUp']) await s.send('Input.dispatchKeyEvent', {type,key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    }
+    check('W05.pending_confirm_keyboard_fallback', await s.evaluate("!!document.querySelector('dialog[open]')"));
+    await s.evaluate("document.querySelector('dialog[open]').setAttribute('closedby','none')");
+    // Exercise the platform close-event fallback deterministically too.
+    await s.evaluate("document.querySelector('dialog[open]').close()");
+    await waitFor(s, "!!document.querySelector('dialog[open]')", 'pending plan reopened after close event');
+    check('W05.pending_confirm_survives_close_event', true);
+    for (const type of ['keyDown', 'keyUp']) await s.send('Input.dispatchKeyEvent', {type,key:'4',code:'Digit4',modifiers:2,windowsVirtualKeyCode:52});
+    check('W05.pending_confirm_blocks_navigation', await s.evaluate("!!document.querySelector('dialog[open]') && !!document.querySelector('[data-screen-label=\"Memory Vault\"]')"));
+    await shot(s, '18-confirmation-waiting');
+    const committed = await s.evaluate('window.__operationObserved');
+    check('W01.actual_confirmation_receipt', /^cmt_/.test(committed.commitId) && committed.reviewIds.length === 1);
+    // The Core already committed; this retryable delivery error is a
+    // controlled UI fixture, not a failed or cancelled canonical commit.
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.confirm_delivery']}})");
+    await waitFor(s, "!!document.querySelector('dialog[open] [role=alert] button')", 'confirm delivery error visible');
+    check('W02.confirm_error_keeps_plan', await s.evaluate("!!document.querySelector('dialog[open] pre') && !document.querySelector('dialog[open] [role=status]')"));
+    check('W05.confirm_error_restores_close_request', await s.evaluate("document.querySelector('dialog[open]').getAttribute('closedby') === 'closerequest'"));
+    await holdOperationObservation(s, 'confirm');
+    await click(s, 'dialog[open] [role=alert] button', 'Retry');
+    await waitFor(s, 'window.__operationHeld', 'replayed confirmation receipt held');
+    check('W02.confirm_retry_reuses_receipt', await s.evaluate(`window.__operationObserved.commitId === ${JSON.stringify(committed.commitId)}`));
+    check('W02.confirm_retry_reuses_payload_and_key', confirmations.length === 2 && confirmations[0].idempotencyKey === confirmations[1].idempotencyKey && JSON.stringify(confirmations[0].arguments) === JSON.stringify(confirmations[1].arguments), `observed requests: ${confirmations.length}`);
+    check('W02.confirm_retry_explained', await s.evaluate("document.querySelector('dialog[open] [role=status]')?.textContent.includes('Waiting for Memory') === true"));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, dialogClosed, 'real confirmation receipt presented');
+    await waitFor(s, has('Nothing waiting for review.'), 'confirmed candidate refreshed');
+    check('W05.confirmed_list_has_focus', await s.evaluate("document.activeElement.id === 'mem-center-title'"));
+    const memories = await s.evaluate("__t.invoke('memory_call',{request:__t.request('memory_list',{cursor:null,limit:25,includeInactive:false})})");
+    check('W01.confirmed_once_in_core', memories.ok?.result?.total === 1 && memories.ok.result.items[0].memoryId === plannedId && memories.ok.result.items[0].snippet === 'Synthetic pending confirmation fixture');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const exit = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W05.confirm_host_exits', exit === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--plan-keyboard-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

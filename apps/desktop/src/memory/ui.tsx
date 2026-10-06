@@ -134,6 +134,7 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
     });
   return (
     <dialog ref={ref} className="mem-dialog" aria-labelledby="mem-plan-title" aria-describedby="mem-plan-description"
+      closedby={action.busy ? "none" : "closerequest"}
       onCancel={(e) => { e.preventDefault(); if (!action.busy) cancel(); }}
       onClose={() => {
         // The platform can close a modal dialog without a cancelable event
@@ -144,6 +145,9 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
         else cancel();
       }}
       onKeyDown={(e) => {
+        // Stop the keyboard close request before the browser can close the
+        // modal. Keep this fallback for WebViews without closedby support.
+        if (e.key === "Escape" && action.busy) { e.preventDefault(); e.stopPropagation(); return; }
         if (e.key !== "Tab") return;
         const dialog = e.currentTarget;
         const controls = Array.from(dialog.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex='0']"));
@@ -159,6 +163,7 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
         These are all the records this commit writes. Confirmation code <code>{plan.confirmCode}</code>, valid until {when(plan.expiresAt)}.
       </p>
       <pre className="mem-diff" tabIndex={0}>{JSON.stringify(plan.records, null, 2)}</pre>
+      {action.busy && <p role="status" className="mem-muted">Confirmation submitted. Waiting for Memory to return its result…</p>}
       <ErrorBox error={action.error} />
       <div className="mem-actions">
         <button type="button" className="mem-button" onClick={cancel} disabled={action.busy}>Cancel</button>
