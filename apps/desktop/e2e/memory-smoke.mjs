@@ -376,6 +376,9 @@ async function holdOperationObservation(s, memoryPage = false) {
     : memoryPage === 'preview' ? "typeof value?.result?.recognized === 'boolean'"
     : memoryPage === 'restore' ? 'value?.result?.valid === true'
     : memoryPage === 'confirm' ? 'typeof value?.result?.commitId === "string" && Array.isArray(value.result.reviewIds)'
+    : memoryPage === 'compile' ? 'value?.result?.state === "saved_preview" && typeof value.result.capsuleId === "string"'
+    : memoryPage === 'context' ? 'typeof value?.result?.delivery === "string" && !!value.result.capsule'
+    : memoryPage === 'dispatch' ? 'typeof value?.result?.verified === "boolean" && Array.isArray(value.result.messages)'
     : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
@@ -597,6 +600,94 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--context-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'context fixture open');
+    await nav(s, 'Context');
+    await waitFor(s, "!!document.querySelector('#mem-cq')", 'context surface');
+    check('C.no_capsule_initially', (await s.evaluate('__t.text()')).includes('No capsule selected.'));
+    await set(s, '#mem-cq', 'Synthetic preview question');
+    await holdOperationObservation(s, 'compile');
+    await click(s, 'form button', 'Preview');
+    await waitFor(s, 'window.__operationHeld', 'real preview receipt held');
+    check('W02.preview_wait_explained', await s.evaluate("!![...document.querySelectorAll('[role=status]')].find(node => node.textContent.includes('Preparing preview'))"));
+    await holdOperationObservation(s, 'context');
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, 'window.__operationHeld', 'saved capsule read held');
+    const inspection = await s.evaluate('window.__operationObserved');
+    check('W02.capsule_wait_not_unselected', !(await s.evaluate('__t.text()')).includes('No capsule selected.'));
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.context_read']}})");
+    await waitFor(s, "!!document.querySelector('[role=alert] button')", 'capsule read error');
+    check('W02.failed_capsule_not_unselected', await s.evaluate("document.querySelector('aside[aria-label=Dispatches]').textContent.includes('Capsule unavailable') && !__t.text().includes('No capsule selected.')"));
+    await click(s, '[role=alert] button', 'Retry');
+    await waitFor(s, has('Preview only'), 'actual preview inspected');
+    check('C.preview_never_dispatched', inspection.delivery === 'preview_not_sent' && inspection.dispatches.length === 0 && (await s.evaluate('__t.text()')).includes('This capsule was never sent.'));
+
+    await s.evaluate(`(async () => {
+      const send = async (command, args, write=false) => {
+        const request = __t.request(command,args); if (write) request.idempotencyKey='ui-'+crypto.randomUUID();
+        const response = await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+        if (response.kind === 'memory_error') throw new Error(response.error.code); return response.result;
+      };
+      const candidate = await send('remember',{text:'Synthetic owner prefers paper notes for Lantern ideas.',claimKey:'fixture.context_notes'},true);
+      const plan = await send('review_plan',{decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+      await send('review_confirm',{planId:plan.planId,diffHash:plan.diffHash},true);
+      const operation = await send('index_rebuild',{});
+      for (let attempt = 0; attempt < 300; attempt++) {
+        const status = await send('operation_get',{operationId:operation.operationId});
+        if (status.state === 'succeeded') return;
+        if (['failed','cancelled'].includes(status.state)) throw new Error('fixture index rebuild: '+status.state);
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      throw new Error('fixture index rebuild timed out');
+    })()`);
+    await nav(s, 'Sessions');
+    await click(s, 'button', 'New session');
+    await waitFor(s, "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled", 'context session opened');
+    await set(s, '#mem-ask', 'Lantern');
+    await click(s, 'form button', 'Send');
+    await waitFor(s, has('Answer ·'), 'local Mock dispatched');
+    await click(s, 'button', 'Inspect the context behind this answer');
+    await waitFor(s, has('Dispatched'), 'actual dispatched capsule');
+    const capsule = await s.evaluate("document.querySelector('.mem-state-line code').title");
+    check('C.dispatch_does_not_claim_unread_request', !(await s.evaluate('__t.text()')).includes('the actual request is below') && await s.evaluate("!document.querySelector('aside[aria-label=Dispatches] pre')"));
+    await holdOperationObservation(s, 'dispatch');
+    await click(s, 'button', 'Show the actual request');
+    await waitFor(s, 'window.__operationHeld', 'actual request inspection held');
+    const actual = await s.evaluate('window.__operationObserved');
+    check('C.actual_request_bound_to_capsule', actual.capsuleId === capsule && actual.verified === true && actual.messages.some(message => message.text.includes('Synthetic owner prefers paper notes')), JSON.stringify({ capsuleMatches:actual.capsuleId === capsule,verified:actual.verified,fixtureIncluded:actual.messages.some(message=>message.text.includes('Synthetic owner prefers paper notes')) }));
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.dispatch_read']}})");
+    await waitFor(s, "!!document.querySelector('[role=alert] button')", 'actual request read error');
+    check('C.failed_request_is_not_verified', !(await s.evaluate('__t.text()')).includes('hash-checked') && await s.evaluate("!document.querySelector('aside[aria-label=Dispatches] pre')"));
+    await click(s, '[role=alert] button', 'Retry');
+    await waitFor(s, has('re-rendered from the saved records'), 'actual request retry verified');
+    check('W02.request_read_retry_recovers', await s.evaluate("!document.querySelector('[role=alert]') && !!document.querySelector('aside[aria-label=Dispatches] pre')"));
+    await set(s, '#mem-cq', 'Synthetic replacement preview');
+    await holdOperationObservation(s, 'compile');
+    await click(s, 'form button', 'Preview');
+    await waitFor(s, 'window.__operationHeld', 'replacement preview receipt held');
+    const replacement = await s.evaluate('window.__operationObserved');
+    check('C.new_preview_clears_previous_request', await s.evaluate("!document.querySelector('aside[aria-label=Dispatches] pre') && !__t.text().includes('hash-checked') && !__t.text().includes('Dispatched')"));
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.preview_delivery']}})");
+    await waitFor(s, "!!document.querySelector('[role=alert] button')", 'preview delivery error');
+    check('W02.failed_preview_has_no_phantom_read', await s.evaluate("!__t.text().includes('Reading capsule') && !__t.text().includes('Reading the saved capsule') && document.querySelector('.mem-context').getAttribute('aria-busy') === 'false'"));
+    check('W02.failed_preview_preserves_query', await s.evaluate("document.querySelector('#mem-cq').value === 'Synthetic replacement preview'"));
+    await holdOperationObservation(s, 'compile');
+    await click(s, '[role=alert] button', 'Retry');
+    await waitFor(s, 'window.__operationHeld', 'same preview replayed');
+    check('W02.preview_retry_reuses_capsule', await s.evaluate(`window.__operationObserved.capsuleId === ${JSON.stringify(replacement.capsuleId)}`));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, has('Preview only'), 'replacement preview inspected');
+    check('C.replacement_preview_remains_unsent', await s.evaluate("__t.text().includes('This capsule was never sent.') && !document.querySelector('aside[aria-label=Dispatches] pre')"));
+    await shot(s, '20-context-read-recovery');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const exit = await Promise.race([app.exited,sleep(20000).then(()=> 'timeout')]);
+    check('W02.context_host_exits', exit === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--lists-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

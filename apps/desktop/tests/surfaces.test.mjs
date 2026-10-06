@@ -20,6 +20,7 @@ const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
 const { Explorer, Inbox } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
 const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx');
 const { MemoryStatusProvider } = await server.ssrLoadModule('/src/memory/status.tsx');
+const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
@@ -124,4 +125,14 @@ test('unobserved candidates and sessions stay unknown rather than reporting empt
   const sessions = renderToStaticMarkup(createElement(Sessions, { inspect() {} }));
   assert.match(sessions, /Reading sessions/);
   assert.doesNotMatch(sessions, /No sessions yet/);
+});
+
+test('a selected unobserved capsule is reading rather than unselected or inspected', () => {
+  const selected = renderToStaticMarkup(createElement(ConnectedContext, { capsuleId: 'cap_00000000-0000-4000-8000-000000000001' }));
+  assert.match(selected, /Reading the saved capsule/);
+  assert.match(selected, /Reading capsule/);
+  assert.doesNotMatch(selected, /No capsule selected|Nothing was included|hash-checked|the actual request is below/);
+  const empty = renderToStaticMarkup(createElement(ConnectedContext, { capsuleId: null }));
+  assert.match(empty, /No capsule selected/);
+  assert.doesNotMatch(empty, /Reading the saved capsule/);
 });
