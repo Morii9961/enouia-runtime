@@ -613,6 +613,7 @@ async function main() {
     await click(s, 'form button', 'Preview');
     await waitFor(s, 'window.__operationHeld', 'real preview receipt held');
     check('W02.preview_wait_explained', await s.evaluate("!![...document.querySelectorAll('[role=status]')].find(node => node.textContent.includes('Preparing preview'))"));
+    await set(s, '#mem-cq', 'Edited draft while preview is pending');
     await holdOperationObservation(s, 'context');
     await s.evaluate('window.__releaseOperation()');
     await waitFor(s, 'window.__operationHeld', 'saved capsule read held');
@@ -624,6 +625,7 @@ async function main() {
     await click(s, '[role=alert] button', 'Retry');
     await waitFor(s, has('Preview only'), 'actual preview inspected');
     check('C.preview_never_dispatched', inspection.delivery === 'preview_not_sent' && inspection.dispatches.length === 0 && (await s.evaluate('__t.text()')).includes('This capsule was never sent.'));
+    check('C.saved_query_distinct_from_pending_draft', await s.evaluate("document.querySelector('.mem-saved-query')?.textContent === 'Synthetic preview question' && document.querySelector('#mem-cq').value === 'Edited draft while preview is pending'"));
 
     await s.evaluate(`(async () => {
       const send = async (command, args, write=false) => {
@@ -652,6 +654,7 @@ async function main() {
     await click(s, 'button', 'Inspect the context behind this answer');
     await waitFor(s, has('Dispatched'), 'actual dispatched capsule');
     const capsule = await s.evaluate("document.querySelector('.mem-state-line code').title");
+    check('C.dispatched_saved_query_shown', await s.evaluate("document.querySelector('.mem-saved-query')?.textContent === 'Lantern'"));
     check('C.dispatch_does_not_claim_unread_request', !(await s.evaluate('__t.text()')).includes('the actual request is below') && await s.evaluate("!document.querySelector('aside[aria-label=Dispatches] pre')"));
     await holdOperationObservation(s, 'dispatch');
     await click(s, 'button', 'Show the actual request');
@@ -664,7 +667,8 @@ async function main() {
     await click(s, '[role=alert] button', 'Retry');
     await waitFor(s, has('re-rendered from the saved records'), 'actual request retry verified');
     check('W02.request_read_retry_recovers', await s.evaluate("!document.querySelector('[role=alert]') && !!document.querySelector('aside[aria-label=Dispatches] pre')"));
-    await set(s, '#mem-cq', 'Synthetic replacement preview');
+    const replacementQuery = 'Synthetic replacement preview <img src=x onerror="window.__queryXss=1">';
+    await set(s, '#mem-cq', replacementQuery);
     await holdOperationObservation(s, 'compile');
     await click(s, 'form button', 'Preview');
     await waitFor(s, 'window.__operationHeld', 'replacement preview receipt held');
@@ -673,7 +677,7 @@ async function main() {
     await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.preview_delivery']}})");
     await waitFor(s, "!!document.querySelector('[role=alert] button')", 'preview delivery error');
     check('W02.failed_preview_has_no_phantom_read', await s.evaluate("!__t.text().includes('Reading capsule') && !__t.text().includes('Reading the saved capsule') && document.querySelector('.mem-context').getAttribute('aria-busy') === 'false'"));
-    check('W02.failed_preview_preserves_query', await s.evaluate("document.querySelector('#mem-cq').value === 'Synthetic replacement preview'"));
+    check('W02.failed_preview_preserves_query', await s.evaluate(`document.querySelector('#mem-cq').value === ${JSON.stringify(replacementQuery)}`));
     await holdOperationObservation(s, 'compile');
     await click(s, '[role=alert] button', 'Retry');
     await waitFor(s, 'window.__operationHeld', 'same preview replayed');
@@ -681,6 +685,7 @@ async function main() {
     await s.evaluate('window.__releaseOperation()');
     await waitFor(s, has('Preview only'), 'replacement preview inspected');
     check('C.replacement_preview_remains_unsent', await s.evaluate("__t.text().includes('This capsule was never sent.') && !document.querySelector('aside[aria-label=Dispatches] pre')"));
+    check('C.saved_query_renders_as_text', await s.evaluate(`document.querySelector('.mem-saved-query')?.textContent === ${JSON.stringify(replacementQuery)} && !document.querySelector('.mem-context img') && window.__queryXss === undefined`));
     await shot(s, '20-context-read-recovery');
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
     const exit = await Promise.race([app.exited,sleep(20000).then(()=> 'timeout')]);

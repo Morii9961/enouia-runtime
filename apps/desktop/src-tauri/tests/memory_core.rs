@@ -407,6 +407,7 @@ fn session_and_context_fields_the_surfaces_render() {
     assert!(["preview_not_sent", "dispatched"].contains(&inspected["delivery"].as_str().unwrap()));
     assert!(inspected["capsule"]["destination"]["kind"].is_string());
     assert!(inspected["capsule"]["budget"].is_object());
+    assert_eq!(inspected["capsule"]["query"], "When does Lantern ship?");
     for d in inspected["inspection"]["decisions"].as_array().unwrap() {
         strings(
             d,
@@ -445,4 +446,5 @@ fn session_and_context_fields_the_surfaces_render() {
         json!({"capsuleId": preview["capsuleId"]}),
     );
     assert_eq!(previewed["delivery"], "preview_not_sent");
+    assert_eq!(previewed["capsule"]["query"], "Lantern");
 }

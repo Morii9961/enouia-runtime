@@ -98,6 +98,8 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
               <strong>{DELIVERY[view.delivery] ?? view.delivery}</strong>
               <span className="mem-muted"> · capsule <code title={id ?? ""}>{shortId(id)}</code> · destination {view.capsule.destination.kind} · {budget(view.capsule.budget)}</span>
             </p>
+            <h3 className="mem-h3">Saved question</h3>
+            <p className="mem-content mem-saved-query">{view.capsule.query}</p>
             <h3 className="mem-h3">Included ({included.length})</h3>
             {included.length ? <Rows rows={included} /> : <p className="mem-muted">Nothing was included.</p>}
             <h3 className="mem-h3">Excluded ({excluded.length})</h3>
