@@ -46,6 +46,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
   - **Context.** Compile preview, the inclusion and exclusion decisions, and dispatches with the verified actual request.
   - **Home and Settings** show the Vault state and Memory's component states from `workspace_status`. Memory's fixed `activity` row is not shown; Activity keeps its own surface. The Runtime Inspector's component descriptions stay documentation references.
 - **Rendering.** Memory and source text render as plain text nodes only. There is no Markdown or HTML rendering and no link navigation. Source excerpts are labelled as data, not instructions.
+- **Explorer reads.** Each submitted query owns fresh rows and selection. Unobserved results remain unknown, and errors do not imply an empty search. Load more appends a Core page; a stale cursor keeps already observed rows with its error. Refresh results restarts at the first page with a new submission. See [paging and read-recovery evidence](validation/Explorer-feedback-v1.md).
 - **Operations.** Each operation ID starts a fresh watcher. Import, import resume and index rebuild offer cancellation at safe points; verify and backup explain that they finish before locking or exiting. A cancellation request and progress counts remain separate from terminal success/cancellation. A failed status read offers Retry. See [operation feedback evidence](validation/Operation-feedback-v1.md).
 - **Quick Search** (`src/shell/QuickSearch.tsx`). Ctrl+Alt+M opens a hidden native window for literal search of approved memories, limited to eight current results. Escape, blur, close, returning to main and Vault lifecycle transitions clear query/results and invalidate delayed reads. It provides no detail, source excerpt, picker or mutation. The tray and Settings provide manual opening when a shortcut conflicts. `--hotkey-key <single ASCII letter>` explicitly selects another Ctrl+Alt combination for that launch; the default is M and no preference is persisted. The owned Windows message thread unregisters and joins on exit. Settings and Core companion status report registration, conflict or unavailability.
 
@@ -84,6 +85,8 @@ node scripts/check-memory-integration.mjs --self-test
 
 Each test chooses temporary debugging ports and checks that the listener belongs to the spawned Runtime's process tree before connecting. An unrelated listener is refused. UI Automation touches only the test process's native dialog, and failure closes all debug sessions and terminates only spawned test children.
 
+`--explorer-only` uses a fresh synthetic Vault, seeds approved fixtures through real Core IPC, and checks paging, a canonically stale cursor, explicit refresh and controlled read-error recovery. Its import-file argument is unused but retained for the shared command signature.
+
 ## Bumping the pin
 
 1. Read the new rows in Memory's compatibility log, `docs/integration/RUNTIME.md`. Review `git log <old>..<new> -- crates contracts apps/workspace` in the Memory repository.
@@ -106,7 +109,7 @@ Never commit a path dependency, branch, `[patch]` or a lockfile produced by a lo
 | Global hotkey and quick-search overlay (`HostSurface::QuickSearch`) | Implemented; [local native evidence](validation/Quick-search-v1.md), including OS input, conflict, scoped refusals, clear-on-hide and exit/re-registration |
 | One Vault per cooperating Runtime host | Implemented; [root admission evidence](validation/Root-admission-v1.md). Other Memory clients do not share this guard. |
 | Opt-in login startup, current-user installer, upgrade and downgrade rules | Pending (`bundle.active` is false) |
-| Runtime-hosted W01–W05 acceptance | Partial. The smoke covers selected W01, W03 and W04 paths, index rebuild and import cancellation/resume, and controlled operation-read retry (W02). Still pending: paging, real error recovery and broader cancellation timing (W02), cross-client ownership (W03), and Narrator, contrast theme and installed artifact (W05). |
+| Runtime-hosted W01–W05 acceptance | Partial. The smoke covers selected W01, W03 and W04 paths, index rebuild, import cancellation/resume, paging/stale-cursor refresh, and controlled read-error retry (W02). Still pending: real storage-error recovery and broader cancellation/concurrent-page timing (W02), cross-client ownership (W03), and Narrator, contrast theme and installed artifact (W05). |
 
 Until each pending row ships, Memory's reference shell provides it, but never against the same Vault while Runtime has it open.
 

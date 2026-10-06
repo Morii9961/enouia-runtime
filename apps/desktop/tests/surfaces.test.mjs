@@ -4,6 +4,7 @@ import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { createElement } from 'react';
 import { createServer } from 'vite';
 import { approveDemoCandidate, reviseDemoMemory } from '../src/demo-state.ts';
 
@@ -16,6 +17,7 @@ const server = await createServer({
 after(() => server.close());
 const { default: App } = await server.ssrLoadModule('/src/App.tsx');
 const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
+const { Explorer } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
@@ -99,4 +101,15 @@ test('operation feedback offers cancellation only for active cooperative workers
     assert.match(view('import', state), new RegExp(`mem-state-${state}`));
   }
   assert.match(view('import', 'running'), /mem-state-running/);
+});
+
+test('an unobserved explorer reports waiting and never invents an empty result', () => {
+  for (const text of ['', 'synthetic query']) {
+    const html = renderToStaticMarkup(createElement(Explorer, {
+      history: false, submitted: { text, seq: 1 }, onRefresh() {},
+    }));
+    assert.match(html, /Waiting for memories/);
+    assert.match(html, /Refresh results/);
+    assert.doesNotMatch(html, /Nothing matches this search|No approved memories here yet|0 records/);
+  }
 });

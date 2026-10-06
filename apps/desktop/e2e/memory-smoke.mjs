@@ -369,14 +369,14 @@ async function acceptFirstCandidate(s, expected, probeShortcut = false) {
 
 // Hold one real operation observation in Tauri's debug callback map. This
 // controls delivery only; cancellation and completion still run in Core.
-async function holdOperationObservation(s) {
+async function holdOperationObservation(s, memoryPage = false) {
   await s.evaluate(`(() => {
     window.__operationHeld = false;
     const callbacks = window.__TAURI_INTERNALS__.callbacks;
     const originalSet = callbacks.set;
     callbacks.set = function(id, callback) {
       return originalSet.call(this, id, value => {
-        if (!window.__operationHeld && value?.result?.operationId && typeof value.result.state === 'string') {
+        if (!window.__operationHeld && ${memoryPage ? 'Array.isArray(value?.result?.items)' : "value?.result?.operationId && typeof value.result.state === 'string'"}) {
           callbacks.set = originalSet;
           window.__operationHeld = true;
           window.__operationObserved = value.result;
@@ -428,7 +428,75 @@ async function operationChecks(s, app) {
   await shot(s, '11-verify-retry');
 }
 
+async function explorerChecks(s) {
+  await s.evaluate(`window.__seedMemory = async index => {
+    const send = async (command, args, write = false) => {
+      const request = __t.request(command, args);
+      if (write) request.idempotencyKey = 'ui-' + crypto.randomUUID();
+      const response = await window.__TAURI_INTERNALS__.invoke('memory_call', {request});
+      if (response.kind === 'memory_error') throw new Error(command + ': ' + response.error.code);
+      return response.result;
+    };
+    const candidate = await send('remember', {text:'Synthetic paging fact ' + index,claimKey:'fixture.paging_' + index}, true);
+    const plan = await send('review_plan', {decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+    await send('review_confirm', {planId:plan.planId,diffHash:plan.diffHash}, true);
+  };
+  (async () => { for (let index = 0; index < 26; index++) await window.__seedMemory(index); })()`);
+  await nav(s, 'Memory');
+  await rail(s, 'Current memories');
+  await waitFor(s, "document.querySelectorAll('button.qr43').length === 25", 'first bounded memory page');
+  check('W02.explorer_first_page', true);
+  await click(s, 'button.qr43', 'Synthetic paging fact');
+  await waitFor(s, "!!document.querySelector('aside[aria-label=" + JSON.stringify('Memory Inspector') + "] .mem-content')", 'selected memory detail');
+  await holdOperationObservation(s, true);
+  await set(s, '[aria-label="Search memories"]', 'no-synthetic-fact-matches-this');
+  await s.evaluate("document.querySelector('[data-screen-label=\"Memory Vault\"] form[role=search]').requestSubmit()");
+  await waitFor(s, 'window.__operationHeld', 'new search observation deferred');
+  check('W02.new_query_clears_previous_rows', await s.evaluate("!document.querySelector('button.qr43')"));
+  check('W02.new_query_clears_selected_detail', await s.evaluate("!document.querySelector('aside[aria-label=\"Memory Inspector\"] .mem-content')"));
+  await s.evaluate(`window.__releaseOperation({kind:'memory_error',result:null,
+    error:{code:'busy',retryable:true,rules:['fixture.memory_read']}})`);
+  await waitFor(s, "!!document.querySelector('[role=alert]')", 'visible failed search read');
+  check('W02.failed_search_is_not_empty_result', await s.evaluate("!document.body.innerText.includes('Nothing matches this search.') && !document.querySelector('button.qr43')"));
+  await click(s, '[role="alert"] button', 'Retry');
+  await waitFor(s, has('Nothing matches this search.'), 'retried empty search');
+  check('W02.search_retry_recovers', await s.evaluate("!document.querySelector('[role=alert]') && !document.querySelector('button.qr43')"));
+  const reset = async () => {
+    await set(s, '[aria-label="Search memories"]', '');
+    await s.evaluate("document.querySelector('[data-screen-label=\"Memory Vault\"] form[role=search]').requestSubmit()");
+    await waitFor(s, "document.querySelectorAll('button.qr43').length === 25", 'new first page');
+  };
+  await reset();
+  await click(s, 'button', 'Load more');
+  await waitFor(s, "document.querySelectorAll('button.qr43').length === 26", 'second memory page');
+  check('W02.paging_appends_unique_rows', await s.evaluate("new Set([...document.querySelectorAll('button.qr43 .qr39')].map(row => row.textContent)).size === 26"));
+  await reset();
+  await s.evaluate('window.__seedMemory(26)');
+  await click(s, 'button', 'Load more');
+  await waitFor(s, has('workspace.cursor_stale'), 'canonical stale cursor refusal');
+  check('W02.stale_cursor_preserves_loaded_page', await s.evaluate("document.querySelectorAll('button.qr43').length === 25"));
+  check('W02.stale_cursor_has_refresh', await s.evaluate("!![...document.querySelectorAll('button')].find(button => button.textContent === 'Refresh results')"));
+  await click(s, 'button', 'Refresh results');
+  await waitFor(s, "document.querySelectorAll('button.qr43').length === 25 && !document.querySelector('[role=alert]')", 'fresh cursor recovery');
+  await click(s, 'button', 'Load more');
+  await waitFor(s, "document.querySelectorAll('button.qr43').length === 27", 'all records after refresh');
+  check('W02.stale_cursor_refresh_recovers', await s.evaluate("new Set([...document.querySelectorAll('button.qr43 .qr39')].map(row => row.textContent)).size === 27"));
+  await shot(s, '12-explorer-paging');
+}
+
 async function main() {
+  if (process.argv[6] === '--explorer-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'explorer fixture open');
+    await explorerChecks(s);
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W02.explorer_host_exits', code === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--operations-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

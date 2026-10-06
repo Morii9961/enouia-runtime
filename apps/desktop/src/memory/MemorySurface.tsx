@@ -80,7 +80,8 @@ export default function MemorySurface() {
           <aside aria-label="Memory Inspector" className="qr88"><div className="qr46">Open a Vault to see its memories.</div></aside>
         </>
       ) : explorer ? (
-        <Explorer key={collection} history={collection === "history"} submitted={submitted} />
+        <Explorer key={`${collection}:${submitted.seq}`} history={collection === "history"} submitted={submitted}
+          onRefresh={() => setSubmitted((current) => ({ ...current, seq: current.seq + 1 }))} />
       ) : collection === "inbox" ? (
         <Inbox />
       ) : (
@@ -107,11 +108,14 @@ function Inspector({ children }: { children: ReactNode }) {
   return <aside aria-label="Memory Inspector" className="qr88"><div className="qr79">{children}</div></aside>;
 }
 
-function Explorer({ history, submitted, readPage = call }: { history: boolean; submitted: { text: string; seq: number }; readPage?: typeof call }) {
+export function Explorer({ history, submitted, onRefresh, readPage = call }: {
+  history: boolean; submitted: { text: string; seq: number }; onRefresh: () => void; readPage?: typeof call;
+}) {
   const [rows, setRows] = useState<J[]>([]);
   const [next, setNext] = useState<string | null>(null);
   const [total, setTotal] = useState<number | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const read = useLatestRead();
   const query = submitted.text.trim() ? submitted.text : "";
   const load = useCallback((cursor: string | null) =>
@@ -121,6 +125,7 @@ function Explorer({ history, submitted, readPage = call }: { history: boolean; s
       setRows((current) => cursor ? [...current, ...page.items] : page.items);
       setNext(page.nextCursor);
       setTotal(page.total ?? null);
+      setLoaded(true);
     }), [query, history, readPage, read.run]);
   useEffect(() => { load(null); }, [load, submitted.seq]);
   const ids = rows.map((r) => r.memoryId);
@@ -145,13 +150,16 @@ function Explorer({ history, submitted, readPage = call }: { history: boolean; s
     }
   }
   const title = query ? `“${query}”${history ? " · with history" : ""}` : history ? TITLES.history : TITLES.current;
-  const count = `${rows.length}${total != null ? ` of ${total}` : ""} ${rows.length === 1 ? "record" : "records"}`;
+  const count = loaded
+    ? `${rows.length}${total != null ? ` of ${total}` : ""} ${rows.length === 1 ? "record" : "records"}`
+    : read.error ? "Results unavailable" : "Waiting for memories";
   return (
     <>
       <Center title={title} count={count} busy={read.busy}>
+        <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>Refresh results</button></div>
         <ErrorBox error={read.error} />
         {read.busy && <p role="status" className="mem-muted mem-pad">Reading memories…</p>}
-        {!read.busy && rows.length === 0 && <div className="qr32">{query ? "Nothing matches this search." : "No approved memories here yet."}</div>}
+        {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? "Nothing matches this search." : "No approved memories here yet."}</div>}
         <div onKeyDown={move}>
           {days.map((d, i) => (
             <div key={`${i}:${d.label}`}>
