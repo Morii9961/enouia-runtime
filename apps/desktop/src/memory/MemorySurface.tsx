@@ -5,7 +5,7 @@
 // one idempotency key per submission, drafts kept across retries, plan
 // dialogs that confirm only the shown diff.
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { call, pick, type J } from "./client";
+import { call, pick, type J, type Picked } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ComponentList, StatusPending, VaultConnect, useStatus } from "./status";
 import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./ui";
@@ -366,8 +366,8 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
 }
 
 function Import() {
-  const [picked, setPicked] = useState<J>(null);
-  const [preview, setPreview] = useState<J>(null);
+  const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
+  const preview = selection?.preview;
   const [alias, setAlias] = useState("acct-main");
   const [op, setOp] = useState<string | null>(null);
   const [imports, setImports] = useState<J[]>([]);
@@ -384,12 +384,13 @@ function Import() {
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("import_file");
               if (!p) return;
-              setPicked(p);
-              setPreview(await call("import_preview", { importToken: p.token }));
+              setSelection(null);
+              const next = await call("import_preview", { importToken: p.token });
+              setSelection({ picked: p, preview: next });
             })}>Choose file…</button>
           </div>
           <ErrorBox error={action.error} />
-          {preview && (
+          {selection && (
             <div className="mem-card">
               <p><strong>{preview.displayName}</strong> · {preview.bytes} bytes · {preview.inputKind} · {preview.recognized ? `recognized, ${preview.units} units` : "unsupported format (still archived as is)"}</p>
               {preview.duplicateOf && <p className="mem-warn">Identical to import {preview.duplicateOf}; it will be recorded as a duplicate.</p>}
@@ -397,11 +398,10 @@ function Import() {
               <label className="mem-label" htmlFor="mem-alias">Account alias</label>
               <div className="mem-actions">
                 <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} pattern="[a-z0-9][a-z0-9_-]*" autoComplete="off" />
-                <button type="button" className="mem-button mem-primary" disabled={!picked || action.busy} onClick={() => void action.run(async (key) => {
-                  const started = await call("import_start", { importToken: picked.token, accountAlias: alias }, key);
+                <button type="button" className="mem-button mem-primary" disabled={action.busy} onClick={() => void action.run(async (key) => {
+                  const started = await call("import_start", { importToken: selection.picked.token, accountAlias: alias }, key);
                   setOp(started.operationId);
-                  setPicked(null);
-                  setPreview(null);
+                  setSelection(null);
                 })}>Start import</button>
               </div>
             </div>
@@ -473,7 +473,10 @@ function VaultPanel() {
             })}>Back up to an empty folder…</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("export_folder");
-              if (p) setRestore(await call("restore_preview", { exportToken: p.token }));
+              if (p) {
+                setRestore(null);
+                setRestore(await call("restore_preview", { exportToken: p.token }));
+              }
             })}>Preview a restore…</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => after(() => call("vault_lock"))}>Lock Vault</button>
           </div>
@@ -485,9 +488,9 @@ function VaultPanel() {
           <ErrorBox error={action.error} />
           {op && <Operation id={op} onDone={() => void refresh()} />}
           {restore && (
-            <p className="mem-card">
+            <div className="mem-card"><p style={{ margin: 0 }}>
               Backup is valid: commit #{restore.sequence} ({shortId(restore.commitId)}), {restore.files} files, {restore.sameVaultAsOpen ? "same Vault as the open one" : "from another Vault"}. An actual restore runs in the Memory CLI into an empty folder (<code>restore</code>).
-            </p>
+            </p></div>
           )}
         </div>
       </Center>

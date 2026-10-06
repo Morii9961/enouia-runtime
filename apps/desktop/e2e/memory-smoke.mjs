@@ -14,7 +14,7 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
 
 const inputs = process.argv.slice(2, 6);
@@ -321,7 +321,7 @@ async function quickSearch(main, app) {
 
 // Fill this process's native dialog through UI Automation. File-name edit
 // 1148 and folder-name edit 1152 differ; button 1 confirms either dialog.
-function fillOpenDialog(pid, path, folder = false) {
+function fillOpenDialog(pid, path, folder = false, cancel = false) {
   const script = `Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 $A = [System.Windows.Automation.AutomationElement]
 $C = [System.Windows.Automation.PropertyCondition]
@@ -336,12 +336,12 @@ if (-not $dialog) { throw 'no dialog' }
 Add-Type -Namespace E2E -Name User32 -MemberDefinition '[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern System.IntPtr SendMessage(System.IntPtr h, uint m, System.IntPtr w, string l);'
 $all = $dialog.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
 $edit = $all | Where-Object { $_.Current.ClassName -eq 'Edit' -and $_.Current.AutomationId -eq '${folder ? '1152' : '1148'}' } | Select-Object -First 1
-$open = $all | Where-Object { $_.Current.ClassName -eq 'Button' -and $_.Current.AutomationId -eq '1' } | Select-Object -First 1
-if (-not $edit -or -not $open) {
+$open = $all | Where-Object { $_.Current.ClassName -eq 'Button' -and $_.Current.AutomationId -eq '${cancel ? '2' : '1'}' } | Select-Object -First 1
+if ((-not $edit -and ${cancel ? '$false' : '$true'}) -or -not $open) {
   $controls = $all | Where-Object { $_.Current.ClassName -in @('Edit','Button') } | ForEach-Object { $_.Current.ClassName + ':' + $_.Current.AutomationId + ':' + $_.Current.Name }
   throw ('dialog controls not found: ' + ($controls -join ' | '))
 }
-[E2E.User32]::SendMessage([System.IntPtr]$edit.Current.NativeWindowHandle, 0x000C, [System.IntPtr]::Zero, '${path.replace(/'/g, "''")}') | Out-Null
+${cancel ? '' : `[E2E.User32]::SendMessage([System.IntPtr]$edit.Current.NativeWindowHandle, 0x000C, [System.IntPtr]::Zero, '${path.replace(/'/g, "''")}') | Out-Null`}
 [E2E.User32]::SendMessage([System.IntPtr]$open.Current.NativeWindowHandle, 0x00F5, [System.IntPtr]::Zero, $null) | Out-Null`;
   try {
     execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true, timeout: 30000 });
@@ -370,13 +370,17 @@ async function acceptFirstCandidate(s, expected, probeShortcut = false) {
 // Hold one real operation observation in Tauri's debug callback map. This
 // controls delivery only; cancellation and completion still run in Core.
 async function holdOperationObservation(s, memoryPage = false) {
+  const matches = memoryPage === true ? 'Array.isArray(value?.result?.items)'
+    : memoryPage === 'preview' ? "typeof value?.result?.recognized === 'boolean'"
+    : memoryPage === 'restore' ? 'value?.result?.valid === true'
+    : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
     const callbacks = window.__TAURI_INTERNALS__.callbacks;
     const originalSet = callbacks.set;
     callbacks.set = function(id, callback) {
       return originalSet.call(this, id, value => {
-        if (!window.__operationHeld && ${memoryPage ? 'Array.isArray(value?.result?.items)' : "value?.result?.operationId && typeof value.result.state === 'string'"}) {
+        if (!window.__operationHeld && ${matches}) {
           callbacks.set = originalSet;
           window.__operationHeld = true;
           window.__operationObserved = value.result;
@@ -484,7 +488,84 @@ async function explorerChecks(s) {
   await shot(s, '12-explorer-paging');
 }
 
+async function pickerChecks(s, app) {
+  const second = join(out, 'second-selected.md');
+  const secondText = '# Second selected synthetic file\n\nThis input belongs to the confirmed second preview.\n';
+  writeFileSync(second, secondText);
+  const backup = join(out, 'backup');
+  const empty = join(out, 'empty');
+  mkdirSync(backup); mkdirSync(empty);
+  await nav(s, 'Memory');
+  await rail(s, 'Import');
+  await click(s, 'button', 'Choose file');
+  fillOpenDialog(app.pid, importFile);
+  await waitFor(s, has(basename(importFile)), 'first preview visible');
+  check('W01.first_file_preview', true);
+  await click(s, 'button', 'Choose file');
+  fillOpenDialog(app.pid, '', false, true);
+  await waitFor(s, "!![...document.querySelectorAll('button')].find(button => button.textContent === 'Start import' && !button.disabled)", 'cancelled choice settled');
+  check('W01.cancel_keeps_valid_import_preview', (await s.evaluate('__t.text()')).includes(basename(importFile)));
+  await holdOperationObservation(s, 'preview');
+  await click(s, 'button', 'Choose file');
+  fillOpenDialog(app.pid, second);
+  await waitFor(s, 'window.__operationHeld', 'second preview deferred');
+  check('W01.new_file_clears_old_preview', !(await s.evaluate('__t.text()')).includes(basename(importFile)));
+  await s.evaluate(`window.__releaseOperation({kind:'memory_error',result:null,
+    error:{code:'invalid_request',retryable:false,rules:['fixture.import_preview']}})`);
+  await waitFor(s, has('fixture.import_preview'), 'second preview failure visible');
+  check('W01.failed_preview_cannot_start_import', await s.evaluate("![...document.querySelectorAll('button')].some(button => button.textContent === 'Start import' && !button.disabled)"));
+  check('W01.failed_preview_does_not_show_old_file', !(await s.evaluate('__t.text()')).includes(basename(importFile)));
+  await click(s, 'button', 'Choose file');
+  fillOpenDialog(app.pid, second);
+  await waitFor(s, has('second-selected.md'), 'new preview recovered');
+  await click(s, 'button', 'Start import');
+  await waitFor(s, "!!document.querySelector('.mem-state-succeeded')", 'selected import committed', 60000);
+  const imported = await s.evaluate("__t.invoke('memory_call',{request:__t.request('import_list',{})})");
+  check('W01.import_matches_selected_preview', imported.ok?.result?.items?.length === 1 && imported.ok.result.items[0].inputSizeBytes === Buffer.byteLength(secondText) && imported.ok.result.items[0].status === 'completed');
+
+  await rail(s, 'Vault & recovery');
+  await click(s, 'button', 'Back up to an empty folder');
+  fillOpenDialog(app.pid, backup, true);
+  await waitFor(s, "!!document.querySelector('.mem-state-succeeded')", 'real backup exported', 60000);
+  const exported = await s.evaluate("__t.invoke('memory_call',{request:__t.request('operation_list',{})})");
+  const result = exported.ok?.result?.items?.find(op => op.kind === 'backup_export');
+  check('W01.backup_export_succeeds', result?.state === 'succeeded' && result.result.files > 0);
+  await holdOperationObservation(s, 'restore');
+  await click(s, 'button', 'Preview a restore');
+  fillOpenDialog(app.pid, backup, true);
+  await waitFor(s, 'window.__operationHeld', 'actual restore preview held');
+  const preview = await s.evaluate('window.__operationObserved');
+  check('W01.restore_preview_matches_backup', preview.commitId === result?.result?.commitId && preview.sameVaultAsOpen === true && preview.valid === true);
+  await s.evaluate('window.__releaseOperation()');
+  await waitFor(s, has('Backup is valid:'), 'valid restore preview shown');
+  await click(s, 'button', 'Preview a restore');
+  fillOpenDialog(app.pid, empty, true);
+  await waitFor(s, "!!document.querySelector('[role=alert]')", 'empty backup rejected by Core');
+  check('W01.rejected_restore_clears_previous_preview', !(await s.evaluate('__t.text()')).includes('Backup is valid:'));
+  await click(s, 'button', 'Preview a restore');
+  fillOpenDialog(app.pid, backup, true);
+  await waitFor(s, has('Backup is valid:'), 'valid backup reselected');
+  check('W01.restore_preview_recovers', await s.evaluate("!document.querySelector('[role=alert]')"));
+  await click(s, 'button', 'Preview a restore');
+  fillOpenDialog(app.pid, '', true, true);
+  await waitFor(s, "!![...document.querySelectorAll('button')].find(button => button.textContent.includes('Preview a restore') && !button.disabled)", 'cancelled restore choice settled');
+  check('W01.cancel_keeps_valid_restore_preview', (await s.evaluate('__t.text()')).includes('Backup is valid:'));
+  await shot(s, '13-backup-preview');
+}
+
 async function main() {
+  if (process.argv[6] === '--picks-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'picker fixture open');
+    await pickerChecks(s, app);
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W01.picker_host_exits', code === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--explorer-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

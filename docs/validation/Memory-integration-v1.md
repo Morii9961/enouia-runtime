@@ -1,5 +1,7 @@
 # Memory integration v1 — local evidence
 
+Follow-up (2026-10-06): [picker preview binding](Picker-preview-v1.md) records matching import choices/previews, real backup export, and rejected restore-preview clearing/recovery.
+
 Follow-up (2026-10-06): [explorer paging and read recovery](Explorer-feedback-v1.md) records query-bound rows/selection, actual stale-cursor refresh and controlled read-error retry.
 
 Follow-up (2026-10-06): [operation feedback](Operation-feedback-v1.md) records fresh per-operation status, cancellation/resume and controlled read-error retry.
