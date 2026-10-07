@@ -1,6 +1,6 @@
 # Enouia Runtime v0.3 — implementation plan
 
-Date: 2026-10-02. Status: M0.1 and Activity B1-B3 implementation are present and locally verified. B4 remains partial; B5 production activation and Core A1-A3/J1 remain pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seven historical machine reports, records both unresolved GitHub comparisons, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
+Date: 2026-10-02. Status: M0.1 and Activity B1-B3 implementation are present and locally verified. B4 remains partial; B5 production activation and Core A1-A3/J1 remain pending. The [C01-C18 evidence index](validation/B4-coverage.md) links eight historical machine reports, records both unresolved GitHub comparisons, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
 
 Status note (2026-10-04, [ADR-025](adr/025-enouia-memory-integration.md)): the Enouia Memory repository now owns the Memory domain. Track A is replaced by Memory's MV stages plus Runtime integration slices, and the desktop shell embeds Memory's workspace Core at a pinned revision ([Memory integration v1](MEMORY_INTEGRATION_v1.md)). Track B, J1 as the join point, B4 and B5 are unchanged. The scope paragraph below predates the frontend and Memory integration work; [AGENTS.md](../AGENTS.md) holds the current scope.
 

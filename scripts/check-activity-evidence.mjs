@@ -36,7 +36,10 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 7);
+  assert.equal(reports.size, 8);
+  const regression = reports.get('regression').report;
+  assert.equal(regression.cases.length, 10);
+  assert(regression.cases.every(c => c.publicState === 'degraded' && !c.publicationObserved && c.runtimeExitCode === 4), 'regression candidates must stay unpublished');
   const frozen = reports.get('frozen').report;
   assert.equal(frozen.caseCount, 30);
   assert.equal(frozen.results.length, 30);

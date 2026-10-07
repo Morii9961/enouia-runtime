@@ -82,7 +82,9 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [B4 runner hard-kill rehearsal](docs/validation/B4-runner-hard-kill.md) verifies ready synthetic collector/transport trees terminate with the actual release runner, committed state stays exact, and restart preserves sequence/pending behavior. The process-creation/job-assignment interval remains untested.
 
-[B4 evidence coverage](docs/validation/B4-coverage.md) maps C01–C18 to seven historical machine reports and concrete remaining gaps. `node scripts/check-activity-evidence.mjs --self-test` checks report hashes and evidence links offline; it does not sign off B4 or activate B5.
+[B4 C15 regression acceptance](docs/validation/B4-reference-regression.md) delivers ten synthetic date, source and success-time regressions through the actual runner and a marked SSH stand-in to the copied receiver. The publisher keeps prior public bytes and reports `degraded`; Runtime keeps each exact pending despite completed transport. Deployed publisher, About rendering and operator reconciliation remain pending.
+
+[B4 evidence coverage](docs/validation/B4-coverage.md) maps C01–C18 to eight historical machine reports and concrete remaining gaps. `node scripts/check-activity-evidence.mjs --self-test` checks report hashes and evidence links offline; it does not sign off B4 or activate B5.
 
 The paragraphs below, from A1 Memory model v1 through the selected orchestration histories, describe Runtime's local Memory/Core design. [ADR-025](docs/adr/025-enouia-memory-integration.md) supersedes it: the Memory domain now belongs to Enouia Memory, and these paragraphs are frozen history. Their evidence remains valid as historical design evidence. The dependency-boundary guard among them still applies to the Activity, shared and frozen Core crates.
 

@@ -52,6 +52,13 @@
       "sha256": "6bbbf81d839af05e85aa257dcbe681d2db7d90f63fc73494584060a46e4162d4",
       "state": "passed",
       "selectorCount": 24
+    },
+    {
+      "id": "regression",
+      "path": "docs/validation/B4/reference-regression.json",
+      "sha256": "90ea7ca4bac130d20ad75b6070da852ddd34975cb4f07c7bbf322d0f2dc4a834",
+      "state": "passed",
+      "selectorCount": 97
     }
   ],
   "cases": [
@@ -334,10 +341,45 @@
             "C15: publisher preserves last complete data on date loss",
             "C15-refused-publication: unsafe observation retains exact pending"
           ]
+        },
+        {
+          "report": "regression",
+          "selectors": [
+            "C15-success-time-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-github: public activity reports degraded",
+            "C15-success-time-loss-github: transport completion without publication retains exact pending",
+            "C15-source-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-github: public activity reports degraded",
+            "C15-source-loss-github: transport completion without publication retains exact pending",
+            "C15-date-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-github: public activity reports degraded",
+            "C15-date-loss-github: transport completion without publication retains exact pending",
+            "C15-success-time-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-codex: public activity reports degraded",
+            "C15-success-time-loss-codex: transport completion without publication retains exact pending",
+            "C15-source-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-codex: public activity reports degraded",
+            "C15-source-loss-codex: transport completion without publication retains exact pending",
+            "C15-date-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-codex: public activity reports degraded",
+            "C15-date-loss-codex: transport completion without publication retains exact pending",
+            "C15-success-time-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-claude: public activity reports degraded",
+            "C15-success-time-loss-claude: transport completion without publication retains exact pending",
+            "C15-source-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-claude: public activity reports degraded",
+            "C15-source-loss-claude: transport completion without publication retains exact pending",
+            "C15-date-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-claude: public activity reports degraded",
+            "C15-date-loss-claude: transport completion without publication retains exact pending",
+            "C15-whole-batch-clock-rollback: publisher keeps prior hash and immutable bytes",
+            "C15-whole-batch-clock-rollback: public activity reports degraded",
+            "C15-whole-batch-clock-rollback: transport completion without publication retains exact pending"
+          ]
         }
       ],
       "remaining": [
-        "Finish success-time-loss candidate and real degraded/public retention acceptance."
+        "Accept degraded/retained public data on the deployed publisher, static cache and three-language About pages; define the operator reconciliation procedure that resolves a refused pending without renumbering it."
       ]
     },
     {
