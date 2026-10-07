@@ -604,6 +604,74 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--explorer-keyboard-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'explorer keyboard fixture open');
+    await s.evaluate(`(async () => {
+      const send = async (command, args, write = false) => {
+        const request = __t.request(command, args);
+        if (write) request.idempotencyKey = 'ui-' + crypto.randomUUID();
+        const reply = await window.__TAURI_INTERNALS__.invoke('memory_call', {request});
+        if (reply.kind === 'memory_error') throw new Error(command + ': ' + reply.error.code);
+        return reply.result;
+      };
+      for (let index = 0; index < 3; index++) {
+        const candidate = await send('remember', {text:'Synthetic keyboard memory ' + index,claimKey:'fixture.keyboard_' + index}, true);
+        const plan = await send('review_plan', {decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+        await send('review_confirm', {planId:plan.planId,diffHash:plan.diffHash}, true);
+      }
+    })()`);
+    await nav(s, 'Memory');
+    await rail(s, 'Current memories');
+    await waitFor(s, "document.querySelectorAll('button.qr43').length === 3", 'keyboard memory list');
+    const key = async (name, code, windowsVirtualKeyCode) => {
+      for (const type of ['keyDown', 'keyUp']) {
+        const result = await s.send('Input.dispatchKeyEvent', {type,key:name,code,windowsVirtualKeyCode});
+        if (result.error) throw new Error(result.error.message);
+      }
+    };
+    const row = index => `document.querySelectorAll('button.qr43')[${index}]`;
+    const selected = index => `${row(index)}.getAttribute('aria-pressed') === 'true'`;
+    const focused = index => `document.activeElement === ${row(index)}`;
+    const focusAndSelect = index => s.evaluate(`${row(index)}.focus(); ${row(index)}.click()`);
+    await focusAndSelect(0);
+    await key('ArrowDown','ArrowDown',40);
+    check('W05.arrow_selects_next_memory', await s.evaluate(selected(1)));
+    check('W05.arrow_moves_focus_to_selection', await s.evaluate(focused(1)));
+    await key(' ','Space',32);
+    check('W05.space_keeps_arrow_selected_memory', await s.evaluate(selected(1)));
+    await focusAndSelect(0);
+    await key('Tab','Tab',9);
+    check('W05.tab_can_focus_another_memory', await s.evaluate(focused(1)));
+    await key('ArrowDown','ArrowDown',40);
+    check('W05.arrow_starts_from_focused_memory', await s.evaluate(`${selected(2)} && ${focused(2)}`));
+    await key('ArrowDown','ArrowDown',40);
+    check('W05.last_memory_is_keyboard_boundary', await s.evaluate(`${selected(2)} && ${focused(2)}`));
+    await key('ArrowUp','ArrowUp',38);
+    check('W05.reverse_arrow_moves_selection_and_focus', await s.evaluate(`${selected(1)} && ${focused(1)}`));
+    await focusAndSelect(0);
+    await key('ArrowUp','ArrowUp',38);
+    check('W05.first_memory_is_keyboard_boundary', await s.evaluate(`${selected(0)} && ${focused(0)}`));
+    await s.evaluate("document.querySelector('[aria-label=\"Search memories\"]').focus()");
+    await key('ArrowDown','ArrowDown',40);
+    check('W05.search_arrow_does_not_move_memory', await s.evaluate(`${selected(0)} && document.activeElement.getAttribute('aria-label') === 'Search memories'`));
+    await s.evaluate("__t.byText('button','Refresh results').focus()");
+    await key('ArrowDown','ArrowDown',40);
+    check('W05.toolbar_arrow_does_not_move_memory', await s.evaluate(`${selected(0)} && document.activeElement.textContent === 'Refresh results'`));
+    await focusAndSelect(0);
+    await key('ArrowDown','ArrowDown',40);
+    const expected = await s.evaluate(`${row(1)}.querySelector('.qr39').textContent`);
+    await waitFor(s, `document.querySelector('aside[aria-label="Memory Inspector"] .mem-content')?.textContent === ${JSON.stringify(expected)}`, 'arrow-selected actual memory detail');
+    check('W01.keyboard_inspector_matches_selected_memory', true);
+    await shot(s, '27-explorer-keyboard-selection');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const exit = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W05.explorer_keyboard_host_exits', exit === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--session-writes-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

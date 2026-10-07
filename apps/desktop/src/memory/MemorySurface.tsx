@@ -133,9 +133,12 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     const tag = (e.target as HTMLElement).tagName;
     if (tag === "INPUT" || tag === "TEXTAREA") return;
-    const i = selected ? ids.indexOf(selected) : -1;
-    const n = ids[Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))];
-    if (n) { e.preventDefault(); setSelected(n); }
+    const buttons = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>("button.qr43"));
+    const from = (e.target as HTMLElement).closest<HTMLButtonElement>("button.qr43");
+    const i = from ? buttons.indexOf(from) : selected ? ids.indexOf(selected) : -1;
+    const index = Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)));
+    const n = ids[index];
+    if (n) { e.preventDefault(); setSelected(n); buttons[index]?.focus(); }
   };
   // A list is sorted by update time, so it groups into days. Search results
   // are ranked by relevance and stay one flat group in rank order.
