@@ -1,5 +1,7 @@
 # Desktop stack integration — 2026-10-07
 
+Follow-up: [real long-operation lifecycle evidence](Long-operation-lifecycle-v1.md) covers actual verify/backup workers during close, lock and exit on the subsequent release. This report retains the stack-integration baseline and its original limits.
+
 This combines the frontend stack ending at `4f597b1ba9c31f847eb680b6b1b549ce72f14484` with main at `debd5e22747808a4d2ae4a8d4b56892d4146c11b`. Existing PR #24 is the aggregate entry to main. The captured heads of PRs #1–24 are ancestors of the stack tip; preserving merge history allows their inclusion to be checked before closing superseded PRs.
 
 Main's Memory pin remains `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`, with surface aggregate `c49bbaa9f82c21a812a34a247e4a5595cd51707ab406bb8205444f8259a17212`. Its startup implementation, installer template, hooks and installer drill scripts are unchanged. The frontend stack retains strict checking across seven surfaces, truthful read/write/operation feedback, retained drafts, exact receipt retries, source paging, keyboard interaction, native window state and integrity/backup result presentation.

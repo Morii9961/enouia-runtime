@@ -3,7 +3,7 @@
 // retry resends the same closure (same payload, same key). For reads, only
 // the latest request may publish its result, error or busy state.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { call, describe, newKey, retryable, type J } from "./client";
+import { call, describe, newKey, retryable, shell, type J } from "./client";
 
 export type Failure = { text: string; retry?: () => void } | null;
 
@@ -74,9 +74,18 @@ export function useLatestRead() {
  */
 export function useMemoryStatus(readStatus: typeof call = call) {
   const [status, setStatus] = useState<J>(null);
+  const [vaultChanging, setVaultChanging] = useState(false);
   const reads = useLatestRead();
   const refresh = useCallback(
-    () => reads.run(() => readStatus("workspace_status"), setStatus, () => setStatus(null)),
+    () => reads.run(async () => {
+      const next = await readStatus("workspace_status");
+      // Read host admission after Core status: Core can already say locked
+      // while Runtime is still joining an uncancellable operation.
+      const host = await shell.lifecycleStatus();
+      return { next, changing: host.vaultChanging === true };
+    }, ({ next, changing }) => {
+      setStatus(next); setVaultChanging(changing);
+    }, () => { setStatus(null); setVaultChanging(false); }),
     [readStatus, reads.run],
   );
   useEffect(() => {
@@ -89,5 +98,5 @@ export function useMemoryStatus(readStatus: typeof call = call) {
     void poll();
     return () => { stopped = true; clearTimeout(timer); };
   }, [refresh]);
-  return { status, error: reads.error, refresh };
+  return { status, vaultChanging, error: reads.error, refresh };
 }

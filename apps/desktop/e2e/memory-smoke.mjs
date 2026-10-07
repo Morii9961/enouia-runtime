@@ -18,9 +18,9 @@
 // creation time), never a shared executable path.
 // Synthetic data only. The debug ports exist only for this test process.
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, readSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
-import { basename, join, resolve, sep } from 'node:path';
+import { basename, dirname, join, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
 
@@ -42,6 +42,12 @@ const children = new Set();
 const processesByPort = new Map();
 const sessions = new Set();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function waitForExit(app, ms) {
+  let timer;
+  try {
+    return await Promise.race([app.exited, new Promise(resolve => { timer = setTimeout(() => resolve('timeout'), ms); })]);
+  } finally { clearTimeout(timer); }
+}
 const check = (id, ok, detail = '') => {
   report.checks.push({ id, ok: Boolean(ok), detail });
   console.log(`${ok ? 'PASS' : 'FAIL'} ${id} ${detail}`);
@@ -549,6 +555,62 @@ return "shutdown " + RmShutdown(h, 1, IntPtr.Zero);
 [Rm]::Close(${pid})`);
 }
 
+// Prepare registration before work starts, so PowerShell/C# startup cannot
+// consume the real worker lifetime. The helper waits for one explicit signal.
+// Flags 0 request cooperative shutdown; there is no forced-kill fallback.
+async function prepareRestartManager(app) {
+  if (!children.has(app) || app.exitCode !== null) throw new Error('Restart Manager target is not an owned live child');
+  const script = `$ErrorActionPreference='Stop'
+Add-Type -TypeDefinition @'
+using System; using System.Text; using System.Runtime.InteropServices;
+public static class PreparedRm {
+[StructLayout(LayoutKind.Sequential)] public struct FileTime { public uint low; public uint high; }
+[StructLayout(LayoutKind.Sequential)] public struct UniqueProcess { public uint pid; public FileTime started; }
+[DllImport("rstrtmgr.dll",CharSet=CharSet.Unicode)] static extern int RmStartSession(out uint h,int flags,StringBuilder key);
+[DllImport("rstrtmgr.dll",CharSet=CharSet.Unicode)] static extern int RmRegisterResources(uint h,uint nFiles,string[] files,uint nApps,UniqueProcess[] apps,uint nServices,string[] services);
+[DllImport("rstrtmgr.dll")] static extern int RmShutdown(uint h,uint flags,IntPtr callback);
+[DllImport("rstrtmgr.dll")] static extern int RmEndSession(uint h);
+static uint handle;
+public static void Prepare(uint pid) {
+long created=System.Diagnostics.Process.GetProcessById((int)pid).StartTime.ToFileTimeUtc();
+var app=new UniqueProcess {pid=pid,started=new FileTime {low=(uint)created,high=(uint)(created>>32)}};
+int r=RmStartSession(out handle,0,new StringBuilder(64)); if(r!=0) throw new Exception("start "+r);
+r=RmRegisterResources(handle,0,null,1,new[]{app},0,null);
+if(r!=0){RmEndSession(handle);throw new Exception("register "+r);}
+}
+public static int Shutdown(){return RmShutdown(handle,0,IntPtr.Zero);}
+public static void End(){RmEndSession(handle);}
+}
+'@
+[PreparedRm]::Prepare(${app.pid})
+try {
+  [Console]::WriteLine('ready'); [Console]::Out.Flush()
+  if([Console]::ReadLine() -ne 'shutdown'){throw 'missing shutdown signal'}
+  [Console]::WriteLine('shutdown '+[PreparedRm]::Shutdown())
+} finally {[PreparedRm]::End()}`;
+  const helper = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+  children.add(helper);
+  let output = '', errors = '', ready;
+  const prepared = new Promise(resolve => { ready = resolve; });
+  helper.stdout.on('data', chunk => { output += chunk; if (output.includes('ready')) ready(true); });
+  helper.stderr.on('data', chunk => { errors += chunk; });
+  helper.exited = new Promise(resolve => helper.once('exit', code => { children.delete(helper); ready(false); resolve(code); }));
+  helper.once('error', error => { errors += error.message; ready(false); });
+  let timer;
+  try {
+    if (!await Promise.race([prepared, new Promise(resolve => { timer = setTimeout(() => resolve(false), 15000); })])) throw new Error('Restart Manager preparation failed: '+errors);
+  } finally { clearTimeout(timer); }
+  return {
+    shutdown: async () => {
+      if (!children.has(app) || app.exitCode !== null) throw new Error('prepared shutdown target has exited');
+      helper.stdin.end('shutdown\n');
+      const code = await waitForExit(helper, 120000);
+      if (code !== 0 || !output.includes('shutdown 0')) throw new Error(`cooperative Restart Manager shutdown failed: ${code} ${output} ${errors}`);
+      return output.trim();
+    },
+  };
+}
+
 const RUN_KEY = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run';
 function runValue() {
   try {
@@ -835,6 +897,184 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--long-lifecycle-only') {
+    const fixture = resolve(out, '..');
+    const size = 512 * 1024 * 1024;
+    const pinnedCli = resolve(dirname(exe), '..', 'pinned-cli', 'release', 'enouia-memory.exe');
+    if (!existsSync(pinnedCli)) throw new Error('build the pinned release CLI for independent export verification first');
+    if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-long-lifecycle-') || vault !== join(fixture, 'vault') || importFile !== join(fixture, 'synthetic-archive.bin')) {
+      throw new Error('long lifecycle requires its dedicated temporary synthetic fixture');
+    }
+    for (const path of [fixture, vault, importFile]) if (lstatSync(path).isSymbolicLink()) throw new Error('long fixture cannot be a link');
+    if (statSync(importFile).size !== size) throw new Error('long fixture must be exactly 512 MiB');
+    const marker = Buffer.from('Synthetic Enouia Runtime long-operation acceptance fixture.');
+    const prefix = Buffer.alloc(marker.length);
+    const fd = openSync(importFile, 'r');
+    try { readSync(fd, prefix, 0, prefix.length, 0); } finally { closeSync(fd); }
+    if (!prefix.equals(marker)) throw new Error('unexpected long fixture bytes');
+    const objects = readdirSync(join(vault, 'vault', 'raw', 'objects'));
+    if (objects.length !== 1 || !/^[a-f0-9]{64}$/.test(objects[0]) || statSync(join(vault, 'vault', 'raw', 'objects', objects[0])).size !== size) throw new Error('unexpected archived fixture objects');
+    check('L.dedicated_large_synthetic_archive', true, `${size} bytes`);
+
+    for (const kind of ['vault_verify', 'backup_export']) {
+      const app = launch(['--memory-vault', vault], { profile: `long-${kind}` });
+      const s = await connect();
+      await waitFor(s, has('Memory · Vault open'), `${kind} fixture open`);
+      await nav(s, 'Memory'); await rail(s, 'Vault & recovery');
+      const head = (await s.evaluate("__t.memory('workspace_status', {})")).result.vault;
+      // Observe the provider's actual reads without changing receipt delivery
+      // or worker timing. Harness requests are excluded by their request IDs.
+      await s.evaluate(`(()=>{
+        const ids=new Set(); const request=__t.request.bind(__t);
+        __t.request=(...args)=>{const r=request(...args);ids.add(r.requestId);return r;};
+        const callbacks=window.__TAURI_INTERNALS__.callbacks;
+        const originalSet=callbacks.set;
+        window.__providerReads=[];
+        callbacks.set=function(id,callback){
+          return originalSet.call(this,id,value=>{
+            if(value?.result?.vault && !ids.has(value.requestId))
+              __providerReads.push({at:performance.now(),state:value.result.vault.state});
+            callback(value);
+          });
+        };
+      })()`);
+      let n = 0;
+      const start = async () => {
+        n++;
+        const before = (await s.evaluate("__t.memory('operation_list', {})")).result.items.map(op => op.operationId);
+        if (kind === 'vault_verify') await click(s, 'button', 'Verify Vault');
+        else {
+          const destination = join(out, `long-backup-${n}`);
+          mkdirSync(destination);
+          await click(s, 'button', 'Back up to an empty folder');
+          fillOpenDialog(app.pid, destination, true);
+        }
+        await waitFor(s, `__t.memory('operation_list',{}).then(r=>r.result.items.some(op=>op.kind===${JSON.stringify(kind)} && !${JSON.stringify(before)}.includes(op.operationId)))`, 'new real operation');
+        const ops = (await s.evaluate("__t.memory('operation_list', {})")).result.items;
+        const op = ops.find(op => op.kind === kind && !before.includes(op.operationId));
+        await s.evaluate(`window.__longId=${JSON.stringify(op.operationId)}`);
+        await waitFor(s, "__t.memory('operation_get',{operationId:__longId}).then(r=>r.result.state==='running')", 'real worker is running', 10000);
+        await waitFor(s, "!!document.querySelector('.mem-state-running')", 'real running feedback');
+        check(`L.${kind}_no_cancel_${n}`, await s.evaluate("document.querySelector('.mem-operation').textContent.includes('Finishes before locking or exiting') && !document.querySelector('.mem-operation button')"));
+        return op.operationId;
+      };
+      const completed = async () => {
+        await waitFor(s, "__t.memory('operation_get',{operationId:__longId}).then(r=>r.result.state==='succeeded')", 'uncancellable worker completed', 120000);
+        return (await s.evaluate("__t.memory('operation_get',{operationId:__longId})")).result;
+      };
+      const intact = op => kind === 'vault_verify' ? op.result.clean === true && op.result.objectsChecked === 1 : op.result.files > 0 && op.result.commitId === head.headCommitId;
+
+      // Closing is exercised through the actual title-bar control.
+      await start();
+      await s.evaluate("document.querySelector('button[aria-label=\"Close\"]').click()");
+      await waitFor(s, "window.__TAURI_INTERNALS__.invoke('shell_status').then(r=>!r.visible)", 'close hides while work continues');
+      const hidden = await s.evaluate("Promise.all([__t.memory('operation_get',{operationId:__longId}),window.__TAURI_INTERNALS__.invoke('shell_status'),__t.memory('workspace_status',{})]).then(([op,shell,status])=>({state:op.result.state,visible:shell.visible,closing:shell.closing,vault:status.result.vault.state}))");
+      check(`L.${kind}_close_while_running`, hidden.state === 'running' && !hidden.visible && !hidden.closing && hidden.vault === 'open', JSON.stringify(hidden));
+      check(`L.${kind}_hidden_work_completes_intact`, intact(await completed()));
+      await s.evaluate("__t.invoke('shell_show')");
+
+      // Lock admission must wait while observations remain available.
+      const oldPolls = await s.evaluate('__providerReads.length');
+      await waitFor(s, `__providerReads.length>${oldPolls} && __providerReads.length>1 && __providerReads.at(-1).at-__providerReads.at(-2).at>=2900`, 'actual periodic provider refresh before lock');
+      await sleep(2000);
+      await start();
+      const pollCount = await s.evaluate('__providerReads.length');
+      await s.evaluate("__t.click('button','Lock Vault')");
+      const pending = await s.evaluate("Promise.all([__t.memory('operation_get',{operationId:__longId}),__t.memory('workspace_status',{}),__t.invoke('shell_search'),window.__TAURI_INTERNALS__.invoke('shell_status')]).then(([op,status,search,host])=>({state:op.result.state,observed:!!status.result,search:search.err,vaultChanging:host.vaultChanging}))");
+      check(`L.${kind}_lock_keeps_observations`, pending.state === 'running' && pending.observed && pending.search === 'runtime_busy' && pending.vaultChanging, JSON.stringify(pending));
+      // Observe through a real provider refresh, not just the first paint
+      // before its canonical locked state can replace the operation panel.
+      const trace = await s.evaluate(`(async()=>{
+        const samples=[]; const began=performance.now();
+        while(performance.now()-began<4500){
+          const op=(await __t.memory('operation_get',{operationId:__longId})).result;
+          if(op.state!=='running') break;
+          samples.push({at:Math.round(performance.now()-began),providerReads:__providerReads.length,providerState:__providerReads.at(-1)?.state,progressVisible:!!document.querySelector('.mem-operation'),waitingVisible:!!document.querySelector('.mem-operation') || document.body.innerText.includes('Runtime is finishing Memory operations before releasing the Vault'),unlockVisible:!!__t.byText('button','Unlock')});
+          await new Promise(r=>setTimeout(r,150));
+        }
+        return samples;
+      })()`);
+      check(`L.${kind}_lock_observed_past_status_refresh`, trace.some(sample => sample.providerReads > pollCount && sample.providerState === 'locked'), JSON.stringify(trace));
+      check(`L.${kind}_lock_keeps_waiting_feedback`, trace.length > 0 && trace.every(sample => sample.waitingVisible && !sample.unlockVisible), JSON.stringify(trace));
+      check(`L.${kind}_lock_rereads_real_progress_after_refresh`, trace.some(sample => sample.providerReads > pollCount && sample.providerState === 'locked' && sample.progressVisible));
+      await shot(s, `long-${kind}-locking`);
+      check(`L.${kind}_lock_finishes_worker_intact`, intact(await completed()));
+      await waitFor(s, has('Memory · Vault locked'), 'lock completed');
+      check(`L.${kind}_lock_releases_admission`, await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status').then(r=>r.vaultChanging===false)"));
+      const unlock = await s.evaluate("__t.memory('vault_unlock',{})");
+      check(`L.${kind}_unlock_after_work`, unlock.kind !== 'memory_error');
+      await nav(s, 'Settings');
+      await waitFor(s, has('Available · Show / Lock Memory Vault / Exit'), 'exit controls ready');
+
+      // Starting via actual IPC while Settings is ready avoids navigating
+      // away before the short but real worker lifetime can be observed.
+      let args = {};
+      if (kind === 'backup_export') {
+        const destination = join(out, 'long-backup-exit');
+        mkdirSync(destination);
+        await s.evaluate("window.__longPicked=null; void window.__TAURI_INTERNALS__.invoke('memory_pick',{kind:'backup_destination'}).then(p=>window.__longPicked=p)");
+        fillOpenDialog(app.pid, destination, true);
+        await waitFor(s, '!!window.__longPicked?.token', 'exit backup folder picked');
+        args = { destinationToken: await s.evaluate('window.__longPicked.token') };
+      }
+      await s.evaluate(`(async()=>{const r=await __t.memory(${JSON.stringify(kind)},${JSON.stringify(args)});window.__longId=r.result.operationId;})()`);
+      const active = await s.evaluate("__t.memory('operation_get',{operationId:__longId}).then(r=>r.result.state)");
+      check(`L.${kind}_exit_starts_with_running_worker`, active === 'running', active);
+      await click(s, '[aria-label="Windows shell"] button', 'Exit Runtime');
+      const exiting = await s.evaluate("Promise.all([__t.memory('workspace_status',{}),__t.memory('operation_get',{operationId:__longId}),__t.invoke('memory_call',{request:__t.request('remember',{text:'Refused during exit',claimKey:'fixture.refused'},'ui-'+crypto.randomUUID())})]).then(([status,op,write])=>({exiting:status.result.companion.exiting,state:op.result.state,refused:write.err,ui:document.body.innerText.includes('Finishing Memory operations before exiting')}))");
+      check(`L.${kind}_exit_waits_and_refuses_new_work`, exiting.exiting === true && exiting.state === 'running' && exiting.refused === 'runtime_closing' && exiting.ui, JSON.stringify(exiting));
+      const exit = await waitForExit(app, 120000);
+      check(`L.${kind}_exit_zero`, exit === 0, `exit ${exit}`);
+      s.close();
+      const reopened = launch(['--memory-vault', vault], { profile: `long-reopen-${kind}` });
+      const r = await connect();
+      await waitFor(r, has('Memory · Vault open'), 'Vault released after long exit');
+      const after = (await r.evaluate("__t.memory('workspace_status',{})")).result.vault;
+      check(`L.${kind}_reopens_same_commit`, after.headCommitId === head.headCommitId && after.headSequence === head.headSequence);
+      if (kind === 'backup_export') {
+        const exported = JSON.parse(readFileSync(join(out, 'long-backup-exit', 'export-manifest.json'), 'utf8'));
+        check('L.backup_exit_wrote_complete_manifest', exported.commit_id === head.headCommitId);
+        for (const folder of ['long-backup-1', 'long-backup-2', 'long-backup-exit']) {
+          const verified = JSON.parse(execFileSync(pinnedCli, ['verify-export', join(out, folder)], { encoding: 'utf8', windowsHide: true, timeout: 120000 }));
+          check(`L.${folder}_independently_valid`, verified.valid === true && verified.commit_id === head.headCommitId && verified.files > 0, JSON.stringify(verified));
+        }
+      }
+      // Also exercise the OS session-end route while a real worker is live.
+      // Prepare the exact process registration before starting the worker.
+      const manager = await prepareRestartManager(reopened);
+      let endArgs = {};
+      if (kind === 'backup_export') {
+        const destination = join(out, 'long-backup-session-end');
+        mkdirSync(destination);
+        await r.evaluate("window.__endPicked=null; void window.__TAURI_INTERNALS__.invoke('memory_pick',{kind:'backup_destination'}).then(p=>window.__endPicked=p)");
+        fillOpenDialog(reopened.pid, destination, true);
+        await waitFor(r, '!!window.__endPicked?.token', 'OS exit backup picked');
+        endArgs = { destinationToken: await r.evaluate('window.__endPicked.token') };
+      }
+      await r.evaluate(`(async()=>{const op=await __t.memory(${JSON.stringify(kind)},${JSON.stringify(endArgs)});window.__endId=op.result.operationId;})()`);
+      check(`L.${kind}_os_exit_starts_with_running_worker`, await r.evaluate("__t.memory('operation_get',{operationId:__endId}).then(op=>op.result.state==='running')"));
+      const shutdown = await manager.shutdown();
+      check(`L.${kind}_cooperative_os_exit_zero`, await waitForExit(reopened, 120000) === 0, shutdown);
+      r.close();
+      const afterEnd = launch(['--memory-vault', vault], { profile: `long-after-os-${kind}` });
+      const end = await connect();
+      await waitFor(end, has('Memory · Vault open'), 'OS session-end releases Vault');
+      const endHead = (await end.evaluate("__t.memory('workspace_status',{})")).result.vault;
+      check(`L.${kind}_os_exit_preserves_commit`, endHead.headCommitId === head.headCommitId && endHead.headSequence === head.headSequence);
+      if (kind === 'backup_export') {
+        const verified = JSON.parse(execFileSync(pinnedCli, ['verify-export', join(out, 'long-backup-session-end')], { encoding:'utf8',windowsHide:true,timeout:120000 }));
+        check('L.os_exit_backup_independently_valid', verified.valid === true && verified.commit_id === head.headCommitId && verified.files > 0, JSON.stringify(verified));
+      } else {
+        const op = await end.evaluate("__t.memory('vault_verify',{}).then(r=>r.result.operationId)");
+        await waitFor(end, `__t.memory('operation_get',{operationId:${JSON.stringify(op)}}).then(r=>r.result.state==='succeeded' && r.result.result.clean===true)`, 'clean bytes after OS exit', 120000);
+        check('L.os_exit_verify_reopens_clean', true);
+      }
+      void end.evaluate("__t.invoke('shell_exit')").catch(() => 0);
+      check(`L.${kind}_after_os_host_exits`, await waitForExit(afterEnd, 20000) === 0);
+      end.close();
+    }
+    return;
+  }
   if (process.argv[6] === '--damaged-verify-only') {
     const fixture=resolve(out,'..');
     if(!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-damaged-verify-') || vault!==join(fixture,'vault')) throw new Error('damage probe requires its dedicated temporary synthetic fixture');

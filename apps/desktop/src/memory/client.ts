@@ -130,6 +130,7 @@ export const retryable = (error: unknown): boolean => error instanceof CallError
 
 /** The shell's own window and startup commands (ADR-026). */
 export const shell = {
+  lifecycleStatus: () => transport("shell_status", {}) as Promise<J>,
   showMain: () => transport("show_main", {}),
   hideWindow: () => transport("hide_window", {}),
   exit: () => transport("exit_app", {}),
