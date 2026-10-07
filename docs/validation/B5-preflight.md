@@ -24,8 +24,23 @@ The seed was imported at high-water 1 into private sandbox stores, then the rele
 
 This is the first real C01/C02/C04/C07/C08 capability evidence on the target workstation. It is not B4 sign-off: no transport, receiver, publication, schedule or About page was involved.
 
+## B5 execution attempt (2026-10-07)
+
+The owner approved all four production steps. Done locally:
+
+- [ADR-030](../adr/030-production-activation-path.md) production install and registration path, with package tests (54 checks, scheduler doubles).
+- PowerShell 7.6.6 installed from the official winget source (the Store build; tests now use `$PSHOME`, because the PATH entry is an app-execution alias).
+- A dedicated ed25519 upload key and a `moriium-activity-upload` alias with strict host-key checking and `IdentitiesOnly`.
+- A reviewed server install script for Moriium's status receiver and publisher from `fd48f88`, kept in the private bundle. The live nginx configuration already maps `/status-data/`, so nginx needs no change.
+
+Stopped:
+
+- **Remote server writes were refused by the session's permission policy.** The server script was not run, and nothing on the VPS changed.
+- **The public origin is not reachable over HTTPS from this workstation.** DNS resolves to a local proxy fake-IP. Through the proxy, the TLS handshake fails. Directly to the server IP, TLS completes but the connection is reset after the request, with no HTTP response, for both curl (schannel) and Node (OpenSSL). This matches mainland hosting enforcement for a domain without ICP filing, which the 2026-10-05 deployment note says was deferred. The Runtime observer must fetch the public manifest from this machine to clear pending, so a production batch would stay pending and block later collection (O6). The production package was therefore not installed and no seed was imported.
+
 ## Gates still blocking B5
 
 - **O2:** deploy the Moriium receiver/publisher (`/status-data/`), the restricted SSH account and alias, and nginx routing. This is Moriium-owned work, and the Moriium checkout currently holds someone else's uncommitted deployment changes and handoff notes for it. Runtime does not take over server ownership.
+- **O6 reachability:** this workstation must be able to read `https://morii9961.top/status-data/current.json` (directly or through the user-level proxy that curl inherits). Complete the ICP filing, or route the domain through a proxy path that actually reaches it, then confirm with `curl.exe -sS https://morii9961.top/zh/`.
 - **Stage 3–5:** after O2, a production config (mode `production`, real origin, SSH alias) with delivery enabled, import of the reviewed seed, one manual production cycle with observed publication and zh/ja/en About checks, then registration and enablement of the scheduled task and one observed scheduled run.
 - **Cutover hygiene:** freeze manual `pnpm activity:refresh` writes to the checked-in snapshot during cutover, or keep it as the documented separate build-snapshot path.

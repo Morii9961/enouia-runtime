@@ -41,7 +41,8 @@ try {
     $import = RunCli @('migration-import', '--bundle', $legacy, '--config', $config, '--high-water', '50')
     Assert ($import.code -eq 0) 'Synthetic bootstrap failed.'
     Assert ((Get-ActivityPeSubsystem ([IO.Path]::GetFullPath($Binary))) -eq 2) 'Release console hiding is absent.'
-    $pwsh = (Get-Command pwsh.exe -CommandType Application).Source
+    # $PSHOME is the real executable; a Store install's PATH entry is an app-execution alias.
+    $pwsh = Join-Path $PSHOME 'pwsh.exe'
     $version = & $module { param($exe) Get-ActivityTool 'synthetic-version-probe' $exe 'unused.exe' @('--version') } $pwsh
     Assert ($version.configured -and $version.version -match '^7\.') 'Configured executable version probe failed.'
     Reject { & $module { param($exe) Invoke-ActivityProbe $exe @('-NoProfile', '-Command', '[Console]::Write("x" * 5000)') } $pwsh } 'Oversized probe output accepted.'
@@ -106,6 +107,7 @@ try {
             function script:Get-ScheduledTaskInfo { param($TaskName, $TaskPath, $ErrorAction) [pscustomobject]@{LastTaskResult = 3} }
             function script:Disable-ScheduledTask { param($TaskName, $TaskPath, $ErrorAction) $script:testTask.State = 'Disabled' }
             function script:Unregister-ScheduledTask { param($TaskName, $TaskPath, $Confirm, $ErrorAction) $script:testTask = $null }
+            function script:Enable-ScheduledTask { param($TaskName, $TaskPath, $ErrorAction) $script:testTask.State = 'Ready' }
         } $taskName $xml.OuterXml
     }
     Register-ActivitySandbox $install
@@ -157,6 +159,29 @@ try {
     Assert (-not (Get-ActivityPackageStatus $install).taskRegistered) 'Uninstall left a task registered.'
     $again = Uninstall-ActivityTask $install
     Assert ($again.activityDataPreserved) 'Uninstall is not idempotent.'
+    if (-not $LiveScheduler) {
+        # B5 production path (ADR-030), scheduler doubles only: explicit flag, exact name, disabled first, enable gated.
+        $prodConfig = Join-Path $base 'production-delivery.json'
+        $prodDelivery = @{ sshExecutable = (Join-Path $env:SystemRoot 'System32\OpenSSH\ssh.exe'); restrictedAlias = 'enouia-test-upload'; curlExecutable = (Join-Path $env:SystemRoot 'System32\curl.exe'); publicOrigin = 'https://status.invalid' }
+        [IO.File]::WriteAllText($prodConfig, (@{version = 1; mode = 'production'; dataRoot = $state; deliveryEnabled = $true; delivery = $prodDelivery} | ConvertTo-Json -Depth 4))
+        $releaseBinary = [IO.Path]::GetFullPath($Binary)
+        Reject { Install-ActivityPackage -Binary $releaseBinary -Config $prodConfig -InstallRoot (Join-Path $base 'prod-unflagged') } 'Delivery-enabled production package accepted without -Production.'
+        Reject { Install-ActivityPackage -Binary $releaseBinary -Config $deliveryConfig -InstallRoot (Join-Path $base 'prod-sandbox') -Production } 'Sandbox configuration accepted as production.'
+        Reject { Install-ActivityPackage -Binary $releaseBinary -Config $production -InstallRoot (Join-Path $base 'prod-disabled') -Production } 'Delivery-disabled configuration accepted as a production package.'
+        $prodRoot = Join-Path $base 'production-delivery-package'
+        $prodName = 'Enouia-Activity-Production-Test'
+        $prodInstalled = Install-ActivityPackage -Binary $releaseBinary -Config $prodConfig -InstallRoot $prodRoot -TaskName $prodName -Production
+        Assert (-not $prodInstalled.taskRegistered -and $prodInstalled.paused -and $prodInstalled.mode -eq 'production') 'Production package was not installed paused and unregistered.'
+        Assert (Test-Path -LiteralPath (Join-Path $prodRoot 'management\register-activity-production.ps1')) 'Production management script missing.'
+        Reject { Register-ActivityProduction $prodRoot $prodName.ToLowerInvariant() } 'Inexact production confirmation accepted.'
+        Reject { Register-ActivityProduction $install $taskName } 'Sandbox package registered as production.'
+        $registered = Register-ActivityProduction $prodRoot $prodName
+        Assert ($registered.state -eq 'production_registered_disabled' -and (& $module { $script:testTask.State }) -eq 'Disabled') 'Production task not registered disabled.'
+        Reject { Register-ActivityProduction $prodRoot $prodName } 'Existing production task replaced.'
+        Reject { Enable-ActivityProduction $prodRoot $prodName } 'Production task enabled without an observed publication.'
+        Assert ((& $module { $script:testTask.State }) -eq 'Disabled') 'Refused enable changed the task.'
+        Assert ((Uninstall-ActivityTask $prodRoot).activityDataPreserved) 'Production uninstall failed.'
+    }
     # Config tampering blocks later registration before any scheduler mutation.
     Add-Content -LiteralPath $installedConfig -Value ' '
     Reject { Register-ActivitySandbox $install } 'Changed config registered.'
