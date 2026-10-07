@@ -274,8 +274,8 @@ async function quickSearch(main, app) {
   await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => s.overlayVisible)", 'OS hotkey opened overlay');
   const overlay = await connect(true);
   await overlay.evaluate(`(async()=>{
-    window.__focusTrace = []; ['focus','blur'].forEach(name => window.addEventListener(name, () => window.__focusTrace.push({name, at:Date.now()})));
-    const handler=window.__TAURI_INTERNALS__.transformCallback(()=>window.__focusTrace.push({name:'overlay-clear',at:Date.now()}));
+    window.__focusTrace = []; ['focus','blur'].forEach(name => window.addEventListener(name, () => window.__focusTrace.push({name, query:document.querySelector('#quick-query').value, at:Date.now()})));
+    const handler=window.__TAURI_INTERNALS__.transformCallback(()=>window.__focusTrace.push({name:'overlay-clear',query:document.querySelector('#quick-query').value,at:Date.now()}));
     await window.__TAURI_INTERNALS__.invoke('plugin:event|listen',{event:'overlay-clear',target:{kind:'Any'},handler});
   })()`);
   check('Q.os_hotkey_opens_search', await overlay.evaluate("document.activeElement?.id === 'quick-query'"));
@@ -285,6 +285,14 @@ async function quickSearch(main, app) {
     await overlay.evaluate("window.__focusTrace.push({name:'after-set', query:document.querySelector('#quick-query').value, focused:document.hasFocus(), at:Date.now()})");
     await overlay.evaluate("document.querySelector('form').requestSubmit()");
     await overlay.evaluate("window.__focusTrace.push({name:'after-submit', query:document.querySelector('#quick-query').value, focused:document.hasFocus(), at:Date.now()})");
+  };
+  // Native command completion does not mean the WebView has consumed its
+  // clear/focus events. Observe those real prerequisites before test input.
+  const reopen = async () => {
+    const clears=await overlay.evaluate("window.__focusTrace.filter(e=>e.name==='overlay-clear').length");
+    await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
+    await waitFor(overlay, `window.__focusTrace.filter(e=>e.name==='overlay-clear').length>${clears} && document.hasFocus() && document.activeElement?.id==='quick-query' && document.querySelector('#quick-query').value===''`, 'reopened overlay consumed clear and focused input');
+    await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s=>s.overlayVisible)", 'reopened overlay visible');
   };
   await search('paper sketchbook');
   try { await waitFor(overlay, "[...document.querySelectorAll('.quick-results li')].some(row => row.textContent.includes('paper sketchbook'))", 'approved search result'); }
@@ -335,17 +343,27 @@ async function quickSearch(main, app) {
   await overlay.evaluate('window.__release()');
   await sleep(300);
   check('Q.hide_discards_delayed_result', await overlay.evaluate("document.querySelector('#quick-query').value === '' && !document.querySelector('.quick-results li')"));
-  await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
-  await search('paper sketchbook');
-  try { await waitFor(overlay, "[...document.querySelectorAll('.quick-results li')].some(row => row.textContent.includes('paper sketchbook'))", 'search before lock'); }
-  catch(error) {
-    check('Q.reopened_search_diagnostic',false,JSON.stringify(await overlay.evaluate("({query:document.querySelector('#quick-query').value,focused:document.hasFocus(),busy:document.querySelector('main').getAttribute('aria-busy'),trace:window.__focusTrace})")));
-    throw error;
+  for(let cycle=0;cycle<3;cycle++) {
+    await reopen();
+    check(`Q.reopen_${cycle}_cleared_and_focused`, await overlay.evaluate("document.hasFocus() && document.querySelector('#quick-query').value==='' && !document.querySelector('.quick-results li')"));
+    await search('paper sketchbook');
+    try { await waitFor(overlay, "[...document.querySelectorAll('.quick-results li')].some(row => row.textContent.includes('paper sketchbook'))", 'search after reopening'); }
+    catch(error) {
+      check('Q.reopened_search_diagnostic',false,JSON.stringify(await overlay.evaluate("({query:document.querySelector('#quick-query').value,focused:document.hasFocus(),busy:document.querySelector('main').getAttribute('aria-busy'),trace:window.__focusTrace})")));
+      throw error;
+    }
+    check(`Q.reopen_${cycle}_real_result`, await overlay.evaluate("document.querySelector('#quick-query').value==='paper sketchbook' && document.querySelectorAll('.quick-results li').length===1"));
+    if(cycle<2) {
+      await overlay.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+      await waitFor(main,"window.__TAURI_INTERNALS__.invoke('shell_status').then(s=>!s.overlayVisible)",'cycle escape hides');
+      await waitFor(overlay,"document.querySelector('#quick-query').value==='' && !document.querySelector('.quick-results li')",'cycle hidden state cleared');
+      check(`Q.reopen_${cycle}_hide_clears`,true);
+    }
   }
   await main.evaluate("__t.invoke('memory_call', {request:__t.request('vault_lock',{})})");
   await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => !s.overlayVisible)", 'lock hides');
   check('Q.lock_clears_text', await overlay.evaluate("document.querySelector('#quick-query').value === '' && !document.querySelector('.quick-results li')"));
-  await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
+  await reopen();
   await search('paper sketchbook');
   try { await waitFor(overlay, has('The Vault is not open, or it is locked'), 'locked search refusal'); }
   catch(error) {
@@ -1609,6 +1627,29 @@ async function main() {
   if (process.argv[6] === '--quick-only') {
     const app = launch(['--memory-vault', vault]);
     const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'quick fixture open');
+    await s.evaluate(`(async()=>{
+      const send=async(command,args,write=false)=>{
+        const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
+        const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+        if(reply.kind==='memory_error') throw new Error(command+': '+reply.error.code); return reply.result;
+      };
+      const empty=await send('memory_list',{includeInactive:false,cursor:null,limit:1});
+      if(empty.total!==0) throw new Error('quick-only requires a fresh empty synthetic Vault');
+      for(const [index,text] of ['Synthetic owner keeps a paper sketchbook for Lantern ideas.','<img src=x onerror="window.__xss=1">Synthetic markup note'].entries()) {
+        const candidate=await send('remember',{text,claimKey:'fixture.quick_'+index},true);
+        const plan=await send('review_plan',{decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+        await send('review_confirm',{planId:plan.planId,diffHash:plan.diffHash},true);
+      }
+      const operation=await send('index_rebuild',{});
+      for(let attempt=0;attempt<300;attempt++) {
+        const status=await send('operation_get',{operationId:operation.operationId});
+        if(status.state==='succeeded') return;
+        if(['failed','cancelled'].includes(status.state)) throw new Error('quick rebuild: '+status.state);
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      throw new Error('quick rebuild timed out');
+    })()`);
     await quickSearch(s, app);
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
     await app.exited;
