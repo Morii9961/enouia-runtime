@@ -99,7 +99,7 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 
 `--explorer-only` uses a fresh synthetic Vault, seeds approved fixtures through real Core IPC, and checks paging, a canonically stale cursor, explicit refresh and controlled read-error recovery. Its import-file argument is unused but retained for the shared command signature.
 
-`--picks-only` uses a fresh synthetic Vault and a synthetic Markdown input. It creates its other input and empty backup folders inside the output directory, checks controlled import-preview failure, performs one real import and backup export, and validates restore preview plus rejection/recovery. It never performs a restore.
+`--picks-only` uses a fresh synthetic Vault and a synthetic Markdown input. It creates its other input and empty backup folders inside the output directory, checks controlled import-preview failure, performs one real import, Vault verification and backup export, checks their displayed Core result counts, and validates restore preview plus rejection/recovery. It never performs a restore. See [operation result evidence](validation/Operation-results-v1.md), including the separate rendering-only damaged-verification check.
 
 `--contrast-only` uses a fresh synthetic Vault, emulates forced-colors media in the owned WebView2 page, checks navigation/collection selection and CDP-scoped Tab focus, then clears the emulation. The import argument is unused. This does not change Windows theme settings or complete W05.
 

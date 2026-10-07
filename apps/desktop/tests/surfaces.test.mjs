@@ -107,6 +107,30 @@ test('operation feedback offers cancellation only for active cooperative workers
   assert.match(view('import', 'running'), /mem-state-running/);
 });
 
+test('verification completion reports integrity separately from operation success', () => {
+  const result = {clean:true,recordsChecked:17,objectsChecked:3,missingRecords:0,corruptRecords:0,missingObjects:0,corruptObjects:0,damagedSegments:0};
+  const view=(value,state='succeeded')=>renderToStaticMarkup(OperationFeedback({status:{kind:'vault_verify',state,progress:{done:1,total:1},result:value},onCancel(){}}));
+  assert.match(view(result),/Verification passed: 17 records · 3 objects/);
+  const damaged=view({...result,clean:false,missingObjects:2,corruptRecords:1,damagedSegments:4});
+  assert.match(damaged,/mem-state-succeeded/);
+  assert.match(damaged,/Verification found integrity problems/);
+  assert.match(damaged,/corrupt records: 1/);
+  assert.match(damaged,/missing objects: 2/);
+  assert.match(damaged,/damaged segments: 4/);
+  assert.doesNotMatch(damaged,/Verification passed/);
+  for(const value of [null,{}, {...result,clean:undefined}]) assert.doesNotMatch(view(value),/Verification passed|Verification found/);
+  for(const state of ['queued','running','failed']) assert.doesNotMatch(view(result,state),/Verification passed/);
+});
+
+test('only a completed backup displays its saved snapshot and literal destination', () => {
+  const view=(state)=>renderToStaticMarkup(OperationFeedback({status:{kind:'backup_export',state,progress:{done:1,total:1},result:{sequence:23,files:41,destinationName:'<img src=x>'}},onCancel(){}}));
+  const done=view('succeeded');
+  assert.match(done,/Backup saved: commit #23 · 41 files/);
+  assert.match(done,/&lt;img src=x&gt;/);
+  assert.doesNotMatch(done,/<img/);
+  for(const state of ['queued','running','failed','cancelled']) assert.doesNotMatch(view(state),/Backup saved/);
+});
+
 test('an unobserved explorer reports waiting and never invents an empty result', () => {
   for (const text of ['', 'synthetic query']) {
     const html = renderToStaticMarkup(createElement(Explorer, {

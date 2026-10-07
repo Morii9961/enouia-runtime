@@ -94,6 +94,15 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
       )}
       {active && cancellable && status.cancelRequested && <span className="mem-muted">Waiting for the next safe point.</span>}
       {active && !cancellable && <span className="mem-muted">Finishes before locking or exiting.</span>}
+      {status.state === "succeeded" && status.kind === "vault_verify" && typeof status.result?.clean === "boolean" && (
+        <span className={status.result.clean ? "mem-muted" : "mem-warn"}>
+          {status.result.clean ? "Verification passed" : "Verification found integrity problems"}: {status.result.recordsChecked} records · {status.result.objectsChecked} objects.
+          {!status.result.clean && <> Missing records: {status.result.missingRecords}; corrupt records: {status.result.corruptRecords}; missing objects: {status.result.missingObjects}; corrupt objects: {status.result.corruptObjects}; damaged segments: {status.result.damagedSegments}.</>}
+        </span>
+      )}
+      {status.state === "succeeded" && status.kind === "backup_export" && status.result && (
+        <span className="mem-muted">Backup saved: commit #{status.result.sequence} · {status.result.files} files · {status.result.destinationName}.</span>
+      )}
       {status.error && <span className="mem-warn">{status.error.code}</span>}
       <ErrorBox error={error} />
     </div>

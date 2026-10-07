@@ -619,12 +619,19 @@ async function pickerChecks(s, app) {
   check('W01.import_matches_selected_preview', imported.ok?.result?.items?.length === 1 && imported.ok.result.items[0].inputSizeBytes === Buffer.byteLength(secondText) && imported.ok.result.items[0].status === 'completed');
 
   await rail(s, 'Vault & recovery');
+  await click(s, 'button', 'Verify Vault');
+  await waitFor(s,"[...document.querySelectorAll('.mem-operation')].some(row=>row.textContent.includes('vault_verify') && row.textContent.includes('succeeded'))",'real verification completed',60000);
+  const operations=await s.evaluate("__t.invoke('memory_call',{request:__t.request('operation_list',{})})");
+  const verified=operations.ok?.result?.items?.find(op=>op.kind==='vault_verify');
+  check('W01.actual_verify_is_clean',verified?.result?.clean===true && verified.result.recordsChecked>0 && verified.result.objectsChecked>0);
+  check('W02.verify_shows_integrity_result',await s.evaluate(`document.querySelector('.mem-operation').textContent.includes('Verification passed') && document.querySelector('.mem-operation').textContent.includes(${JSON.stringify(`${verified?.result?.recordsChecked} records`)} ) && document.querySelector('.mem-operation').textContent.includes(${JSON.stringify(`${verified?.result?.objectsChecked} objects`)})`));
   await click(s, 'button', 'Back up to an empty folder');
   fillOpenDialog(app.pid, backup, true);
-  await waitFor(s, "!!document.querySelector('.mem-state-succeeded')", 'real backup exported', 60000);
+  await waitFor(s, "[...document.querySelectorAll('.mem-operation')].some(row=>row.textContent.includes('backup_export') && row.textContent.includes('succeeded'))", 'real backup exported', 60000);
   const exported = await s.evaluate("__t.invoke('memory_call',{request:__t.request('operation_list',{})})");
   const result = exported.ok?.result?.items?.find(op => op.kind === 'backup_export');
   check('W01.backup_export_succeeds', result?.state === 'succeeded' && result.result.files > 0);
+  check('W02.backup_shows_exact_export_result',await s.evaluate(`document.querySelector('.mem-operation').textContent.includes(${JSON.stringify(`Backup saved: commit #${result?.result?.sequence}`)}) && document.querySelector('.mem-operation').textContent.includes(${JSON.stringify(`${result?.result?.files} files`)}) && document.querySelector('.mem-operation').textContent.includes('backup')`));
   await holdOperationObservation(s, 'restore');
   await click(s, 'button', 'Preview a restore');
   fillOpenDialog(app.pid, backup, true);
