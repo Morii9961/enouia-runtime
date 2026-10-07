@@ -1,5 +1,7 @@
 # B4 fixed-input comparison and investigated differences
 
+Update (2026-10-07): [ADR-029](../adr/029-claude-retains-higher-days.md) withdrew the Claude downward-correction policy after real-account evidence. A fresh run of the unchanged harness against the same reference revision is recorded in [frozen-comparison-v2.json](B4/frozen-comparison-v2.json): 23 exact matches (now including `C03-claude-down`), three policy differences, two clock refusals and the same two unresolved GitHub differences. The report below describes the 2026-10-01 run.
+
 Date: 2026-10-01. Runtime baseline: `6b98d40`. The [recorded comparison](B4/frozen-comparison.json) has 30 synthetic fixed-clock cases: 22 exact matches, four known policy differences, two deliberate clock refusals, and **two investigated but not waived differences**. This is partial B4 evidence, not a full C01–C18 sign-off or production readiness claim.
 
 The [pure Rust fixture bridge](../../crates/enouia-activity/examples/frozen_activity.rs) compiles as an example and invokes the actual GitHub/Codex/Claude parsers, historical merge, batch normalization, and canonical serializer. It reads bounded JSON on stdin, uses a fake clock, and emits only the normalized batch, hash, and local merge deltas. No collector process, authentication, filesystem state, sequence allocation, or transport is added to production. It is not included in the Activity installation package.

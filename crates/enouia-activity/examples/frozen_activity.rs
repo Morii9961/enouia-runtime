@@ -28,7 +28,7 @@ fn attempt(
 fn delta(value: &SourceDelta) -> Value {
     json!({"disposition":format!("{:?}", value.disposition),"newDates":value.new_dates,
         "revisedDates":value.revised_dates,"totalChange":value.total_change,
-        "ignoredFutureDays":value.ignored_future_days,"ignoredBeforeFloorDays":value.ignored_before_floor_days})
+        "ignoredFutureDays":value.ignored_future_days,"ignoredBeforeFloorDays":value.ignored_before_floor_days,"retainedHigherDays":value.retained_higher_days})
 }
 fn evaluate(raw: &Value) -> Result<Value, &'static str> {
     let object = raw.as_object().ok_or("invalid_input")?;

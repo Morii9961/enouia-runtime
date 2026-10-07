@@ -86,7 +86,7 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [B4 C06 literal comparison](docs/validation/B4-literal-comparison.md) finds identical unit/zone rejection in Runtime and the copied public validator. Migration now flags and refuses seeds whose retained success time the manifest cannot publish. Twelve legacy-only `updatedAt` shapes remain unaccepted.
 
-[B4 evidence coverage](docs/validation/B4-coverage.md) maps C01–C18 to nine historical machine reports and concrete remaining gaps. `node scripts/check-activity-evidence.mjs --self-test` checks report hashes and evidence links offline; it does not sign off B4 or activate B5.
+[B4 evidence coverage](docs/validation/B4-coverage.md) maps C01–C18 to ten historical machine reports and concrete remaining gaps. `node scripts/check-activity-evidence.mjs --self-test` checks report hashes and evidence links offline; it does not sign off B4 or activate B5.
 
 The paragraphs below, from A1 Memory model v1 through the selected orchestration histories, describe Runtime's local Memory/Core design. [ADR-025](docs/adr/025-enouia-memory-integration.md) supersedes it: the Memory domain now belongs to Enouia Memory, and these paragraphs are frozen history. Their evidence remains valid as historical design evidence. The dependency-boundary guard among them still applies to the Activity, shared and frozen Core crates.
 

@@ -36,7 +36,10 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 9);
+  assert.equal(reports.size, 10);
+  const frozen2 = reports.get('frozen2').report;
+  assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
+  assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
   const literal = reports.get('literal').report;
   assert.equal(literal.caseCount, 49);
   assert(literal.results.filter(r => ['metric', 'timezone'].includes(r.field)).every(r => r.result === 'match' && !r.legacyAccepted && !r.runtimeAccepted), 'unit/zone literals must be rejected by both validators');

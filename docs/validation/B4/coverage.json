@@ -66,6 +66,13 @@
       "sha256": "3134cba5c8c1570b4b01fca0f7b95ed05860163f194106820f07b6c0046103cb",
       "state": "completed_with_unresolved_differences",
       "selectorCount": 86
+    },
+    {
+      "id": "frozen2",
+      "path": "docs/validation/B4/frozen-comparison-v2.json",
+      "sha256": "6cee1e6bf9c31795dea39356b37a72062414f9522728cdd3ff76ca2d97efa563",
+      "state": "completed_with_unresolved_differences",
+      "selectorCount": 30
     }
   ],
   "cases": [
@@ -76,6 +83,12 @@
       "evidence": [
         {
           "report": "frozen",
+          "selectors": [
+            "C01-three-success"
+          ]
+        },
+        {
+          "report": "frozen2",
           "selectors": [
             "C01-three-success"
           ]
@@ -112,10 +125,17 @@
             "C03-github-down-codex-up-claude-up",
             "C03-claude-down"
           ]
+        },
+        {
+          "report": "frozen2",
+          "selectors": [
+            "C03-claude-down",
+            "C03-github-down-codex-up-claude-up"
+          ]
         }
       ],
       "remaining": [
-        "Sign off the deliberate Claude admission-floor correction and real downward corrections."
+        "Sign off ADR-029 retained-higher Claude days and the AI admission floor on real archives; the 2026-10-07 real run retained one pruned Claude day."
       ]
     },
     {

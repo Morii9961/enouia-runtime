@@ -65,7 +65,7 @@ try {
   add('C01-three-success', input => { input.previous = structuredClone(blank); });
   add('C02-rolling-retains-history');
   add('C03-github-down-codex-up-claude-up', input => { for (const [id, value] of [['github', 8], ['codex', 5], ['claude', 20]]) input.previous.sources[id].days = [{ date: '2026-09-25', value }]; });
-  add('C03-claude-down', input => { input.previous.sources.claude.days = [{ date: '2026-09-25', value: 50 }]; }, ['claude'], 'validated_claude_downward_correction');
+  add('C03-claude-down', input => { input.previous.sources.claude.days = [{ date: '2026-09-25', value: 50 }]; });
   for (const id of ids) add(`C04-${id}-failure`, input => { input.failures = [id]; });
   add('C04-all-fail', input => { input.failures = [...ids]; });
   add('C04-null-history-all-fail', input => { input.previous = structuredClone(blank); input.failures = [...ids]; });
@@ -158,7 +158,7 @@ try {
     const differences = ids.filter(id => !isDeepStrictEqual(oldBatch.data.sources[id], runtime.batch.data.sources[id]) || !isDeepStrictEqual(oldBatch.sources[id], runtime.batch.sources[id]));
     const classification = differences.length === 0 ? 'equal' : policy && differences.every(id => allowed.includes(id)) ? 'intentional_difference' : 'unresolved_difference';
     if (classification === 'unresolved_difference') unresolved.push(id);
-    if (id === 'C03-claude-down') { assert.equal(runtime.batch.data.sources.claude.days[0].value, 40); assert.equal(oldBatch.data.sources.claude.days[0].value, 50); assert.equal(runtime.deltas.claude.totalChange, -9); }
+    if (id === 'C03-claude-down') { assert.equal(runtime.batch.data.sources.claude.days[0].value, 50); assert.equal(oldBatch.data.sources.claude.days[0].value, 50); assert.equal(runtime.deltas.claude.retainedHigherDays, 1); }
     const oldRoot = join(base, id, 'legacy'); const newRoot = join(base, id, 'runtime');
     await receiveBatch(join(oldRoot, 'inbox'), oldBatch, input.clockMs);
     await receiveBatch(join(newRoot, 'inbox'), runtime.batch, input.clockMs);

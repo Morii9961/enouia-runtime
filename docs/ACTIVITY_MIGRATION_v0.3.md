@@ -55,7 +55,7 @@ Expected deliberate differences are only those in Architecture section 9: strict
 |---|---|---|
 | C01 | Three successful normal reports | Exact old/new daily values, source literals, normalized ActivityData; all attempt/success times match |
 | C02 | GitHub rolling lookback and shortened AI history | Every known historical date remains; reported corrections replace; no extra summation |
-| C03 | Existing value corrected downward/upward | GitHub/Codex and upward Claude corrections agree; a validated downward Claude correction retains the higher old value in legacy but replaces it in Runtime, with unchanged date set and an explicit negative delta |
+| C03 | Existing value corrected downward/upward | GitHub/Codex corrections in both directions and upward Claude corrections agree; a lower Claude report keeps the higher archived day in both ([ADR-029](adr/029-claude-retains-higher-days.md)), with unchanged date set and a local retained-higher delta |
 | C04 | Each source fails separately; then all fail | Failed snapshot/time retained; others advance; null stays null if no prior success; failure outcomes remain visible |
 | C05 | Valid unchanged/zero-valued reports vs malformed empty report | Zero growth remains successful/fresh; empty/malformed input fails without fabricated zero history |
 | C06 | Duplicate/impossible/leap dates, negative/unsafe totals, wrong units/zones | Rejection/normalization consistent with contract; checked sums never overflow |
