@@ -12,9 +12,10 @@
 // a Git working tree. Synthetic data only. The debug port exists only for this
 // test process.
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
-import { basename, join, resolve } from 'node:path';
+import { basename, join, resolve, sep } from 'node:path';
+import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
 
 const inputs = process.argv.slice(2, 6);
@@ -696,6 +697,58 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--damaged-verify-only') {
+    const fixture=resolve(out,'..');
+    if(!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-damaged-verify-') || vault!==join(fixture,'vault')) throw new Error('damage probe requires its dedicated temporary synthetic fixture');
+    const app=launch(['--memory-vault',vault]); await debugOwnerRefusal(app);
+    const s=await connect(); await waitFor(s,has('Memory · Vault open'),'damage fixture open');
+    await s.evaluate(`(async()=>{
+      window.__verifySend=async(command,args,write=false)=>{
+        const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
+        const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+        if(reply.kind==='memory_error') throw new Error(command+': '+reply.error.code); return reply.result;
+      };
+      const list=await __verifySend('candidate_list',{cursor:null,limit:50});
+      if(list.total!==0) throw new Error('damage probe requires empty candidate list');
+    })()`);
+    const inputPath=join(out,'damage-input.md');
+    writeFileSync(inputPath,'Synthetic damaged verification fixture');
+    await nav(s,'Memory'); await rail(s,'Import'); await click(s,'button','Choose file');
+    fillOpenDialog(app.pid,inputPath); await waitFor(s,has('damage-input.md'),'damage input preview');
+    await click(s,'button','Start import'); await waitFor(s,"!!document.querySelector('.mem-state-succeeded')",'real damage fixture import',60000);
+    const head=await s.evaluate("__verifySend('workspace_status',{})");
+    const objectRoot=join(vault,'vault','raw','objects');
+    const names=readdirSync(objectRoot);
+    if(names.length!==1 || !/^[a-f0-9]{64}$/.test(names[0])) throw new Error('damage fixture must contain exactly its one source object');
+    const objectPath=join(objectRoot,names[0]); const original=readFileSync(objectPath);
+    if(original.toString('utf8')!=='Synthetic damaged verification fixture') throw new Error('refuse to modify an object not created by this probe');
+    await nav(s,'Memory'); await rail(s,'Vault & recovery');
+    const verify=async()=>{
+      await holdOperationObservation(s); await click(s,'button','Verify Vault');
+      await waitFor(s,'window.__operationHeld','actual verification operation receipt held');
+      const receipt=await s.evaluate('window.__operationObserved'); await s.evaluate('window.__releaseOperation()');
+      await waitFor(s,`__verifySend('operation_get',{operationId:${JSON.stringify(receipt.operationId)}}).then(op=>op.state==='succeeded')`,'verification worker completed');
+      return s.evaluate(`__verifySend('operation_get',{operationId:${JSON.stringify(receipt.operationId)}})`);
+    };
+    try {
+      writeFileSync(objectPath,'Synthetic deliberate object-byte corruption');
+      const damaged=await verify();
+      check('W01.actual_damaged_verify_completes_with_failed_integrity',damaged.result.clean===false && damaged.result.corruptObjects===1 && damaged.result.missingObjects===0);
+      await waitFor(s,has('Verification found integrity problems'),'actual damaged verdict shown');
+      check('W02.damaged_result_never_announces_passed',await s.evaluate("document.querySelector('.mem-operation').textContent.includes('corrupt objects: 1') && !document.querySelector('.mem-operation').textContent.includes('Verification passed')"));
+      await shot(s,'41-damaged-verification');
+    } finally { writeFileSync(objectPath,original); }
+    const repaired=await verify();
+    check('W01.restored_exact_bytes_verify_clean',readFileSync(objectPath).equals(original) && repaired.result.clean===true && repaired.result.corruptObjects===0);
+    await waitFor(s,has('Verification passed'),'repaired object verdict shown');
+    check('W02.new_clean_verification_replaces_damaged_result',await s.evaluate("!document.querySelector('.mem-operation').textContent.includes('integrity problems')"));
+    const after=await s.evaluate("__verifySend('workspace_status',{})");
+    check('W01.verification_never_commits_a_memory_change',typeof head.vault.headCommitId==='string' && after.vault.headSequence===head.vault.headSequence && after.vault.headCommitId===head.vault.headCommitId);
+    await shot(s,'42-repaired-verification');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('W03.damaged_verify_host_exits',await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close(); return;
+  }
   if (process.argv[6] === '--stale-plan-only') {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
