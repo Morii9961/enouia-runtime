@@ -36,6 +36,9 @@ test('all seven demo surfaces render exactly one screen and disclose demo mode',
     const html = renderToStaticMarkup(appAt(page).render());
     assert.equal((html.match(/data-screen-label=/g) ?? []).length, 1, page);
     assert.ok(html.includes(`data-screen-label="${label}"`), page);
+    assert.match(html, /href="#runtime-content"/);
+    assert.ok(html.includes(`aria-label="${label} content"`), page);
+    assert.match(html, /id="runtime-content"[^>]*tabindex="-1"/);
     assert.match(html, /Demo · local only/);
     assert.doesNotMatch(html, /enouiaBreath/);
   }

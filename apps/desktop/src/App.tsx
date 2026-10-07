@@ -350,6 +350,10 @@ export default class App extends React.Component<AppProps, AppState> {
     const connected = this.connected();
     const surface = (
 <div className="qr234" data-motion={this.state.motionPref}>
+<a className="runtime-skip-link" href="#runtime-content" onClick={(event) => {
+  event.preventDefault();
+  document.getElementById('runtime-content')?.focus();
+}}>Skip to current surface</a>
 <header className="qr227" data-tauri-drag-region>
 <div className="qr220">
 <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
@@ -536,7 +540,7 @@ Settings
 </span>
 </button>
 </nav>
-<main className="qr232">
+<main id="runtime-content" className="qr232" tabIndex={-1} aria-label={`${isHome ? 'Home' : pageTitle} content`}>
 {isHome ? <>
 {connected ? <ConnectedHome nav={view.nav} ring={view.ring} /> : <Home view={view} />}
 </> : null}
