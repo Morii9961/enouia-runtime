@@ -105,6 +105,8 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 
 `--plan-keyboard-only` creates one synthetic candidate in a fresh Vault and checks review-plan focus, Tab containment, navigation suppression, Escape cancellation, focus return and the absence of an approved memory. Its keys stay inside the owned CDP page, and the import argument is unused. See [keyboard acceptance evidence](validation/Plan-keyboard-v1.md); this does not establish Narrator acceptance.
 
+`--stale-plan-only` prepares a real review plan, changes its candidate through another real confirmation on the same synthetic Core and checks the stale refusal, disabled confirmation, cancellation refresh, retained draft and fresh-plan recovery without duplicate approval. The import argument is unused. See [stale-plan recovery evidence](validation/Stale-plan-recovery-v1.md); this does not establish concurrent third-party-client or clock-expiry behavior.
+
 `--confirm-only` creates a synthetic candidate and confirms its real plan while deferring delivery of the actual receipt. It checks pending dismissal guards, waiting feedback, controlled retryable delivery failure, identical retry arguments/key, receipt replay and the single resulting memory. CDP observes only the owned page, and the import argument is unused.
 
 `--lists-only` holds initial session/candidate list results, injects controlled read errors and checks recovery against real empty/nonempty Core pages. It also creates a session, confirms a synthetic candidate and checks retained unsent draft fields. The import argument is unused.

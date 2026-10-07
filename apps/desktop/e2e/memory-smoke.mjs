@@ -671,6 +671,65 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--stale-plan-only') {
+    const app=launch(['--memory-vault',vault]);
+    await debugOwnerRefusal(app);
+    const s=await connect();
+    await waitFor(s,has('Memory · Vault open'),'stale plan fixture open');
+    const candidate=await s.evaluate(`(async()=>{
+      window.__fixtureSend=async(command,args={},write=false)=>{
+        const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
+        const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+        if(reply.kind==='memory_error') throw new Error(command+': '+reply.error.code); return reply.result;
+      };
+      return __fixtureSend('remember',{text:'Synthetic stale plan original',claimKey:'fixture.stale_plan'},true);
+    })()`);
+    await nav(s,'Memory'); await rail(s,'Candidate inbox');
+    await waitFor(s,"document.querySelectorAll('article.mem-candidate').length===1",'stale candidate ready');
+    await set(s,'#mem-remember','Synthetic retained draft after stale plan');
+    await set(s,'#mem-claim','fixture.retained_stale_draft');
+    await s.evaluate("__t.byText('article.mem-candidate button','Accept').focus()");
+    await holdOperationObservation(s,'forget-plan');
+    await click(s,'article.mem-candidate button','Accept'); await waitFor(s,'window.__operationHeld','old actual plan held');
+    const oldPlan=await s.evaluate('window.__operationObserved');
+    await s.evaluate('window.__releaseOperation()'); await waitFor(s,"!!document.querySelector('dialog[open]')",'old plan shown');
+    const committed=await s.evaluate(`(async()=>{
+      const alternate=await __fixtureSend('review_plan',{decisions:[{candidateId:${JSON.stringify(candidate.candidateId)},revision:${candidate.revision},action:'accept',editedContent:null,mergeTarget:null}]});
+      return __fixtureSend('review_confirm',{planId:alternate.planId,diffHash:alternate.diffHash},true);
+    })()`);
+    check('W01.fixture_canonically_changed_before_old_confirm',/^cmt_/.test(committed.commitId));
+    await click(s,'dialog button','Confirm');
+    await waitFor(s,"!!document.querySelector('dialog[open] [role=alert]') && !document.querySelector('dialog [role=status]')",'actual old plan refusal');
+    check('W01.old_plan_error_is_visible',await s.evaluate("document.querySelector('dialog [role=alert]').textContent.includes('fault.revision_mismatch')"));
+    check('W01.nonretryable_plan_has_no_retry',await s.evaluate("!document.querySelector('dialog [role=alert] button')"));
+    check('W01.unusable_confirm_is_disabled',await s.evaluate("__t.byText('dialog button','Confirm').disabled"));
+    check('W02.unusable_plan_explains_return_to_saved_state',await s.evaluate("document.querySelector('dialog').textContent.includes('check the saved state')"));
+    const before=await s.evaluate("__fixtureSend('memory_list',{includeInactive:false,cursor:null,limit:25})");
+    check('W01.old_confirm_does_not_duplicate_memory',before.total===1&&before.items[0].snippet==='Synthetic stale plan original');
+    await shot(s,'39-stale-plan-refusal');
+    await click(s,'dialog button','Cancel'); await waitFor(s,dialogClosed,'unusable plan dismissed');
+    await sleep(200);
+    await waitFor(s,"document.querySelector('.qr45').getAttribute('aria-busy')==='false'",'cancel refresh settled');
+    check('W01.cancel_refreshes_resolved_candidate',await s.evaluate("!document.querySelector('article.mem-candidate') && document.body.innerText.includes('Nothing waiting for review.')"));
+    check('W05.removed_trigger_returns_focus_to_list_heading',await s.evaluate("document.activeElement.id==='mem-center-title'"));
+    check('W02.cancel_keeps_unsent_new_candidate_draft',await s.evaluate("document.querySelector('#mem-remember').value==='Synthetic retained draft after stale plan'&&document.querySelector('#mem-claim').value==='fixture.retained_stale_draft'"));
+    await click(s,'form button','Save as candidate');
+    await waitFor(s,"document.querySelectorAll('article.mem-candidate').length===1 && !document.querySelector('#mem-remember').value",'new draft submitted');
+    await holdOperationObservation(s,'forget-plan');
+    await click(s,'article.mem-candidate button','Accept'); await waitFor(s,'window.__operationHeld','new actual plan held');
+    const nextPlan=await s.evaluate('window.__operationObserved');
+    check('W01.recovery_prepares_a_fresh_plan',nextPlan.planId!==oldPlan.planId&&nextPlan.diffHash!==oldPlan.diffHash&&JSON.stringify(nextPlan.records).includes('Synthetic retained draft after stale plan'));
+    await s.evaluate('window.__releaseOperation()'); await waitFor(s,"!!document.querySelector('dialog[open]')",'new plan shown');
+    check('W01.new_plan_has_enabled_confirmation',await s.evaluate("!__t.byText('dialog button','Confirm').disabled && !document.querySelector('dialog [role=alert]')"));
+    await click(s,'dialog button','Confirm'); await waitFor(s,dialogClosed,'new plan confirmed');
+    await waitFor(s,has('Nothing waiting for review.'),'fresh candidate resolved');
+    const final=await s.evaluate("__fixtureSend('memory_list',{includeInactive:false,cursor:null,limit:25})");
+    check('W01.recovery_preserves_exact_two_real_memories',final.total===2&&new Set(final.items.map(row=>row.snippet)).size===2&&final.items.some(row=>row.snippet==='Synthetic stale plan original')&&final.items.some(row=>row.snippet==='Synthetic retained draft after stale plan'));
+    await shot(s,'40-stale-plan-recovered');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('W03.stale_plan_host_exits',await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close(); return;
+  }
   if (process.argv[6] === '--forget-only') {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
@@ -1488,6 +1547,7 @@ async function main() {
     await shot(s, '17-review-plan-keyboard');
     await key('Escape', 'Escape', 27);
     await waitFor(s, dialogClosed, 'keyboard review cancelled');
+    await waitFor(s,"document.querySelector('.qr45').getAttribute('aria-busy')==='false' && !__t.byText('article.mem-candidate button','Accept').disabled",'cancelled candidate refresh settled');
     check('W05.cancel_restores_trigger_focus', await s.evaluate("document.activeElement === __t.byText('article.mem-candidate button','Accept')"));
     const memories = await s.evaluate("__t.invoke('memory_call',{request:__t.request('memory_list',{cursor:null,limit:25,includeInactive:false})})");
     const candidates = await s.evaluate("__t.invoke('memory_call',{request:__t.request('candidate_list',{cursor:null,limit:25})})");

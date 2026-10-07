@@ -289,6 +289,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const [text, setText] = useState("");
   const [claim, setClaim] = useState("");
   const focusAfterCommit = useRef(false);
+  const focusAfterRefresh = useRef<HTMLElement | null>(null);
   const planTrigger = useRef<HTMLElement | null>(null);
   const action = useAction();
   const reads = useLatestRead();
@@ -298,11 +299,13 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   }), [readPage, reads.run]);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
-    if (focusAfterCommit.current) {
-      focusAfterCommit.current = false;
+    if (reads.busy) return;
+    if (focusAfterCommit.current || (focusAfterRefresh.current && !focusAfterRefresh.current.isConnected)) {
       document.getElementById("mem-center-title")?.focus();
-    }
-  }, [items]);
+    } else focusAfterRefresh.current?.focus();
+    focusAfterCommit.current = false;
+    focusAfterRefresh.current = null;
+  }, [items, reads.busy]);
   const decide = (c: J, act: string) => {
     if (action.busy || reads.pending.current) return;
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -371,7 +374,9 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
       </Inspector>
       {plan && <PlanDialog key={plan.planId} plan={plan} returnFocus={planTrigger.current} request={readPage} onClose={(committed) => {
         setPlan(null);
-        if (committed !== null) { focusAfterCommit.current = true; void load(); void refresh(); }
+        if (committed !== null) focusAfterCommit.current = true;
+        else focusAfterRefresh.current = planTrigger.current;
+        void load(); void refresh();
       }} />}
     </>
   );

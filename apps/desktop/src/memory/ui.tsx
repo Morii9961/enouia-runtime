@@ -107,6 +107,7 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
   const ref = useRef<HTMLDialogElement>(null);
   const key = useRef(newKey());
   const action = useAction();
+  const blocked = !!action.error && !action.error.retry;
   useEffect(() => {
     // The initiating button may be disabled while the plan is prepared, so
     // its identity is captured before that work can blur it.
@@ -133,7 +134,7 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
       onClose(done);
     });
   return (
-    <dialog ref={ref} className="mem-dialog" aria-labelledby="mem-plan-title" aria-describedby="mem-plan-description"
+    <dialog ref={ref} className="mem-dialog" aria-labelledby="mem-plan-title" aria-describedby={blocked ? "mem-plan-description mem-plan-recovery" : "mem-plan-description"}
       closedby={action.busy ? "none" : "closerequest"}
       onCancel={(e) => { e.preventDefault(); if (!action.busy) cancel(); }}
       onClose={() => {
@@ -165,9 +166,10 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
       <pre className="mem-diff" tabIndex={0}>{JSON.stringify(plan.records, null, 2)}</pre>
       {action.busy && <p role="status" className="mem-muted">Confirmation submitted. Waiting for Memory to return its result…</p>}
       <ErrorBox error={action.error} />
+      {blocked && <p id="mem-plan-recovery" className="mem-muted">This confirmation cannot be retried. Cancel, check the saved state, and prepare a new plan if needed.</p>}
       <div className="mem-actions">
         <button type="button" className="mem-button" onClick={cancel} disabled={action.busy}>Cancel</button>
-        <button type="button" className="mem-button mem-primary" onClick={confirm} disabled={action.busy}>
+        <button type="button" className="mem-button mem-primary" onClick={confirm} disabled={action.busy || blocked}>
           Confirm ({plan.confirmCode})
         </button>
       </div>
