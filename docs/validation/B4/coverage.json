@@ -59,6 +59,13 @@
       "sha256": "90ea7ca4bac130d20ad75b6070da852ddd34975cb4f07c7bbf322d0f2dc4a834",
       "state": "passed",
       "selectorCount": 97
+    },
+    {
+      "id": "literal",
+      "path": "docs/validation/B4/literal-comparison.json",
+      "sha256": "3134cba5c8c1570b4b01fca0f7b95ed05860163f194106820f07b6c0046103cb",
+      "state": "completed_with_unresolved_differences",
+      "selectorCount": 86
     }
   ],
   "cases": [
@@ -173,10 +180,51 @@
             "C06-unsafe-github-value",
             "C06-unsafe-github-sum"
           ]
+        },
+        {
+          "report": "literal",
+          "selectors": [
+            "C06-literal-control: both validators accept",
+            "C06-literal-control: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-github: both validators reject",
+            "C06-metric-case-github: both validators reject",
+            "C06-metric-missing-github: both validators reject",
+            "C06-timezone-swapped-github: both validators reject",
+            "C06-timezone-utc-github: both validators reject",
+            "C06-timezone-offset-github: both validators reject",
+            "C06-timezone-case-github: both validators reject",
+            "C06-timezone-missing-github: both validators reject",
+            "C06-updated-no-millis-github: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-github: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-github: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-codex: both validators reject",
+            "C06-metric-case-codex: both validators reject",
+            "C06-metric-missing-codex: both validators reject",
+            "C06-timezone-swapped-codex: both validators reject",
+            "C06-timezone-utc-codex: both validators reject",
+            "C06-timezone-offset-codex: both validators reject",
+            "C06-timezone-case-codex: both validators reject",
+            "C06-timezone-missing-codex: both validators reject",
+            "C06-updated-no-millis-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-claude: both validators reject",
+            "C06-metric-case-claude: both validators reject",
+            "C06-metric-missing-claude: both validators reject",
+            "C06-timezone-swapped-claude: both validators reject",
+            "C06-timezone-utc-claude: both validators reject",
+            "C06-timezone-offset-claude: both validators reject",
+            "C06-timezone-case-claude: both validators reject",
+            "C06-timezone-missing-claude: both validators reject",
+            "C06-updated-no-millis-claude: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-claude: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-claude: Runtime flags exactly the unpublishable retained times"
+          ]
         }
       ],
       "remaining": [
-        "Resolve duplicate GitHub dates and unsafe aggregate differences; finish wrong-unit/time-zone matrix."
+        "Resolve duplicate GitHub dates and unsafe aggregate differences.",
+        "Resolve the twelve legacy-only updatedAt shapes (no zone, RFC 1123, hour 24, impossible day) that Runtime refuses; confirm during O1/O4 inventory that real seeds contain none."
       ]
     },
     {
