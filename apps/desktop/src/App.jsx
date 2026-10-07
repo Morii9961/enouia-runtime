@@ -13,10 +13,12 @@ import { ConnectedHome, MemoryBadge, MemorySettings, MemoryStatusProvider } from
 import MemorySurface from './memory/MemorySurface.tsx';
 import SessionsSurface from './memory/SessionsSurface.tsx';
 import ContextSurface from './memory/ContextSurface.tsx';
+import ActivitySurface from './activity/ActivitySurface.tsx';
 
 // Inside the native shell the Memory, Context and Sessions surfaces use the
-// pinned Enouia Memory Core (ADR-025). A browser preview has no shell, so it
-// keeps the fictional demo.
+// pinned Enouia Memory Core (ADR-025), and Activity reads the separately
+// installed producer through its runner (ADR-028). A browser preview has no
+// shell, so it keeps the fictional demo.
 const memoryConnected = nativeWindow;
 
 export default class App extends React.Component {
@@ -483,7 +485,7 @@ Settings
 {connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} /> : <Sessions view={view} />}
 </> : null}
 {isActivity ? <>
-{<Activity view={view} />}
+{connected ? <ActivitySurface /> : <Activity view={view} />}
 </> : null}
 {isRuntime ? <>
 {<Runtime view={connected ? { ...view, rtSubtitle: 'Fictional · frozen Runtime-local design (ADR-025) · live Memory status is in Settings' } : view} />}

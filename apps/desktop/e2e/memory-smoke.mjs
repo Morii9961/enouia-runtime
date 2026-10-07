@@ -339,7 +339,7 @@ async function main() {
   app = launch(MAIN_PORT, ['--memory-vault', vault, '--hotkey-key', HOTKEY]);
   s = await connect(MAIN_PORT);
   await waitFor(s, has('Memory · Vault open'), 'vault open badge');
-  check('S.badge_states_memory_and_activity', await s.evaluate(`${has('Memory · Vault open')} && ${has('Activity & Inspector demo')}`));
+  check('S.badge_states_memory_and_inspector', await s.evaluate(`${has('Memory · Vault open')} && ${has('Inspector demo')}`));
   check('S.home_reads_status', await s.evaluate(`${has('Vault open')} && ${has('Nothing waiting for review')}`));
   await shot(s, '01-home');
 

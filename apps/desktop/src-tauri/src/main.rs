@@ -4,14 +4,18 @@
 //! through the Memory adapter (ADR-025) and the companion shell (ADR-026):
 //! tray, quick search and opt-in login startup. Closing a window hides it;
 //! Exit is explicit and shuts the Memory Core down first, as does the end of
-//! the Windows session or an installer's request to close (ADR-027). It registers no
-//! filesystem, shell, network, provider or Activity command, and it never
-//! pauses the independently installed Activity producer.
+//! the Windows session or an installer's request to close (ADR-027). The
+//! Activity surface reaches the independently installed producer only through
+//! that package's runner (ADR-028). The shell registers no filesystem, shell,
+//! network or provider command, never changes a scheduled task, and closing
+//! or exiting it never pauses Activity.
 
+mod activity;
 mod companion;
 mod memory;
 mod startup;
 
+use activity::ActivityHost;
 use memory::MemoryHost;
 use tauri::{Manager, RunEvent, WindowEvent};
 
@@ -34,7 +38,10 @@ fn main() {
     }
     let app = tauri::Builder::default()
         .manage(host)
+        .manage(ActivityHost::new())
         .invoke_handler(tauri::generate_handler![
+            activity::activity_call,
+            activity::activity_setup,
             memory::memory_call,
             memory::memory_pick,
             companion::show_main,

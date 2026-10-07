@@ -193,3 +193,12 @@ Activity is untouched. The installer followed in ADR-027.
   - after the running-app check and outside update mode, remove only Runtime's exact startup command.
 - Uninstall owns application files only. Vaults, backups, the WebView2 profile and Activity stay in place.
 - No session-end code is added. The template closes a running Runtime through Restart Manager, and the pinned tao turns its `WM_ENDSESSION` into `RunEvent::Exit`, which runs the Memory shutdown. A real Restart Manager close in the smoke and the upgrade drill confirms this.
+
+## ADR-028 — Activity surface over the installed runner (Adopted; implemented)
+
+[ADR-028](028-activity-surface.md) connects the native shell's Activity page to the separately installed producer.
+
+- `activity_call` takes exact Activity IPC v1 requests from the main window. `activity_setup` chooses the installed package through a native dialog and validates its `install.json` and runner hash.
+- Every read and action runs the package's own `enouia-activity.exe`: lock-free `overview` and `preview` reads, and `sync`, `retry-pending` and `set-paused` under the runner's lock. The shell never opens the store and never changes the scheduled task; it only queries whether the package's task is registered and enabled.
+- Acknowledgment keeps the cleared batch's outcomes as `lastOutcomes`, and IPC v1 gains optional overview and run fields before any consumer shipped.
+- Memory, Context and the Memory adapter are unchanged. Browser previews keep the fictional timeline.

@@ -1,6 +1,6 @@
 {
   "identifier": "main-window",
-  "description": "The main window: window controls, the Memory adapter, explicit exit and its own login-startup setting. No fs, shell, http, dialog, opener, provider or Activity permission exists.",
+  "description": "The main window: window controls, the Memory adapter, the Activity adapter over the installed runner (ADR-028), explicit exit and its own login-startup setting. No fs, shell, http, dialog, opener or provider permission exists.",
   "windows": [
     "main"
   ],
@@ -9,6 +9,8 @@
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
     "core:window:allow-start-dragging",
+    "allow-activity-call",
+    "allow-activity-setup",
     "allow-memory-call",
     "allow-memory-pick",
     "allow-exit-app",

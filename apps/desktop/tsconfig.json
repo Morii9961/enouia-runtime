@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "isolatedModules": true
   },
-  "include": ["src/demo-state.ts", "src/memory/**/*.ts", "src/memory/**/*.tsx"]
+  "include": ["src/demo-state.ts", "src/memory/**/*.ts", "src/memory/**/*.tsx", "src/activity/**/*.ts", "src/activity/**/*.tsx"]
 }

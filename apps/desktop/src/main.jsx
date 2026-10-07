@@ -5,6 +5,7 @@ import QuickSearch from './memory/QuickSearch.tsx';
 import { nativeWindow } from './window-controls.js';
 import './quiet-runtime.css';
 import './memory/memory.css';
+import './activity/activity.css';
 
 class SurfaceBoundary extends React.Component {
   state = { failed: false };

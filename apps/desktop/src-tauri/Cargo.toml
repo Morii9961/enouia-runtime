@@ -26,6 +26,9 @@ enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git
 rfd = { version = "=0.17.2", default-features = false }
 # Must equal Enouia Memory's exact workspace pin.
 serde_json = "=1.0.151"
+# Checks the installed Activity runner against its package manifest (ADR-028);
+# already in the lockfile through the Memory Core.
+sha2 = "=0.10.9"
 
 # Global hotkey and opt-in login startup (ADR-026), as in Memory's reference shell.
 [target.'cfg(windows)'.dependencies]
