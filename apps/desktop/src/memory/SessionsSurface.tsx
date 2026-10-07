@@ -32,6 +32,9 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const listRead = useLatestRead();
   const detailRead = useLatestRead();
   const writing = useRef(false);
+  const questionInput = useRef<HTMLTextAreaElement>(null);
+  const checkpointInput = useRef<HTMLInputElement>(null);
+  const focusAfterWrite = useRef<{ target: "question" | "checkpoint"; trigger: Element | null } | null>(null);
   const selectedBranch = useRef<string | null>(null);
   const drafts = useRef(new Map<string, { text: string; summary: string }>());
   const branchKey = (b: Branch) => `${b.sessionId}:${b.branchId}`;
@@ -57,14 +60,28 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const clearSubmittedDraft = (field: "text" | "summary", submitted: string) => {
     if (current && drafts.current.get(branchKey(current))?.[field] === submitted) editDraft(field, "");
   };
-  const write = (commit: (key: string) => Promise<void>) => {
+  const write = (target: "question" | "checkpoint", commit: (key: string) => Promise<void>) => {
     if (writing.current || detailRead.pending.current) return;
+    const trigger = document.activeElement;
     void action.run(async (key) => {
       writing.current = true;
-      try { await commit(key); } finally { writing.current = false; }
+      try {
+        await commit(key);
+        focusAfterWrite.current = { target, trigger };
+      } finally { writing.current = false; }
     });
   };
   const busy = action.busy || detailRead.busy;
+  useEffect(() => {
+    if (busy || !focusAfterWrite.current) return;
+    const { target, trigger } = focusAfterWrite.current;
+    focusAfterWrite.current = null;
+    // Disabling the submitting control can blur it to the document. Resume
+    // in the composer after acknowledgement; respect focus moved elsewhere.
+    if (document.activeElement === document.body || document.activeElement === trigger) {
+      (target === "question" ? questionInput.current : checkpointInput.current)?.focus();
+    }
+  }, [busy]);
   return (
     <section data-screen-label="Sessions" className="mem-sessions">
       <aside className="qr28" aria-label="Sessions" aria-busy={listRead.busy || (sessions == null && !listRead.error)}>
@@ -74,7 +91,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
         </div>
         <div className="qr20">
           <button type="button" className="mem-button mem-primary" disabled={busy || listRead.busy}
-            onClick={() => write(async (key) => {
+            onClick={() => write("question", async (key) => {
               const s = await request("session_new", {}, key);
               await list();
               await open({ sessionId: s.sessionId, branchId: s.branchId });
@@ -123,7 +140,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
               ))}
               <form className="mem-stack" onSubmit={(e) => {
                 e.preventDefault();
-                write(async (key) => {
+                write("question", async (key) => {
                   setAnswer(null);
                   setAnswer(await request("session_ask", { ...current, text }, key));
                   clearSubmittedDraft("text", text);
@@ -132,7 +149,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 });
               }}>
                 <label className="mem-label" htmlFor="mem-ask">Ask (local Mock; answers cite approved memories only)</label>
-                <textarea id="mem-ask" className="mem-textarea" value={text} disabled={busy} onChange={(e) => editDraft("text", e.target.value)} />
+                <textarea ref={questionInput} id="mem-ask" className="mem-textarea" value={text} disabled={busy} onChange={(e) => editDraft("text", e.target.value)} />
                 <div className="mem-actions">
                   <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || busy}>Send</button>
                 </div>
@@ -169,7 +186,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
               </div>
               <form className="mem-stack" onSubmit={(e) => {
                 e.preventDefault();
-                write(async (key) => {
+                write("checkpoint", async (key) => {
                   await request("session_checkpoint", { ...current, summary }, key);
                   clearSubmittedDraft("summary", summary);
                   await open(current);
@@ -177,7 +194,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 });
               }}>
                 <label className="mem-label" htmlFor="mem-cp">Checkpoint summary</label>
-                <input id="mem-cp" className="mem-input" value={summary} disabled={busy} onChange={(e) => editDraft("summary", e.target.value)} autoComplete="off" />
+                <input ref={checkpointInput} id="mem-cp" className="mem-input" value={summary} disabled={busy} onChange={(e) => editDraft("summary", e.target.value)} autoComplete="off" />
                 <div className="mem-actions">
                   <button type="submit" className="mem-button" disabled={!summary.trim() || busy}>Save checkpoint</button>
                 </div>
