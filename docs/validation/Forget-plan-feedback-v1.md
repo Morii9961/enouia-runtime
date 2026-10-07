@@ -1,0 +1,13 @@
+# Deletion plan feedback — local evidence
+
+Date: 2026-10-07. Baseline: `722f9ba`. Scope: Runtime inspector feedback and acceptance. Core, adapter, pin, Rust and capabilities are unchanged.
+
+The pinned Core saves an owner deletion candidate when preparing a forget/purge plan. Cancelling the confirmation discards the shown plan but retains the candidate. The inspector previously left this unexplained and had no waiting message while preparing the plan. It now describes the pending result, reports the retained deletion candidate after cancellation and refreshes the observed candidate count. Starting another plan clears the preceding cancellation note.
+
+The corrected native baseline passed **13/15**, reproducing the two missing messages. An earlier draft assertion incorrectly expected the original memory content in the purge's write records; the pinned deletion proposal contains the target ID instead. The retained baseline and final probe check that actual target ID and permanent-purge qualification, without claiming that original content is part of the diff.
+
+The final release passes **16/16** in a fresh synthetic Vault, adding a visible candidate-count check. A real deletion-impact preview changes no approved memory. A real purge plan is explicitly labelled permanent, and cancellation preserves both memories and the source while leaving one real Core candidate. Focus returns to its trigger. A separate real logical-forget confirmation removes only the selected synthetic memory from current results, clears its inspector, retains its source, makes Core refuse that memory read and leaves the second memory available. No permanent purge is executed. Screenshots of cancellation feedback and the remaining memory were inspected; the final cancellation screenshot also shows the refreshed candidate count.
+
+Type checking, **19 frontend tests**, embedded-assets build, pin/domain guards with 8/7 negative cases, harness syntax and diff checks pass. Unchanged Rust reuses the preceding window slice's 19 host/3 pinned-Core tests, formatting and Clippy evidence. That slice's full 62-check regression was not repeated on this executable.
+
+Executable SHA-256: `397cc730025b31b7e25fc81c8ea1008f4f188a0dc618f2d0bf8567bac8bc2864`. Final report/screenshots remain in temporary `enouia-runtime-forget-final-20261007-01a10b3a/smoke`; the corrected baseline in `enouia-runtime-forget-baseline-20261007-01a10b3a/smoke`. Pending-message timing uses held actual receipts. This does not establish actual purge, restored-deletion reconciliation, storage/power-loss durability or personal-data behavior. No personal Vault, migration, actual restore, live Provider or production Activity was used.

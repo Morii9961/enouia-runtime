@@ -449,6 +449,7 @@ async function holdOperationObservation(s, memoryPage = false) {
     : memoryPage === 'checkpoint' ? 'typeof value?.result?.checkpointId === "string"'
     : memoryPage === 'source' ? 'typeof value?.result?.excerpt === "string" && typeof value.result.byteStart === "number"'
     : memoryPage === 'window-state' ? 'typeof value === "boolean"'
+    : memoryPage === 'forget-plan' ? 'typeof value?.result?.planId === "string" && typeof value.result.purge === "boolean"'
     : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
@@ -670,6 +671,70 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--forget-only') {
+    const app=launch(['--memory-vault',vault]);
+    await debugOwnerRefusal(app);
+    const s=await connect();
+    await waitFor(s,has('Memory · Vault open'),'forget fixture open');
+    await s.evaluate(`window.__fixtureSend=async(command,args={},write=false)=>{
+      const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
+      const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+      if(reply.kind==='memory_error') throw new Error(command+': '+reply.error.code); return reply.result;
+    };
+    (async()=>{
+      for(const index of [0,1]) {
+        const candidate=await __fixtureSend('remember',{text:'Synthetic forget fixture '+index,claimKey:'fixture.forget_'+index},true);
+        const plan=await __fixtureSend('review_plan',{decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+        await __fixtureSend('review_confirm',{planId:plan.planId,diffHash:plan.diffHash},true);
+      }
+    })()`);
+    await nav(s,'Memory'); await rail(s,'Current memories');
+    await waitFor(s,"document.querySelectorAll('button.qr43').length===2",'forget fixture rows');
+    await click(s,'button.qr43','Synthetic forget fixture 0');
+    await waitFor(s,"!!document.querySelector('#mem-fix')",'forget fixture detail');
+    const memories=await s.evaluate("__fixtureSend('memory_list',{includeInactive:false,cursor:null,limit:25})");
+    const selected=memories.items.find(row=>row.snippet==='Synthetic forget fixture 0').memoryId;
+    const detail=await s.evaluate(`__fixtureSend('memory_read',{memoryId:${JSON.stringify(selected)}})`);
+    const source={sourceId:detail.evidence[0].sourceId,sourceRevision:detail.evidence[0].sourceRevision,startByte:null,maxBytes:4096};
+    await click(s,'button','Delete impact');
+    await waitFor(s,has('A purge removes'),'delete impact observed');
+    check('W01.delete_impact_is_preview_only',(await s.evaluate("__fixtureSend('memory_list',{includeInactive:false,cursor:null,limit:25})")).total===2);
+    await s.evaluate("__t.byText('button','Purge…').focus()");
+    await holdOperationObservation(s,'forget-plan');
+    await click(s,'button','Purge…'); await waitFor(s,'window.__operationHeld','actual purge plan held');
+    const purgePlan=await s.evaluate('window.__operationObserved');
+    check('W02.deletion_plan_wait_explained',await s.evaluate("!document.querySelector('dialog[open]') && !![...document.querySelectorAll('[role=status]')].find(node=>node.textContent.includes('Waiting for Memory to return the requested result'))"));
+    check('W01.purge_plan_has_explicit_flag_and_bound_target',purgePlan.purge===true&&JSON.stringify(purgePlan.records).includes(selected));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s,"!!document.querySelector('dialog[open]')",'purge dialog shown');
+    check('W01.purge_dialog_announces_permanence',await s.evaluate(`document.querySelector('dialog h2').textContent.includes('permanent purge') && document.querySelector('dialog pre').textContent.includes(${JSON.stringify(selected)})`));
+    await click(s,'dialog button','Cancel'); await waitFor(s,dialogClosed,'purge confirmation cancelled');
+    const candidates=await s.evaluate("__fixtureSend('candidate_list',{cursor:null,limit:50})");
+    check('W01.cancel_preserves_memory_and_source',(await s.evaluate("__fixtureSend('memory_list',{includeInactive:false,cursor:null,limit:25})")).total===2&&(await s.evaluate(`__fixtureSend('source_excerpt',${JSON.stringify(source)})`)).excerpt==='Synthetic forget fixture 0');
+    check('W01.cancelled_plan_leaves_core_proposal',candidates.total===1);
+    check('W01.cancel_explains_retained_deletion_candidate',await s.evaluate("!![...document.querySelectorAll('[role=status]')].find(node=>node.textContent.includes('deletion candidate remains'))"));
+    check('W05.cancel_returns_to_purge_trigger',await s.evaluate("document.activeElement===__t.byText('button','Purge…')"));
+    await waitFor(s,"__t.byText('button.qr26','Candidate inbox')?.querySelector('.qr25')?.textContent==='1'",'retained candidate badge refreshed');
+    check('W01.cancel_refreshes_visible_candidate_count',true);
+    await shot(s,'37-forget-cancel-feedback');
+    await holdOperationObservation(s,'forget-plan');
+    await click(s,'button','Forget…'); await waitFor(s,'window.__operationHeld','actual logical forget plan held');
+    const forgetPlan=await s.evaluate('window.__operationObserved');
+    check('W01.logical_forget_plan_is_not_permanent_purge',forgetPlan.purge===false&&JSON.stringify(forgetPlan.records).includes(selected));
+    await s.evaluate('window.__releaseOperation()'); await waitFor(s,"!!document.querySelector('dialog[open]')",'logical forget dialog shown');
+    await click(s,'dialog button','Confirm'); await waitFor(s,dialogClosed,'synthetic logical forget confirmed');
+    await waitFor(s,"document.querySelectorAll('button.qr43').length===1",'forgotten memory removed from current list');
+    check('W01.confirmed_forget_clears_selected_inspector',await s.evaluate("!document.querySelector('#mem-fix') && document.querySelector('aside[aria-label=\"Memory Inspector\"]').textContent.includes('Select a memory')"));
+    check('W01.logical_forget_retains_source',(await s.evaluate(`__fixtureSend('source_excerpt',${JSON.stringify(source)})`)).excerpt==='Synthetic forget fixture 0');
+    const missing=await s.evaluate(`__t.invoke('memory_call',{request:__t.request('memory_read',{memoryId:${JSON.stringify(selected)}})})`);
+    check('W01.forgotten_memory_is_refused_by_core',missing.ok?.error?.code==='not_found');
+    await click(s,'button.qr43','Synthetic forget fixture 1'); await waitFor(s,"!!document.querySelector('#mem-fix')",'remaining memory detail');
+    check('W01.other_memory_stays_available',await s.evaluate("document.querySelector('aside[aria-label=\"Memory Inspector\"] p.mem-content').textContent==='Synthetic forget fixture 1'"));
+    await shot(s,'38-forget-remaining-memory');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('W03.forget_host_exits',await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close(); return;
+  }
   if (process.argv[6] === '--native-window-only') {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);

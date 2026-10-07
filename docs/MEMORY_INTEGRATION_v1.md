@@ -125,6 +125,8 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 
 `--native-window-only` resizes only its own main HWND at the existing display DPI, checks titlebar/external maximize and restore, minimize/show, stale state reads, retained unsent session draft and denied overlay access to the new read permission. The import argument is unused. See [native window evidence](validation/Native-window-v1.md); it does not change system display settings or prove other monitors/DPI or mouse-drag minimum enforcement.
 
+`--forget-only` approves two synthetic fixtures, checks deletion-impact preview and cancellation of a real permanent-purge plan, then confirms a separate logical-forget plan. It checks retained candidate feedback/count, focus, the refreshed memory list and preserved source/second memory. No permanent purge is executed; the import argument is unused. See [deletion feedback evidence](validation/Forget-plan-feedback-v1.md).
+
 ## Bumping the pin
 
 1. Read the new rows in Memory's compatibility log, `docs/integration/RUNTIME.md`. Review `git log <old>..<new> -- crates contracts apps/workspace` in the Memory repository.

@@ -198,6 +198,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
 }
 
 export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; onChanged: () => void; readPage?: typeof call }) {
+  const { refresh } = useStatus();
   const [detail, setDetail] = useState<J>(null);
   const [correction, setCorrection] = useState("");
   const [impact, setImpact] = useState<J>(null);
@@ -208,6 +209,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
   const load = useCallback(() => void action.run(async () => setDetail(await readPage("memory_read", { memoryId: id }))), [id, readPage]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(load, [load]);
   const forget = (mode: "forget" | "purge") => {
+    setNote("");
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async (key) => setPlan(await readPage("forget_plan", { memoryId: id, mode, withDependents: false }, key)));
   };
@@ -259,6 +261,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>Purge…</button>
         </div>
         {note && <p role="status" className="mem-note">{note}</p>}
+        {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the requested result…</p>}
         <ErrorBox error={action.error} />
         {impact && (
           <p className="mem-card">
@@ -267,7 +270,12 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
         )}
       </div>
       {plan && <PlanDialog key={plan.planId} plan={plan} returnFocus={planTrigger.current} request={readPage}
-        onClose={(done) => { setPlan(null); if (done) onChanged(); }} />}
+        onClose={(done) => {
+          setPlan(null);
+          void refresh();
+          if (done) onChanged();
+          else setNote("Confirmation cancelled. The deletion candidate remains in the candidate inbox.");
+        }} />}
     </Inspector>
   );
 }
