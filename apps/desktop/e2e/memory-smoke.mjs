@@ -929,6 +929,106 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--keyboard-journey-only') {
+    const fixture = resolve(out, '..');
+    if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-keyboard-journey-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('keyboard journey requires its dedicated temporary synthetic fixture');
+    const app = launch(['--memory-vault',vault]);
+    const s = await connect();
+    await waitFor(s,has('Memory · Vault open'),'keyboard fixture open');
+    const initial = await s.evaluate("Promise.all([__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false}),__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([m,s,c])=>({memories:m.result.total,sessions:s.result.items.length,candidates:c.result.total}))");
+    if (initial.memories || initial.sessions || initial.candidates) throw new Error('keyboard fixture must start empty');
+    const key = async (name,code,keyCode,modifiers=0) => {
+      for(const type of ['keyDown','keyUp']) {
+        const result=await s.send('Input.dispatchKeyEvent',{type,key:name,code,windowsVirtualKeyCode:keyCode,modifiers,...(name==='Enter' && type==='keyDown' ? {text:'\r',unmodifiedText:'\r'} : {})});
+        if(result.error) throw new Error(result.error.message);
+      }
+    };
+    // Selection is observational: only Tab/Shift+Tab changes focus. No DOM
+    // click, focus, value setter, form submission or Core fixture write.
+    const tabTo = async (predicate,label) => {
+      for(let n=0;n<100;n++) {
+        if(await s.evaluate(`(()=>{const e=document.activeElement;return ${predicate};})()`)) return;
+        await key('Tab','Tab',9);
+      }
+      throw new Error('keyboard cannot reach '+label);
+    };
+    const button = text => `e.tagName==='BUTTON' && !e.disabled && e.textContent.trim().startsWith(${JSON.stringify(text)})`;
+    const enter = () => key('Enter','Enter',13);
+    const type = async text => {
+      const result=await s.send('Input.insertText',{text});
+      if(result.error) throw new Error(result.error.message);
+    };
+    const capture = async name => {
+      const focus = await s.evaluate('({tag:document.activeElement.tagName,id:document.activeElement.id,text:document.activeElement.textContent.trim().slice(0,180)})');
+      const rows=ownedAccessibility(app);
+      writeFileSync(join(out,`keyboard-${name}.json`),JSON.stringify({focus,rows},null,2));
+      return {...focus,nativeFocused:rows.filter(row=>row.Focused)};
+    };
+    await tabTo("e.getAttribute('href')==='#runtime-content'",'skip link'); await enter();
+    check('K.skip_enters_home',await s.evaluate("document.activeElement.id==='runtime-content'"));
+    await key('2','Digit2',50,2);
+    await waitFor(s,"!!document.querySelector('[data-screen-label=\"Memory Vault\"]')",'Memory route');
+    await tabTo(button('Candidate inbox'),'inbox'); await enter();
+    await waitFor(s,"!!document.querySelector('#mem-remember')",'remember form');
+    const fact='Synthetic owner keeps a paper sketchbook for Lantern ideas.';
+    await tabTo("e.id==='mem-remember'",'statement'); await type(fact);
+    await tabTo("e.id==='mem-claim'",'topic'); await type('fixture.keyboard_journey');
+    await tabTo(button('Save as candidate'),'save'); await enter();
+    await waitFor(s,"document.querySelectorAll('article.mem-candidate').length===1 && document.querySelector('.qr45').getAttribute('aria-busy')==='false'",'saved candidate');
+    check('K.remember_saves_only_candidate',(await s.evaluate("__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false})")).result.total===0);
+    await tabTo(button('Accept'),'accept'); await enter();
+    await waitFor(s,"!!document.querySelector('dialog[open]')",'review plan');
+    check('K.plan_contains_literal_statement',await s.evaluate(`document.querySelector('.mem-diff').textContent.includes(${JSON.stringify(fact)})`));
+    await tabTo(button('Confirm ('),'confirm'); await enter();
+    await waitFor(s,dialogClosed,'confirmed plan');
+    await waitFor(s,has('Nothing waiting for review.'),'review refreshed');
+    check('K.approval_returns_to_inbox_heading',(await capture('approved')).id==='mem-center-title');
+    await tabTo(button('Current memories'),'current memories'); await enter();
+    await waitFor(s,"document.querySelectorAll('button.qr43').length===1",'approved row');
+    await tabTo("e.matches('button.qr43')",'memory row'); await key(' ','Space',32);
+    await waitFor(s,has('Evidence'),'memory inspector');
+    await tabTo(button('Show source'),'source'); await enter();
+    await waitFor(s,`[...document.querySelectorAll('pre.mem-source')].some(p=>p.textContent.includes(${JSON.stringify(fact)}))`,'source excerpt');
+    check('K.source_reachable_with_keyboard',true); await capture('source'); await shot(s,'keyboard-source');
+    await key('4','Digit4',52,2);
+    await waitFor(s,"!!document.querySelector('.mem-sessions')",'Sessions route');
+    await tabTo(button('New session'),'new session'); await enter();
+    await waitFor(s,"!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled",'new saved session');
+    const newSession=await capture('new-session');
+    check('K.new_session_enters_question',newSession.id==='mem-ask' && newSession.nativeFocused.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (local Mock')),JSON.stringify(newSession));
+    await tabTo("e.id==='mem-ask'",'question'); await type('Lantern');
+    await tabTo(button('Send'),'send'); await enter();
+    await waitFor(s,has('Answer · supported_evidence'),'saved local answer');
+    await waitFor(s,"!document.querySelector('#mem-ask').disabled",'session write settled');
+    const focus=await capture('answered');
+    check('K.send_keeps_keyboard_in_session',focus.id==='mem-ask' && focus.nativeFocused.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (local Mock')),JSON.stringify(focus));
+    check('K.answer_cites_approved_statement',await s.evaluate(`document.querySelector('.qr88').textContent.includes(${JSON.stringify(fact)})`));
+    await tabTo("e.id==='mem-cp'",'checkpoint summary'); await type('Synthetic keyboard journey checkpoint.');
+    await tabTo(button('Save checkpoint'),'save checkpoint'); await enter();
+    await waitFor(s,has('Synthetic keyboard journey checkpoint.'),'checkpoint saved');
+    await waitFor(s,"!document.querySelector('#mem-cp').disabled",'checkpoint write settled');
+    const checkpoint=await capture('checkpoint');
+    check('K.checkpoint_returns_to_summary',checkpoint.id==='mem-cp' && checkpoint.nativeFocused.some(row=>row.Type==='ControlType.Edit' && row.Name==='Checkpoint summary'),JSON.stringify(checkpoint));
+    await tabTo(button('Inspect the context behind'),'inspect answer'); await enter();
+    await waitFor(s,has('Dispatched · actual request inspection available'),'saved answer capsule');
+    check('K.inspect_enters_context_heading',(await capture('context')).id==='mem-context-title');
+    await tabTo(button('Show the actual request'),'actual request'); await enter();
+    await waitFor(s,has('re-rendered from the saved records and hash-checked'),'actual request');
+    check('K.actual_request_reachable',true);
+    await tabTo("e.id==='mem-cq'",'preview question'); await type('Lantern sketchbook'); await enter();
+    await waitFor(s,has('Preview only · nothing was sent anywhere'),'preview saved');
+    check('K.preview_retains_query_focus',(await capture('preview')).id==='mem-cq');
+    check('K.preview_is_saved_and_not_dispatched',await s.evaluate("document.querySelector('.mem-saved-query').textContent==='Lantern sketchbook' && __t.text().includes('This capsule was never sent.')"));
+    await shot(s,'keyboard-preview');
+    const final=await s.evaluate("Promise.all([__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false}),__t.memory('session_list',{})]).then(([m,s])=>({memories:m.result.total,sessions:s.result.items.length,branch:s.result.items[0].branches[0]}))");
+    check('K.journey_saved_one_memory_and_session',final.memories===1 && final.sessions===1);
+    const saved=await s.evaluate("__t.memory('session_list',{}).then(r=>__t.memory('session_detail',{sessionId:r.result.items[0].sessionId,branchId:r.result.items[0].branches[0].branchId}))");
+    check('K.actual_saved_turn_completed',saved.result?.turns?.length===1 && saved.result.turns[0].state==='completed');
+    check('K.checkpoint_saved_without_second_memory',saved.result?.checkpoints?.length===1 && final.memories===1);
+    void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+    check('K.owned_host_exits',await waitForExit(app,20000)===0);
+    s.close(); return;
+  }
   if (process.argv[6] === '--accessibility-only') {
     const fixture = resolve(out, '..');
     if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-native-accessibility-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('accessibility probe requires its dedicated temporary synthetic fixture');
@@ -1730,8 +1830,10 @@ async function main() {
     await click(s, 'button', 'New session');
     await waitFor(s, 'window.__operationHeld', 'new session receipt held');
     check('W02.session_creation_wait_explained', await s.evaluate(waiting));
+    await s.evaluate("document.querySelector('nav[aria-label=\"Primary\"] button[aria-label=\"Sessions\"]').focus()");
     await s.evaluate('window.__releaseOperation()');
     await waitFor(s, editable, 'created session ready');
+    check('W05.session_acknowledgement_respects_moved_focus',await s.evaluate("document.activeElement===document.querySelector('nav[aria-label=\"Primary\"] button[aria-label=\"Sessions\"]')"));
     const title = await s.evaluate("document.querySelector('.mem-session-row[aria-pressed=true]').title");
     const [sessionId, branchId] = title.split(' · ');
     const selected = {sessionId, branchId};
