@@ -381,6 +381,8 @@ async function holdOperationObservation(s, memoryPage = false) {
     : memoryPage === 'dispatch' ? 'typeof value?.result?.verified === "boolean" && Array.isArray(value.result.messages)'
     : memoryPage === 'session' ? 'Array.isArray(value?.result?.transcript)'
     : memoryPage === 'ask' ? 'Array.isArray(value?.result?.statements) && Array.isArray(value.result.sources) && typeof value.result.capsuleId === "string"'
+    : memoryPage === 'new-session' ? 'typeof value?.result?.sessionId === "string" && typeof value.result.branchId === "string"'
+    : memoryPage === 'checkpoint' ? 'typeof value?.result?.checkpointId === "string"'
     : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
@@ -602,6 +604,82 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--session-writes-only') {
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'session write fixture open');
+    await nav(s, 'Sessions');
+    const waiting = "[...document.querySelectorAll('[role=status]')].some(node => node.textContent.includes('Waiting for Memory to return the session result'))";
+    const editable = "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled";
+    await holdOperationObservation(s, 'new-session');
+    await click(s, 'button', 'New session');
+    await waitFor(s, 'window.__operationHeld', 'new session receipt held');
+    check('W02.session_creation_wait_explained', await s.evaluate(waiting));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, editable, 'created session ready');
+    const title = await s.evaluate("document.querySelector('.mem-session-row[aria-pressed=true]').title");
+    const [sessionId, branchId] = title.split(' · ');
+    const selected = {sessionId, branchId};
+    await set(s, '#mem-ask', 'Synthetic first question');
+    await click(s, 'form button', 'Send');
+    await waitFor(s, `${editable} && ${has('Answer ·')}`, 'first actual answer visible');
+    check('W01.first_session_answer_observed', true);
+    const submissions = [];
+    s.observe('Network.requestWillBeSent', ({request}) => {
+      if (request.url !== 'http://ipc.localhost/memory_call' || !request.postData) return;
+      const payload = JSON.parse(request.postData).request;
+      if (payload?.command === 'session_ask') submissions.push(payload);
+    });
+    const network = await s.send('Network.enable', {maxPostDataSize:4096});
+    if (network.error) throw new Error(network.error.message);
+    await set(s, '#mem-ask', 'Synthetic second question');
+    await set(s, '#mem-cp', 'Unsent checkpoint draft');
+    await holdOperationObservation(s, 'ask');
+    await click(s, 'form button', 'Send');
+    await waitFor(s, 'window.__operationHeld', 'second actual answer receipt held');
+    const second = await s.evaluate('window.__operationObserved');
+    check('W02.session_answer_wait_explained', await s.evaluate(waiting));
+    check('W02.new_question_clears_previous_answer', !(await s.evaluate('__t.text()')).includes('Answer ·'));
+    check('W02.pending_question_stays_visible', await s.evaluate("document.querySelector('#mem-ask').value === 'Synthetic second question' && document.querySelector('#mem-ask').disabled"));
+    await shot(s, '25-session-write-pending');
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.session_receipt']}})");
+    await waitFor(s, "!!document.querySelector('[role=alert] button')", 'controlled session delivery error');
+    check('W02.failed_delivery_keeps_submitted_draft', await s.evaluate("document.querySelector('#mem-ask').value === 'Synthetic second question' && !document.querySelector('#mem-ask').disabled"));
+    check('W02.failed_delivery_does_not_show_old_answer', !(await s.evaluate('__t.text()')).includes('Answer ·'));
+    check('W02.failed_delivery_has_no_pending_status', !(await s.evaluate(waiting)));
+    await set(s, '#mem-ask', 'New unsent draft after delivery error');
+    await set(s, '#mem-cp', 'Edited checkpoint after delivery error');
+    await holdOperationObservation(s, 'ask');
+    await click(s, '[role=alert] button', 'Retry');
+    await waitFor(s, 'window.__operationHeld', 'same real answer replay held');
+    check('W02.session_retry_reuses_receipt', await s.evaluate(`window.__operationObserved.capsuleId === ${JSON.stringify(second.capsuleId)}`));
+    check('W02.session_retry_reuses_payload_and_key', submissions.length === 2 && submissions[0].idempotencyKey === submissions[1].idempotencyKey && JSON.stringify(submissions[0].arguments) === JSON.stringify(submissions[1].arguments), `observed requests: ${submissions.length}`);
+    check('W02.session_retry_wait_explained', await s.evaluate(waiting));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, `${editable} && ${has('Answer ·')}`, 'replayed answer acknowledged');
+    check('W02.acknowledgement_preserves_edited_drafts', await s.evaluate("document.querySelector('#mem-ask').value === 'New unsent draft after delivery error' && document.querySelector('#mem-cp').value === 'Edited checkpoint after delivery error'"));
+    const detail = await s.evaluate(`__t.invoke('memory_call',{request:__t.request('session_detail',${JSON.stringify(selected)})})`);
+    check('W01.retry_does_not_duplicate_turn', detail.ok?.result?.turns?.length === 2 && detail.ok.result.transcript.filter(event => event.text === 'Synthetic second question').length === 1 && !detail.ok.result.transcript.some(event => event.text === 'New unsent draft after delivery error'));
+    const capsule = await s.evaluate(`__t.invoke('memory_call',{request:__t.request('context_inspect',{capsuleId:${JSON.stringify(second.capsuleId)}})})`);
+    check('W01.replayed_answer_uses_submitted_question', capsule.ok?.result?.capsule?.query === 'Synthetic second question');
+    await holdOperationObservation(s, 'checkpoint');
+    await click(s, 'form button', 'Save checkpoint');
+    await waitFor(s, 'window.__operationHeld', 'actual checkpoint receipt held');
+    check('W02.checkpoint_wait_explained', await s.evaluate(waiting));
+    check('W02.checkpoint_draft_waits_for_receipt', await s.evaluate("document.querySelector('#mem-cp').value === 'Edited checkpoint after delivery error' && document.querySelector('#mem-cp').disabled"));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, `${editable} && document.querySelector('#mem-cp').value === ''`, 'checkpoint acknowledged');
+    check('W02.checkpoint_does_not_clear_question_draft', await s.evaluate("document.querySelector('#mem-ask').value === 'New unsent draft after delivery error'"));
+    const memories = await s.evaluate("__t.invoke('memory_call',{request:__t.request('memory_list',{cursor:null,limit:25,includeInactive:false})})");
+    check('W01.session_writes_do_not_approve_memories', memories.ok?.result?.total === 0);
+    await shot(s, '26-session-write-recovered');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const exit = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('W02.session_write_host_exits', exit === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--sessions-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

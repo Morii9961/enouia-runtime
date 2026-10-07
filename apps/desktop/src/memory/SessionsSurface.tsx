@@ -124,6 +124,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
               <form className="mem-stack" onSubmit={(e) => {
                 e.preventDefault();
                 write(async (key) => {
+                  setAnswer(null);
                   setAnswer(await request("session_ask", { ...current, text }, key));
                   clearSubmittedDraft("text", text);
                   await open(current);
@@ -143,6 +144,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
       <aside aria-label="Session inspector" className="qr88">
         <div className="qr79">
           <ErrorBox error={action.error} />
+          {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the session result…</p>}
           {answer && (
             <div className="mem-stack" aria-live="polite">
               <h3 className="mem-h3">Answer · {answer.status}</h3>
