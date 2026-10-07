@@ -59,6 +59,9 @@
 .mem-sessions{height:100%;display:grid;grid-template-columns:260px minmax(0,1fr) minmax(320px,400px);min-height:0}
 .mem-session-row .qr24{font-family:'Cascadia Code','Cascadia Mono',Consolas,monospace;font-size:12px}
 .mem-transcript{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.mem-response-status,.mem-response-sources{margin:0}
+.mem-recorded-response>summary{cursor:pointer}
+.mem-recorded-response[open]>summary{margin-bottom:8px}
 .mem-event{display:flex;flex-direction:column;gap:4px;padding-left:12px;border-left:2px solid var(--hairline)}
 .mem-event-assistant_output,.mem-event-assistant{border-left-color:rgba(159,194,210,0.5)}
 .mem-context{height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,420px);min-height:0}

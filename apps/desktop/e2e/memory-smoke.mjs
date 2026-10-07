@@ -604,6 +604,81 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--transcript-only') {
+    let app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    let s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'transcript fixture open');
+    await nav(s, 'Sessions');
+    await click(s, 'button', 'New session');
+    const editable = "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled";
+    await waitFor(s, editable, 'transcript session ready');
+    await set(s, '#mem-ask', 'Synthetic empty-evidence question');
+    await click(s, 'form button', 'Send');
+    await waitFor(s, `${editable} && ${has('Answer ·')}`, 'empty-evidence turn observed');
+    check('W01.empty_evidence_response_is_readable', await s.evaluate("document.querySelector('.mem-event-assistant_completed .mem-response-status')?.textContent.includes('No approved evidence') === true"));
+    check('W01.empty_response_does_not_invent_statements', await s.evaluate("document.querySelectorAll('.mem-event-assistant_completed p.mem-content').length === 0"));
+    const fact = '<img src=x onerror="window.__transcriptXss=1"> Synthetic Lantern statement';
+    await s.evaluate(`(async () => {
+      const send = async (command,args,write=false) => {
+        const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
+        const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+        if(reply.kind==='memory_error') throw new Error(command+': '+reply.error.code); return reply.result;
+      };
+      const candidate=await send('remember',{text:${JSON.stringify(fact)},claimKey:'fixture.transcript'},true);
+      const plan=await send('review_plan',{decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+      await send('review_confirm',{planId:plan.planId,diffHash:plan.diffHash},true);
+      const operation=await send('index_rebuild',{});
+      for(let attempt=0;attempt<300;attempt++) {
+        const status=await send('operation_get',{operationId:operation.operationId});
+        if(status.state==='succeeded') return;
+        if(['failed','cancelled'].includes(status.state)) throw new Error('fixture rebuild: '+status.state);
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      throw new Error('fixture rebuild timed out');
+    })()`);
+    await set(s, '#mem-ask', 'Lantern');
+    await click(s, 'form button', 'Send');
+    await waitFor(s, `${editable} && document.querySelectorAll('.mem-event-assistant_completed').length === 2`, 'supported-evidence turn observed');
+    const title=await s.evaluate("document.querySelector('.mem-session-row[aria-pressed=true]').title");
+    const [sessionId,branchId]=title.split(' · ');
+    const saved=await s.evaluate(`__t.invoke('memory_call',{request:__t.request('session_detail',${JSON.stringify({sessionId,branchId})})})`);
+    const completed=saved.ok.result.transcript.filter(event=>event.kind==='assistant_completed');
+    const response=JSON.parse(completed[1].text);
+    check('W01.saved_mock_contains_supported_statement', response.status==='supported_evidence' && response.statements.includes(fact) && response.sources.length===1);
+    check('W01.saved_statement_is_plain_text', await s.evaluate(`[...document.querySelectorAll('.mem-event-assistant_completed p.mem-content')].some(node=>node.textContent===${JSON.stringify(fact)})`));
+    check('W04.transcript_markup_stays_inert', await s.evaluate("!document.querySelector('.mem-transcript img') && window.__transcriptXss === undefined"));
+    check('W01.saved_source_reference_visible', await s.evaluate(`[...document.querySelectorAll('.mem-response-sources code')].some(node=>node.title===${JSON.stringify(response.sources[0].source_id)})`));
+    check('W01.raw_responses_collapsed_initially', await s.evaluate("document.querySelectorAll('.mem-recorded-response').length === 2 && [...document.querySelectorAll('.mem-recorded-response')].every(node=>!node.open)"));
+    const summaryPresent = await s.evaluate("!!document.querySelectorAll('.mem-recorded-response')[1]?.querySelector('summary')");
+    if (summaryPresent) {
+      await s.evaluate("window.__transcriptKeyTrace=[]; ['keydown','keypress','keyup'].forEach(type=>document.addEventListener(type,event=>window.__transcriptKeyTrace.push([event.type,event.key,event.target.tagName]))); document.querySelectorAll('.mem-recorded-response')[1].querySelector('summary').focus()");
+      // CDP needs Enter's character text to generate its keypress/default
+      // activation; keyDown with omitted text only delivers a raw key.
+      await s.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});
+      await s.send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+      for (const type of ['keyDown','keyUp']) await s.send('Input.dispatchKeyEvent',{type,key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+    }
+    check('W05.recorded_response_has_keyboard_access', await s.evaluate("document.activeElement === document.querySelectorAll('.mem-recorded-response')[1]?.querySelector('pre')"), JSON.stringify(await s.evaluate('window.__transcriptKeyTrace ?? []')));
+    check('W01.raw_saved_response_preserved_exactly', await s.evaluate(`document.querySelectorAll('.mem-recorded-response')[1]?.open === true && document.querySelectorAll('.mem-recorded-response')[1]?.querySelector('pre').textContent === ${JSON.stringify(completed[1].text)}`));
+    await shot(s, '28-session-transcript-record');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('W03.transcript_host_exits', await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close();
+    app=launch(['--memory-vault',vault],{profile:'webview2-restart'});
+    s=await connect();
+    await waitFor(s,has('Memory · Vault open'),'transcript Vault reopened');
+    await nav(s,'Sessions');
+    await click(s,'.mem-session-row','events');
+    await waitFor(s,editable,'persisted transcript reopened');
+    check('W01.readable_responses_survive_restart', await s.evaluate("document.querySelectorAll('.mem-response-status').length === 2 && document.querySelectorAll('.mem-recorded-response').length === 2"));
+    check('W01.saved_statement_survives_restart', await s.evaluate(`[...document.querySelectorAll('.mem-event-assistant_completed p.mem-content')].some(node=>node.textContent===${JSON.stringify(fact)})`));
+    await shot(s,'29-session-transcript-reopened');
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('W03.transcript_reopened_host_exits', await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--explorer-keyboard-only') {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);

@@ -1,5 +1,5 @@
-// Render the actual React views through Vite's TSX loader. This checks demo
-// rendering only: no DOM interactions, native IPC or personal Vault is used.
+// Render actual demo and connected React views through Vite's TSX loader.
+// Rendering only: no DOM interactions, native IPC or personal Vault is used.
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +19,7 @@ const { default: App } = await server.ssrLoadModule('/src/App.tsx');
 const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
 const { Explorer, Inbox } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
 const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx');
+const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
@@ -135,4 +136,36 @@ test('a selected unobserved capsule is reading rather than unselected or inspect
   const empty = renderToStaticMarkup(createElement(ConnectedContext, { capsuleId: null }));
   assert.match(empty, /No capsule selected/);
   assert.doesNotMatch(empty, /Reading the saved capsule/);
+});
+
+test('saved Mock statements stay literal and retain the exact response for inspection', () => {
+  const sourceId = 'src_00000000-0000-4000-8000-000000000001';
+  const value = {dispatch_id:'dsp_00000000-0000-4000-8000-000000000002',status:'supported_evidence',
+    statements:['<img src=x onerror="alert(1)"> literal statement'],memories:[],
+    sources:[{source_id:sourceId,source_revision:2}],request_hash:'a'.repeat(64)};
+  const text = JSON.stringify(value, null, 2);
+  const html = renderToStaticMarkup(createElement(SessionEventBody,{kind:'assistant_completed',text}));
+  assert.match(html,/Supported by approved memories/);
+  assert.match(html,/&lt;img/);
+  assert.doesNotMatch(html,/<img|dangerouslySetInnerHTML/);
+  assert.ok(html.includes(`title="${sourceId}"`));
+  assert.match(html,/r2/);
+  assert.match(html,/<details class="mem-recorded-response">/);
+  assert.match(html,/Recorded response/);
+  assert.ok(html.includes('&quot;request_hash&quot;'));
+});
+
+test('unknown, malformed and user-authored response formats are never reduced to statements', () => {
+  const base = {dispatch_id:'dsp_00000000-0000-4000-8000-000000000002',status:'supported_evidence',statements:['fixture'],memories:[],sources:[],request_hash:'a'.repeat(64)};
+  const inputs = ['ordinary assistant text','{broken','null','[]',JSON.stringify({...base,status:'constructor'}),
+    JSON.stringify({...base,status:'future_provider_status'}),JSON.stringify({...base,statements:[{}]}),
+    JSON.stringify({...base,sources:[{source_id:'source',source_revision:null}]}),JSON.stringify({...base,request_hash:'bad'})];
+  for (const text of inputs) {
+    const html = renderToStaticMarkup(createElement(SessionEventBody,{kind:'assistant_completed',text}));
+    assert.match(html,/<pre class="mem-source">/);
+    assert.doesNotMatch(html,/mem-response-status|<details/);
+  }
+  const user = renderToStaticMarkup(createElement(SessionEventBody,{kind:'user_message',text:JSON.stringify(base)}));
+  assert.match(user,/<p class="mem-content">/);
+  assert.doesNotMatch(user,/mem-response-status|<details/);
 });

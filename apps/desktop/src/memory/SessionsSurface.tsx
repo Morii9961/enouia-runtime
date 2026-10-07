@@ -9,6 +9,7 @@ import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
+import { SessionEventBody } from "./SessionEventBody";
 
 type Branch = { sessionId: string; branchId: string };
 
@@ -112,9 +113,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 {detail.transcript.map((e: J) => (
                   <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
                     <span className="mem-muted mem-mono">{e.kind} · {e.deliveryState}</span>
-                    {e.text != null && (e.kind.startsWith("assistant")
-                      ? <pre className="mem-source">{e.text}</pre>
-                      : <p className="mem-content">{e.text}</p>)}
+                    {e.text != null && <SessionEventBody kind={e.kind} text={e.text} />}
                   </li>
                 ))}
               </ol>

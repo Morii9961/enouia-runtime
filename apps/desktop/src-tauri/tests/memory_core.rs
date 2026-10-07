@@ -380,9 +380,26 @@ fn session_and_context_fields_the_surfaces_render() {
     assert!(detail.get("lastSavedEventId").is_some());
     let transcript = detail["transcript"].as_array().unwrap();
     assert!(!transcript.is_empty());
+    assert!(
+        transcript
+            .iter()
+            .any(|event| event["kind"] == "assistant_completed")
+    );
     for event in transcript {
         strings(event, &["eventId", "kind", "deliveryState"], "transcript");
         assert!(event.get("text").is_some());
+        if event["kind"] == "assistant_completed" {
+            let saved: Value = serde_json::from_str(event["text"].as_str().unwrap()).unwrap();
+            assert_eq!(saved["status"], answer["status"]);
+            assert_eq!(saved["statements"], answer["statements"]);
+            assert_eq!(saved["sources"], answer["sources"]);
+            assert_eq!(saved["memories"], answer["memories"]);
+            assert_eq!(saved["dispatch_id"], answer["dispatchId"]);
+            assert_eq!(saved["request_hash"], answer["requestHash"]);
+            for reference in saved["sources"].as_array().unwrap() {
+                assert!(reference["source_revision"].as_u64().unwrap() > 0);
+            }
+        }
     }
     assert!(detail["turns"].is_array() && detail["checkpoints"].is_array());
 

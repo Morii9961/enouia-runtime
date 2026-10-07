@@ -48,6 +48,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 - **Rendering.** Memory and source text render as plain text nodes only. There is no Markdown or HTML rendering and no link navigation. Source excerpts are labelled as data, not instructions.
 - **Session timing.** Only the latest detail read changes selection and restores that branch's question/checkpoint drafts. An outstanding write blocks branch switching; acknowledgement clears only the submitted draft field. See [native draft/timing evidence](validation/Session-drafts-v1.md).
 - **Session writes.** Creating, asking and saving checkpoints show waiting feedback. Submitting a question clears the preceding answer inspector; Retry retains its request/key and leaves any subsequently edited draft intact. See [write-feedback and retry evidence](validation/Session-write-feedback-v1.md).
+- **Saved responses.** Recognized completed local Mock records show their saved status, literal statements and source revisions in the transcript. A keyboard-accessible disclosure retains the exact recorded text; unknown/malformed formats and user messages stay literal. No answer or request is recomputed. See [transcript reading evidence](validation/Session-transcript-v1.md).
 - **Explorer reads.** Each submitted query owns fresh rows and selection. Unobserved results remain unknown, and errors do not imply an empty search. Load more appends a Core page; a stale cursor keeps already observed rows with its error. Refresh results restarts at the first page with a new submission. See [paging and read-recovery evidence](validation/Explorer-feedback-v1.md).
 - **Explorer keyboard.** Up/Down starts from the focused row and moves selection and focus together, bounded at the first/last loaded row. Space then activates that row. Search and toolbar arrows retain their own behavior. See [native keyboard evidence](validation/Explorer-keyboard-v1.md).
 - **List reads.** Candidate counts and session lists stay unknown before observation, and failed reads cannot claim an empty list. Retry preserves unsent drafts. See [candidate/session read evidence](validation/List-read-feedback-v1.md); controlled read errors do not prove real storage recovery.
@@ -115,6 +116,8 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 `--session-writes-only` holds actual creation, local Mock answer and checkpoint receipts. A controlled retryable answer-delivery error tests identical retry payload/key, receipt replay, draft edits after the error and the absence of duplicate turns. The import argument is unused.
 
 `--explorer-keyboard-only` approves three synthetic fixtures and uses owned-page CDP keys to check arrow selection/focus, Space, Tab-relative movement, list boundaries and the actual selected inspector. Search and toolbar arrow keys stay outside the list handler. The import argument is unused.
+
+`--transcript-only` records actual empty/supported local Mock turns, checks literal statements and source references, keyboard access to exact raw response text, then restarts the host and rereads the saved transcript. The import argument is unused.
 
 ## Bumping the pin
 
