@@ -5,6 +5,8 @@ a{color:var(--ice);text-decoration:none}a:hover{color:var(--primary);text-decora
 ::selection{background:rgba(159,194,210,0.28)}
 button,input,textarea{font:inherit;color:inherit}
 :focus-visible{outline:1px solid var(--ice);outline-offset:1px}
+.runtime-skip-link{position:fixed;top:6px;left:12px;z-index:100;padding:6px 14px;border:1px solid var(--ice);border-radius:4px;background:var(--elevated);color:var(--primary);transform:translateY(-200%);-webkit-app-region:no-drag}
+.runtime-skip-link:focus{transform:translateY(0)}
 input:focus-visible,textarea:focus-visible{outline:1px solid var(--ice);outline-offset:2px}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;border:3px solid transparent;background-clip:content-box}::-webkit-scrollbar-track{background:transparent}
 @keyframes enouiaBreath{0%,100%{transform:scale(0.94);opacity:0.5}50%{transform:scale(1.04);opacity:1}}

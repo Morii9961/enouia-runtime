@@ -119,6 +119,38 @@ try {
   return result;
 }
 
+// Read UI Automation only beneath the HWND of our exact live child. This
+// observes the native provider; it does not start Narrator or change settings.
+function ownedAccessibility(app) {
+  if (!children.has(app) || app.exitCode !== null) throw new Error('accessibility target is not an owned live child');
+  const script = `$ErrorActionPreference='Stop'
+[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
+Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes
+Add-Type -TypeDefinition @'
+using System; using System.Text; using System.Runtime.InteropServices;
+public static class A11yOwner {
+[DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h,out uint pid);
+[DllImport("user32.dll",CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr h,StringBuilder title,int count);
+}
+'@
+$process=Get-Process -Id ${app.pid}
+$window=$process.MainWindowHandle
+[uint32]$owner=0
+[A11yOwner]::GetWindowThreadProcessId($window,[ref]$owner) | Out-Null
+$title=New-Object Text.StringBuilder 256
+[A11yOwner]::GetWindowText($window,$title,256) | Out-Null
+if($window -eq [IntPtr]::Zero -or $owner -ne ${app.pid} -or $title.ToString() -ne 'Enouia Runtime'){throw 'accessibility window ownership mismatch'}
+$root=[System.Windows.Automation.AutomationElement]::FromHandle($window)
+if($root.Current.ProcessId -ne ${app.pid}){throw 'UI Automation root ownership mismatch'}
+$elements=$root.FindAll([System.Windows.Automation.TreeScope]::Descendants,[System.Windows.Automation.Condition]::TrueCondition)
+$rows=foreach($element in $elements){
+  $value=$element.Current
+  [pscustomobject]@{Type=$value.ControlType.ProgrammaticName;Name=$value.Name;Help=$value.HelpText;Id=$value.AutomationId;Focusable=$value.IsKeyboardFocusable;Focused=$value.HasKeyboardFocus;Enabled=$value.IsEnabled;Offscreen=$value.IsOffscreen}
+}
+ConvertTo-Json -InputObject @($rows) -Depth 3 -Compress`;
+  return JSON.parse(powershell(script, { timeout:30000 }));
+}
+
 function session(url) {
   const ws = new WebSocket(url);
   sessions.add(ws);
@@ -897,6 +929,86 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--accessibility-only') {
+    const fixture = resolve(out, '..');
+    if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-native-accessibility-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('accessibility probe requires its dedicated temporary synthetic fixture');
+    const app = launch(['--memory-vault',vault]);
+    const s = await connect();
+    await waitFor(s,has('Memory · Vault open'),'accessibility fixture open');
+    const initial = await s.evaluate("Promise.all([__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false}),__t.memory('session_list',{})]).then(([m,s])=>({memories:m.result.total,sessions:s.result.items.length}))");
+    if (initial.memories !== 0 || initial.sessions !== 0) throw new Error('accessibility fixture must start empty');
+    const key = async (name,code,keyCode,modifiers=0) => {
+      for(const type of ['keyDown','keyUp']) await s.send('Input.dispatchKeyEvent',{type,key:name,code,windowsVirtualKeyCode:keyCode,modifiers});
+    };
+    const capture = async (name) => {
+      let rows;
+      for (let attempt=0;attempt<5;attempt++) {
+        rows=ownedAccessibility(app);
+        if(rows.some(row=>row.Type==='ControlType.Button' && row.Focusable && row.Enabled)) break;
+        await sleep(150);
+      }
+      writeFileSync(join(out,`uia-${name}.json`),JSON.stringify(rows,null,2));
+      return rows;
+    };
+    for (const page of ['Home','Memory','Context','Sessions','Activity','Runtime','Settings']) {
+      await nav(s,page);
+      await sleep(250);
+      const rows = await capture(page.toLowerCase());
+      const controls=rows.filter(row=>row.Enabled && row.Focusable && ['ControlType.Button','ControlType.Edit','ControlType.CheckBox','ControlType.ComboBox','ControlType.Hyperlink','ControlType.RadioButton'].includes(row.Type));
+      check(`AX.${page}_native_controls_named`,controls.length>0 && controls.every(row=>row.Name.trim().length>0),JSON.stringify(controls.filter(row=>!row.Name.trim())));
+      const name={Home:'Home',Memory:'Memory Vault',Context:'Context Surface',Sessions:'Sessions',Activity:'Activity',Runtime:'Runtime Inspector',Settings:'Settings'}[page]+' content';
+      check(`AX.${page}_named_main_landmark`,rows.some(row=>row.Name===name) && await s.evaluate(`document.querySelector('main')?.getAttribute('aria-label')===${JSON.stringify(name)}`));
+    }
+    await nav(s,'Home');
+    await s.evaluate('document.activeElement.blur()');
+    await key('Tab','Tab',9);
+    const first = await s.evaluate('({tag:document.activeElement.tagName,text:document.activeElement.textContent.trim(),href:document.activeElement.getAttribute("href")})');
+    check('AX.first_tab_bypasses_shell',first.tag==='A' && first.href==='#runtime-content',JSON.stringify(first));
+    if (first.href==='#runtime-content') {
+      check('AX.skip_link_visible_with_keyboard_focus',await s.evaluate("(()=>{const e=document.activeElement;const r=e.getBoundingClientRect();return r.top>=0 && r.bottom<=innerHeight && r.left>=0 && r.right<=innerWidth && getComputedStyle(e).outlineStyle!=='none';})()"));
+      const linkTree=await capture('skip-link');
+      check('AX.native_skip_link_has_focus_and_name',linkTree.some(row=>row.Type==='ControlType.Hyperlink' && row.Name==='Skip to current surface' && row.Focused && !row.Offscreen));
+      await shot(s,'accessibility-skip-link');
+      await key('Enter','Enter',13);
+      check('AX.skip_enters_current_surface',await s.evaluate("document.activeElement.id==='runtime-content' && document.activeElement.getAttribute('aria-label')==='Home content'"));
+      await key('Tab','Tab',9);
+      check('AX.next_tab_enters_surface_control',await s.evaluate("document.querySelector('main').contains(document.activeElement) && document.activeElement.tagName==='BUTTON'"));
+      const rows=await capture('skip-focus');
+      check('AX.native_focus_matches_surface_control',rows.some(row=>row.Focused && row.Type==='ControlType.Button' && row.Name.includes('Memory Vault')));
+      await shot(s,'accessibility-skip-focus');
+    }
+    const created = await s.evaluate("(async()=>{const rows=[];for(let i=0;i<2;i++){const r=await __t.memory('session_new',{},'ui-'+crypto.randomUUID());if(r.kind==='memory_error') throw new Error('session fixture: '+r.error.code);rows.push(r.result);}return rows;})()");
+    await nav(s,'Sessions');
+    await waitFor(s,"document.querySelectorAll('.mem-session-row').length===2",'two actual sessions');
+    const sessionTree=await capture('session-rows');
+    const branchRows=sessionTree.filter(row=>row.Type==='ControlType.Button' && created.some(item=>row.Help.includes(item.branchId)));
+    check('AX.native_session_rows_have_distinct_names',branchRows.length===2 && new Set(branchRows.map(row=>row.Name)).size===2,JSON.stringify(branchRows.map(row=>({name:row.Name,help:row.Help}))));
+    check('AX.native_session_rows_identify_saved_branch',branchRows.length===2 && branchRows.every(row=>row.Name.includes('Session ') && row.Name.includes('branch ')));
+    await s.evaluate("document.querySelector('.mem-session-row').click()");
+    await waitFor(s,"!!document.querySelector('#mem-ask')",'actual session detail');
+    const detailTree=await capture('session-inputs');
+    check('AX.native_question_and_checkpoint_labels',detailTree.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (local Mock')) && detailTree.some(row=>row.Type==='ControlType.Edit' && row.Name==='Checkpoint summary'));
+    await nav(s,'Context');
+    const contextTree=await capture('context-input');
+    check('AX.native_context_input_label',contextTree.some(row=>row.Type==='ControlType.Edit' && row.Name==='Compile preview'));
+    await nav(s,'Memory'); await rail(s,'Candidate inbox');
+    const memoryTree=await capture('memory-inputs');
+    check('AX.native_memory_inputs_named',memoryTree.filter(row=>row.Type==='ControlType.Edit').length>=3 && memoryTree.filter(row=>row.Type==='ControlType.Edit').every(row=>row.Name.trim()));
+    await s.evaluate("__t.memory('remember',{text:'Synthetic accessibility review fixture',claimKey:'fixture.accessibility'},'ui-'+crypto.randomUUID())");
+    await nav(s,'Home'); await nav(s,'Memory'); await rail(s,'Candidate inbox');
+    await waitFor(s,"!!document.querySelector('article.mem-candidate button')",'actual review candidate');
+    await click(s,'article.mem-candidate button','Accept');
+    await waitFor(s,"!!document.querySelector('dialog[open]')",'actual review modal');
+    const modalTree=await capture('review-modal');
+    check('AX.native_confirmation_named',modalTree.some(row=>row.Type==='ControlType.Button' && /^Confirm \([a-f0-9]{8}\)$/.test(row.Name)) && modalTree.some(row=>row.Name.startsWith('Confirm write')));
+    check('AX.modal_withholds_background_skip_link',!modalTree.some(row=>row.Type==='ControlType.Hyperlink' && row.Name==='Skip to current surface' && row.Focusable && row.Enabled));
+    await key('Escape','Escape',27); await waitFor(s,dialogClosed,'review cancellation');
+    const saved = await s.evaluate("__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false}).then(r=>r.result.total)");
+    check('AX.keyboard_review_cancellation_does_not_approve',saved===0);
+    void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+    check('AX.owned_host_exits',await waitForExit(app,20000)===0);
+    s.close(); return;
+  }
   if (process.argv[6] === '--long-lifecycle-only') {
     const fixture = resolve(out, '..');
     const size = 512 * 1024 * 1024;

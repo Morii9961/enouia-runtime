@@ -88,6 +88,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
             const active = current?.branchId === b.branchId;
             return (
               <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={action.busy} aria-pressed={active}
+                aria-label={`Session ${shortId(s.sessionId)} · branch ${shortId(b.branchId)} · ${when(s.updatedAt)} · ${b.lastEventSeq} ${b.lastEventSeq === 1 ? "event" : "events"}`}
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
                 onClick={() => { if (!writing.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
