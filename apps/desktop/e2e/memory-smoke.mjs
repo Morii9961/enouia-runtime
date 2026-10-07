@@ -383,6 +383,7 @@ async function holdOperationObservation(s, memoryPage = false) {
     : memoryPage === 'ask' ? 'Array.isArray(value?.result?.statements) && Array.isArray(value.result.sources) && typeof value.result.capsuleId === "string"'
     : memoryPage === 'new-session' ? 'typeof value?.result?.sessionId === "string" && typeof value.result.branchId === "string"'
     : memoryPage === 'checkpoint' ? 'typeof value?.result?.checkpointId === "string"'
+    : memoryPage === 'source' ? 'typeof value?.result?.excerpt === "string" && typeof value.result.byteStart === "number"'
     : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
@@ -604,6 +605,89 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--source-paging-only') {
+    const app=launch(['--memory-vault',vault]);
+    await debugOwnerRefusal(app);
+    const s=await connect();
+    await waitFor(s,has('Memory · Vault open'),'source paging fixture open');
+    const sourceA='Synthetic source A <img src=x onerror="window.__sourceXss=1"> '+ '前後🌿'.repeat(1100);
+    const sourceB='Synthetic source B, a separate literal record.';
+    await s.evaluate(`(async()=>{
+      const send=async(command,args,write=false)=>{
+        const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
+        const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+        if(reply.kind==='memory_error') throw new Error(command+': '+reply.error.code); return reply.result;
+      };
+      for(const [index,text] of ${JSON.stringify([sourceA,sourceB])}.entries()) {
+        const candidate=await send('remember',{text,claimKey:'fixture.source_'+index},true);
+        const plan=await send('review_plan',{decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+        await send('review_confirm',{planId:plan.planId,diffHash:plan.diffHash},true);
+      }
+    })()`);
+    await nav(s,'Memory'); await rail(s,'Current memories');
+    await waitFor(s,"document.querySelectorAll('button.qr43').length===2",'source memory rows');
+    await click(s,'button.qr43','Synthetic source A');
+    await waitFor(s,"!!document.querySelector('#mem-fix')",'source A detail');
+    const held=async(text)=>{
+      await holdOperationObservation(s,'source');
+      await click(s,'button.mem-link',text);
+      await waitFor(s,'window.__operationHeld','source excerpt held');
+      return s.evaluate('window.__operationObserved');
+    };
+    const rendered=page=>`document.querySelector('pre.mem-source')?.textContent===${JSON.stringify(page.excerpt)} && document.querySelector('.mem-figure figcaption')?.textContent.includes(${JSON.stringify('bytes '+page.byteStart+'–'+page.byteEnd+' of '+page.totalBytes)})`;
+    const first=await held('Show source');
+    check('W02.source_wait_is_visible',await s.evaluate("!document.querySelector('.mem-figure') && !![...document.querySelectorAll('[role=status]')].find(node=>node.textContent.includes('Reading the source'))"));
+    check('W01.first_excerpt_is_bounded',first.byteStart===0&&first.byteEnd<=4096&&first.byteEnd<first.totalBytes);
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s,rendered(first),'first exact source excerpt');
+    check('W01.source_markup_stays_literal',await s.evaluate("!window.__sourceXss && !document.querySelector('.mem-figure img') && document.querySelector('pre.mem-source').textContent.includes('<img')"));
+    const second=await held('Next part');
+    check('W02.next_part_clears_previous_excerpt',await s.evaluate("!document.querySelector('.mem-figure') && !!document.querySelector('.mem-evidence[aria-busy=true]')"));
+    check('W01.next_part_uses_exact_byte_boundary',second.byteStart===first.byteEnd&&second.byteEnd-second.byteStart<=4096);
+    await s.evaluate("window.__releaseOperation({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.source_read']}})");
+    await waitFor(s,"!!document.querySelector('[role=alert] button')",'source read error');
+    check('W02.failed_source_does_not_claim_excerpt',await s.evaluate("!document.querySelector('.mem-figure') && !document.querySelector('.mem-evidence[aria-busy=true]')"));
+    await holdOperationObservation(s,'source');
+    await click(s,'[role=alert] button','Retry');
+    await waitFor(s,'window.__operationHeld','retried source excerpt held');
+    const retried=await s.evaluate('window.__operationObserved');
+    check('W02.source_retry_keeps_page_and_revision',JSON.stringify(retried)===JSON.stringify(second));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s,rendered(second),'source retry exact excerpt');
+    const pages=[first,second];
+    for(let attempt=0;pages.at(-1).byteEnd<first.totalBytes&&attempt<10;attempt++) {
+      const page=await held('Next part'); pages.push(page);
+      await s.evaluate('window.__releaseOperation()');
+      await waitFor(s,rendered(page),'next exact source excerpt');
+    }
+    check('W01.all_source_bytes_are_contiguous',pages.every((page,index)=>page.byteStart===(index?pages[index-1].byteEnd:0)&&page.sourceId===first.sourceId&&page.sourceRevision===first.sourceRevision)&&pages.at(-1).byteEnd===first.totalBytes);
+    check('W01.multibyte_source_reassembles_exactly',pages.map(page=>page.excerpt).join('')===sourceA);
+    check('W01.last_part_has_no_next_button',await s.evaluate("![...document.querySelectorAll('.mem-figure button')].some(node=>node.textContent==='Next part')"));
+    await s.evaluate("document.querySelector('pre.mem-source').scrollIntoView({block:'center'})");
+    await shot(s,'33-source-last-part');
+    await click(s,'button.mem-link','Show source'); await waitFor(s,rendered(first),'source start reset');
+    await held('Next part');
+    await s.evaluate('window.__olderSourceRelease=window.__releaseOperation');
+    await click(s,'button.mem-link','Show source'); await waitFor(s,rendered(first),'newer source restart');
+    await s.evaluate("window.__olderSourceRelease({kind:'memory_error',result:null,error:{code:'busy',retryable:true,rules:['fixture.old_source']}})");
+    await sleep(200);
+    check('W02.older_page_error_cannot_replace_newer_read',await s.evaluate(`(${rendered(first)}) && !document.querySelector('[role=alert]') && !document.querySelector('.mem-evidence[aria-busy=true]')`));
+    await held('Next part');
+    await s.evaluate('window.__olderSourceRelease=window.__releaseOperation');
+    await click(s,'button.qr43','Synthetic source B');
+    await waitFor(s,"!!document.querySelector('#mem-fix') && document.querySelector('aside[aria-label=\"Memory Inspector\"] p.mem-content')?.textContent.startsWith('Synthetic source B')",'source B detail');
+    check('W02.selection_does_not_carry_old_excerpt',await s.evaluate("!document.querySelector('.mem-figure')"));
+    await click(s,'button.mem-link','Show source');
+    await waitFor(s,`document.querySelector('pre.mem-source')?.textContent===${JSON.stringify(sourceB)}`,'source B exact excerpt');
+    await s.evaluate('window.__olderSourceRelease()'); await sleep(200);
+    check('W02.older_selection_reply_cannot_replace_source',await s.evaluate(`document.querySelector('pre.mem-source')?.textContent===${JSON.stringify(sourceB)} && !document.querySelector('[role=alert]')`));
+    await shot(s,'34-source-new-selection');
+    const list=await s.evaluate("window.__TAURI_INTERNALS__.invoke('memory_call',{request:__t.request('memory_list',{includeInactive:false,cursor:null,limit:25})})");
+    check('W01.source_reads_leave_two_approved_memories',list.result?.total===2);
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('W03.source_host_exits',await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close(); return;
+  }
   if (process.argv[6] === '--layout-only') {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);

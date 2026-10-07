@@ -121,6 +121,8 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 
 `--layout-only` uses a fresh synthetic Vault with long approved content and a long folder name, emulates 1100×700 and 1600×700 in the owned WebView2 page, and checks all seven surfaces for document/pane overflow. It also checks correction label association and reachability inside the scrolling inspector. The import argument is unused. See [layout evidence](validation/Minimum-layout-v1.md); physical resize, monitor/DPI and Narrator remain unverified.
 
+`--source-paging-only` approves two synthetic fixtures and reads bounded real Core excerpts of a long Chinese/emoji source. It checks exact byte reconstruction, retryable read failure, source restart and selection changes while older receipts are held. The import argument is unused. See [source paging evidence](validation/Source-paging-v1.md); delivery timing is controlled and does not establish storage-error recovery.
+
 ## Bumping the pin
 
 1. Read the new rows in Memory's compatibility log, `docs/integration/RUNTIME.md`. Review `git log <old>..<new> -- crates contracts apps/workspace` in the Memory repository.
