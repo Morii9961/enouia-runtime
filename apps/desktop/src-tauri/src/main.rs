@@ -9,7 +9,10 @@
 //! pauses the independently installed Activity producer.
 
 mod companion;
+mod hotkey;
 mod memory;
+mod root_lease;
+mod shell;
 mod startup;
 
 use memory::MemoryHost;
@@ -18,42 +21,60 @@ use tauri::{Manager, RunEvent, WindowEvent};
 fn main() {
     let host = MemoryHost::new();
     let args: Vec<String> = std::env::args().collect();
-    if let Some(root) = memory::vault_argument(&args) {
+    let autostart = args.iter().any(|arg| arg == "--autostart");
+    if !autostart && let Some(root) = memory::vault_argument(&args) {
         host.open_root(&root);
     }
-    let letter = companion::hotkey_letter(&args);
     let mut context = tauri::generate_context!();
     // Login startup (`--autostart`) starts in the tray: the main window is
     // hidden before it is created, and no Vault is opened.
-    if args.iter().any(|arg| arg == "--autostart") {
+    if autostart {
         for window in &mut context.config_mut().app.windows {
-            if window.label == companion::MAIN {
+            if window.label == "main" {
                 window.visible = false;
             }
         }
     }
     let app = tauri::Builder::default()
         .manage(host)
+        .manage(shell::ShellState::default())
         .invoke_handler(tauri::generate_handler![
             memory::memory_call,
             memory::memory_pick,
+            shell::shell_status,
+            shell::shell_show,
+            shell::shell_search,
+            shell::shell_hide,
+            shell::shell_exit,
             companion::show_main,
             companion::hide_window,
             companion::exit_app,
             companion::startup_status,
             companion::startup_set
         ])
-        .setup(move |app| {
-            companion::tray(app)?;
-            companion::hotkey(app.handle().clone(), letter);
+        .setup(|app| {
+            shell::install(app)?;
             Ok(())
         })
         .on_window_event(|window, event| {
-            // Closing a window hides it; Memory keeps running. Exit is the
-            // tray's or Settings' explicit action.
+            // Closing hides; explicit exit owns Core shutdown. Never hide
+            // the last access point unless its tray was installed.
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
-                let _ = window.hide();
+                if window.label() == "overlay" {
+                    shell::hide_overlay(window.app_handle());
+                    return;
+                }
+                if window
+                    .app_handle()
+                    .state::<shell::ShellState>()
+                    .tray_ready()
+                {
+                    let _ = window.hide();
+                }
+            }
+            if matches!(event, WindowEvent::Focused(false)) && window.label() == "overlay" {
+                shell::hide_overlay(window.app_handle());
             }
         })
         .build(context)
@@ -62,6 +83,12 @@ fn main() {
     // sign-out, shutdown or an installer's Restart Manager request, which tao
     // turns into `RunEvent::Exit` before it ends the process (ADR-027).
     app.run(|app, event| {
+        if let RunEvent::ExitRequested { api, .. } = &event
+            && !app.state::<shell::ShellState>().exit_ready()
+        {
+            api.prevent_exit();
+            shell::request_exit(app);
+        }
         if let RunEvent::Exit = event {
             app.state::<MemoryHost>().shutdown();
         }

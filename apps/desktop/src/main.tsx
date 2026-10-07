@@ -1,12 +1,12 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.jsx';
-import QuickSearch from './memory/QuickSearch.tsx';
-import { nativeWindow } from './window-controls.js';
+import App from './App.tsx';
+import { isTauri } from '@tauri-apps/api/core';
+import QuickSearch from './shell/QuickSearch';
 import './quiet-runtime.css';
 import './memory/memory.css';
 
-class SurfaceBoundary extends React.Component {
+class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
   render() {
@@ -20,9 +20,8 @@ class SurfaceBoundary extends React.Component {
   }
 }
 
-// The shell's quick-search window loads the same page with ?view=overlay.
-const quickSearch = nativeWindow && new URLSearchParams(location.search).get('view') === 'overlay';
-
-createRoot(document.getElementById('root')).render(
-  <React.StrictMode><SurfaceBoundary>{quickSearch ? <QuickSearch /> : <App />}</SurfaceBoundary></React.StrictMode>,
+const root = document.getElementById('root');
+if (!root) throw new Error('The desktop root element is missing.');
+createRoot(root).render(
+  <React.StrictMode><SurfaceBoundary>{isTauri() && new URLSearchParams(location.search).get('view') === 'overlay' ? <QuickSearch /> : <App />}</SurfaceBoundary></React.StrictMode>,
 );

@@ -1,0 +1,11 @@
+.quick-search{box-sizing:border-box;height:100vh;padding:20px;display:flex;flex-direction:column;gap:16px;background:var(--canvas);color:var(--primary);font-family:'Segoe UI Variable','Segoe UI',sans-serif}
+.quick-search header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.quick-search h1{margin:0;font-size:16px;font-weight:600}
+.quick-search form{display:flex;gap:8px}
+.quick-search input{flex:1;min-width:0;height:34px}
+.quick-search form button{height:34px}
+.quick-results{flex:1;min-height:0;overflow:auto}
+.quick-results ul{list-style:none;margin:0;padding:0}
+.quick-results li{padding:12px 0;border-top:1px solid var(--hairline);display:flex;align-items:flex-start;gap:12px}
+.quick-results li p{flex:1;min-width:0;font-size:13px}
+.quick-search footer{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--hairline);padding-top:12px}

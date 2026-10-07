@@ -1,6 +1,7 @@
 import React from "react";
+import type { DemoView } from "../App";
 
-export default function Home({ view }) {
+export default function Home({ view }: { view: DemoView }) {
   const { home, nav, ring } = view;
   return (
 <section data-screen-label="Home" className="qr17">

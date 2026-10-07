@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { call, pick, shell, type J } from "./client";
 import { useAction, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Tag, when } from "./ui";
+import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
 type StatusValue = { status: J; error: Failure; refresh: () => Promise<void> };
 const StatusContext = createContext<StatusValue | null>(null);
@@ -83,6 +84,7 @@ export function VaultConnect() {
   const after = (f: () => Promise<unknown>) => void action.run(async () => { await f(); await refresh(); });
   return (
     <div className="mem-card">
+      <VaultAdmissionNotice />
       <h2 className="mem-h2">{v.state === "locked" ? `Vault locked · ${v.rootName}` : "No Vault open"}</h2>
       <p className="mem-muted">
         Memory opens only a folder you choose here. Nothing is remembered between runs, and no default location is created.
@@ -143,6 +145,7 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
   return (
     <section data-screen-label="Home" className="qr17">
       <div className="qr16">
+        <VaultAdmissionNotice />
         <div className="qr8">
           {ring}
           <div className="qr7">

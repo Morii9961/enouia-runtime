@@ -5,6 +5,11 @@ fn main() {
         tauri_build::AppManifest::new().commands(&[
             "memory_call",
             "memory_pick",
+            "shell_status",
+            "shell_show",
+            "shell_exit",
+            "shell_search",
+            "shell_hide",
             "show_main",
             "hide_window",
             "exit_app",

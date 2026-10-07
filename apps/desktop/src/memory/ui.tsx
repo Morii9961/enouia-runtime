@@ -38,6 +38,12 @@ export function Tag({ children, tone }: { children: ReactNode; tone?: "warn" | "
 
 /** Poll a long operation until it ends; progress is not completion. */
 export function Operation({ id, onDone, request = call }: { id: string; onDone?: (status: J) => void; request?: typeof call }) {
+  // A new operation starts with fresh observations, retry and cancellation
+  // state; it must never inherit the previous operation's terminal result.
+  return <OperationWatch key={id} id={id} onDone={onDone} request={request} />;
+}
+
+function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status: J) => void; request: typeof call }) {
   const [status, setStatus] = useState<J>(null);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
@@ -64,20 +70,41 @@ export function Operation({ id, onDone, request = call }: { id: string; onDone?:
   }, [id, retry, request]);
   if (error) return <ErrorBox error={{ text: `Could not read the operation: ${error}`, retry: () => setRetry((n) => n + 1) }} />;
   if (!status) return <p role="status" className="mem-muted">Operation queued…</p>;
+  return <OperationFeedback status={status} cancelling={cancel.busy} error={cancel.error}
+    onCancel={() => void cancel.run(() => request("operation_cancel", { operationId: id }))} />;
+}
+
+/** Cancellation is cooperative, and only import/index workers observe it. */
+export function OperationFeedback({ status, cancelling = false, error = null, onCancel }: {
+  status: J; cancelling?: boolean; error?: Failure; onCancel: () => void;
+}) {
   const { done, total } = status.progress;
+  const active = status.state === "queued" || status.state === "running";
+  const cancellable = ["import", "import_resume", "index_rebuild"].includes(status.kind);
   return (
     <div className="mem-operation" role="status" aria-live="polite" aria-atomic="true">
       <span className="mem-mono">{status.kind}</span>
       <span className={`mem-state mem-state-${status.state}`}>{status.state}</span>
       <span className="mem-muted">progress {done}{total != null ? ` / ${total}` : ""}</span>
-      {status.state === "running" && (
-        <button type="button" className="mem-button" disabled={status.cancelRequested || cancel.busy}
-          onClick={() => void cancel.run(() => request("operation_cancel", { operationId: id }))}>
-          {status.cancelRequested ? "Cancelling…" : "Cancel"}
+      {active && cancellable && (
+        <button type="button" className="mem-button" disabled={status.cancelRequested || cancelling}
+          onClick={onCancel}>
+          {status.cancelRequested ? "Cancellation requested" : "Cancel"}
         </button>
       )}
+      {active && cancellable && status.cancelRequested && <span className="mem-muted">Waiting for the next safe point.</span>}
+      {active && !cancellable && <span className="mem-muted">Finishes before locking or exiting.</span>}
+      {status.state === "succeeded" && status.kind === "vault_verify" && typeof status.result?.clean === "boolean" && (
+        <span className={status.result.clean ? "mem-muted" : "mem-warn"}>
+          {status.result.clean ? "Verification passed" : "Verification found integrity problems"}: {status.result.recordsChecked} records · {status.result.objectsChecked} objects.
+          {!status.result.clean && <> Missing records: {status.result.missingRecords}; corrupt records: {status.result.corruptRecords}; missing objects: {status.result.missingObjects}; corrupt objects: {status.result.corruptObjects}; damaged segments: {status.result.damagedSegments}.</>}
+        </span>
+      )}
+      {status.state === "succeeded" && status.kind === "backup_export" && status.result && (
+        <span className="mem-muted">Backup saved: commit #{status.result.sequence} · {status.result.files} files · {status.result.destinationName}.</span>
+      )}
       {status.error && <span className="mem-warn">{describe(new CallError(status.error))}</span>}
-      <ErrorBox error={cancel.error} />
+      <ErrorBox error={error} />
     </div>
   );
 }
@@ -89,6 +116,7 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
   const ref = useRef<HTMLDialogElement>(null);
   const key = useRef(newKey());
   const action = useAction();
+  const blocked = !!action.error && !action.error.retry;
   useEffect(() => {
     // The initiating button may be disabled while the plan is prepared, so
     // its identity is captured before that work can blur it.
@@ -115,7 +143,8 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
       onClose(done);
     });
   return (
-    <dialog ref={ref} className="mem-dialog" aria-labelledby="mem-plan-title" aria-describedby="mem-plan-description"
+    <dialog ref={ref} className="mem-dialog" aria-labelledby="mem-plan-title" aria-describedby={blocked ? "mem-plan-description mem-plan-recovery" : "mem-plan-description"}
+      closedby={action.busy ? "none" : "closerequest"}
       onCancel={(e) => { e.preventDefault(); if (!action.busy) cancel(); }}
       onClose={() => {
         // The platform can close a modal dialog without a cancelable event
@@ -126,6 +155,9 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
         else cancel();
       }}
       onKeyDown={(e) => {
+        // Stop the keyboard close request before the browser can close the
+        // modal. Keep this fallback for WebViews without closedby support.
+        if (e.key === "Escape" && action.busy) { e.preventDefault(); e.stopPropagation(); return; }
         if (e.key !== "Tab") return;
         const dialog = e.currentTarget;
         const controls = Array.from(dialog.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex='0']"));
@@ -141,10 +173,12 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
         These are all the records this commit writes. Confirmation code <code>{plan.confirmCode}</code>, valid until {when(plan.expiresAt)}.
       </p>
       <pre className="mem-diff" tabIndex={0}>{JSON.stringify(plan.records, null, 2)}</pre>
+      {action.busy && <p role="status" className="mem-muted">Confirmation submitted. Waiting for Memory to return its result…</p>}
       <ErrorBox error={action.error} />
+      {blocked && <p id="mem-plan-recovery" className="mem-muted">This confirmation cannot be retried. Cancel, check the saved state, and prepare a new plan if needed.</p>}
       <div className="mem-actions">
         <button type="button" className="mem-button" onClick={cancel} disabled={action.busy}>Cancel</button>
-        <button type="button" className="mem-button mem-primary" onClick={confirm} disabled={action.busy}>
+        <button type="button" className="mem-button mem-primary" onClick={confirm} disabled={action.busy || blocked}>
           Confirm ({plan.confirmCode})
         </button>
       </div>

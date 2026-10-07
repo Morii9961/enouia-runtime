@@ -1,6 +1,7 @@
 import React from "react";
+import type { DemoView } from "../App";
 
-export default function Sessions({ view }) {
+export default function Sessions({ view }: { view: DemoView }) {
   const { ctx, nav, ses, sessList } = view;
   return (
 <section data-screen-label="Sessions" className="qr171">
@@ -14,7 +15,7 @@ Append-only. Nothing is rewritten.
 </div>
 </div>
 <div className="qr135">
-{sessList.map((ss, ssIndex) => <React.Fragment key={ss.key ?? ss.id ?? ss.k ?? ssIndex}>
+{sessList.map((ss, ssIndex) => <React.Fragment key={ss.key}>
 <button onClick={ss.onClick} aria-pressed={ss.selected} className="qr134" style={{"background": ss.bg}} type="button">
 <span className="qr133">
 {ss.title}
@@ -36,7 +37,7 @@ Append-only. Nothing is rewritten.
 </div>
 </div>
 <div className="qr160">
-{ses.events.map((ev, evIndex) => <React.Fragment key={ev.key ?? ev.id ?? ev.k ?? evIndex}>
+{ses.events.map((ev, evIndex) => <React.Fragment key={ses.title + ev.seq}>
 <div className="qr159">
 <span className="qr138">
 {ev.seq}
@@ -66,7 +67,7 @@ turn {ev.n} · {ev.turnShort}
 <div className="qr146" style={{"color": ev.textColor}}>
 {ev.text}
 </div>
-{ev.writes.map((w, wIndex) => <React.Fragment key={w.key ?? w.id ?? w.k ?? wIndex}>
+{ev.writes.map((w, wIndex) => <React.Fragment key={w.key}>
 <button onClick={w.onClick} className="qr148" type="button">
 <span className="qr36" style={{"background": w.color}}>
 
@@ -100,7 +101,7 @@ covers turns {ev.covered}
 <div className="qr154">
 {ev.lastState}
 </div>
-{ev.loops.map((o, oIndex) => <React.Fragment key={o.key ?? o.id ?? o.k ?? oIndex}>
+{ev.loops.map((o, oIndex) => <React.Fragment key={oIndex}>
 <div className="qr156">
 <span className="qr155">
 
@@ -120,7 +121,7 @@ covers turns {ev.covered}
 <div className="qr55">
 Session
 </div>
-{ses.meta.map((r, rIndex) => <React.Fragment key={r.key ?? r.id ?? r.k ?? rIndex}>
+{ses.meta.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr162">
 <span className="qr35">
 {r.k}
@@ -140,7 +141,7 @@ Checkpoints
 None yet.
 </div>
 </> : null}
-{ses.checkpoints.map((c, cIndex) => <React.Fragment key={c.key ?? c.id ?? c.k ?? cIndex}>
+{ses.checkpoints.map((c, cIndex) => <React.Fragment key={c.ref}>
 <button onClick={c.onClick} className="qr163" type="button">
 <span>
 Turns {c.covered}
@@ -160,7 +161,7 @@ Memory writes
 None from this session.
 </div>
 </> : null}
-{ses.writes.map((w, wIndex) => <React.Fragment key={w.key ?? w.id ?? w.k ?? wIndex}>
+{ses.writes.map((w, wIndex) => <React.Fragment key={w.key}>
 <button onClick={w.onClick} className="qr167" type="button">
 <span className="qr165">
 {w.text}

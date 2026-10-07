@@ -1,5 +1,22 @@
 # Memory integration — local evidence
 
+Current combined release (2026-10-07): [desktop stack integration](Desktop-stack-integration-2026-10-07.md) records the preserved main pin/startup/installer, fresh host/front checks, 101-check native regression and focused confirmation/backup/integrity evidence.
+
+The tables below preserve the main-branch companion/pin baseline from `ef11e51`; they are historical evidence, not a fresh result for the combined PR stack. Later frontend slices have their own reports:
+Follow-up (2026-10-06): [picker preview binding](Picker-preview-v1.md) records matching import choices/previews, real backup export, and rejected restore-preview clearing/recovery.
+
+Follow-up (2026-10-06): [explorer paging and read recovery](Explorer-feedback-v1.md) records query-bound rows/selection, actual stale-cursor refresh and controlled read-error retry.
+
+Follow-up (2026-10-06): [operation feedback](Operation-feedback-v1.md) records fresh per-operation status, cancellation/resume and controlled read-error retry.
+
+Follow-up (2026-10-06): [Runtime Vault admission](Root-admission-v1.md) adds directory-identity protection between cooperating Runtime processes and native folder-picker evidence. Memory's per-commit lock and fixed revision remain unchanged.
+
+Follow-up (2026-10-05): [global hotkey and Quick Search](Quick-search-v1.md) records the companion's scoped native checks. This report retains its original baseline.
+
+Follow-up (2026-10-05): [tray and explicit exit](Tray-lifecycle-v1.md) adds host lifecycle evidence, with 32 native smoke checks on a fresh synthetic Vault.
+
+Follow-up (2026-10-05): [full frontend type checking](Frontend-typecheck-v1.md) covers the entire frontend and repeats the native smoke on a fresh synthetic Vault. This report retains the integration baseline and its original check counts.
+
 Date: 2026-10-05. Scope:
 - [ADR-025](../adr/025-enouia-memory-integration.md): Runtime embeds Enouia Memory's workspace Core and connects the Memory, Context and Sessions surfaces.
 - [ADR-026](../adr/026-companion-shell.md): tray, quick search, login startup and the four stops.

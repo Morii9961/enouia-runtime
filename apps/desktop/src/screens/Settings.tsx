@@ -1,7 +1,8 @@
 import React from "react";
+import type { DemoView } from "../App";
 
-export default function Settings({ view }) {
-  const { keyboardHint, memorySettings, motionOpts, paused, sw, togglePaused } = view;
+export default function Settings({ view }: { view: DemoView }) {
+  const { keyboardHint, memorySettings, motionOpts, paused, sw, togglePaused, shellSettings } = view;
   return (
 <section data-screen-label="Settings" className="qr187">
 <div className="qr219">
@@ -27,7 +28,7 @@ The presence ring breathes on a 6-second cycle unless reduced.
 </span>
 </div>
 <div className="qr173">
-{motionOpts.map((f, fIndex) => <React.Fragment key={f.key ?? f.id ?? f.k ?? fIndex}>
+{motionOpts.map((f, fIndex) => <React.Fragment key={f.label}>
 <button onClick={f.onClick} aria-pressed={f.active} className="qr212" style={{"background": f.bg, "color": f.fg}} type="button">
 {f.label}
 </button>
@@ -91,6 +92,7 @@ core.md · runtime_rules.md
 </div>
 </div>
 </>}
+{shellSettings}
 <div className="qr218">
 {keyboardHint ?? 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves through memories and sessions.'}
 </div>

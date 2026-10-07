@@ -103,6 +103,11 @@ const RULES: Record<string, string> = {
 const HOST: Record<string, string> = {
   permission_denied: "This window may not reach Memory",
   worker_failed: "The Memory worker stopped unexpectedly",
+  runtime_closing: "Runtime is finishing Memory operations before exiting",
+  runtime_busy: "The Vault is changing state. Try again after it finishes",
+  root_in_use: "This Vault is already reserved by another Runtime. Exit that Runtime before opening it here",
+  root_admission_failed: "Runtime could not reserve this Vault folder. Choose the folder again after checking access",
+  root_token_unavailable: "Choose the Vault folder again before opening it",
   startup_unavailable: "Login startup is not available",
   startup_different_installation: "Another Enouia Runtime installation owns login startup. Turn it off there first",
   startup_write_failed: "Login startup could not be changed",

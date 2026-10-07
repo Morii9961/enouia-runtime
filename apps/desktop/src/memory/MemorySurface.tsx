@@ -5,7 +5,7 @@
 // one idempotency key per submission, drafts kept across retries, plan
 // dialogs that confirm only the shown diff.
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { call, pick, type J } from "./client";
+import { call, pick, type J, type Picked } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ComponentList, StatusPending, VaultConnect, useStatus } from "./status";
 import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./ui";
@@ -80,7 +80,8 @@ export default function MemorySurface() {
           <aside aria-label="Memory Inspector" className="qr88"><div className="qr46">Open a Vault to see its memories.</div></aside>
         </>
       ) : explorer ? (
-        <Explorer key={collection} history={collection === "history"} submitted={submitted} />
+        <Explorer key={`${collection}:${submitted.seq}`} history={collection === "history"} submitted={submitted}
+          onRefresh={() => setSubmitted((current) => ({ ...current, seq: current.seq + 1 }))} />
       ) : collection === "inbox" ? (
         <Inbox />
       ) : (
@@ -107,11 +108,14 @@ function Inspector({ children }: { children: ReactNode }) {
   return <aside aria-label="Memory Inspector" className="qr88"><div className="qr79">{children}</div></aside>;
 }
 
-function Explorer({ history, submitted, readPage = call }: { history: boolean; submitted: { text: string; seq: number }; readPage?: typeof call }) {
+export function Explorer({ history, submitted, onRefresh, readPage = call }: {
+  history: boolean; submitted: { text: string; seq: number }; onRefresh: () => void; readPage?: typeof call;
+}) {
   const [rows, setRows] = useState<J[]>([]);
   const [next, setNext] = useState<string | null>(null);
   const [total, setTotal] = useState<number | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const read = useLatestRead();
   const query = submitted.text.trim() ? submitted.text : "";
   const load = useCallback((cursor: string | null) =>
@@ -121,6 +125,7 @@ function Explorer({ history, submitted, readPage = call }: { history: boolean; s
       setRows((current) => cursor ? [...current, ...page.items] : page.items);
       setNext(page.nextCursor);
       setTotal(page.total ?? null);
+      setLoaded(true);
     }), [query, history, readPage, read.run]);
   useEffect(() => { load(null); }, [load, submitted.seq]);
   const ids = rows.map((r) => r.memoryId);
@@ -128,9 +133,12 @@ function Explorer({ history, submitted, readPage = call }: { history: boolean; s
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     const tag = (e.target as HTMLElement).tagName;
     if (tag === "INPUT" || tag === "TEXTAREA") return;
-    const i = selected ? ids.indexOf(selected) : -1;
-    const n = ids[Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))];
-    if (n) { e.preventDefault(); setSelected(n); }
+    const buttons = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>("button.qr43"));
+    const from = (e.target as HTMLElement).closest<HTMLButtonElement>("button.qr43");
+    const i = from ? buttons.indexOf(from) : selected ? ids.indexOf(selected) : -1;
+    const index = Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)));
+    const n = ids[index];
+    if (n) { e.preventDefault(); setSelected(n); buttons[index]?.focus(); }
   };
   // A list is sorted by update time, so it groups into days. Search results
   // are ranked by relevance and stay one flat group in rank order.
@@ -145,13 +153,16 @@ function Explorer({ history, submitted, readPage = call }: { history: boolean; s
     }
   }
   const title = query ? `“${query}”${history ? " · with history" : ""}` : history ? TITLES.history : TITLES.current;
-  const count = `${rows.length}${total != null ? ` of ${total}` : ""} ${rows.length === 1 ? "record" : "records"}`;
+  const count = loaded
+    ? `${rows.length}${total != null ? ` of ${total}` : ""} ${rows.length === 1 ? "record" : "records"}`
+    : read.error ? "Results unavailable" : "Waiting for memories";
   return (
     <>
       <Center title={title} count={count} busy={read.busy}>
+        <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>Refresh results</button></div>
         <ErrorBox error={read.error} />
         {read.busy && <p role="status" className="mem-muted mem-pad">Reading memories…</p>}
-        {!read.busy && rows.length === 0 && <div className="qr32">{query ? "Nothing matches this search." : "No approved memories here yet."}</div>}
+        {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? "Nothing matches this search." : "No approved memories here yet."}</div>}
         <div onKeyDown={move}>
           {days.map((d, i) => (
             <div key={`${i}:${d.label}`}>
@@ -187,6 +198,7 @@ function Explorer({ history, submitted, readPage = call }: { history: boolean; s
 }
 
 export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; onChanged: () => void; readPage?: typeof call }) {
+  const { refresh } = useStatus();
   const [detail, setDetail] = useState<J>(null);
   const [correction, setCorrection] = useState("");
   const [impact, setImpact] = useState<J>(null);
@@ -197,6 +209,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
   const load = useCallback(() => void action.run(async () => setDetail(await readPage("memory_read", { memoryId: id }))), [id, readPage]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(load, [load]);
   const forget = (mode: "forget" | "purge") => {
+    setNote("");
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async (key) => setPlan(await readPage("forget_plan", { memoryId: id, mode, withDependents: false }, key)));
   };
@@ -248,6 +261,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>Purge…</button>
         </div>
         {note && <p role="status" className="mem-note">{note}</p>}
+        {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the requested result…</p>}
         <ErrorBox error={action.error} />
         {impact && (
           <p className="mem-card">
@@ -256,7 +270,12 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
         )}
       </div>
       {plan && <PlanDialog key={plan.planId} plan={plan} returnFocus={planTrigger.current} request={readPage}
-        onClose={(done) => { setPlan(null); if (done) onChanged(); }} />}
+        onClose={(done) => {
+          setPlan(null);
+          void refresh();
+          if (done) onChanged();
+          else setNote("Confirmation cancelled. The deletion candidate remains in the candidate inbox.");
+        }} />}
     </Inspector>
   );
 }
@@ -264,12 +283,13 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
 export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const { refresh } = useStatus();
   const [items, setItems] = useState<J[]>([]);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState<number | null>(null);
   const [plan, setPlan] = useState<J>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
   const [claim, setClaim] = useState("");
   const focusAfterCommit = useRef(false);
+  const focusAfterRefresh = useRef<HTMLElement | null>(null);
   const planTrigger = useRef<HTMLElement | null>(null);
   const action = useAction();
   const reads = useLatestRead();
@@ -279,11 +299,13 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   }), [readPage, reads.run]);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
-    if (focusAfterCommit.current) {
-      focusAfterCommit.current = false;
+    if (reads.busy) return;
+    if (focusAfterCommit.current || (focusAfterRefresh.current && !focusAfterRefresh.current.isConnected)) {
       document.getElementById("mem-center-title")?.focus();
-    }
-  }, [items]);
+    } else focusAfterRefresh.current?.focus();
+    focusAfterCommit.current = false;
+    focusAfterRefresh.current = null;
+  }, [items, reads.busy]);
   const decide = (c: J, act: string) => {
     if (action.busy || reads.pending.current) return;
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -296,11 +318,12 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   };
   return (
     <>
-      <Center title={TITLES.inbox} count={`${total} waiting`} busy={action.busy || reads.busy}>
+      <Center title={TITLES.inbox} count={reads.error ? "Candidates unavailable" : total == null ? "Waiting for candidates" : `${total} waiting`}
+        busy={action.busy || reads.busy || (total == null && !reads.error)}>
         <ErrorBox error={action.error} />
         <ErrorBox error={reads.error} />
-        {reads.busy && <p role="status" className="mem-muted mem-pad">Refreshing candidates…</p>}
-        {!reads.busy && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
+        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : "Refreshing candidates…"}</p>}
+        {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
         {items.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
           return (
@@ -351,15 +374,17 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
       </Inspector>
       {plan && <PlanDialog key={plan.planId} plan={plan} returnFocus={planTrigger.current} request={readPage} onClose={(committed) => {
         setPlan(null);
-        if (committed !== null) { focusAfterCommit.current = true; void load(); void refresh(); }
+        if (committed !== null) focusAfterCommit.current = true;
+        else focusAfterRefresh.current = planTrigger.current;
+        void load(); void refresh();
       }} />}
     </>
   );
 }
 
 function Import() {
-  const [picked, setPicked] = useState<J>(null);
-  const [preview, setPreview] = useState<J>(null);
+  const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
+  const preview = selection?.preview;
   const [alias, setAlias] = useState("acct-main");
   const [op, setOp] = useState<string | null>(null);
   const [imports, setImports] = useState<J[]>([]);
@@ -380,13 +405,14 @@ function Import() {
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("import_file");
               if (!p) return;
-              setPicked(p);
-              setPreview(await call("import_preview", { importToken: p.token }));
+              setSelection(null);
+              const next = await call("import_preview", { importToken: p.token });
+              setSelection({ picked: p, preview: next });
               refresh();
             })}>Choose file…</button>
           </div>
           <ErrorBox error={action.error} />
-          {preview && (
+          {selection && (
             <div className="mem-card">
               <p><strong>{preview.displayName}</strong> · {preview.bytes} bytes · {preview.inputKind} · {preview.recognized ? `recognized, ${preview.units} units` : "unsupported format (still archived as is)"}</p>
               {preview.duplicateOf && (interrupted
@@ -396,11 +422,10 @@ function Import() {
               <label className="mem-label" htmlFor="mem-alias">Account alias</label>
               <div className="mem-actions">
                 <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} pattern="[a-z0-9][a-z0-9_-]*" autoComplete="off" />
-                <button type="button" className="mem-button mem-primary" disabled={!picked || action.busy || interrupted} onClick={() => void action.run(async (key) => {
-                  const started = await call("import_start", { importToken: picked.token, accountAlias: alias }, key);
+                <button type="button" className="mem-button mem-primary" disabled={action.busy || interrupted} onClick={() => void action.run(async (key) => {
+                  const started = await call("import_start", { importToken: selection.picked.token, accountAlias: alias }, key);
                   setOp(started.operationId);
-                  setPicked(null);
-                  setPreview(null);
+                  setSelection(null);
                 })}>Start import</button>
               </div>
             </div>
@@ -420,8 +445,7 @@ function Import() {
                   <td>{(m.status === "parsing" || m.status === "archived") && (
                     <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async (key) => {
                       setOp((await call("import_resume", { importId: m.importId, accountAlias: m.accountScope ?? alias }, key)).operationId);
-                      setPicked(null);
-                      setPreview(null);
+                      setSelection(null);
                     })}>Resume</button>
                   )}</td>
                 </tr>
@@ -475,7 +499,10 @@ function VaultPanel() {
             })}>Back up to an empty folder…</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("export_folder");
-              if (p) setRestore(await call("restore_preview", { exportToken: p.token }));
+              if (p) {
+                setRestore(null);
+                setRestore(await call("restore_preview", { exportToken: p.token }));
+              }
             })}>Preview a restore…</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => after(() => call("vault_lock"))}>Lock Vault</button>
           </div>
@@ -487,9 +514,9 @@ function VaultPanel() {
           <ErrorBox error={action.error} />
           {op && <Operation key={op} id={op} onDone={() => void refresh()} />}
           {restore && (
-            <p className="mem-card">
+            <div className="mem-card"><p style={{ margin: 0 }}>
               Backup is valid: commit #{restore.sequence} ({shortId(restore.commitId)}), {restore.files} files, {restore.sameVaultAsOpen ? "same Vault as the open one" : "from another Vault"}. An actual restore runs in the Memory CLI into an empty folder (<code>restore</code>).
-            </p>
+            </p></div>
           )}
         </div>
       </Center>
@@ -498,8 +525,8 @@ function VaultPanel() {
         <ComponentList status={status} />
         <h3 className="mem-h3">Four different stops</h3>
         <ul className="mem-list mem-muted">
+          <li><strong>Lock Vault</strong> cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Everything is refused until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
           <li><strong>Closing the window</strong> only hides it to the tray. Memory keeps running, and so does any operation.</li>
-          <li><strong>Lock Vault</strong> cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Everything is refused until you unlock.</li>
           <li><strong>Exit</strong> (tray or Settings) does the same release, then ends Runtime. The Activity producer keeps its own schedule.</li>
           <li><strong>Pausing sync</strong> does not exist yet: Memory has no sync before its gateway stage.</li>
         </ul>

@@ -9,6 +9,7 @@ import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
+import { SessionEventBody } from "./SessionEventBody";
 
 type Branch = { sessionId: string; branchId: string };
 
@@ -21,7 +22,7 @@ export default function SessionsSurface({ inspect }: { inspect: (capsuleId: stri
 }
 
 export function Sessions({ inspect, request = call }: { inspect: (capsuleId: string) => void; request?: typeof call }) {
-  const [sessions, setSessions] = useState<J[]>([]);
+  const [sessions, setSessions] = useState<J[] | null>(null);
   const [current, setCurrent] = useState<Branch | null>(null);
   const [detail, setDetail] = useState<J>(null);
   const [text, setText] = useState("");
@@ -66,7 +67,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const busy = action.busy || detailRead.busy;
   return (
     <section data-screen-label="Sessions" className="mem-sessions">
-      <aside className="qr28" aria-label="Sessions">
+      <aside className="qr28" aria-label="Sessions" aria-busy={listRead.busy || (sessions == null && !listRead.error)}>
         <div className="qr20">
           <h1 className="qr18">Sessions</h1>
           <div className="qr19">Conversations kept as they happened.</div>
@@ -80,9 +81,10 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
             })}>New session</button>
         </div>
         <ErrorBox error={listRead.error} />
-        {!listRead.busy && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
+        {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">Reading sessions…</p>}
+        {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
         <div className="qr27">
-          {sessions.map((s) => s.branches.map((b: J) => {
+          {sessions?.map((s) => s.branches.map((b: J) => {
             const active = current?.branchId === b.branchId;
             return (
               <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={action.busy} aria-pressed={active}
@@ -111,9 +113,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 {detail.transcript.map((e: J) => (
                   <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
                     <span className="mem-muted mem-mono">{e.kind} · {e.deliveryState}</span>
-                    {e.text != null && (e.kind.startsWith("assistant")
-                      ? <pre className="mem-source">{e.text}</pre>
-                      : <p className="mem-content">{e.text}</p>)}
+                    {e.text != null && <SessionEventBody kind={e.kind} text={e.text} />}
                   </li>
                 ))}
               </ol>
@@ -123,6 +123,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
               <form className="mem-stack" onSubmit={(e) => {
                 e.preventDefault();
                 write(async (key) => {
+                  setAnswer(null);
                   setAnswer(await request("session_ask", { ...current, text }, key));
                   clearSubmittedDraft("text", text);
                   await open(current);
@@ -142,6 +143,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
       <aside aria-label="Session inspector" className="qr88">
         <div className="qr79">
           <ErrorBox error={action.error} />
+          {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the session result…</p>}
           {answer && (
             <div className="mem-stack" aria-live="polite">
               <h3 className="mem-h3">Answer · {answer.status}</h3>

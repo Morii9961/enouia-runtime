@@ -20,7 +20,7 @@ function budget(b: J): string {
 
 const DELIVERY: Record<string, string> = {
   preview_not_sent: "Preview only · nothing was sent anywhere",
-  dispatched: "Dispatched · the actual request is below",
+  dispatched: "Dispatched · actual request inspection available",
 };
 
 export default function ContextSurface({ capsuleId }: { capsuleId: string | null }) {
@@ -40,6 +40,9 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
   const action = useAction();
   const reads = useLatestRead();
   const dispatchReads = useLatestRead();
+  const pending = action.busy ? "Preparing preview…"
+    : reads.busy || (id && !view && !reads.error) ? "Reading the saved capsule…"
+    : dispatchReads.busy ? "Reading the actual request…" : null;
   useEffect(() => {
     setView(null);
     setRequest(null);
@@ -67,7 +70,7 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
     </table>
   );
   return (
-    <section data-screen-label="Context Surface" className="mem-context" aria-busy={action.busy || reads.busy || dispatchReads.busy}>
+    <section data-screen-label="Context Surface" className="mem-context" aria-busy={Boolean(pending)}>
       <div className="mem-context-main">
         <div className="qr20">
           <h1 id="mem-context-title" className="qr18" tabIndex={-1}>Context Surface</h1>
@@ -76,7 +79,7 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
         <form className="mem-actions" onSubmit={(e) => {
           e.preventDefault();
           if (!query.trim() || action.busy) return;
-          reads.clear(); dispatchReads.clear(); setView(null); setRequest(null); setDispatchId(null);
+          reads.clear(); dispatchReads.clear(); setId(null); setView(null); setRequest(null); setDispatchId(null);
           void action.run(async (key) => setId((await readPage("context_preview", { query, sessionId: null, branchId: null }, key)).capsuleId));
         }}>
           <label htmlFor="mem-cq" className="mem-sr">Compile preview</label>
@@ -87,7 +90,7 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
         <ErrorBox error={action.error} />
         <ErrorBox error={reads.error} />
         <ErrorBox error={dispatchReads.error} />
-        {(reads.busy || dispatchReads.busy) && <p role="status" className="mem-muted">Checking the context and requests…</p>}
+        {pending && <p role="status" className="mem-muted">{pending}</p>}
         {!id && !action.busy && <p className="mem-muted">Preview a question here, or open the context behind an answer from Sessions.</p>}
         {view && (
           <div className="mem-stack">
@@ -95,6 +98,8 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
               <strong>{DELIVERY[view.delivery] ?? view.delivery}</strong>
               <span className="mem-muted"> · capsule <code title={id ?? ""}>{shortId(id)}</code> · destination {view.capsule.destination.kind} · {budget(view.capsule.budget)}</span>
             </p>
+            <h3 className="mem-h3">Saved question</h3>
+            <p className="mem-content mem-saved-query">{view.capsule.query}</p>
             <h3 className="mem-h3">Included ({included.length})</h3>
             {included.length ? <Rows rows={included} /> : <p className="mem-muted">Nothing was included.</p>}
             <h3 className="mem-h3">Excluded ({excluded.length})</h3>
@@ -106,7 +111,7 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
         <div className="qr79">
           <h3 className="mem-h3">Dispatches</h3>
           {view && view.dispatches.length === 0 && <p className="mem-muted">This capsule was never sent.</p>}
-          {!view && <p className="mem-muted">No capsule selected.</p>}
+          {!view && <p className="mem-muted">{action.busy ? "Preparing preview…" : !id ? "No capsule selected." : reads.error ? "Capsule unavailable. Retry the read to inspect it." : "Reading capsule…"}</p>}
           {view?.dispatches.map((d: J) => (
             <div key={d.dispatchId} className="mem-stack">
               <p>

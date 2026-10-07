@@ -1,6 +1,7 @@
 import React from "react";
+import type { DemoView } from "../App";
 
-export default function Runtime({ view }) {
+export default function Runtime({ view }: { view: DemoView }) {
   const { rt, rtList, rtStrip, rtSubtitle } = view;
   return (
 <section data-screen-label="Runtime Inspector" className="qr210">
@@ -14,7 +15,7 @@ Runtime
 </div>
 </div>
 <div className="qr27">
-{rtList.map((c, cIndex) => <React.Fragment key={c.key ?? c.id ?? c.k ?? cIndex}>
+{rtList.map((c, cIndex) => <React.Fragment key={c.code}>
 <button onClick={c.onClick} className="qr190" style={{"background": c.bg}} type="button">
 <span className="qr188">
 {c.name}
@@ -32,7 +33,7 @@ Runtime
 <div className="qr209">
 <div className="qr208">
 <div className="qr193">
-{rtStrip.map((s, sIndex) => <React.Fragment key={s.key ?? s.id ?? s.k ?? sIndex}>
+{rtStrip.map((s, sIndex) => <React.Fragment key={s.k}>
 <div className="qr192">
 <span className="qr56">
 {s.k}
@@ -61,7 +62,7 @@ Runtime
 <div className="qr198">
 State
 </div>
-{rt.rows.map((r, rIndex) => <React.Fragment key={r.key ?? r.id ?? r.k ?? rIndex}>
+{rt.rows.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr199">
 <span className="qr35">
 {r.k}
@@ -77,7 +78,7 @@ State
 <div className="qr198">
 Verification
 </div>
-{rt.checks.map((r, rIndex) => <React.Fragment key={r.key ?? r.id ?? r.k ?? rIndex}>
+{rt.checks.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr201">
 <span className="qr61">
 {r.k}
@@ -92,7 +93,7 @@ Verification
 <div className="qr198">
 Not yet
 </div>
-{rt.limits.map((l, lIndex) => <React.Fragment key={l.key ?? l.id ?? l.k ?? lIndex}>
+{rt.limits.map((l, lIndex) => <React.Fragment key={lIndex}>
 <div className="qr202">
 <span className="qr56">
 —
@@ -108,7 +109,7 @@ Not yet
 Health
 </div>
 <div className="qr207">
-{rtList.map((c, cIndex) => <React.Fragment key={c.key ?? c.id ?? c.k ?? cIndex}>
+{rtList.map((c, cIndex) => <React.Fragment key={c.code}>
 <div className="qr206">
 <span className="qr36" style={{"background": c.color}}>
 

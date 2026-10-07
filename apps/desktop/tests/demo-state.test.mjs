@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { demoData } from '../src/demo-data.js';
+import { demoData } from '../src/demo-data.ts';
 import { approveDemoCandidate, reviseDemoMemory } from '../src/demo-state.ts';
 
 const at = '2026-10-04T02:00:00.000Z';
