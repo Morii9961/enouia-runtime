@@ -83,6 +83,7 @@ fn publication_receipt_retained(old: &GenerationImage, next: &GenerationImage) -
         return false;
     };
     old_delivery.get("publicationObserved") == next_delivery.get("publicationObserved")
+        && old_delivery.get("lastOutcomes") == next_delivery.get("lastOutcomes")
 }
 
 fn valid_transition(
@@ -264,6 +265,25 @@ pub fn commit_publication_observed_with_hook<C: Clock, F: FnMut(CommitPhase) -> 
             "generatedAtMs": evidence.generated_at_ms,
             "publishedAtMs": evidence.published_at_ms,
             "receivedAtMs": evidence.received_at_ms,
+        }),
+    );
+    // Keep the acknowledged batch's per-source outcomes for status readers;
+    // they would otherwise disappear with the pending batch.
+    let batch = current
+        .validated
+        .pending
+        .as_ref()
+        .ok_or(CommitError::InvalidEvidence)?;
+    let observed_at_ms = clock.now_unix_ms();
+    if observed_at_ms < 0 {
+        return Err(CommitError::InvalidEvidence);
+    }
+    object.insert(
+        "lastOutcomes".to_owned(),
+        json!({
+            "sequence": batch.sequence,
+            "observedAtMs": observed_at_ms,
+            "sources": batch.sources,
         }),
     );
     let mut delivery = serde_json::to_vec(&delivery).map_err(|_| CommitError::InvalidEvidence)?;

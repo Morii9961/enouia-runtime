@@ -1,8 +1,9 @@
 //! Pure validation of one immutable generation before the platform reader uses it.
 
 use enouia_activity_contract::{
-    ActivityData, Batch, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms, normalize_activity,
-    public_data_bytes, sha256_hex, validate_imported_pending,
+    ActivityData, Batch, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms,
+    exact_activity_timestamp_ms, normalize_activity, public_data_bytes, sha256_hex,
+    validate_imported_pending,
 };
 use enouia_common::{Clock, ErrorCode};
 use serde::{Deserialize, Serialize};
@@ -79,6 +80,86 @@ pub struct RetryState {
     pub last_error_code: ErrorCode,
     pub next_eligible_at_ms: i64,
     pub last_transport_at_ms: Option<i64>,
+}
+
+/// Source outcomes of the last batch whose publication was observed. Display
+/// state only: delivery decisions never read it, and older readers ignore it.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct LastOutcomes {
+    pub sequence: u64,
+    pub observed_at_ms: i64,
+    pub sources: StoredOutcomes,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct StoredOutcomes {
+    pub github: StoredOutcome,
+    pub codex: StoredOutcome,
+    pub claude: StoredOutcome,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct StoredOutcome {
+    pub attempted_at: String,
+    pub succeeded_at: Option<String>,
+    pub result: String,
+}
+
+/// Observed publication receipt, without the origin.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PublicationRecord {
+    pub sequence: u64,
+    pub activity_sha256: String,
+    pub generated_at_ms: i64,
+    pub published_at_ms: i64,
+}
+
+fn valid_outcome(outcome: &StoredOutcome) -> bool {
+    exact_activity_timestamp_ms(&outcome.attempted_at).is_some()
+        && outcome
+            .succeeded_at
+            .as_deref()
+            .is_none_or(|at| exact_activity_timestamp_ms(at).is_some())
+        && match outcome.result.as_str() {
+            "success" => outcome.succeeded_at.as_deref() == Some(outcome.attempted_at.as_str()),
+            "failed" => true,
+            _ => false,
+        }
+}
+
+fn valid_last_outcomes(value: &Value, high_water: u64) -> bool {
+    serde_json::from_value::<LastOutcomes>(value.clone()).is_ok_and(|last| {
+        last.sequence > 0
+            && last.sequence <= high_water
+            && last.observed_at_ms >= 0
+            && [
+                &last.sources.github,
+                &last.sources.codex,
+                &last.sources.claude,
+            ]
+            .into_iter()
+            .all(valid_outcome)
+    })
+}
+
+pub(crate) fn last_outcomes_from_delivery(bytes: &[u8]) -> Option<LastOutcomes> {
+    let value: Value = serde_json::from_slice(bytes).ok()?;
+    serde_json::from_value(value.get("lastOutcomes")?.clone()).ok()
+}
+
+pub(crate) fn publication_from_delivery(bytes: &[u8]) -> Option<PublicationRecord> {
+    let value: Value = serde_json::from_slice(bytes).ok()?;
+    let receipt: PublicationReceipt =
+        serde_json::from_value(value.get("publicationObserved")?.clone()).ok()?;
+    Some(PublicationRecord {
+        sequence: receipt.sequence,
+        activity_sha256: receipt.activity_sha256,
+        generated_at_ms: receipt.generated_at_ms,
+        published_at_ms: receipt.published_at_ms,
+    })
 }
 
 pub(crate) fn retry_from_delivery(bytes: &[u8]) -> Option<RetryState> {
@@ -235,6 +316,9 @@ impl GenerationImage {
                 && value
                     .get("retry")
                     .is_none_or(|retry| valid_retry_state(retry, &pending, self.pending.as_deref()))
+                && value
+                    .get("lastOutcomes")
+                    .is_none_or(|last| valid_last_outcomes(last, sequence))
         }) {
             return Err(GenerationError::InvalidDelivery);
         }

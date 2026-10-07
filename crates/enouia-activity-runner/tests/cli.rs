@@ -351,3 +351,191 @@ fn unpublishable_retained_success_time_is_flagged_and_blocks_import() {
     assert_eq!(result["state"], "unpublishable_history");
     assert!(!fixture.root.join("CURRENT").exists());
 }
+
+const IPC: &str = include_str!("../../../contracts/ipc/activity-v1.schema.json");
+const COMMON: &str = include_str!("../../../contracts/ipc/common-v1.schema.json");
+const DATA: &str = include_str!("../../../contracts/activity/activity-data-v1.schema.json");
+
+/// Structural JSON Schema subset used by the Activity contracts: refs, types,
+/// enum/const, oneOf/allOf, objects and arrays. Patterns and formats are not
+/// interpreted; the Rust DTO builders own those.
+fn conforms(value: &Value, schema: &Value, document: &str) -> bool {
+    if let Some(reference) = schema.get("$ref").and_then(Value::as_str) {
+        let (file, pointer) = reference.split_once('#').unwrap_or((reference, ""));
+        let name = if file.is_empty() {
+            document
+        } else {
+            file.rsplit('/').next().unwrap()
+        };
+        let text = match name {
+            "activity-v1.schema.json" => IPC,
+            "common-v1.schema.json" => COMMON,
+            "activity-data-v1.schema.json" => DATA,
+            other => panic!("unexpected schema {other}"),
+        };
+        let root: Value = serde_json::from_str(text).unwrap();
+        let target = if pointer.is_empty() {
+            &root
+        } else {
+            root.pointer(pointer).unwrap()
+        };
+        return conforms(value, target, name);
+    }
+    let one_of = schema
+        .get("oneOf")
+        .and_then(Value::as_array)
+        .is_none_or(|options| {
+            options
+                .iter()
+                .filter(|s| conforms(value, s, document))
+                .count()
+                == 1
+        });
+    let all_of = schema
+        .get("allOf")
+        .and_then(Value::as_array)
+        .is_none_or(|all| all.iter().all(|s| conforms(value, s, document)));
+    let constant = schema.get("const").is_none_or(|expected| value == expected);
+    let listed = schema
+        .get("enum")
+        .and_then(Value::as_array)
+        .is_none_or(|options| options.contains(value));
+    let typed = match schema.get("type").and_then(Value::as_str) {
+        None => true,
+        Some("object") => value.is_object(),
+        Some("array") => value.is_array(),
+        Some("string") => value.is_string(),
+        Some("integer") => value.is_u64() || value.is_i64(),
+        Some("boolean") => value.is_boolean(),
+        Some("null") => value.is_null(),
+        Some(other) => panic!("unsupported type {other}"),
+    };
+    let bounded = schema
+        .get("minimum")
+        .and_then(Value::as_i64)
+        .is_none_or(|minimum| value.as_i64().is_none_or(|v| v >= minimum));
+    if !(one_of && all_of && constant && listed && typed && bounded) {
+        return false;
+    }
+    if let Some(object) = value.as_object() {
+        let properties = schema.get("properties").and_then(Value::as_object);
+        let closed = schema.get("additionalProperties") == Some(&Value::Bool(false));
+        let required = schema
+            .get("required")
+            .and_then(Value::as_array)
+            .is_none_or(|keys| {
+                keys.iter()
+                    .all(|key| object.contains_key(key.as_str().unwrap()))
+            });
+        let members = object
+            .iter()
+            .all(|(key, child)| match properties.and_then(|p| p.get(key)) {
+                Some(child_schema) => conforms(child, child_schema, document),
+                None => !closed,
+            });
+        if !(required && members) {
+            return false;
+        }
+    }
+    match (value.as_array(), schema.get("items")) {
+        (Some(items), Some(schema)) => items.iter().all(|item| conforms(item, schema, document)),
+        _ => true,
+    }
+}
+
+fn ipc_conforms(value: &Value, definition: &str) -> bool {
+    let reference = json!({ "$ref": format!("#/$defs/{definition}") });
+    conforms(value, &reference, "activity-v1.schema.json")
+}
+
+#[test]
+fn overview_and_preview_are_lock_free_ipc_v1_reads() {
+    let fixture = Fixture::new();
+    let (code, missing) = fixture.run("overview", &[]);
+    assert_eq!(code, 6);
+    assert!(ipc_conforms(&missing, "failure"), "{missing}");
+    assert_eq!(missing["error"]["code"], "storage_failed");
+    fixture.import();
+    fixture.invoke(&[
+        "set-paused".into(),
+        "false".into(),
+        "--config".into(),
+        fixture.config.as_os_str().to_owned(),
+    ]);
+    let (code, _) = fixture.run("sync", &[]);
+    assert_eq!(code, 4);
+
+    // A held writer lock makes sync busy but never blocks a status read.
+    let guard = WindowsActivityLock
+        .try_acquire(&fixture.root.join("sync.lock"))
+        .unwrap();
+    assert_eq!(fixture.run("sync", &[]).0, 3);
+    let (code, overview) = fixture.run("overview", &[]);
+    assert_eq!(code, 0);
+    let (code, preview) = fixture.run("preview", &[]);
+    assert_eq!(code, 0);
+    drop(guard);
+
+    assert!(ipc_conforms(&overview, "overview"), "{overview}");
+    for mutate in [
+        (|v: &mut Value| v["unexpected"] = json!(1)) as fn(&mut Value),
+        |v| v["sources"]["codex"]["timezone"] = json!("Asia/Shanghai"),
+        |v| v["delivery"]["state"] = json!("published"),
+        |v| {
+            v["sources"]
+                .as_object_mut()
+                .unwrap()
+                .remove("claude")
+                .map(drop)
+                .unwrap()
+        },
+        |v| v["health"][0]["state"] = json!("fine"),
+    ] {
+        let mut changed = overview.clone();
+        mutate(&mut changed);
+        assert!(!ipc_conforms(&changed, "overview"), "{changed}");
+    }
+    assert_eq!(overview["delivery"]["pendingSequence"], 51);
+    assert_eq!(overview["delivery"]["state"], "unconfigured");
+    assert_eq!(overview["pending"]["sequence"], 51);
+    assert_eq!(overview["producer"]["highestReserved"], 51);
+    assert_eq!(overview["producer"]["deliveryEnabled"], false);
+    let archive: Value =
+        serde_json::from_slice(&fs::read(fixture.source.join("activity.json")).unwrap()).unwrap();
+    for (id, timezone) in [
+        ("github", "GitHub"),
+        ("codex", "Codex"),
+        ("claude", "Asia/Shanghai"),
+    ] {
+        let source = &overview["sources"][id];
+        assert_eq!(source["timezone"], timezone);
+        // Unconfigured collectors failed: data and success time are retained.
+        assert_eq!(source["lastResult"], "failed");
+        assert_eq!(source["freshness"], "failed");
+        assert_eq!(source["lastSuccessAt"], archive["sources"][id]["updatedAt"]);
+        let total: u64 = archive["sources"][id]["days"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|d| d["value"].as_u64().unwrap())
+            .sum();
+        assert_eq!(source["total"], total.to_string());
+    }
+    let health = overview["health"].as_array().unwrap();
+    assert_eq!(health.len(), 5);
+    assert!(
+        health
+            .iter()
+            .all(|c| c["state"] != "healthy" || c["id"] == "activity_archive")
+    );
+
+    assert!(ipc_conforms(&preview, "preview"), "{preview}");
+    assert_eq!(preview["data"], archive);
+    let bytes = public_data_bytes(&enouia_activity_contract::normalize_activity(&archive).unwrap())
+        .unwrap();
+    assert_eq!(
+        preview["sha256"],
+        enouia_activity_contract::sha256_hex(&bytes)
+    );
+    assert!(!overview.to_string().contains("PRIVATE"));
+}

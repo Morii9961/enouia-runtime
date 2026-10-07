@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Enouia local Activity IPC v1",
-  "description": "Typed local command arguments and responses. This is not the Moriium public ActivityData or upload protocol.",
+  "description": "Typed local command arguments and responses. This is not the Moriium public ActivityData or upload protocol. Optional overview/run fields and the running stage were added within v1 before any consumer shipped (docs/CONTRACT_BOUNDARIES_M0.md).",
   "oneOf": [
     { "$ref": "#/$defs/noArgumentRequest" },
     { "$ref": "#/$defs/daysRequest" },
@@ -95,7 +95,20 @@
           "required": ["mode", "nextTriggerAt"],
           "properties": {
             "mode": { "enum": ["unconfigured", "idle", "running", "paused"] },
-            "nextTriggerAt": { "$ref": "#/$defs/timestampOrNull" }
+            "nextTriggerAt": { "$ref": "#/$defs/timestampOrNull" },
+            "task": {
+              "oneOf": [
+                { "type": "null" },
+                {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["registered", "enabled"],
+                  "properties": {
+                    "registered": { "type": "boolean" },
+                    "enabled": { "oneOf": [{ "type": "null" }, { "type": "boolean" }] }
+                  }
+                }
+              ]
+            }
           }
         },
         "delivery": {
@@ -109,7 +122,36 @@
             "state": { "enum": ["unconfigured", "idle", "pending", "transported", "observed", "unverified", "paused"] }
           }
         },
-        "health": { "type": "array", "items": { "$ref": "common-v1.schema.json#/$defs/healthComponent" } }
+        "health": { "type": "array", "items": { "$ref": "common-v1.schema.json#/$defs/healthComponent" } },
+        "generatedAt": { "$ref": "#/$defs/timestampOrNull" },
+        "producer": {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "deliveryEnabled", "paused", "highestReserved"],
+          "properties": {
+            "mode": { "enum": ["sandbox", "production"] },
+            "deliveryEnabled": { "type": "boolean" },
+            "paused": { "type": "boolean" },
+            "highestReserved": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          }
+        },
+        "pending": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["sequence", "createdAt", "ageSeconds", "exactSha256", "failureCount", "nextEligibleAt", "lastErrorCode"],
+              "properties": {
+                "sequence": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+                "createdAt": { "$ref": "#/$defs/timestampOrNull" },
+                "ageSeconds": { "type": "integer", "minimum": 0 },
+                "exactSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+                "failureCount": { "type": "integer", "minimum": 0 },
+                "nextEligibleAt": { "$ref": "#/$defs/timestampOrNull" },
+                "lastErrorCode": { "oneOf": [{ "type": "null" }, { "$ref": "common-v1.schema.json#/$defs/structuredError/properties/code" }] }
+              }
+            }
+          ]
+        }
       }
     },
     "days": {
@@ -144,8 +186,10 @@
       "properties": {
         "schemaVersion": { "const": 1 }, "kind": { "const": "activity_run_status" },
         "runId": { "$ref": "#/$defs/runId" },
-        "stage": { "enum": ["queued", "collecting", "persisting", "uploading", "observing", "completed", "failed", "blocked"] },
-        "error": { "oneOf": [{ "type": "null" }, { "$ref": "common-v1.schema.json#/$defs/structuredError" }] }
+        "stage": { "enum": ["queued", "running", "collecting", "persisting", "uploading", "observing", "completed", "failed", "blocked"] },
+        "error": { "oneOf": [{ "type": "null" }, { "$ref": "common-v1.schema.json#/$defs/structuredError" }] },
+        "operation": { "enum": ["activity_run_now", "activity_retry_pending", "activity_set_paused"] },
+        "summary": { "oneOf": [{ "type": "null" }, { "type": "object" }] }
       }
     },
     "pauseAcknowledged": {

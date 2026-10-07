@@ -25,6 +25,8 @@ All configuration, data, input, and output paths are absolute. The data root mus
 
 ```text
 enouia-activity diagnostics --config PATH
+enouia-activity overview --config PATH
+enouia-activity preview --config PATH
 enouia-activity sync --config PATH
 enouia-activity retry-pending --config PATH
 enouia-activity set-paused true|false --config PATH
@@ -35,11 +37,13 @@ enouia-activity migration-export-legacy --config PATH --output NEW_DIRECTORY
 
 `diagnostics` reports pause, pending sequence/hash/age/retry state, delivery configuration, and tool-file presence. Presence is not a capability or authentication claim. Diagnostics never collects, sends, or probes authenticated tools. It acquires the same lock for a consistent view; a busy store returns code 3.
 
+`overview` and `preview` are the local surface's reads. They print the Activity IPC v1 `activity_overview` and `activity_public_preview` DTOs (see the [contract agreement](CONTRACT_BOUNDARIES_M0.md)). They read `CURRENT` once without the writer lock, so a running sync is neither blocked nor made busy, and they write nothing. The overview gives per-source totals, date range, last success, the last attempt and result, freshness against the three-hour window, pending and publication state, and health components. Preview is the exact allowlisted data the next send carries, with its public SHA-256. A missing or invalid store returns code 6 with a structured `storage_failed` error.
+
 `sync` audits recovery first. Pause ends the invocation. Existing pending blocks new collection: the runner first tries to observe its publication, even during a persisted retry wait. If unresolved and due, it sends the original bytes once. `retry-pending` supplies manual retry intent, bypassing only the wait; it never collects and still respects pause and locking. A resolved old pending ends that invocation, so the next invocation performs any new collection.
 
 With no pending, `sync` collects three source attempts under one UTC attempt timestamp, merges history, checks failure retention and public publishability, and durably commits `highestReserved + 1` before transport. A batch over 4 MiB is rejected without truncating history or reserving a sequence. With delivery disabled, the new pending is retained and the invocation ends at code 4; subsequent collection remains blocked by that pending.
 
-SSH exit zero means only `transportCompleted`. Publication requires matching exact public data and all three source outcomes. After one send, observation polls at five-second spacing for at most the configured 1–60 seconds, sharing that budget across both HTTP fetches. `observationSeconds: 0` performs one bounded probe without a polling loop. If publication remains unresolved, the runner records failure count, sanitized error, transport time, and the next eligibility time (default one hour; configurable 1–86400 seconds). It never sends twice in one invocation. Missing transport configuration/capability returns code 5 and keeps pending.
+SSH exit zero means only `transportCompleted`. When publication is observed and pending is cleared, `delivery.json` also keeps that batch's per-source outcomes and the local observation time as `lastOutcomes`. Status readers use them for the last attempt after pending is gone; delivery decisions never read them, and older runners ignore the key. Publication requires matching exact public data and all three source outcomes. After one send, observation polls at five-second spacing for at most the configured 1–60 seconds, sharing that budget across both HTTP fetches. `observationSeconds: 0` performs one bounded probe without a polling loop. If publication remains unresolved, the runner records failure count, sanitized error, transport time, and the next eligibility time (default one hour; configurable 1–86400 seconds). It never sends twice in one invocation. Missing transport configuration/capability returns code 5 and keeps pending.
 
 `migration-inspect` validates a quiescent copied trio, records raw and canonical hashes plus source time/date-count/total/range inventory, and optionally compares it against another validated trio. `unpublishableSuccessTimes` lists sources whose retained `updatedAt` is valid ActivityData but not the manifest's exact UTC millisecond form, without changing the string. Comparison lists date gaps, value corrections, success-time regressions, source hashes, and reconciliation flags; it chooses no winner. The new report must be outside the input directory and cannot replace an existing file.
 
