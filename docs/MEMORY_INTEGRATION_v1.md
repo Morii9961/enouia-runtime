@@ -93,7 +93,7 @@ node scripts/check-memory-integration.mjs --self-test
 
 `apps/desktop/e2e/memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>` drives the built executable over WebView2 remote debugging on loopback, which is enabled only in that test's environment. It uses a synthetic Vault created outside any Git working tree, for example with the pinned Memory revision's `enouia-memory init <dir> --confirm-new-vault`, plus a synthetic Markdown file for the import picker. It tests Ctrl+Alt+Q via Windows input only while its own process is foreground, and launches a second isolated test process for shortcut conflict and occupied-root refusal. An optional `--quick-only` repeats the overlay checks against a synthetic Vault already seeded by the full smoke. `--operations-only` takes a fresh synthetic Vault and a 500-session synthetic `enouia-runtime-session/1` JSON export to test cancellation/resume, fresh observation state and read-error retry. Controlled callback delivery in that mode is explicitly synthetic. Screenshots and `report.json` go to the output folder, which is not committed. See the [validation report](validation/Memory-integration-v1.md).
 
-The default smoke passed 62/62 on the current 2026-10-07 frontend/shell baseline, including the guarded OS hotkey step, clean exit, empty autofill table and restart reads. See [current regression evidence](validation/Native-regression-2026-10-07.md). This is all checks in that script, not complete W01–W05 acceptance.
+The default smoke passed 62/62 on the `59d4cec` frontend/shell baseline on 2026-10-07, including the guarded OS hotkey step, clean exit, empty autofill table and restart reads. See [regression evidence](validation/Native-regression-2026-10-07.md). This is all checks in that script, not complete W01–W05 acceptance or a rerun of subsequent frontend changes.
 
 Each test chooses temporary debugging ports and checks that the listener belongs to the spawned Runtime's process tree before connecting. An unrelated listener is refused. UI Automation touches only the test process's native dialog, and failure closes all debug sessions and terminates only spawned test children.
 
@@ -118,6 +118,8 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 `--explorer-keyboard-only` approves three synthetic fixtures and uses owned-page CDP keys to check arrow selection/focus, Space, Tab-relative movement, list boundaries and the actual selected inspector. Search and toolbar arrow keys stay outside the list handler. The import argument is unused.
 
 `--transcript-only` records actual empty/supported local Mock turns, checks literal statements and source references, keyboard access to exact raw response text, then restarts the host and rereads the saved transcript. The import argument is unused.
+
+`--layout-only` uses a fresh synthetic Vault with long approved content and a long folder name, emulates 1100×700 and 1600×700 in the owned WebView2 page, and checks all seven surfaces for document/pane overflow. It also checks correction label association and reachability inside the scrolling inspector. The import argument is unused. See [layout evidence](validation/Minimum-layout-v1.md); physical resize, monitor/DPI and Narrator remain unverified.
 
 ## Bumping the pin
 

@@ -604,6 +604,88 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--layout-only') {
+    const app=launch(['--memory-vault',vault]);
+    await debugOwnerRefusal(app);
+    const s=await connect();
+    await waitFor(s,has('Memory · Vault open'),'layout fixture open');
+    const fact='Synthetic layout statement '+ 'x'.repeat(600);
+    await s.evaluate(`(async()=>{
+      const send=async(command,args,write=false)=>{
+        const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
+        const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
+        if(reply.kind==='memory_error') throw new Error(command+': '+reply.error.code); return reply.result;
+      };
+      const candidate=await send('remember',{text:${JSON.stringify(fact)},claimKey:'fixture.layout'},true);
+      const plan=await send('review_plan',{decisions:[{candidateId:candidate.candidateId,revision:candidate.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+      await send('review_confirm',{planId:plan.planId,diffHash:plan.diffHash},true);
+      const operation=await send('index_rebuild',{});
+      for(let attempt=0;attempt<300;attempt++) {
+        const status=await send('operation_get',{operationId:operation.operationId});
+        if(status.state==='succeeded') return;
+        if(['failed','cancelled'].includes(status.state)) throw new Error('layout rebuild: '+status.state);
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      throw new Error('layout rebuild timed out');
+    })()`);
+    const measure=async(label)=>{
+      await sleep(150);
+      const metrics=await s.evaluate(`({width:innerWidth,height:innerHeight,clientWidth:document.documentElement.clientWidth,clientHeight:document.documentElement.clientHeight,root:document.documentElement.scrollWidth,rootHeight:document.documentElement.scrollHeight,panes:[...document.querySelectorAll('#root,.qr234,.qr233,.qr232,[data-screen-label],.qr79,.qr44,.mem-context-main,.qr28')].filter(node=>node.clientWidth>0).map(node=>({label:node.getAttribute('data-screen-label')||node.getAttribute('aria-label')||node.className||node.id,width:node.clientWidth,content:node.scrollWidth})).filter(node=>node.content>node.width+1)})`);
+      check('L.'+label+'_root_fits',metrics.root<=metrics.clientWidth+1&&metrics.rootHeight<=metrics.clientHeight+1,JSON.stringify({width:metrics.width,height:metrics.height,clientWidth:metrics.clientWidth,clientHeight:metrics.clientHeight,root:metrics.root,rootHeight:metrics.rootHeight}));
+      check('L.'+label+'_panes_fit',metrics.panes.length===0,JSON.stringify(metrics.panes));
+      if(metrics.rootHeight>metrics.clientHeight+1) console.log('LAYOUT '+label+' '+JSON.stringify(await s.evaluate(`({body:[document.body.clientHeight,document.body.scrollHeight],roots:[...document.querySelectorAll('#root,.qr234,.qr233,.qr232,.qr89,.qr79,.mem-sr')].map(node=>({label:node.className||node.id,height:node.clientHeight,scroll:node.scrollHeight,rect:[node.getBoundingClientRect().top,node.getBoundingClientRect().bottom],css:{height:getComputedStyle(node).height,min:getComputedStyle(node).minHeight,max:getComputedStyle(node).maxHeight,overflow:getComputedStyle(node).overflow,position:getComputedStyle(node).position,rows:getComputedStyle(node).gridTemplateRows}}))})`)));
+    };
+    for(const width of [1100,1600]) {
+      const media=await s.send('Emulation.setDeviceMetricsOverride',{width,height:700,deviceScaleFactor:1,mobile:false});
+      if(media.error) throw new Error(media.error.message);
+      check('L.viewport_'+width,await s.evaluate(`innerWidth===${width} && innerHeight===700`));
+      await nav(s,'Home');
+      await measure(width+'_home');
+      await nav(s,'Memory');
+      await rail(s,'Current memories');
+      await waitFor(s,"document.querySelectorAll('button.qr43').length===1",'layout memory loaded');
+      await click(s,'button.qr43','Synthetic layout statement');
+      await waitFor(s,"!!document.querySelector('#mem-fix')",'layout detail loaded');
+      await click(s,'button.mem-link','Show source');
+      await waitFor(s,"!!document.querySelector('.mem-figure')",'layout source loaded');
+      await measure(width+'_memory_source');
+      await shot(s,'30-layout-memory-'+width);
+      check('L.'+width+'_correction_label_retained',await s.evaluate(`document.querySelector('#mem-fix').labels?.[0]?.textContent==='Corrected content'`));
+      check('L.'+width+'_correction_reachable_inside_inspector',await s.evaluate(`(()=>{
+        const input=document.querySelector('#mem-fix'),pane=input.closest('.qr79');
+        input.scrollIntoView({block:'nearest'});
+        const field=input.getBoundingClientRect(),bounds=pane.getBoundingClientRect(),root=document.documentElement;
+        return pane.scrollTop>0&&field.top>=bounds.top&&field.bottom<=bounds.bottom&&root.scrollHeight<=root.clientHeight+1&&root.scrollWidth<=root.clientWidth+1;
+      })()`));
+      await nav(s,'Sessions');
+      await click(s,'button','New session');
+      const editable="!!document.querySelector('#mem-ask')&&!document.querySelector('#mem-ask').disabled";
+      await waitFor(s,editable,'layout session ready');
+      await set(s,'#mem-ask','layout');
+      await click(s,'form button','Send');
+      await waitFor(s,`${editable}&&${has('Answer ·')}`,'layout turn saved');
+      await measure(width+'_sessions');
+      await click(s,'button','Inspect the context behind this answer');
+      await waitFor(s,has('Dispatched'),'layout capsule inspected');
+      await click(s,'button','Show the actual request');
+      await waitFor(s,has('re-rendered from the saved records'),'layout actual request inspected');
+      await measure(width+'_context');
+      await shot(s,'31-layout-context-'+width);
+      await nav(s,'Settings');
+      await waitFor(s,has('Windows shell'),'layout settings ready');
+      await measure(width+'_settings');
+      await shot(s,'32-layout-settings-'+width);
+      await nav(s,'Activity'); await measure(width+'_activity');
+      await nav(s,'Runtime'); await measure(width+'_runtime');
+    }
+    const clear=await s.send('Emulation.clearDeviceMetricsOverride');
+    if(clear.error) throw new Error(clear.error.message);
+    check('L.viewport_emulation_cleared',await s.evaluate('innerWidth!==1600||innerHeight!==700'));
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('L.layout_host_exits',await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--transcript-only') {
     let app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
