@@ -7,7 +7,7 @@ import Sessions from "./screens/Sessions.tsx";
 import Activity from "./screens/Activity.tsx";
 import Runtime from "./screens/Runtime.tsx";
 import Settings from "./screens/Settings.tsx";
-import { controlWindow, nativeWindow } from './window-controls.ts';
+import { controlWindow, isWindowMaximized, nativeWindow } from './window-controls.ts';
 import { approveDemoCandidate, reviseDemoMemory } from './demo-state.ts';
 import { ConnectedHome, MemoryBadge, MemorySettings, MemoryStatusProvider } from './memory/status.tsx';
 import MemorySurface from './memory/MemorySurface.tsx';
@@ -22,7 +22,7 @@ type AppState = {
   page: Page | null; memCapsule: string | null; collection: string; sel: string; q: string;
   editing: boolean; draft: string; notice: string; mems: DemoMemory[] | null;
   ctxOpen: string | null; sessionKey: string; actFilter: string; actOpen: string | null;
-  rtKey: string; paused: boolean; motionPref: string; copied: boolean; windowError?: string;
+  rtKey: string; paused: boolean; motionPref: string; copied: boolean; windowError?: string; windowMaximized: boolean | null;
 };
 export type DemoView = ReturnType<App['renderVals']> & {
   rtSubtitle?: string; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
@@ -36,7 +36,7 @@ const memoryConnected = nativeWindow;
 export default class App extends React.Component<AppProps, AppState> {
   static D = demoData;
 
-  state: AppState = { page: null, memCapsule: null, collection: 'all', sel: 'm1', q: '', editing: false, draft: '', notice: '', mems: null, ctxOpen: 'm1', sessionKey: 's1', actFilter: 'all', actOpen: 'a1', rtKey: 'core', paused: false, motionPref: 'system', copied: false };
+  state: AppState = { page: null, memCapsule: null, collection: 'all', sel: 'm1', q: '', editing: false, draft: '', notice: '', mems: null, ctxOpen: 'm1', sessionKey: 's1', actFilter: 'all', actOpen: 'a1', rtKey: 'core', paused: false, motionPref: 'system', copied: false, windowMaximized: nativeWindow ? null : false };
   ctxScroll = React.createRef<HTMLDivElement>();
   PAGES: Page[] = ['home', 'memory', 'context', 'sessions', 'activity', 'runtime', 'settings'];
 
@@ -45,6 +45,8 @@ export default class App extends React.Component<AppProps, AppState> {
   _mqf?: () => void;
   _visible: string[] = [];
   _selectedKey: string | undefined;
+  _windowRead?: () => void;
+  _windowGeneration = 0;
 
   componentDidMount() {
     this._key = (e) => {
@@ -66,8 +68,25 @@ export default class App extends React.Component<AppProps, AppState> {
     this._mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     this._mqf = () => this.forceUpdate();
     if (this._mq.addEventListener) this._mq.addEventListener('change', this._mqf);
+    if (nativeWindow) {
+      this._windowRead = () => {
+        const generation = ++this._windowGeneration;
+        void isWindowMaximized().then((maximized) => {
+          if (generation === this._windowGeneration) this.setState({ windowMaximized: maximized });
+        }).catch(() => {
+          if (generation === this._windowGeneration) this.setState({ windowMaximized: null });
+        });
+      };
+      window.addEventListener('resize', this._windowRead);
+      this._windowRead();
+    }
   }
-  componentWillUnmount() { if (this._key) window.removeEventListener('keydown', this._key); if (this._mq && this._mqf && this._mq.removeEventListener) this._mq.removeEventListener('change', this._mqf); }
+  componentWillUnmount() {
+    if (this._key) window.removeEventListener('keydown', this._key);
+    if (this._mq && this._mqf && this._mq.removeEventListener) this._mq.removeEventListener('change', this._mqf);
+    if (this._windowRead) window.removeEventListener('resize', this._windowRead);
+    this._windowGeneration += 1;
+  }
 
   page() { return this.state.page || this.props.startPage || 'home'; }
   connected() { return this.props.memoryConnected ?? memoryConnected; }
@@ -106,7 +125,11 @@ export default class App extends React.Component<AppProps, AppState> {
   }
 
   async windowAction(action: WindowAction) {
-    try { await controlWindow(action); }
+    try {
+      await controlWindow(action);
+      this.setState({ windowError: undefined });
+      if (action === 'maximize') this._windowRead?.();
+    }
     catch { this.setState({ windowError: 'Window control failed. Try again.' }); }
   }
 
@@ -362,11 +385,13 @@ Demo · local only
 </path>
 </svg>
 </button>
-<button aria-label="Maximize" className="window-control" disabled={!nativeWindow} onClick={() => this.windowAction('maximize')} type="button">
-<svg width="10" height="10" viewBox="0 0 10 10">
+<button aria-label={this.state.windowMaximized === null ? 'Maximize or restore' : this.state.windowMaximized ? 'Restore' : 'Maximize'} className="window-control" disabled={!nativeWindow} onClick={() => this.windowAction('maximize')} type="button">
+<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+{this.state.windowMaximized ? <path d="M2.5 2.5v-2h7v7h-2M0.5 2.5h7v7h-7z" fill="none" stroke="currentColor" strokeWidth="1" /> :
 <rect x="0.5" y="0.5" width="9" height="9" rx="1" fill="none" stroke="currentColor" strokeWidth="1">
 
 </rect>
+}
 </svg>
 </button>
 <button aria-label="Close" className="window-control window-close" disabled={!nativeWindow} onClick={() => this.windowAction('close')} type="button">

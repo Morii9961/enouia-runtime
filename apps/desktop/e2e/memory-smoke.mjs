@@ -54,6 +54,57 @@ function launch(args, { port = PORT, profile = 'webview2' } = {}) {
   return child;
 }
 
+// Physical sizing touches only the main HWND of our own live child. The
+// helper thread's DPI context is restored; system display settings stay put.
+function ownedWindowMetrics(app, size = null, state = null) {
+  if (!children.has(app) || app.exitCode !== null) throw new Error('test host is not running');
+  if (state !== null && !['maximize','restore'].includes(state)) throw new Error('invalid owned window state');
+  const script = `$ErrorActionPreference='Stop'
+$ProgressPreference='SilentlyContinue'
+Add-Type -TypeDefinition @'
+using System; using System.Text; using System.Runtime.InteropServices;
+public static class OwnedWindow {
+  [StructLayout(LayoutKind.Sequential)] public struct Rect { public int Left,Top,Right,Bottom; }
+  [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr window,out uint process);
+  [DllImport("user32.dll",CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr window,StringBuilder title,int count);
+  [DllImport("user32.dll")] public static extern uint GetDpiForWindow(IntPtr window);
+  [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr context);
+  [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr window,out Rect rect);
+  [DllImport("user32.dll")] public static extern bool GetClientRect(IntPtr window,out Rect rect);
+  [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr window,IntPtr after,int x,int y,int width,int height,uint flags);
+  [DllImport("user32.dll")] public static extern bool IsZoomed(IntPtr window);
+  [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr window);
+  [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr window,int command);
+}
+'@
+$process=Get-Process -Id ${app.pid}
+$window=${app.windowHandle ? `[IntPtr]([long]'${app.windowHandle}')` : '$process.MainWindowHandle'}
+[uint32]$owner=0
+[OwnedWindow]::GetWindowThreadProcessId($window,[ref]$owner) | Out-Null
+$title=New-Object System.Text.StringBuilder 256
+[OwnedWindow]::GetWindowText($window,$title,256) | Out-Null
+if($window -eq [IntPtr]::Zero -or $owner -ne ${app.pid} -or $title.ToString() -ne 'Enouia Runtime') { throw 'main window ownership mismatch' }
+$previousContext=[OwnedWindow]::SetThreadDpiAwarenessContext([IntPtr](-4))
+if($previousContext -eq [IntPtr]::Zero) { throw 'DPI context unavailable' }
+try {
+  ${state ? `[OwnedWindow]::ShowWindow($window,${state === 'maximize' ? 3 : 9}) | Out-Null
+  Start-Sleep -Milliseconds 200` : ''}
+  $dpi=[OwnedWindow]::GetDpiForWindow($window)
+  if($dpi -eq 0) { throw 'window DPI unavailable' }
+  $outer=New-Object OwnedWindow+Rect; $client=New-Object OwnedWindow+Rect
+  if(-not [OwnedWindow]::GetWindowRect($window,[ref]$outer) -or -not [OwnedWindow]::GetClientRect($window,[ref]$client)) { throw 'window bounds unavailable' }
+  ${size ? `$width=[int][Math]::Round(${size.width}*$dpi/96)+($outer.Right-$outer.Left-$client.Right)
+  $height=[int][Math]::Round(${size.height}*$dpi/96)+($outer.Bottom-$outer.Top-$client.Bottom)
+  if(-not [OwnedWindow]::SetWindowPos($window,[IntPtr]::Zero,0,0,$width,$height,0x16)) { throw 'owned resize failed' }
+  Start-Sleep -Milliseconds 200
+  if(-not [OwnedWindow]::GetClientRect($window,[ref]$client)) { throw 'resized bounds unavailable' }` : ''}
+  @{window=$window.ToInt64().ToString();dpi=$dpi;width=$client.Right;height=$client.Bottom;maximized=[OwnedWindow]::IsZoomed($window);minimized=[OwnedWindow]::IsIconic($window)} | ConvertTo-Json -Compress
+} finally { [OwnedWindow]::SetThreadDpiAwarenessContext($previousContext) | Out-Null }`;
+  const result=JSON.parse(execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(script,'utf16le').toString('base64')],{windowsHide:true,timeout:15000,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim());
+  app.windowHandle=result.window;
+  return result;
+}
+
 function session(url) {
   const ws = new WebSocket(url);
   sessions.add(ws);
@@ -222,7 +273,11 @@ async function quickSearch(main, app) {
   pressHotkey(app.pid);
   await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => s.overlayVisible)", 'OS hotkey opened overlay');
   const overlay = await connect(true);
-  await overlay.evaluate(`window.__focusTrace = []; ['focus','blur'].forEach(name => window.addEventListener(name, () => window.__focusTrace.push({name, at:Date.now()})));`);
+  await overlay.evaluate(`(async()=>{
+    window.__focusTrace = []; ['focus','blur'].forEach(name => window.addEventListener(name, () => window.__focusTrace.push({name, at:Date.now()})));
+    const handler=window.__TAURI_INTERNALS__.transformCallback(()=>window.__focusTrace.push({name:'overlay-clear',at:Date.now()}));
+    await window.__TAURI_INTERNALS__.invoke('plugin:event|listen',{event:'overlay-clear',target:{kind:'Any'},handler});
+  })()`);
   check('Q.os_hotkey_opens_search', await overlay.evaluate("document.activeElement?.id === 'quick-query'"));
   const search = async (text) => {
     await overlay.evaluate("window.__focusTrace.push({name:'before-set', focused:document.hasFocus(), at:Date.now()})");
@@ -282,14 +337,23 @@ async function quickSearch(main, app) {
   check('Q.hide_discards_delayed_result', await overlay.evaluate("document.querySelector('#quick-query').value === '' && !document.querySelector('.quick-results li')"));
   await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
   await search('paper sketchbook');
-  await waitFor(overlay, "[...document.querySelectorAll('.quick-results li')].some(row => row.textContent.includes('paper sketchbook'))", 'search before lock');
+  try { await waitFor(overlay, "[...document.querySelectorAll('.quick-results li')].some(row => row.textContent.includes('paper sketchbook'))", 'search before lock'); }
+  catch(error) {
+    check('Q.reopened_search_diagnostic',false,JSON.stringify(await overlay.evaluate("({query:document.querySelector('#quick-query').value,focused:document.hasFocus(),busy:document.querySelector('main').getAttribute('aria-busy'),trace:window.__focusTrace})")));
+    throw error;
+  }
   await main.evaluate("__t.invoke('memory_call', {request:__t.request('vault_lock',{})})");
   await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => !s.overlayVisible)", 'lock hides');
   check('Q.lock_clears_text', await overlay.evaluate("document.querySelector('#quick-query').value === '' && !document.querySelector('.quick-results li')"));
   await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
   await search('paper sketchbook');
-  await waitFor(overlay, has('The Vault is not open, or it is locked'), 'locked search refusal');
-  check('Q.locked_error_visible', true);
+  try { await waitFor(overlay, has('The Vault is not open, or it is locked'), 'locked search refusal'); }
+  catch(error) {
+    check('Q.locked_search_diagnostic',false,JSON.stringify(await overlay.evaluate("({query:document.querySelector('#quick-query').value,focused:document.hasFocus(),busy:document.querySelector('main').getAttribute('aria-busy'),trace:window.__focusTrace})")));
+    check('Q.locked_window_diagnostic',false,JSON.stringify(await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')")));
+    throw error;
+  }
+  check('Q.locked_error_visible', true,JSON.stringify(await overlay.evaluate('window.__focusTrace')));
   await overlay.evaluate("__t.click('button','Open main window')");
   await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => s.visible && !s.overlayVisible)", 'overlay returns to main');
   check('Q.open_main', true);
@@ -384,6 +448,7 @@ async function holdOperationObservation(s, memoryPage = false) {
     : memoryPage === 'new-session' ? 'typeof value?.result?.sessionId === "string" && typeof value.result.branchId === "string"'
     : memoryPage === 'checkpoint' ? 'typeof value?.result?.checkpointId === "string"'
     : memoryPage === 'source' ? 'typeof value?.result?.excerpt === "string" && typeof value.result.byteStart === "number"'
+    : memoryPage === 'window-state' ? 'typeof value === "boolean"'
     : "value?.result?.operationId && typeof value.result.state === 'string'";
   await s.evaluate(`(() => {
     window.__operationHeld = false;
@@ -605,6 +670,54 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--native-window-only') {
+    const app=launch(['--memory-vault',vault]);
+    await debugOwnerRefusal(app);
+    const s=await connect();
+    await waitFor(s,has('Memory · Vault open'),'window fixture open');
+    const initial=ownedWindowMetrics(app);
+    check('N.window_dpi_is_recorded',initial.dpi>0,JSON.stringify(initial));
+    await nav(s,'Sessions'); await click(s,'button','New session');
+    await waitFor(s,"!!document.querySelector('#mem-ask')&&!document.querySelector('#mem-ask').disabled",'window session ready');
+    await set(s,'#mem-ask','Synthetic unsent resize draft');
+    for(const [width,height] of [[1100,700],[1440,900]]) {
+      const physical=ownedWindowMetrics(app,{width,height});
+      await waitFor(s,`innerWidth===${width}&&innerHeight===${height}`,'physical window resize delivered');
+      check('N.physical_'+width+'_matches_css',physical.width===Math.round(width*physical.dpi/96)&&physical.height===Math.round(height*physical.dpi/96),JSON.stringify(physical));
+      check('N.physical_'+width+'_root_fits',await s.evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth+1&&document.documentElement.scrollHeight<=document.documentElement.clientHeight+1'));
+      check('N.physical_'+width+'_keeps_draft',await s.evaluate("document.querySelector('#mem-ask').value==='Synthetic unsent resize draft'"));
+      await shot(s,'35-native-size-'+width);
+    }
+    await click(s,'button[aria-label=Maximize]',''); await sleep(300);
+    check('N.maximize_button_changes_native_state',ownedWindowMetrics(app).maximized);
+    check('N.maximized_button_offers_restore',await s.evaluate("!!document.querySelector('button[aria-label=Restore]')"));
+    await shot(s,'36-native-maximized');
+    await s.evaluate("document.querySelectorAll('.window-control')[1].click()"); await sleep(300);
+    check('N.restore_returns_native_state',!ownedWindowMetrics(app).maximized);
+    check('N.restored_button_offers_maximize',await s.evaluate("!!document.querySelector('button[aria-label=Maximize]')"));
+    await holdOperationObservation(s,'window-state');
+    await s.evaluate("window.dispatchEvent(new Event('resize'))");
+    await waitFor(s,'window.__operationHeld','older actual window-state read held');
+    ownedWindowMetrics(app,null,'maximize'); await sleep(300);
+    check('N.external_maximize_updates_control',await s.evaluate("!!document.querySelector('button[aria-label=Restore]')"));
+    await s.evaluate('window.__releaseOperation()'); await sleep(200);
+    check('N.older_window_read_cannot_replace_maximized_state',await s.evaluate("!!document.querySelector('button[aria-label=Restore]')"));
+    ownedWindowMetrics(app,null,'restore'); await sleep(300);
+    check('N.external_restore_updates_control',await s.evaluate("!!document.querySelector('button[aria-label=Maximize]')"));
+    await click(s,'button[aria-label=Minimize]',''); await sleep(300);
+    check('N.minimize_button_changes_native_state',ownedWindowMetrics(app).minimized);
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')"); await sleep(300);
+    check('N.show_restores_minimized_window',!ownedWindowMetrics(app).minimized);
+    check('N.window_changes_keep_session_draft',await s.evaluate("document.querySelector('#mem-ask').value==='Synthetic unsent resize draft' && !document.querySelector('.mem-event-assistant_completed')"));
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
+    const overlay=await connect(true);
+    const scope=await overlay.evaluate("__t.invoke('plugin:window|is_maximized',{label:'main'})");
+    check('W04.overlay_cannot_query_main_window_state',Boolean(scope.err));
+    await overlay.evaluate("__t.click('button','Open main window')"); overlay.close();
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    check('N.window_host_exits',await Promise.race([app.exited,sleep(20000).then(()=>'timeout')])===0);
+    s.close(); return;
+  }
   if (process.argv[6] === '--source-paging-only') {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
