@@ -2,6 +2,8 @@
 
 Follow-up: [Quick Search validation](Quick-search-v1.md) records the later hotkey/overlay slice and expanded native regression. This report retains the tray baseline.
 
+The later [real long-operation lifecycle report](Long-operation-lifecycle-v1.md) covers actual verify/backup work during titlebar Close, page Lock and Settings Exit, including the status-refresh waiting-view fix. Physical tray-menu invocation remains separate.
+
 Date: 2026-10-05. Baseline: `66fd99b`. Scope: Runtime's Windows host lifecycle, on one development host with a fresh synthetic Vault.
 
 The native tray offers Show, Lock Memory Vault and Exit. Closing hides the existing window without constructing another Core or releasing its Vault. Settings exposes tray status and explicit Exit. Shutdown runs in a worker, closes admission to new work and waits for the Core before process exit; status and progress can still answer. Canonical commits share the lifecycle gate with operation starts. Only the native main window can invoke host lifecycle commands. Native tray locking uses the same gate as page locking.

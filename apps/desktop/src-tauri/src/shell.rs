@@ -36,6 +36,7 @@ impl ShellState {
             "tray": if self.tray_ready() { "present" } else { "unavailable" },
             "closeBehavior": "hide", "closing": host.is_closing(),
             "locking": self.locking.load(Ordering::SeqCst),
+            "vaultChanging": host.lifecycle_busy(),
             "error": *self.error.lock().unwrap_or_else(PoisonError::into_inner),
             "overlay": "available",
             "hotkey": self.hotkey_status.lock().unwrap_or_else(PoisonError::into_inner).clone(),
@@ -337,7 +338,7 @@ mod tests {
         let state = ShellState::default();
         assert_eq!(
             state.status(&host),
-            json!({"tray":"unavailable", "closeBehavior":"hide", "closing":false, "locking":false, "error":null, "overlay":"available", "hotkey":null,"vaultAdmissionError":null})
+            json!({"tray":"unavailable", "closeBehavior":"hide", "closing":false, "locking":false, "vaultChanging":false, "error":null, "overlay":"available", "hotkey":null,"vaultAdmissionError":null})
         );
         state.tray_ready.store(true, Ordering::SeqCst);
         state.error(Some("lock_failed"));

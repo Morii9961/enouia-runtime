@@ -4,10 +4,10 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { call, pick, shell, type J } from "./client";
 import { useAction, useMemoryStatus, type Failure } from "./hooks";
-import { ErrorBox, Tag, when } from "./ui";
+import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
-type StatusValue = { status: J; error: Failure; refresh: () => Promise<void> };
+type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void> };
 const StatusContext = createContext<StatusValue | null>(null);
 
 export function MemoryStatusProvider({ children }: { children: ReactNode }) {
@@ -23,9 +23,10 @@ export function useStatus(): StatusValue {
 
 const VAULT: Record<string, string> = { open: "Vault open", locked: "Vault locked", none: "No Vault open" };
 
-export function vaultLabel(status: J): string {
+export function vaultLabel(status: J, vaultChanging = false): string {
   if (!status) return "Memory status unknown";
   if (exiting(status)) return "Exiting, finishing operations";
+  if (vaultChanging) return "Finishing Vault change";
   return VAULT[status.vault?.state] ?? String(status.vault?.state);
 }
 
@@ -46,9 +47,9 @@ export function StatusPending() {
 
 /** Header badge: what this window is connected to, stated plainly. */
 export function MemoryBadge() {
-  const { status, error } = useStatus();
-  const open = status?.vault?.state === "open";
-  const text = status ? `Memory · ${vaultLabel(status)}` : error ? "Memory status unavailable" : "Memory · checking…";
+  const { status, error, vaultChanging } = useStatus();
+  const open = status?.vault?.state === "open" && !vaultChanging;
+  const text = status ? `Memory · ${vaultLabel(status, vaultChanging)}` : error ? "Memory status unavailable" : "Memory · checking…";
   return (
     <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. Activity and the Runtime Inspector show fictional examples.">
       <span className="qr223" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
@@ -77,11 +78,12 @@ export function ComponentList({ status }: { status: J }) {
 
 /** Open, create or unlock a Vault. Folders are chosen in a native dialog. */
 export function VaultConnect() {
-  const { status, refresh } = useStatus();
+  const { status, refresh, vaultChanging } = useStatus();
   const [phrase, setPhrase] = useState("");
   const action = useAction();
   const v = status?.vault ?? {};
   const after = (f: () => Promise<unknown>) => void action.run(async () => { await f(); await refresh(); });
+  if (vaultChanging) return <VaultLifecycleWait />;
   return (
     <div className="mem-card">
       <VaultAdmissionNotice />
@@ -116,24 +118,64 @@ export function VaultConnect() {
 
 /** Children render only while a Vault is open; otherwise the connect card. */
 export function VaultGate({ children }: { children: ReactNode }) {
-  const { status, error } = useStatus();
+  const { status, error, vaultChanging } = useStatus();
   if (!status) {
     return <div className="mem-gate"><ErrorBox error={error} /><StatusPending /></div>;
   }
   if (exiting(status)) return <div className="mem-gate"><p role="status" className="mem-muted">{EXITING}</p></div>;
+  if (vaultChanging) return <div className="mem-gate"><VaultLifecycleWait /></div>;
   if (status.vault?.state !== "open") return <div className="mem-gate"><VaultConnect /></div>;
   return <>{children}</>;
 }
 
+/** Core's detached slot does not mean Runtime has finished releasing it. */
+export function VaultLifecycleFeedback({ children }: { children?: ReactNode }) {
+  return <div className="mem-card mem-stack" aria-busy="true">
+    <h2 className="mem-h2">Finishing Vault change</h2>
+    <p role="status" className="mem-muted">Runtime is finishing Memory operations before releasing the Vault. Verify and backup cannot be cancelled. Wait for this to finish before unlocking or opening a Vault.</p>
+    {children}
+  </div>;
+}
+
+export function VaultLifecycleWait() {
+  const [operations, setOperations] = useState<J[]>([]);
+  const [error, setError] = useState<Failure>(null);
+  useEffect(() => {
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        const result = await call("operation_list");
+        if (!stopped) {
+          setOperations(result.items.filter((op: J) => ["queued", "running"].includes(op.state)));
+          setError(null);
+        }
+      } catch {
+        if (!stopped) setError({ text: "Operation progress could not be read. Runtime is still finishing the Vault change." });
+      } finally {
+        if (!stopped) timer = setTimeout(poll, 400);
+      }
+    };
+    void poll();
+    return () => { stopped = true; clearTimeout(timer); };
+  }, []);
+  return <VaultLifecycleFeedback>
+    <ErrorBox error={error} />
+    {operations.map(op => <Operation key={op.operationId} id={op.operationId} />)}
+  </VaultLifecycleFeedback>;
+}
+
 /** Home in the native shell: real Memory status and plain routes. */
 export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
-  const { status } = useStatus();
+  const { status, vaultChanging } = useStatus();
   const v = status?.vault;
-  const open = v?.state === "open";
+  const open = v?.state === "open" && !vaultChanging;
   const pending: number | null = status?.pendingCandidates ?? null;
   const reviewLine = !status
     ? "Memory status unknown"
-    : v?.state === "locked"
+    : vaultChanging
+      ? "Finishing Memory operations before releasing the Vault"
+      : v?.state === "locked"
       ? "Vault locked · unlock it in Memory Vault"
       : !open
         ? "Open or create a Vault to begin"
@@ -153,7 +195,7 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
             <h1 className="qr2">I'm here.</h1>
             <div className="qr6">
               <span className="qr3" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
-              <span>{vaultLabel(status)}{v?.rootName ? ` · ${v.rootName}` : ""}</span>
+              <span>{vaultLabel(status, vaultChanging)}{v?.rootName ? ` · ${v.rootName}` : ""}</span>
               <span className="qr4">·</span>
               <span>Local Mock responses</span>
               <span className="qr4">·</span>
@@ -165,7 +207,7 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
           <button onClick={nav.memory.go} className="qr12" type="button">
             <span className="qr9">Memory Vault</span>
             <span className="qr10">{reviewLine}</span>
-            <span className="qr11">{open ? `#${v.headSequence}` : v?.state ?? "—"}</span>
+            <span className="qr11">{vaultChanging ? "waiting" : open ? `#${v.headSequence}` : v?.state ?? "—"}</span>
           </button>
           <button onClick={nav.sessions.go} className="qr12" type="button">
             <span className="qr9">Sessions</span>
@@ -200,12 +242,12 @@ function Row({ k, children }: { k: string; children: ReactNode }) {
 
 /** Settings rows for the Vault, replacing the demo's pending adapter row. */
 export function MemorySettings({ openMemory }: { openMemory: () => void }) {
-  const { status } = useStatus();
+  const { status, vaultChanging } = useStatus();
   const v = status?.vault ?? {};
   return (
     <div className="qr65">
       <div className="qr198">Memory Vault</div>
-      <Row k="State">{vaultLabel(status)}</Row>
+      <Row k="State">{vaultLabel(status, vaultChanging)}</Row>
       <Row k="Folder">{v.rootName ?? "—"}</Row>
       {v.state === "open" && (
         <>

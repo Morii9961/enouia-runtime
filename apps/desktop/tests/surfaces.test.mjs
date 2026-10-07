@@ -20,7 +20,7 @@ const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
 const { Explorer, Inbox } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
 const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx');
 const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
-const { MemoryStatusProvider } = await server.ssrLoadModule('/src/memory/status.tsx');
+const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
@@ -105,6 +105,24 @@ test('operation feedback offers cancellation only for active cooperative workers
     assert.match(view('import', state), new RegExp(`mem-state-${state}`));
   }
   assert.match(view('import', 'running'), /mem-state-running/);
+});
+
+test('pending Vault release explains host waiting and retains real uncancellable progress', () => {
+  const detached = { vault: { state: 'locked' }, companion: { exiting: false } };
+  assert.equal(vaultLabel(detached, true), 'Finishing Vault change');
+  assert.equal(vaultLabel(detached, false), 'Vault locked');
+  assert.equal(vaultLabel({ ...detached, companion: { exiting: true } }, true), 'Exiting, finishing operations');
+  assert.equal(detached.vault.state, 'locked');
+  const progress = createElement(OperationFeedback, {
+    status: { kind: 'backup_export', state: 'running', progress: { done: 4, total: 9 } }, onCancel() {},
+  });
+  const html = renderToStaticMarkup(createElement(VaultLifecycleFeedback, null, progress));
+  assert.match(html, /aria-busy="true"/);
+  assert.match(html, /Runtime is finishing Memory operations before releasing the Vault/);
+  assert.match(html, /progress 4 \/ 9/);
+  assert.match(html, /mem-state-running/);
+  assert.doesNotMatch(html, /<button/);
+  assert.doesNotMatch(html, /Vault locked/);
 });
 
 test('verification completion reports integrity separately from operation success', () => {

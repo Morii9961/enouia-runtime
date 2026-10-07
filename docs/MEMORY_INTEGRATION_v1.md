@@ -42,6 +42,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
   - One `ui-<uuid>` key per user submission. A retry resends the same payload with the same key.
   - `WRITES` must equal the pinned contract's write commands. A desktop Rust test enforces this.
 - **Hooks.** `src/memory/hooks.ts` ports `useAction` and `useLatestRead`. Only the latest read publishes its result, error or busy state. A retry is offered only for `retryable` errors.
+  Shared status reads keep Runtime's `shell_status.vaultChanging` separate from Core's canonical Vault slot. A pending lock can have a detached `locked` Core slot while Runtime is still joining workers; the UI keeps waiting/progress feedback and withholds Unlock until Runtime releases admission. See [real long-work lifecycle evidence](validation/Long-operation-lifecycle-v1.md).
 - **Surfaces** (`src/memory/*.tsx`), drawn in the Quiet Runtime language:
   - **Memory Vault.** Candidate inbox with accept, edit-and-accept or reject through the review plan and its confirmation code; remember-a-statement; the canonical explorer with literal search, history and paging; detail with evidence and source excerpts; correction proposals; delete-impact preview; forget and purge plans; Import; Vault and recovery: open/create/unlock/lock, verify, index rebuild, backup to an empty folder, restore preview.
   - **Sessions.** Branch list, transcript, unfinished turns, provisional checkpoints, asking the local Mock, and a link to the capsule behind an answer.
@@ -157,7 +158,7 @@ Never commit a path dependency, branch, `[patch]` or a lockfile produced by a lo
 |---|---|
 | Typed workspace channel, picker tokens, window scope, lifecycle, exit shutdown | Implemented |
 | Memory explorer, review, remember, correction, forget/purge plans, import, Vault and recovery, Sessions, Context | Implemented |
-| Tray (show, lock, exit), close-to-tray | Implemented; [local lifecycle evidence](validation/Tray-lifecycle-v1.md). Physical tray menu interaction and shutdown during a long verify/backup remain unverified. |
+| Tray (show, lock, exit), close-to-tray | Implemented; [local lifecycle evidence](validation/Tray-lifecycle-v1.md) and [actual long verify/backup close, page lock, Settings exit and cooperative Restart Manager](validation/Long-operation-lifecycle-v1.md). Physical tray-menu interaction and actual Windows sign-out/shutdown remain unverified. |
 | Global hotkey and quick-search overlay (`HostSurface::QuickSearch`) | Implemented; [local native evidence](validation/Quick-search-v1.md), including OS input, conflict, scoped refusals, clear-on-hide and exit/re-registration |
 | One Vault per cooperating Runtime host | Implemented; [root admission evidence](validation/Root-admission-v1.md). Other Memory clients do not share this guard. |
 | Opt-in login startup | Implemented (ADR-026) |
