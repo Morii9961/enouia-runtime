@@ -62,8 +62,8 @@ Runtime meanwhile kept designing a parallel Core: the `enouia-memory`, `enouia-s
   - no logging of request or response bodies
 - The desktop build needs a MinGW C compiler, for Memory's bundled SQLite, and one online fetch per pin before offline builds.
 - There is no default or remembered Vault root. The owner opens or creates one in the native dialog, or names it with `--memory-vault`.
-- Run one embedded Core per Vault. Do not use Memory's reference shell and Runtime on the same Vault at once.
-- Tray, global hotkey and quick-search overlay, login startup and installer remain in Memory's reference shell until Runtime ports them as a separate slice. The parity list is in [Memory integration v1](../MEMORY_INTEGRATION_v1.md).
+- Only one embedded Core may have a Vault open at a time. Memory enforces this since ADR-MEM-46: a second Core gets `workspace.vault_in_use`.
+- Tray, global hotkey and quick search, and login startup were ported in [ADR-026](026-companion-shell.md); the installer in [ADR-027](027-desktop-installer.md). The parity list is in [Memory integration v1](../MEMORY_INTEGRATION_v1.md).
 - When Memory MV-8 replaces the embedded Core with the single Memory Host, Runtime's adapter becomes a Host client behind the same envelope. That is a breaking surface change, coordinated through both logs.
 
 ## Activation gates
@@ -79,10 +79,9 @@ Met in this change, see [validation](../validation/Memory-integration-v1.md):
 
 Still pending:
 
-- Full Runtime-hosted acceptance of Memory W01 to W05. The smoke covers the listed W01, W03 and W04 paths and only the index-rebuild part of W02. Still open:
-  - cancel, retry, paging and error recovery (W02)
-  - the folder picker for opening or creating a Vault (W01)
-  - one-Core-per-Vault exclusion (W03)
-  - screen reader, contrast theme and installed artifact (W05)
-- The companion features.
+- Part of Memory's W05 acceptance on Runtime's host. Since ADR-026 (2026-10-05) the smoke covers W01–W04, including the folder picker, cancel and resume, Retry with the same key, paging and one Core per Vault (see the [validation](../validation/Memory-integration-v1.md)). Still open:
+  - Narrator and a real contrast theme
+  - an actual Windows sign-in start (the installed artifact is covered by [ADR-027](027-desktop-installer.md))
+  - the tray icon and its menu, which no automated run has clicked
+- Signing the installer (the companion features shipped in ADR-026, the unsigned installer in ADR-027).
 - Any real Vault use, which needs the owner's own backup and recovery preparation under Memory's privacy gates.

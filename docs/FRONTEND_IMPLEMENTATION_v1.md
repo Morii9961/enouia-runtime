@@ -12,7 +12,7 @@ Update (2026-10-06): [Runtime Vault admission](validation/Root-admission-v1.md) 
 
 In a browser preview the frontend is a deliberately labeled **fictional demo**. Memory review/edit/supersession affects only that window's memory. Reload resets it. Original proposals and superseded revisions remain inspectable. Blank mutations and checkpoint editing are refused. Search uses literal text matching. A recorded demo capsule stays fixed after later edits; reviewing an excluded candidate only changes its next-capsule annotation. Activity events are historical fictional examples. Runtime component descriptions are documentation references, not live probes. In the native shell, `src/memory/` replaces the Memory, Context and Sessions demo surfaces (and the Vault rows on Home and Settings) with connected surfaces over the Memory adapter; the header badge states which mode is active.
 
-The Tauri shell has an independent Cargo workspace and lockfile. Its main-window capability grants minimize, toggle-maximize, close and drag, the two Memory adapter commands, and the scoped host commands for status, showing the window and exiting. It registers no filesystem, process execution, network, provider or Activity command. The CSP adds `form-action 'none'` and `base-uri 'none'`, and the prototype is frozen. Closing hides the shell to its tray, keeping Memory work running. Explicit Exit from the tray or Settings shuts the Core down and releases its Vault before exiting, without pausing the independently installed Activity producer. The native minimum inner size is 1100×700, matching the delivered desktop design. Browser previews below that size may scroll horizontally.
+The Tauri shell has an independent Cargo workspace and lockfile. Its main-window capability grants window controls, the Memory adapter, scoped shell commands and the login-startup pair. Quick Search has its own restricted capability; compatibility window commands use the same native shell implementation. See [Memory integration v1](MEMORY_INTEGRATION_v1.md#adapter-appsdesktopsrc-tauri) for the command boundary. No filesystem, process execution, network, provider or Activity plugin is registered. The CSP adds `form-action 'none'` and `base-uri 'none'`, and the prototype is frozen. Closing hides to the tray while Memory keeps running. Explicit Exit cancels or joins operations and releases the Vault before the process exits. It does not pause the independently installed Activity producer. The native minimum inner size is 1100×700; browser previews below it may scroll horizontally.
 
 ## Build and run
 
@@ -28,6 +28,7 @@ npm run preview
 # Native development; requires Cargo on PATH
 npm run desktop:dev
 # Build an embedded-assets Windows executable, without installer or deployment
+# (npm run desktop:bundle adds the current-user installer, ADR-027)
 npm run desktop:build
 # Debug executable for local acceptance
 npm run desktop:build -- --debug
@@ -55,7 +56,7 @@ On this restricted host, Vite/Tauri builds require approved execution outside th
 
 The view fixtures in `demo-data.ts` and `DemoMemory` in `demo-state.ts` are **not canonical Rust DTOs**. Never forward them as backend requests. The Memory boundary has been replaced by the typed Memory client (`src/memory/client.ts`) over the adapter (ADR-025); Activity and Runtime Inspector still keep the demo boundary until their handlers and ADR activation gates pass. Canonical IDs, source records, timestamps, durability and acknowledgements must be backend-owned. Only an acknowledged result may update the production UI; errors/disconnects must retain pending state. Proposed v2 jobs and read contracts cannot be activated by simply copying the v1 handoff mapping.
 
-Keep Activity & Usage outside Memory/Context. The delivered Activity page is an event timeline, not the future three-source usage calendar. The native tray and global hotkey/overlay are implemented with [tray lifecycle](validation/Tray-lifecycle-v1.md) and [Quick Search evidence](validation/Quick-search-v1.md). Login startup, real Provider continuation (Memory MV-7), live Activity control, migration, installer/signing and production activation remain separate integration work. This slice does not claim A3/J1 acceptance.
+Keep Activity & Usage outside Memory/Context. The delivered Activity page is an event timeline, not the future three-source usage calendar. The tray, global hotkey, Quick Search and login startup are implemented under [ADR-026](adr/026-companion-shell.md), and the unsigned current-user installer under [ADR-027](adr/027-desktop-installer.md). The [tray lifecycle](validation/Tray-lifecycle-v1.md), [Quick Search](validation/Quick-search-v1.md) and [installer](validation/Desktop-installer-v1.md) reports record their respective releases. Real Provider continuation (Memory MV-7), live Activity control, migration, signing and production activation remain separate work. This integration does not claim A3/J1 acceptance.
 
 ## Reference APIs
 

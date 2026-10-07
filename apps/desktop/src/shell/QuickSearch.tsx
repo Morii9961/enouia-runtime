@@ -38,11 +38,21 @@ export default function QuickSearch() {
     };
   }, [clear]);
 
-  const windowAction = async (command: 'shell_hide' | 'shell_show') => {
+  const windowAction = useCallback(async (command: 'shell_hide' | 'shell_show') => {
     clear();
     try { await invoke(command); }
     catch { setHostError('The window action failed. Try again.'); }
-  };
+  }, [clear]);
+  useEffect(() => {
+    // Escape belongs to this overlay even when focus has left its input.
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      void windowAction('shell_hide');
+    };
+    window.addEventListener('keydown', escape);
+    return () => window.removeEventListener('keydown', escape);
+  }, [windowAction]);
   const search = (event: FormEvent) => {
     event.preventDefault();
     if (!query.trim()) { clear(); return; }
@@ -54,8 +64,7 @@ export default function QuickSearch() {
   };
 
   return (
-    <main className="quick-search" aria-label="Quick Search" aria-busy={reads.busy}
-      onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); void windowAction('shell_hide'); } }}>
+    <main className="quick-search" aria-label="Quick Search" aria-busy={reads.busy}>
       <header><h1>Quick Search</h1><span className="mem-muted">Approved Memory · read only</span></header>
       <form onSubmit={search} role="search">
         <label className="mem-sr" htmlFor="quick-query">Search approved memories</label>

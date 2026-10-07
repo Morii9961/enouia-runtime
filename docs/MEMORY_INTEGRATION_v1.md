@@ -1,6 +1,6 @@
 # Memory integration v1
 
-Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](adr/025-enouia-memory-integration.md)). It embeds Memory's workspace Core at a pinned Git revision behind a Runtime-owned adapter. The Memory, Context and Sessions surfaces are Memory's local frontend. The Memory repository owns the domain, the contracts and every cloud stage. Its [integration handoff](https://github.com/Morii9961/enouia-memory/blob/main/docs/integration/RUNTIME.md) lists host duties, known Core behavior and the compatibility log that routes each Memory-side change here.
+Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](adr/025-enouia-memory-integration.md), companion shell [ADR-026](adr/026-companion-shell.md)). It embeds Memory's workspace Core at a pinned Git revision behind a Runtime-owned adapter. The Memory, Context and Sessions surfaces are Memory's local frontend. The Memory repository owns the domain, the contracts and every cloud stage. Its [integration handoff](https://github.com/Morii9961/enouia-memory/blob/main/docs/integration/RUNTIME.md) lists host duties, known Core behavior and the compatibility log that routes each Memory-side change here.
 
 ## Pinned revision
 
@@ -8,7 +8,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 |---|---|
 | Repository | `https://github.com/Morii9961/enouia-memory.git` (public) |
 | Revision | recorded in [docs/integration/memory-pin.json](integration/memory-pin.json), in `apps/desktop/src-tauri/Cargo.toml` and in its `Cargo.lock` |
-| Consumed crate | `enouia-memory-workspace`, plus `enouia-memory-contract` for tests only |
+| Consumed crates | `enouia-memory-workspace`, and `enouia-memory-contract` for its command catalog (long-running and write commands) |
 | Contract | workspace IPC v1 (`schemaVersion: 1`, 36 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
@@ -27,9 +27,11 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
   - Vault lifecycle admission hides and clears the overlay before its worker starts. A counted guard refuses search and overlay reopening through all queued lifecycle transitions; status and progress remain available.
   - Closing hides the window to the installed tray and retains the same Core. Tray or Settings Exit starts one asynchronous shutdown: new work is refused, status/progress remain available, import and index work are cancelled, verify/backup are joined, and the Vault and index are released before exit. A failed shutdown worker restores a recoverable window.
 - **Data root.** No root is remembered or opened by default. The owner opens or creates one through the native dialog; creating one needs the typed phrase `create new vault`. The owner can also name a root with `--memory-vault <dir>`. The root must not sit under a Git working tree, a sync folder, Program Files or Windows, and the Core refuses such roots.
-- **Runtime root admission.** `src/root_lease.rs` reserves the native directory's Windows volume/file identity before opening or creating a Vault. Cooperating Runtime processes contend on the same kernel presence object even when paths differ. The directory and presence handles remain held while locked, and are released after Core shutdown, a successful switch, or a failed switch that actually closed the old Core. Process termination releases the handles too. A failed occupied-root switch preserves the current Vault. This writes no Vault file and does not change Memory's writer lock. Unmodified Memory reference shells, CLI tools and older Runtime releases do not participate; never use them on the same Vault while Runtime holds it.
+- **Runtime root admission.** `src/root_lease.rs` reserves the native directory's Windows volume/file identity before opening or creating a Vault. Cooperating Runtime processes contend on the same kernel presence object even when paths differ. The directory and presence handles remain held while locked, and are released after Core shutdown, a successful switch, or a failed switch that actually closed the old Core. Process termination releases the handles too. A failed occupied-root switch preserves the current Vault. This writes no Vault file and does not change Memory's lock. Other clients do not share this Runtime guard; the pinned Core separately owns its cross-client Vault lock. An adapter test checks refusal and release in both directions between a Runtime host and a bare pinned Workspace on a synthetic root. That is an embedded-Core test, not a real third-party-client acceptance run.
 - **Native choices.** The host keeps at most 64 Vault picker-token/path bindings in memory for admission. The page still receives only opaque tokens. Memory remains authoritative for token expiry, consumption and creation confirmation; an evicted token asks the owner to choose again. A startup admission failure leaves canonical status at no Vault, while `shell_status.vaultAdmissionError` supplies a separate host explanation on Home, Memory and Settings.
 - **Permissions.** `build.rs` declares the two Memory commands and host window commands. `main-window` grants Memory/picker, window controls, `shell_status`, `shell_show`, `shell_search` and `shell_exit`. `quick-search` grants only scoped `memory_call`, `shell_show` (existing main), `shell_hide` (itself) and event listen/unlisten for clearing. Native identities are checked again in Rust. There is no filesystem, process execution, HTTP, dialog, opener, provider or Activity plugin permission. The CSP is `default-src 'self'` with `connect-src ipc: http://ipc.localhost`, `form-action 'none'`, `base-uri 'none'` and `freezePrototype`. WebView2 general autofill is off on both windows, and Memory inputs set `autocomplete="off"`, so the WebView profile keeps no copy of typed memory text.
+- **Companion (ADR-026).** Tray (Show, Lock Memory Vault, Exit; left click shows). Global hotkey Ctrl+Alt+M, or another letter with `--hotkey-key`, opens quick search; a conflict is reported in Settings. Opt-in login startup writes only `HKCU\…\Run\EnouiaRuntime` = `"<exe>" --autostart`, which starts in the tray with no Vault.
+- **Compatibility and OS exit.** The main window also grants `show_main`, `hide_window`, `exit_app`, `startup_status` and `startup_set`. The active `quick-search` capability grants only `show_main` and `hide_window` compatibility commands, never startup or exit. Both command families use the same tray, hotkey and shutdown implementation. Core companion status preserves `exiting` during shutdown. Windows session end and Restart Manager reach Core shutdown through `RunEvent::Exit` (ADR-027). The tray's Lock runs on a worker thread. `--autostart` starts hidden and ignores even a supplied `--memory-vault` argument.
 - **No copies.** The adapter writes no logs and persists nothing. Memory text exists only in the Vault and in the page's memory while a surface shows it.
 
 ## Frontend (`apps/desktop/src`)
@@ -44,7 +46,9 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
   - **Memory Vault.** Candidate inbox with accept, edit-and-accept or reject through the review plan and its confirmation code; remember-a-statement; the canonical explorer with literal search, history and paging; detail with evidence and source excerpts; correction proposals; delete-impact preview; forget and purge plans; Import; Vault and recovery: open/create/unlock/lock, verify, index rebuild, backup to an empty folder, restore preview.
   - **Sessions.** Branch list, transcript, unfinished turns, provisional checkpoints, asking the local Mock, and a link to the capsule behind an answer.
   - **Context.** Compile preview, the inclusion and exclusion decisions, and dispatches with the verified actual request.
-  - **Home and Settings** show the Vault state and Memory's component states from `workspace_status`. Memory's fixed `activity` row is not shown; Activity keeps its own surface. The Runtime Inspector's component descriptions stay documentation references.
+  - **Home and Settings** show the Vault state and Memory's component states from `workspace_status`. Memory's fixed `activity` row is not shown; Activity keeps its own surface. Settings also shows the quick-search hotkey state, the login-startup switch and Exit. The Runtime Inspector's component descriptions stay documentation references.
+  - **Quick search** (`src/shell/QuickSearch.tsx`, the `?view=overlay` page): scoped literal search over approved memories, with a link that opens the main window.
+- **Error text.** `workspace.vault_in_use` and the `root.*` reasons (Memory ADR-MEM-46) read as owner text; `vault_in_use` offers no Retry.
 - **Rendering.** Memory and source text render as plain text nodes only. There is no Markdown or HTML rendering and no link navigation. Source excerpts are labelled as data, not instructions.
 - **Session timing.** Only the latest detail read changes selection and restores that branch's question/checkpoint drafts. An outstanding write blocks branch switching; acknowledgement clears only the submitted draft field. See [native draft/timing evidence](validation/Session-drafts-v1.md).
 - **Session writes.** Creating, asking and saving checkpoints show waiting feedback. Submitting a question clears the preceding answer inspector; Retry retains its request/key and leaves any subsequently edited draft intact. See [write-feedback and retry evidence](validation/Session-write-feedback-v1.md).
@@ -76,7 +80,7 @@ cd apps/desktop/src-tauri
 cargo fetch --locked                  # once per machine, cache or pin
 $env:CARGO_NET_OFFLINE = 'true'
 cargo fmt -- --check
-cargo test --locked                   # adapter unit tests and the pinned-Core rendered-field tests
+cargo test --locked                   # adapter and companion unit tests, pinned-Core rendered-field tests
 cargo clippy --locked --all-targets -- -D warnings
 cd ..
 npm ci
@@ -84,6 +88,7 @@ npm run check
 npm test
 npm run build
 npm run desktop:build                 # embedded-assets executable, no installer
+npm run desktop:bundle                # the same plus the current-user NSIS installer (ADR-027)
 cd src-tauri
 cargo metadata --offline --locked --format-version 1 > target/desktop-metadata.json
 node ../../../scripts/check-domain-boundaries.mjs target/desktop-metadata.json --self-test
@@ -130,12 +135,15 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 `--native-window-only` resizes only its own main HWND at the existing display DPI, checks titlebar/external maximize and restore, minimize/show, stale state reads, retained unsent session draft and denied overlay access to the new read permission. The import argument is unused. See [native window evidence](validation/Native-window-v1.md); it does not change system display settings or prove other monitors/DPI or mouse-drag minimum enforcement.
 
 `--forget-only` approves two synthetic fixtures, checks deletion-impact preview and cancellation of a real permanent-purge plan, then confirms a separate logical-forget plan. It checks retained candidate feedback/count, focus, the refreshed memory list and preserved source/second memory. No permanent purge is executed; the import argument is unused. See [deletion feedback evidence](validation/Forget-plan-feedback-v1.md).
+The combined default smoke retains the main branch's 3,000-conversation cancellation/resume and paging/retry checks. Login startup is read-only in this harness; Rust tests exercise the registry round trip on an isolated test key. Autostart ignores a supplied Vault, compatibility commands share the shell, and a cancelled session end keeps the owned process alive. Restart Manager registers only that spawned process's PID and creation time, never the executable path, before testing the OS exit/shutdown route. It does not install, upgrade or uninstall an owner's application.
+
+The combined release passes 101/101 default native checks plus the focused confirmation, stale-plan, picker/backup and integrity probes. See [2026-10-07 stack integration evidence](validation/Desktop-stack-integration-2026-10-07.md) for the preserved pin, executable/installer hashes, exact checks and installed-artifact limits.
 
 ## Bumping the pin
 
 1. Read the new rows in Memory's compatibility log, `docs/integration/RUNTIME.md`. Review `git log <old>..<new> -- crates contracts apps/workspace` in the Memory repository.
 2. Set `rev` for both Memory dependencies in `apps/desktop/src-tauri/Cargo.toml` to the new full SHA. If Memory changed an exact workspace pin (for example `serde_json`), align the desktop's own exact pin with it.
-3. Run `cargo update -p enouia-memory-workspace -p enouia-memory-contract` online. Check that the lockfile diff touches only Memory's sources and whatever its new manifests require.
+3. In `Cargo.lock`, replace the old revision with the new one on the Memory `source` lines only. Then run `cargo fetch --locked` online and `cargo metadata --offline --locked`. If Memory's manifests changed its dependencies, `--locked` fails. Only then run `cargo update -p enouia-memory-workspace -p enouia-memory-contract`, and revert any re-resolution of unrelated packages. That command can also move sibling edges (for example `syn`, `windows-sys`).
 4. Update `docs/integration/memory-pin.json`: the revision, the Memory surface aggregate, `contract` (schema version and command count) and the date.
 5. Adapt the adapter and the surfaces to what the log asks for. Keep `WRITES` equal to the contract.
 6. Fetch the new revision into a Memory checkout. Then run every check above, the smoke test and `node scripts/check-memory-integration.mjs --memory-checkout <dir>`. The checker reads the surface manifest committed at the pinned revision, whatever the checkout's HEAD is. Record the result in a validation note.
@@ -152,10 +160,12 @@ Never commit a path dependency, branch, `[patch]` or a lockfile produced by a lo
 | Tray (show, lock, exit), close-to-tray | Implemented; [local lifecycle evidence](validation/Tray-lifecycle-v1.md). Physical tray menu interaction and shutdown during a long verify/backup remain unverified. |
 | Global hotkey and quick-search overlay (`HostSurface::QuickSearch`) | Implemented; [local native evidence](validation/Quick-search-v1.md), including OS input, conflict, scoped refusals, clear-on-hide and exit/re-registration |
 | One Vault per cooperating Runtime host | Implemented; [root admission evidence](validation/Root-admission-v1.md). Other Memory clients do not share this guard. |
-| Opt-in login startup, current-user installer, upgrade and downgrade rules | Pending (`bundle.active` is false) |
-| Runtime-hosted W01–W05 acceptance | Partial. The smoke covers selected W01, W03 and W04 paths, index rebuild, import cancellation/resume, paging/stale-cursor refresh, and controlled read-error retry (W02). Still pending: real storage-error recovery and broader cancellation/concurrent-page timing (W02), cross-client ownership (W03), and Narrator, contrast theme and installed artifact (W05). |
+| Opt-in login startup | Implemented (ADR-026) |
+| Current-user installer, upgrade and downgrade rules | Implemented ([ADR-027](adr/027-desktop-installer.md)): `npm run desktop:bundle`, unsigned |
+| Code signing of the installer and executable | Pending |
+| Runtime-hosted W01–W05 acceptance | Partial. Synthetic smoke and focused reports cover selected review, import cancellation/resume, paging, retry, sessions/context, lock, close/exit and window-scope paths. The pinned Core additionally owns cross-client Vault locking; Runtime's directory guard is an extra cooperating-host boundary. Historical installed-artifact drills are in the ADR-027 report. Still pending: broader real storage-error recovery, personal-data/provider acceptance, Narrator, a real contrast theme, actual sign-in startup and physical tray-menu interaction. |
 
-Until each pending row ships, Memory's reference shell provides it, but never against the same Vault while Runtime has it open.
+Memory's reference shell stays Memory's acceptance harness. Use Runtime as the client; the Core refuses a second embedded Core on the same Vault.
 
 ## Boundaries
 

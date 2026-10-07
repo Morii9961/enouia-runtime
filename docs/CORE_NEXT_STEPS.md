@@ -1,6 +1,6 @@
 # Core continuation baseline — updated 2026-10-02
 
-Superseded by [ADR-025](adr/025-enouia-memory-integration.md) on 2026-10-04. The Memory domain's next steps are in the Enouia Memory repository. Runtime's next Memory-related work is the pending parity rows in [Memory integration v1](MEMORY_INTEGRATION_v1.md). The text below is kept as history.
+Superseded by [ADR-025](adr/025-enouia-memory-integration.md) on 2026-10-04. The Memory domain's next steps are in the Enouia Memory repository. Runtime's next Memory-related work is the pending parity rows in [Memory integration v1](MEMORY_INTEGRATION_v1.md) (signing, remaining W05 acceptance). The text below is kept as history.
 
 The code baseline through `275924d` is committed/pushed. Architecture v0.3 and activated ADRs remain the authority. This note does not sign off full A1/A2, Activity B4/B5 or production activation.
 

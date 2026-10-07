@@ -1,0 +1,51 @@
+; Enouia Runtime installer hooks (ADR-027), ported from Enouia Memory's
+; reference installer. This installer owns application files, never a
+; user-selected Vault or backup, the WebView2 profile or Activity data.
+; Startup is opt-in inside the app. Uninstall removes only its exact command,
+; and only once the app files are gone: after the running-app check (which a
+; Cancel aborts) and never in update mode, as upstream.
+; A file that cannot be replaced (for example an executable still locked
+; just after it was closed) fails the install instead of being skipped. With
+; NSIS's default, a silent install skipped it, exited 0 and registered the
+; new version over the old files. Nothing is registered before the copy.
+AllowSkipFiles off
+!ifndef ENOUIA_STARTUP_RUN_KEY
+  !define ENOUIA_STARTUP_RUN_KEY "Software\Microsoft\Windows\CurrentVersion\Run"
+!endif
+; Tauri CLI 2.12.0's silent downgrade check reads $R0 populated by the
+; reinstall page, which /S skips. Compare the registered version afresh
+; before copying any application files; do not depend on page state.
+; A running Runtime is then closed by the template's Restart Manager check;
+; its WM_ENDSESSION ends the event loop through RunEvent::Exit, which runs
+; the Memory shutdown.
+!macro NSIS_HOOK_PREINSTALL
+  Push $R0
+  Push $R1
+  ReadRegStr $R0 HKCU "${UNINSTKEY}" "DisplayVersion"
+  ${If} $R0 != ""
+    ; The pinned plugin treats malformed versions as older than valid ones.
+    ; A known-invalid first argument returns -1 only if the second is valid.
+    nsis_tauri_utils::SemverCompare "enouia-invalid-version" $R0
+    Pop $R1
+    ${If} $R1 != -1
+      SetErrorLevel 1
+      Abort "The installed version is unrecognized and must not be replaced."
+    ${EndIf}
+    nsis_tauri_utils::SemverCompare "${VERSION}" $R0
+    Pop $R1
+    ${If} $R1 != 0
+    ${AndIf} $R1 != 1
+      SetErrorLevel 1
+      Abort "A newer or unrecognized installed version must not be replaced."
+    ${EndIf}
+  ${EndIf}
+  Pop $R1
+  Pop $R0
+!macroend
+!macro NSIS_HOOK_POSTUNINSTALL
+  ${If} $UpdateMode <> 1
+    ReadRegStr $R0 HKCU "${ENOUIA_STARTUP_RUN_KEY}" "EnouiaRuntime"
+    StrCmpS $R0 '$\"$INSTDIR\enouia-desktop.exe$\" --autostart' 0 +2
+      DeleteRegValue HKCU "${ENOUIA_STARTUP_RUN_KEY}" "EnouiaRuntime"
+  ${EndIf}
+!macroend

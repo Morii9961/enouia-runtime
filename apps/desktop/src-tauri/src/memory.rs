@@ -36,6 +36,7 @@ pub struct MemoryHost {
     root_lease: Arc<Mutex<Option<RootLease>>>,
     roots: Arc<Mutex<VecDeque<(String, PathBuf)>>>,
     admission_error: Arc<Mutex<Option<&'static str>>>,
+    companion: Arc<Mutex<Value>>,
 }
 
 impl MemoryHost {
@@ -48,12 +49,21 @@ impl MemoryHost {
             root_lease: Arc::new(Mutex::new(None)),
             roots: Arc::new(Mutex::new(VecDeque::new())),
             admission_error: Arc::new(Mutex::new(None)),
+            companion: Arc::new(Mutex::new(
+                json!({"tray": "absent", "hotkey": {"state": "absent"}, "overlay": "absent"}),
+            )),
         }
     }
 
-    /// True for the first close request only, so one shutdown runs.
+    /// True for the first close request only, so one shutdown runs. From
+    /// then on status reports `companion.exiting`, so every window can say
+    /// that Memory is finishing its operations.
     pub fn begin_close(&self) -> bool {
-        !self.closing.swap(true, Ordering::SeqCst)
+        let first = !self.closing.swap(true, Ordering::SeqCst);
+        if first {
+            self.publish_companion();
+        }
+        first
     }
 
     pub fn is_closing(&self) -> bool {
@@ -62,6 +72,7 @@ impl MemoryHost {
 
     pub fn close_failed(&self) {
         self.closing.store(false, Ordering::SeqCst);
+        self.publish_companion();
     }
 
     pub fn lifecycle_busy(&self) -> bool {
@@ -185,10 +196,6 @@ impl MemoryHost {
         }))
     }
 
-    pub fn set_companion(&self, status: Value) {
-        self.core.set_companion(status);
-    }
-
     /// Open a root named on the command line by the owner. A rejected root
     /// leaves no Vault open; the page shows that state.
     pub fn open_root(&self, root: &Path) {
@@ -225,6 +232,30 @@ impl MemoryHost {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clear();
+    }
+
+    /// What the shell provides (tray, quick search, hotkey), echoed in status.
+    pub fn set_companion(&self, value: Value) {
+        *self
+            .companion
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = value;
+        self.publish_companion();
+    }
+
+    fn publish_companion(&self) {
+        // Held while publishing, so a late update cannot drop `exiting`.
+        let companion = self
+            .companion
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let mut value = companion.clone();
+        if self.closing.load(Ordering::SeqCst)
+            && let Some(fields) = value.as_object_mut()
+        {
+            fields.insert("exiting".to_owned(), json!(true));
+        }
+        self.core.set_companion(value);
     }
 }
 
@@ -494,6 +525,34 @@ mod tests {
         other.shutdown();
     }
 
+    #[cfg(windows)]
+    #[test]
+    fn pinned_core_ownership_and_runtime_directory_admission_compose() {
+        let roots = Roots::new();
+        let host = MemoryHost::new();
+        roots.create(&host, "a");
+        host.shutdown();
+        // This Core has no Runtime directory guard, like Memory's own client.
+        let external = Workspace::new(Config::default());
+        external.open_root(&roots.0.join("a")).unwrap();
+        host.open_root(&roots.0.join("a"));
+        assert_eq!(
+            host.forward(&status_request()).unwrap()["result"]["vault"]["state"],
+            "none"
+        );
+        assert!(host.root_lease.lock().unwrap().is_none());
+        external.shutdown();
+        host.open_root(&roots.0.join("a"));
+        assert_eq!(
+            host.forward(&status_request()).unwrap()["result"]["vault"]["state"],
+            "open"
+        );
+        assert!(external.open_root(&roots.0.join("a")).is_err());
+        host.shutdown();
+        external.open_root(&roots.0.join("a")).unwrap();
+        external.shutdown();
+    }
+
     #[test]
     fn tray_workers_share_one_core_gate_and_closing_latch() {
         let host = MemoryHost::new();
@@ -574,6 +633,7 @@ mod tests {
         let spoof = json!({"command": "remember", "window": "main", "surface": "workspace"});
         assert!(!surface("overlay").is_some_and(|s| s.allows(&spoof)));
         assert!(surface("main").is_some_and(|s| s.allows(&spoof)));
+        assert!(surface("overlay").is_some_and(|s| s.allows(&json!({"command": "memory_search"}))));
     }
 
     #[test]
@@ -635,6 +695,30 @@ mod tests {
         let host = MemoryHost::new();
         assert!(host.begin_close());
         assert!(!host.begin_close());
+    }
+
+    #[test]
+    fn status_reports_an_exit_in_progress() {
+        let host = MemoryHost::new();
+        let companion = || {
+            host.forward(&json!({
+                "schemaVersion": 1, "requestId": "req_00000000-0000-4000-8000-000000000002",
+                "command": "workspace_status", "idempotencyKey": null, "arguments": {},
+            }))
+            .unwrap()["result"]["companion"]
+                .clone()
+        };
+        host.set_companion(json!({"tray": "present", "hotkey": {"state": "registered"}}));
+        assert_eq!(companion()["exiting"], Value::Null);
+        assert!(host.begin_close());
+        assert_eq!(companion()["exiting"], true);
+        // A late hotkey report keeps the exit visible.
+        host.set_companion(json!({"tray": "present", "hotkey": {"state": "conflict"}}));
+        assert_eq!(companion()["exiting"], true);
+        assert_eq!(companion()["hotkey"]["state"], "conflict");
+        host.close_failed();
+        assert_eq!(companion()["exiting"], Value::Null);
+        assert_eq!(companion()["hotkey"]["state"], "conflict");
     }
 
     #[test]

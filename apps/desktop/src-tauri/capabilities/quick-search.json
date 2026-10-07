@@ -2,5 +2,5 @@
   "identifier": "quick-search",
   "description": "Read-only QuickSearch scope; hide itself or show main. No picker, writes, lifecycle, exit, file or network access.",
   "windows": ["overlay"],
-  "permissions": ["allow-memory-call", "allow-shell-hide", "allow-shell-show", "core:event:allow-listen", "core:event:allow-unlisten"]
+  "permissions": ["allow-memory-call", "allow-shell-hide", "allow-shell-show", "allow-show-main", "allow-hide-window", "core:event:allow-listen", "core:event:allow-unlisten"]
 }
