@@ -332,10 +332,10 @@ fn read(install: &Install, command: &str) -> Value {
 }
 
 /// Registration and enablement of the package's own task, read-only.
-fn query_task(install: &Install) -> Value {
+fn query_task(install: &Install) -> (Value, Value) {
     let system = std::env::var_os("SystemRoot").map(PathBuf::from);
     let Some(schtasks) = system.map(|root| root.join("System32").join("schtasks.exe")) else {
-        return Value::Null;
+        return (Value::Null, Value::Null);
     };
     let mut process = Command::new(schtasks);
     process
@@ -343,14 +343,82 @@ fn query_task(install: &Install) -> Value {
         .arg(format!("\\{}", install.task_name))
         .arg("/XML");
     let Ok((code, bytes)) = bounded_output(process, READ_TIMEOUT) else {
-        return Value::Null;
+        return (Value::Null, Value::Null);
     };
     if code != 0 {
         // A failed query can mean absence or access denied. Neither proves
         // registration state, and localized stderr never becomes a DTO.
-        return Value::Null;
+        return (Value::Null, Value::Null);
     }
-    task_state(&decode(&bytes), &install.marker)
+    let task = task_state(&decode(&bytes), &install.marker);
+    let next = if task["registered"] == true && task["enabled"] == true {
+        query_next_trigger(install)
+    } else {
+        Value::Null
+    };
+    (task, next)
+}
+
+/// NextRunTime is an observation, not a prediction from the XML trigger.
+/// Recheck ownership/enablement in the same COM read. Individually disabled
+/// triggers can influence Windows' result, so any such trigger makes it unknown.
+fn query_next_trigger(install: &Install) -> Value {
+    let Some(system) = std::env::var_os("SystemRoot").map(PathBuf::from) else {
+        return Value::Null;
+    };
+    // Both substitutions are allowlisted by load_install, with no quote or
+    // shell metacharacters. Use Windows' own PowerShell, never a PATH lookup.
+    let script = format!(
+        r#"$ErrorActionPreference='Stop'; [Console]::OutputEncoding=New-Object System.Text.UTF8Encoding($false)
+try {{
+ $service=New-Object -ComObject 'Schedule.Service'; $service.Connect()
+ $task=$service.GetFolder('\').GetTask('{name}')
+ if ($task.Definition.RegistrationInfo.Source -cne '{marker}' -or -not $task.Enabled) {{ 'null'; exit 0 }}
+ foreach ($trigger in $task.Definition.Triggers) {{ if (-not $trigger.Enabled) {{ 'null'; exit 0 }} }}
+ $next=[datetime]$task.NextRunTime
+ if ($next -le [datetime]::Now) {{ 'null'; exit 0 }}
+ $next.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ',[Globalization.CultureInfo]::InvariantCulture) | ConvertTo-Json -Compress
+}} catch {{ 'null' }}"#,
+        name = install.task_name,
+        marker = install.marker
+    );
+    let mut process = Command::new(system.join("System32/WindowsPowerShell/v1.0/powershell.exe"));
+    process.args([
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        &script,
+    ]);
+    match bounded_output(process, READ_TIMEOUT) {
+        Ok((0, bytes)) => serde_json::from_slice::<Value>(&bytes)
+            .ok()
+            .filter(valid_next_trigger)
+            .unwrap_or(Value::Null),
+        _ => Value::Null,
+    }
+}
+
+fn valid_next_trigger(value: &Value) -> bool {
+    let Some(text) = value.as_str() else {
+        return false;
+    };
+    let b = text.as_bytes();
+    b.len() == 24
+        && text.is_ascii()
+        && real_date(&text[..10])
+        && &text[..4] >= "1601"
+        && b[10] == b'T'
+        && b[13] == b':'
+        && b[16] == b':'
+        && b[19] == b'.'
+        && b[23] == b'Z'
+        && [11..13, 14..16, 17..19, 20..23]
+            .iter()
+            .all(|range| b[range.clone()].iter().all(u8::is_ascii_digit))
+        && &text[11..13] < "24"
+        && &text[14..16] < "60"
+        && &text[17..19] < "60"
 }
 
 fn decode(bytes: &[u8]) -> String {
@@ -498,7 +566,7 @@ fn days(preview: &Value, source: &str, from: &str, to: &str) -> Value {
     json!({"schemaVersion": 1, "kind": "activity_days", "source": source, "days": days})
 }
 
-fn add_schedule(mut overview: Value, task: Value, running: bool) -> Value {
+fn add_schedule(mut overview: Value, task: Value, next: Value, running: bool) -> Value {
     if overview.get("kind").and_then(Value::as_str) != Some("activity_overview") {
         return overview;
     }
@@ -512,6 +580,7 @@ fn add_schedule(mut overview: Value, task: Value, running: bool) -> Value {
         schedule["mode"] = json!("running");
     }
     schedule["task"] = task;
+    schedule["nextTriggerAt"] = next;
     let mode = schedule["mode"].clone();
     let observed = overview["generatedAt"].clone();
     if let Some(health) = overview["health"].as_array_mut() {
@@ -651,7 +720,8 @@ fn handle(host: &ActivityHost, app: &AppHandle, request: &Value) -> Value {
                 .unwrap_or_else(PoisonError::into_inner)
                 .active
                 .is_some();
-            add_schedule(read(&install, "overview"), query_task(&install), running)
+            let (task, next) = query_task(&install);
+            add_schedule(read(&install, "overview"), task, next, running)
         }
         Request::Preview => read(&install, "preview"),
         Request::Days { source, from, to } => days(&read(&install, "preview"), &source, &from, &to),
@@ -948,10 +1018,37 @@ mod tests {
         let result = add_schedule(
             overview,
             json!({"registered": true, "enabled": false}),
+            Value::Null,
             true,
         );
         assert_eq!(result["schedule"]["mode"], "running");
         assert_eq!(result["health"][0]["id"], "activity_scheduler");
         assert_eq!(result["health"][0]["state"], "degraded");
+    }
+
+    #[test]
+    fn next_trigger_accepts_only_real_canonical_utc_dates() {
+        assert!(valid_next_trigger(&json!("2028-02-29T01:02:03.000Z")));
+        for value in [
+            Value::Null,
+            json!(42),
+            json!("2026-02-29T01:02:03.000Z"),
+            json!("2026-10-08T24:02:03.000Z"),
+            json!("2026-10-08T01:60:03.000Z"),
+            json!("2026-10-08T01:02:60.000Z"),
+            json!("2026-10-08T01:02:03+08:00"),
+            json!("1600-10-08T01:02:03.000Z"),
+            json!("中202-10-08T01:02:03.000Z"),
+        ] {
+            assert!(!valid_next_trigger(&value), "{value}");
+        }
+        let next = json!("2026-10-09T01:02:03.000Z");
+        let result = add_schedule(
+            json!({"kind":"activity_overview","schedule":{},"health":[]}),
+            json!({"registered":true,"enabled":true}),
+            next.clone(),
+            false,
+        );
+        assert_eq!(result["schedule"]["nextTriggerAt"], next);
     }
 }

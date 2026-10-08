@@ -178,6 +178,13 @@
       "sha256": "f35309eaea38c406c33e73579100057cf3272768c613b97ebbb37c07e435694f",
       "state": "passed",
       "selectorCount": 27
+    },
+    {
+      "id": "next_trigger",
+      "path": "docs/validation/Activity-unified/next-trigger-proof.json",
+      "sha256": "c3975c548d369ce490dc4f2a996e9488d796c1aa183fe964f235e8fd359769e0",
+      "state": "passed",
+      "selectorCount": 23
     }
   ],
   "cases": [
@@ -760,6 +767,34 @@
             "static reads leave all publisher files unchanged",
             "static reads leave installed package and Activity data unchanged",
             "second owned static worker exits cleanly"
+          ]
+        },
+        {
+          "report": "next_trigger",
+          "selectors": [
+            "disabled:S.synthetic_package_connects",
+            "disabled:S.actual_task_is_registered",
+            "disabled:S.actual_task_enablement",
+            "disabled:S.scheduler_health_matches_task",
+            "disabled:S.actual_state_reaches_page",
+            "disabled:S.producer_pause_is_separate",
+            "disabled:S.next_trigger_matches_enablement",
+            "disabled:S.scheduler_control_requests_are_refused",
+            "disabled:S.reads_keep_archive_and_task_unchanged",
+            "disabled:S.package_paths_stay_private",
+            "enabled:S.synthetic_package_connects",
+            "enabled:S.actual_task_is_registered",
+            "enabled:S.actual_task_enablement",
+            "enabled:S.scheduler_health_matches_task",
+            "enabled:S.actual_state_reaches_page",
+            "enabled:S.producer_pause_is_separate",
+            "enabled:S.next_trigger_matches_enablement",
+            "enabled:S.scheduler_control_requests_are_refused",
+            "enabled:S.reads_keep_archive_and_task_unchanged",
+            "enabled:S.package_paths_stay_private",
+            "task:independent_next_time_matches",
+            "task:closed_ui_exact_pending_retained",
+            "task:ownership_checked_removal"
           ]
         }
       ],

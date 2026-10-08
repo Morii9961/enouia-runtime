@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 25);
+  assert.equal(reports.size, 26);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -370,6 +370,40 @@ function validate(index) {
   assert.notEqual(fullDays.desktopSha256,fullDays.beforeDesktopSha256);
   for(const digest of [fullDays.harnessSha256,fullDays.desktopSha256,fullDays.installerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   assert(fullDays.limitations.includes('No full Windows keyboard-only dialog, Narrator, personal history or production acceptance is claimed.'));
+  const nextTrigger=reports.get('next_trigger').report;
+  assert.equal(nextTrigger.scope,'native_owned_task_next_trigger');
+  const nextRaw=readLinked(nextTrigger.rawReport,nextTrigger.rawReportSha256);
+  assert.equal(nextRaw.state,'passed');
+  assert.equal(nextRaw.scheduler,'real_unique_sandbox_task');
+  assert.equal(nextRaw.checks,65);
+  assert.equal(nextTrigger.checkCount,65);
+  assert.equal(nextTrigger.processExitCode,0);
+  assert.deepEqual(nextRaw.nativeSchedulerUi.map(r=>r.taskEnabled),[false,true]);
+  for(const [n,run] of nextRaw.nativeSchedulerUi.entries()) {
+    const native=readLinked(nextTrigger.nativeReports[n].path,nextTrigger.nativeReports[n].sha256);
+    assert.equal(native.summary,'10/10');
+    assert.equal(run.summary,native.summary);
+    assert.deepEqual(run.checks,native.checks);
+    assert.equal(native.checks.length,10);
+    assert(native.checks.every(c=>c.ok===true));
+    const time=JSON.parse(native.checks.find(c=>c.id==='S.next_trigger_matches_enablement').detail);
+    assert.equal(time.nextTriggerAt,run.windowsNextTriggerAt);
+    if(run.taskEnabled) assert.match(time.nextTriggerAt,/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+    else assert.equal(time.nextTriggerAt,null);
+    assert.equal(run.desktopSha256,nextTrigger.desktopSha256);
+  }
+  const nextBefore=readLinked(nextTrigger.beforeReport,nextTrigger.beforeReportSha256);
+  assert.equal(nextBefore.summary,'9/10');
+  assert.deepEqual(nextBefore.checks.filter(c=>!c.ok).map(c=>c.id),['S.next_trigger_matches_enablement']);
+  assert.deepEqual(nextTrigger.checks,[...nextRaw.nativeSchedulerUi.flatMap(r=>r.checks.map(c=>`${r.taskEnabled?'enabled':'disabled'}:${c.id}`)),'task:independent_next_time_matches','task:closed_ui_exact_pending_retained','task:ownership_checked_removal']);
+  assert.equal(nextRaw.closedUiSync.desktopClosed,true);
+  assert.equal(nextRaw.closedUiSync.deliveryEnabled,false);
+  assert.equal(nextRaw.closedUiSync.pendingRetryByteIdentical,true);
+  assert.deepEqual(nextRaw.closedUiSync.taskResults,[4,4]);
+  assert.equal(nextTrigger.beforeDesktopSha256,fullDays.desktopSha256);
+  assert.equal(nextTrigger.memoryRevision,isolation.memoryRevision);
+  assert.equal(nextTrigger.runnerSha256,guidance.runnerSha256);
+  for(const digest of [nextTrigger.desktopSha256,nextTrigger.installerSha256,nextTrigger.harnessSha256,nextTrigger.schedulerHarnessSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -402,10 +436,11 @@ function validate(index) {
   assert(guidance.checks.every(id=>linkedTo(c17,'index_guidance').includes(id)),'C17 must retain actual recovery guidance and search recovery evidence');
   assert(mutations.checks.every(id=>linkedTo(c17,'rebuild_mutations').includes(id)),'C17 must retain actual producer mutation bracket and canonical/Activity preservation evidence');
   assert(staticRead.checks.every(id=>linkedTo(c17,'static_read').includes(id)),'C17 must retain copied-author removal, independent static restart and unchanged package/data evidence');
+  assert(nextTrigger.checks.every(id=>linkedTo(c17,'next_trigger').includes(id)),'C17 must retain observed task time and read-only scheduler evidence');
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 15, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 16, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -436,7 +471,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_mutations'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'static_read'));
   reject(x => x.cases.find(c => c.id === 'C18').evidence = x.cases.find(c => c.id === 'C18').evidence.filter(e => e.report !== 'full_days'));
-  result.negativeChecks = 24;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'next_trigger'));
+  result.negativeChecks = 25;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

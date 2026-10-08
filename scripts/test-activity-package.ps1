@@ -45,7 +45,12 @@ function Invoke-NativeSchedulerRead([bool] $Enabled) {
     Assert ((TreeHash $state) -eq $before) 'Native schedule reads changed Activity files.'
     $registered = Get-ActivityPackageStatus $install
     Assert ($registered.taskRegistered -and $registered.taskState -eq $(if ($Enabled) { 'Ready' } else { 'Disabled' })) 'Native schedule reads changed the actual task.'
-    return @{ taskEnabled = $Enabled; summary = $ui.summary; checks = $ui.checks; desktopSha256 = (Get-FileHash -LiteralPath $desktop -Algorithm SHA256).Hash.ToLowerInvariant() }
+    $jsonOptions = @{ AsHashtable = $true }
+    if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) { $jsonOptions.DateKind = 'String' }
+    $next = ($ui.checks | Where-Object id -eq 'S.next_trigger_matches_enablement').detail | ConvertFrom-Json @jsonOptions
+    $windowsNext = (Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\').NextRunTime
+    Assert $(if ($Enabled) { [datetime]::ParseExact($next.nextTriggerAt, 'yyyy-MM-ddTHH:mm:ss.fffZ', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal -bor [Globalization.DateTimeStyles]::AdjustToUniversal) -eq $windowsNext.ToUniversalTime() } else { $null -eq $next.nextTriggerAt }) 'Native next trigger disagrees with independent Windows task-info read.'
+    return @{ taskEnabled = $Enabled; summary = $ui.summary; checks = $ui.checks; windowsNextTriggerAt = $(if ($Enabled) { $windowsNext.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ') } else { $null }); desktopSha256 = (Get-FileHash -LiteralPath $desktop -Algorithm SHA256).Hash.ToLowerInvariant() }
 }
 try {
     [void][IO.Directory]::CreateDirectory($base)

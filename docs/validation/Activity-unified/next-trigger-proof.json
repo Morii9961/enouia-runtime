@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "native_owned_task_next_trigger",
+  "sourceBaseRevision": "81570f6",
+  "checks": [
+    "disabled:S.synthetic_package_connects",
+    "disabled:S.actual_task_is_registered",
+    "disabled:S.actual_task_enablement",
+    "disabled:S.scheduler_health_matches_task",
+    "disabled:S.actual_state_reaches_page",
+    "disabled:S.producer_pause_is_separate",
+    "disabled:S.next_trigger_matches_enablement",
+    "disabled:S.scheduler_control_requests_are_refused",
+    "disabled:S.reads_keep_archive_and_task_unchanged",
+    "disabled:S.package_paths_stay_private",
+    "enabled:S.synthetic_package_connects",
+    "enabled:S.actual_task_is_registered",
+    "enabled:S.actual_task_enablement",
+    "enabled:S.scheduler_health_matches_task",
+    "enabled:S.actual_state_reaches_page",
+    "enabled:S.producer_pause_is_separate",
+    "enabled:S.next_trigger_matches_enablement",
+    "enabled:S.scheduler_control_requests_are_refused",
+    "enabled:S.reads_keep_archive_and_task_unchanged",
+    "enabled:S.package_paths_stay_private",
+    "task:independent_next_time_matches",
+    "task:closed_ui_exact_pending_retained",
+    "task:ownership_checked_removal"
+  ],
+  "rawReport": "docs/validation/Activity-unified/next-trigger-live.json",
+  "rawReportSha256": "154cadaee42f8d3df6d62573c606c2a8b19158df52602ceb68dfe6c8fa1ff93a",
+  "checkCount": 65,
+  "processExitCode": 0,
+  "beforeReport": "docs/validation/Activity-unified/next-trigger-before.json",
+  "beforeReportSha256": "565a842bd7d33477d8e75ced805f9ed44667a32f1fb668200e05453fa358ec45",
+  "beforeSummary": "9/10",
+  "beforeDesktopSha256": "83a3a1c224289ac770b73c5c70667f91afb0b6ef5e238c42b81593fe5e22925e",
+  "nativeReports": [
+    {
+      "path": "docs/validation/Activity-unified/next-trigger-disabled.json",
+      "sha256": "26dce07cd4a10f1e27b00b9be69f560fc5b04f4748a1be888c1d4874d712893b",
+      "summary": "10/10"
+    },
+    {
+      "path": "docs/validation/Activity-unified/next-trigger-enabled.json",
+      "sha256": "8a24909413f55d1dbef964547a51a985912cc43fcf275898d1205f41988904c7",
+      "summary": "10/10"
+    }
+  ],
+  "desktopSha256": "9c41dde375bd6b8e0debc32bebbfe57bd15531ca15b4c2c0a3235294ab588e9c",
+  "installerSha256": "1e7aa400841293b2e58765189de2f74c8e54d9b6e040140b5d3e5cb8557394b5",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "harnessSha256": "9c2ac8054c105701683835ded5df154394e464e8234644b779abcf93a98cf4fe",
+  "schedulerHarnessSha256": "33431100c9854982ac57937a641cc33d560d6e1fce5c79177c9b7b120ded0c4a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only an independently owned GUID synthetic task is enabled/invoked/removed; delivery remains disabled.",
+    "A future Windows NextRunTime is an observation, not proof that an elapsed hourly/logon trigger fires or that collection/publication succeeds.",
+    "Native folder selection is assisted; complete Windows keyboard/Narrator acceptance remains unverified.",
+    "The unsigned installer is built and statically checked, not installed, signed or published."
+  ]
+}

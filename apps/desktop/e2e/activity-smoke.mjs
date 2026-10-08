@@ -283,7 +283,10 @@ async function taskReadMain(enabled) {
   check('S.scheduler_health_matches_task', o.health.some(h => h.id === 'activity_scheduler' && h.state === (enabled ? 'healthy' : 'degraded')));
   check('S.actual_state_reaches_page', await s.evaluate(has(`Registered · ${enabled ? 'enabled' : 'disabled'}`)));
   check('S.producer_pause_is_separate', o.producer.paused === true && await disabled(s, 'Run now'));
-  check('S.unobserved_next_trigger_stays_null', o.schedule.nextTriggerAt === null && await s.evaluate(has('Not observed')));
+  const nextDisplay=await s.evaluate("[...document.querySelectorAll('dt')].find(e=>e.textContent==='Next trigger')?.nextElementSibling?.textContent");
+  check('S.next_trigger_matches_enablement', enabled
+    ? typeof o.schedule.nextTriggerAt==='string' && Date.parse(o.schedule.nextTriggerAt)>Date.now() && nextDisplay!=='Not observed'
+    : o.schedule.nextTriggerAt===null && nextDisplay==='Not observed',JSON.stringify({nextTriggerAt:o.schedule.nextTriggerAt,display:nextDisplay}));
   const refused = await Promise.all(['activity_enable_task', 'activity_disable_task'].map(operation => call(s, { operation })));
   check('S.scheduler_control_requests_are_refused', refused.every(r => r.kind === 'activity_error' && r.error.code === 'contract_invalid'));
   const after = await overview(s);
