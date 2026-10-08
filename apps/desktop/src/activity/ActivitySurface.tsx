@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   SOURCES, activity, describe, describeSetup, retryable,
-  type Overview, type Preview, type RunStatus, type Setup, type SourceId,
+  type Day, type Overview, type Preview, type RunStatus, type Setup, type SourceId,
 } from "./client";
 import { DELIVERY, FRESHNESS, LABELS, RUN_STATES, STAGES, age, calendar, dateInShanghai, exact, requiresRunConfirmation } from "./model";
 
@@ -42,6 +42,34 @@ export function Gate({ setup, onSelect, error, busy = false }: { setup: Setup | 
   );
 }
 
+export function RecordedDays({ id, days, total }: { id: SourceId; days: Day[]; total: number }) {
+  const [allDays, setAllDays] = useState(false);
+  const shown = allDays ? days.slice().reverse() : days.slice(-14).reverse();
+  const tableId = `act-days-${id}`;
+  return (
+    <details className="act-table">
+      <summary>{allDays ? "All recorded days" : "Recent recorded days"} ({shown.length} of {total})</summary>
+      {days.length > 14 && (
+        <div className="mem-actions">
+          <button type="button" className="mem-button" aria-expanded={allDays} aria-controls={tableId}
+            onClick={() => setAllDays((current) => !current)}>
+            {allDays ? "Show recent days" : "Show all recorded days"}
+          </button>
+        </div>
+      )}
+      <table>
+        <caption className="mem-sr">{LABELS[id].title} daily {LABELS[id].unit}</caption>
+        <thead><tr><th scope="col">Date</th><th scope="col">{LABELS[id].unit}</th></tr></thead>
+        <tbody id={tableId}>
+          {shown.map((day) => (
+            <tr key={day.date}><th scope="row"><time dateTime={day.date}>{day.date}</time></th><td>{exact(day.value)}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </details>
+  );
+}
+
 function Heatmap({ id, preview, overview, asOf }: { id: SourceId; preview: Preview | null; overview: Overview; asOf: string }) {
   const summary = overview.sources[id];
   const days = preview?.data.sources[id]?.days ?? [];
@@ -50,7 +78,6 @@ function Heatmap({ id, preview, overview, asOf }: { id: SourceId; preview: Previ
   const label = (c: { date: string; value: number | null; state: string; incomplete: boolean }) =>
     c.state === "known" ? `${c.date}: ${exact(c.value ?? 0)} ${unit}${c.incomplete ? " (current day, may still grow)" : ""}`
       : c.state === "missing" ? `${c.date}: not recorded` : c.date;
-  const recent = days.slice(-14).reverse();
   return (
     <div className="act-chart">
       <div className="act-grid" aria-hidden="true" style={{ gridTemplateColumns: `repeat(${columns.length}, 10px)` }}>
@@ -69,18 +96,7 @@ function Heatmap({ id, preview, overview, asOf }: { id: SourceId; preview: Previ
         <span><i className="act-cell act-missing" /> not recorded</span>
         <span><i className="act-cell act-known act-incomplete" data-level="1" /> current day</span>
       </div>
-      <details className="act-table">
-        <summary>Recent recorded days ({recent.length} of {summary.recordedDays})</summary>
-        <table>
-          <caption className="mem-sr">{LABELS[id].title} daily {unit}</caption>
-          <thead><tr><th scope="col">Date</th><th scope="col">{unit}</th></tr></thead>
-          <tbody>
-            {recent.map((d) => (
-              <tr key={d.date}><th scope="row"><time dateTime={d.date}>{d.date}</time></th><td>{exact(d.value)}</td></tr>
-            ))}
-          </tbody>
-        </table>
-      </details>
+      <RecordedDays id={id} days={days} total={summary.recordedDays} />
     </div>
   );
 }

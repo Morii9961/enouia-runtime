@@ -1,0 +1,86 @@
+{
+  "checks": [
+    {
+      "id": "T.shortcut_opens_activity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.actual_preview_has_three_histories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.github_recent_days_are_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.github_all_days_control_exists",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "T.github_all_recorded_days_are_exact",
+      "ok": false,
+      "detail": "No keyboard control exposes older recorded days"
+    },
+    {
+      "id": "T.github_recent_view_restores",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.codex_recent_days_are_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.codex_all_days_control_exists",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "T.codex_all_recorded_days_are_exact",
+      "ok": false,
+      "detail": "No keyboard control exposes older recorded days"
+    },
+    {
+      "id": "T.codex_recent_view_restores",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.claude_recent_days_are_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.claude_all_days_control_exists",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "T.claude_all_recorded_days_are_exact",
+      "ok": false,
+      "detail": "No keyboard control exposes older recorded days"
+    },
+    {
+      "id": "T.claude_recent_view_restores",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.history_controls_preserve_activity_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.keyboard_change_package_forgets_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "10/16"
+}

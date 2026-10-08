@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -134,8 +134,8 @@ async function waitFor(s, expression, label, ms = 30000) {
   throw new Error(`timeout: ${label} | ${String(text).replace(/\s+/g, ' ')}`);
 }
 
-async function shot(s, name) {
-  const r = await s.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+async function shot(s, name, full = true) {
+  const r = await s.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: full });
   writeFileSync(join(out, `${name}.png`), Buffer.from(r.result.data, 'base64'));
   report.screenshots.push(`${name}.png`);
 }
@@ -375,6 +375,45 @@ async function confirmationMain() {
   s.close();
   app.kill();
   await app.exited;
+}
+
+async function fullDaysMain() {
+  rmSync(settings,{force:true});
+  if(realpathSync(manifest.dataRoot).toLowerCase() !== join(realpathSync(dirname(pkg)),'data').toLowerCase()) throw new Error('Recorded-days acceptance requires the contained synthetic data root');
+  const treeBefore=fixtureTree(manifest.dataRoot);
+  const app=launch();
+  const s=await connect();
+  await key(s,'5',2);
+  await waitFor(s,has('Connect the installed Activity producer'),'recorded-days keyboard gate');
+  check('T.shortcut_opens_activity',true);
+  await activate(s,'Choose installed package…');
+  fillDialog(app.pid,pkg);
+  await waitFor(s,has('Publication observed'),'recorded-days package selection');
+  const payload=await call(s,{operation:'activity_preview_public_payload'});
+  check('T.actual_preview_has_three_histories', payload.kind==='activity_public_preview' && ['github','codex','claude'].every(id=>payload.data.sources[id].days.length>14));
+  for(const id of ['github','codex','claude']) {
+    const selector=`section[aria-labelledby="act-${id}"] .act-table`;
+    const days=payload.data.sources[id].days;
+    await activate(s,'Recent recorded days',`${selector} > summary`);
+    const rows=()=>s.evaluate(`[...document.querySelectorAll(${JSON.stringify(`${selector} tbody tr`)})].map(row=>({date:row.querySelector('time').dateTime,value:row.querySelector('td').textContent.replaceAll(',','')}))`);
+    const recent=days.slice(-14).reverse().map(day=>({date:day.date,value:String(day.value)}));
+    check(`T.${id}_recent_days_are_exact`, JSON.stringify(await rows())===JSON.stringify(recent));
+    const available=await s.evaluate(`[...document.querySelectorAll(${JSON.stringify(`${selector} button`)})].some(button=>button.textContent.trim()==='Show all recorded days')`);
+    check(`T.${id}_all_days_control_exists`,available);
+    if(available) {
+      await activate(s,'Show all recorded days',`${selector} button`);
+      const expected=days.slice().reverse().map(day=>({date:day.date,value:String(day.value)}));
+      check(`T.${id}_all_recorded_days_are_exact`,JSON.stringify(await rows())===JSON.stringify(expected) && await s.evaluate(`document.activeElement.matches(${JSON.stringify(`${selector} button`)}) && document.activeElement.getAttribute('aria-expanded')==='true'`),`${days.length} recorded days`);
+      if(id==='github') await shot(s,'01-full-days-keyboard',false);
+      await activate(s,'Show recent days',`${selector} button`);
+    } else check(`T.${id}_all_recorded_days_are_exact`,false,'No keyboard control exposes older recorded days');
+    check(`T.${id}_recent_view_restores`,JSON.stringify(await rows())===JSON.stringify(recent));
+  }
+  check('T.history_controls_preserve_activity_bytes',fixtureTree(manifest.dataRoot)===treeBefore);
+  await activate(s,'Change package');
+  await waitFor(s,has('Connect the installed Activity producer'),'recorded-days package cleared');
+  check('T.keyboard_change_package_forgets_choice',!existsSync(settings));
+  s.close();app.kill();await app.exited;
 }
 
 async function keyboardMain() {
@@ -820,6 +859,7 @@ try {
   if (taskMode) await taskReadMain(mode === '--task-enabled');
   else if (mode === '--confirmation') await confirmationMain();
   else if (mode === '--keyboard') await keyboardMain();
+  else if (mode === '--full-days') await fullDaysMain();
   else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));

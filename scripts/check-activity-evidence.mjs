@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 24);
+  assert.equal(reports.size, 25);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -338,6 +338,38 @@ function validate(index) {
   assert.equal(staticRead.runnerSha256,guidance.runnerSha256);
   assert(staticRead.limitations.includes('Only copied author modules in this newly prepared fixture are removed; actual source checkouts remain on the host.'));
   assert(staticRead.limitations.includes('Actual HTTP is loopback with a minimal static Node worker, not deployed Nginx, real HTTPS or rendered About-page acceptance.'));
+  const fullDays=reports.get('full_days').report;
+  assert.equal(fullDays.scope,'native_activity_full_recorded_days_keyboard');
+  const readLinked=(path,digest)=>{
+    const bytes=readFileSync(contained(path));
+    assert.equal(hash(bytes),digest,'full recorded-days linked evidence changed');
+    return JSON.parse(bytes);
+  };
+  const fullNative=readLinked(fullDays.nativeReport,fullDays.nativeReportSha256);
+  const fullBefore=readLinked(fullDays.beforeReport,fullDays.beforeReportSha256);
+  const fullKeyboard=readLinked(fullDays.keyboardReport,fullDays.keyboardReportSha256);
+  assert.equal(fullDays.nativeSummary,'16/16');
+  assert.equal(fullDays.processExitCode,0);
+  assert.equal(fullNative.summary,fullDays.nativeSummary);
+  assert.equal(fullNative.checks.length,16);
+  assert(fullNative.checks.every(c=>c.ok===true));
+  assert.equal(fullDays.beforeSummary,'10/16');
+  assert.equal(fullDays.beforeProcessExitCode,1);
+  assert.equal(fullBefore.summary,fullDays.beforeSummary);
+  assert.deepEqual(fullBefore.checks.map(c=>c.id),fullNative.checks.map(c=>c.id));
+  assert.deepEqual(fullBefore.checks.filter(c=>!c.ok).map(c=>c.id),['github','codex','claude'].flatMap(source=>[`T.${source}_all_days_control_exists`,`T.${source}_all_recorded_days_are_exact`]));
+  assert.equal(fullDays.keyboardSummary,'11/11');
+  assert.equal(fullKeyboard.summary,fullDays.keyboardSummary);
+  assert.equal(fullKeyboard.checks.length,11);
+  assert(fullKeyboard.checks.every(c=>c.ok===true));
+  assert.deepEqual(fullDays.checks,[...fullNative.checks.map(c=>c.id),...fullKeyboard.checks.map(c=>`keyboard:${c.id}`)]);
+  assert.equal(fullDays.checks.length,27);
+  assert.equal(fullDays.memoryRevision,isolation.memoryRevision);
+  assert.equal(fullDays.runnerSha256,guidance.runnerSha256);
+  assert.equal(fullDays.beforeDesktopSha256,guidance.desktopSha256);
+  assert.notEqual(fullDays.desktopSha256,fullDays.beforeDesktopSha256);
+  for(const digest of [fullDays.harnessSha256,fullDays.desktopSha256,fullDays.installerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(fullDays.limitations.includes('No full Windows keyboard-only dialog, Narrator, personal history or production acceptance is claimed.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -370,8 +402,10 @@ function validate(index) {
   assert(guidance.checks.every(id=>linkedTo(c17,'index_guidance').includes(id)),'C17 must retain actual recovery guidance and search recovery evidence');
   assert(mutations.checks.every(id=>linkedTo(c17,'rebuild_mutations').includes(id)),'C17 must retain actual producer mutation bracket and canonical/Activity preservation evidence');
   assert(staticRead.checks.every(id=>linkedTo(c17,'static_read').includes(id)),'C17 must retain copied-author removal, independent static restart and unchanged package/data evidence');
+  const c18=index.cases.find(c=>c.id==='C18');
+  assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 14, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 15, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -401,7 +435,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_guidance'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_mutations'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'static_read'));
-  result.negativeChecks = 23;
+  reject(x => x.cases.find(c => c.id === 'C18').evidence = x.cases.find(c => c.id === 'C18').evidence.filter(e => e.report !== 'full_days'));
+  result.negativeChecks = 24;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

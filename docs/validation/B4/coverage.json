@@ -171,6 +171,13 @@
       "sha256": "902eb4d6284a1dbb4fc7e1758a40365ece55bfaf9e8c828fc885622508c00b52",
       "state": "passed",
       "selectorCount": 12
+    },
+    {
+      "id": "full_days",
+      "path": "docs/validation/Activity-unified/full-days-proof.json",
+      "sha256": "f35309eaea38c406c33e73579100057cf3272768c613b97ebbb37c07e435694f",
+      "state": "passed",
+      "selectorCount": 27
     }
   ],
   "cases": [
@@ -775,6 +782,38 @@
           "report": "handback",
           "selectors": [
             "C18: subsequent actual old run advances safely again"
+          ]
+        },
+        {
+          "report": "full_days",
+          "selectors": [
+            "T.shortcut_opens_activity",
+            "T.actual_preview_has_three_histories",
+            "T.github_recent_days_are_exact",
+            "T.github_all_days_control_exists",
+            "T.github_all_recorded_days_are_exact",
+            "T.github_recent_view_restores",
+            "T.codex_recent_days_are_exact",
+            "T.codex_all_days_control_exists",
+            "T.codex_all_recorded_days_are_exact",
+            "T.codex_recent_view_restores",
+            "T.claude_recent_days_are_exact",
+            "T.claude_all_days_control_exists",
+            "T.claude_all_recorded_days_are_exact",
+            "T.claude_recent_view_restores",
+            "T.history_controls_preserve_activity_bytes",
+            "T.keyboard_change_package_forgets_choice",
+            "keyboard:K.shortcut_opens_activity",
+            "keyboard:K.skip_link_focuses_surface",
+            "keyboard:K.enter_opens_package_picker",
+            "keyboard:K.recorded_days_expand",
+            "keyboard:K.public_preview_expands",
+            "keyboard:K.pause_is_durable",
+            "keyboard:K.resume_is_durable",
+            "keyboard:K.run_keeps_pending",
+            "keyboard:K.retry_keeps_exact_batch",
+            "keyboard:K.refresh_keeps_retained_history",
+            "keyboard:K.change_package_forgets_choice"
           ]
         }
       ],

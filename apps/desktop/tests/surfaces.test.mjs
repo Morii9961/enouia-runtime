@@ -23,7 +23,7 @@ const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx
 const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
-const { default: ActivitySurface, Gate: ActivityGate, StatusCards } = await server.ssrLoadModule('/src/activity/ActivitySurface.tsx');
+const { default: ActivitySurface, Gate: ActivityGate, StatusCards, RecordedDays } = await server.ssrLoadModule('/src/activity/ActivitySurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
@@ -38,6 +38,21 @@ test('native Activity waiting and connection gate retain a labelled keyboard sur
     assert.match(html, /<h1/);
     assert.doesNotMatch(html, /install-activity\.ps1|install\.json|Fictional/);
   }
+});
+
+test('recorded Activity days keep a compact default and an accessible full-history control', () => {
+  const days = Array.from({ length: 16 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, value: i === 15 ? 0 : i }));
+  const html = renderToStaticMarkup(createElement(RecordedDays, { id: 'github', days, total: 16 }));
+  assert.equal((html.match(/scope="row"/g) ?? []).length, 14);
+  assert.match(html, /Show all recorded days/);
+  assert.match(html, /aria-expanded="false" aria-controls="act-days-github"/);
+  assert.match(html, /GitHub daily contributions/);
+  assert.match(html, /2026-10-16<\/time><\/th><td>0/);
+  assert.doesNotMatch(html, /2026-10-01/);
+  const short = renderToStaticMarkup(createElement(RecordedDays, { id: 'claude', days: days.slice(-2), total: 2 }));
+  assert.equal((short.match(/scope="row"/g) ?? []).length, 2);
+  assert.doesNotMatch(short, /Show all recorded days/);
+  assert.match(short, /Claude Code daily tokens/);
 });
 
 test('an unobserved scheduler never invents a next trigger or registration', () => {
