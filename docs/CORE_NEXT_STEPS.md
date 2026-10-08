@@ -16,7 +16,7 @@ Latest full workspace result: **212 passed**, fmt and clippy all targets pass; r
 
 Two subsequent targeted Context tests also pass (10 Context tests now): a real pending proposal cannot be selected; an oversized higher-ranked record is excluded while a later smaller record is admitted whole. Mandatory Identity is refused rather than truncated. No production code changed, so the full 212-test baseline remains applicable.
 
-The dependency guard checks twelve workspace modules with six negative cases. The Activity evidence index checks seven historical reports and 59 linked selectors across C01–C18, with eight negative cases. Both unresolved GitHub comparison cases remain unaccepted. Neither checker is behavioral production evidence.
+The dependency guard checks twelve workspace modules with six negative cases. The Activity evidence index checks ten historical reports and 127 linked selectors across C01–C18, with eight negative cases. Both unresolved GitHub comparison cases remain unaccepted. Neither checker is behavioral production evidence.
 
 ## Next implementation boundary
 

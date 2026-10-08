@@ -36,7 +36,18 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 7);
+  assert.equal(reports.size, 10);
+  const frozen2 = reports.get('frozen2').report;
+  assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
+  assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
+  const literal = reports.get('literal').report;
+  assert.equal(literal.caseCount, 49);
+  assert(literal.results.filter(r => ['metric', 'timezone'].includes(r.field)).every(r => r.result === 'match' && !r.legacyAccepted && !r.runtimeAccepted), 'unit/zone literals must be rejected by both validators');
+  assert.deepEqual(literal.unresolvedCaseIds, literal.results.filter(r => r.result === 'runtime_stricter').map(r => r.id));
+  assert.equal(literal.unresolvedCaseIds.length, 12);
+  const regression = reports.get('regression').report;
+  assert.equal(regression.cases.length, 10);
+  assert(regression.cases.every(c => c.publicState === 'degraded' && !c.publicationObserved && c.runtimeExitCode === 4), 'regression candidates must stay unpublished');
   const frozen = reports.get('frozen').report;
   assert.equal(frozen.caseCount, 30);
   assert.equal(frozen.results.length, 30);
@@ -58,7 +69,7 @@ function validate(index) {
     }
   }
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', historicalReports: reports.size, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, unresolvedComparisons: 2 };
+  return { state: 'index_integrity_passed', historicalReports: reports.size, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, unresolvedComparisons: 2, unresolvedLiteralShapes: literal.unresolvedCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));

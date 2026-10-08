@@ -320,6 +320,38 @@ fn comparison_reports_downward_corrections_and_missing_dates_without_choosing_a_
     assert_eq!(report["sources"]["github"]["total"], 1);
     assert!(!fixture.root.join("CURRENT").exists());
 }
+
+#[test]
+fn unpublishable_retained_success_time_is_flagged_and_blocks_import() {
+    let fixture = Fixture::new();
+    let mut archive: Value =
+        serde_json::from_slice(&fs::read(fixture.source.join("activity.json")).unwrap()).unwrap();
+    archive["sources"]["codex"]["updatedAt"] = json!("2026-09-25");
+    fs::write(
+        fixture.source.join("activity.json"),
+        serde_json::to_vec(&archive).unwrap(),
+    )
+    .unwrap();
+    let output = fixture.base.join("inspection.json");
+    let (code, report) = fixture.run(
+        "migration-inspect",
+        &[("--input", &fixture.source), ("--output", &output)],
+    );
+    assert_eq!(code, 0);
+    assert_eq!(report["unpublishableSuccessTimes"], json!(["codex"]));
+    assert_eq!(report["sources"]["codex"]["updatedAt"], "2026-09-25");
+    let (code, result) = fixture.run(
+        "migration-import",
+        &[
+            ("--bundle", &fixture.source),
+            ("--high-water", Path::new("50")),
+        ],
+    );
+    assert_eq!(code, 6);
+    assert_eq!(result["state"], "unpublishable_history");
+    assert!(!fixture.root.join("CURRENT").exists());
+}
+
 const IPC: &str = include_str!("../../../contracts/ipc/activity-v1.schema.json");
 const COMMON: &str = include_str!("../../../contracts/ipc/common-v1.schema.json");
 const DATA: &str = include_str!("../../../contracts/activity/activity-data-v1.schema.json");

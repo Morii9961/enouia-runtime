@@ -1,5 +1,7 @@
 # Activity desktop integration into current Runtime
 
+Follow-up: [combined Activity validation](Activity-unified-2026-10-08.md) integrates the later Claude work and records a fresh native drill with the updated installed runner. This report retains the original `08dfc86` scope and build identities below.
+
 Date: 2026-10-08. Baseline: `29401fe` from `origin/main`. Branch: `codex/activity-desktop-integration`. This ports Claude's runner read slice (`f90935d`) and native surface (`095b842`) onto the current shell. Later production/discovery changes on the Claude branch are excluded. Scope: [ADR-028](../adr/028-activity-surface.md), a partial J1 integration; no B4 sign-off or B5 activation.
 
 ## Result

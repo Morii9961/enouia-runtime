@@ -355,6 +355,28 @@ fn zero_sequence_requires_verified_unused_identity_and_safe_maximum_stays_exhaus
 }
 
 #[test]
+fn refuses_a_retained_success_time_the_manifest_cannot_publish_before_writes() {
+    let fixture = Fixture::new(false);
+    let guard = WindowsActivityLock
+        .try_acquire(&fixture.target.join("sync.lock"))
+        .unwrap();
+    let mut archive: Value =
+        serde_json::from_slice(&fs::read(fixture.source.join("activity.json")).unwrap()).unwrap();
+    archive["sources"]["claude"]["updatedAt"] = json!("2026-09-26");
+    fs::write(
+        fixture.source.join("activity.json"),
+        serde_json::to_vec(&archive).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        import_legacy_trio(&guard, &fixture.source, "g-import", &options(5), &clock()).unwrap_err(),
+        ImportError::UnpublishableSuccessTime
+    );
+    assert!(!fixture.target.join("generations").exists());
+    assert!(!fixture.target.join("CURRENT").exists());
+}
+
+#[test]
 fn rejects_relative_and_overlapping_source_directories() {
     let fixture = Fixture::new(false);
     let guard = WindowsActivityLock

@@ -63,7 +63,7 @@ fn three_source_baseline_matches_legacy_importers_on_identical_reports() {
 }
 
 #[test]
-fn validated_claude_downward_correction_is_an_explicit_difference() {
+fn lower_claude_report_keeps_the_archived_day_like_legacy() {
     let (github, codex, claude, oracle) = inputs();
     let at = oracle["attemptedAt"].as_str().unwrap();
     let correction = &oracle["claudeDownwardCorrection"];
@@ -88,8 +88,11 @@ fn validated_claude_downward_correction_is_an_explicit_difference() {
     )
     .unwrap();
     let value = result.data.sources.claude.unwrap().days[0].value;
+    // ADR-029: upstream Claude stores prune transcripts, so the lower
+    // complete report keeps the archived value, matching legacy.
     assert_eq!(value, correction["runtime"].as_u64().unwrap());
-    assert_ne!(value, correction["legacy"].as_u64().unwrap());
-    assert_eq!(result.deltas.claude.revised_dates, 1);
-    assert_eq!(result.deltas.claude.total_change, -9);
+    assert_eq!(value, correction["legacy"].as_u64().unwrap());
+    assert_eq!(result.deltas.claude.revised_dates, 0);
+    assert_eq!(result.deltas.claude.retained_higher_days, 1);
+    assert_eq!(result.deltas.claude.total_change, 1);
 }

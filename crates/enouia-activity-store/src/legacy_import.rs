@@ -16,6 +16,7 @@ pub enum ImportError {
     ExistingState,
     InvalidHighWater,
     UnverifiedUnusedIdentity,
+    UnpublishableSuccessTime,
     Inspect(InspectError),
     InvalidImage(GenerationError),
     Commit(CommitError),
@@ -55,7 +56,9 @@ fn require_unused_root(guard: &ActivityLockGuard) -> Result<(), ImportError> {
 /// Import only into a root containing its live lock and no other entries.
 /// Existing state, corrupt CURRENT, and interrupted bootstrap remnants all
 /// require explicit reconciliation; none is silently treated as a first run.
-/// The imported generation is paused. This operation never collects or sends.
+/// A retained success time the public manifest cannot carry also requires an
+/// explicitly reconciled seed; import never restamps it. The imported
+/// generation is paused. This operation never collects or sends.
 pub fn import_legacy_trio<C: Clock>(
     guard: &ActivityLockGuard,
     source: &Path,
@@ -86,6 +89,9 @@ pub fn import_legacy_trio_with_hook<C: Clock, F: FnMut(CommitPhase) -> Result<()
         return Err(ImportError::InvalidSource);
     }
     let inspected = inspect_legacy_trio(&source, clock).map_err(ImportError::Inspect)?;
+    if !inspected.unpublishable_success_times.is_empty() {
+        return Err(ImportError::UnpublishableSuccessTime);
+    }
     let high_water = options.reconciled_high_water;
     if high_water < inspected.highest_reserved || high_water > MAX_SAFE_INTEGER {
         return Err(ImportError::InvalidHighWater);

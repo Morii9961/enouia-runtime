@@ -4,6 +4,8 @@ The current baseline is **architecture v0.3**. M0 provides an offline Rust works
 
 The [Quiet Runtime desktop surface](docs/FRONTEND_IMPLEMENTATION_v1.md) implements the Claude Design seven-page frontend in `apps/desktop`, with a separate Tauri Windows shell. Inside the native shell, Memory, Context, Sessions and the Vault status on Home and Settings use Enouia Memory's pinned workspace Core ([ADR-025](docs/adr/025-enouia-memory-integration.md), [Memory integration v1](docs/MEMORY_INTEGRATION_v1.md)). Browser previews and the Runtime Inspector stay explicitly fictional. The native Activity surface reads the separately installed producer through its runner ([ADR-028](docs/adr/028-activity-surface.md)). The [companion shell](docs/adr/026-companion-shell.md) provides one tray, close-to-tray, scoped Quick Search and opt-in login startup; explicit Exit releases the Vault. Runtime additionally reserves Vault directory identities ([root admission evidence](docs/validation/Root-admission-v1.md)). The unsigned [current-user installer](docs/adr/027-desktop-installer.md) (`npm run desktop:bundle`) owns application files only. Signing, remaining native acceptance, full J1 acceptance and production activation remain pending. See [Activity integration evidence](docs/validation/Activity-desktop-integration-2026-10-08.md). [Frontend validation](docs/validation/Frontend-surface-v1.md) records the demo baseline; the [Memory integration report](docs/validation/Memory-integration-v1.md) and its linked follow-ups preserve evidence for each native release.
 
+The [2026-10-08 combined Activity validation](docs/validation/Activity-unified-2026-10-08.md) integrates the remaining Claude work (migration preflight, publisher regression checks, Claude history retention/discovery and explicit production packaging) with the current native desktop shell. It also closes two reproduced validation gaps. B4 compatibility acceptance and B5 deployment/activation remain open; merging implementation is not production cutover.
+
 Read in this order:
 
 1. [Architecture v0.3](Enouia_Runtime_Architecture_v0.3.md) — domain ownership, repository/data layout, contracts, durability, UI, health, and future scope.
@@ -82,7 +84,11 @@ The B3 [restricted SSH validation](docs/validation/B3.1-restricted-ssh.md) cover
 
 [B4 runner hard-kill rehearsal](docs/validation/B4-runner-hard-kill.md) verifies ready synthetic collector/transport trees terminate with the actual release runner, committed state stays exact, and restart preserves sequence/pending behavior. The process-creation/job-assignment interval remains untested.
 
-[B4 evidence coverage](docs/validation/B4-coverage.md) maps C01–C18 to seven historical machine reports and concrete remaining gaps. `node scripts/check-activity-evidence.mjs --self-test` checks report hashes and evidence links offline; it does not sign off B4 or activate B5.
+[B4 C15 regression acceptance](docs/validation/B4-reference-regression.md) delivers ten synthetic date, source and success-time regressions through the actual runner and a marked SSH stand-in to the copied receiver. The publisher keeps prior public bytes and reports `degraded`; Runtime keeps each exact pending despite completed transport. Deployed publisher, About rendering and operator reconciliation remain pending.
+
+[B4 C06 literal comparison](docs/validation/B4-literal-comparison.md) finds identical unit/zone rejection in Runtime and the copied public validator. Migration now flags and refuses seeds whose retained success time the manifest cannot publish. Twelve legacy-only `updatedAt` shapes remain unaccepted.
+
+[B4 evidence coverage](docs/validation/B4-coverage.md) maps C01–C18 to ten historical machine reports and concrete remaining gaps. `node scripts/check-activity-evidence.mjs --self-test` checks report hashes and evidence links offline; it does not sign off B4 or activate B5.
 
 The paragraphs below, from A1 Memory model v1 through the selected orchestration histories, describe Runtime's local Memory/Core design. [ADR-025](docs/adr/025-enouia-memory-integration.md) supersedes it: the Memory domain now belongs to Enouia Memory, and these paragraphs are frozen history. Their evidence remains valid as historical design evidence. The dependency-boundary guard among them still applies to the Activity, shared and frozen Core crates.
 

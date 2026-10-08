@@ -92,14 +92,40 @@ fn missing_expected_store_or_unreadable_root_fails_instead_of_shrinking_inventor
 }
 
 #[test]
-fn traversal_past_depth_six_is_an_incomplete_discovery_error() {
+fn deep_non_store_trees_beside_tasks_are_traversed_completely() {
+    // A real Cowork profile keeps installed skills ten levels down next to
+    // its task stores; that must not fail the source or hide the stores.
+    let root = sandbox();
+    let normal = root.join("normal");
+    fs::create_dir_all(&normal).unwrap();
+    let roaming = root.join("roaming/Claude");
+    let account = roaming.join("local-agent-mode-sessions/account/org");
+    let task = account.join("task-1/.claude");
+    transcript(&task);
+    let mut skill = account.join("skill-root/skills/xlsx");
+    for index in 0..7 {
+        skill = skill.join(format!("d{index}"));
+    }
+    fs::create_dir_all(&skill).unwrap();
+    // A store nested inside such a tree is still found.
+    let nested = skill.join("task-2/.claude");
+    transcript(&nested);
+    let found =
+        discover_claude_stores(&normal, &roaming, &root.join("absent-packages"), &[]).unwrap();
+    assert_eq!(found.len(), 3);
+    assert!(found.contains(&fs::canonicalize(task).unwrap()));
+    assert!(found.contains(&fs::canonicalize(nested).unwrap()));
+}
+
+#[test]
+fn traversal_past_depth_thirty_two_is_an_incomplete_discovery_error() {
     let root = sandbox();
     let normal = root.join("normal");
     fs::create_dir_all(&normal).unwrap();
     let roaming = root.join("roaming/Claude");
     let mut deep = roaming.join("local-agent-mode-sessions");
-    for index in 0..7 {
-        deep = deep.join(format!("d{index}"));
+    for index in 0..33 {
+        deep = deep.join(format!("{index}"));
     }
     fs::create_dir_all(deep).unwrap();
     assert_eq!(

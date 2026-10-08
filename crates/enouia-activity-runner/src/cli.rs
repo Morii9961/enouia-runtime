@@ -4,7 +4,7 @@ use crate::run::{Command, DeadlineCancellation, Ports, SystemClock, generation_i
 use enouia_activity_delivery::curl_fetch::CurlPublicFetcher;
 use enouia_activity_delivery::public_fetch::{FetchError, FetchedResponse, PublicFetcher};
 use enouia_activity_store::legacy_export::export_legacy_trio;
-use enouia_activity_store::legacy_import::{ImportOptions, import_legacy_trio};
+use enouia_activity_store::legacy_import::{ImportError, ImportOptions, import_legacy_trio};
 use enouia_activity_store::legacy_inspect::{compare_archives, inspect_legacy_trio};
 use enouia_activity_store::overview::{read_activity_status, read_delivery_overview_locked};
 use enouia_activity_store::pause::set_paused_locked;
@@ -145,7 +145,7 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
         let report = json!({"schemaVersion":1,"state":"legacy_inspected","exitCode":0,
             "highestReserved":inspected.highest_reserved,"pendingSequence":inspected.pending.map(|p| p.sequence),
             "rawArchiveSha256":inspected.raw_archive_sha256,"rawSequenceSha256":inspected.raw_sequence_sha256,
-            "activitySha256":enouia_activity_contract::sha256_hex(&inspected.canonical_archive_bytes),"pendingSha256":inspected.pending_sha256,
+            "unpublishableSuccessTimes":inspected.unpublishable_success_times,"activitySha256":enouia_activity_contract::sha256_hex(&inspected.canonical_archive_bytes),"pendingSha256":inspected.pending_sha256,
             "sources":{"github":source_inventory(&inspected.archive.sources.github),"codex":source_inventory(&inspected.archive.sources.codex),
                 "claude":source_inventory(&inspected.archive.sources.claude)},"comparison":comparison});
         write_report(&output, &source, &report)?;
@@ -239,7 +239,10 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
                     .ok_or_else(|| failure(5, "invalid_arguments"))?,
                 &clock,
             )
-            .map_err(|_| failure(6, "migration_invalid"))?;
+            .map_err(|error| match error {
+                ImportError::UnpublishableSuccessTime => failure(6, "unpublishable_history"),
+                _ => failure(6, "migration_invalid"),
+            })?;
             Ok((
                 0,
                 json!({"schemaVersion":1,"state":"legacy_imported_paused","exitCode":0,"highestReserved":summary.highest_reserved,

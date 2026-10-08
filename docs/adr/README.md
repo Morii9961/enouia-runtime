@@ -202,3 +202,11 @@ Activity is untouched. The installer followed in ADR-027.
 - Every read and action runs the package's own `enouia-activity.exe`: lock-free `overview` and `preview` reads, and `sync`, `retry-pending` and `set-paused` under the runner's lock. The shell never opens the store and never changes the scheduled task; it only queries whether the package's task is registered and enabled.
 - Acknowledgment keeps the cleared batch's outcomes as `lastOutcomes`, and IPC v1 gains optional overview and run fields before any consumer shipped.
 - Memory, Context and the Memory adapter are unchanged. Browser previews keep the fictional timeline.
+
+## ADR-029 — Claude history keeps the higher archived day (Adopted; implemented)
+
+[ADR-029](029-claude-retains-higher-days.md) withdraws Architecture section 9 deliberate difference 6. The first real-account run showed a complete, valid Claude report that was lower for 2026-07-25 because the normal store had pruned that day's transcripts while a Cowork store kept part of it. For Claude only, a lower report for an archived day now keeps the archived value and counts `retainedHigherDays`; GitHub and Codex corrections are unchanged. Runtime matches legacy on this case.
+
+## ADR-030 — Gated production activation path for the Activity package (Adopted; implemented)
+
+[ADR-030](030-production-activation-path.md) adds the B5 tooling that B3.2 deliberately lacked. `install-activity.ps1 -Production` accepts only a production, delivery-enabled configuration with an HTTPS origin and restricted alias, still paused and unregistered. `register-activity-production.ps1 -ConfirmTaskName` registers the package's task disabled, and with `-Enable` enables it only after the runner reports an observed publication, sync resumed and nothing pending.

@@ -52,6 +52,27 @@
       "sha256": "6bbbf81d839af05e85aa257dcbe681d2db7d90f63fc73494584060a46e4162d4",
       "state": "passed",
       "selectorCount": 24
+    },
+    {
+      "id": "regression",
+      "path": "docs/validation/B4/reference-regression.json",
+      "sha256": "90ea7ca4bac130d20ad75b6070da852ddd34975cb4f07c7bbf322d0f2dc4a834",
+      "state": "passed",
+      "selectorCount": 97
+    },
+    {
+      "id": "literal",
+      "path": "docs/validation/B4/literal-comparison.json",
+      "sha256": "3134cba5c8c1570b4b01fca0f7b95ed05860163f194106820f07b6c0046103cb",
+      "state": "completed_with_unresolved_differences",
+      "selectorCount": 86
+    },
+    {
+      "id": "frozen2",
+      "path": "docs/validation/B4/frozen-comparison-v2.json",
+      "sha256": "6cee1e6bf9c31795dea39356b37a72062414f9522728cdd3ff76ca2d97efa563",
+      "state": "completed_with_unresolved_differences",
+      "selectorCount": 30
     }
   ],
   "cases": [
@@ -62,6 +83,12 @@
       "evidence": [
         {
           "report": "frozen",
+          "selectors": [
+            "C01-three-success"
+          ]
+        },
+        {
+          "report": "frozen2",
           "selectors": [
             "C01-three-success"
           ]
@@ -98,10 +125,17 @@
             "C03-github-down-codex-up-claude-up",
             "C03-claude-down"
           ]
+        },
+        {
+          "report": "frozen2",
+          "selectors": [
+            "C03-claude-down",
+            "C03-github-down-codex-up-claude-up"
+          ]
         }
       ],
       "remaining": [
-        "Sign off the deliberate Claude admission-floor correction and real downward corrections."
+        "Sign off ADR-029 retained-higher Claude days and the AI admission floor on real archives; the 2026-10-07 real run retained one pruned Claude day."
       ]
     },
     {
@@ -166,10 +200,51 @@
             "C06-unsafe-github-value",
             "C06-unsafe-github-sum"
           ]
+        },
+        {
+          "report": "literal",
+          "selectors": [
+            "C06-literal-control: both validators accept",
+            "C06-literal-control: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-github: both validators reject",
+            "C06-metric-case-github: both validators reject",
+            "C06-metric-missing-github: both validators reject",
+            "C06-timezone-swapped-github: both validators reject",
+            "C06-timezone-utc-github: both validators reject",
+            "C06-timezone-offset-github: both validators reject",
+            "C06-timezone-case-github: both validators reject",
+            "C06-timezone-missing-github: both validators reject",
+            "C06-updated-no-millis-github: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-github: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-github: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-codex: both validators reject",
+            "C06-metric-case-codex: both validators reject",
+            "C06-metric-missing-codex: both validators reject",
+            "C06-timezone-swapped-codex: both validators reject",
+            "C06-timezone-utc-codex: both validators reject",
+            "C06-timezone-offset-codex: both validators reject",
+            "C06-timezone-case-codex: both validators reject",
+            "C06-timezone-missing-codex: both validators reject",
+            "C06-updated-no-millis-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-claude: both validators reject",
+            "C06-metric-case-claude: both validators reject",
+            "C06-metric-missing-claude: both validators reject",
+            "C06-timezone-swapped-claude: both validators reject",
+            "C06-timezone-utc-claude: both validators reject",
+            "C06-timezone-offset-claude: both validators reject",
+            "C06-timezone-case-claude: both validators reject",
+            "C06-timezone-missing-claude: both validators reject",
+            "C06-updated-no-millis-claude: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-claude: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-claude: Runtime flags exactly the unpublishable retained times"
+          ]
         }
       ],
       "remaining": [
-        "Resolve duplicate GitHub dates and unsafe aggregate differences; finish wrong-unit/time-zone matrix."
+        "Resolve duplicate GitHub dates and unsafe aggregate differences.",
+        "Resolve the twelve legacy-only updatedAt shapes (no zone, RFC 1123, hour 24, impossible day) that Runtime refuses; confirm during O1/O4 inventory that real seeds contain none."
       ]
     },
     {
@@ -334,10 +409,45 @@
             "C15: publisher preserves last complete data on date loss",
             "C15-refused-publication: unsafe observation retains exact pending"
           ]
+        },
+        {
+          "report": "regression",
+          "selectors": [
+            "C15-success-time-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-github: public activity reports degraded",
+            "C15-success-time-loss-github: transport completion without publication retains exact pending",
+            "C15-source-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-github: public activity reports degraded",
+            "C15-source-loss-github: transport completion without publication retains exact pending",
+            "C15-date-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-github: public activity reports degraded",
+            "C15-date-loss-github: transport completion without publication retains exact pending",
+            "C15-success-time-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-codex: public activity reports degraded",
+            "C15-success-time-loss-codex: transport completion without publication retains exact pending",
+            "C15-source-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-codex: public activity reports degraded",
+            "C15-source-loss-codex: transport completion without publication retains exact pending",
+            "C15-date-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-codex: public activity reports degraded",
+            "C15-date-loss-codex: transport completion without publication retains exact pending",
+            "C15-success-time-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-claude: public activity reports degraded",
+            "C15-success-time-loss-claude: transport completion without publication retains exact pending",
+            "C15-source-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-claude: public activity reports degraded",
+            "C15-source-loss-claude: transport completion without publication retains exact pending",
+            "C15-date-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-claude: public activity reports degraded",
+            "C15-date-loss-claude: transport completion without publication retains exact pending",
+            "C15-whole-batch-clock-rollback: publisher keeps prior hash and immutable bytes",
+            "C15-whole-batch-clock-rollback: public activity reports degraded",
+            "C15-whole-batch-clock-rollback: transport completion without publication retains exact pending"
+          ]
         }
       ],
       "remaining": [
-        "Finish success-time-loss candidate and real degraded/public retention acceptance."
+        "Accept degraded/retained public data on the deployed publisher, static cache and three-language About pages; define the operator reconciliation procedure that resolves a refused pending without renumbering it."
       ]
     },
     {

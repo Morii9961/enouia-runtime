@@ -1,0 +1,63 @@
+{
+  "checks": [
+    {
+      "id": "K.shortcut_opens_activity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.skip_link_focuses_surface",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.enter_opens_package_picker",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.recorded_days_expand",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.public_preview_expands",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.pause_is_durable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.resume_is_durable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.run_keeps_pending",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.retry_keeps_exact_batch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.refresh_keeps_retained_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "K.change_package_forgets_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-keyboard-pending.png"
+  ],
+  "summary": "11/11"
+}

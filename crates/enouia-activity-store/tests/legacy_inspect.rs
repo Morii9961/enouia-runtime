@@ -246,3 +246,38 @@ fn detects_success_time_regression_without_a_day_change() {
         CompareError::InvalidSnapshot
     );
 }
+
+#[test]
+fn flags_retained_success_times_the_manifest_cannot_publish_without_restamping() {
+    let (directory, _, _) = copied_trio();
+    fs::remove_file(directory.join("pending.json")).unwrap();
+    assert!(
+        inspect_legacy_trio(&directory, &clock())
+            .unwrap()
+            .unpublishable_success_times
+            .is_empty()
+    );
+    let mut archive: Value =
+        serde_json::from_slice(&fs::read(directory.join("activity.json")).unwrap()).unwrap();
+    // ActivityData accepts each shape; the manifest's toISOString check does not.
+    for time in [
+        "2026-09-25",
+        "2026-09-25T06:00:00Z",
+        "2026-09-25T14:00:00.000+08:00",
+    ] {
+        archive["sources"]["codex"]["updatedAt"] = json!(time);
+        fs::write(
+            directory.join("activity.json"),
+            serde_json::to_vec(&archive).unwrap(),
+        )
+        .unwrap();
+        let inspection = inspect_legacy_trio(&directory, &clock()).unwrap();
+        assert_eq!(inspection.unpublishable_success_times, ["codex"]);
+        assert_eq!(
+            inspection.archive.sources.codex.unwrap().updated_at,
+            time,
+            "inspection must not restamp a retained time"
+        );
+    }
+    clean(&directory);
+}

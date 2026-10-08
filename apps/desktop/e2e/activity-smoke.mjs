@@ -18,9 +18,9 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { createServer } from 'node:net';
 
-const [exe, pkg, out] = process.argv.slice(2);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg)) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir>');
+const [exe, pkg, out, mode] = process.argv.slice(2);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && mode !== '--keyboard') || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard]');
 }
 mkdirSync(out, { recursive: true });
 const manifest = JSON.parse(readFileSync(join(pkg, 'install.json'), 'utf8'));
@@ -177,6 +177,79 @@ async function overview(s) {
   return call(s, { operation: 'activity_get_overview' });
 }
 
+// WebView-scoped key events exercise native browser Tab/Enter behavior; page
+// focus and controls are never set or clicked through DOM calls in this mode.
+// The Windows folder dialog is still filled with the PID-bound helper above.
+async function key(s, name, modifiers = 0) {
+  // connect() verified the listener's process ancestry. This WebSocket stays
+  // bound to that WebView; no operating-system input is sent to other apps.
+  if (!currentApp || currentApp.exitCode !== null) throw new Error('test host stopped');
+  const codes = { Tab: 9, Enter: 13, '5': 53 };
+  const event = { key: name, code: name === '5' ? 'Digit5' : name, windowsVirtualKeyCode: codes[name], modifiers };
+  // Chromium synthesizes Enter's character/default activation from text.
+  // Pattern: https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/chromium/crInput.ts
+  const text = name === 'Enter' ? '\r' : '';
+  await s.send('Input.dispatchKeyEvent', { ...event, type: text ? 'keyDown' : 'rawKeyDown', text, unmodifiedText: text });
+  await s.send('Input.dispatchKeyEvent', { ...event, type: 'keyUp' });
+}
+
+async function tabTo(s, selector, label) {
+  for (let i = 0; i < 50; i++) {
+    if (await s.evaluate(`document.activeElement?.matches(${JSON.stringify(selector)}) && document.activeElement.textContent.trim().startsWith(${JSON.stringify(label)})`)) return;
+    await key(s, 'Tab');
+  }
+  throw new Error(`not keyboard reachable: ${label}`);
+}
+
+async function activate(s, label, selector = 'button') {
+  await tabTo(s, selector, label);
+  await key(s, 'Enter');
+}
+
+async function keyboardMain() {
+  rmSync(settings, { force: true });
+  const app = launch();
+  const s = await connect();
+  await key(s, '5', 2); // Ctrl+5 is the shell's Activity shortcut.
+  await waitFor(s, has('Connect the installed Activity producer'), 'keyboard gate');
+  check('K.shortcut_opens_activity', true);
+  await activate(s, 'Skip to current surface', 'a');
+  check('K.skip_link_focuses_surface', await s.evaluate("document.activeElement.id === 'runtime-content'"));
+  await activate(s, 'Choose installed package…');
+  fillDialog(app.pid, pkg);
+  await waitFor(s, has('Publication observed'), 'keyboard package selection');
+  check('K.enter_opens_package_picker', runner('overview').value.delivery.state === 'observed');
+  await activate(s, 'Recent recorded days', '.act-table > summary');
+  check('K.recorded_days_expand', await s.evaluate("[...document.querySelectorAll('.act-table')].some(d => d.open && d.querySelectorAll('tbody tr').length > 0)"));
+  await activate(s, 'Public payload preview', '.act-payload > summary');
+  await waitFor(s, "document.querySelector('.act-payload')?.open && !!document.querySelector('.act-payload pre')", 'keyboard preview');
+  check('K.public_preview_expands', true);
+  await activate(s, 'Pause activity sync');
+  await waitFor(s, "[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Resume activity sync')", 'keyboard pause');
+  check('K.pause_is_durable', runner('overview').value.producer.paused === true && await disabled(s, 'Run now'));
+  await activate(s, 'Resume activity sync');
+  await waitFor(s, "[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Pause activity sync')", 'keyboard resume');
+  check('K.resume_is_durable', runner('overview').value.producer.paused === false);
+  await activate(s, 'Run now');
+  await waitFor(s, has('Batch kept pending'), 'keyboard run', 60000);
+  const pending = runner('overview').value.pending;
+  check('K.run_keeps_pending', pending?.sequence === 88 && pending.failureCount === 1);
+  await activate(s, 'Retry pending');
+  await waitFor(s, "[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Retry pending' && !b.disabled)", 'keyboard retry', 60000);
+  const retried = runner('overview').value.pending;
+  check('K.retry_keeps_exact_batch', retried.sequence === 88 && retried.exactSha256 === pending.exactSha256 && retried.failureCount > pending.failureCount);
+  await activate(s, 'Refresh');
+  await waitFor(s, has('#88'), 'keyboard refresh');
+  check('K.refresh_keeps_retained_history', await s.evaluate(has('Last attempt failed · history retained')));
+  await shot(s, '01-keyboard-pending');
+  await activate(s, 'Change package');
+  await waitFor(s, has('Connect the installed Activity producer'), 'keyboard clear');
+  check('K.change_package_forgets_choice', !existsSync(settings));
+  s.close();
+  app.kill();
+  await app.exited;
+}
+
 async function main() {
   rmSync(settings, { force: true });
   let app = launch();
@@ -304,7 +377,8 @@ async function main() {
 }
 
 try {
-  await main();
+  if (mode === '--keyboard') await keyboardMain();
+  else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));
 } finally {
