@@ -7,6 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import { createServer } from 'vite';
 import { approveDemoCandidate, reviseDemoMemory } from '../src/demo-state.ts';
+import { overview as activityOverview } from './activity-fixtures.mjs';
 
 const server = await createServer({
   root: fileURLToPath(new URL('..', import.meta.url)),
@@ -22,12 +23,35 @@ const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx
 const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
+const { default: ActivitySurface, Gate: ActivityGate, StatusCards } = await server.ssrLoadModule('/src/activity/ActivitySurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
   app.state = { ...app.state, ...state };
   return app;
 };
+
+test('native Activity waiting and connection gate retain a labelled keyboard surface', () => {
+  for (const node of [createElement(ActivitySurface), createElement(ActivityGate, { setup: { configured: false }, onSelect() {}, error: null })]) {
+    const html = renderToStaticMarkup(node);
+    assert.match(html, /data-screen-label="Activity"/);
+    assert.match(html, /<h1/);
+    assert.doesNotMatch(html, /install-activity\.ps1|install\.json|Fictional/);
+  }
+});
+
+test('an unobserved scheduler never invents a next trigger or registration', () => {
+  const overview = activityOverview();
+  const html = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
+  assert.match(html, /Not registered/);
+  assert.match(html, /Next trigger<\/dt><dd>Not observed/);
+  assert.doesNotMatch(html, /Hourly while logged in/);
+  overview.schedule.task = { registered: true, enabled: null };
+  overview.delivery.publicHash = 'a'.repeat(64);
+  const unknown = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
+  assert.match(unknown, /enablement unknown/);
+  assert.match(unknown, /observation time not recorded/);
+});
 
 test('all seven demo surfaces render exactly one screen and disclose demo mode', () => {
   const screens = { home: 'Home', memory: 'Memory Vault', context: 'Context Surface',

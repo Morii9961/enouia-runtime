@@ -6,10 +6,10 @@ use enouia_activity_delivery::public_fetch::{FetchError, FetchedResponse, Public
 use enouia_activity_store::legacy_export::export_legacy_trio;
 use enouia_activity_store::legacy_import::{ImportOptions, import_legacy_trio};
 use enouia_activity_store::legacy_inspect::{compare_archives, inspect_legacy_trio};
-use enouia_activity_store::overview::read_delivery_overview_locked;
+use enouia_activity_store::overview::{read_activity_status, read_delivery_overview_locked};
 use enouia_activity_store::pause::set_paused_locked;
 use enouia_activity_store::{ActivityLockGuard, WindowsActivityLock};
-use enouia_common::{Cancellation, ComponentId, ErrorCode, LockProvider};
+use enouia_common::{Cancellation, Clock, ComponentId, ErrorCode, LockProvider};
 use enouia_windows_process::WindowsProcessRunner;
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
@@ -28,7 +28,9 @@ struct Parsed {
 fn parse(args: &[OsString]) -> Option<Parsed> {
     let name = args.first()?.to_str()?.to_owned();
     let allowed: &[&str] = match name.as_str() {
-        "diagnostics" | "sync" | "retry-pending" | "set-paused" => &["--config"],
+        "diagnostics" | "sync" | "retry-pending" | "set-paused" | "overview" | "preview" => {
+            &["--config"]
+        }
         "migration-inspect" => &["--input", "--output", "--against"],
         "migration-import" => &["--bundle", "--config", "--high-water", "--verified-unused"],
         "migration-export-legacy" => &["--config", "--output"],
@@ -150,6 +152,23 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
         return Ok((0, report));
     }
     let config = read_config(&args.path("--config")?).map_err(|_| failure(5, "invalid_config"))?;
+    if args.name == "overview" || args.name == "preview" {
+        // Read-only and lock-free, so a scheduled run is never made busy.
+        let unavailable = |code| {
+            (
+                6,
+                crate::ipc::error(code, ComponentId::ActivityArchive, true),
+            )
+        };
+        let status = read_activity_status(&config.data_root, &clock)
+            .map_err(|_| unavailable(ErrorCode::StorageFailed))?;
+        let value = if args.name == "overview" {
+            crate::ipc::overview(&status, &config, clock.now_unix_ms())
+        } else {
+            crate::ipc::preview(&status).ok_or_else(|| unavailable(ErrorCode::ContractInvalid))?
+        };
+        return Ok((0, value));
+    }
     // Validate command options before acquiring a lock or mutating the root.
     let import_options = if args.name == "migration-import" {
         let reconciled_high_water = args
@@ -298,7 +317,7 @@ pub fn invoke(args: &[OsString]) -> (u8, Value) {
     if args.len() == 1 && args[0] == "--help" {
         return (
             0,
-            json!({"schemaVersion":1,"state":"help","commands":["diagnostics","sync","retry-pending","set-paused","migration-inspect","migration-import","migration-export-legacy"]}),
+            json!({"schemaVersion":1,"state":"help","commands":["diagnostics","overview","preview","sync","retry-pending","set-paused","migration-inspect","migration-import","migration-export-legacy"]}),
         );
     }
     let Some(args) = parse(args) else {

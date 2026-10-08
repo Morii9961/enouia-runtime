@@ -150,7 +150,9 @@ Acceptance: sandbox task uses only sandbox config/endpoint; production task init
 
 ### J1 Activity UI and health
 
-Owner paths: `apps/windows/src/features/activity`, Activity read facade/IPC and health adapters. Track A owns global navigation/lifecycle; Track B owns source meaning, DTO content, and Activity operations. Agree on the route and DTOs at M0, avoid shared-file ownership ambiguity.
+Progress (2026-10-08): [ADR-028](adr/028-activity-surface.md) connects the native desktop Activity page to the separately installed runner. The [integration report](validation/Activity-desktop-integration-2026-10-08.md) records release-build synthetic checks, retained pending bytes after shell termination, accurate unknown schedule state and an Activity fault while a synthetic Memory Vault stays usable. Full J1 remains partial: closed-UI scheduled execution and broader operational/accessibility acceptance are not established. B4 sign-off and B5 activation are unchanged.
+
+Owner paths: `apps/desktop/src/activity`, `apps/desktop/src-tauri/src/activity.rs`, Activity read facade/IPC and health adapters. Runtime owns global navigation/lifecycle; the independent Activity domain owns source meaning, DTO content, and Activity operations. Agree on the route and DTOs at M0, avoid shared-file ownership ambiguity.
 
 Acceptance: three source calendars/tables and separate time boundaries; totals/recorded days/last success/last attempt; failure and stale retention; schedule/pending/transport/publication indicators; safe manual actions and payload preview. No raw paths/titles/tokens in exported diagnostics, no sequence reset UI. Kill UI during a headless run and verify state; degrade Activity while performing the Track A demo. Test pending wait does not block the UI thread.
 

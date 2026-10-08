@@ -7,4 +7,6 @@ pub mod collectors;
 #[cfg(windows)]
 pub mod config;
 #[cfg(windows)]
+pub mod ipc;
+#[cfg(windows)]
 pub mod run;

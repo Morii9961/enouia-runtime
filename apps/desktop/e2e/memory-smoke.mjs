@@ -54,7 +54,7 @@ const check = (id, ok, detail = '') => {
 };
 
 function launch(args, { port = PORT, profile = 'webview2' } = {}) {
-  const child = spawn(exe, [...args, '--hotkey-key', 'Q'], {
+  const child = spawn(exe, [...args, '--hotkey-key', 'Q', '--activity-settings', join(out, 'activity-install.json')], {
     env: {
       ...process.env,
       WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
@@ -325,7 +325,15 @@ public class RuntimeKeys {
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
   [DllImport("user32.dll", SetLastError=true)] public static extern uint SendInput(uint count, INPUT[] inputs, int size);
   public static void Press(uint expected) {
-    uint current; GetWindowThreadProcessId(GetForegroundWindow(), out current);
+    // Native show/focus completion can precede Windows foreground ownership.
+    // Observe the prerequisite; never send input to a different process.
+    uint current = 0;
+    for (int attempt=0; attempt<100; attempt++) {
+      GetWindowThreadProcessId(GetForegroundWindow(), out current);
+      if (current == expected) break;
+      System.Threading.Thread.Sleep(50);
+    }
+    GetWindowThreadProcessId(GetForegroundWindow(), out current);
     if (current != expected) throw new Exception("test process is not foreground");
     var keys = new ushort[] {17, 18, 81, 81, 18, 17};
     var inputs = new INPUT[6];
@@ -2326,7 +2334,7 @@ async function main() {
   s = await connect();
   await waitFor(s, has('Memory · Vault open'), 'vault open badge');
   check('W03.process_termination_releases_root', true);
-  check('S.badge_states_memory_and_activity', await s.evaluate(`${has('Memory · Vault open')} && ${has('Activity & Inspector demo')}`));
+  check('S.badge_states_memory_and_inspector', await s.evaluate(`${has('Memory · Vault open')} && ${has('Inspector demo')}`));
   check('S.home_reads_status', await s.evaluate(`${has('Vault open')} && ${has('Nothing waiting for review')}`));
   await shot(s, '01-home');
 
@@ -2517,7 +2525,8 @@ async function main() {
   if (registered && windowState(app.pid, QUICK_TITLE) === 'hidden') {
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
     pressHotkey(app.pid);
-    check('W05.hotkey_opens_quick_search', await until(() => windowState(app.pid, QUICK_TITLE) === 'visible'));
+    const opened = await until(() => windowState(app.pid, QUICK_TITLE) === 'visible');
+    check('W05.hotkey_opens_quick_search', opened, opened ? '' : JSON.stringify({shell:await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')"), page:await quick.evaluate("({focused:document.hasFocus(),active:document.activeElement?.id,query:document.querySelector('#quick-query').value})")}));
     await waitFor(quick, "document.hasFocus() && document.activeElement?.id === 'quick-query' && document.querySelector('#quick-query').value === '' && document.querySelectorAll('.quick-results li').length === 0", 'quick search cleared on show');
     check('W05.quick_search_shows_empty', true);
     await quick.evaluate("__t.set('#quick-query', 'sketchbook')");
@@ -2595,7 +2604,8 @@ async function main() {
   await s.evaluate("document.querySelector('[aria-label=\"Windows shell\"]').scrollIntoView({block:'end'})");
   await shot(s, '07-shell-settings');
   await nav(s, 'Activity');
-  check('A.activity_still_demo', await s.evaluate(has('Fictional')));
+  await waitFor(s, has('Connect the installed Activity producer'), 'isolated Activity connection gate');
+  check('A.activity_native_gate', await s.evaluate("!!document.querySelector('[data-screen-label=Activity] h1')"));
   await nav(s, 'Runtime');
   check('A.inspector_labelled_fictional', await s.evaluate(has('Fictional · frozen Runtime-local design')));
 
