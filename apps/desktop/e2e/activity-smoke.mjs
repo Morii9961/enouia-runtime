@@ -25,9 +25,9 @@ import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -507,6 +507,66 @@ async function main() {
     } while (Date.now() < end);
     check('I.pinned_core_index_rebuild_completes', status.kind === 'index_rebuild' && status.state === 'succeeded' && status.progress.done >= 1, JSON.stringify({kind:status.kind,state:status.state,progress:status.progress}));
     check('I.memory_rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
+    if (mode === '--locked-index') {
+      const canonical = fixtureTree(join(vault, 'vault'));
+      const indexPath = join(vault, 'indexes', 'memory.sqlite');
+      s.close();
+      app.kill();
+      await app.exited;
+      if (realpathSync(indexPath).toLowerCase() !== join(realpathSync(vault), 'indexes', 'memory.sqlite').toLowerCase()) throw new Error('Index lock escaped the synthetic Vault');
+      const original = readFileSync(indexPath);
+      if (original.subarray(0,16).toString() !== 'SQLite format 3\0') throw new Error('Expected the generated SQLite cache');
+      writeFileSync(join(out,'original-locked-memory.sqlite'),original,{flag:'wx'});
+      // Hold only this freshly created derived cache through Windows file
+      // sharing. The helper self-expires and is owned by this harness.
+      const holder = spawn('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe', ['-NoProfile','-NonInteractive','-Command',
+        `$f=[IO.File]::Open('${indexPath.replace(/'/g,"''")}','Open','ReadWrite','None'); try { 'locked'; Start-Sleep -Seconds 90 } finally { $f.Dispose() }`], {stdio:['ignore','pipe','pipe']});
+      children.add(holder);
+      holder.exited = new Promise(r => holder.once('exit',code => {children.delete(holder);r(code);}));
+      await new Promise((resolve,reject) => {
+        const timer=setTimeout(()=>reject(new Error('Synthetic index lock did not become ready')),10000);
+        let output='';
+        holder.stdout.on('data',bytes => {output+=bytes.toString();if(output.includes('locked')) {clearTimeout(timer);resolve();}});
+        holder.once('exit',()=>{clearTimeout(timer);reject(new Error('Synthetic index lock exited before readiness'));});
+      });
+      check('S.generated_index_is_exclusively_held', true);
+      app=launch(['--memory-vault',vault]);
+      s=await connect();
+      check('S.synthetic_vault_reopens_with_held_index', (await memoryCall(s,'workspace_status')).result?.vault?.state === 'open');
+      const operation = await memoryCall(s,'index_rebuild');
+      if (!operation.result?.operationId) throw new Error(`Held-index rebuild: ${operation.error?.code}`);
+      let failed;
+      const deadline=Date.now()+30000;
+      do {
+        failed=(await memoryCall(s,'operation_get',{operationId:operation.result.operationId})).result;
+        if (failed && ['succeeded','failed','cancelled'].includes(failed.state)) break;
+        await sleep(100);
+      } while(Date.now()<deadline);
+      check('S.held_index_rebuild_reports_failure', failed?.state === 'failed', JSON.stringify(failed));
+      const [read,payload]=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'})]);
+      check('S.activity_reads_survive_index_storage_failure', read.producer.highestReserved === o.producer.highestReserved && read.pending === null && payload.sha256 === preview.sha256);
+      check('S.failed_rebuild_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === canonical);
+      check('S.failed_rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
+      holder.kill();
+      await holder.exited;
+      check('S.failed_rebuild_preserves_index_cache', readFileSync(indexPath).equals(original));
+      const repair=await memoryCall(s,'index_rebuild');
+      if (!repair.result?.operationId) throw new Error(`Released-index rebuild: ${repair.error?.code}`);
+      let recovered;
+      const end=Date.now()+30000;
+      do {
+        recovered=(await memoryCall(s,'operation_get',{operationId:repair.result.operationId})).result;
+        if(recovered && ['succeeded','failed','cancelled'].includes(recovered.state)) break;
+        await sleep(100);
+      } while(Date.now()<end);
+      check('S.released_index_rebuild_succeeds', recovered?.state === 'succeeded', JSON.stringify(recovered));
+      const found=await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
+      check('S.recovered_search_returns_approved_memory', !found.error && found.result?.items?.length === 1);
+      check('S.recovery_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === canonical);
+      check('S.recovery_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
+      await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+      await waitFor(s,"document.querySelectorAll('.act-source').length===3",'Activity after index lock recovery');
+    }
     if (['--missing-index', '--malformed-index'].includes(mode)) {
       const malformed = mode === '--malformed-index';
       const prefix = malformed ? 'M' : 'R';

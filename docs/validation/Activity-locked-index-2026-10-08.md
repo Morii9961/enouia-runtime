@@ -1,0 +1,13 @@
+# Index file-sharing failure and retry stay independent of Activity
+
+Date: 2026-10-08. Base revision: `e9438c4`. Scope: a real Windows file-sharing failure on the pinned Core's derived index in a freshly created synthetic Vault. Product code, binaries and Memory pin are unchanged.
+
+The `--locked-index` mode approves one synthetic memory and completes a healthy rebuild. It exits only its own desktop host, checks the contained generated SQLite path/header and saves its bytes. An owned PowerShell helper then opens only that index with `FileShare.None`, reports readiness and self-expires after 90 seconds. The harness tracks and terminates this helper before retry; final cleanup also terminates its own children.
+
+The actual desktop reopens the synthetic Vault. A real `index_rebuild` reaches terminal **failed**, with `busy`, retryable true and rule `fault.sharing_violation`; progress is 0/4 and result is null. Activity overview and payload reads still return their prior sequence/hash. Complete canonical Vault and Activity trees remain byte-identical. After releasing the helper, the original index cache also matches its saved bytes. A new real rebuild succeeds, reaches the canonical head, and index-dependent search returns the approved memory. Canonical Vault and Activity bytes still match. The ordinary Activity source-failure/pending/restart steps also pass afterward.
+
+The [raw report](Activity-unified/locked-index-native.json) passes **46/46**, exit 0, including eleven file-sharing failure/recovery assertions. The [proof](Activity-unified/locked-index-proof.json) binds the raw report, harness and binary hashes and exact pin. Offline evidence validation also parses the recorded terminal failure and requires its exact busy/sharing-violation facts, rather than treating every failure as the tested fault. Harness syntax, Git whitespace, Memory integration self-test (8 negative checks) and Activity evidence integrity (**18 reports, 166 selectors, 17 negative checks**) pass. Unchanged product verification from the explicit confirmation slice is reused.
+
+Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`. Desktop SHA-256 stays `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`; runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`. The synthetic Vault, original cache and screenshots remain in the owned `enouia-activity-locked-index-20261008` temporary folder.
+
+This is Windows sharing-violation acceptance. It does not establish disk-full, ACL denial, mid-write power loss or long-running rebuild overlap. No real file permissions, personal Vault, production task or public upload is used. C17/J1/B4 remain partial and B5 inactive.

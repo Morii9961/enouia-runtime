@@ -15,8 +15,9 @@ The implementation combines both branch histories. Subsequent owner-authorized c
 | Ordinary Activity flow plus actual healthy Core rebuild | [35/35 native checks](Activity-index-isolation-2026-10-08.md); Activity bytes unchanged and approved Memory survives source failure |
 | Same workflow plus actual missing-cache recovery | [41/41 native checks](Activity-missing-index-2026-10-08.md); canonical Vault and Activity bytes unchanged after cache removal/restart/rebuild |
 | Same workflow plus malformed-cache search refusal and recovery | [45/45 native checks](Activity-malformed-index-2026-10-08.md); canonical list and Activity remain readable, search recovers after rebuild, canonical Vault and Activity bytes unchanged |
+| Same workflow plus Windows index-sharing failure and retry | [46/46 native checks](Activity-locked-index-2026-10-08.md); exact busy/sharing-violation failure, Activity remains readable, release/rebuild/search recovery preserves canonical Vault and Activity bytes |
 | Explicit safety classifications | [ADR-031 comparison follow-up](B4-validation-compatibility-2026-10-08.md): 30 frozen cases and 49 literal cases/75 checks, zero unclassified differences |
-| Current offline evidence integrity | [17 reports, 162 selectors, 16 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
+| Current offline evidence integrity | [18 reports, 166 selectors, 17 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
 
 Current desktop SHA-256 is `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`; unsigned installer is `a8c81938be6c825e655386de738ab9035665201871bca998e125df626638d018`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`.
 

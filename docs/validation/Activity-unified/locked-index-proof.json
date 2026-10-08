@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_native_locked_index_activity",
+  "sourceBaseRevision": "e9438c405e62dcd284c13d707199e433fc12f5ab",
+  "checks": [
+    "S.generated_index_is_exclusively_held",
+    "S.synthetic_vault_reopens_with_held_index",
+    "S.held_index_rebuild_reports_failure",
+    "S.activity_reads_survive_index_storage_failure",
+    "S.failed_rebuild_preserves_canonical_vault",
+    "S.failed_rebuild_preserves_activity_bytes",
+    "S.failed_rebuild_preserves_index_cache",
+    "S.released_index_rebuild_succeeds",
+    "S.recovered_search_returns_approved_memory",
+    "S.recovery_preserves_canonical_vault",
+    "S.recovery_preserves_activity_bytes"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/locked-index-native.json",
+  "nativeReportSha256": "de07c9e39a276fdbfc486d590487dc7ee8cc9e5dff98eea525e568cd303cc2af",
+  "nativeSummary": "46/46",
+  "processExitCode": 0,
+  "harnessSha256": "8e123a3e3f568465e7a9a78ee762108e1a946723d0238fdd2dcf205599ab5d5e",
+  "desktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only this run's generated index is held by an owned, self-expiring helper after the Core host exits.",
+    "This tests a Windows sharing violation, not disk-full, ACL denial, mid-write power loss or long-running rebuild overlap.",
+    "No personal Vault, production task or public upload is used."
+  ]
+}

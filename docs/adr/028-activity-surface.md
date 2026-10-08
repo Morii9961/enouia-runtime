@@ -32,3 +32,5 @@ The Activity producer is installed separately (B3.2) and runs from Windows Task 
 - The [missing-cache drill](../validation/Activity-missing-index-2026-10-08.md) verifies reopening/rebuild of a synthetic Vault after only its generated index caches are removed with the host closed. Canonical Vault and Activity bytes stay unchanged; storage-fault and long-running overlap remain separate acceptance gates.
 
 - The [malformed-cache drill](../validation/Activity-malformed-index-2026-10-08.md) confirms actual index-dependent search refusal and recovery while canonical Memory reads and Activity remain usable; canonical Vault and Activity bytes stay unchanged. No storage fault or long-running overlap is claimed.
+
+- The [index-sharing drill](../validation/Activity-locked-index-2026-10-08.md) verifies real Windows sharing-violation failure/retry while Activity remains usable and canonical Vault/Activity bytes stay unchanged. It does not establish disk-full, ACL denial or mid-write power loss.

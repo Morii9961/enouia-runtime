@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 17);
+  assert.equal(reports.size, 18);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -179,6 +179,27 @@ function validate(index) {
   assert.equal(malformed.memoryRevision, isolation.memoryRevision);
   for (const digest of [malformed.harnessSha256, malformed.desktopSha256, malformed.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(malformed.limitations.includes('No disk-full, permission-failure, long-running overlap or personal Vault is tested.'));
+  const locked = reports.get('locked_index').report;
+  assert.equal(locked.scope, 'isolated_native_locked_index_activity');
+  const lockedBytes = readFileSync(contained(locked.nativeReport));
+  assert.equal(hash(lockedBytes), locked.nativeReportSha256, 'locked-index native evidence changed');
+  const lockedNative = JSON.parse(lockedBytes);
+  assert.equal(locked.nativeSummary, '46/46');
+  assert.equal(locked.processExitCode, 0);
+  assert.equal(lockedNative.summary, locked.nativeSummary);
+  assert.equal(lockedNative.checks.length, 46);
+  assert(lockedNative.checks.every(c => c.ok === true));
+  assert.deepEqual(locked.checks, lockedNative.checks.filter(c => c.id.startsWith('S.')).map(c => c.id));
+  assert.equal(locked.checks.length, 11);
+  const failure = JSON.parse(lockedNative.checks.find(c => c.id === 'S.held_index_rebuild_reports_failure').detail);
+  assert.equal(failure.state, 'failed');
+  assert.equal(failure.error.code, 'busy');
+  assert.deepEqual(failure.error.rules, ['fault.sharing_violation']);
+  assert.equal(failure.progress.done, 0);
+  assert.equal(failure.result, null);
+  assert.equal(locked.memoryRevision, isolation.memoryRevision);
+  for (const digest of [locked.harnessSha256, locked.desktopSha256, locked.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(locked.limitations.includes('This tests a Windows sharing violation, not disk-full, ACL denial, mid-write power loss or long-running rebuild overlap.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -204,8 +225,9 @@ function validate(index) {
   assert(linkedTo(c17, 'index_isolation').includes('I.memory_rebuild_preserves_activity_bytes'), 'C17 must retain pinned-Core rebuild isolation evidence');
   assert(linkedTo(c17, 'missing_index').includes('R.cache_recovery_preserves_activity_bytes'), 'C17 must retain missing-cache isolation evidence');
   for (const id of ['M.malformed_index_is_reported_not_ready', 'M.rebuilt_index_search_returns_approved_memory', 'M.cache_recovery_preserves_canonical_vault', 'M.cache_recovery_preserves_activity_bytes']) assert(linkedTo(c17, 'malformed_index').includes(id), 'C17 must retain malformed-cache isolation and real search recovery evidence');
+  for (const id of ['S.held_index_rebuild_reports_failure','S.recovered_search_returns_approved_memory','S.recovery_preserves_canonical_vault','S.recovery_preserves_activity_bytes']) assert(linkedTo(c17, 'locked_index').includes(id), 'C17 must retain held-cache failure and recovery evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 7, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 8, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -228,7 +250,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_isolation'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'missing_index'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'malformed_index'));
-  result.negativeChecks = 16;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'locked_index'));
+  result.negativeChecks = 17;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
