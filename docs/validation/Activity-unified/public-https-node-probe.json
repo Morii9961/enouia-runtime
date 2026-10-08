@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "scope": "read_only_actual_hostname_https_node_verified_tls",
+  "observedAt": "2026-10-08T11:54:58.979Z",
+  "client": {
+    "node": "v24.15.0",
+    "openssl": "3.5.5"
+  },
+  "checks": [
+    {
+      "url": "https://morii9961.top/zh/",
+      "httpCode": null,
+      "tlsVerified": false,
+      "state": "connection_failed",
+      "errorCode": "ECONNRESET",
+      "elapsedMs": 292
+    },
+    {
+      "url": "https://morii9961.top/status-data/current.json",
+      "httpCode": null,
+      "tlsVerified": false,
+      "state": "connection_failed",
+      "errorCode": "ECONNRESET",
+      "elapsedMs": 267
+    }
+  ],
+  "limitations": [
+    "No HTTP status is inferred when the TLS connection fails.",
+    "This reads public URLs only; it establishes no new producer publication, cutover or receiver deployment."
+  ]
+}

@@ -34,6 +34,8 @@ Next acceptance work remains explicit: real elapsed hourly/logon and battery/res
 The earlier automatic rejection of the temporary task drill was superseded by scoped owner authorization; [41-check](Activity-scheduler-live-2026-10-08.md), 57-check and 63-check follow-ups passed with ownership-checked removal. No rejection workaround or production activation occurred.
 
 A final [read-only public HTTPS refresh](Activity-unified/public-https-probe.json) at `2026-10-08T08:18:22.939Z` still returns curl 35/HTTP 000 for the About page and public manifest, with a Schannel handshake failure on this machine. It obtains no HTTP response and establishes neither a 404 nor a hosting cause. Production observation remains unverified.
+A separate verified-TLS Node/OpenSSL [read-only probe](Activity-unified/public-https-node-probe.json) at 2026-10-08T11:54:58.979Z also receives no HTTP response from either fixed public URL (ECONNRESET before verified TLS). Node v24.15.0/OpenSSL 3.5.5 differs from the earlier Schannel client, so the failure is not observed solely in Schannel. The external web tool also could not access either URL. These are client observations, not proof of a global outage, 404, DNS/hosting cause, receiver deployment or production publication. The reusable probe keeps certificate verification enabled, limits elapsed time/body size, follows no redirect, and uses no credentials or writes to the origin.
+
 
 The rest of this document preserves the merged slice's original findings, counts, binary identities and failed prerequisites. In particular, its two/twelve unresolved counts describe the older reports, not the current ADR-031 classification.
 
