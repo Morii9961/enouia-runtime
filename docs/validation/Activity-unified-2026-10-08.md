@@ -23,6 +23,8 @@ Next acceptance work remains explicit: real elapsed hourly/logon and battery/res
 
 The earlier automatic rejection of the temporary task drill was superseded by scoped owner authorization; [41-check](Activity-scheduler-live-2026-10-08.md), 57-check and 63-check follow-ups passed with ownership-checked removal. No rejection workaround or production activation occurred.
 
+A final [read-only public HTTPS refresh](Activity-unified/public-https-probe.json) at `2026-10-08T08:18:22.939Z` still returns curl 35/HTTP 000 for the About page and public manifest, with a Schannel handshake failure on this machine. It obtains no HTTP response and establishes neither a 404 nor a hosting cause. Production observation remains unverified.
+
 The rest of this document preserves the merged slice's original findings, counts, binary identities and failed prerequisites. In particular, its two/twelve unresolved counts describe the older reports, not the current ADR-031 classification.
 
 ## Integrated behavior
