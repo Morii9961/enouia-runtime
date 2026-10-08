@@ -150,6 +150,13 @@
       "sha256": "69255b34b4ce75fb4c4b52a45a009566665c79b54f67089f0d408e49a0ad692d",
       "state": "passed",
       "selectorCount": 9
+    },
+    {
+      "id": "index_guidance",
+      "path": "docs/validation/Activity-unified/index-guidance-proof.json",
+      "sha256": "0a2c8058ba4e1189d24c1accfbd812cdf5cf192f44d8abccbf4c2b5ff3f2f42c",
+      "state": "passed",
+      "selectorCount": 3
     }
   ],
   "cases": [
@@ -695,6 +702,14 @@
             "K.partial_index_updates_all_search_pages",
             "K.new_rebuild_has_fresh_operation_identity",
             "K.original_memory_survives_activity_failure"
+          ]
+        },
+        {
+          "report": "index_guidance",
+          "selectors": [
+            "U.persistent_index_failure_explains_rebuild",
+            "U.failed_search_is_not_empty_result",
+            "U.search_recovers_after_index_rebuild"
           ]
         }
       ],

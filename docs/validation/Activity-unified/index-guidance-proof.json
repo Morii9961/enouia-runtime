@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "native_index_recovery_guidance",
+  "sourceBaseRevision": "251bbaf8eb7876d19d74769a285ca3f4d1704f1f",
+  "checks": [
+    "U.persistent_index_failure_explains_rebuild",
+    "U.failed_search_is_not_empty_result",
+    "U.search_recovers_after_index_rebuild"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/index-guidance-after.json",
+  "nativeReportSha256": "a3d07aac8dcd9882ee033735e5045c2450692c55e498318eee519c6913f56ef2",
+  "nativeSummary": "48/48",
+  "processExitCode": 0,
+  "harnessSha256": "50d5b8b71744a5f0aaef14003fe7222a8b305eb49b96011804c87e311f20fdc7",
+  "desktopSha256": "12ddc3cb1a37ae0b7db814aa016a15070e5c91699f1667b150bb2a6c4ccabf85",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Both baseline and fixed runs use freshly created synthetic Vaults with only their disposable index caches replaced.",
+    "The installer is built and statically checked, not installed, signed or published.",
+    "No personal Vault, production task or public upload is used."
+  ],
+  "beforeReport": "docs/validation/Activity-unified/index-guidance-before.json",
+  "beforeReportSha256": "8bdde88b53fff7269d519f24df2d1bb2b9c27bc30f5bf47a7af89757205f292c",
+  "beforeSummary": "47/48",
+  "beforeProcessExitCode": 1,
+  "beforeDesktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "installerSha256": "a2daabd9c012abf6a94a0b671e64e1d9ff7e8abf89e4741812c808e312423cdc"
+}

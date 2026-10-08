@@ -215,6 +215,19 @@ function fixtureEntries(root) {
 }
 const fixtureTree = root => fixtureEntries(root).join('|');
 
+async function searchMemory(s) {
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Memory\"]').click()");
+  await waitFor(s,"!!document.querySelector('input[aria-label=\"Search memories\"]')",'Memory search field');
+  await s.evaluate(`(()=>{
+    const input=document.querySelector('input[aria-label="Search memories"]');
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'isolation');
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    return true;
+  })()`);
+  await sleep(100);
+  await s.evaluate("document.querySelector('form[role=\"search\"]').requestSubmit();true");
+}
+
 // WebView-scoped key events exercise native browser Tab/Enter behavior; page
 // focus and controls are never set or clicked through DOM calls in this mode.
 // The Windows folder dialog is still filled with the PID-bound helper above.
@@ -682,6 +695,12 @@ async function main() {
         check('M.canonical_memory_list_survives_malformed_index', !listed.error && listed.result?.total === 1 && JSON.stringify(listed.result).includes(note));
         const refused = await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
         check('M.malformed_index_is_reported_not_ready', refused.error?.code === 'index_not_ready', JSON.stringify(refused.error));
+        await searchMemory(s);
+        await waitFor(s,"[...document.querySelectorAll('[role=alert]')].some(node=>node.textContent.includes('The index'))",'actual malformed-index search error');
+        const message=await s.evaluate("[...document.querySelectorAll('[role=alert]')].map(node=>node.textContent).join(' ')");
+        check('U.persistent_index_failure_explains_rebuild', message.includes('Rebuild index') && message.includes('Vault & recovery'), message);
+        check('U.failed_search_is_not_empty_result', !(await s.evaluate(has('Nothing matches this search.'))) && await s.evaluate("document.querySelectorAll('button.qr43').length===0"));
+        await shot(s,'03-malformed-search');
       }
       await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
       await waitFor(s, "document.querySelectorAll('.act-source').length===3", 'Activity while index cache is absent');
@@ -707,6 +726,11 @@ async function main() {
       if (malformed) {
         const found = await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
         check('M.rebuilt_index_search_returns_approved_memory', !found.error && found.result?.items?.length === 1 && JSON.stringify(found.result).includes('isolation'));
+        await searchMemory(s);
+        await waitFor(s,"document.querySelectorAll('button.qr43').length===1",'actual search after cache rebuild');
+        check('U.search_recovers_after_index_rebuild', await s.evaluate("!document.querySelector('[role=alert]')") && await s.evaluate(has('isolation')));
+        await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+        await waitFor(s,"document.querySelectorAll('.act-source').length===3",'Activity after Memory recovery');
       }
     }
   }

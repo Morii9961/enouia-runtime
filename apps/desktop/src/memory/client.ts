@@ -66,7 +66,7 @@ export async function pick(kind: PickKind): Promise<Picked | null> {
 const CODES: Record<string, string> = {
   vault_locked: "The Vault is not open, or it is locked",
   vault_recovering: "The Vault is recovering and is read-only",
-  index_not_ready: "The index is busy or rebuilding. Try again in a moment",
+  index_not_ready: "The index is unavailable. Retry, or use Rebuild index in Vault & recovery if it stays unavailable",
   revision_conflict: "The content changed: the plan expired, the hash differs or the page is stale. Refresh and try again",
   idempotency_conflict: "The same request key was used for different content",
   not_found: "Not found. It may have been deleted, or its token expired",
@@ -83,6 +83,7 @@ const CODES: Record<string, string> = {
 // Rules that say more than their code (Memory ADR-MEM-46 and the import
 // pipeline at the pinned revision).
 const RULES: Record<string, string> = {
+  "index.busy": "The index is busy or rebuilding. Try again in a moment",
   "import.resume_existing": "This file's earlier import was interrupted. Resume it from the import list instead of starting it again",
   "import.adapter_changed": "This import can no longer be resumed: this version reads the file differently than when the import started",
   "workspace.vault_in_use": "This Vault is open in another app. Lock it or exit there first",

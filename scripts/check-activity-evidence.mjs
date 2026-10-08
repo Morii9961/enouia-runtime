@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 21);
+  assert.equal(reports.size, 22);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -280,6 +280,30 @@ function validate(index) {
   assert.equal(partial.memoryRevision,isolation.memoryRevision);
   for(const digest of [partial.harnessSha256,partial.desktopSha256,partial.runnerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   assert(partial.limitations.includes('Only this 241-memory synthetic workload is tested; no sustained stress, concurrent Activity mutation or physical storage interruption is used.'));
+  const guidance=reports.get('index_guidance').report;
+  assert.equal(guidance.scope,'native_index_recovery_guidance');
+  const guidanceBytes=readFileSync(contained(guidance.nativeReport));
+  const beforeBytes=readFileSync(contained(guidance.beforeReport));
+  assert.equal(hash(guidanceBytes),guidance.nativeReportSha256,'guidance native evidence changed');
+  assert.equal(hash(beforeBytes),guidance.beforeReportSha256,'guidance baseline evidence changed');
+  const fixed=JSON.parse(guidanceBytes), before=JSON.parse(beforeBytes);
+  assert.equal(guidance.nativeSummary,'48/48');
+  assert.equal(guidance.beforeSummary,'47/48');
+  assert.equal(guidance.processExitCode,0);
+  assert.equal(guidance.beforeProcessExitCode,1);
+  assert.equal(fixed.summary,guidance.nativeSummary);
+  assert.equal(before.summary,guidance.beforeSummary);
+  assert.equal(fixed.checks.length,48);
+  assert.deepEqual(fixed.checks.map(c=>c.id),before.checks.map(c=>c.id));
+  assert(fixed.checks.every(c=>c.ok===true));
+  assert.deepEqual(before.checks.filter(c=>!c.ok).map(c=>c.id),['U.persistent_index_failure_explains_rebuild']);
+  assert.deepEqual(guidance.checks,fixed.checks.filter(c=>c.id.startsWith('U.')).map(c=>c.id));
+  assert.equal(guidance.checks.length,3);
+  assert(fixed.checks.find(c=>c.id==='U.persistent_index_failure_explains_rebuild').detail.includes('Rebuild index in Vault & recovery'));
+  assert.equal(guidance.memoryRevision,isolation.memoryRevision);
+  for(const digest of [guidance.harnessSha256,guidance.desktopSha256,guidance.beforeDesktopSha256,guidance.runnerSha256,guidance.installerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  assert.notEqual(guidance.desktopSha256,guidance.beforeDesktopSha256);
+  assert(guidance.limitations.includes('The installer is built and statically checked, not installed, signed or published.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -309,8 +333,9 @@ function validate(index) {
   assert(overlap.checks.every(id => linkedTo(c17,'rebuild_overlap').includes(id)), 'C17 must retain real running-state bracket and canonical/Activity preservation evidence');
   assert(cancelled.checks.every(id=>linkedTo(c17,'rebuild_cancel').includes(id)),'C17 must retain actual cancelled terminal and recovery evidence');
   assert(partial.checks.every(id=>linkedTo(c17,'rebuild_partial').includes(id)),'C17 must retain partial watermark and automatic search catch-up evidence');
+  assert(guidance.checks.every(id=>linkedTo(c17,'index_guidance').includes(id)),'C17 must retain actual recovery guidance and search recovery evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 11, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 12, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -337,7 +362,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_overlap'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_cancel'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_partial'));
-  result.negativeChecks = 20;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_guidance'));
+  result.negativeChecks = 21;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

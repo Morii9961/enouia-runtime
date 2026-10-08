@@ -4,13 +4,14 @@ Date: 2026-10-08. Integration parents: Codex `08dfc86ba12de61a336790ecb46e95ce31
 
 ## Latest verified state
 
-The implementation combines both branch histories. Subsequent owner-authorized checks and the production-confirmation fix include the malformed-cache follow-up below; main and the Claude branch are unchanged. The records below name their exact binaries and scope. Counts overlap and must not be added as a full-acceptance total.
+The implementation combines both branch histories. Subsequent owner-authorized checks and the production-confirmation fix include the scoped follow-ups below; main and the Claude branch are unchanged. The records below name their exact binaries and scope. Counts overlap and must not be added as a full-acceptance total.
 
 | Scope | Latest applicable evidence |
 |---|---|
 | Actual temporary Windows task, disabled/enabled reads and closed-UI sync | [63 assertions plus two 10/10 native page runs](Activity-native-scheduler-2026-10-08.md); older unchanged schedule-read implementation/binary |
 | Explicit production send consent | [17/17 modeled native checks](Activity-send-confirmation-2026-10-08.md); every send request intercepted before native IPC |
-| Current desktop checks and unsigned installer | [37 frontend tests, 31+3 host/Core tests, strict build, fmt/clippy and 20/20 installer ownership checks](Activity-send-confirmation-2026-10-08.md); installer built, not installed |
+| Production-confirmation slice desktop checks and unsigned installer | [37 frontend tests, 31+3 host/Core tests, strict build, fmt/clippy and 20/20 installer ownership checks](Activity-send-confirmation-2026-10-08.md); installer built, not installed |
+| Persistent index recovery guidance and current desktop checks | [48/48 native checks, 38 frontend tests, 31+3 host/Core tests and 26/26 installer checks](Index-recovery-guidance-2026-10-08.md); actual 47/48 baseline, temporary contention distinguished from persistent unavailability |
 | Installed runner/management outside Git with bootstrap inputs removed | [21 checks](Activity-independent-package-2026-10-08.md); system-only child PATH, delivery disabled and no task |
 | Ordinary Activity flow plus actual healthy Core rebuild | [35/35 native checks](Activity-index-isolation-2026-10-08.md); Activity bytes unchanged and approved Memory survives source failure |
 | Same workflow plus actual missing-cache recovery | [41/41 native checks](Activity-missing-index-2026-10-08.md); canonical Vault and Activity bytes unchanged after cache removal/restart/rebuild |
@@ -20,11 +21,11 @@ The implementation combines both branch histories. Subsequent owner-authorized c
 | Actual pre-first-batch cancellation and fresh rebuild | [46/46 native checks](Activity-rebuild-cancel-2026-10-08.md); real cancelled terminal, fresh operation identity and recovered approved memory search after Activity failure |
 | Actual partial-progress cancellation and automatic catch-up | [49/49 native checks](Activity-rebuild-partial-2026-10-08.md); retained watermark 256, three complete search pages at sequence 496 and fresh rebuild recovery |
 | Explicit safety classifications | [ADR-031 comparison follow-up](B4-validation-compatibility-2026-10-08.md): 30 frozen cases and 49 literal cases/75 checks, zero unclassified differences |
-| Current offline evidence integrity | [21 reports, 186 selectors, 20 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
+| Current offline evidence integrity | [22 reports, 189 selectors, 21 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
 
-Current desktop SHA-256 is `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`; unsigned installer is `a8c81938be6c825e655386de738ab9035665201871bca998e125df626638d018`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`.
+Current desktop SHA-256 is `12ddc3cb1a37ae0b7db814aa016a15070e5c91699f1667b150bb2a6c4ccabf85`; unsigned installer is `a2daabd9c012abf6a94a0b671e64e1d9ff7e8abf89e4741812c808e312423cdc`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`. The prior confirmation/rebuild reports name their earlier executable; the recovery-guidance run supplies current 48/48 native evidence.
 
-Next acceptance work remains explicit: real elapsed hourly/logon and battery/resume behavior; disk-full/permission/mid-write storage faults, sustained rebuild stress/cancellation and concurrent Activity mutations; physical source-checkout absence or filesystem denial; author-process independence and deployed public/static behavior; broader Windows accessibility and signing; reviewed real seed/cutover/reconciliation and observed production publication. The last items retain their owner/production gates. No personal Vault/archive, production task, credentials, server or Moriium checkout was changed.
+Next acceptance work remains explicit: real elapsed hourly/logon and battery/resume behavior; disk-full/permission/mid-write storage faults, sustained rebuild stress and concurrent Activity mutations; physical source-checkout absence or filesystem denial; author-process independence and deployed public/static behavior; broader Windows accessibility and signing; reviewed real seed/cutover/reconciliation and observed production publication. The last items retain their owner/production gates. No personal Vault/archive, production task, credentials, server or Moriium checkout was changed.
 
 The earlier automatic rejection of the temporary task drill was superseded by scoped owner authorization; [41-check](Activity-scheduler-live-2026-10-08.md), 57-check and 63-check follow-ups passed with ownership-checked removal. No rejection workaround or production activation occurred.
 
