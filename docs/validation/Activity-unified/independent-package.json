@@ -1,0 +1,42 @@
+{
+  "taskRegistered": false,
+  "childPath": "Windows System32 only",
+  "limitations": [
+    "Source checkouts still exist on the host; this is not filesystem-denial or physical-absence evidence.",
+    "No real task is registered, enabled or removed.",
+    "No desktop, Memory index repair, production receiver, credentials or authenticated collectors are used."
+  ],
+  "schemaVersion": 1,
+  "deliveryEnabled": false,
+  "bootstrapRemoved": true,
+  "state": "passed",
+  "checkCount": 21,
+  "exactPendingSha256": "6a785c1fff08325cba75bcd237a08d14624bec59623e6c0824472cec62e5bfdd",
+  "sequence": 51,
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "checks": [
+    "sandbox delivery stays disabled",
+    "no collector or credential configuration exists",
+    "installed paths use only the independent root",
+    "bootstrap source files are absent",
+    "child working directory is independent",
+    "source and build tools are absent from child PATH",
+    "management loads from the installed copy",
+    "installed runner reads the paused imported state",
+    "installed management query works without a registered task",
+    "status reads leave Activity bytes unchanged",
+    "installed runner resumes without source configuration",
+    "independent sync commits exactly the next pending sequence",
+    "pending and reservation remain delivery disabled",
+    "unconfigured github retains exact history",
+    "unconfigured codex retains exact history",
+    "unconfigured claude retains exact history",
+    "independent retry remains unresolved with no delivery configuration",
+    "retry preserves pending identity without another reservation",
+    "unconfigured retry is byte identical",
+    "unregistered installed uninstall preserves files",
+    "query and uninstall leave installation and latest Activity state intact"
+  ],
+  "scope": "isolated_installed_package_clean_environment",
+  "harnessSha256": "8cea92db549dfd91ac1b62857d1fea7264c73098884c7cb5ade280f6365d67fa"
+}

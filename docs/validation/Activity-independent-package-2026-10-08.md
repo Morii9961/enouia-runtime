@@ -1,0 +1,15 @@
+# Independently installed Activity package
+
+Date: 2026-10-08. Base revision: `dcd2835`. Scope: synthetic installed runner and copied management tools, outside Git, with no source/build tools in the child PATH. No task is registered or enabled, and delivery is disabled.
+
+`scripts/test-activity-independent.ps1` imports the public synthetic fixture at high-water 50, installs a paused sandbox package into a GUID temporary directory, then removes only its own checked bootstrap directory and config. It starts an absolute PowerShell executable from an independent working directory with a cleared environment, system-only PATH and explicit system PowerShell module paths. All subsequent probes use the installed runner and management module; the child receives only the installed root. No source configurations or credentials are present.
+
+The [recorded report](Activity-unified/independent-package.json) passes **21 checks**, exit 0. Installed query works without a task. Reads preserve Activity bytes. Resuming and syncing reserve sequence 51, retain all three sources' exact historical totals and success times, and keep pending with delivery disabled. Retry returns unresolved-delivery code 4 without another reservation or any stored-byte change. Installed uninstall is an unregistered no-op that preserves the complete installation and latest Activity state. Successful parent cleanup removes only the marked GUID temporary tree; it changes no repository or installed application.
+
+The initial worker failed before its first runner read: the helper name `Cli` matched PowerShell's built-in `cli` alias for Clear-Item, which attempted to clear a nonexistent `overview` path. Renaming the helper to `InvokeInstalledCli` resolved the test-tool collision. That failed marked fixture is retained for inspection. The successful report is from the corrected harness, not that attempt.
+
+Runner SHA-256 remains `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`. Harness SHA-256 is recorded in the report. Its committed report SHA-256 is `0051ee93907ef967d53d59206dc7b1d2192b2dd1cdae291ca8f7b7a9edbcc279`.
+
+The evidence index now binds **14 reports, 154 selectors and 13 negative checks**, linking this scope to partial C17 alongside the separate actual closed-UI scheduler proof. All 18 rows remain partial, and B4/B5 remain false. Harness syntax, evidence-index integrity and Git whitespace checks pass. Rust/product code, desktop artifacts and the Memory pin are unchanged in this slice; their applicable earlier checks are reused.
+
+This proves operation from installed copies outside the source working directory with removed bootstrap inputs and a reduced child environment. Source checkouts still exist on the host and are not made inaccessible. Physical source absence or filesystem denial, Core index-repair isolation, author-process independence and production static-read acceptance remain open. The drill does not use a desktop, personal Vault, authenticated collector, production receiver or Windows scheduled invocation.

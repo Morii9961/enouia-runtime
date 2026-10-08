@@ -10,6 +10,8 @@ The [native registered-task follow-up](Activity-native-scheduler-2026-10-08.md) 
 
 The [production confirmation follow-up](Activity-send-confirmation-2026-10-08.md) fixes ordinary second-click consent and missing optional producer metadata. Its rebuilt desktop passes 17/17 modeled confirmation checks, 29/29 ordinary native Activity checks, 37 frontend tests and 31+3 host/Core tests. The executable/installer hashes in that report supersede the unchanged-desktop hashes below; the runner and Memory pin remain unchanged.
 
+The [independent installed-package drill](Activity-independent-package-2026-10-08.md) passes 21 checks outside Git after removing bootstrap inputs, with only system tools in the child PATH. It adds current partial C17 evidence without claiming that source checkouts are physically absent or inaccessible. The current evidence index binds 14 reports/154 selectors and 13 negative checks.
+
 ## Integrated behavior
 
 - C15's copied receiver/publisher harness now covers success-time loss, source loss, date loss and whole-batch clock rollback for all three sources. Transport completion does not clear unpublished pending bytes.

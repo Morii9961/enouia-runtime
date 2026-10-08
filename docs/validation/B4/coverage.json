@@ -94,6 +94,13 @@
       "sha256": "46865a48d51678dd79f6ae1d06cbb304089a8b15d4c4b1b22d1eca7285e37a01",
       "state": "passed",
       "selectorCount": 4
+    },
+    {
+      "id": "independent_package",
+      "path": "docs/validation/Activity-unified/independent-package.json",
+      "sha256": "0051ee93907ef967d53d59206dc7b1d2192b2dd1cdae291ca8f7b7a9edbcc279",
+      "state": "passed",
+      "selectorCount": 21
     }
   ],
   "cases": [
@@ -566,10 +573,17 @@
             "C17: installed scheduled sync advances one sequence with the desktop closed",
             "C17: owned task is removed before guarded synthetic-directory cleanup"
           ]
+        },
+        {
+          "report": "independent_package",
+          "selectors": [
+            "bootstrap source files are absent",
+            "query and uninstall leave installation and latest Activity state intact"
+          ]
         }
       ],
       "remaining": [
-        "Complete absent-source-checkout, Core index-repair isolation, author-process independence and production static-read acceptance. Closed-UI state advancement and owned scheduler cleanup now have isolated real-task evidence."
+        "Complete physical absent-source-checkout or filesystem-denial, Core index-repair isolation, author-process independence and production static-read acceptance. Closed-UI state advancement and owned scheduler cleanup have isolated real-task evidence; the installed package also runs outside Git with removed bootstrap files and a system-only child PATH."
       ]
     },
     {

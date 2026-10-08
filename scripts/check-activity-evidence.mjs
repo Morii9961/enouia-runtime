@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 13);
+  assert.equal(reports.size, 14);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -123,6 +123,17 @@ function validate(index) {
   assert.equal(scheduled.closedUiSync.sequence, 51);
   assert.deepEqual(scheduled.closedUiSync.taskResults, [4, 4]);
   for (const digest of [scheduled.runnerSha256, scheduled.harnessSha256, scheduled.closedUiSync.exactPendingSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  const independent = reports.get('independent_package').report;
+  assert.equal(independent.scope, 'isolated_installed_package_clean_environment');
+  assert.equal(independent.checkCount, 21);
+  assert.equal(independent.checks.length, 21);
+  assert.equal(independent.taskRegistered, false);
+  assert.equal(independent.deliveryEnabled, false);
+  assert.equal(independent.bootstrapRemoved, true);
+  assert.equal(independent.childPath, 'Windows System32 only');
+  assert.equal(independent.sequence, 51);
+  for (const digest of [independent.runnerSha256, independent.harnessSha256, independent.exactPendingSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(independent.limitations.includes('Source checkouts still exist on the host; this is not filesystem-denial or physical-absence evidence.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -144,8 +155,9 @@ function validate(index) {
   assert(literal2.intentionalRefusalCaseIds.every(id => linkedTo(c06, 'literal2').includes(id)), 'C06 must link all twelve current timestamp refusals');
   const c17 = index.cases.find(c => c.id === 'C17');
   assert(linkedTo(c17, 'scheduler_closed_ui').includes('C17: installed scheduled sync advances one sequence with the desktop closed'), 'C17 must retain actual closed-UI evidence');
+  assert(linkedTo(c17, 'independent_package').includes('bootstrap source files are absent'), 'C17 must retain independently installed package evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 3, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 4, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -164,7 +176,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C06').evidence = x.cases.find(c => c.id === 'C06').evidence.filter(e => e.report !== 'literal2'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'scheduler_closed_ui'));
   reject(x => x.reports.find(r => r.id === 'literal2').state = 'completed_with_unresolved_differences');
-  result.negativeChecks = 12;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'independent_package'));
+  result.negativeChecks = 13;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
