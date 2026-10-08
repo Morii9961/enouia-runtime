@@ -25,10 +25,10 @@ import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
-const overlapMode = ['--rebuild-overlap', '--rebuild-cancel'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--task-disabled|--task-enabled]');
+const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial'].includes(mode);
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -527,8 +527,18 @@ async function main() {
       check('O.activity_reads_bracketed_by_running_rebuild', overlapBefore?.state === 'running' && after?.state === 'running' && after.operationId === overlapBefore.operationId, JSON.stringify({before:overlapBefore,after,activityReadElapsedMs:Date.now()-overlapStart}));
     }
     check('I.activity_reads_survive_index_rebuild', read.kind === 'activity_overview' && read.producer.highestReserved === o.producer.highestReserved && read.pending === null && payload.sha256 === preview.sha256);
-    if (mode === '--rebuild-cancel') {
+    if (['--rebuild-cancel', '--rebuild-partial'].includes(mode)) {
       const originalId=rebuild.result.operationId;
+      if (mode === '--rebuild-partial') {
+        let progress;
+        const end=Date.now()+30000;
+        do {
+          progress=(await memoryCall(s,'operation_get',{operationId:originalId})).result;
+          if(progress?.state !== 'running' || progress.progress.done >= 1) break;
+          await sleep(20);
+        } while(Date.now()<end);
+        check('K.partial_worker_progress_is_observed', progress?.state === 'running' && progress.progress.done >= 1, JSON.stringify(progress));
+      }
       const cancel=await memoryCall(s,'operation_cancel',{operationId:originalId});
       check('K.running_rebuild_accepts_cancellation', cancel.result?.cancelRequested === true && cancel.result.operationId === originalId, JSON.stringify(cancel.result));
       let stopped;
@@ -539,8 +549,27 @@ async function main() {
         await sleep(100);
       } while(Date.now()<end);
       check('K.worker_reaches_actual_cancelled_state', stopped?.state === 'cancelled' && stopped.result?.cancelled === true && stopped.result.reachedHead === false, JSON.stringify(stopped));
+      if (mode === '--rebuild-partial') {
+        check('K.partial_cancel_keeps_committed_watermark', stopped?.result?.commitsApplied > 0 && stopped.result.commitsApplied < 496 && stopped.result.watermarkSequence === stopped.result.commitsApplied, JSON.stringify(stopped?.result));
+      }
       check('K.cancel_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === overlapCanonical);
       check('K.cancel_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
+      if (mode === '--rebuild-partial') {
+        // Ordinary search uses the existing index update path to catch up a
+        // cancelled projection. Page through every synthetic overlap fact.
+        const ids=new Set();
+        const snapshots=[];
+        let cursor=null;
+        do {
+          const page=await memoryCall(s,'memory_search',{query:'overlap',includeHistorical:false,cursor,limit:100});
+          if(page.error) throw new Error(`Partial-index search: ${page.error.code}`);
+          for(const item of page.result.items) ids.add(item.memoryId);
+          snapshots.push(page.result.snapshotSequence);
+          cursor=page.result.nextCursor;
+          if(snapshots.length>4) throw new Error('Unexpected partial-index search page count');
+        } while(cursor);
+        check('K.partial_index_updates_all_search_pages', ids.size === 240 && snapshots.every(sequence=>sequence===496), JSON.stringify({uniqueMemories:ids.size,snapshots}));
+      }
       rebuild=await memoryCall(s,'index_rebuild');
       check('K.new_rebuild_has_fresh_operation_identity', typeof rebuild.result?.operationId === 'string' && rebuild.result.operationId !== originalId);
       if(!rebuild.result?.operationId) throw new Error(`Cancelled-index recovery: ${rebuild.error?.code}`);
@@ -701,7 +730,7 @@ async function main() {
   if (indexMode) {
     const memories = await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false});
     check('I.approved_memory_survives_activity_source_failure', !memories.error && memories.result?.total === expectedMemories && (overlapMode || JSON.stringify(memories.result).includes(note)));
-    if (mode === '--rebuild-cancel') {
+    if (['--rebuild-cancel', '--rebuild-partial'].includes(mode)) {
       const found=await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
       check('K.original_memory_survives_activity_failure', !found.error && found.result?.items?.length === 1 && JSON.stringify(found.result).includes('isolation'));
     }

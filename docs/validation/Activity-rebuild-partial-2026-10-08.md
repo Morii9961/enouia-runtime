@@ -1,0 +1,13 @@
+# Partial index cancellation catches up without affecting Activity
+
+Date: 2026-10-08. Base revision: `00b3422`. Scope: actual cooperative cancellation after index work has begun, retained committed projection progress and ordinary search catch-up on 241 Core-approved synthetic memories. Product code, binaries and Memory pin are unchanged.
+
+The `--rebuild-partial` mode observes the same running-worker Activity read bracket as the overlap drill, then waits for actual running progress 1/496 before requesting cancellation. Its real terminal result is `cancelled`, no error, `reachedHead: false`, **256 commits applied**, 121 revisions indexed and **watermark 256**. This proves committed partial progress, distinct from the previous zero-commit cancellation.
+
+Complete canonical Vault and Activity trees stay unchanged across cancellation. Ordinary `memory_search` then uses the pinned Core's existing index update path to catch up: three pages return 240 distinct synthetic overlap memories, each with snapshot sequence 496. This catch-up precedes the fresh explicit rebuild. The new rebuild has a fresh identity and succeeds; all 241 approved memories remain listed. Canonical Vault and Activity bytes still match. The ordinary source-failure/pending/restart workflow also passes, including a search that still returns the original approved isolation memory after Activity's failed source run.
+
+The [raw report](Activity-unified/rebuild-partial-native.json) passes **49/49**, exit 0, including nine cancellation/partial-recovery assertions. The [proof](Activity-unified/rebuild-partial-proof.json) binds raw bytes, harness/binary hashes and exact pin. Offline checking requires the actual running progress, cancelled terminal, retained 256 watermark and all three sequence-496 search pages. Harness syntax, Git whitespace, Memory integration self-test (8 negative checks) and Activity evidence integrity (**21 reports, 186 selectors, 20 negative checks**) pass. Unchanged product checks from the confirmation slice are reused.
+
+Memory remains pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`. Desktop SHA-256 stays `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`; runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`. Synthetic artifacts remain under `enouia-activity-rebuild-partial-20261008` in local temporary storage.
+
+This tests the recorded 241-memory workload and actual partial projection recovery. Sustained stress, concurrent Activity mutations, disk-full/ACL/mid-write faults and production remain separate gates. No personal Vault, task, real account or public upload is used. C17/J1/B4 remain partial and B5 inactive.

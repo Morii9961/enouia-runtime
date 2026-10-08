@@ -38,3 +38,5 @@ The Activity producer is installed separately (B3.2) and runs from Windows Task 
 - The [running-worker overlap drill](../validation/Activity-rebuild-overlap-2026-10-08.md) brackets real Activity reads with running statuses of the same Core rebuild over 241 approved synthetic memories, preserving canonical Vault and Activity bytes. Sustained stress, cancellation and concurrent writes remain separate.
 
 - The [cooperative cancellation drill](../validation/Activity-rebuild-cancel-2026-10-08.md) verifies actual cancellation before the first applied index batch and fresh rebuild recovery while canonical Vault and Activity bytes stay unchanged. It does not establish partial-progress recovery.
+
+- The [partial-progress cancellation drill](../validation/Activity-rebuild-partial-2026-10-08.md) verifies a retained 256-commit watermark and ordinary search catch-up to 496 before a fresh successful rebuild. Canonical Vault and Activity bytes remain unchanged; sustained stress and concurrent mutations remain separate.

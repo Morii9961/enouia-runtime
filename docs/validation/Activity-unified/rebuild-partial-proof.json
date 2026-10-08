@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_native_partial_cancelled_rebuild_activity",
+  "sourceBaseRevision": "00b34227d98a1f117ea31b6f034e525a425635d4",
+  "checks": [
+    "K.partial_worker_progress_is_observed",
+    "K.running_rebuild_accepts_cancellation",
+    "K.worker_reaches_actual_cancelled_state",
+    "K.partial_cancel_keeps_committed_watermark",
+    "K.cancel_preserves_canonical_vault",
+    "K.cancel_preserves_activity_bytes",
+    "K.partial_index_updates_all_search_pages",
+    "K.new_rebuild_has_fresh_operation_identity",
+    "K.original_memory_survives_activity_failure"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/rebuild-partial-native.json",
+  "nativeReportSha256": "4ebb2b28f59d73de7a881163913955803cdecb2881e4bc39915c40b4f956d72a",
+  "nativeSummary": "49/49",
+  "processExitCode": 0,
+  "harnessSha256": "5484421a0528c6e45ef20549b88ea738cddb7633470a22b322f52452aca3adc2",
+  "desktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Cancellation preserves an observed 256-commit watermark; ordinary search catches up to sequence 496 before the fresh rebuild.",
+    "Only this 241-memory synthetic workload is tested; no sustained stress, concurrent Activity mutation or physical storage interruption is used.",
+    "No personal Vault, production task or public upload is used."
+  ]
+}

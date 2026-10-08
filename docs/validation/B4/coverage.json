@@ -143,6 +143,13 @@
       "sha256": "dbf0d22c0a9e4107fb759cdcd423d4fdb9f7499d90ea8521e72e19e826bf0bb7",
       "state": "passed",
       "selectorCount": 6
+    },
+    {
+      "id": "rebuild_partial",
+      "path": "docs/validation/Activity-unified/rebuild-partial-proof.json",
+      "sha256": "69255b34b4ce75fb4c4b52a45a009566665c79b54f67089f0d408e49a0ad692d",
+      "state": "passed",
+      "selectorCount": 9
     }
   ],
   "cases": [
@@ -675,10 +682,24 @@
             "K.new_rebuild_has_fresh_operation_identity",
             "K.original_memory_survives_activity_failure"
           ]
+        },
+        {
+          "report": "rebuild_partial",
+          "selectors": [
+            "K.partial_worker_progress_is_observed",
+            "K.running_rebuild_accepts_cancellation",
+            "K.worker_reaches_actual_cancelled_state",
+            "K.partial_cancel_keeps_committed_watermark",
+            "K.cancel_preserves_canonical_vault",
+            "K.cancel_preserves_activity_bytes",
+            "K.partial_index_updates_all_search_pages",
+            "K.new_rebuild_has_fresh_operation_identity",
+            "K.original_memory_survives_activity_failure"
+          ]
         }
       ],
       "remaining": [
-        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress, partial-index-progress cancellation recovery and concurrent Activity mutations, author-process independence and production static-read acceptance. Actual running-rebuild reads and pre-first-batch cooperative cancellation/fresh rebuild have isolated evidence; prior cache and package evidence remains scoped."
+        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress and concurrent Activity mutations, author-process independence and production static-read acceptance. Actual running-worker reads, both pre-first-batch and 256-commit partial cancellation, ordinary search catch-up and fresh rebuild recovery now have isolated evidence; existing package/cache/fault scopes remain bounded."
       ]
     },
     {
