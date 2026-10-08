@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_native_cancelled_rebuild_activity",
+  "sourceBaseRevision": "5d3ba0286806be2eca78dbf2f5d300941935bde2",
+  "checks": [
+    "K.running_rebuild_accepts_cancellation",
+    "K.worker_reaches_actual_cancelled_state",
+    "K.cancel_preserves_canonical_vault",
+    "K.cancel_preserves_activity_bytes",
+    "K.new_rebuild_has_fresh_operation_identity",
+    "K.original_memory_survives_activity_failure"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/rebuild-cancel-native.json",
+  "nativeReportSha256": "b102aede0539e646d7e40707c429934ad2a78c62f3ad60f3b582027a03e4401e",
+  "nativeSummary": "46/46",
+  "processExitCode": 0,
+  "harnessSha256": "85362541f8b7ebc49e228b4f6fb5b6c9b14ec59c499a715ba929d535d43df549",
+  "desktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Cancellation is requested while the same real worker is running; its terminal result reports zero commits applied and no watermark.",
+    "This establishes pre-first-batch cancellation and fresh rebuild recovery, not partial-index progress recovery or sustained stress.",
+    "No personal Vault, production task or public upload is used."
+  ]
+}

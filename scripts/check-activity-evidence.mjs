@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 19);
+  assert.equal(reports.size, 20);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -225,6 +225,32 @@ function validate(index) {
   assert.equal(overlap.memoryRevision, isolation.memoryRevision);
   for (const digest of [overlap.harnessSha256, overlap.desktopSha256, overlap.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(overlap.limitations.includes('Only Activity reads are bracketed by an actually running rebuild; this is not sustained stress, rebuild cancellation or concurrent Activity mutation acceptance.'));
+  const cancelled = reports.get('rebuild_cancel').report;
+  assert.equal(cancelled.scope, 'isolated_native_cancelled_rebuild_activity');
+  const cancelBytes=readFileSync(contained(cancelled.nativeReport));
+  assert.equal(hash(cancelBytes),cancelled.nativeReportSha256,'cancelled-rebuild native evidence changed');
+  const cancelNative=JSON.parse(cancelBytes);
+  assert.equal(cancelled.nativeSummary,'46/46');
+  assert.equal(cancelled.processExitCode,0);
+  assert.equal(cancelNative.summary,cancelled.nativeSummary);
+  assert.equal(cancelNative.checks.length,46);
+  assert(cancelNative.checks.every(c=>c.ok===true));
+  assert.deepEqual(cancelled.checks,cancelNative.checks.filter(c=>c.id.startsWith('K.')).map(c=>c.id));
+  assert.equal(cancelled.checks.length,6);
+  const request=JSON.parse(cancelNative.checks.find(c=>c.id==='K.running_rebuild_accepts_cancellation').detail);
+  const terminal=JSON.parse(cancelNative.checks.find(c=>c.id==='K.worker_reaches_actual_cancelled_state').detail);
+  assert.equal(request.state,'running');
+  assert.equal(request.cancelRequested,true);
+  assert.equal(request.operationId,terminal.operationId);
+  assert.equal(terminal.state,'cancelled');
+  assert.equal(terminal.error,null);
+  assert.equal(terminal.result.cancelled,true);
+  assert.equal(terminal.result.reachedHead,false);
+  assert.equal(terminal.result.commitsApplied,0);
+  assert.equal(terminal.result.watermarkSequence,null);
+  assert.equal(cancelled.memoryRevision,isolation.memoryRevision);
+  for(const digest of [cancelled.harnessSha256,cancelled.desktopSha256,cancelled.runnerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(cancelled.limitations.includes('This establishes pre-first-batch cancellation and fresh rebuild recovery, not partial-index progress recovery or sustained stress.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -252,8 +278,9 @@ function validate(index) {
   for (const id of ['M.malformed_index_is_reported_not_ready', 'M.rebuilt_index_search_returns_approved_memory', 'M.cache_recovery_preserves_canonical_vault', 'M.cache_recovery_preserves_activity_bytes']) assert(linkedTo(c17, 'malformed_index').includes(id), 'C17 must retain malformed-cache isolation and real search recovery evidence');
   for (const id of ['S.held_index_rebuild_reports_failure','S.recovered_search_returns_approved_memory','S.recovery_preserves_canonical_vault','S.recovery_preserves_activity_bytes']) assert(linkedTo(c17, 'locked_index').includes(id), 'C17 must retain held-cache failure and recovery evidence');
   assert(overlap.checks.every(id => linkedTo(c17,'rebuild_overlap').includes(id)), 'C17 must retain real running-state bracket and canonical/Activity preservation evidence');
+  assert(cancelled.checks.every(id=>linkedTo(c17,'rebuild_cancel').includes(id)),'C17 must retain actual cancelled terminal and recovery evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 9, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 10, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -278,7 +305,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'malformed_index'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'locked_index'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_overlap'));
-  result.negativeChecks = 18;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_cancel'));
+  result.negativeChecks = 19;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

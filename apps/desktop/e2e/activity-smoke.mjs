@@ -25,9 +25,10 @@ import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--task-disabled|--task-enabled]');
+const overlapMode = ['--rebuild-overlap', '--rebuild-cancel'].includes(mode);
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -493,7 +494,7 @@ async function main() {
     if (!plan.result?.planId) throw new Error(`Synthetic review plan: ${plan.error?.code}`);
     const confirmed = await memoryCall(s, 'review_confirm', {planId:plan.result.planId,diffHash:plan.result.diffHash}, true);
     check('I.synthetic_memory_is_approved', !confirmed.error && (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === 1);
-    if (mode === '--rebuild-overlap') {
+    if (overlapMode) {
       // Seed only through the pinned Core, below its 20,000-character text
       // and 20-decision limits. Nothing writes canonical files directly.
       for (let batch=0; batch<12; batch++) {
@@ -514,18 +515,36 @@ async function main() {
       expectedMemories=241;
       check('O.synthetic_core_seed_is_approved', (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === expectedMemories, `${expectedMemories} approved synthetic memories`);
     }
-    const overlapCanonical=mode === '--rebuild-overlap' ? fixtureTree(join(vault,'vault')) : null;
-    const rebuild = await memoryCall(s, 'index_rebuild');
+    const overlapCanonical=overlapMode ? fixtureTree(join(vault,'vault')) : null;
+    let rebuild = await memoryCall(s, 'index_rebuild');
     check('I.pinned_core_index_rebuild_starts', typeof rebuild.result?.operationId === 'string');
     if (!rebuild.result?.operationId) throw new Error(`Synthetic rebuild: ${rebuild.error?.code}`);
-    const overlapBefore=mode === '--rebuild-overlap' ? (await memoryCall(s,'operation_get',{operationId:rebuild.result.operationId})).result : null;
+    const overlapBefore=overlapMode ? (await memoryCall(s,'operation_get',{operationId:rebuild.result.operationId})).result : null;
     const overlapStart=Date.now();
     const [read, payload] = await Promise.all([overview(s), call(s,{operation:'activity_preview_public_payload'})]);
-    if (mode === '--rebuild-overlap') {
+    if (overlapMode) {
       const after=(await memoryCall(s,'operation_get',{operationId:rebuild.result.operationId})).result;
       check('O.activity_reads_bracketed_by_running_rebuild', overlapBefore?.state === 'running' && after?.state === 'running' && after.operationId === overlapBefore.operationId, JSON.stringify({before:overlapBefore,after,activityReadElapsedMs:Date.now()-overlapStart}));
     }
     check('I.activity_reads_survive_index_rebuild', read.kind === 'activity_overview' && read.producer.highestReserved === o.producer.highestReserved && read.pending === null && payload.sha256 === preview.sha256);
+    if (mode === '--rebuild-cancel') {
+      const originalId=rebuild.result.operationId;
+      const cancel=await memoryCall(s,'operation_cancel',{operationId:originalId});
+      check('K.running_rebuild_accepts_cancellation', cancel.result?.cancelRequested === true && cancel.result.operationId === originalId, JSON.stringify(cancel.result));
+      let stopped;
+      const end=Date.now()+30000;
+      do {
+        stopped=(await memoryCall(s,'operation_get',{operationId:originalId})).result;
+        if(stopped && ['succeeded','failed','cancelled'].includes(stopped.state)) break;
+        await sleep(100);
+      } while(Date.now()<end);
+      check('K.worker_reaches_actual_cancelled_state', stopped?.state === 'cancelled' && stopped.result?.cancelled === true && stopped.result.reachedHead === false, JSON.stringify(stopped));
+      check('K.cancel_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === overlapCanonical);
+      check('K.cancel_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
+      rebuild=await memoryCall(s,'index_rebuild');
+      check('K.new_rebuild_has_fresh_operation_identity', typeof rebuild.result?.operationId === 'string' && rebuild.result.operationId !== originalId);
+      if(!rebuild.result?.operationId) throw new Error(`Cancelled-index recovery: ${rebuild.error?.code}`);
+    }
     let status;
     const end = Date.now() + 30000;
     do {
@@ -536,7 +555,7 @@ async function main() {
     } while (Date.now() < end);
     check('I.pinned_core_index_rebuild_completes', status.kind === 'index_rebuild' && status.state === 'succeeded' && status.progress.done >= 1, JSON.stringify({kind:status.kind,state:status.state,progress:status.progress}));
     check('I.memory_rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
-    if (mode === '--rebuild-overlap') {
+    if (overlapMode) {
       check('O.rebuild_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === overlapCanonical);
       check('O.rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
       check('O.rebuild_returns_all_approved_memories', (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === expectedMemories);
@@ -681,7 +700,11 @@ async function main() {
   check('E.ui_states_retained_history', await s.evaluate(has('Last attempt failed · history retained')));
   if (indexMode) {
     const memories = await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false});
-    check('I.approved_memory_survives_activity_source_failure', !memories.error && memories.result?.total === expectedMemories && (mode === '--rebuild-overlap' || JSON.stringify(memories.result).includes(note)));
+    check('I.approved_memory_survives_activity_source_failure', !memories.error && memories.result?.total === expectedMemories && (overlapMode || JSON.stringify(memories.result).includes(note)));
+    if (mode === '--rebuild-cancel') {
+      const found=await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
+      check('K.original_memory_survives_activity_failure', !found.error && found.result?.items?.length === 1 && JSON.stringify(found.result).includes('isolation'));
+    }
   }
   await shot(s, '02-pending');
 
