@@ -2,7 +2,18 @@
 // gaps and exact totals keep every digit.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { age, calendar, currentDay, dateInShanghai, exact, level, shiftDate, thresholds } from '../src/activity/model.ts';
+import { age, calendar, currentDay, dateInShanghai, exact, level, requiresRunConfirmation, shiftDate, thresholds } from '../src/activity/model.ts';
+
+test('production send confirmation survives missing or conflicting optional producer metadata', () => {
+  const producer = { mode: 'production', deliveryEnabled: true, paused: false, highestReserved: 1 };
+  assert.equal(requiresRunConfirmation('production', producer), true);
+  assert.equal(requiresRunConfirmation('production', undefined), true);
+  assert.equal(requiresRunConfirmation('production', { ...producer, mode: 'sandbox' }), true);
+  assert.equal(requiresRunConfirmation('sandbox', producer), true);
+  assert.equal(requiresRunConfirmation('production', { ...producer, deliveryEnabled: false }), false);
+  assert.equal(requiresRunConfirmation('sandbox', { ...producer, mode: 'sandbox' }), false);
+  assert.equal(requiresRunConfirmation('sandbox', undefined), false);
+});
 
 const summary = { firstDate: '2026-09-20', lastDate: '2026-09-26', lastSuccessAt: '2026-09-26T08:00:00.000Z' };
 const days = [

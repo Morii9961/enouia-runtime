@@ -11,6 +11,8 @@
 // The package must be freshly prepared: the run pauses, resumes, runs and
 // retries it, and ends one run by terminating the shell. The shell's saved
 // package choice is kept under the test output via --activity-settings.
+// Default mode also creates a synthetic Vault: its output must be outside
+// any Git working tree. Other modes do not create a Vault.
 // This harness registers no task and collects no account. Its task-read modes
 // use the independently owned, delivery-disabled package created by
 // scripts/test-activity-package.ps1 -LiveScheduler -NativeDesktop <exe>.
@@ -22,8 +24,14 @@ import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--task-disabled|--task-enabled]');
+}
+if (!mode) {
+  for (let ancestor = out; ; ancestor = dirname(ancestor)) {
+    if (existsSync(join(ancestor, '.git'))) throw new Error('Default Activity smoke output must be outside any Git working tree for its synthetic Vault.');
+    if (dirname(ancestor) === ancestor) break;
+  }
 }
 mkdirSync(out, { recursive: true });
 const manifest = JSON.parse(readFileSync(join(pkg, 'install.json'), 'utf8'));
@@ -252,6 +260,87 @@ async function taskReadMain(enabled) {
   await app.exited;
 }
 
+// Model production metadata only in the owned page. Every Run now request
+// is intercepted and refused before native IPC: no production configuration,
+// collector or delivery is used. Other reads still use the synthetic runner.
+async function confirmationMain() {
+  rmSync(settings, { force: true });
+  const before = runner('overview').value;
+  const app = launch();
+  const s = await connect();
+  await s.evaluate(`(() => {
+    const real = window.fetch;
+    const callUrl = window.__TAURI_INTERNALS__.convertFileSrc('activity_call','ipc');
+    const setupUrl = window.__TAURI_INTERNALS__.convertFileSrc('activity_setup','ipc');
+    window.__confirmationCase = 'enabled';
+    window.__runRequests = 0;
+    const intercepted = async (url, options) => {
+      if (url !== callUrl && url !== setupUrl) return real(url, options);
+      const args = JSON.parse(options.body);
+      const command = url === callUrl ? 'activity_call' : 'activity_setup';
+      if (command === 'activity_call' && args.request.operation === 'activity_run_now') {
+        window.__runRequests++;
+        return new Response(JSON.stringify({schemaVersion:1,kind:'activity_error',error:{code:'unconfigured',component:'activity_runner',retryable:false}}),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});
+      }
+      const response = await real(url, options);
+      const reply = await response.json();
+      if (command === 'activity_setup' && reply.configured === true) {
+        reply.mode = window.__confirmationCase === 'sandbox' ? 'sandbox' : 'production';
+      }
+      if (command === 'activity_call' && reply.kind === 'activity_overview') {
+        if (window.__confirmationCase === 'missing') delete reply.producer;
+        else reply.producer = {...reply.producer,mode:window.__confirmationCase === 'sandbox' ? 'sandbox' : 'production',deliveryEnabled:window.__confirmationCase !== 'disabled',paused:false};
+      }
+      return new Response(JSON.stringify(reply),{status:response.status,headers:response.headers});
+    };
+    window.fetch = intercepted;
+    if (window.fetch !== intercepted) throw new Error('IPC fetch interception failed');
+    return true;
+  })()`);
+  const probe = await call(s, {operation:'activity_run_now'});
+  if (probe.kind !== 'activity_error' || await s.evaluate('window.__runRequests') !== 1) throw new Error('Mutation interception must be proved before page actions');
+  await s.evaluate('window.__runRequests=0;true');
+  check('Q.mutations_are_intercepted_before_native_ipc', true);
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s, has('Connect the installed Activity producer'), 'confirmation fixture gate');
+  await press(s, 'Choose installed package…');
+  fillDialog(app.pid, pkg);
+  await waitFor(s, "document.querySelectorAll('.act-source').length===3", 'confirmation fixture reads');
+  check('Q.synthetic_runner_connects', true);
+
+  for (const scenario of ['enabled', 'missing', 'disabled', 'sandbox']) {
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");
+    await waitFor(s, "!document.querySelector('.act-surface')", 'confirmation unmount');
+    await s.evaluate(`window.__confirmationCase=${JSON.stringify(scenario)};window.__runRequests=0;document.querySelector('nav button[aria-label="Activity"]').click();true`);
+    await waitFor(s, "document.querySelectorAll('.act-source').length===3", 'confirmation scenario');
+    const requests = () => s.evaluate('window.__runRequests');
+    await press(s, 'Run now');
+    await sleep(250);
+    const required = ['enabled', 'missing'].includes(scenario);
+    check(`Q.${scenario}_first_run_request`, await requests() === (required ? 0 : 1));
+    check(`Q.${scenario}_confirmation_visibility`, await s.evaluate("!!document.querySelector('.act-confirm')") === required);
+    if (!required) continue;
+    await press(s, 'Run now');
+    await sleep(250);
+    check(`Q.${scenario}_repeated_run_is_not_consent`, await requests() === 0 && await s.evaluate("!!document.querySelector('.act-confirm')"));
+    if (await s.evaluate("!!document.querySelector('.act-confirm')")) {
+      await press(s, 'Cancel');
+      check(`Q.${scenario}_cancel_preserves_no_request`, await requests() === 0 && !(await s.evaluate("!!document.querySelector('.act-confirm')")));
+      await press(s, 'Run now');
+      await waitFor(s, "!!document.querySelector('.act-confirm')", 'confirmation reopened');
+      await shot(s, `01-confirm-${scenario}`);
+      await press(s, 'Collect and send');
+      await waitFor(s, 'window.__runRequests===1', 'intercepted explicit confirmation');
+      check(`Q.${scenario}_explicit_confirm_requests_once`, await requests() === 1 && !(await s.evaluate("!!document.querySelector('.act-confirm')")));
+    }
+  }
+  const after = runner('overview').value;
+  check('Q.no_real_mutation_or_delivery', before.producer.highestReserved === after.producer.highestReserved && before.delivery.publicHash === after.delivery.publicHash && before.pending === after.pending && before.producer.paused === after.producer.paused);
+  s.close();
+  app.kill();
+  await app.exited;
+}
+
 async function keyboardMain() {
   rmSync(settings, { force: true });
   const app = launch();
@@ -424,6 +513,7 @@ async function main() {
 
 try {
   if (taskMode) await taskReadMain(mode === '--task-enabled');
+  else if (mode === '--confirmation') await confirmationMain();
   else if (mode === '--keyboard') await keyboardMain();
   else await main();
 } catch (err) {

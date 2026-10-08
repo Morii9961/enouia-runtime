@@ -1,0 +1,71 @@
+{
+  "checks": [
+    {
+      "id": "Q.mutations_are_intercepted_before_native_ipc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.synthetic_runner_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.enabled_first_run_request",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.enabled_confirmation_visibility",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.enabled_repeated_run_is_not_consent",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Q.missing_first_run_request",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Q.missing_confirmation_visibility",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Q.missing_repeated_run_is_not_consent",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Q.disabled_first_run_request",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.disabled_confirmation_visibility",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.sandbox_first_run_request",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.sandbox_confirmation_visibility",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.no_real_mutation_or_delivery",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "9/13"
+}

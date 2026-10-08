@@ -1,7 +1,12 @@
 // Pure view helpers for the Activity surface. They never invent history: a
 // day is "known" only if the producer recorded it, explicit zeros stay zero,
 // and a gap inside the recorded range is "missing", not zero.
-import type { Day, Freshness, SourceId, SourceSummary } from "./client";
+import type { Day, Freshness, Overview, SourceId, SourceSummary } from "./client";
+
+/** Optional pre-ADR-028 metadata cannot suppress a production confirmation. */
+export function requiresRunConfirmation(packageMode: "sandbox" | "production" | undefined, producer: Overview["producer"]): boolean {
+  return (packageMode === "production" || producer?.mode === "production") && producer?.deliveryEnabled !== false;
+}
 
 export type CellState = "known" | "missing" | "outside" | "future";
 export type Cell = { date: string; state: CellState; value: number | null; level: number; incomplete: boolean };

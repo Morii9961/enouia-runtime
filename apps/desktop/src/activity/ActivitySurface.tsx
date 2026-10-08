@@ -8,7 +8,7 @@ import {
   SOURCES, activity, describe, describeSetup, retryable,
   type Overview, type Preview, type RunStatus, type Setup, type SourceId,
 } from "./client";
-import { DELIVERY, FRESHNESS, LABELS, RUN_STATES, STAGES, age, calendar, dateInShanghai, exact } from "./model";
+import { DELIVERY, FRESHNESS, LABELS, RUN_STATES, STAGES, age, calendar, dateInShanghai, exact, requiresRunConfirmation } from "./model";
 
 type Failure = { text: string; retry?: () => void } | null;
 const when = (iso: string | null | undefined) => {
@@ -260,13 +260,18 @@ export default function ActivitySurface() {
     }
   };
 
-  // A production run with delivery enabled publishes; ask once, inline.
-  const delivers = overview?.producer?.mode === "production" && overview.producer.deliveryEnabled === true;
+  // Only the explicit confirmation button consents to a production send.
+  const delivers = requiresRunConfirmation(setup?.configured === true ? setup.mode : undefined, overview?.producer);
   const runNow = () => {
-    if (delivers && !confirming) {
+    if (delivers) {
       setConfirming(true);
       return;
     }
+    setConfirming(false);
+    void act(activity.runNow);
+  };
+  const confirmRunNow = () => {
+    if (!confirming || !overview || actionPending.current) return;
     setConfirming(false);
     void act(activity.runNow);
   };
@@ -311,8 +316,8 @@ export default function ActivitySurface() {
       </div>
       {confirming && (
         <div role="alert" className="act-confirm">
-          <span>Run now collects GitHub, Codex and Claude usage and sends the new batch to Moriium's public About data.</span>
-          <button type="button" className="mem-button mem-primary" onClick={runNow}>Collect and send</button>
+          <span>Run now collects GitHub, Codex and Claude usage. The installed production package may send the batch to Moriium's public About data.</span>
+          <button type="button" className="mem-button mem-primary" disabled={acting || running || !overview || paused} onClick={confirmRunNow}>Collect and send</button>
           <button type="button" className="mem-button" onClick={() => setConfirming(false)}>Cancel</button>
         </div>
       )}

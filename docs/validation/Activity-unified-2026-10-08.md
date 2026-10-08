@@ -8,6 +8,8 @@ Further follow-ups: the optional closed-UI drill now passes 57 actual-scheduler 
 
 The [native registered-task follow-up](Activity-native-scheduler-2026-10-08.md) adds actual disabled/enabled task reads through the unchanged release desktop: two 10/10 page runs within 63 successful live scheduler assertions, including closed-UI advancement. These later records supplement the historical counts below.
 
+The [production confirmation follow-up](Activity-send-confirmation-2026-10-08.md) fixes ordinary second-click consent and missing optional producer metadata. Its rebuilt desktop passes 17/17 modeled confirmation checks, 29/29 ordinary native Activity checks, 37 frontend tests and 31+3 host/Core tests. The executable/installer hashes in that report supersede the unchanged-desktop hashes below; the runner and Memory pin remain unchanged.
+
 ## Integrated behavior
 
 - C15's copied receiver/publisher harness now covers success-time loss, source loss, date loss and whole-batch clock rollback for all three sources. Transport completion does not clear unpublished pending bytes.
