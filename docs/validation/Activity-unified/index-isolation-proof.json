@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_native_memory_index_activity",
+  "sourceBaseRevision": "9e9622c415b4980ab465f10ec4389dd44de2394f",
+  "checks": [
+    "I.synthetic_memory_is_approved",
+    "I.pinned_core_index_rebuild_starts",
+    "I.activity_reads_survive_index_rebuild",
+    "I.pinned_core_index_rebuild_completes",
+    "I.memory_rebuild_preserves_activity_bytes",
+    "I.approved_memory_survives_activity_source_failure"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/index-isolation-native.json",
+  "nativeReportSha256": "91c9289add8dd397385b87fdb3e790cd959a142528173e24b34081a78ed5b321",
+  "nativeSummary": "35/35",
+  "processExitCode": 0,
+  "harnessSha256": "a83ff4d39b73fcd1096f2b6ed9e5b417db8c9b025ed1a36fb5aef2d4542dbe3c",
+  "desktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Fresh synthetic Vault and installed Activity package only.",
+    "The worker running state is not sampled; reads are between rebuild acceptance and observed terminal completion.",
+    "No corrupt index, storage fault, concurrent long-running rebuild or personal Vault is tested."
+  ]
+}

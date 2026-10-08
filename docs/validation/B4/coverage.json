@@ -101,6 +101,13 @@
       "sha256": "0051ee93907ef967d53d59206dc7b1d2192b2dd1cdae291ca8f7b7a9edbcc279",
       "state": "passed",
       "selectorCount": 21
+    },
+    {
+      "id": "index_isolation",
+      "path": "docs/validation/Activity-unified/index-isolation-proof.json",
+      "sha256": "3699163bddd939f27007307f7e6547df95f969472745a802518104b3c0ec169d",
+      "state": "passed",
+      "selectorCount": 6
     }
   ],
   "cases": [
@@ -580,10 +587,17 @@
             "bootstrap source files are absent",
             "query and uninstall leave installation and latest Activity state intact"
           ]
+        },
+        {
+          "report": "index_isolation",
+          "selectors": [
+            "I.memory_rebuild_preserves_activity_bytes",
+            "I.approved_memory_survives_activity_source_failure"
+          ]
         }
       ],
       "remaining": [
-        "Complete physical absent-source-checkout or filesystem-denial, Core index-repair isolation, author-process independence and production static-read acceptance. Closed-UI state advancement and owned scheduler cleanup have isolated real-task evidence; the installed package also runs outside Git with removed bootstrap files and a system-only child PATH."
+        "Complete physical absent-source-checkout or filesystem-denial, corrupt-index/storage-fault and long-running Core rebuild isolation, author-process independence and production static-read acceptance. Closed-UI scheduling, a clean installed environment and a real pinned-Core index rebuild preserving Activity bytes now have isolated evidence."
       ]
     },
     {

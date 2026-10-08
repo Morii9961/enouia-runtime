@@ -12,6 +12,8 @@ The [production confirmation follow-up](Activity-send-confirmation-2026-10-08.md
 
 The [independent installed-package drill](Activity-independent-package-2026-10-08.md) passes 21 checks outside Git after removing bootstrap inputs, with only system tools in the child PATH. It adds current partial C17 evidence without claiming that source checkouts are physically absent or inaccessible. The current evidence index binds 14 reports/154 selectors and 13 negative checks.
 
+The subsequent [pinned-Core index isolation drill](Activity-index-isolation-2026-10-08.md) passes 35/35 native checks, including a real successful synthetic index rebuild that leaves Activity files byte-identical and readable approved Memory after Activity source failure. The current index now binds 15 reports/156 selectors and 14 negative checks; corrupt-index/storage-fault and long-running overlap remain unverified.
+
 ## Integrated behavior
 
 - C15's copied receiver/publisher harness now covers success-time loss, source loss, date loss and whole-batch clock rollback for all three sources. Transport completion does not clear unpublished pending bytes.

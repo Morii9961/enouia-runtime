@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 14);
+  assert.equal(reports.size, 15);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -134,6 +134,21 @@ function validate(index) {
   assert.equal(independent.sequence, 51);
   for (const digest of [independent.runnerSha256, independent.harnessSha256, independent.exactPendingSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(independent.limitations.includes('Source checkouts still exist on the host; this is not filesystem-denial or physical-absence evidence.'));
+  const isolation = reports.get('index_isolation').report;
+  assert.equal(isolation.scope, 'isolated_native_memory_index_activity');
+  const isolationBytes = readFileSync(contained(isolation.nativeReport));
+  assert.equal(hash(isolationBytes), isolation.nativeReportSha256, 'native index-isolation evidence changed');
+  const nativeIsolation = JSON.parse(isolationBytes);
+  assert.equal(isolation.nativeSummary, '35/35');
+  assert.equal(isolation.processExitCode, 0);
+  assert.equal(nativeIsolation.summary, isolation.nativeSummary);
+  assert.equal(nativeIsolation.checks.length, 35);
+  assert(nativeIsolation.checks.every(c => c.ok === true));
+  assert.deepEqual(isolation.checks, nativeIsolation.checks.filter(c => c.id.startsWith('I.')).map(c => c.id));
+  assert.equal(isolation.checks.length, 6);
+  assert.equal(isolation.memoryRevision, 'ff692ccb6fbc1c387254d5ffbef41b105eeb2a84');
+  for (const digest of [isolation.harnessSha256, isolation.desktopSha256, isolation.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(isolation.limitations.includes('No corrupt index, storage fault, concurrent long-running rebuild or personal Vault is tested.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -156,8 +171,9 @@ function validate(index) {
   const c17 = index.cases.find(c => c.id === 'C17');
   assert(linkedTo(c17, 'scheduler_closed_ui').includes('C17: installed scheduled sync advances one sequence with the desktop closed'), 'C17 must retain actual closed-UI evidence');
   assert(linkedTo(c17, 'independent_package').includes('bootstrap source files are absent'), 'C17 must retain independently installed package evidence');
+  assert(linkedTo(c17, 'index_isolation').includes('I.memory_rebuild_preserves_activity_bytes'), 'C17 must retain pinned-Core rebuild isolation evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 4, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 5, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -177,7 +193,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'scheduler_closed_ui'));
   reject(x => x.reports.find(r => r.id === 'literal2').state = 'completed_with_unresolved_differences');
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'independent_package'));
-  result.negativeChecks = 13;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_isolation'));
+  result.negativeChecks = 14;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

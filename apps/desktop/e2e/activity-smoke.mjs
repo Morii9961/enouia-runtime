@@ -18,16 +18,17 @@
 // scripts/test-activity-package.ps1 -LiveScheduler -NativeDesktop <exe>.
 // Default/keyboard fixtures publish only over 127.0.0.1. Synthetic data only.
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--task-disabled|--task-enabled]');
 }
-if (!mode) {
+if (!mode || mode === '--index-isolation') {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
     if (existsSync(join(ancestor, '.git'))) throw new Error('Default Activity smoke output must be outside any Git working tree for its synthetic Vault.');
     if (dirname(ancestor) === ancestor) break;
@@ -200,6 +201,17 @@ function spawnSyncJson(file, args) {
 async function overview(s) {
   return call(s, { operation: 'activity_get_overview' });
 }
+
+function fixtureEntries(root) {
+  return readdirSync(root, {withFileTypes:true}).sort((a,b) => a.name.localeCompare(b.name)).flatMap(entry => {
+    if (entry.isSymbolicLink()) throw new Error('Synthetic tree cannot contain links');
+    const path = join(root, entry.name);
+    if (entry.isDirectory()) return fixtureEntries(path).map(value => `${entry.name}/${value}`);
+    if (!entry.isFile()) throw new Error('Unexpected synthetic tree entry');
+    return [`${entry.name}:${createHash('sha256').update(readFileSync(path)).digest('hex')}`];
+  });
+}
+const fixtureTree = root => fixtureEntries(root).join('|');
 
 // WebView-scoped key events exercise native browser Tab/Enter behavior; page
 // focus and controls are never set or clicked through DOM calls in this mode.
@@ -470,6 +482,32 @@ async function main() {
   await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
   await waitFor(s, has('Publication observed'), 'Activity after Memory');
 
+  if (mode === '--index-isolation') {
+    // The Vault above is freshly created by this process outside Git. Only
+    // the pinned Core operates on it; Activity never receives its root.
+    if (realpathSync(manifest.dataRoot).toLowerCase() !== realpathSync(join(dirname(pkg), 'data')).toLowerCase()) throw new Error('Index isolation requires the prepared synthetic Activity data root');
+    const treeBefore = fixtureTree(manifest.dataRoot);
+    const plan = await memoryCall(s, 'review_plan', {decisions:[{candidateId:remembered.result.candidateId,revision:remembered.result.revision,action:'accept',editedContent:null,mergeTarget:null}]});
+    if (!plan.result?.planId) throw new Error(`Synthetic review plan: ${plan.error?.code}`);
+    const confirmed = await memoryCall(s, 'review_confirm', {planId:plan.result.planId,diffHash:plan.result.diffHash}, true);
+    check('I.synthetic_memory_is_approved', !confirmed.error && (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === 1);
+    const rebuild = await memoryCall(s, 'index_rebuild');
+    check('I.pinned_core_index_rebuild_starts', typeof rebuild.result?.operationId === 'string');
+    if (!rebuild.result?.operationId) throw new Error(`Synthetic rebuild: ${rebuild.error?.code}`);
+    const [read, payload] = await Promise.all([overview(s), call(s,{operation:'activity_preview_public_payload'})]);
+    check('I.activity_reads_survive_index_rebuild', read.kind === 'activity_overview' && read.producer.highestReserved === o.producer.highestReserved && read.pending === null && payload.sha256 === preview.sha256);
+    let status;
+    const end = Date.now() + 30000;
+    do {
+      status = (await memoryCall(s,'operation_get',{operationId:rebuild.result.operationId})).result;
+      if (!status || ['failed','cancelled'].includes(status.state)) throw new Error('Synthetic index rebuild failed');
+      if (status.state === 'succeeded') break;
+      await sleep(100);
+    } while (Date.now() < end);
+    check('I.pinned_core_index_rebuild_completes', status.kind === 'index_rebuild' && status.state === 'succeeded' && status.progress.done >= 1, JSON.stringify({kind:status.kind,state:status.state,progress:status.progress}));
+    check('I.memory_rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
+  }
+
   await press(s, 'Pause activity sync');
   await waitFor(s, "[...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Resume activity sync')", 'paused');
   check('D.pause_is_durable_runner_state', runner('overview').value.producer.paused === true && await disabled(s, 'Run now'));
@@ -486,6 +524,10 @@ async function main() {
   check('E.run_now_commits_and_keeps_pending', after.pending?.sequence === 88 && after.pending.failureCount === 1 && after.producer.highestReserved === 88);
   check('E.failed_sources_keep_history', ['github', 'codex', 'claude'].every((id) => after.sources[id].freshness === 'failed' && after.sources[id].total === o.sources[id].total && after.sources[id].lastSuccessAt === o.sources[id].lastSuccessAt));
   check('E.ui_states_retained_history', await s.evaluate(has('Last attempt failed · history retained')));
+  if (mode === '--index-isolation') {
+    const memories = await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false});
+    check('I.approved_memory_survives_activity_source_failure', !memories.error && memories.result?.total === 1 && JSON.stringify(memories.result).includes(note));
+  }
   await shot(s, '02-pending');
 
   // Terminate the shell while a retry runs; the runner and its lock decide.
