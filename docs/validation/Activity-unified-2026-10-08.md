@@ -4,7 +4,7 @@ Date: 2026-10-08. Integration parents: Codex `08dfc86ba12de61a336790ecb46e95ce31
 
 ## Latest verified state
 
-The implementation combines both branch histories. Subsequent owner-authorized checks and the production-confirmation fix are committed and pushed through `10c4d4d`; main and the Claude branch are unchanged. The records below name their exact binaries and scope. Counts overlap and must not be added as a full-acceptance total.
+The implementation combines both branch histories. Subsequent owner-authorized checks and the production-confirmation fix include the malformed-cache follow-up below; main and the Claude branch are unchanged. The records below name their exact binaries and scope. Counts overlap and must not be added as a full-acceptance total.
 
 | Scope | Latest applicable evidence |
 |---|---|
@@ -14,12 +14,13 @@ The implementation combines both branch histories. Subsequent owner-authorized c
 | Installed runner/management outside Git with bootstrap inputs removed | [21 checks](Activity-independent-package-2026-10-08.md); system-only child PATH, delivery disabled and no task |
 | Ordinary Activity flow plus actual healthy Core rebuild | [35/35 native checks](Activity-index-isolation-2026-10-08.md); Activity bytes unchanged and approved Memory survives source failure |
 | Same workflow plus actual missing-cache recovery | [41/41 native checks](Activity-missing-index-2026-10-08.md); canonical Vault and Activity bytes unchanged after cache removal/restart/rebuild |
+| Same workflow plus malformed-cache search refusal and recovery | [45/45 native checks](Activity-malformed-index-2026-10-08.md); canonical list and Activity remain readable, search recovers after rebuild, canonical Vault and Activity bytes unchanged |
 | Explicit safety classifications | [ADR-031 comparison follow-up](B4-validation-compatibility-2026-10-08.md): 30 frozen cases and 49 literal cases/75 checks, zero unclassified differences |
-| Current offline evidence integrity | [16 reports, 158 selectors, 15 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
+| Current offline evidence integrity | [17 reports, 162 selectors, 16 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
 
 Current desktop SHA-256 is `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`; unsigned installer is `a8c81938be6c825e655386de738ab9035665201871bca998e125df626638d018`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`.
 
-Next acceptance work remains explicit: real elapsed hourly/logon and battery/resume behavior; malformed-index/storage faults and long-running Core rebuild overlap; physical source-checkout absence or filesystem denial; author-process independence and deployed public/static behavior; broader Windows accessibility and signing; reviewed real seed/cutover/reconciliation and observed production publication. The last items retain their owner/production gates. No personal Vault/archive, production task, credentials, server or Moriium checkout was changed.
+Next acceptance work remains explicit: real elapsed hourly/logon and battery/resume behavior; storage faults and long-running Core rebuild overlap; physical source-checkout absence or filesystem denial; author-process independence and deployed public/static behavior; broader Windows accessibility and signing; reviewed real seed/cutover/reconciliation and observed production publication. The last items retain their owner/production gates. No personal Vault/archive, production task, credentials, server or Moriium checkout was changed.
 
 The earlier automatic rejection of the temporary task drill was superseded by scoped owner authorization; [41-check](Activity-scheduler-live-2026-10-08.md), 57-check and 63-check follow-ups passed with ownership-checked removal. No rejection workaround or production activation occurred.
 

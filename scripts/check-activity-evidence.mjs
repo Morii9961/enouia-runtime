@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 16);
+  assert.equal(reports.size, 17);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -164,6 +164,21 @@ function validate(index) {
   assert.equal(missing.memoryRevision, isolation.memoryRevision);
   for (const digest of [missing.harnessSha256, missing.desktopSha256, missing.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(missing.limitations.includes('This is missing-cache recovery, not malformed SQLite, disk-full, permission-failure or long-running overlap acceptance.'));
+  const malformed = reports.get('malformed_index').report;
+  assert.equal(malformed.scope, 'isolated_native_malformed_index_activity');
+  const malformedBytes = readFileSync(contained(malformed.nativeReport));
+  assert.equal(hash(malformedBytes), malformed.nativeReportSha256, 'malformed-index native evidence changed');
+  const malformedNative = JSON.parse(malformedBytes);
+  assert.equal(malformed.nativeSummary, '45/45');
+  assert.equal(malformed.processExitCode, 0);
+  assert.equal(malformedNative.summary, malformed.nativeSummary);
+  assert.equal(malformedNative.checks.length, 45);
+  assert(malformedNative.checks.every(c => c.ok === true));
+  assert.deepEqual(malformed.checks, malformedNative.checks.filter(c => c.id.startsWith('M.')).map(c => c.id));
+  assert.equal(malformed.checks.length, 10);
+  assert.equal(malformed.memoryRevision, isolation.memoryRevision);
+  for (const digest of [malformed.harnessSha256, malformed.desktopSha256, malformed.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(malformed.limitations.includes('No disk-full, permission-failure, long-running overlap or personal Vault is tested.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -188,8 +203,9 @@ function validate(index) {
   assert(linkedTo(c17, 'independent_package').includes('bootstrap source files are absent'), 'C17 must retain independently installed package evidence');
   assert(linkedTo(c17, 'index_isolation').includes('I.memory_rebuild_preserves_activity_bytes'), 'C17 must retain pinned-Core rebuild isolation evidence');
   assert(linkedTo(c17, 'missing_index').includes('R.cache_recovery_preserves_activity_bytes'), 'C17 must retain missing-cache isolation evidence');
+  for (const id of ['M.malformed_index_is_reported_not_ready', 'M.rebuilt_index_search_returns_approved_memory', 'M.cache_recovery_preserves_canonical_vault', 'M.cache_recovery_preserves_activity_bytes']) assert(linkedTo(c17, 'malformed_index').includes(id), 'C17 must retain malformed-cache isolation and real search recovery evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 6, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 7, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -211,7 +227,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'independent_package'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_isolation'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'missing_index'));
-  result.negativeChecks = 15;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'malformed_index'));
+  result.negativeChecks = 16;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

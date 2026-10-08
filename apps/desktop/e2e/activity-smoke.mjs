@@ -11,8 +11,8 @@
 // The package must be freshly prepared: the run pauses, resumes, runs and
 // retries it, and ends one run by terminating the shell. The shell's saved
 // package choice is kept under the test output via --activity-settings.
-// Default mode also creates a synthetic Vault: its output must be outside
-// any Git working tree. Other modes do not create a Vault.
+// Default and index modes create a synthetic Vault: their output must be
+// outside any Git working tree. Other modes do not create a Vault.
 // This harness registers no task and collects no account. Its task-read modes
 // use the independently owned, delivery-disabled package created by
 // scripts/test-activity-package.ps1 -LiveScheduler -NativeDesktop <exe>.
@@ -25,9 +25,9 @@ import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -507,7 +507,9 @@ async function main() {
     } while (Date.now() < end);
     check('I.pinned_core_index_rebuild_completes', status.kind === 'index_rebuild' && status.state === 'succeeded' && status.progress.done >= 1, JSON.stringify({kind:status.kind,state:status.state,progress:status.progress}));
     check('I.memory_rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
-    if (mode === '--missing-index') {
+    if (['--missing-index', '--malformed-index'].includes(mode)) {
+      const malformed = mode === '--malformed-index';
+      const prefix = malformed ? 'M' : 'R';
       const canonical = fixtureTree(join(vault, 'vault'));
       const indexPath = join(vault, 'indexes', 'memory.sqlite');
       if (readFileSync(indexPath).subarray(0,16).toString() !== 'SQLite format 3\0') throw new Error('Expected the generated SQLite index before cache removal');
@@ -523,28 +525,47 @@ async function main() {
         writeFileSync(join(out, `original-${name}`), readFileSync(path), {flag:'wx'});
         rmSync(path);
       }
-      check('R.generated_index_is_absent_before_restart', !existsSync(indexPath));
+      if (malformed) {
+        // Replace only this run's backed-up disposable cache after its host
+        // exits. Never edit canonical records or a user-selected Vault.
+        writeFileSync(indexPath, 'Synthetic Activity acceptance: deliberately invalid SQLite cache.', {flag:'wx'});
+      }
+      check(`${prefix}.generated_index_${malformed ? 'is_malformed' : 'is_absent'}_before_restart`, malformed ? readFileSync(indexPath).subarray(0,16).toString() !== 'SQLite format 3\0' : !existsSync(indexPath));
       app = launch(['--memory-vault', vault]);
       s = await connect();
       const reopened = await memoryCall(s, 'workspace_status');
-      check('R.synthetic_vault_reopens_without_index', reopened.result?.vault?.state === 'open', reopened.error?.code ?? '');
+      check(`${prefix}.synthetic_vault_reopens_${malformed ? 'with_malformed' : 'without'}_index`, reopened.result?.vault?.state === 'open', reopened.error?.code ?? '');
+      if (malformed) {
+        const listed = await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false});
+        check('M.canonical_memory_list_survives_malformed_index', !listed.error && listed.result?.total === 1 && JSON.stringify(listed.result).includes(note));
+        const refused = await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
+        check('M.malformed_index_is_reported_not_ready', refused.error?.code === 'index_not_ready', JSON.stringify(refused.error));
+      }
       await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
       await waitFor(s, "document.querySelectorAll('.act-source').length===3", 'Activity while index cache is absent');
+      if (malformed) {
+        const [read, payload] = await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'})]);
+        check('M.activity_reads_survive_malformed_index', read.producer.highestReserved === o.producer.highestReserved && read.pending === null && payload.sha256 === preview.sha256);
+      }
       const repair = await memoryCall(s,'index_rebuild');
-      if (!repair.result?.operationId) throw new Error(`Missing-index rebuild: ${repair.error?.code}`);
+      if (!repair.result?.operationId) throw new Error(`Index cache rebuild: ${repair.error?.code}`);
       const end = Date.now() + 30000;
       let result;
       do {
         result = (await memoryCall(s,'operation_get',{operationId:repair.result.operationId})).result;
-        if (!result || ['failed','cancelled'].includes(result.state)) throw new Error('Missing-index rebuild failed');
+        if (!result || ['failed','cancelled'].includes(result.state)) throw new Error('Index cache rebuild failed');
         if (result.state === 'succeeded') break;
         await sleep(100);
       } while (Date.now() < end);
-      check('R.missing_index_rebuild_succeeds', result.state === 'succeeded' && existsSync(indexPath) && readFileSync(indexPath).subarray(0,16).toString() === 'SQLite format 3\0');
-      check('R.cache_recovery_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === canonical);
-      check('R.cache_recovery_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
+      check(`${prefix}.${malformed ? 'malformed' : 'missing'}_index_rebuild_succeeds`, result.state === 'succeeded' && existsSync(indexPath) && readFileSync(indexPath).subarray(0,16).toString() === 'SQLite format 3\0');
+      check(`${prefix}.cache_recovery_preserves_canonical_vault`, fixtureTree(join(vault,'vault')) === canonical);
+      check(`${prefix}.cache_recovery_preserves_activity_bytes`, fixtureTree(manifest.dataRoot) === treeBefore);
       const recovered = await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false});
-      check('R.rebuilt_index_returns_approved_memory', !recovered.error && recovered.result?.total === 1 && JSON.stringify(recovered.result).includes(note));
+      check(`${prefix}.rebuilt_index_returns_approved_memory`, !recovered.error && recovered.result?.total === 1 && JSON.stringify(recovered.result).includes(note));
+      if (malformed) {
+        const found = await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
+        check('M.rebuilt_index_search_returns_approved_memory', !found.error && found.result?.items?.length === 1 && JSON.stringify(found.result).includes('isolation'));
+      }
     }
   }
 

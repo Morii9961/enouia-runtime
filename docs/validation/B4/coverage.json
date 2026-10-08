@@ -115,6 +115,13 @@
       "sha256": "afcc41f696975da9713cab9dc0d84ba288a0bed810625f7a90ddcca7ec46311b",
       "state": "passed",
       "selectorCount": 6
+    },
+    {
+      "id": "malformed_index",
+      "path": "docs/validation/Activity-unified/malformed-index-proof.json",
+      "sha256": "02ca3fd04b8435a95172f15d3fc159029b6794c3ba7af930f5aa8da3ff301fae",
+      "state": "passed",
+      "selectorCount": 10
     }
   ],
   "cases": [
@@ -608,10 +615,19 @@
             "R.cache_recovery_preserves_canonical_vault",
             "R.cache_recovery_preserves_activity_bytes"
           ]
+        },
+        {
+          "report": "malformed_index",
+          "selectors": [
+            "M.malformed_index_is_reported_not_ready",
+            "M.rebuilt_index_search_returns_approved_memory",
+            "M.cache_recovery_preserves_canonical_vault",
+            "M.cache_recovery_preserves_activity_bytes"
+          ]
         }
       ],
       "remaining": [
-        "Complete physical absent-source-checkout or filesystem-denial, malformed-index/storage-fault and long-running Core rebuild isolation, author-process independence and production static-read acceptance. Closed-UI scheduling, a clean installed environment, healthy rebuild and missing-index cache recovery preserving canonical Vault and Activity bytes have isolated evidence."
+        "Complete physical absent-source-checkout or filesystem-denial, storage-fault and long-running Core rebuild isolation, author-process independence and production static-read acceptance. Closed-UI scheduling, a clean installed environment, healthy rebuild, missing-index recovery and malformed-cache search refusal/rebuild preserving canonical Vault and Activity bytes have isolated evidence."
       ]
     },
     {

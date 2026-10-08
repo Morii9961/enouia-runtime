@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_native_malformed_index_activity",
+  "sourceBaseRevision": "e8dbf1221bbc5ef46fa2ac01d678e9704052fab7",
+  "checks": [
+    "M.generated_index_is_malformed_before_restart",
+    "M.synthetic_vault_reopens_with_malformed_index",
+    "M.canonical_memory_list_survives_malformed_index",
+    "M.malformed_index_is_reported_not_ready",
+    "M.activity_reads_survive_malformed_index",
+    "M.malformed_index_rebuild_succeeds",
+    "M.cache_recovery_preserves_canonical_vault",
+    "M.cache_recovery_preserves_activity_bytes",
+    "M.rebuilt_index_returns_approved_memory",
+    "M.rebuilt_index_search_returns_approved_memory"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/malformed-index-native.json",
+  "nativeReportSha256": "73b4e1f1c891dccdd45e533d995e0fd9f37aa9a576324055d7017250fcc78cc4",
+  "nativeSummary": "45/45",
+  "processExitCode": 0,
+  "harnessSha256": "69f94cf4f71a5d15ee6881e69776fb8e0adfa179f1636946ce4e39dbaf99509b",
+  "desktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only this run's generated index cache is backed up and replaced after its owning host exits.",
+    "No disk-full, permission-failure, long-running overlap or personal Vault is tested."
+  ]
+}
