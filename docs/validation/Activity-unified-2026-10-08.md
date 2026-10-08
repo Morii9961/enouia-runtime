@@ -2,6 +2,8 @@
 
 Date: 2026-10-08. Integration parents: Codex `08dfc86ba12de61a336790ecb46e95ce31a14a8e` and Claude `7309cb92863694e34eb907317c323deef4f24fbd`. This combines Claude's remaining Runtime implementation with the native Activity integration on current main (`29401fe`), preserving the current shell and strict frontend checks. It does not activate B5 or sign off B4/J1.
 
+Follow-up: the owner's subsequent scoped authorization allowed the formerly rejected temporary scheduler drill. [Actual scheduler acceptance](Activity-scheduler-live-2026-10-08.md) records 41 successful checks at `d2f524e`, including real paused and busy invocations and verified removal. The rejected-attempt paragraph below remains the integration-time finding.
+
 ## Integrated behavior
 
 - C15's copied receiver/publisher harness now covers success-time loss, source loss, date loss and whole-batch clock rollback for all three sources. Transport completion does not clear unpublished pending bytes.

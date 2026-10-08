@@ -2,6 +2,8 @@
 
 B3.2 packages the one-shot runner independently of a checkout. Use PowerShell 7.2 or later on Windows. Installation is explicit; building or launching the runner never registers a task. Production registration and activation belong to the [B5 cutover gates](ACTIVITY_MIGRATION_v0.3.md).
 
+The [2026-10-08 actual scheduler acceptance](validation/Activity-scheduler-live-2026-10-08.md) confirms paused/busy execution and owned-task removal using one temporary, delivery-disabled synthetic task. It is separate from production activation.
+
 Prepare an absolute, local, non-reparse config and a valid **paused** Activity store using the [runner commands](ACTIVITY_RUNNER.md). Keep `deliveryEnabled` false during this packaging phase. The installer requires disjoint data and installation directories, an unused installation path, and a release binary with Windows GUI subsystem 2. That subsystem avoids allocating a console for scheduled execution; redirected CLI JSON still works. A debug console binary is rejected.
 
 ```powershell
