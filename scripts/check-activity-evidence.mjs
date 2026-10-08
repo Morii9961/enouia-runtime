@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 23);
+  assert.equal(reports.size, 24);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -327,6 +327,17 @@ function validate(index) {
   assert.equal(mutations.desktopSha256,guidance.desktopSha256);
   for(const digest of [mutations.harnessSha256,mutations.runnerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   assert(mutations.limitations.includes('Core completion is compared against the post-mutation Activity tree, not falsely claimed identical to the pre-mutation tree.'));
+  const staticRead=reports.get('static_read').report;
+  assert.equal(staticRead.scope,'isolated_static_read_without_copied_authors');
+  assert.equal(staticRead.checkCount,12);
+  assert.equal(staticRead.checks.length,12);
+  assert.equal(staticRead.copiedModules.length,7);
+  assert.deepEqual(staticRead.copiedModules.map(file=>file.path),['reference/scripts/status-receive.mjs','reference/scripts/status-publish.mjs','reference/scripts/lib/status-store.mjs','reference/scripts/lib/status-batch.mjs','reference/src/lib/activity.ts','reference/src/lib/status.ts','publish.mjs']);
+  for(const file of staticRead.copiedModules) assert.match(file.sha256,/^[a-f0-9]{64}$/);
+  for(const digest of [staticRead.harnessSha256,staticRead.prepareHarnessSha256,staticRead.runnerSha256,staticRead.publicManifestSha256,staticRead.activitySha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  assert.equal(staticRead.runnerSha256,guidance.runnerSha256);
+  assert(staticRead.limitations.includes('Only copied author modules in this newly prepared fixture are removed; actual source checkouts remain on the host.'));
+  assert(staticRead.limitations.includes('Actual HTTP is loopback with a minimal static Node worker, not deployed Nginx, real HTTPS or rendered About-page acceptance.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -358,8 +369,9 @@ function validate(index) {
   assert(partial.checks.every(id=>linkedTo(c17,'rebuild_partial').includes(id)),'C17 must retain partial watermark and automatic search catch-up evidence');
   assert(guidance.checks.every(id=>linkedTo(c17,'index_guidance').includes(id)),'C17 must retain actual recovery guidance and search recovery evidence');
   assert(mutations.checks.every(id=>linkedTo(c17,'rebuild_mutations').includes(id)),'C17 must retain actual producer mutation bracket and canonical/Activity preservation evidence');
+  assert(staticRead.checks.every(id=>linkedTo(c17,'static_read').includes(id)),'C17 must retain copied-author removal, independent static restart and unchanged package/data evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 13, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 14, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -388,7 +400,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_partial'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_guidance'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_mutations'));
-  result.negativeChecks = 22;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'static_read'));
+  result.negativeChecks = 23;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

@@ -164,6 +164,13 @@
       "sha256": "e34ed2a1adc54c6efb8d018e186af4f66f386dda8bf5ab8bbb3581f1ed0478df",
       "state": "passed",
       "selectorCount": 7
+    },
+    {
+      "id": "static_read",
+      "path": "docs/validation/Activity-unified/static-read.json",
+      "sha256": "902eb4d6284a1dbb4fc7e1758a40365ece55bfaf9e8c828fc885622508c00b52",
+      "state": "passed",
+      "selectorCount": 12
     }
   ],
   "cases": [
@@ -730,10 +737,27 @@
             "W.pause_resume_intentionally_advance_generations",
             "W.original_memory_survives_activity_failure"
           ]
+        },
+        {
+          "report": "static_read",
+          "selectors": [
+            "public manifest names the exact existing payload hash",
+            "all copied publisher receiver and author modules belong to this fixture",
+            "copied author modules are absent before static worker startup",
+            "static worker uses its own outside-repository directory and system-only PATH",
+            "actual curl reads byte-identical public manifest without copied authors",
+            "actual curl reads byte-identical payload with its named hash",
+            "static worker refuses routes outside its public allowlist",
+            "first owned static worker exits without a publisher process",
+            "fresh static worker restart still reads exact public bytes",
+            "static reads leave all publisher files unchanged",
+            "static reads leave installed package and Activity data unchanged",
+            "second owned static worker exits cleanly"
+          ]
         }
       ],
       "remaining": [
-        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress and concurrent Activity collection/delivery, author-process independence and production static-read acceptance. Real running-worker reads and pause/resume mutations, cooperative cancellation and partial-index search catch-up now have scoped isolated evidence; no production gate is waived."
+        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress and concurrent Activity collection/delivery, deployed author-process independence and production static-read acceptance. Copied-author-module removal and independent loopback static worker restart/read have fixture evidence; actual source checkouts remain on the host and no deployed service is claimed verified."
       ]
     },
     {

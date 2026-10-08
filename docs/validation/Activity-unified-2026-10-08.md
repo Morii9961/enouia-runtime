@@ -21,8 +21,9 @@ The implementation combines both branch histories. Subsequent owner-authorized c
 | Actual pre-first-batch cancellation and fresh rebuild | [46/46 native checks](Activity-rebuild-cancel-2026-10-08.md); real cancelled terminal, fresh operation identity and recovered approved memory search after Activity failure |
 | Actual partial-progress cancellation and automatic catch-up | [49/49 native checks](Activity-rebuild-partial-2026-10-08.md); retained watermark 256, three complete search pages at sequence 496 and fresh rebuild recovery |
 | Actual producer mutations during running Core rebuild | [47/47 native checks](Activity-rebuild-mutations-2026-10-08.md); pause/resume intentionally create generations, archive/sequence/pending/restored delivery and canonical Vault stay intact |
+| Copied-author absence and independent static read/restart | [12/12 checks](Activity-static-read-2026-10-08.md); removed copied author modules, actual curl over loopback, unchanged public/package/Activity bytes, no deployed-site claim |
 | Explicit safety classifications | [ADR-031 comparison follow-up](B4-validation-compatibility-2026-10-08.md): 30 frozen cases and 49 literal cases/75 checks, zero unclassified differences |
-| Current offline evidence integrity | [23 reports, 196 selectors, 22 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
+| Current offline evidence integrity | [24 reports, 208 selectors, 23 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
 
 Current desktop SHA-256 is `12ddc3cb1a37ae0b7db814aa016a15070e5c91699f1667b150bb2a6c4ccabf85`; unsigned installer is `a2daabd9c012abf6a94a0b671e64e1d9ff7e8abf89e4741812c808e312423cdc`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`. The prior confirmation/rebuild reports name their earlier executable; the recovery-guidance run supplies current 48/48 native evidence.
 

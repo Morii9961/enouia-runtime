@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_static_read_without_copied_authors",
+  "generatedAt": "2026-10-08T11:15:25.652Z",
+  "checks": [
+    "public manifest names the exact existing payload hash",
+    "all copied publisher receiver and author modules belong to this fixture",
+    "copied author modules are absent before static worker startup",
+    "static worker uses its own outside-repository directory and system-only PATH",
+    "actual curl reads byte-identical public manifest without copied authors",
+    "actual curl reads byte-identical payload with its named hash",
+    "static worker refuses routes outside its public allowlist",
+    "first owned static worker exits without a publisher process",
+    "fresh static worker restart still reads exact public bytes",
+    "static reads leave all publisher files unchanged",
+    "static reads leave installed package and Activity data unchanged",
+    "second owned static worker exits cleanly"
+  ],
+  "checkCount": 12,
+  "harnessSha256": "01619be3e552981fe4cf17dccd42a876e75c3107981b74af647c0dc927335c71",
+  "prepareHarnessSha256": "0b9dc2114a934dd09c13fc0772da16b4457f5cd091ce21ca6e75473d47e59df3",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "publicManifestSha256": "c75952b7c4a0beb92148a806047eb8bda256a3445e44c378549f1c228d78b6d4",
+  "activitySha256": "367a30f96215a430efbac27b136340f13caf2ed42d7502ef41296adc9f06ee50",
+  "copiedModules": [
+    {
+      "path": "reference/scripts/status-receive.mjs",
+      "sha256": "e32f12e127e38fd552301377cd3b31323269c7f2a394317e1b2f2334570bd98c"
+    },
+    {
+      "path": "reference/scripts/status-publish.mjs",
+      "sha256": "5d95b17ac50025f2828b4c8421ebe8e26fefabe125fad18df8fada6c68b87a55"
+    },
+    {
+      "path": "reference/scripts/lib/status-store.mjs",
+      "sha256": "98638b497acc0386264981457e41bd3c2dbabfdc6104260d1b5845edf5aa092c"
+    },
+    {
+      "path": "reference/scripts/lib/status-batch.mjs",
+      "sha256": "50c1450e19094ff632ee658d983c11c0d25f6c58c76b2fd764cd4dc642134192"
+    },
+    {
+      "path": "reference/src/lib/activity.ts",
+      "sha256": "6e13dc4d9d190f05032b6db3432aeb5754877b321ca74012fbdc6fe4fe47b273"
+    },
+    {
+      "path": "reference/src/lib/status.ts",
+      "sha256": "fb4ce6c27bbef97215d44289cc7a9b1d3a5787740978d39caabae4dc669d9d80"
+    },
+    {
+      "path": "publish.mjs",
+      "sha256": "42a9f0b4f6805aa76e77ab922d81e2f16af75873b927027790858f84610cf94a"
+    }
+  ],
+  "limitations": [
+    "Only copied author modules in this newly prepared fixture are removed; actual source checkouts remain on the host.",
+    "Actual HTTP is loopback with a minimal static Node worker, not deployed Nginx, real HTTPS or rendered About-page acceptance.",
+    "No real account, production task, public upload or Moriium checkout mutation is used."
+  ]
+}
