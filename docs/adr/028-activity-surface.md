@@ -34,3 +34,5 @@ The Activity producer is installed separately (B3.2) and runs from Windows Task 
 - The [malformed-cache drill](../validation/Activity-malformed-index-2026-10-08.md) confirms actual index-dependent search refusal and recovery while canonical Memory reads and Activity remain usable; canonical Vault and Activity bytes stay unchanged. No storage fault or long-running overlap is claimed.
 
 - The [index-sharing drill](../validation/Activity-locked-index-2026-10-08.md) verifies real Windows sharing-violation failure/retry while Activity remains usable and canonical Vault/Activity bytes stay unchanged. It does not establish disk-full, ACL denial or mid-write power loss.
+
+- The [running-worker overlap drill](../validation/Activity-rebuild-overlap-2026-10-08.md) brackets real Activity reads with running statuses of the same Core rebuild over 241 approved synthetic memories, preserving canonical Vault and Activity bytes. Sustained stress, cancellation and concurrent writes remain separate.

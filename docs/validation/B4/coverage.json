@@ -129,6 +129,13 @@
       "sha256": "c401fab8598333509de0c025af1e02d6a8c0d681cf1a3aa0a2de356149e000c7",
       "state": "passed",
       "selectorCount": 11
+    },
+    {
+      "id": "rebuild_overlap",
+      "path": "docs/validation/Activity-unified/rebuild-overlap-proof.json",
+      "sha256": "13fdde6906ac3e8699ecd2bc6e029223cd9c3fb3f2704f65be3a881d85c90084",
+      "state": "passed",
+      "selectorCount": 5
     }
   ],
   "cases": [
@@ -640,10 +647,20 @@
             "S.recovery_preserves_canonical_vault",
             "S.recovery_preserves_activity_bytes"
           ]
+        },
+        {
+          "report": "rebuild_overlap",
+          "selectors": [
+            "O.synthetic_core_seed_is_approved",
+            "O.activity_reads_bracketed_by_running_rebuild",
+            "O.rebuild_preserves_canonical_vault",
+            "O.rebuild_preserves_activity_bytes",
+            "O.rebuild_returns_all_approved_memories"
+          ]
         }
       ],
       "remaining": [
-        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults and long-running Core rebuild isolation, author-process independence and production static-read acceptance. Closed-UI scheduling, a clean installed environment, healthy rebuild, missing/malformed-cache recovery and owned Windows index-sharing-violation failure/retry preserving canonical Vault and Activity bytes have isolated evidence."
+        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress/cancellation and concurrent Activity mutations, author-process independence and production static-read acceptance. Actual running-rebuild reads are now bracketed by real worker states; prior closed-UI, installed-environment, cache recovery and owned sharing-violation failure/retry evidence remains isolated."
       ]
     },
     {
