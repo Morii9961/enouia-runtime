@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 22);
+  assert.equal(reports.size, 23);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -304,6 +304,29 @@ function validate(index) {
   for(const digest of [guidance.harnessSha256,guidance.desktopSha256,guidance.beforeDesktopSha256,guidance.runnerSha256,guidance.installerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   assert.notEqual(guidance.desktopSha256,guidance.beforeDesktopSha256);
   assert(guidance.limitations.includes('The installer is built and statically checked, not installed, signed or published.'));
+  const mutations=reports.get('rebuild_mutations').report;
+  assert.equal(mutations.scope,'isolated_native_running_rebuild_activity_mutations');
+  const mutationBytes=readFileSync(contained(mutations.nativeReport));
+  assert.equal(hash(mutationBytes),mutations.nativeReportSha256,'rebuild-mutation native evidence changed');
+  const mutationNative=JSON.parse(mutationBytes);
+  assert.equal(mutations.nativeSummary,'47/47');
+  assert.equal(mutations.processExitCode,0);
+  assert.equal(mutationNative.summary,mutations.nativeSummary);
+  assert.equal(mutationNative.checks.length,47);
+  assert(mutationNative.checks.every(c=>c.ok===true));
+  assert.deepEqual(mutations.checks,mutationNative.checks.filter(c=>c.id.startsWith('W.')).map(c=>c.id));
+  assert.equal(mutations.checks.length,7);
+  const mutationBracket=JSON.parse(mutationNative.checks.find(c=>c.id==='W.mutations_bracketed_by_running_rebuild').detail);
+  assert.equal(mutationBracket.before.state,'running');
+  assert.equal(mutationBracket.after.state,'running');
+  assert.equal(mutationBracket.before.operationId,mutationBracket.after.operationId);
+  assert.equal(mutationBracket.before.kind,'index_rebuild');
+  assert.equal(mutationBracket.after.kind,'index_rebuild');
+  assert(Number.isSafeInteger(mutationBracket.activityMutationElapsedMs) && mutationBracket.activityMutationElapsedMs>=0);
+  assert.equal(mutations.memoryRevision,isolation.memoryRevision);
+  assert.equal(mutations.desktopSha256,guidance.desktopSha256);
+  for(const digest of [mutations.harnessSha256,mutations.runnerSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(mutations.limitations.includes('Core completion is compared against the post-mutation Activity tree, not falsely claimed identical to the pre-mutation tree.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -334,8 +357,9 @@ function validate(index) {
   assert(cancelled.checks.every(id=>linkedTo(c17,'rebuild_cancel').includes(id)),'C17 must retain actual cancelled terminal and recovery evidence');
   assert(partial.checks.every(id=>linkedTo(c17,'rebuild_partial').includes(id)),'C17 must retain partial watermark and automatic search catch-up evidence');
   assert(guidance.checks.every(id=>linkedTo(c17,'index_guidance').includes(id)),'C17 must retain actual recovery guidance and search recovery evidence');
+  assert(mutations.checks.every(id=>linkedTo(c17,'rebuild_mutations').includes(id)),'C17 must retain actual producer mutation bracket and canonical/Activity preservation evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 12, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 13, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -363,7 +387,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_cancel'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_partial'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_guidance'));
-  result.negativeChecks = 21;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'rebuild_mutations'));
+  result.negativeChecks = 22;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

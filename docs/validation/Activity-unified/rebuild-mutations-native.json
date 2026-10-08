@@ -1,0 +1,244 @@
+{
+  "checks": [
+    {
+      "id": "A.gate_without_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "A.unconfigured_is_structured",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.picker_connects_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.no_path_reaches_page",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.choice_saved_by_shell",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.three_fresh_sources",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.heatmaps_drawn",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.overview_kind",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.task_query_failure_stays_unknown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.preview_hash_is_published_hash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.days_filtered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.invalid_requests_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.next_trigger_not_invented",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.keyboard_surface_skip_entry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.failed_read_clears_old_values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.late_read_cannot_restore_old_values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.refresh_remains_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.refresh_recovers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.synthetic_memory_vault_opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.memory_write_before_activity_fault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.malformed_activity_keeps_memory_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.synthetic_memory_is_approved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "O.synthetic_core_seed_is_approved",
+      "ok": true,
+      "detail": "241 approved synthetic memories"
+    },
+    {
+      "id": "I.pinned_core_index_rebuild_starts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "O.activity_reads_bracketed_by_running_rebuild",
+      "ok": true,
+      "detail": "{\"before\":{\"cancelRequested\":false,\"error\":null,\"kind\":\"index_rebuild\",\"operationId\":\"op_240ab8cc-a154-4fe7-9ce1-f3064934c4fb\",\"progress\":{\"done\":0,\"total\":496},\"result\":null,\"state\":\"running\"},\"after\":{\"cancelRequested\":false,\"error\":null,\"kind\":\"index_rebuild\",\"operationId\":\"op_240ab8cc-a154-4fe7-9ce1-f3064934c4fb\",\"progress\":{\"done\":0,\"total\":496},\"result\":null,\"state\":\"running\"},\"activityReadElapsedMs\":67}"
+    },
+    {
+      "id": "I.activity_reads_survive_index_rebuild",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W.pause_commits_while_core_rebuild_runs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W.resume_commits_while_core_rebuild_runs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W.mutations_bracketed_by_running_rebuild",
+      "ok": true,
+      "detail": "{\"before\":{\"cancelRequested\":false,\"error\":null,\"kind\":\"index_rebuild\",\"operationId\":\"op_240ab8cc-a154-4fe7-9ce1-f3064934c4fb\",\"progress\":{\"done\":0,\"total\":496},\"result\":null,\"state\":\"running\"},\"after\":{\"cancelRequested\":false,\"error\":null,\"kind\":\"index_rebuild\",\"operationId\":\"op_240ab8cc-a154-4fe7-9ce1-f3064934c4fb\",\"progress\":{\"done\":2,\"total\":496},\"result\":null,\"state\":\"running\"},\"activityMutationElapsedMs\":263}"
+    },
+    {
+      "id": "W.activity_mutations_preserve_canonical_vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W.pause_resume_preserve_archive_sequence_pending_delivery",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W.pause_resume_intentionally_advance_generations",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.pinned_core_index_rebuild_completes",
+      "ok": true,
+      "detail": "{\"kind\":\"index_rebuild\",\"state\":\"succeeded\",\"progress\":{\"done\":2,\"total\":496}}"
+    },
+    {
+      "id": "I.memory_rebuild_preserves_activity_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "O.rebuild_preserves_canonical_vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "O.rebuild_preserves_activity_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "O.rebuild_returns_all_approved_memories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "D.pause_is_durable_runner_state",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "D.resume",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "E.run_now_commits_and_keeps_pending",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "E.failed_sources_keep_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "E.ui_states_retained_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.approved_memory_survives_activity_source_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W.original_memory_survives_activity_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "F.ui_kill_leaves_valid_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "F.restart_reads_same_pending",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "G.change_package_forgets_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-observed.png",
+    "02-pending.png"
+  ],
+  "summary": "47/47"
+}

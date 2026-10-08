@@ -157,6 +157,13 @@
       "sha256": "0a2c8058ba4e1189d24c1accfbd812cdf5cf192f44d8abccbf4c2b5ff3f2f42c",
       "state": "passed",
       "selectorCount": 3
+    },
+    {
+      "id": "rebuild_mutations",
+      "path": "docs/validation/Activity-unified/rebuild-mutations-proof.json",
+      "sha256": "e34ed2a1adc54c6efb8d018e186af4f66f386dda8bf5ab8bbb3581f1ed0478df",
+      "state": "passed",
+      "selectorCount": 7
     }
   ],
   "cases": [
@@ -711,10 +718,22 @@
             "U.failed_search_is_not_empty_result",
             "U.search_recovers_after_index_rebuild"
           ]
+        },
+        {
+          "report": "rebuild_mutations",
+          "selectors": [
+            "W.pause_commits_while_core_rebuild_runs",
+            "W.resume_commits_while_core_rebuild_runs",
+            "W.mutations_bracketed_by_running_rebuild",
+            "W.activity_mutations_preserve_canonical_vault",
+            "W.pause_resume_preserve_archive_sequence_pending_delivery",
+            "W.pause_resume_intentionally_advance_generations",
+            "W.original_memory_survives_activity_failure"
+          ]
         }
       ],
       "remaining": [
-        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress and concurrent Activity mutations, author-process independence and production static-read acceptance. Actual running-worker reads, both pre-first-batch and 256-commit partial cancellation, ordinary search catch-up and fresh rebuild recovery now have isolated evidence; existing package/cache/fault scopes remain bounded."
+        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress and concurrent Activity collection/delivery, author-process independence and production static-read acceptance. Real running-worker reads and pause/resume mutations, cooperative cancellation and partial-index search catch-up now have scoped isolated evidence; no production gate is waived."
       ]
     },
     {

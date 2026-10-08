@@ -25,10 +25,10 @@ import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
-const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--task-disabled|--task-enabled]');
+const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -214,6 +214,15 @@ function fixtureEntries(root) {
   });
 }
 const fixtureTree = root => fixtureEntries(root).join('|');
+
+function fixtureImage(root) {
+  const generation=readFileSync(join(root,'CURRENT'),'utf8').trim();
+  if(!/^[A-Za-z0-9_-]{1,64}$/.test(generation)) throw new Error('Invalid synthetic generation pointer');
+  const directory=join(root,'generations',generation);
+  if(realpathSync(directory).toLowerCase() !== join(realpathSync(root),'generations',generation).toLowerCase()) throw new Error('Synthetic generation escaped its data root');
+  const digest=name=>createHash('sha256').update(readFileSync(join(directory,name))).digest('hex');
+  return {generation,activity:digest('activity.json'),sequence:digest('sequence.json'),pending:existsSync(join(directory,'pending.json')) ? digest('pending.json') : null,delivery:JSON.parse(readFileSync(join(directory,'delivery.json'),'utf8'))};
+}
 
 async function searchMemory(s) {
   await s.evaluate("document.querySelector('nav button[aria-label=\"Memory\"]').click()");
@@ -502,7 +511,7 @@ async function main() {
     // The Vault above is freshly created by this process outside Git. Only
     // the pinned Core operates on it; Activity never receives its root.
     if (realpathSync(manifest.dataRoot).toLowerCase() !== realpathSync(join(dirname(pkg), 'data')).toLowerCase()) throw new Error('Index isolation requires the prepared synthetic Activity data root');
-    const treeBefore = fixtureTree(manifest.dataRoot);
+    let treeBefore = fixtureTree(manifest.dataRoot);
     const plan = await memoryCall(s, 'review_plan', {decisions:[{candidateId:remembered.result.candidateId,revision:remembered.result.revision,action:'accept',editedContent:null,mergeTarget:null}]});
     if (!plan.result?.planId) throw new Error(`Synthetic review plan: ${plan.error?.code}`);
     const confirmed = await memoryCall(s, 'review_confirm', {planId:plan.result.planId,diffHash:plan.result.diffHash}, true);
@@ -540,6 +549,25 @@ async function main() {
       check('O.activity_reads_bracketed_by_running_rebuild', overlapBefore?.state === 'running' && after?.state === 'running' && after.operationId === overlapBefore.operationId, JSON.stringify({before:overlapBefore,after,activityReadElapsedMs:Date.now()-overlapStart}));
     }
     check('I.activity_reads_survive_index_rebuild', read.kind === 'activity_overview' && read.producer.highestReserved === o.producer.highestReserved && read.pending === null && payload.sha256 === preview.sha256);
+    if (mode === '--rebuild-mutations') {
+      const image=fixtureImage(manifest.dataRoot);
+      const before=(await memoryCall(s,'operation_get',{operationId:rebuild.result.operationId})).result;
+      const start=Date.now();
+      const pause=await call(s,{operation:'activity_set_paused',paused:true});
+      check('W.pause_commits_while_core_rebuild_runs', pause.kind === 'activity_pause_acknowledged' && pause.paused === true && (await overview(s)).producer.paused === true);
+      const resume=await call(s,{operation:'activity_set_paused',paused:false});
+      check('W.resume_commits_while_core_rebuild_runs', resume.kind === 'activity_pause_acknowledged' && resume.paused === false && (await overview(s)).producer.paused === false);
+      const after=(await memoryCall(s,'operation_get',{operationId:rebuild.result.operationId})).result;
+      check('W.mutations_bracketed_by_running_rebuild', before?.state === 'running' && after?.state === 'running' && before.operationId === after.operationId, JSON.stringify({before,after,activityMutationElapsedMs:Date.now()-start}));
+      check('W.activity_mutations_preserve_canonical_vault', fixtureTree(join(vault,'vault')) === overlapCanonical);
+      const next=fixtureImage(manifest.dataRoot);
+      check('W.pause_resume_preserve_archive_sequence_pending_delivery', next.activity === image.activity && next.sequence === image.sequence && next.pending === image.pending && JSON.stringify(next.delivery) === JSON.stringify(image.delivery));
+      const treeAfter=fixtureTree(manifest.dataRoot);
+      check('W.pause_resume_intentionally_advance_generations', next.generation !== image.generation && treeAfter !== treeBefore);
+      // Producer mutations intentionally commit operational generations.
+      // The remaining Core worker must leave this new baseline unchanged.
+      treeBefore=treeAfter;
+    }
     if (['--rebuild-cancel', '--rebuild-partial'].includes(mode)) {
       const originalId=rebuild.result.operationId;
       if (mode === '--rebuild-partial') {
@@ -757,6 +785,10 @@ async function main() {
     if (['--rebuild-cancel', '--rebuild-partial'].includes(mode)) {
       const found=await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
       check('K.original_memory_survives_activity_failure', !found.error && found.result?.items?.length === 1 && JSON.stringify(found.result).includes('isolation'));
+    }
+    if (mode === '--rebuild-mutations') {
+      const found=await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
+      check('W.original_memory_survives_activity_failure', !found.error && found.result?.items?.length === 1 && JSON.stringify(found.result).includes('isolation'));
     }
   }
   await shot(s, '02-pending');

@@ -40,3 +40,5 @@ The Activity producer is installed separately (B3.2) and runs from Windows Task 
 - The [cooperative cancellation drill](../validation/Activity-rebuild-cancel-2026-10-08.md) verifies actual cancellation before the first applied index batch and fresh rebuild recovery while canonical Vault and Activity bytes stay unchanged. It does not establish partial-progress recovery.
 
 - The [partial-progress cancellation drill](../validation/Activity-rebuild-partial-2026-10-08.md) verifies a retained 256-commit watermark and ordinary search catch-up to 496 before a fresh successful rebuild. Canonical Vault and Activity bytes remain unchanged; sustained stress and concurrent mutations remain separate.
+
+- The [running-worker mutation drill](../validation/Activity-rebuild-mutations-2026-10-08.md) verifies actual pause/resume commits between running statuses of one Core rebuild. New operational generations are expected; archive, sequence, pending, restored delivery and canonical Vault remain intact.
