@@ -41,6 +41,9 @@ Run packaging checks after building the release binary:
 ./scripts/test-activity-package.ps1
 ./scripts/test-activity-package.ps1 -LiveScheduler
 ./scripts/test-activity-package.ps1 -LiveScheduler -ClosedUiSync
+./scripts/test-activity-package.ps1 -LiveScheduler -ClosedUiSync -NativeDesktop '<absolute release desktop exe>'
 ```
 
 The first uses scheduler doubles with real files, probes, and executable. Its production-gate section models the overview reply and scheduler only, using an unreachable synthetic public origin; it never sends a production batch or registers a real task. The second explicitly registers a uniquely named temporary disabled task, enables only that delivery-disabled synthetic sandbox task, invokes it through the scheduler, then removes it. Adding `-ClosedUiSync` requires the desktop to be closed and also verifies unpaused scheduled state advancement, retained source failures and byte-identical unresolved pending on a second invocation. It never closes user applications. All modes use synthetic Activity state and checked cleanup paths. The live options do not test actual hourly/logon timing, battery transitions, sleep/resume, authenticated collectors, or a receiver. See the historical [B3.2 validation report](validation/B3.2-scheduler.md), [current live acceptance](validation/Activity-scheduler-live-2026-10-08.md) and [combined validation](validation/Activity-unified-2026-10-08.md).
+
+`-NativeDesktop` additionally launches isolated desktop processes to read the actual disabled/enabled task through the Activity page. It checks that producer pause stays separate, scheduler controls are refused, and UI reads preserve task state and Activity files. The harness terminates only its own desktop processes before optional closed-UI sync. Page outputs remain under a marked ignored `target/native-scheduler-<GUID>` directory. See [native task-read evidence](validation/Activity-native-scheduler-2026-10-08.md).

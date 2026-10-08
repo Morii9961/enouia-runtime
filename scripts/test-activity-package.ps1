@@ -1,9 +1,10 @@
 #Requires -Version 7.2
 [CmdletBinding()]
-param([string] $Binary = (Join-Path $PSScriptRoot '..\target\release\enouia-activity.exe'), [switch] $LiveScheduler, [switch] $ClosedUiSync)
+param([string] $Binary = (Join-Path $PSScriptRoot '..\target\release\enouia-activity.exe'), [switch] $LiveScheduler, [switch] $ClosedUiSync, [string] $NativeDesktop)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if ($ClosedUiSync -and -not $LiveScheduler) { throw '-ClosedUiSync requires -LiveScheduler and its independently owned synthetic task.' }
+if ($NativeDesktop -and -not $LiveScheduler) { throw '-NativeDesktop requires -LiveScheduler and its independently owned synthetic task.' }
 Import-Module (Join-Path $PSScriptRoot 'activity-package.psm1') -Force
 $module = Get-Module 'activity-package'
 $workspace = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -11,6 +12,8 @@ $base = Join-Path $workspace ('target\scheduler-test-' + [guid]::NewGuid().ToStr
 $taskName = 'Enouia-Activity-Test-' + [guid]::NewGuid().ToString('N')
 $checks = 0
 $closedUi = $null
+$nativeScheduler = @()
+$nativeOutput = Join-Path $workspace ('target\native-scheduler-' + [guid]::NewGuid().ToString('N'))
 function Assert($Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
     $script:checks++
@@ -28,6 +31,21 @@ function TreeHash([string] $Root) {
 function RunCli([string[]] $Arguments) {
     $result = & $module { param($exe, $argsList) Invoke-ActivityProbe $exe $argsList } ([IO.Path]::GetFullPath($Binary)) $Arguments
     return @{ code = $result.exitCode; value = ($result.output | ConvertFrom-Json -AsHashtable) }
+}
+function Invoke-NativeSchedulerRead([bool] $Enabled) {
+    $desktop = [IO.Path]::GetFullPath($NativeDesktop)
+    if (-not [IO.Path]::IsPathFullyQualified($NativeDesktop) -or -not (Test-Path -LiteralPath $desktop -PathType Leaf) -or (Get-ActivityPeSubsystem $desktop) -ne 2) { throw 'Native acceptance requires an absolute release desktop executable.' }
+    $stateName = if ($Enabled) { 'enabled' } else { 'disabled' }
+    $output = Join-Path $nativeOutput $stateName
+    [void][IO.Directory]::CreateDirectory($output)
+    & node (Join-Path $workspace 'apps\desktop\e2e\activity-smoke.mjs') $desktop $install $output ('--task-' + $stateName) *> (Join-Path $output 'console.log')
+    if ($LASTEXITCODE -ne 0) { throw ('Native task-read acceptance failed; inspect target/' + [IO.Path]::GetFileName($nativeOutput) + '/' + $stateName + '. The independent task will still be removed by cleanup.') }
+    $ui = Get-Content -LiteralPath (Join-Path $output 'report.json') -Raw | ConvertFrom-Json -AsHashtable
+    Assert ($ui.summary -eq '10/10' -and @($ui.checks | Where-Object { -not $_.ok }).Count -eq 0) 'Native task-read evidence is incomplete.'
+    Assert ((TreeHash $state) -eq $before) 'Native schedule reads changed Activity files.'
+    $registered = Get-ActivityPackageStatus $install
+    Assert ($registered.taskRegistered -and $registered.taskState -eq $(if ($Enabled) { 'Ready' } else { 'Disabled' })) 'Native schedule reads changed the actual task.'
+    return @{ taskEnabled = $Enabled; summary = $ui.summary; checks = $ui.checks; desktopSha256 = (Get-FileHash -LiteralPath $desktop -Algorithm SHA256).Hash.ToLowerInvariant() }
 }
 try {
     [void][IO.Directory]::CreateDirectory($base)
@@ -116,6 +134,7 @@ try {
     $query = Get-ActivityPackageStatus $install
     Assert ($query.taskRegistered -and $query.taskState -eq 'Disabled' -and $query.activity.paused) 'Registered/query state mismatch.'
     Assert (($query | ConvertTo-Json -Depth 10) -notmatch [regex]::Escape($base)) 'Query leaked local paths.'
+    if ($NativeDesktop) { $nativeScheduler += Invoke-NativeSchedulerRead $false }
     if (-not $LiveScheduler) {
         & $module { $script:testXml = $script:testXml.Replace('<RunLevel>LeastPrivilege</RunLevel>', '').Replace('<WakeToRun>false</WakeToRun>', '').Replace('<MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>', '') }
         $effective = Get-ActivityPackageStatus $install
@@ -126,6 +145,7 @@ try {
     if ($LiveScheduler) {
         # Only this unique disabled sandbox task can be enabled; all data is synthetic and delivery is disabled.
         Enable-ScheduledTask -TaskName $taskName -TaskPath '\' | Out-Null
+        if ($NativeDesktop) { $nativeScheduler += Invoke-NativeSchedulerRead $true }
         $last = (Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\').LastRunTime
         Start-ScheduledTask -TaskName $taskName -TaskPath '\'
         $deadline = [datetime]::UtcNow.AddSeconds(30)
@@ -272,7 +292,7 @@ try {
     # Config tampering blocks later registration before any scheduler mutation.
     Add-Content -LiteralPath $installedConfig -Value ' '
     Reject { Register-ActivitySandbox $install } 'Changed config registered.'
-    @{ checks = $checks; scheduler = $(if ($LiveScheduler) { 'real_unique_sandbox_task' } else { 'scheduler_doubles' }); state = 'passed'; closedUiSync = $closedUi } | ConvertTo-Json -Depth 6
+    @{ checks = $checks; scheduler = $(if ($LiveScheduler) { 'real_unique_sandbox_task' } else { 'scheduler_doubles' }); state = 'passed'; closedUiSync = $closedUi; nativeSchedulerUi = $nativeScheduler } | ConvertTo-Json -Depth 8
 } finally {
     if ($LiveScheduler -and (Test-Path -LiteralPath (Join-Path $base 'installed & independent\install.json'))) {
         # Cleanup uses the same source/action/user ownership check and never force-kills a running task.

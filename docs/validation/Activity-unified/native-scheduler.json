@@ -1,0 +1,133 @@
+{
+  "nativeSchedulerUi": [
+    {
+      "summary": "10/10",
+      "desktopSha256": "de6f86e5e247e7601c3c93eed0494a9091a10b924b0d1d67531f79e074aaa765",
+      "checks": [
+        {
+          "id": "S.synthetic_package_connects",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.actual_task_is_registered",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.actual_task_enablement",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.scheduler_health_matches_task",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.actual_state_reaches_page",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.producer_pause_is_separate",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.unobserved_next_trigger_stays_null",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.scheduler_control_requests_are_refused",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.reads_keep_archive_and_task_unchanged",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.package_paths_stay_private",
+          "ok": true,
+          "detail": ""
+        }
+      ],
+      "taskEnabled": false
+    },
+    {
+      "summary": "10/10",
+      "desktopSha256": "de6f86e5e247e7601c3c93eed0494a9091a10b924b0d1d67531f79e074aaa765",
+      "checks": [
+        {
+          "id": "S.synthetic_package_connects",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.actual_task_is_registered",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.actual_task_enablement",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.scheduler_health_matches_task",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.actual_state_reaches_page",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.producer_pause_is_separate",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.unobserved_next_trigger_stays_null",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.scheduler_control_requests_are_refused",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.reads_keep_archive_and_task_unchanged",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "S.package_paths_stay_private",
+          "ok": true,
+          "detail": ""
+        }
+      ],
+      "taskEnabled": true
+    }
+  ],
+  "state": "passed",
+  "scheduler": "real_unique_sandbox_task",
+  "checks": 63,
+  "closedUiSync": {
+    "retainedSources": 3,
+    "deliveryEnabled": false,
+    "sequence": 51,
+    "exactPendingSha256": "d7d1176380efdf4b1f882eee9ec7dc413f4ab990bd2651d6db3337f0c6d8337b",
+    "taskResults": [
+      4,
+      4
+    ],
+    "desktopClosed": true,
+    "pendingRetryByteIdentical": true
+  }
+}

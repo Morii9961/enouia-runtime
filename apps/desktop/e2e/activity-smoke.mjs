@@ -11,20 +11,36 @@
 // The package must be freshly prepared: the run pauses, resumes, runs and
 // retries it, and ends one run by terminating the shell. The shell's saved
 // package choice is kept under the test output via --activity-settings.
-// No task is registered, no account
-// is collected and nothing leaves 127.0.0.1. Synthetic data only.
+// This harness registers no task and collects no account. Its task-read modes
+// use the independently owned, delivery-disabled package created by
+// scripts/test-activity-package.ps1 -LiveScheduler -NativeDesktop <exe>.
+// Default/keyboard fixtures publish only over 127.0.0.1. Synthetic data only.
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { basename, dirname, isAbsolute, join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
 
 const [exe, pkg, out, mode] = process.argv.slice(2);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && mode !== '--keyboard') || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard]');
+const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--task-disabled|--task-enabled]');
 }
 mkdirSync(out, { recursive: true });
 const manifest = JSON.parse(readFileSync(join(pkg, 'install.json'), 'utf8'));
-if (manifest.mode !== 'sandbox' || !basename(dirname(pkg)).startsWith('enouia-handback-ui-')) throw new Error('Only a prepared synthetic package is allowed');
+if (taskMode) {
+  const parent = dirname(pkg);
+  const config = JSON.parse(readFileSync(join(pkg, 'activity-config.json'), 'utf8'));
+  if (manifest.mode !== 'sandbox' || !/^Enouia-Activity-Test-[a-f0-9]{32}$/.test(manifest.taskName) ||
+      basename(pkg) !== 'installed & independent' || !/^scheduler-test-[a-f0-9]{32}$/.test(basename(parent)) ||
+      realpathSync(dirname(parent)).toLowerCase() !== realpathSync(resolve(import.meta.dirname, '../../../target')).toLowerCase() ||
+      config.mode !== 'sandbox' || config.deliveryEnabled === true ||
+      Object.keys(config).some(key => !['version', 'mode', 'dataRoot', 'deliveryEnabled'].includes(key)) ||
+      realpathSync(config.dataRoot).toLowerCase() !== realpathSync(join(parent, 'state')).toLowerCase()) {
+    throw new Error('Task reads require the unique delivery-disabled scheduler-test package.');
+  }
+} else if (manifest.mode !== 'sandbox' || !basename(dirname(pkg)).startsWith('enouia-handback-ui-')) {
+  throw new Error('Only a prepared synthetic package is allowed');
+}
 const listener = createServer();
 await new Promise((resolve, reject) => { listener.once('error', reject); listener.listen(0, '127.0.0.1', resolve); });
 const PORT = listener.address().port;
@@ -206,6 +222,36 @@ async function activate(s, label, selector = 'button') {
   await key(s, 'Enter');
 }
 
+async function taskReadMain(enabled) {
+  rmSync(settings, { force: true });
+  const app = launch();
+  const s = await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s, has('Connect the installed Activity producer'), 'task-read gate');
+  await press(s, 'Choose installed package…');
+  fillDialog(app.pid, pkg);
+  await waitFor(s, "document.querySelectorAll('.act-source').length === 3", 'task-read connection');
+  check('S.synthetic_package_connects', true);
+  const o = await overview(s);
+  const preview = await call(s, { operation: 'activity_preview_public_payload' });
+  check('S.actual_task_is_registered', o.schedule.task?.registered === true);
+  check('S.actual_task_enablement', o.schedule.task?.enabled === enabled);
+  check('S.scheduler_health_matches_task', o.health.some(h => h.id === 'activity_scheduler' && h.state === (enabled ? 'healthy' : 'degraded')));
+  check('S.actual_state_reaches_page', await s.evaluate(has(`Registered · ${enabled ? 'enabled' : 'disabled'}`)));
+  check('S.producer_pause_is_separate', o.producer.paused === true && await disabled(s, 'Run now'));
+  check('S.unobserved_next_trigger_stays_null', o.schedule.nextTriggerAt === null && await s.evaluate(has('Not observed')));
+  const refused = await Promise.all(['activity_enable_task', 'activity_disable_task'].map(operation => call(s, { operation })));
+  check('S.scheduler_control_requests_are_refused', refused.every(r => r.kind === 'activity_error' && r.error.code === 'contract_invalid'));
+  const after = await overview(s);
+  const afterPreview = await call(s, { operation: 'activity_preview_public_payload' });
+  check('S.reads_keep_archive_and_task_unchanged', after.schedule.task?.registered === true && after.schedule.task?.enabled === enabled && preview.sha256 === afterPreview.sha256);
+  check('S.package_paths_stay_private', !(await s.evaluate(`document.body.innerText.includes(${JSON.stringify(pkg)})`)));
+  await shot(s, enabled ? '01-task-enabled' : '01-task-disabled');
+  s.close();
+  app.kill();
+  await app.exited;
+}
+
 async function keyboardMain() {
   rmSync(settings, { force: true });
   const app = launch();
@@ -377,7 +423,8 @@ async function main() {
 }
 
 try {
-  if (mode === '--keyboard') await keyboardMain();
+  if (taskMode) await taskReadMain(mode === '--task-enabled');
+  else if (mode === '--keyboard') await keyboardMain();
   else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));
