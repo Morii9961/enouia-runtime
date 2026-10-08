@@ -2,19 +2,28 @@
 
 Date: 2026-10-08. Integration parents: Codex `08dfc86ba12de61a336790ecb46e95ce31a14a8e` and Claude `7309cb92863694e34eb907317c323deef4f24fbd`. This combines Claude's remaining Runtime implementation with the native Activity integration on current main (`29401fe`), preserving the current shell and strict frontend checks. It does not activate B5 or sign off B4/J1.
 
-Follow-up: the owner's subsequent scoped authorization allowed the formerly rejected temporary scheduler drill. [Actual scheduler acceptance](Activity-scheduler-live-2026-10-08.md) records 41 successful checks at `d2f524e`, including real paused and busy invocations and verified removal. The rejected-attempt paragraph below remains the integration-time finding.
+## Latest verified state
 
-Further follow-ups: the optional closed-UI drill now passes 57 actual-scheduler checks. [Compatibility clarification](B4-validation-compatibility-2026-10-08.md) records ADR-031 and fresh comparisons with zero unclassified differences, while preserving the two/twelve historical unresolved counts below. Neither follow-up activates B5 or signs off complete B4/J1.
+The implementation combines both branch histories. Subsequent owner-authorized checks and the production-confirmation fix are committed and pushed through `10c4d4d`; main and the Claude branch are unchanged. The records below name their exact binaries and scope. Counts overlap and must not be added as a full-acceptance total.
 
-The [native registered-task follow-up](Activity-native-scheduler-2026-10-08.md) adds actual disabled/enabled task reads through the unchanged release desktop: two 10/10 page runs within 63 successful live scheduler assertions, including closed-UI advancement. These later records supplement the historical counts below.
+| Scope | Latest applicable evidence |
+|---|---|
+| Actual temporary Windows task, disabled/enabled reads and closed-UI sync | [63 assertions plus two 10/10 native page runs](Activity-native-scheduler-2026-10-08.md); older unchanged schedule-read implementation/binary |
+| Explicit production send consent | [17/17 modeled native checks](Activity-send-confirmation-2026-10-08.md); every send request intercepted before native IPC |
+| Current desktop checks and unsigned installer | [37 frontend tests, 31+3 host/Core tests, strict build, fmt/clippy and 20/20 installer ownership checks](Activity-send-confirmation-2026-10-08.md); installer built, not installed |
+| Installed runner/management outside Git with bootstrap inputs removed | [21 checks](Activity-independent-package-2026-10-08.md); system-only child PATH, delivery disabled and no task |
+| Ordinary Activity flow plus actual healthy Core rebuild | [35/35 native checks](Activity-index-isolation-2026-10-08.md); Activity bytes unchanged and approved Memory survives source failure |
+| Same workflow plus actual missing-cache recovery | [41/41 native checks](Activity-missing-index-2026-10-08.md); canonical Vault and Activity bytes unchanged after cache removal/restart/rebuild |
+| Explicit safety classifications | [ADR-031 comparison follow-up](B4-validation-compatibility-2026-10-08.md): 30 frozen cases and 49 literal cases/75 checks, zero unclassified differences |
+| Current offline evidence integrity | [16 reports, 158 selectors, 15 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
 
-The [production confirmation follow-up](Activity-send-confirmation-2026-10-08.md) fixes ordinary second-click consent and missing optional producer metadata. Its rebuilt desktop passes 17/17 modeled confirmation checks, 29/29 ordinary native Activity checks, 37 frontend tests and 31+3 host/Core tests. The executable/installer hashes in that report supersede the unchanged-desktop hashes below; the runner and Memory pin remain unchanged.
+Current desktop SHA-256 is `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`; unsigned installer is `a8c81938be6c825e655386de738ab9035665201871bca998e125df626638d018`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`.
 
-The [independent installed-package drill](Activity-independent-package-2026-10-08.md) passes 21 checks outside Git after removing bootstrap inputs, with only system tools in the child PATH. It adds current partial C17 evidence without claiming that source checkouts are physically absent or inaccessible. The current evidence index binds 14 reports/154 selectors and 13 negative checks.
+Next acceptance work remains explicit: real elapsed hourly/logon and battery/resume behavior; malformed-index/storage faults and long-running Core rebuild overlap; physical source-checkout absence or filesystem denial; author-process independence and deployed public/static behavior; broader Windows accessibility and signing; reviewed real seed/cutover/reconciliation and observed production publication. The last items retain their owner/production gates. No personal Vault/archive, production task, credentials, server or Moriium checkout was changed.
 
-The subsequent [pinned-Core index isolation drill](Activity-index-isolation-2026-10-08.md) passes 35/35 native checks, including a real successful synthetic index rebuild that leaves Activity files byte-identical and readable approved Memory after Activity source failure. The current index now binds 15 reports/156 selectors and 14 negative checks; corrupt-index/storage-fault and long-running overlap remain unverified.
+The earlier automatic rejection of the temporary task drill was superseded by scoped owner authorization; [41-check](Activity-scheduler-live-2026-10-08.md), 57-check and 63-check follow-ups passed with ownership-checked removal. No rejection workaround or production activation occurred.
 
-The [missing-index follow-up](Activity-missing-index-2026-10-08.md) passes 41/41 after removal of only generated synthetic index caches with the host closed. Core reopens/rebuilds and rereads the approved memory, while both canonical Vault and Activity bytes stay identical. The current evidence index reaches 16 reports/158 selectors and 15 negative checks; malformed-index/storage-fault and long-running overlap remain open.
+The rest of this document preserves the merged slice's original findings, counts, binary identities and failed prerequisites. In particular, its two/twelve unresolved counts describe the older reports, not the current ADR-031 classification.
 
 ## Integrated behavior
 
@@ -34,7 +43,7 @@ The production enable gate treated a null `paused` flag as resumed. A modeled ma
 
 The packaging harness adds 15 malformed/refused reply cases and checks that each leaves the task double disabled. A valid modeled observed publication enables only the owned task double, repeated enable is refused, and Activity files remain byte-identical. The probe override is restored afterward. No modeled response is presented as actual production evidence.
 
-## Current evidence
+## Integration-time evidence
 
 | Check | Result |
 |---|---|
@@ -70,7 +79,7 @@ The keyboard mode uses WebView-scoped Ctrl+5, Tab and Enter events to reach the 
 
 The first focused attempt ended without a preserved final report. A subsequent attempt reached 2/3 before the folder helper found no dialog: the harness omitted Enter's character text and therefore did not activate the button. The final run follows the [Chromium key-event protocol](https://chromedevtools.github.io/devtools-protocol/tot/Input/#method-dispatchKeyEvent) and [Playwright's Chromium input pattern](https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/chromium/crInput.ts), supplying Enter text and using raw key events for non-text keys. It passes 11/11. This was an acceptance-script correction; no product keyboard handler changed.
 
-## Open acceptance and operational gates
+## Integration-time open acceptance and operational findings
 
 The two GitHub differences are duplicate-date normalization and unsafe aggregate acceptance in legacy. Runtime follows the normative unique-date/safe-integer contract, fails that source and retains history. The twelve literal differences are four shapes across three sources: no timezone, RFC 1123, hour 24 and an impossible February date. Runtime refuses these seeds; the old parser accepts/rolls them. The proposed compatibility resolution remains retaining strict validation plus explicitly reviewed migration reconciliation. The architecture's closed deliberate-difference list has not been changed or waived here. See [B4 frozen investigation](B4-frozen-comparison.md) and [literal investigation](B4-literal-comparison.md).
 
