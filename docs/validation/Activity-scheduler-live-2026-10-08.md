@@ -10,4 +10,14 @@ The actual paused invocation returned task result 3. Holding the real shared Act
 
 This verifies actual scheduler execution of the independently installed runner and shared pause/lock behavior. It does **not** yet verify an unpaused closed-UI sync, actual hourly/logon timing, battery transitions, sleep/resume, authenticated collectors, HTTPS publication, personal migration or production cutover. No existing Activity task, personal data, Moriium checkout or server was changed.
 
+## Closed-UI follow-up
+
+The new optional `-ClosedUiSync` mode requires `-LiveScheduler`, refuses to proceed when a desktop process is open and never closes user applications. A fresh execution at baseline `2b460a8` plus this harness change passed **57 checks**; the [machine result](Activity-unified/closed-ui-scheduler.json) preserves its exact pending hash.
+
+With the desktop absent, the installed runner was resumed and invoked through the uniquely named task. It committed sequence 51 from imported high-water 50. All three unconfigured collectors failed explicitly while retaining every previous total and successful timestamp. Delivery stayed disabled, so the runner returned task result 4 and reported delivery `unconfigured`; publication was not claimed.
+
+A second actual scheduled invocation returned 4 again and preserved the exact pending hash, high-water and entire stored file tree. It did not reserve sequence 52 or collect past unresolved pending. The task was removed and post-run uninstall preserved the new state before checked test-directory cleanup. The 87 scheduler-double package checks also pass unchanged.
+
+The first closed-UI run exposed a harness expectation mismatch (`pending` versus the existing `unconfigured` IPC label for disabled delivery). The corrected expectation was verified against `ipc.rs`; product state/exit behavior was unchanged. The final 57-check run passed. This extends real C17 coverage to unpaused state advancement while the desktop is closed. Absent-source-checkout, actual hourly/logon timing, battery/resume, live tools and production remain separate acceptance items.
+
 The [combined integration report](Activity-unified-2026-10-08.md) retains its earlier rejected-attempt finding as historical evidence. The rejection was resolved by the owner's subsequent scoped authorization; the live test then executed successfully.

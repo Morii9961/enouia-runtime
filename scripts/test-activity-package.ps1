@@ -1,14 +1,16 @@
 #Requires -Version 7.2
 [CmdletBinding()]
-param([string] $Binary = (Join-Path $PSScriptRoot '..\target\release\enouia-activity.exe'), [switch] $LiveScheduler)
+param([string] $Binary = (Join-Path $PSScriptRoot '..\target\release\enouia-activity.exe'), [switch] $LiveScheduler, [switch] $ClosedUiSync)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ($ClosedUiSync -and -not $LiveScheduler) { throw '-ClosedUiSync requires -LiveScheduler and its independently owned synthetic task.' }
 Import-Module (Join-Path $PSScriptRoot 'activity-package.psm1') -Force
 $module = Get-Module 'activity-package'
 $workspace = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $base = Join-Path $workspace ('target\scheduler-test-' + [guid]::NewGuid().ToString('N'))
 $taskName = 'Enouia-Activity-Test-' + [guid]::NewGuid().ToString('N')
 $checks = 0
+$closedUi = $null
 function Assert($Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
     $script:checks++
@@ -145,6 +147,43 @@ try {
             } while (($info.LastRunTime -eq $last -or $task.State -eq 'Running') -and [datetime]::UtcNow -lt $deadline)
             Assert ($info.LastRunTime -gt $last -and $info.LastTaskResult -eq 3) 'Actual scheduled overlap did not return the busy code.'
         } finally { $lock.Dispose() }
+        if ($ClosedUiSync) {
+            Assert (@(Get-Process -Name 'enouia-desktop' -ErrorAction SilentlyContinue).Count -eq 0) 'Close the desktop before closed-UI acceptance; the test never closes user applications.'
+            Assert ((TreeHash $state) -eq $before) 'Paused/busy scheduled runs changed Activity data.'
+            $initial = (& $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('overview', '--config', $cfg) } $manifest.binary $installedConfig).output | ConvertFrom-Json -AsHashtable
+            $resumed = & $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('set-paused', 'false', '--config', $cfg) } $manifest.binary $installedConfig
+            Assert ($resumed.exitCode -eq 0 -and ($resumed.output | ConvertFrom-Json).paused -eq $false) 'Synthetic installed runner did not resume.'
+            function Invoke-ClosedUiScheduledRun {
+                $previous = (Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\').LastRunTime
+                Start-ScheduledTask -TaskName $taskName -TaskPath '\'
+                $end = [datetime]::UtcNow.AddSeconds(30)
+                do {
+                    Start-Sleep -Milliseconds 200
+                    $runInfo = Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\'
+                    $runTask = Get-ScheduledTask -TaskName $taskName -TaskPath '\'
+                } while (($runInfo.LastRunTime -eq $previous -or $runTask.State -in 'Running', 'Queued') -and [datetime]::UtcNow -lt $end)
+                Assert ($runInfo.LastRunTime -gt $previous -and $runTask.State -eq 'Ready') 'Scheduled closed-UI invocation did not finish.'
+                Assert ($runInfo.LastTaskResult -eq 4) 'Delivery-disabled sync should retain pending and return the unresolved-delivery exit code.'
+                Assert (@(Get-Process -Name 'enouia-desktop' -ErrorAction SilentlyContinue).Count -eq 0) 'A desktop process appeared during closed-UI acceptance.'
+                return $runInfo.LastTaskResult
+            }
+            $firstResult = Invoke-ClosedUiScheduledRun
+            $collected = (& $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('overview', '--config', $cfg) } $manifest.binary $installedConfig).output | ConvertFrom-Json -AsHashtable
+            Assert ($collected.pending.sequence -eq ($initial.producer.highestReserved + 1) -and $collected.producer.highestReserved -eq $collected.pending.sequence) 'Scheduled sync did not commit exactly the next sequence.'
+            Assert (-not $collected.producer.deliveryEnabled -and -not $collected.producer.paused -and $collected.delivery.state -eq 'unconfigured') 'Scheduled sync changed isolated delivery/pause policy.'
+            foreach ($source in @('github', 'codex', 'claude')) {
+                Assert ($collected.sources[$source].freshness -eq 'failed' -and $collected.sources[$source].total -ceq $initial.sources[$source].total -and $collected.sources[$source].lastSuccessAt -eq $initial.sources[$source].lastSuccessAt) ('Scheduled failure lost retained source history: ' + $source)
+            }
+            $pendingTree = TreeHash $state
+            $secondResult = Invoke-ClosedUiScheduledRun
+            $retried = (& $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('overview', '--config', $cfg) } $manifest.binary $installedConfig).output | ConvertFrom-Json -AsHashtable
+            Assert ($retried.pending.sequence -eq $collected.pending.sequence -and $retried.pending.exactSha256 -ceq $collected.pending.exactSha256 -and $retried.producer.highestReserved -eq $collected.producer.highestReserved) 'Scheduled unresolved pending collected again or changed its identity.'
+            Assert ((TreeHash $state) -eq $pendingTree) 'Delivery-disabled scheduled retry rewrote stored files.'
+            $closedUi = @{ desktopClosed = $true; deliveryEnabled = $false; taskResults = @($firstResult, $secondResult); sequence = $collected.pending.sequence; exactPendingSha256 = $collected.pending.exactSha256; retainedSources = 3; pendingRetryByteIdentical = $true }
+            # Uninstall must preserve the newly committed state, rather than
+            # compare it against the pre-sync seed as the paused-only mode does.
+            $before = TreeHash $state
+        }
     } else {
         & $module { $script:testTask.State = 'Running' }
         Reject { Uninstall-ActivityTask $install } 'Running task uninstalled.'
@@ -233,7 +272,7 @@ try {
     # Config tampering blocks later registration before any scheduler mutation.
     Add-Content -LiteralPath $installedConfig -Value ' '
     Reject { Register-ActivitySandbox $install } 'Changed config registered.'
-    @{ checks = $checks; scheduler = $(if ($LiveScheduler) { 'real_unique_sandbox_task' } else { 'scheduler_doubles' }); state = 'passed' } | ConvertTo-Json
+    @{ checks = $checks; scheduler = $(if ($LiveScheduler) { 'real_unique_sandbox_task' } else { 'scheduler_doubles' }); state = 'passed'; closedUiSync = $closedUi } | ConvertTo-Json -Depth 6
 } finally {
     if ($LiveScheduler -and (Test-Path -LiteralPath (Join-Path $base 'installed & independent\install.json'))) {
         # Cleanup uses the same source/action/user ownership check and never force-kills a running task.
