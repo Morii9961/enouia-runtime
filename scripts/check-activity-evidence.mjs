@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 15);
+  assert.equal(reports.size, 16);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -149,6 +149,21 @@ function validate(index) {
   assert.equal(isolation.memoryRevision, 'ff692ccb6fbc1c387254d5ffbef41b105eeb2a84');
   for (const digest of [isolation.harnessSha256, isolation.desktopSha256, isolation.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(isolation.limitations.includes('No corrupt index, storage fault, concurrent long-running rebuild or personal Vault is tested.'));
+  const missing = reports.get('missing_index').report;
+  assert.equal(missing.scope, 'isolated_native_missing_index_activity');
+  const missingBytes = readFileSync(contained(missing.nativeReport));
+  assert.equal(hash(missingBytes), missing.nativeReportSha256, 'missing-index native evidence changed');
+  const missingNative = JSON.parse(missingBytes);
+  assert.equal(missing.nativeSummary, '41/41');
+  assert.equal(missing.processExitCode, 0);
+  assert.equal(missingNative.summary, missing.nativeSummary);
+  assert.equal(missingNative.checks.length, 41);
+  assert(missingNative.checks.every(c => c.ok === true));
+  assert.deepEqual(missing.checks, missingNative.checks.filter(c => c.id.startsWith('R.')).map(c => c.id));
+  assert.equal(missing.checks.length, 6);
+  assert.equal(missing.memoryRevision, isolation.memoryRevision);
+  for (const digest of [missing.harnessSha256, missing.desktopSha256, missing.runnerSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(missing.limitations.includes('This is missing-cache recovery, not malformed SQLite, disk-full, permission-failure or long-running overlap acceptance.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -172,8 +187,9 @@ function validate(index) {
   assert(linkedTo(c17, 'scheduler_closed_ui').includes('C17: installed scheduled sync advances one sequence with the desktop closed'), 'C17 must retain actual closed-UI evidence');
   assert(linkedTo(c17, 'independent_package').includes('bootstrap source files are absent'), 'C17 must retain independently installed package evidence');
   assert(linkedTo(c17, 'index_isolation').includes('I.memory_rebuild_preserves_activity_bytes'), 'C17 must retain pinned-Core rebuild isolation evidence');
+  assert(linkedTo(c17, 'missing_index').includes('R.cache_recovery_preserves_activity_bytes'), 'C17 must retain missing-cache isolation evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 5, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 6, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -194,7 +210,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.reports.find(r => r.id === 'literal2').state = 'completed_with_unresolved_differences');
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'independent_package'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'index_isolation'));
-  result.negativeChecks = 14;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'missing_index'));
+  result.negativeChecks = 15;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

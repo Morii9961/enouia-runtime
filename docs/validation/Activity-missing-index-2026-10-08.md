@@ -1,0 +1,15 @@
+# Missing index-cache recovery stays independent of Activity
+
+Date: 2026-10-08. Base revision: `2ff2f0d`. Scope: the pinned Core's existing recovery from a missing derived SQLite index in a newly created synthetic Vault. Product code, binaries, Core implementation and Memory pin are unchanged.
+
+The `--missing-index` Activity native mode extends the successful index-isolation workflow. It first approves one synthetic memory and finishes a real index rebuild. After its own host exits, it verifies the generated SQLite header and exact contained cache paths, backs up and removes only any generated `indexes/memory.sqlite`, `memory.sqlite-wal` and `memory.sqlite-shm` files. It records absence before restart. Canonical Vault records and Activity files are outside this deletion list.
+
+The rebuilt desktop then opens that synthetic Vault through the existing explicit `--memory-vault` test argument, reconnects to the saved synthetic Activity package, executes the pinned Core's real `index_rebuild`, and reads the approved memory back. The complete canonical Vault file tree and complete Activity file tree stay byte-identical across cache removal/reopening/rebuild. The ordinary Activity source-failure, pending retention and shell restart steps still pass afterward.
+
+The [full report](Activity-unified/missing-index-native.json) passes **41/41**, exit 0: the 35 index-isolation checks plus six missing-cache assertions. The [proof](Activity-unified/missing-index-proof.json) binds those raw bytes, harness/binary hashes and exact pin. Harness syntax, Git whitespace, Memory integration self-test (8 negative checks) and Activity evidence self-test (**16 reports, 158 selectors, 15 negative checks**) pass. Unchanged product checks from the confirmation slice are reused.
+
+The prerequisite was read directly from Memory's exact pinned `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84` source: `crates/enouia-memory-index/src/store.rs` defines the index as a disposable projection and `crates/enouia-memory-workspace/src/lib.rs` supplies the existing rebuild operation. No Memory source is changed. The cached database may be created or updated by ordinary Core reads on restart; this test claims observed successful recreation and explicit rebuild, not that only the explicit operation restored it.
+
+Desktop SHA-256 stays `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`; runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`. Temporary artifacts, cache backups and the synthetic Vault stay under `enouia-activity-missing-index-20261008` in local temporary storage. They contain only this run's fixtures.
+
+This establishes missing-cache recovery and Core/Activity isolation in the tested client. It does not establish malformed SQLite repair, disk-full/permission errors, long-running concurrent rebuilds, real power loss, a personal Vault or complete C17/J1/B4 acceptance. All B4 rows stay partial, B5 stays inactive, and no task or public upload is performed.

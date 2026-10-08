@@ -14,6 +14,8 @@ The [independent installed-package drill](Activity-independent-package-2026-10-0
 
 The subsequent [pinned-Core index isolation drill](Activity-index-isolation-2026-10-08.md) passes 35/35 native checks, including a real successful synthetic index rebuild that leaves Activity files byte-identical and readable approved Memory after Activity source failure. The current index now binds 15 reports/156 selectors and 14 negative checks; corrupt-index/storage-fault and long-running overlap remain unverified.
 
+The [missing-index follow-up](Activity-missing-index-2026-10-08.md) passes 41/41 after removal of only generated synthetic index caches with the host closed. Core reopens/rebuilds and rereads the approved memory, while both canonical Vault and Activity bytes stay identical. The current evidence index reaches 16 reports/158 selectors and 15 negative checks; malformed-index/storage-fault and long-running overlap remain open.
+
 ## Integrated behavior
 
 - C15's copied receiver/publisher harness now covers success-time loss, source loss, date loss and whole-batch clock rollback for all three sources. Transport completion does not clear unpublished pending bytes.
