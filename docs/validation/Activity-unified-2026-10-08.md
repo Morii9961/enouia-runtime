@@ -4,6 +4,8 @@ Date: 2026-10-08. Integration parents: Codex `08dfc86ba12de61a336790ecb46e95ce31
 
 Follow-up: the owner's subsequent scoped authorization allowed the formerly rejected temporary scheduler drill. [Actual scheduler acceptance](Activity-scheduler-live-2026-10-08.md) records 41 successful checks at `d2f524e`, including real paused and busy invocations and verified removal. The rejected-attempt paragraph below remains the integration-time finding.
 
+Further follow-ups: the optional closed-UI drill now passes 57 actual-scheduler checks. [Compatibility clarification](B4-validation-compatibility-2026-10-08.md) records ADR-031 and fresh comparisons with zero unclassified differences, while preserving the two/twelve historical unresolved counts below. Neither follow-up activates B5 or signs off complete B4/J1.
+
 ## Integrated behavior
 
 - C15's copied receiver/publisher harness now covers success-time loss, source loss, date loss and whole-batch clock rollback for all three sources. Transport completion does not clear unpublished pending bytes.

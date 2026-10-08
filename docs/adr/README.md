@@ -210,3 +210,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-030 — Gated production activation path for the Activity package (Adopted; implemented)
 
 [ADR-030](030-production-activation-path.md) adds the B5 tooling that B3.2 deliberately lacked. `install-activity.ps1 -Production` accepts only a production, delivery-enabled configuration with an HTTPS origin and restricted alias, still paused and unregistered. `register-activity-production.ps1 -ConfirmTaskName` registers the package's task disabled, and with `-Enable` enables it only after the runner reports an observed publication, sync resumed and nothing pending.
+
+## ADR-031 — Strict Activity validation in comparisons (Adopted clarification; behavior unchanged)
+
+[ADR-031](031-strict-activity-validation-compatibility.md) classifies two existing GitHub unique-date/safe-aggregate refusals and twelve existing nonpublishable timestamp refusals as explicit safety differences. Fresh comparisons prove failed-source history retention and rejection by the copied public manifest validator. No parser, public contract, seed or production behavior changes; unexpected differences, real-seed reconciliation and full B4/B5 acceptance stay gated.

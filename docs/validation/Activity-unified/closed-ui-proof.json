@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "scope": "isolated_real_scheduler_closed_ui",
+  "state": "passed",
+  "checks": [
+    "C17: installed scheduled sync advances one sequence with the desktop closed",
+    "C04: actual scheduled failures retain three histories and successful times",
+    "C13: second scheduled invocation retains exact pending and high-water",
+    "C17: owned task is removed before guarded synthetic-directory cleanup"
+  ],
+  "checkCount": 57,
+  "processExitCode": 0,
+  "closedUiSync": {
+    "sequence": 51,
+    "pendingRetryByteIdentical": true,
+    "desktopClosed": true,
+    "retainedSources": 3,
+    "deliveryEnabled": false,
+    "taskResults": [
+      4,
+      4
+    ],
+    "exactPendingSha256": "f84a9b53f8208e5fe971899b1f3195c6be48e2202863610b7442b0e7c7eb26de"
+  },
+  "sourceRevision": "f891ecff0864cf48bb54c6a3190d1a71b7c9f12e",
+  "harnessSha256": "e1f4898141b9f293281a0b0e1ec1fd780f928659311479a8cb5fc64fc7f95d8e",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "rawReport": "docs/validation/Activity-unified/closed-ui-scheduler.json",
+  "rawReportSha256": "4b89ade11ba5808ac1e178f5277f2e1d1f30157b0af4d2c3465932c60c9f5243",
+  "limitations": [
+    "Synthetic state, unconfigured collectors and disabled delivery; no personal data or public upload.",
+    "No actual hourly/logon timing, battery/resume, absent-source-checkout, real tools or production acceptance."
+  ]
+}

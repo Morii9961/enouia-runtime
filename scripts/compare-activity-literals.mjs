@@ -18,8 +18,9 @@ for (const key of ['--reference-root', '--binary']) assert(options.has(key), 'Re
 const sourceRoot = await realpath(options.get('--reference-root'));
 const binarySource = await realpath(options.get('--binary'));
 const fixtureFile = new URL('../tests/fixtures/activity/moriium-public-data.json', import.meta.url);
-const sourceFiles = ['src/lib/activity.ts'];
+const sourceFiles = ['src/lib/activity.ts', 'src/lib/status.ts'];
 const SOURCES = ['github', 'codex', 'claude'];
+const strictTimestampCases = new Set(SOURCES.flatMap(source => ['no-zone', 'rfc1123', 'hour-24', 'impossible-day'].map(shape => `C06-updated-${shape}-${source}`)));
 const LITERALS = { github: { timezone: 'GitHub', metric: 'contributions' }, codex: { timezone: 'Codex', metric: 'tokens' }, claude: { timezone: 'Asia/Shanghai', metric: 'tokens' } };
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const checks = [];
@@ -62,6 +63,7 @@ try {
   }
   // Only the public ActivityData validator is copied, never checkout data/config/auth.
   const { validateActivity } = await import(pathToFileURL(join(snapshot, 'src/lib/activity.ts')));
+  const { timestamp } = await import(pathToFileURL(join(snapshot, 'src/lib/status.ts')));
   const executable = join(base, 'installed', 'enouia-activity.exe');
   await mkdir(dirname(executable)); await copyFile(binarySource, executable);
   const fixture = JSON.parse(await readFile(fixtureFile, 'utf8'));
@@ -111,18 +113,24 @@ try {
     const value = JSON.parse(inspected.stdout);
     assert(inspected.code === 0 || (inspected.code === 6 && value.state === 'migration_invalid'), `Unexpected Runtime result for ${item.id}.`);
     const runtime = { accepted: inspected.code === 0, exitCode: inspected.code, sha256: inspected.code === 0 ? value.activitySha256 : null, flagged: inspected.code === 0 ? value.unpublishableSuccessTimes : null };
-    const result = legacy.accepted === runtime.accepted
+    const comparison = legacy.accepted === runtime.accepted
       ? (legacy.accepted && legacy.sha256 !== runtime.sha256 ? 'canonical_mismatch' : 'match')
       : (legacy.accepted ? 'runtime_stricter' : 'legacy_stricter');
+    const intentionalRefusal = strictTimestampCases.has(item.id);
+    const manifestTimeAccepted = item.field === 'updatedAt' ? timestamp(data.sources[item.source].updatedAt) : null;
+    if (item.field === 'updatedAt') check(`${item.id}: copied manifest validator rejects noncanonical time`, manifestTimeAccepted === false);
+    if (intentionalRefusal) check(`${item.id}: known nonpublishable shape is refused before migration`, comparison === 'runtime_stricter' && !runtime.accepted && runtime.exitCode === 6 && manifestTimeAccepted === false);
+    const result = intentionalRefusal ? 'intentional_refusal' : comparison;
     if (item.expected) check(`${item.id}: both validators ${item.expected}`, result === 'match' && runtime.accepted === (item.expected === 'accept'));
     // Architecture section 7: an accepted time the manifest cannot carry must be flagged, never restamped.
     if (runtime.accepted) check(`${item.id}: Runtime flags exactly the unpublishable retained times`, JSON.stringify(runtime.flagged) === JSON.stringify(item.field === 'updatedAt' ? [item.source] : []));
-    results.push({ id: item.id, source: item.source, field: item.field, input: item.input, legacyAccepted: legacy.accepted, runtimeAccepted: runtime.accepted, runtimeExitCode: runtime.exitCode, runtimeUnpublishableSuccessTimes: runtime.flagged, canonicalSha256: legacy.accepted && runtime.accepted ? runtime.sha256 : null, result });
+    results.push({ id: item.id, source: item.source, field: item.field, input: item.input, legacyAccepted: legacy.accepted, runtimeAccepted: runtime.accepted, runtimeExitCode: runtime.exitCode, runtimeUnpublishableSuccessTimes: runtime.flagged, legacyManifestTimestampAccepted: manifestTimeAccepted, policy: intentionalRefusal ? 'strict_retained_timestamp' : null, canonicalSha256: legacy.accepted && runtime.accepted ? runtime.sha256 : null, result });
   }
   check('control canonical bytes match the published fixture serializer', results[0].canonicalSha256 === hash(`${JSON.stringify(fixture)}\n`));
+  check('control source times satisfy the copied manifest validator', SOURCES.every(source => timestamp(fixture.sources[source].updatedAt)));
   for (const item of versions) check(`reference remained unchanged: ${item.path}`, hash(await readFile(join(sourceRoot, item.path))) === item.sha256);
-  const unresolved = results.filter(r => r.result !== 'match').map(r => r.id);
-  const report = { schemaVersion: 1, state: unresolved.length ? 'completed_with_unresolved_differences' : 'passed', scope: 'development_literal_comparison_partial_B4', caseCount: results.length, checks, results, unresolvedCaseIds: unresolved, node: process.version, runtimeBinarySha256: hash(await readFile(executable)), fixtureSha256: hash(await readFile(fixtureFile)), harnessSha256: hash(await readFile(fileURLToPath(import.meta.url))), referenceHead: head.stdout.trim(), referenceDirtyFiles: dirty.stdout.trim().split(/\r?\n/).filter(Boolean), referenceFiles: versions, limitations: ['Archive-level validators only: Runtime migration-inspect against the copied public ActivityData validator.', 'Synthetic inputs; no collector, receiver, publisher, transport, personal archive or credential access.', 'Differences are recorded, not waived; Runtime behavior is unchanged by this report.'] };
+  const unresolved = results.filter(r => !['match', 'intentional_refusal'].includes(r.result)).map(r => r.id);
+  const report = { schemaVersion: 1, state: unresolved.length ? 'completed_with_unresolved_differences' : 'passed', scope: 'development_literal_comparison_partial_B4', compatibilityDecision: 'ADR-031', caseCount: results.length, checks, results, unresolvedCaseIds: unresolved, intentionalRefusalCaseIds: results.filter(r => r.result === 'intentional_refusal').map(r => r.id), node: process.version, runtimeBinarySha256: hash(await readFile(executable)), fixtureSha256: hash(await readFile(fixtureFile)), harnessSha256: hash(await readFile(fileURLToPath(import.meta.url))), referenceHead: head.stdout.trim(), referenceDirtyFiles: dirty.stdout.trim().split(/\r?\n/).filter(Boolean), referenceFiles: versions, limitations: ['Runtime migration-inspect against copied public ActivityData and manifest timestamp validators.', 'Synthetic inputs; no collector, receiver, publisher, transport, personal archive or credential access.', 'ADR-031 classifies twelve explicit nonpublishable timestamp refusals; Runtime behavior is unchanged and B4/real-seed acceptance remains separate.'] };
   if (options.has('--report')) await writeFile(options.get('--report'), `${JSON.stringify(report, null, 2)}\n`, { flag: 'wx' });
   console.log(JSON.stringify(report, null, 2));
 } finally {

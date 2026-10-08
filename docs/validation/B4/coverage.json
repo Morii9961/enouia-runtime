@@ -73,6 +73,27 @@
       "sha256": "6cee1e6bf9c31795dea39356b37a72062414f9522728cdd3ff76ca2d97efa563",
       "state": "completed_with_unresolved_differences",
       "selectorCount": 30
+    },
+    {
+      "id": "frozen3",
+      "path": "docs/validation/B4/frozen-comparison-v3.json",
+      "sha256": "66430c277fae3ee5bf7a84ef68fe785a3bd332bed7c68d7c85203730d93058cb",
+      "state": "passed",
+      "selectorCount": 36
+    },
+    {
+      "id": "literal2",
+      "path": "docs/validation/B4/literal-comparison-v2.json",
+      "sha256": "49b3a132a382916cb913a775d9e347c655d4c27492053c2c05fd9ecd6e841240",
+      "state": "passed",
+      "selectorCount": 124
+    },
+    {
+      "id": "scheduler_closed_ui",
+      "path": "docs/validation/Activity-unified/closed-ui-proof.json",
+      "sha256": "46865a48d51678dd79f6ae1d06cbb304089a8b15d4c4b1b22d1eca7285e37a01",
+      "state": "passed",
+      "selectorCount": 4
     }
   ],
   "cases": [
@@ -160,6 +181,12 @@
             "C04: every prior source date/value/time retained",
             "C04: legacy envelope derives the exact Runtime outcomes"
           ]
+        },
+        {
+          "report": "scheduler_closed_ui",
+          "selectors": [
+            "C04: actual scheduled failures retain three histories and successful times"
+          ]
         }
       ],
       "remaining": [
@@ -240,11 +267,41 @@
             "C06-updated-offset-claude: Runtime flags exactly the unpublishable retained times",
             "C06-updated-date-only-claude: Runtime flags exactly the unpublishable retained times"
           ]
+        },
+        {
+          "report": "frozen3",
+          "selectors": [
+            "C06-duplicate-github-date",
+            "C06-unsafe-github-sum",
+            "C06-duplicate-github-date: only GitHub differs",
+            "C06-duplicate-github-date: invalid legacy success becomes Runtime source failure",
+            "C06-duplicate-github-date: prior days values and success time retained exactly",
+            "C06-unsafe-github-sum: only GitHub differs",
+            "C06-unsafe-github-sum: invalid legacy success becomes Runtime source failure",
+            "C06-unsafe-github-sum: prior days values and success time retained exactly"
+          ]
+        },
+        {
+          "report": "literal2",
+          "selectors": [
+            "C06-updated-no-zone-github",
+            "C06-updated-rfc1123-github",
+            "C06-updated-hour-24-github",
+            "C06-updated-impossible-day-github",
+            "C06-updated-no-zone-codex",
+            "C06-updated-rfc1123-codex",
+            "C06-updated-hour-24-codex",
+            "C06-updated-impossible-day-codex",
+            "C06-updated-no-zone-claude",
+            "C06-updated-rfc1123-claude",
+            "C06-updated-hour-24-claude",
+            "C06-updated-impossible-day-claude",
+            "control source times satisfy the copied manifest validator"
+          ]
         }
       ],
       "remaining": [
-        "Resolve duplicate GitHub dates and unsafe aggregate differences.",
-        "Resolve the twelve legacy-only updatedAt shapes (no zone, RFC 1123, hour 24, impossible day) that Runtime refuses; confirm during O1/O4 inventory that real seeds contain none."
+        "Inspect real seeds under O1/O4 and reconcile any nonpublishable timestamp without automatically restamping history; finish and sign off complete C06 acceptance. ADR-031 resolves classification only."
       ]
     },
     {
@@ -372,6 +429,12 @@
           "selectors": [
             "C13: both retries send the exact original bytes and sequence"
           ]
+        },
+        {
+          "report": "scheduler_closed_ui",
+          "selectors": [
+            "C13: second scheduled invocation retains exact pending and high-water"
+          ]
         }
       ],
       "remaining": [
@@ -496,10 +559,17 @@
             "C17-installed-observer: actual curl observation acknowledges publication",
             "C17: copied executable and actual HTTP use only isolated roots"
           ]
+        },
+        {
+          "report": "scheduler_closed_ui",
+          "selectors": [
+            "C17: installed scheduled sync advances one sequence with the desktop closed",
+            "C17: owned task is removed before guarded synthetic-directory cleanup"
+          ]
         }
       ],
       "remaining": [
-        "Complete Core/Activity isolation, closed-UI, absent-source-checkout and installed scheduler acceptance."
+        "Complete absent-source-checkout, Core index-repair isolation, author-process independence and production static-read acceptance. Closed-UI state advancement and owned scheduler cleanup now have isolated real-task evidence."
       ]
     },
     {
@@ -533,7 +603,8 @@
     "O5: remaining power-loss/storage-fault durability and frontend-version evidence",
     "O6: manual delivery reconciliation when public observation is inaccessible or indistinguishable",
     "J1: Core/Activity UI isolation and three-language public consumers",
-    "B4: full matrix sign-off and unresolved comparison policy",
+    "B4: full matrix sign-off and reviewed real-seed compatibility reconciliation; ADR-031 classifies the existing synthetic safety differences only",
     "B5: actual hourly/logon, battery/resume, production cutover and scheduled-run observation"
-  ]
+  ],
+  "compatibilityDecision": "ADR-031"
 }
