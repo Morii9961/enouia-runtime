@@ -280,7 +280,12 @@ export default function ActivitySurface() {
     try {
       const s = await activity.setup("select");
       if ("cancelled" in s && s.cancelled) return;
-      if (s.configured === false && s.error) setSetupError(describeSetup(s.error));
+      if (s.configured === false && s.error) {
+        // A refused selection leaves the native choice unchanged, including
+        // an earlier failed forget attempt and its retry feedback.
+        setSetupError(describeSetup(s.error));
+        return;
+      }
       replaceSetup(s);
     } catch (err) {
       setSetupError(describe(err));

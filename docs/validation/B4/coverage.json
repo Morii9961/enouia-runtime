@@ -318,6 +318,13 @@
       "sha256": "eec3f13399e75df3710d41c4f96caf578b06610996c8f87424544e3b4f30ba59",
       "state": "passed",
       "selectorCount": 7
+    },
+    {
+      "id": "select_recovery",
+      "path": "docs/validation/Activity-unified/select-recovery-proof.json",
+      "sha256": "50f425e3b9730bf84ecff184960807cec9981e9ca663a39bf88b8dab8deb835c",
+      "state": "passed",
+      "selectorCount": 6
     }
   ],
   "cases": [
@@ -1436,6 +1443,17 @@
             "CF.remount_never_reconnects_or_changes_saved_file",
             "CF.remounted_status_retains_successful_clear",
             "CF.remounted_success_has_no_warning_or_retry"
+          ]
+        },
+        {
+          "report": "select_recovery",
+          "selectors": [
+            "SR.actual_picker_cancel_is_reported",
+            "SR.cancel_preserves_clear_warning_and_retry",
+            "SR.actual_nonpackage_selection_is_refused",
+            "SR.invalid_selection_preserves_clear_warning",
+            "SR.invalid_selection_preserves_clear_retry",
+            "SR.invalid_selection_keeps_exact_native_choice_state"
           ]
         }
       ],
