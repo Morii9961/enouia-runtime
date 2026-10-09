@@ -255,6 +255,13 @@
       "sha256": "d6ebd3ffef57523020454b3fa6d32541537c899b870d30bea2b700c362384872",
       "state": "passed",
       "selectorCount": 12
+    },
+    {
+      "id": "generation_write_acl",
+      "path": "docs/validation/Activity-unified/generation-write-acl-proof.json",
+      "sha256": "8cef7edf5b3e3d39ca9c0ad084822747d23ebea660d4049fc538f6ab4a101082",
+      "state": "passed",
+      "selectorCount": 13
     }
   ],
   "cases": [
@@ -1125,10 +1132,28 @@
             "A.release_restores_exact_public_history",
             "A.recovery_preserves_canonical_vault"
           ]
+        },
+        {
+          "report": "generation_write_acl",
+          "selectors": [
+            "N.synthetic_generation_creation_is_denied",
+            "N.directory_creation_really_refuses_access",
+            "N.actual_pause_write_reports_storage_failure",
+            "N.failed_pause_is_visible",
+            "N.failed_writes_keep_unpaused_reads_and_exact_history",
+            "N.memory_queries_survive_actual_write_failure",
+            "N.failed_writes_preserve_complete_activity_store",
+            "N.failed_writes_preserve_canonical_vault",
+            "N.original_directory_security_descriptor_is_restored",
+            "N.restored_permission_accepts_pause",
+            "N.restored_permission_accepts_resume",
+            "N.successful_recovery_preserves_archive_sequence_pending",
+            "N.recovery_preserves_canonical_vault"
+          ]
         }
       ],
       "remaining": [
-        "Complete physical absent-source-checkout or filesystem-denial, disk-full/permission/mid-write storage faults, sustained rebuild stress and concurrent Activity collection/delivery, deployed author-process independence and production static-read acceptance. Copied-author-module removal and independent loopback static worker restart/read have fixture evidence; actual source checkouts remain on the host and no deployed service is claimed verified."
+        "Complete physical absent-source-checkout or filesystem-denial, disk-full/other-write-permission/mid-write storage faults, sustained rebuild stress and concurrent Activity collection/delivery, deployed author-process independence and production static-read acceptance. Copied-author-module removal and independent loopback static worker restart/read have fixture evidence; actual source checkouts remain on the host and no deployed service is claimed verified."
       ]
     },
     {

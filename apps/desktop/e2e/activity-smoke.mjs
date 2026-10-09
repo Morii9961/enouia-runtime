@@ -18,7 +18,7 @@
 // scripts/test-activity-package.ps1 -LiveScheduler -NativeDesktop <exe>.
 // Default/keyboard fixtures publish only over 127.0.0.1. Synthetic data only.
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, rmdirSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
@@ -26,9 +26,9 @@ import { createServer } from 'node:net';
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -929,6 +929,41 @@ async function main() {
       check('O.rebuild_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === overlapCanonical);
       check('O.rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
       check('O.rebuild_returns_all_approved_memories', (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === expectedMemories);
+    }
+    if(mode==='--generation-write-denial') {
+      if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Write ACL drill escaped the prepared synthetic data root');
+      const generations=join(manifest.dataRoot,'generations');
+      if(realpathSync(generations).toLowerCase()!==join(realpathSync(manifest.dataRoot),'generations').toLowerCase())throw Error('Synthetic generation directory cannot be redirected');
+      const canonical=fixtureTree(join(vault,'vault')),image=fixtureImage(manifest.dataRoot);
+      const powershell='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',literal=generations.replace(/'/g,"''"),release=join(out,'release-write-acl');
+      const readAcl=()=>execFileSync(powershell,['-NoProfile','-NonInteractive','-Command',`([IO.Directory]::GetAccessControl('${literal}')).GetSecurityDescriptorSddlForm([Security.AccessControl.AccessControlSections]::All)`],{encoding:'utf8',windowsHide:true,timeout:10000}).trim();
+      const originalAcl=readAcl();if(!originalAcl.startsWith('O:')||!originalAcl.includes('D:'))throw Error('Synthetic generation ACL backup is incomplete');
+      const restore=`$ErrorActionPreference='Stop';$acl=[Security.AccessControl.DirectorySecurity]::new();$acl.SetSecurityDescriptorSddlForm([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${Buffer.from(originalAcl).toString('base64')}')),[Security.AccessControl.AccessControlSections]::Access);[IO.Directory]::SetAccessControl('${literal}',$acl)`;
+      const command=`$ErrorActionPreference='Stop';$changed=[IO.Directory]::GetAccessControl('${literal}');$rule=[Security.AccessControl.FileSystemAccessRule]::new(([Security.Principal.WindowsIdentity]::GetCurrent()).User,[Security.AccessControl.FileSystemRights]::CreateDirectories,[Security.AccessControl.AccessControlType]::Deny);$changed.AddAccessRule($rule);try{[IO.Directory]::SetAccessControl('${literal}',$changed);'denied';$watch=[Diagnostics.Stopwatch]::StartNew();while($watch.Elapsed.TotalSeconds -lt 90 -and ![IO.File]::Exists('${release.replace(/'/g,"''")}')){[Threading.Thread]::Sleep(200)}}finally{${restore}}`;
+      const holder=spawn(powershell,['-NoProfile','-NonInteractive','-Command',command],{windowsHide:true,stdio:['ignore','pipe','pipe']});children.add(holder);
+      holder.exited=new Promise(resolve=>holder.once('exit',code=>{children.delete(holder);resolve(code);}));
+      try {
+        await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(Error('Write ACL helper did not become ready')),10000);holder.stdout.on('data',bytes=>{output+=bytes.toString();if(output.includes('denied')){clearTimeout(timer);resolve();}});holder.once('exit',()=>{clearTimeout(timer);reject(Error('Write ACL helper exited early'));});});
+        check('N.synthetic_generation_creation_is_denied',true);
+        const probe=join(generations,'.acl-write-probe');if(existsSync(probe))throw Error('Unexpected preexisting ACL probe');let denied=false,created=false;
+        try{mkdirSync(probe);created=true;}catch(error){denied=['EACCES','EPERM'].includes(error.code);}finally{if(created){if(realpathSync(probe).toLowerCase()!==join(realpathSync(generations),'.acl-write-probe').toLowerCase())throw Error('ACL probe escaped');rmdirSync(probe);}}
+        check('N.directory_creation_really_refuses_access',denied);
+        const failed=await call(s,{operation:'activity_set_paused',paused:true});
+        check('N.actual_pause_write_reports_storage_failure',failed.kind==='activity_error'&&failed.error.code==='storage_failed',JSON.stringify(failed));
+        await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+        await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Pause activity sync'&&!b.disabled)",'write-denial Activity controls');
+        await press(s,'Pause activity sync');await waitFor(s,has('The Activity store could not be read or written'),'actual pause write failure');check('N.failed_pause_is_visible',true);
+        const [read,payload,list,search]=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'}),memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false}),memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25})]);
+        check('N.failed_writes_keep_unpaused_reads_and_exact_history',read.producer.paused===false&&read.producer.highestReserved===o.producer.highestReserved&&payload.sha256===preview.sha256);
+        check('N.memory_queries_survive_actual_write_failure',list.result?.total===1&&search.result?.items?.length===1&&!list.error&&!search.error);
+        check('N.failed_writes_preserve_complete_activity_store',fixtureTree(manifest.dataRoot)===treeBefore);
+        check('N.failed_writes_preserve_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
+      }finally{writeFileSync(release,'release');await Promise.race([holder.exited,sleep(10000)]);execFileSync(powershell,['-NoProfile','-NonInteractive','-Command',restore],{windowsHide:true,timeout:10000,stdio:'pipe'});holder.kill();await holder.exited;}
+      check('N.original_directory_security_descriptor_is_restored',readAcl()===originalAcl);
+      const pause=await call(s,{operation:'activity_set_paused',paused:true});check('N.restored_permission_accepts_pause',pause.kind==='activity_pause_acknowledged'&&pause.paused===true&&(await overview(s)).producer.paused===true);
+      const resume=await call(s,{operation:'activity_set_paused',paused:false});check('N.restored_permission_accepts_resume',resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
+      const recovered=fixtureImage(manifest.dataRoot);check('N.successful_recovery_preserves_archive_sequence_pending',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);
+      check('N.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
     }
     if (['--current-read-lock','--current-acl-denial'].includes(mode)) {
       const aclMode=mode==='--current-acl-denial';

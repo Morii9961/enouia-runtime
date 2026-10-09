@@ -60,3 +60,5 @@ The [run-query recovery fix](../validation/Activity-run-polling-2026-10-09.md) r
 The [run-outcome display fix](../validation/Activity-run-outcome-2026-10-09.md) renders unknown summary state strings through a fixed fallback and displays only valid whole source-failure counts among the three sources (50 frontend tests, 22/22 modeled native checks after 15/22 and a separate 35/35 actual-action run). It preserves the generic optional summary contract.
 
 The [CURRENT read ACL drill](../validation/Activity-read-acl-2026-10-09.md) verifies actual permission denial, Memory independence and exact original descriptor/data restoration on a fresh synthetic file (47/47 native checks). This changes no product code and leaves write/other-file ACL and other storage faults separate.
+
+The [generation-creation write ACL drill](../validation/Activity-generation-write-acl-2026-10-09.md) verifies actual pause failure before staging creation with complete-store preservation and subsequent successful pause/resume after exact descriptor restoration (48/48 native checks). Current-pointer replacement and other write/storage faults remain separate.
