@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "scope": "isolated_actual_time_trigger",
+  "state": "passed",
+  "observedAt": "2026-10-09T01:16:50.7861789Z",
+  "hourlyRepeatRequested": false,
+  "demandStarts": 0,
+  "deliveryEnabled": false,
+  "taskRemoved": true,
+  "checks": [
+    "desktop_closed_before_timed_test",
+    "synthetic_import_succeeds",
+    "installed_paused_and_unregistered",
+    "registered_disabled",
+    "paused_initial:actual_task_finished",
+    "paused_initial:run_matches_time_boundary",
+    "paused_initial:expected_exit_code",
+    "paused_timer_preserves_complete_store",
+    "resume_is_durable",
+    "resumed_rearmed_time:actual_task_finished",
+    "resumed_rearmed_time:run_matches_time_boundary",
+    "resumed_rearmed_time:expected_exit_code",
+    "timer_commits_exactly_next_sequence",
+    "timer_keeps_delivery_disabled",
+    "timer_retains_failed_source:github",
+    "timer_retains_failed_source:codex",
+    "timer_retains_failed_source:claude",
+    "pending_rearmed_time:actual_task_finished",
+    "pending_rearmed_time:run_matches_time_boundary",
+    "pending_rearmed_time:expected_exit_code",
+    "pending_timer_reuses_exact_batch",
+    "pending_timer_preserves_complete_store",
+    "desktop_closed_after_timed_test",
+    "uninstall_preserves_fixture",
+    "owned_task_is_removed"
+  ],
+  "phases": [
+    {
+      "id": "paused_initial",
+      "expectedAt": "2026-10-09T01:17:34.0000000Z",
+      "lastTaskResult": 3,
+      "lastRunAt": "2026-10-09T01:17:34.0000000Z"
+    },
+    {
+      "id": "resumed_rearmed_time",
+      "expectedAt": "2026-10-09T01:18:13.0000000Z",
+      "lastTaskResult": 4,
+      "lastRunAt": "2026-10-09T01:18:13.0000000Z"
+    },
+    {
+      "id": "pending_rearmed_time",
+      "expectedAt": "2026-10-09T01:18:52.0000000Z",
+      "lastTaskResult": 4,
+      "lastRunAt": "2026-10-09T01:18:52.0000000Z"
+    }
+  ],
+  "harnessSha256": "42b2a6c46eb991f061b86424983922780be993ffa620ee6d4815aff5d1edd879",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "limitations": [
+    "Synthetic state only; no authenticated source, receiver or public upload.",
+    "Actual logon, battery/sleep/resume and production behavior remain unverified.",
+    "Short rearmed boundaries are actual time-trigger evidence, not elapsed hourly repetition."
+  ],
+  "nextExpectedAt": "2026-10-09T01:18:52.0000000Z",
+  "sequence": 51,
+  "exactPendingSha256": "08e085c562487e72a78106fb9e961ecf6a705593ac1dff91fd492cccaba72b12"
+}

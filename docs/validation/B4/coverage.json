@@ -185,6 +185,13 @@
       "sha256": "2e0e89ac1328abb6d3a9d1a115f28bb813feef556b18d5d251fcd7dbdede4d2d",
       "state": "passed",
       "selectorCount": 23
+    },
+    {
+      "id": "timed_trigger",
+      "path": "docs/validation/Activity-unified/timed-trigger-short.json",
+      "sha256": "60ac09739d580ea21f786b71a255eb3f19d7934c0923fb5006a642e96e2f337a",
+      "state": "passed",
+      "selectorCount": 25
     }
   ],
   "cases": [
@@ -795,6 +802,36 @@
             "task:independent_next_time_matches",
             "task:closed_ui_exact_pending_retained",
             "task:ownership_checked_removal"
+          ]
+        },
+        {
+          "report": "timed_trigger",
+          "selectors": [
+            "desktop_closed_before_timed_test",
+            "synthetic_import_succeeds",
+            "installed_paused_and_unregistered",
+            "registered_disabled",
+            "paused_initial:actual_task_finished",
+            "paused_initial:run_matches_time_boundary",
+            "paused_initial:expected_exit_code",
+            "paused_timer_preserves_complete_store",
+            "resume_is_durable",
+            "resumed_rearmed_time:actual_task_finished",
+            "resumed_rearmed_time:run_matches_time_boundary",
+            "resumed_rearmed_time:expected_exit_code",
+            "timer_commits_exactly_next_sequence",
+            "timer_keeps_delivery_disabled",
+            "timer_retains_failed_source:github",
+            "timer_retains_failed_source:codex",
+            "timer_retains_failed_source:claude",
+            "pending_rearmed_time:actual_task_finished",
+            "pending_rearmed_time:run_matches_time_boundary",
+            "pending_rearmed_time:expected_exit_code",
+            "pending_timer_reuses_exact_batch",
+            "pending_timer_preserves_complete_store",
+            "desktop_closed_after_timed_test",
+            "uninstall_preserves_fixture",
+            "owned_task_is_removed"
           ]
         }
       ],

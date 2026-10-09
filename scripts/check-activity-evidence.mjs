@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 26);
+  assert.equal(reports.size, 27);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -404,6 +404,24 @@ function validate(index) {
   assert.equal(nextTrigger.memoryRevision,isolation.memoryRevision);
   assert.equal(nextTrigger.runnerSha256,guidance.runnerSha256);
   for(const digest of [nextTrigger.desktopSha256,nextTrigger.installerSha256,nextTrigger.harnessSha256,nextTrigger.schedulerHarnessSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  const timed=reports.get('timed_trigger').report;
+  assert.equal(timed.scope,'isolated_actual_time_trigger');
+  assert.equal(timed.hourlyRepeatRequested,false);
+  assert.equal(timed.demandStarts,0);
+  assert.equal(timed.deliveryEnabled,false);
+  assert.equal(timed.taskRemoved,true);
+  assert.equal(timed.checks.length,25);
+  assert.equal(new Set(timed.checks).size,25);
+  assert.equal(timed.sequence,51);
+  assert.deepEqual(timed.phases.map(p=>p.id),['paused_initial','resumed_rearmed_time','pending_rearmed_time']);
+  assert.deepEqual(timed.phases.map(p=>p.lastTaskResult),[3,4,4]);
+  for(const phase of timed.phases) {
+    const expected=Date.parse(phase.expectedAt), actual=Date.parse(phase.lastRunAt);
+    assert(Number.isFinite(expected)&&Number.isFinite(actual)&&actual>=expected-2000&&actual<=expected+120000);
+  }
+  assert(timed.limitations.includes('Short rearmed boundaries are actual time-trigger evidence, not elapsed hourly repetition.'));
+  assert.equal(timed.runnerSha256,guidance.runnerSha256);
+  for(const digest of [timed.harnessSha256,timed.exactPendingSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -437,10 +455,11 @@ function validate(index) {
   assert(mutations.checks.every(id=>linkedTo(c17,'rebuild_mutations').includes(id)),'C17 must retain actual producer mutation bracket and canonical/Activity preservation evidence');
   assert(staticRead.checks.every(id=>linkedTo(c17,'static_read').includes(id)),'C17 must retain copied-author removal, independent static restart and unchanged package/data evidence');
   assert(nextTrigger.checks.every(id=>linkedTo(c17,'next_trigger').includes(id)),'C17 must retain observed task time and read-only scheduler evidence');
+  assert(timed.checks.every(id=>linkedTo(c17,'timed_trigger').includes(id)),'C17 must retain actual time-trigger and pending preservation evidence');
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 16, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 17, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -472,7 +491,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'static_read'));
   reject(x => x.cases.find(c => c.id === 'C18').evidence = x.cases.find(c => c.id === 'C18').evidence.filter(e => e.report !== 'full_days'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'next_trigger'));
-  result.negativeChecks = 25;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'timed_trigger'));
+  result.negativeChecks = 26;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
