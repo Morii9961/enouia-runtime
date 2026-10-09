@@ -346,6 +346,13 @@
       "sha256": "cc7bc7a32f87007ff741a87482b421203c0de19c97a38c1fd0a8f9686f7f6750",
       "state": "passed",
       "selectorCount": 16
+    },
+    {
+      "id": "runner_hash_change",
+      "path": "docs/validation/Activity-unified/runner-hash-proof.json",
+      "sha256": "599865b8617b35df9a78293049e298acb794b7d626e85dd2daaeb6f0f36e464a",
+      "state": "passed",
+      "selectorCount": 21
     }
   ],
   "cases": [
@@ -1560,6 +1567,32 @@
             "GM.failure_preserves_complete_activity_store",
             "GM.release_restores_exact_public_history",
             "GM.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "runner_hash_change",
+          "selectors": [
+            "HB.original_selected_runner_matches_manifest_hash",
+            "HB.actual_pause_precedes_binary_change",
+            "HB.owned_binary_change_really_breaks_manifest_hash",
+            "HB.cached_reads_refuse_changed_runner",
+            "HB.pause_refuses_changed_runner",
+            "HB.1_run_is_correlated_to_native_id",
+            "HB.1_terminal_refuses_changed_runner",
+            "HB.2_run_is_correlated_to_native_id",
+            "HB.2_terminal_refuses_changed_runner",
+            "HB.changed_runner_error_clears_cards_and_disables_mutation",
+            "HB.changed_runner_attempts_preserve_complete_paused_store",
+            "HB.actual_forget_removes_owned_saved_choice",
+            "HB.actual_selection_refuses_changed_binary",
+            "HB.refused_selection_leaves_native_unconfigured",
+            "HB.original_runner_bytes_restore_exactly",
+            "HB.actual_reselection_recovers_three_histories",
+            "HB.actual_resume_accepts_restored_runner",
+            "HB.archive_sequence_and_pending_stay_exact",
+            "HB.only_pause_resume_add_two_generations",
+            "HB.restart_reconnects_restored_verified_choice",
+            "HB.final_clear_removes_owned_choice"
           ]
         }
       ],

@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -821,6 +821,40 @@ async function runAdmissionMain() {
   check('RA.only_pause_resume_add_two_generations',readdirSync(join(manifest.dataRoot,'generations')).length===count+2);
   const clear=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'clear'})");check('RA.owned_saved_choice_is_actually_removed',clear.configured===false&&clear.saved===true&&!existsSync(settings));
   await shot(s,'01-run-admission');s.close();app.kill();await app.exited;
+}
+
+async function runnerHashMain() {
+  if(existsSync(settings))throw Error('Runner-hash output requires absent settings');
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Runner-hash escaped synthetic data');
+  const binary=join(pkg,'enouia-activity.exe');if(realpathSync(binary).toLowerCase()!==join(realpathSync(pkg),'enouia-activity.exe').toLowerCase())throw Error('Synthetic binary cannot be redirected');
+  const original=readFileSync(binary),hash=bytes=>createHash('sha256').update(bytes).digest('hex'),image=fixtureImage(manifest.dataRoot),count=readdirSync(join(manifest.dataRoot,'generations')).length;
+  check('HB.original_selected_runner_matches_manifest_hash',hash(original)===manifest.binaryHash.toLowerCase());if(hash(original)!==manifest.binaryHash.toLowerCase())throw Error('Prepared binary already changed');
+  let app=launch(),s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'hash gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,"document.querySelectorAll('.act-source').length===3",'hash package');
+  const paused=await call(s,{operation:'activity_set_paused',paused:true});check('HB.actual_pause_precedes_binary_change',paused.kind==='activity_pause_acknowledged'&&paused.paused===true&&(await overview(s)).producer.paused===true);if(paused.kind!=='activity_pause_acknowledged'||paused.paused!==true)throw Error('Hash rehearsal requires actual pause');
+  const tree=fixtureTree(manifest.dataRoot);
+  try {
+    writeFileSync(binary,Buffer.concat([original,Buffer.from('SYNTHETIC_ACTIVITY_HASH_PROBE')]));
+    check('HB.owned_binary_change_really_breaks_manifest_hash',hash(readFileSync(binary))!==manifest.binaryHash.toLowerCase());
+    const replies=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'}),call(s,{operation:'activity_get_days',source:'github',from:'2026-01-01',to:'2026-12-31'})]);
+    check('HB.cached_reads_refuse_changed_runner',replies.every(r=>r.kind==='activity_error'&&r.error?.code==='unconfigured'&&r.error.retryable===false));
+    const pause=await call(s,{operation:'activity_set_paused',paused:false});check('HB.pause_refuses_changed_runner',pause.kind==='activity_error'&&pause.error?.code==='unconfigured');
+    for(const[number,operation]of[[1,'activity_run_now'],[2,'activity_retry_pending']]){
+      const accepted=await call(s,{operation});check('HB.'+number+'_run_is_correlated_to_native_id',accepted.kind==='activity_run_accepted'&&typeof accepted.runId==='string');if(accepted.kind!=='activity_run_accepted')throw Error('Hash run not admitted');
+      let status;const deadline=Date.now()+10000;do{status=await call(s,{operation:'activity_get_run',runId:accepted.runId});if(['completed','failed','blocked'].includes(status.stage))break;await sleep(50);}while(Date.now()<deadline);
+      check('HB.'+number+'_terminal_refuses_changed_runner',status.kind==='activity_run_status'&&status.runId===accepted.runId&&status.operation===operation&&status.stage==='failed'&&status.error?.code==='unconfigured'&&status.summary===null);
+    }
+    await press(s,'Refresh');await waitFor(s,has('The installed Activity package is missing, changed'),'hash read failure');check('HB.changed_runner_error_clears_cards_and_disables_mutation',await s.evaluate("document.querySelectorAll('.act-source').length===0")&&await disabled(s,'Run now')&&await disabled(s,'Retry pending')&&await disabled(s,'Pause activity sync'));
+    check('HB.changed_runner_attempts_preserve_complete_paused_store',fixtureTree(manifest.dataRoot)===tree);
+    await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'hash forget');check('HB.actual_forget_removes_owned_saved_choice',!existsSync(settings));
+    await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,has("The package's runner no longer matches its recorded hash"),'actual hash selection refusal');check('HB.actual_selection_refuses_changed_binary',true);
+    const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");check('HB.refused_selection_leaves_native_unconfigured',status.configured===false&&!existsSync(settings));
+  }finally{writeFileSync(binary,original);}
+  check('HB.original_runner_bytes_restore_exactly',readFileSync(binary).equals(original)&&hash(readFileSync(binary))===manifest.binaryHash.toLowerCase());
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,"document.querySelectorAll('.act-source').length===3",'restored runner reselection');check('HB.actual_reselection_recovers_three_histories',true);
+  const resume=await call(s,{operation:'activity_set_paused',paused:false});check('HB.actual_resume_accepts_restored_runner',resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
+  const recovered=fixtureImage(manifest.dataRoot);check('HB.archive_sequence_and_pending_stay_exact',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);check('HB.only_pause_resume_add_two_generations',readdirSync(join(manifest.dataRoot,'generations')).length===count+2);
+  s.close();app.kill();await app.exited;app=launch();s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'restored runner restart');check('HB.restart_reconnects_restored_verified_choice',true);
+  const clear=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'clear'})");check('HB.final_clear_removes_owned_choice',clear.configured===false&&clear.saved===true&&!existsSync(settings));await shot(s,'01-runner-hash-recovery');s.close();app.kill();await app.exited;
 }
 
 async function readContractMain(exportContract = false) {
@@ -1656,6 +1690,7 @@ try {
   else if (['--choice-delete','--choice-clear-remount','--choice-select-recovery'].includes(mode)) await choiceDeleteMain();
   else if (mode === '--run-history') await runHistoryMain();
   else if (mode === '--run-admission') await runAdmissionMain();
+  else if (mode === '--runner-hash-change') await runnerHashMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();
