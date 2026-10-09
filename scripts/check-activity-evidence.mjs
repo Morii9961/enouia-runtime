@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 33);
+  assert.equal(reports.size, 34);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -422,6 +422,26 @@ function validate(index) {
   assert(timed.limitations.includes('Short rearmed boundaries are actual time-trigger evidence, not elapsed hourly repetition.'));
   assert.equal(timed.runnerSha256,guidance.runnerSha256);
   for(const digest of [timed.harnessSha256,timed.exactPendingSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  const hourly=reports.get('timed_hourly').report;
+  assert.equal(hourly.scope,'isolated_actual_time_trigger');
+  assert.equal(hourly.hourlyRepeatRequested,true);
+  assert.equal(hourly.demandStarts,0);
+  assert.equal(hourly.deliveryEnabled,false);
+  assert.equal(hourly.taskRemoved,true);
+  assert.equal(hourly.checks.length,27);
+  assert.equal(new Set(hourly.checks).size,27);
+  assert.equal(hourly.sequence,51);
+  assert.deepEqual(hourly.phases.map(p=>p.id),['paused_initial','resumed_hourly_repeat','pending_rearmed_time']);
+  assert.deepEqual(hourly.phases.map(p=>p.lastTaskResult),[3,4,4]);
+  assert.deepEqual([...hourly.checks].sort(),[...timed.checks.filter(id=>!id.startsWith('resumed_rearmed_time:')),...['actual_task_finished','run_matches_time_boundary','expected_exit_code'].map(id=>`resumed_hourly_repeat:${id}`),'observed_repetition_is_exactly_one_hour','actual_runs_span_elapsed_hour'].sort());
+  for(const phase of hourly.phases){const expected=Date.parse(phase.expectedAt),actual=Date.parse(phase.lastRunAt);assert(Number.isFinite(expected)&&Number.isFinite(actual)&&actual>=expected-2000&&actual<=expected+120000);}
+  assert.equal(Date.parse(hourly.phases[1].expectedAt)-Date.parse(hourly.phases[0].expectedAt),3600000);
+  const elapsed=Date.parse(hourly.phases[1].lastRunAt)-Date.parse(hourly.phases[0].lastRunAt);
+  assert(elapsed>=3598000&&elapsed<=3720000);
+  assert.equal(hourly.harnessSha256,timed.harnessSha256);
+  assert.equal(hourly.runnerSha256,timed.runnerSha256);
+  assert.match(hourly.exactPendingSha256,/^[a-f0-9]{64}$/);
+  assert(!hourly.limitations.includes('Short rearmed boundaries are actual time-trigger evidence, not elapsed hourly repetition.'));
   const sourceContract=reports.get('source_contract').report;
   assert.equal(sourceContract.scope,'native_activity_source_semantics');
   const sourceNative=readLinked(sourceContract.nativeReport,sourceContract.nativeReportSha256);
@@ -592,6 +612,7 @@ function validate(index) {
   assert(staticRead.checks.every(id=>linkedTo(c17,'static_read').includes(id)),'C17 must retain copied-author removal, independent static restart and unchanged package/data evidence');
   assert(nextTrigger.checks.every(id=>linkedTo(c17,'next_trigger').includes(id)),'C17 must retain observed task time and read-only scheduler evidence');
   assert(timed.checks.every(id=>linkedTo(c17,'timed_trigger').includes(id)),'C17 must retain actual time-trigger and pending preservation evidence');
+  assert(hourly.checks.every(id=>linkedTo(c17,'timed_hourly').includes(id)),'C17 must retain elapsed-hourly repetition and exact pending evidence');
   assert(sourceContract.checks.every(id=>linkedTo(c17,'source_contract').includes(id)),'C17 must retain strict source semantics and real-read recovery evidence');
   assert(exportContract.checks.every(id=>linkedTo(c17,'export_contract').includes(id)),'C17 must retain export field refusals and actual recovery evidence');
   assert(activityReadLock.checks.every(id=>linkedTo(c17,'activity_read_lock').includes(id)),'C17 must retain actual Activity failure, Memory independence and read recovery evidence');
@@ -603,7 +624,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 23, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 24, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -643,7 +664,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'reply_correlation'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_polling'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'poll_lifecycle'));
-  result.negativeChecks = 33;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'timed_hourly'));
+  result.negativeChecks = 34;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

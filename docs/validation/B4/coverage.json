@@ -234,6 +234,13 @@
       "sha256": "5344f2f9f0dccf3dcdfb50c9d0c45e957b163ec1b595632421658844c0e021f7",
       "state": "passed",
       "selectorCount": 11
+    },
+    {
+      "id": "timed_hourly",
+      "path": "docs/validation/Activity-unified/timed-trigger-hourly.json",
+      "sha256": "4a6cc06155e2281ce1c6e31c51559dde800dbc96018c2f5fa62672d3f0942757",
+      "state": "passed",
+      "selectorCount": 27
     }
   ],
   "cases": [
@@ -1021,6 +1028,38 @@
             "L.unmount_stops_status_queries",
             "L.lifecycle_preserves_complete_store",
             "L.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "timed_hourly",
+          "selectors": [
+            "desktop_closed_before_timed_test",
+            "synthetic_import_succeeds",
+            "installed_paused_and_unregistered",
+            "registered_disabled",
+            "paused_initial:actual_task_finished",
+            "paused_initial:run_matches_time_boundary",
+            "paused_initial:expected_exit_code",
+            "paused_timer_preserves_complete_store",
+            "resume_is_durable",
+            "observed_repetition_is_exactly_one_hour",
+            "resumed_hourly_repeat:actual_task_finished",
+            "resumed_hourly_repeat:run_matches_time_boundary",
+            "resumed_hourly_repeat:expected_exit_code",
+            "actual_runs_span_elapsed_hour",
+            "timer_commits_exactly_next_sequence",
+            "timer_keeps_delivery_disabled",
+            "timer_retains_failed_source:github",
+            "timer_retains_failed_source:codex",
+            "timer_retains_failed_source:claude",
+            "pending_rearmed_time:actual_task_finished",
+            "pending_rearmed_time:run_matches_time_boundary",
+            "pending_rearmed_time:expected_exit_code",
+            "pending_timer_reuses_exact_batch",
+            "pending_timer_preserves_complete_store",
+            "desktop_closed_after_timed_test",
+            "uninstall_preserves_fixture",
+            "owned_task_is_removed"
           ]
         }
       ],

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "scope": "isolated_actual_time_trigger",
+  "state": "passed",
+  "observedAt": "2026-10-09T01:20:38.0695469Z",
+  "hourlyRepeatRequested": true,
+  "demandStarts": 0,
+  "deliveryEnabled": false,
+  "taskRemoved": true,
+  "checks": [
+    "desktop_closed_before_timed_test",
+    "synthetic_import_succeeds",
+    "installed_paused_and_unregistered",
+    "registered_disabled",
+    "paused_initial:actual_task_finished",
+    "paused_initial:run_matches_time_boundary",
+    "paused_initial:expected_exit_code",
+    "paused_timer_preserves_complete_store",
+    "resume_is_durable",
+    "observed_repetition_is_exactly_one_hour",
+    "resumed_hourly_repeat:actual_task_finished",
+    "resumed_hourly_repeat:run_matches_time_boundary",
+    "resumed_hourly_repeat:expected_exit_code",
+    "actual_runs_span_elapsed_hour",
+    "timer_commits_exactly_next_sequence",
+    "timer_keeps_delivery_disabled",
+    "timer_retains_failed_source:github",
+    "timer_retains_failed_source:codex",
+    "timer_retains_failed_source:claude",
+    "pending_rearmed_time:actual_task_finished",
+    "pending_rearmed_time:run_matches_time_boundary",
+    "pending_rearmed_time:expected_exit_code",
+    "pending_timer_reuses_exact_batch",
+    "pending_timer_preserves_complete_store",
+    "desktop_closed_after_timed_test",
+    "uninstall_preserves_fixture",
+    "owned_task_is_removed"
+  ],
+  "phases": [
+    {
+      "id": "paused_initial",
+      "lastTaskResult": 3,
+      "lastRunAt": "2026-10-09T01:21:21.0000000Z",
+      "expectedAt": "2026-10-09T01:21:21.0000000Z"
+    },
+    {
+      "id": "resumed_hourly_repeat",
+      "lastTaskResult": 4,
+      "lastRunAt": "2026-10-09T02:21:23.0000000Z",
+      "expectedAt": "2026-10-09T02:21:21.0000000Z"
+    },
+    {
+      "id": "pending_rearmed_time",
+      "lastTaskResult": 4,
+      "lastRunAt": "2026-10-09T02:22:01.0000000Z",
+      "expectedAt": "2026-10-09T02:22:01.0000000Z"
+    }
+  ],
+  "harnessSha256": "42b2a6c46eb991f061b86424983922780be993ffa620ee6d4815aff5d1edd879",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "limitations": [
+    "Synthetic state only; no authenticated source, receiver or public upload.",
+    "Actual logon, battery/sleep/resume and production behavior remain unverified."
+  ],
+  "nextExpectedAt": "2026-10-09T02:22:01.0000000Z",
+  "sequence": 51,
+  "exactPendingSha256": "f2cc43c327ab29abd5afa15a01a120e73aa68b77f800d662aa0a7413de137f46"
+}
