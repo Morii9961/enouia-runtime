@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -695,7 +695,9 @@ async function choiceDeleteMain() {
   if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Choice-delete acceptance requires contained synthetic data');
   const before=fixtureTree(manifest.dataRoot);let app=launch(),s=await connect();
   await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
-  await waitFor(s,has('Connect the installed Activity producer'),'choice-delete gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,has('Connect the installed Activity producer'),'choice-delete gate');
+  if(mode==='--choice-clear-remount'){const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");check('CF.initial_unconfigured_status_has_no_invented_clear_failure',status.configured===false&&!Object.hasOwn(status,'saved')&&!(await s.evaluate(has('Retry forgetting package'))));}
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
   await waitFor(s,"document.querySelectorAll('.act-source').length===3",'choice-delete selection');
   check('T.actual_selection_saves_owned_file',existsSync(settings));
   if(realpathSync(settings)!==join(realpathSync(out),'activity-install.json'))throw Error('Choice-delete file escaped output');
@@ -709,6 +711,14 @@ async function choiceDeleteMain() {
     check('T.actual_delete_refusal_reports_saved_false',await s.evaluate('window.__deleteReply?.configured===false&&window.__deleteReply.saved===false'));
     check('T.refusal_explains_reconnect_and_retry',await s.evaluate(has('It may reconnect after restarting'))&&await s.evaluate(has('Retry forgetting package')));
     check('T.failed_clear_preserves_exact_saved_file',readFileSync(settings).equals(saved));
+    if(mode==='--choice-clear-remount'){
+      await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.mem-gate[data-screen-label=\"Activity\"]')",'failed clear unmount');await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'failed clear remount');await sleep(250);
+      const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");
+      check('CF.remounted_status_retains_actual_clear_failure',status.configured===false&&status.saved===false);
+      check('CF.remounted_clear_warning_stays_visible',await s.evaluate(has('The saved package choice could not be cleared'))&&await s.evaluate(has('It may reconnect after restarting')));
+      check('CF.remounted_clear_retry_stays_available',await s.evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Retry forgetting package'&&!b.disabled)"));
+      check('CF.remount_never_reconnects_or_changes_saved_file',await s.evaluate("document.querySelectorAll('.act-source').length===0")&&readFileSync(settings).equals(saved));
+    }
     s.close();app.kill();await app.exited;app=launch();s=await connect();
     await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
     await waitFor(s,"document.querySelectorAll('.act-source').length===3",'retained choice restart');
@@ -720,6 +730,12 @@ async function choiceDeleteMain() {
   await press(s,'Retry forgetting package');await waitFor(s,"![...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Retry forgetting package')",'delete after release');
   check('T.released_retry_removes_saved_choice',!existsSync(settings));
   check('T.released_retry_clears_failure_feedback',!(await s.evaluate(has('The saved package choice could not be cleared'))));
+  if(mode==='--choice-clear-remount'){
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.mem-gate[data-screen-label=\"Activity\"]')",'successful clear unmount');await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'successful clear remount');await sleep(250);
+    const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");
+    check('CF.remounted_status_retains_successful_clear',status.configured===false&&status.saved===true);
+    check('CF.remounted_success_has_no_warning_or_retry',!(await s.evaluate(has('The saved package choice could not be cleared')))&&!(await s.evaluate(has('Retry forgetting package')))&&!existsSync(settings));
+  }
   s.close();app.kill();await app.exited;app=launch();s=await connect();
   await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'forgotten choice restart');
   check('T.restart_stays_unconfigured_after_actual_delete',await s.evaluate("document.querySelectorAll('.act-source').length===0")&&!existsSync(settings));
@@ -1484,7 +1500,7 @@ try {
   else if (mode === '--setup-contract') await setupContractMain();
   else if (mode === '--choice-save') await choiceSaveMain();
   else if (mode === '--choice-persistence') await choiceSaveMain();
-  else if (mode === '--choice-delete') await choiceDeleteMain();
+  else if (mode === '--choice-delete' || mode === '--choice-clear-remount') await choiceDeleteMain();
   else if (mode === '--run-history') await runHistoryMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();

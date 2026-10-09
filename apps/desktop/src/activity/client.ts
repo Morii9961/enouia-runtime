@@ -239,7 +239,8 @@ async function setup(action: "status" | "select" | "clear"): Promise<Setup> {
   let valid = false;
   if (action === "select" && closed(reply, ["cancelled"]) && reply.cancelled === true) valid = true;
   else if (object(reply) && reply.configured === false) {
-    if (action === "status") valid = closed(reply, ["configured"]);
+    if (action === "status") valid = closed(reply, ["configured"], ["saved"])
+      && (reply.saved === undefined || typeof reply.saved === "boolean");
     else if (action === "clear") valid = closed(reply, ["configured", "saved"]) && typeof reply.saved === "boolean";
     else valid = closed(reply, ["configured", "error"]) && inList(reply.error, ["not_found", "not_a_package", "binary_changed"]);
   } else if (action !== "clear" && closed(reply, action === "select"

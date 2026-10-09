@@ -311,6 +311,13 @@
       "sha256": "3608e1a9947b82bbdc11258e8b3cc1bee7fdcd4d50befc2cea909cd97696ca05",
       "state": "passed",
       "selectorCount": 4
+    },
+    {
+      "id": "clear_remount",
+      "path": "docs/validation/Activity-unified/clear-remount-proof.json",
+      "sha256": "eec3f13399e75df3710d41c4f96caf578b06610996c8f87424544e3b4f30ba59",
+      "state": "passed",
+      "selectorCount": 7
     }
   ],
   "cases": [
@@ -1417,6 +1424,18 @@
             "CP.remounted_unsaved_notice_stays_visible",
             "CP.remounted_status_verifies_saved_choice",
             "CP.remounted_saved_choice_stays_quiet"
+          ]
+        },
+        {
+          "report": "clear_remount",
+          "selectors": [
+            "CF.initial_unconfigured_status_has_no_invented_clear_failure",
+            "CF.remounted_status_retains_actual_clear_failure",
+            "CF.remounted_clear_warning_stays_visible",
+            "CF.remounted_clear_retry_stays_available",
+            "CF.remount_never_reconnects_or_changes_saved_file",
+            "CF.remounted_status_retains_successful_clear",
+            "CF.remounted_success_has_no_warning_or_retry"
           ]
         }
       ],

@@ -67,6 +67,9 @@ struct Runs {
 pub struct ActivityHost {
     install: Mutex<Option<Install>>,
     loaded: Mutex<bool>,
+    /// Outcome of an explicit forget attempt in this host, retained across
+    /// page remounts. Missing/invalid settings alone are not a clear failure.
+    last_clear_saved: Mutex<Option<bool>>,
     runs: Arc<Mutex<Runs>>,
     counter: AtomicU64,
     settings_file: Option<PathBuf>,
@@ -770,9 +773,15 @@ fn setup_status(install: Option<&Install>) -> Value {
     }
 }
 
-/// Recheck the native saved choice on every status read. A cached in-window
+/// Recheck the connected saved choice on every status read. A cached in-window
 /// connection alone does not prove that a future host can load the choice.
-fn setup_status_with_saved(install: Option<&Install>, saved: Option<PathBuf>) -> Value {
+/// When disconnected, retain only the last explicit clear attempt's outcome;
+/// an unreadable or invalid startup choice is not evidence of a failed clear.
+fn setup_status_with_saved(
+    install: Option<&Install>,
+    saved: Option<PathBuf>,
+    last_clear_saved: Option<bool>,
+) -> Value {
     let mut status = setup_status(install);
     if let Some(install) = install {
         status["saved"] = json!(
@@ -780,6 +789,8 @@ fn setup_status_with_saved(install: Option<&Install>, saved: Option<PathBuf>) ->
                 .and_then(|root| std::fs::canonicalize(root).ok())
                 .is_some_and(|root| root == install.root)
         );
+    } else if let Some(saved) = last_clear_saved {
+        status["saved"] = json!(saved);
     }
     status
 }
@@ -800,8 +811,13 @@ pub async fn activity_setup(
         "status" => {
             let handle = app.clone();
             tauri::async_runtime::spawn_blocking(move || {
-                let install = handle.state::<ActivityHost>().current(&handle);
-                setup_status_with_saved(install.as_ref(), saved_root(&handle))
+                let host = handle.state::<ActivityHost>();
+                let install = host.current(&handle);
+                let last_clear_saved = *host
+                    .last_clear_saved
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner);
+                setup_status_with_saved(install.as_ref(), saved_root(&handle), last_clear_saved)
             })
             .await
             .map_err(|_| "worker_failed".to_owned())
@@ -809,7 +825,12 @@ pub async fn activity_setup(
         "clear" => {
             *host.install.lock().unwrap_or_else(PoisonError::into_inner) = None;
             *host.loaded.lock().unwrap_or_else(PoisonError::into_inner) = true;
-            Ok(json!({"configured": false, "saved": save_root(&app, None)}))
+            let saved = save_root(&app, None);
+            *host
+                .last_clear_saved
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner) = Some(saved);
+            Ok(json!({"configured": false, "saved": saved}))
         }
         "select" => {
             let handle = app.clone();
@@ -827,6 +848,10 @@ pub async fn activity_setup(
                         *host.install.lock().unwrap_or_else(PoisonError::into_inner) =
                             Some(install.clone());
                         *host.loaded.lock().unwrap_or_else(PoisonError::into_inner) = true;
+                        *host
+                            .last_clear_saved
+                            .lock()
+                            .unwrap_or_else(PoisonError::into_inner) = None;
                         let mut status = setup_status(Some(&install));
                         status["saved"] = json!(saved);
                         status
@@ -1051,25 +1076,46 @@ mod tests {
         };
         for saved in [None, Some(other.clone()), Some(root.join("absent"))] {
             assert_eq!(
-                setup_status_with_saved(Some(&install), saved)["saved"],
+                setup_status_with_saved(Some(&install), saved, Some(true))["saved"],
                 false
             );
         }
         for saved in [&package, &package.join(".")] {
-            let status = setup_status_with_saved(Some(&install), Some(saved.clone()));
+            let status = setup_status_with_saved(Some(&install), Some(saved.clone()), Some(false));
             assert_eq!(status["saved"], true);
             assert_eq!(status["folder"], "package");
             assert_eq!(status.as_object().unwrap().len(), 5);
             assert!(!status.to_string().contains("enouia-choice-status-"));
         }
         assert_eq!(
-            setup_status_with_saved(None, Some(package.clone())),
+            setup_status_with_saved(None, Some(package.clone()), None),
             json!({"configured": false})
         );
         // Only the newly created empty owned directories are removed.
         std::fs::remove_dir(other).unwrap();
         std::fs::remove_dir(package).unwrap();
         std::fs::remove_dir(root).unwrap();
+    }
+
+    #[test]
+    fn disconnected_status_retains_only_an_explicit_clear_outcome() {
+        assert_eq!(
+            setup_status_with_saved(None, None, None),
+            json!({"configured": false})
+        );
+        for saved in [false, true] {
+            assert_eq!(
+                setup_status_with_saved(None, None, Some(saved)),
+                json!({"configured": false, "saved": saved})
+            );
+        }
+        assert!(
+            ActivityHost::default()
+                .last_clear_saved
+                .lock()
+                .unwrap()
+                .is_none()
+        );
     }
 
     #[test]

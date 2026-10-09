@@ -115,6 +115,19 @@ test('configured status accepts an optional verified saved flag, never arbitrary
   for(const saved of ['yes',null,0]) {recorder(()=>({...installed,saved}));await assert.rejects(activity.setup('status'),e=>e.error.code==='contract_invalid');}
 });
 
+test('unconfigured status preserves an explicit clear outcome without accepting private metadata', async () => {
+  for (const saved of [true, false]) {
+    const reply = { configured: false, saved };
+    recorder(() => reply);
+    assert.deepEqual(await activity.setup('status'), reply);
+  }
+  for (const reply of [{ configured: false, saved: null }, { configured: false, saved: 'no' },
+    { configured: false, saved: false, installRoot: 'C:/synthetic-private' }]) {
+    recorder(() => reply);
+    await assert.rejects(activity.setup('status'), e => e.error.code === 'contract_invalid');
+  }
+});
+
 test('malformed data and private error text become local contract failures', async () => {
   const missingSource = overview(); delete missingSource.sources.codex;
   const roundedTotal = overview(); roundedTotal.sources.codex.total = 9007199254740992;
