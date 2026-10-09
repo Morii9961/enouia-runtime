@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 46);
+  assert.equal(reports.size, 47);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -846,6 +846,25 @@ function validate(index) {
   assert.equal(selectRecovery.memoryRevision, isolation.memoryRevision);
   for (const digest of [selectRecovery.desktopSha256, selectRecovery.installerSha256, selectRecovery.harnessSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(selectRecovery.limitations.includes('Refused selection changes only the displayed selection error; the native choice and prior explicit clear outcome remain unchanged.'));
+  const pointerCreate = reports.get('pointer_create_acl').report;
+  assert.equal(pointerCreate.scope, 'isolated_activity_current_pointer_create_denial');
+  const pointerCreateNative = readLinked(pointerCreate.nativeReport, pointerCreate.nativeReportSha256);
+  assert.equal(pointerCreate.nativeSummary, '52/52');
+  assert.equal(pointerCreateNative.summary, pointerCreate.nativeSummary);
+  assert.equal(pointerCreateNative.checks.length, 52);
+  assert(pointerCreateNative.checks.every(c => c.ok === true));
+  assert.deepEqual(pointerCreate.checks, pointerCreateNative.checks.filter(c => c.id.startsWith('PC.')).map(c => c.id));
+  assert.equal(pointerCreate.checks.length, 17);
+  assert.equal(pointerCreate.processExitCode, 0);
+  assert.equal(pointerCreate.desktopSha256, selectRecovery.desktopSha256);
+  assert.equal(pointerCreate.installerSha256, selectRecovery.installerSha256);
+  assert.equal(pointerCreate.runnerSha256, guidance.runnerSha256);
+  assert.equal(pointerCreate.memoryRevision, isolation.memoryRevision);
+  assert.equal(pointerCreate.reusedFrontendTests, 57);
+  assert.equal(pointerCreate.reusedHostTests, 34);
+  assert.equal(pointerCreate.reusedCoreTests, 3);
+  assert.match(pointerCreate.harnessSha256, /^[a-f0-9]{64}$/);
+  assert(pointerCreate.limitations.includes('No CURRENT temporary pointer file is created; failure occurs after complete generation publication and before pointer preparation.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -899,6 +918,7 @@ function validate(index) {
   assert(choicePersistence.checks.every(id=>linkedTo(c17,'choice_persistence').includes(id)),'C17 must retain actual saved-choice status and remount feedback');
   assert(clearRemount.checks.every(id => linkedTo(c17, 'clear_remount').includes(id)), 'C17 must retain explicit forget outcomes and remount recovery');
   assert(selectRecovery.checks.every(id => linkedTo(c17, 'select_recovery').includes(id)), 'C17 must retain refused-selection feedback and real cancellation');
+  assert(pointerCreate.checks.every(id => linkedTo(c17, 'pointer_create_acl').includes(id)), 'C17 must retain actual pointer creation refusal and descriptor recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -906,7 +926,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 36, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 37, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -961,7 +981,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'choice_persistence'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'clear_remount'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'select_recovery'));
-  result.negativeChecks = 48;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'pointer_create_acl'));
+  result.negativeChecks = 49;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

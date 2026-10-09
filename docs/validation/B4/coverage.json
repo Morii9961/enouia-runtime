@@ -325,6 +325,13 @@
       "sha256": "50f425e3b9730bf84ecff184960807cec9981e9ca663a39bf88b8dab8deb835c",
       "state": "passed",
       "selectorCount": 6
+    },
+    {
+      "id": "pointer_create_acl",
+      "path": "docs/validation/Activity-unified/pointer-create-proof.json",
+      "sha256": "596071a1bdf647eeec5b83877a24f65f34e59904e22b239616b7ec76b8f1f642",
+      "state": "passed",
+      "selectorCount": 17
     }
   ],
   "cases": [
@@ -1454,6 +1461,28 @@
             "SR.invalid_selection_preserves_clear_warning",
             "SR.invalid_selection_preserves_clear_retry",
             "SR.invalid_selection_keeps_exact_native_choice_state"
+          ]
+        },
+        {
+          "report": "pointer_create_acl",
+          "selectors": [
+            "PC.synthetic_root_file_creation_is_denied",
+            "PC.root_file_creation_really_refuses_access",
+            "PC.actual_pause_write_reports_storage_failure",
+            "PC.failed_pause_is_visible",
+            "PC.failed_writes_keep_unpaused_reads_and_exact_history",
+            "PC.memory_queries_survive_actual_write_failure",
+            "PC.failed_writes_preserve_exact_current_pointer",
+            "PC.all_original_files_keep_exact_hashes",
+            "PC.failed_preparation_retains_two_complete_unselected_generations",
+            "PC.failed_preparation_creates_no_temporary_pointer_file",
+            "PC.failed_writes_preserve_canonical_vault",
+            "PC.original_directory_security_descriptor_is_restored",
+            "PC.restored_permission_accepts_pause",
+            "PC.restored_permission_accepts_resume",
+            "PC.successful_recovery_preserves_archive_sequence_pending",
+            "PC.recovery_retains_failed_generations",
+            "PC.recovery_preserves_canonical_vault"
           ]
         }
       ],

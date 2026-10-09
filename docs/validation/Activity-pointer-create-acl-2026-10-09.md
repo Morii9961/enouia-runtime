@@ -1,0 +1,13 @@
+# Activity temporary current-pointer creation ACL refusal
+
+Date: 2026-10-09. Scope: an actual Windows write permission fault after generation publication and before current-pointer preparation. B4/J1 remain partial; B5 inactive.
+
+On a freshly prepared synthetic Activity root, an owned hidden helper adds a current-user CreateFiles deny rule without inheritance. Parent permissions and child generation-directory permissions are untouched. The preexisting writer lock remains available. A new owned file probe genuinely fails with EACCES/EPERM before any fault mutation; the harness refuses to continue without that denial. The full original security descriptor is backed up locally, the original DACL is restored in finally, and full descriptor equality is checked. The helper self-expires after 90 seconds.
+
+Actual pause IPC and a separate page Pause action both report storage_failed. The writer publishes two complete unselected generation directories, each containing the intended paused state, but cannot create the temporary CURRENT file. No such temporary pointer exists. The selected CURRENT bytes, old unpaused state, public history/high-water and hashes of every original file remain exact. The complete tree intentionally grows through the two failure remnants; no generation is automatically promoted or deleted. Pinned-Core Memory list/search remain available and canonical Vault stays unchanged.
+
+After exact permission restoration, actual pause and resume succeed. Archive, sequence and pending hashes remain exact and failed generation directories remain present. The ordinary actual-operation/Core-isolation and pending/restart workflow also passes. [Raw native report](Activity-unified/pointer-create-native.json): **52/52**. [Hashed proof](Activity-unified/pointer-create-proof.json) links seventeen additional C17 fault/recovery selectors. Counts overlap and are not full acceptance.
+
+Fresh checks: native 52/52, harness syntax, Memory/domain integration guards, whitespace and **47 reports / 679 selectors / 49 negative evidence checks**. Product code, executable/installer, lockfiles and Memory pin are unchanged. The preceding 57 frontend tests, strict build, 34+3 host/Core tests, fmt/clippy, 25/25 setup recovery, 35/35 actual actions and 26 installer ownership checks are reused. The installer is built, not installed, signed or published.
+
+Memory remains pinned to ff692ccb6fbc1c387254d5ffbef41b105eeb2a84. Disk-full, other write phases, physical power loss, sustained stress and real-account/production activation remain unverified. No personal Vault/archive, existing or production task, credentials, public upload, server or Moriium source changes.

@@ -26,9 +26,9 @@ import { createServer } from 'node:net';
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -1212,6 +1212,48 @@ async function main() {
       const resume=await call(s,{operation:'activity_set_paused',paused:false});check('N.restored_permission_accepts_resume',resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
       const recovered=fixtureImage(manifest.dataRoot);check('N.successful_recovery_preserves_archive_sequence_pending',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);
       check('N.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
+    }
+    if(mode==='--pointer-create-denial') {
+      if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Write ACL drill escaped the prepared synthetic data root');
+      const generations=join(manifest.dataRoot,'generations');
+      if(realpathSync(generations).toLowerCase()!==join(realpathSync(manifest.dataRoot),'generations').toLowerCase())throw Error('Synthetic generation directory cannot be redirected');
+      const canonical=fixtureTree(join(vault,'vault')),image=fixtureImage(manifest.dataRoot),oldNames=new Set(readdirSync(generations)),entries=new Set(fixtureEntries(manifest.dataRoot)),original=readFileSync(join(manifest.dataRoot,'CURRENT'));
+      if(!existsSync(join(manifest.dataRoot,'sync.lock'))||readdirSync(manifest.dataRoot).some(name=>/^CURRENT\.g-.*\.tmp$/.test(name)))throw Error('Pointer-create drill requires an existing lock and no pointer remnants');
+      let failedNames=[];
+      const powershell='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',literal=manifest.dataRoot.replace(/'/g,"''"),release=join(out,'release-pointer-acl');
+      const readAcl=()=>execFileSync(powershell,['-NoProfile','-NonInteractive','-Command',`([IO.Directory]::GetAccessControl('${literal}')).GetSecurityDescriptorSddlForm([Security.AccessControl.AccessControlSections]::All)`],{encoding:'utf8',windowsHide:true,timeout:10000}).trim();
+      const originalAcl=readAcl();if(!originalAcl.startsWith('O:')||!originalAcl.includes('D:'))throw Error('Synthetic generation ACL backup is incomplete');
+      const restore=`$ErrorActionPreference='Stop';$acl=[Security.AccessControl.DirectorySecurity]::new();$acl.SetSecurityDescriptorSddlForm([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${Buffer.from(originalAcl).toString('base64')}')),[Security.AccessControl.AccessControlSections]::Access);[IO.Directory]::SetAccessControl('${literal}',$acl)`;
+      const command=`$ErrorActionPreference='Stop';$changed=[IO.Directory]::GetAccessControl('${literal}');$rule=[Security.AccessControl.FileSystemAccessRule]::new(([Security.Principal.WindowsIdentity]::GetCurrent()).User,[Security.AccessControl.FileSystemRights]::CreateFiles,[Security.AccessControl.AccessControlType]::Deny);$changed.AddAccessRule($rule);try{[IO.Directory]::SetAccessControl('${literal}',$changed);'denied';$watch=[Diagnostics.Stopwatch]::StartNew();while($watch.Elapsed.TotalSeconds -lt 90 -and ![IO.File]::Exists('${release.replace(/'/g,"''")}')){[Threading.Thread]::Sleep(200)}}finally{${restore}}`;
+      const holder=spawn(powershell,['-NoProfile','-NonInteractive','-Command',command],{windowsHide:true,stdio:['ignore','pipe','pipe']});children.add(holder);
+      holder.exited=new Promise(resolve=>holder.once('exit',code=>{children.delete(holder);resolve(code);}));
+      try {
+        await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(Error('Write ACL helper did not become ready')),10000);holder.stdout.on('data',bytes=>{output+=bytes.toString();if(output.includes('denied')){clearTimeout(timer);resolve();}});holder.once('exit',()=>{clearTimeout(timer);reject(Error('Write ACL helper exited early'));});});
+        check('PC.synthetic_root_file_creation_is_denied',true);
+        const probe=join(manifest.dataRoot,'.acl-pointer-probe');if(existsSync(probe))throw Error('Unexpected preexisting ACL probe');let denied=false,created=false;
+        try{writeFileSync(probe,'owned synthetic probe',{flag:'wx'});created=true;}catch(error){denied=['EACCES','EPERM'].includes(error.code);}finally{if(created){if(realpathSync(probe).toLowerCase()!==join(realpathSync(manifest.dataRoot),'.acl-pointer-probe').toLowerCase())throw Error('ACL probe escaped');rmSync(probe);}}
+        check('PC.root_file_creation_really_refuses_access',denied);if(!denied)throw Error('Actual denial required before fault mutations');
+        const failed=await call(s,{operation:'activity_set_paused',paused:true});
+        check('PC.actual_pause_write_reports_storage_failure',failed.kind==='activity_error'&&failed.error.code==='storage_failed',JSON.stringify(failed));
+        await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+        await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Pause activity sync'&&!b.disabled)",'write-denial Activity controls');
+        await press(s,'Pause activity sync');await waitFor(s,has('The Activity store could not be read or written'),'actual pause write failure');check('PC.failed_pause_is_visible',true);
+        const [read,payload,list,search]=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'}),memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false}),memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25})]);
+        check('PC.failed_writes_keep_unpaused_reads_and_exact_history',read.producer.paused===false&&read.producer.highestReserved===o.producer.highestReserved&&payload.sha256===preview.sha256);
+        check('PC.memory_queries_survive_actual_write_failure',list.result?.total===1&&search.result?.items?.length===1&&!list.error&&!search.error);
+        check('PC.failed_writes_preserve_exact_current_pointer',readFileSync(join(manifest.dataRoot,'CURRENT')).equals(original));
+        const afterEntries=new Set(fixtureEntries(manifest.dataRoot));check('PC.all_original_files_keep_exact_hashes',Array.from(entries).every(entry=>afterEntries.has(entry)));
+        failedNames=readdirSync(generations).filter(name=>!oldNames.has(name));
+        check('PC.failed_preparation_retains_two_complete_unselected_generations',failedNames.length===2&&failedNames.every(name=>!name.startsWith('.staging-')&&['activity.json','sequence.json','delivery.json','manifest.json'].every(file=>existsSync(join(generations,name,file)))&&JSON.parse(readFileSync(join(generations,name,'delivery.json'),'utf8')).paused===true));
+        check('PC.failed_preparation_creates_no_temporary_pointer_file',!readdirSync(manifest.dataRoot).some(name=>/^CURRENT\.g-.*\.tmp$/.test(name)));
+        check('PC.failed_writes_preserve_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
+      }finally{writeFileSync(release,'release');await Promise.race([holder.exited,sleep(10000)]);execFileSync(powershell,['-NoProfile','-NonInteractive','-Command',restore],{windowsHide:true,timeout:10000,stdio:'pipe'});holder.kill();await holder.exited;}
+      check('PC.original_directory_security_descriptor_is_restored',readAcl()===originalAcl);
+      const pause=await call(s,{operation:'activity_set_paused',paused:true});check('PC.restored_permission_accepts_pause',pause.kind==='activity_pause_acknowledged'&&pause.paused===true&&(await overview(s)).producer.paused===true);
+      const resume=await call(s,{operation:'activity_set_paused',paused:false});check('PC.restored_permission_accepts_resume',resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
+      const recovered=fixtureImage(manifest.dataRoot);check('PC.successful_recovery_preserves_archive_sequence_pending',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);
+      check('PC.recovery_retains_failed_generations',failedNames.length===2&&failedNames.every(name=>existsSync(join(generations,name))));
+      check('PC.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
     }
     if (mode === '--current-switch-lock') {
       if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Switch drill escaped the synthetic root');
