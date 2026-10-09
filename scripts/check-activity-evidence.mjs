@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 51);
+  assert.equal(reports.size, 52);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -950,6 +950,26 @@ function validate(index) {
   assert.equal(runRemount.memoryRevision, isolation.memoryRevision);
   for (const digest of [runRemount.desktopSha256, runRemount.installerSha256, runRemount.harnessSha256, runRemount.toolsSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(runRemount.limitations.includes('The native overview and same accepted run status must both still report running before remounted controls are checked; no running reply is modeled.'));
+  const windowScope = reports.get('window_scope').report;
+  assert.equal(windowScope.scope, 'isolated_activity_native_overlay_scope');
+  const scopeNative = readLinked(windowScope.nativeReport, windowScope.nativeReportSha256);
+  assert.equal(windowScope.nativeSummary, '19/19');
+  assert.equal(scopeNative.summary, windowScope.nativeSummary);
+  assert.equal(scopeNative.checks.length, 19);
+  assert(scopeNative.checks.every(c => c.ok === true));
+  assert.deepEqual(windowScope.checks, scopeNative.checks.map(c => c.id));
+  assert.equal(windowScope.processExitCode, 0);
+  assert.equal(windowScope.desktopSha256, runRemount.desktopSha256);
+  assert.equal(windowScope.installerSha256, runRemount.installerSha256);
+  assert.equal(windowScope.runnerSha256, guidance.runnerSha256);
+  assert.equal(windowScope.memoryRevision, isolation.memoryRevision);
+  assert.equal(windowScope.reusedFrontendTests, 57);
+  assert.equal(windowScope.reusedHostTests, 34);
+  assert.equal(windowScope.reusedCoreTests, 3);
+  assert.match(windowScope.harnessSha256, /^[a-f0-9]{64}$/);
+  for (const operation of ['overview', 'preview', 'days', 'run_record', 'run_now', 'retry_pending', 'pause', 'resume']) assert(windowScope.checks.includes(`WS.overlay_refuses_${operation}`));
+  for (const action of ['status', 'clear', 'select']) assert(windowScope.checks.includes(`WS.overlay_refuses_setup_${action}`));
+  assert(windowScope.limitations.includes('Only the owned host loopback debugger is used; URL candidates and native window labels separately verify main and overlay identity.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1008,6 +1028,7 @@ function validate(index) {
   assert(generationManifest.checks.every(id => linkedTo(c17, 'generation_manifest_acl').includes(id)), 'C17 must retain selected-manifest refusal and exact permission/data restoration');
   assert(runnerHash.checks.every(id => linkedTo(c17, 'runner_hash_change').includes(id)), 'C17 must retain actual cached-runner hash refusal and recovery');
   assert(runRemount.checks.every(id => linkedTo(c17, 'run_remount').includes(id)), 'C17 must retain actual running-host remount lock and terminal recovery');
+  assert(windowScope.checks.every(id => linkedTo(c17, 'window_scope').includes(id)), 'C17 must retain actual native overlay Activity refusals and main recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1015,7 +1036,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 41, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 42, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -1075,7 +1096,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'generation_manifest_acl'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_hash_change'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_remount'));
-  result.negativeChecks = 53;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'window_scope'));
+  result.negativeChecks = 54;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

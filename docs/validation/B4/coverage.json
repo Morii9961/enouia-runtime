@@ -360,6 +360,13 @@
       "sha256": "3ce59a57d93cfa7142b9d9733223e1f75e189914223169a0e2e2f90a24b11ec6",
       "state": "passed",
       "selectorCount": 11
+    },
+    {
+      "id": "window_scope",
+      "path": "docs/validation/Activity-unified/window-scope-proof.json",
+      "sha256": "d93a5c961170b5536db96e7cc5a9f0848f0f3f83fa48c9096e95cf193ed2349c",
+      "state": "passed",
+      "selectorCount": 19
     }
   ],
   "cases": [
@@ -1616,6 +1623,30 @@
             "RM.remount_never_sends_a_second_start",
             "RM.actual_pending_is_retained_after_failed_loopback_observation",
             "RM.owned_choice_is_cleared"
+          ]
+        },
+        {
+          "report": "window_scope",
+          "selectors": [
+            "WS.main_selects_real_synthetic_package",
+            "WS.main_reads_three_source_histories",
+            "WS.owned_quick_search_window_label_is_verified",
+            "WS.overlay_refuses_overview",
+            "WS.overlay_refuses_preview",
+            "WS.overlay_refuses_days",
+            "WS.overlay_refuses_run_record",
+            "WS.overlay_refuses_run_now",
+            "WS.overlay_refuses_retry_pending",
+            "WS.overlay_refuses_pause",
+            "WS.overlay_refuses_resume",
+            "WS.overlay_refuses_setup_status",
+            "WS.overlay_refuses_setup_clear",
+            "WS.overlay_refuses_setup_select",
+            "WS.denials_preserve_exact_saved_choice",
+            "WS.denials_preserve_complete_activity_store",
+            "WS.main_read_keeps_same_public_history",
+            "WS.overlay_keeps_its_allowed_show_hide_scope",
+            "WS.main_final_clear_removes_owned_choice"
           ]
         }
       ],

@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--run-remount', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--run-remount|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--run-remount', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--run-remount|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -113,15 +113,15 @@ function session(url) {
   return { send, evaluate, close: () => ws.close() };
 }
 
-async function connect() {
+async function connect(overlay = false) {
   for (let i = 0; i < 160; i++) {
     try {
       const targets = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
       assertDebugOwner();
-      for (const page of targets.filter((t) => t.type === 'page' && t.url.startsWith('http://tauri.localhost/') && !t.url.includes('view=overlay'))) {
+      for (const page of targets.filter((t) => t.type === 'page' && t.url.startsWith('http://tauri.localhost/') && t.url.includes('view=overlay') === overlay)) {
         const s = session(page.webSocketDebuggerUrl);
         await waitFor(s, "document.readyState === 'complete' && !!document.querySelector('#root > *')", 'page');
-        if ((await s.evaluate('window.__TAURI_INTERNALS__.metadata.currentWindow.label')) === 'main') return s;
+        if ((await s.evaluate('window.__TAURI_INTERNALS__.metadata.currentWindow.label')) === (overlay ? 'overlay' : 'main')) return s;
         s.close();
       }
     } catch (error) {
@@ -129,7 +129,7 @@ async function connect() {
     }
     await sleep(250);
   }
-  throw new Error('no main page');
+  throw new Error(overlay ? 'no owned overlay page' : 'no main page');
 }
 
 async function waitFor(s, expression, label, ms = 30000) {
@@ -880,6 +880,22 @@ async function runRemountMain() {
   check('RM.remount_never_sends_a_second_start',await s.evaluate('window.__remountStarts===1'));
   check('RM.actual_pending_is_retained_after_failed_loopback_observation',final.schedule.mode==='idle'&&final.pending?.sequence===88&&final.producer.highestReserved===88&&final.pending.failureCount===1);
   await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'run-remount forgotten');check('RM.owned_choice_is_cleared',!existsSync(settings));await shot(s,'01-run-remount-recovered');s.close();app.kill();await app.exited;
+}
+
+async function windowScopeMain() {
+  if(existsSync(settings))throw Error('Window scope requires absent settings');
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Window-scope escaped synthetic root');
+  const before=fixtureTree(manifest.dataRoot),app=launch(),main=await connect();await main.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(main,has('Connect the installed Activity producer'),'window scope gate');await press(main,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(main,"document.querySelectorAll('.act-source').length===3",'window scope actual package');
+  check('WS.main_selects_real_synthetic_package',existsSync(settings));const saved=readFileSync(settings),preview=await call(main,{operation:'activity_preview_public_payload'});check('WS.main_reads_three_source_histories',preview.kind==='activity_public_preview'&&Object.keys(preview.data.sources).length===3);
+  await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");const overlay=await connect(true);check('WS.owned_quick_search_window_label_is_verified',await overlay.evaluate("window.__TAURI_INTERNALS__.metadata.currentWindow.label==='overlay'"));
+  const requests=[['overview',{operation:'activity_get_overview'}],['preview',{operation:'activity_preview_public_payload'}],['days',{operation:'activity_get_days',source:'github',from:'2026-01-01',to:'2026-12-31'}],['run_record',{operation:'activity_get_run',runId:'run-synthetic'}],['run_now',{operation:'activity_run_now'}],['retry_pending',{operation:'activity_retry_pending'}],['pause',{operation:'activity_set_paused',paused:true}],['resume',{operation:'activity_set_paused',paused:false}]];
+  const denied=async(command,args)=>overlay.evaluate(`(async()=>{try{await window.__TAURI_INTERNALS__.invoke(${JSON.stringify(command)},${JSON.stringify(args)});return false;}catch(error){const text=String(error);return (text.includes('not allowed')||text==='permission_denied')&&!text.includes(${JSON.stringify(pkg)})&&!text.includes(${JSON.stringify(settings)});}})()`);
+  for(const[id,request]of requests)check('WS.overlay_refuses_'+id,await denied('activity_call',{request}));
+  for(const action of ['status','clear','select'])check('WS.overlay_refuses_setup_'+action,await denied('activity_setup',{action}));
+  check('WS.denials_preserve_exact_saved_choice',readFileSync(settings).equals(saved));check('WS.denials_preserve_complete_activity_store',fixtureTree(manifest.dataRoot)===before);
+  const actual=await call(main,{operation:'activity_preview_public_payload'});check('WS.main_read_keeps_same_public_history',actual.kind==='activity_public_preview'&&actual.sha256===preview.sha256);
+  await overlay.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show').then(()=>window.__TAURI_INTERNALS__.invoke('shell_hide'))");check('WS.overlay_keeps_its_allowed_show_hide_scope',true);overlay.close();
+  await press(main,'Change package');await waitFor(main,has('Connect the installed Activity producer'),'window scope clear');check('WS.main_final_clear_removes_owned_choice',!existsSync(settings));await shot(main,'01-window-scope');main.close();app.kill();await app.exited;
 }
 
 async function readContractMain(exportContract = false) {
@@ -1717,6 +1733,7 @@ try {
   else if (mode === '--run-admission') await runAdmissionMain();
   else if (mode === '--runner-hash-change') await runnerHashMain();
   else if (mode === '--run-remount') await runRemountMain();
+  else if (mode === '--window-scope') await windowScopeMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();
