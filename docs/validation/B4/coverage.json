@@ -199,6 +199,13 @@
       "sha256": "62bd618417068d2c81e936142f235a81f3ebddd1ad431fd9bd5bc102c3b3a37c",
       "state": "passed",
       "selectorCount": 23
+    },
+    {
+      "id": "export_contract",
+      "path": "docs/validation/Activity-unified/export-contract-proof.json",
+      "sha256": "dc4421bc5ab232d7d6d7d4b7497ce71e55d8de66a85c56642847850ad3fda717",
+      "state": "passed",
+      "selectorCount": 36
     }
   ],
   "cases": [
@@ -479,6 +486,14 @@
           "report": "frozen",
           "selectors": [
             "C10-private-sentinels"
+          ]
+        },
+        {
+          "report": "export_contract",
+          "selectors": [
+            "X.private_extension_never_reaches_copy",
+            "X.private_day_title_never_reaches_preview",
+            "X.paths_stay_private"
           ]
         }
       ],
@@ -867,6 +882,47 @@
             "V.invalid_replies_preserve_actual_store",
             "V.paths_stay_private",
             "V.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "export_contract",
+          "selectors": [
+            "X.actual_package_connects",
+            "X.actual_three_source_snapshot",
+            "X.rejects_extra_overview",
+            "X.private_extension_never_reaches_copy",
+            "X.recovers_extra_overview",
+            "X.rejects_extra_summary",
+            "X.recovers_extra_summary",
+            "X.rejects_extra_schedule",
+            "X.recovers_extra_schedule",
+            "X.rejects_extra_task",
+            "X.recovers_extra_task",
+            "X.rejects_extra_delivery",
+            "X.recovers_extra_delivery",
+            "X.rejects_extra_producer",
+            "X.recovers_extra_producer",
+            "X.rejects_extra_health",
+            "X.recovers_extra_health",
+            "X.rejects_raw_generated_time",
+            "X.recovers_raw_generated_time",
+            "X.rejects_raw_health_id",
+            "X.recovers_raw_health_id",
+            "X.rejects_extra_preview",
+            "X.recovers_extra_preview",
+            "X.rejects_extra_public_data",
+            "X.recovers_extra_public_data",
+            "X.rejects_extra_snapshot",
+            "X.recovers_extra_snapshot",
+            "X.rejects_extra_day",
+            "X.private_day_title_never_reaches_preview",
+            "X.recovers_extra_day",
+            "X.rejects_raw_snapshot_time",
+            "X.recovers_raw_snapshot_time",
+            "X.invalid_replies_preserve_actual_store",
+            "X.real_sanitized_copy_recovers",
+            "X.paths_stay_private",
+            "X.choice_is_cleared"
           ]
         }
       ],

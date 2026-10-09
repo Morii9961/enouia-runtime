@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -382,7 +382,9 @@ async function confirmationMain() {
 
 // Malformed replies below are modeled only in this owned page; all restored
 // reads still use the real installed runner, with no store mutation or Vault.
-async function readContractMain() {
+async function readContractMain(exportContract = false) {
+  const prefix=exportContract?'X.':'V.';
+  const privateMarker='SYNTHETIC_PRIVATE_MARKER';
   rmSync(settings,{force:true});
   if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase()) throw new Error('Read-contract acceptance requires the contained synthetic data root');
   const before=fixtureTree(manifest.dataRoot), app=launch(), s=await connect();
@@ -390,10 +392,26 @@ async function readContractMain() {
   await waitFor(s,has('Connect the installed Activity producer'),'read-contract gate');
   await press(s,'Choose installed package…'); fillDialog(app.pid,pkg);
   await waitFor(s,has('Publication observed'),'actual valid source data');
-  check('V.actual_package_connects',true);
+  check(prefix+'actual_package_connects',true);
   const actual=await call(s,{operation:'activity_preview_public_payload'});
-  check('V.actual_three_source_snapshot',actual.kind==='activity_public_preview'&&Object.keys(actual.data.sources).length===3);
-  const cases=[
+  check(prefix+'actual_three_source_snapshot',actual.kind==='activity_public_preview'&&Object.keys(actual.data.sources).length===3);
+  if(exportContract) await s.evaluate("Object.defineProperty(navigator.clipboard,'writeText',{configurable:true,value:async text=>{window.__capturedActivityCopy=text;}});true");
+  const cases=exportContract ? [
+    ["extra_overview","activity_overview","reply.rawConfig='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_summary","activity_overview","reply.sources.github.rawTitle='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_schedule","activity_overview","reply.schedule.configPath='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_task","activity_overview","reply.schedule.task={registered:false,enabled:null,rawXml:'SYNTHETIC_PRIVATE_MARKER'};"],
+    ["extra_delivery","activity_overview","reply.delivery.rawStderr='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_producer","activity_overview","reply.producer.environment='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_health","activity_overview","reply.health[0].privatePath='SYNTHETIC_PRIVATE_MARKER';"],
+    ["raw_generated_time","activity_overview","reply.generatedAt='SYNTHETIC_PRIVATE_MARKER';"],
+    ["raw_health_id","activity_overview","reply.health[0].id='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_preview","activity_public_preview","reply.rawConfig='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_public_data","activity_public_preview","reply.data.privatePath='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_snapshot","activity_public_preview","reply.data.sources.github.rawReport='SYNTHETIC_PRIVATE_MARKER';"],
+    ["extra_day","activity_public_preview","reply.data.sources.github.days[0].rawTitle='SYNTHETIC_PRIVATE_MARKER';"],
+    ["raw_snapshot_time","activity_public_preview","reply.data.sources.github.updatedAt='SYNTHETIC_PRIVATE_MARKER';"],
+  ] : [
     ['github_metric','activity_overview',"reply.sources.github.metric='tokens';"],
     ['codex_timezone','activity_overview',"reply.sources.codex.timezone='Asia/Shanghai';"],
     ['extra_overview_source','activity_overview',"reply.sources.claude_design=reply.sources.claude;"],
@@ -409,15 +427,31 @@ async function readContractMain() {
     await waitFor(s,"window.__contractReplyDone===true",'modeled invalid reply '+id);
     await new Promise(resolve=>setTimeout(resolve,200));
     const rejected=await s.evaluate(`${has('The response did not match Activity IPC v1')} && document.querySelectorAll('.act-source').length===0`);
-    check('V.rejects_'+id,rejected);
+    check(prefix+'rejects_'+id,rejected);
     if(id==='preview_impossible_date'&&rejected) await shot(s,'01-invalid-source-date');
+    if(exportContract&&id==='extra_overview') {
+      await s.evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Copy diagnostic summary').click();true");
+      await new Promise(resolve=>setTimeout(resolve,100));
+      check('X.private_extension_never_reaches_copy',await s.evaluate(`!String(window.__capturedActivityCopy??'').includes(${JSON.stringify(privateMarker)})`));
+    }
+    if(exportContract&&id==='extra_day') {
+      await s.evaluate("document.querySelector('.act-payload summary')?.click();true");
+      await new Promise(resolve=>setTimeout(resolve,100));
+      check('X.private_day_title_never_reaches_preview',!(await s.evaluate(has(privateMarker))));
+      if(rejected) await shot(s,'01-private-fields-refused',false);
+    }
     await press(s,'Refresh'); await waitFor(s,has('Publication observed'),'real read recovers '+id);
-    check('V.recovers_'+id,await s.evaluate("document.querySelectorAll('.act-source').length===3"));
+    check(prefix+'recovers_'+id,await s.evaluate("document.querySelectorAll('.act-source').length===3"));
   }
-  check('V.invalid_replies_preserve_actual_store',fixtureTree(manifest.dataRoot)===before);
-  check('V.paths_stay_private',!(await s.evaluate(`document.body.innerText.includes(${JSON.stringify(pkg)})`)));
+  check(prefix+'invalid_replies_preserve_actual_store',fixtureTree(manifest.dataRoot)===before);
+  if(exportContract) {
+    await s.evaluate("window.__capturedActivityCopy=null;[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Copy diagnostic summary').click();true");
+    await waitFor(s,"typeof window.__capturedActivityCopy==='string'",'actual sanitized copy');
+    check('X.real_sanitized_copy_recovers',await s.evaluate(`JSON.parse(window.__capturedActivityCopy).kind==='activity_overview' && !window.__capturedActivityCopy.includes(${JSON.stringify(privateMarker)})`));
+  }
+  check(prefix+'paths_stay_private',!(await s.evaluate(`document.body.innerText.includes(${JSON.stringify(pkg)})`)));
   await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'clear contract-read choice');
-  check('V.choice_is_cleared',!existsSync(settings));
+  check(prefix+'choice_is_cleared',!existsSync(settings));
   s.close();app.kill();await app.exited;
 }
 
@@ -905,6 +939,7 @@ try {
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();
+  else if (mode === '--export-contract') await readContractMain(true);
   else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));

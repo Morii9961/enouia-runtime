@@ -101,12 +101,19 @@ export function setTransport(next: Transport): void {
 
 type ObjectValue = Record<string, unknown>;
 const object = (value: unknown): value is ObjectValue => value !== null && typeof value === "object" && !Array.isArray(value);
-const nullableText = (value: unknown) => value === null || typeof value === "string";
+const nullableTimestamp = (value: unknown) => value === null || timestamp(value);
 const natural = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 const hash = (value: unknown) => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 const inList = (value: unknown, values: readonly string[]) => typeof value === "string" && values.includes(value);
 const modes = ["unconfigured", "idle", "running", "paused"];
 const errorCodes = ["busy", "unconfigured", "unsupported_method", "source_invalid", "clock_regression", "storage_failed", "delivery_unverified", "contract_invalid"];
+const componentIds = ["core", "vault", "memory_index", "provider", "session", "activity_collector_github", "activity_collector_codex", "activity_collector_claude", "activity_archive", "activity_scheduler", "activity_delivery"];
+const summaryFields = ["timezone", "metric", "recordedDays", "firstDate", "lastDate", "total", "lastAttemptAt", "lastSuccessAt", "lastResult", "freshness"];
+
+function closed(value: unknown, required: readonly string[], optional: readonly string[] = []): value is ObjectValue {
+  return object(value) && required.every(key => Object.hasOwn(value, key))
+    && Object.keys(value).every(key => required.includes(key) || optional.includes(key));
+}
 const sourceMetadata = {
   github: { timezone: "GitHub", metric: "contributions" },
   codex: { timezone: "Codex", metric: "tokens" },
@@ -121,6 +128,17 @@ function realDate(value: unknown): value is string {
   return month >= 1 && month <= 12 && day >= 1 && day <= limit;
 }
 
+// Keep the producer's supported date-only and explicit-offset ISO forms.
+// Calendar/time bounds are checked directly; Date.parse can roll bad dates.
+function timestamp(value: unknown): boolean {
+  if (realDate(value)) return true;
+  if (typeof value !== "string") return false;
+  const parts = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-](\d{2}):(\d{2}))$/.exec(value);
+  return parts !== null && realDate(parts[1]) && Number(parts[2]) < 24 && Number(parts[3]) < 60
+    && (parts[4] === undefined || Number(parts[4]) < 60)
+    && (parts[6] === "Z" || Number(parts[7]) < 24 && Number(parts[8]) < 60);
+}
+
 function sourceSet(value: unknown): value is Record<SourceId, unknown> {
   return object(value) && Object.keys(value).length === SOURCES.length && SOURCES.every(id => Object.hasOwn(value, id));
 }
@@ -129,7 +147,7 @@ function recordedDays(value: unknown): value is Day[] {
   if (!Array.isArray(value)) return false;
   let previous = "", total = 0;
   for (const day of value) {
-    if (!object(day) || !realDate(day.date) || day.date <= previous || !natural(day.value)) return false;
+    if (!closed(day, ["date", "value"]) || !realDate(day.date) || day.date <= previous || !natural(day.value)) return false;
     total += day.value;
     if (!Number.isSafeInteger(total)) return false;
     previous = day.date;
@@ -137,16 +155,16 @@ function recordedDays(value: unknown): value is Day[] {
   return true;
 }
 
-const validError = (value: unknown): value is StructuredError => object(value)
-  && inList(value.code, errorCodes) && typeof value.component === "string" && typeof value.retryable === "boolean";
+const validError = (value: unknown): value is StructuredError => closed(value, ["code", "component", "retryable"])
+  && inList(value.code, errorCodes) && inList(value.component, componentIds) && typeof value.retryable === "boolean";
 
 function summary(value: unknown, id: SourceId): boolean {
-  return object(value) && value.timezone === sourceMetadata[id].timezone
+  return closed(value, summaryFields) && value.timezone === sourceMetadata[id].timezone
     && value.metric === sourceMetadata[id].metric && natural(value.recordedDays)
     && (value.recordedDays === 0 ? value.firstDate === null && value.lastDate === null
       : realDate(value.firstDate) && realDate(value.lastDate) && value.firstDate <= value.lastDate)
     && typeof value.total === "string" && /^(0|[1-9][0-9]*)$/.test(value.total)
-    && nullableText(value.lastAttemptAt) && nullableText(value.lastSuccessAt)
+    && nullableTimestamp(value.lastAttemptAt) && nullableTimestamp(value.lastSuccessAt)
     && inList(value.lastResult, ["unknown", "success", "failed"])
     && inList(value.freshness, ["no_data", "fresh", "stale", "failed"]);
 }
@@ -154,36 +172,38 @@ function summary(value: unknown, id: SourceId): boolean {
 /** Reject malformed replies before they can crash a shared desktop surface. */
 function validReply(reply: ObjectValue, kind: string): boolean {
   if (kind === "activity_overview") {
+    if (!closed(reply, ["schemaVersion", "kind", "sources", "schedule", "delivery", "health"], ["generatedAt", "producer", "pending"])
+      || (reply.generatedAt !== undefined && !nullableTimestamp(reply.generatedAt))) return false;
     const sources = reply.sources;
     if (!sourceSet(sources) || !SOURCES.every(id => summary(sources[id], id))) return false;
     const s = reply.schedule, d = reply.delivery;
-    if (!object(s) || !inList(s.mode, modes) || !nullableText(s.nextTriggerAt)
-      || (s.task != null && (!object(s.task) || typeof s.task.registered !== "boolean" || !(s.task.enabled === null || typeof s.task.enabled === "boolean")))) return false;
-    if (!object(d) || !(d.pendingSequence === null || natural(d.pendingSequence))
-      || !nullableText(d.lastTransportAt) || !nullableText(d.publicationObservedAt)
+    if (!closed(s, ["mode", "nextTriggerAt"], ["task"]) || !inList(s.mode, modes) || !nullableTimestamp(s.nextTriggerAt)
+      || (s.task != null && (!closed(s.task, ["registered", "enabled"]) || typeof s.task.registered !== "boolean" || !(s.task.enabled === null || typeof s.task.enabled === "boolean")))) return false;
+    if (!closed(d, ["pendingSequence", "lastTransportAt", "publicationObservedAt", "publicHash", "state"]) || !(d.pendingSequence === null || natural(d.pendingSequence))
+      || !nullableTimestamp(d.lastTransportAt) || !nullableTimestamp(d.publicationObservedAt)
       || !(d.publicHash === null || hash(d.publicHash))
       || !inList(d.state, ["unconfigured", "idle", "pending", "transported", "observed", "unverified", "paused"])) return false;
-    if (reply.producer != null && (!object(reply.producer) || !inList(reply.producer.mode, ["sandbox", "production"])
+    if (reply.producer != null && (!closed(reply.producer, ["mode", "deliveryEnabled", "paused", "highestReserved"]) || !inList(reply.producer.mode, ["sandbox", "production"])
       || typeof reply.producer.paused !== "boolean" || typeof reply.producer.deliveryEnabled !== "boolean" || !natural(reply.producer.highestReserved))) return false;
-    if (reply.pending != null && (!object(reply.pending) || !natural(reply.pending.sequence)
+    if (reply.pending != null && (!closed(reply.pending, ["sequence", "createdAt", "ageSeconds", "exactSha256", "failureCount", "nextEligibleAt", "lastErrorCode"]) || !natural(reply.pending.sequence)
       || !natural(reply.pending.failureCount) || !hash(reply.pending.exactSha256) || !natural(reply.pending.ageSeconds)
-      || !nullableText(reply.pending.createdAt) || !nullableText(reply.pending.nextEligibleAt)
+      || !nullableTimestamp(reply.pending.createdAt) || !nullableTimestamp(reply.pending.nextEligibleAt)
       || !(reply.pending.lastErrorCode === null || inList(reply.pending.lastErrorCode, errorCodes)))) return false;
-    return Array.isArray(reply.health) && reply.health.every(h => object(h) && typeof h.id === "string"
+    return Array.isArray(reply.health) && reply.health.every(h => closed(h, ["id", "state", "mode", "observedAt", "lastSuccessAt", "ageSeconds"]) && inList(h.id, componentIds)
       && inList(h.state, ["healthy", "degraded", "unavailable", "recovering"]) && inList(h.mode, modes)
-      && nullableText(h.observedAt) && nullableText(h.lastSuccessAt) && (h.ageSeconds === null || natural(h.ageSeconds)));
+      && nullableTimestamp(h.observedAt) && nullableTimestamp(h.lastSuccessAt) && (h.ageSeconds === null || natural(h.ageSeconds)));
   }
   if (kind === "activity_public_preview") {
     const data = reply.data;
-    if (!hash(reply.sha256) || !object(data) || data.version !== 1 || !sourceSet(data.sources)) return false;
+    if (!closed(reply, ["schemaVersion", "kind", "data", "sha256"]) || !hash(reply.sha256) || !closed(data, ["version", "sources"]) || data.version !== 1 || !sourceSet(data.sources)) return false;
     const sources = data.sources;
     return SOURCES.every(id => {
       const s = sources[id];
-      return s === null || (object(s) && typeof s.updatedAt === "string" && s.timezone === sourceMetadata[id].timezone
+      return s === null || (closed(s, ["updatedAt", "timezone", "metric", "days"]) && timestamp(s.updatedAt) && s.timezone === sourceMetadata[id].timezone
         && s.metric === sourceMetadata[id].metric && recordedDays(s.days));
     });
   }
-  if (kind === "activity_days") return inList(reply.source, SOURCES) && recordedDays(reply.days);
+  if (kind === "activity_days") return closed(reply, ["schemaVersion", "kind", "source", "days"]) && inList(reply.source, SOURCES) && recordedDays(reply.days);
   if (kind === "activity_pause_acknowledged") return typeof reply.paused === "boolean";
   if (kind === "activity_run_accepted") return typeof reply.runId === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(reply.runId);
   if (kind === "activity_run_status") return typeof reply.runId === "string"
@@ -197,7 +217,7 @@ async function request<T>(operation: string, fields: Record<string, unknown>, ki
   const invalid = () => new ActivityError({ code: "contract_invalid", component: "activity_archive", retryable: false });
   if (!object(reply) || reply.schemaVersion !== 1) throw invalid();
   if (reply.kind === "activity_error") {
-    if (!validError(reply.error)) throw invalid();
+    if (!closed(reply, ["schemaVersion", "kind", "error"]) || !validError(reply.error)) throw invalid();
     throw new ActivityError(reply.error);
   }
   if (reply.kind !== kind || !validReply(reply, kind)) throw invalid();

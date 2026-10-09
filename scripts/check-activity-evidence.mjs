@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 28);
+  assert.equal(reports.size, 29);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -444,6 +444,33 @@ function validate(index) {
   assert.equal(sourceContract.beforeDesktopSha256,nextTrigger.desktopSha256);
   for(const digest of [sourceContract.desktopSha256,sourceContract.installerSha256,sourceContract.harnessSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   assert(sourceContract.limitations.includes('Invalid replies are modeled only in the owned page; each restoration uses the actual installed runner.'));
+  const exportContract=reports.get('export_contract').report;
+  assert.equal(exportContract.scope,'native_activity_export_field_boundary');
+  const exportNative=readLinked(exportContract.nativeReport,exportContract.nativeReportSha256);
+  const exportBefore=readLinked(exportContract.beforeReport,exportContract.beforeReportSha256);
+  const exportIntermediate=readLinked(exportContract.intermediateReport,exportContract.intermediateReportSha256);
+  assert.equal(exportNative.summary,'36/36');
+  assert.equal(exportNative.checks.length,36);
+  assert(exportNative.checks.every(c=>c.ok===true));
+  assert.equal(exportContract.nativeSummary,exportNative.summary);
+  assert.equal(exportContract.processExitCode,0);
+  assert.equal(exportBefore.summary,'20/36');
+  assert.equal(exportContract.beforeSummary,exportBefore.summary);
+  assert.equal(exportContract.beforeProcessExitCode,1);
+  assert.deepEqual(exportBefore.checks.map(c=>c.id),exportNative.checks.map(c=>c.id));
+  assert.equal(exportBefore.checks.filter(c=>!c.ok).length,16);
+  assert(exportBefore.checks.filter(c=>!c.ok).every(c=>c.id.startsWith('X.rejects_')||['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview'].includes(c.id)));
+  assert.equal(exportIntermediate.summary,'28/29');
+  assert.equal(exportContract.intermediateSummary,exportIntermediate.summary);
+  assert.deepEqual(exportIntermediate.checks.filter(c=>!c.ok).map(c=>c.id),['run']);
+  assert.deepEqual(exportContract.checks,exportNative.checks.map(c=>c.id));
+  assert.deepEqual(exportContract.frontendBefore,{tests:45,passed:42,failed:3});
+  assert.deepEqual(exportContract.frontendAfter,{tests:45,passed:45,failed:0});
+  assert.equal(exportContract.beforeDesktopSha256,sourceContract.desktopSha256);
+  assert.equal(exportContract.memoryRevision,isolation.memoryRevision);
+  assert.equal(exportContract.runnerSha256,guidance.runnerSha256);
+  for(const digest of [exportContract.desktopSha256,exportContract.installerSha256,exportContract.harnessSha256,exportContract.beforeHarnessSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(exportContract.limitations.includes('The page clipboard write is intercepted in memory; the system clipboard is never changed.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -479,10 +506,13 @@ function validate(index) {
   assert(nextTrigger.checks.every(id=>linkedTo(c17,'next_trigger').includes(id)),'C17 must retain observed task time and read-only scheduler evidence');
   assert(timed.checks.every(id=>linkedTo(c17,'timed_trigger').includes(id)),'C17 must retain actual time-trigger and pending preservation evidence');
   assert(sourceContract.checks.every(id=>linkedTo(c17,'source_contract').includes(id)),'C17 must retain strict source semantics and real-read recovery evidence');
+  assert(exportContract.checks.every(id=>linkedTo(c17,'export_contract').includes(id)),'C17 must retain export field refusals and actual recovery evidence');
+  const c10=index.cases.find(c=>c.id==='C10');
+  assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 18, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 19, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -516,7 +546,9 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'next_trigger'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'timed_trigger'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'source_contract'));
-  result.negativeChecks = 27;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'export_contract'));
+  reject(x => x.cases.find(c => c.id === 'C10').evidence = x.cases.find(c => c.id === 'C10').evidence.filter(e => e.report !== 'export_contract'));
+  result.negativeChecks = 29;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

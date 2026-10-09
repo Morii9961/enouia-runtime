@@ -134,3 +134,57 @@ test('Activity overview date ranges and the public source set stay canonical', a
   recorder(() => p);
   await assert.rejects(activity.preview(), e => e.error.code === 'contract_invalid');
 });
+
+test('diagnostic and payload replies reject extra fields at every exported boundary', async () => {
+  const marker = 'SYNTHETIC_PRIVATE_MARKER';
+  const overviewCases = [
+    o => o.rawConfig = marker,
+    o => o.sources.github.rawTitle = marker,
+    o => o.schedule.configPath = marker,
+    o => o.schedule.task.rawXml = marker,
+    o => o.delivery.rawStderr = marker,
+    o => o.producer.environment = marker,
+    o => o.health.push({ id: 'activity_archive', state: 'healthy', mode: 'idle', observedAt: null, lastSuccessAt: null, ageSeconds: null, privatePath: marker }),
+  ];
+  const pending = { sequence: 1, createdAt: null, ageSeconds: 0, exactSha256: 'b'.repeat(64), failureCount: 0, nextEligibleAt: null, lastErrorCode: null };
+  overviewCases.push(o => o.pending = { ...pending, rawReceipt: marker });
+  for (const mutate of overviewCases) {
+    const o = overview(); mutate(o); recorder(() => o);
+    await assert.rejects(activity.overview(), e => e.error.code === 'contract_invalid' && !describe(e).includes(marker));
+  }
+  for (const mutate of [p => p.rawConfig = marker, p => p.data.privatePath = marker,
+    p => p.data.sources.github.rawReport = marker, p => p.data.sources.github.days[0].rawTitle = marker]) {
+    const p = preview(); mutate(p); recorder(() => p);
+    await assert.rejects(activity.preview(), e => e.error.code === 'contract_invalid');
+  }
+  recorder(() => ({ schemaVersion: 1, kind: 'activity_days', source: 'github', days: [], privatePath: marker }));
+  await assert.rejects(activity.days('github', '2026-01-01', '2026-12-31'), e => e.error.code === 'contract_invalid');
+});
+
+test('exported time and component fields cannot carry raw text', async () => {
+  const marker = 'C:/synthetic-private/config.json';
+  for (const mutate of [o => o.generatedAt = marker, o => o.sources.codex.lastSuccessAt = marker,
+    o => o.schedule.nextTriggerAt = marker, o => o.delivery.lastTransportAt = marker,
+    o => o.health.push({ id: marker, state: 'healthy', mode: 'idle', observedAt: null, lastSuccessAt: null, ageSeconds: null })]) {
+    const o = overview(); mutate(o); recorder(() => o);
+    await assert.rejects(activity.overview(), e => e.error.code === 'contract_invalid');
+  }
+  const p = preview(); p.data.sources.github.updatedAt = marker; recorder(() => p);
+  await assert.rejects(activity.preview(), e => e.error.code === 'contract_invalid');
+  for (const error of [{ code: 'busy', component: marker, retryable: true },
+    { code: 'busy', component: 'activity_archive', retryable: true, rawStderr: marker }]) {
+    recorder(() => ({ schemaVersion: 1, kind: 'activity_error', error }));
+    await assert.rejects(activity.overview(), e => e.error.code === 'contract_invalid');
+  }
+});
+
+test('supported dates and explicit-offset times remain valid without host-zone parsing', async () => {
+  for (const time of ['2024-02-29', '2026-10-08T00:00Z', '2026-10-08T08:00:00+08:00', '2026-10-08T00:00:00.123456Z']) {
+    const p = preview(); p.data.sources.github.updatedAt = time; recorder(() => p);
+    assert.equal((await activity.preview()).data.sources.github.updatedAt, time);
+  }
+  for (const time of ['2026-02-30T00:00:00Z', '2026-10-08T24:00:00Z', '2026-10-08T00:00:00+24:00', '2026-10-08T00:00:00', 'Thu, 08 Oct 2026 00:00:00 GMT']) {
+    const p = preview(); p.data.sources.github.updatedAt = time; recorder(() => p);
+    await assert.rejects(activity.preview(), e => e.error.code === 'contract_invalid');
+  }
+});
