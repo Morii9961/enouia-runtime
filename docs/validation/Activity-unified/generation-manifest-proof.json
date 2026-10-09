@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_selected_manifest_read_denial",
+  "checks": [
+    "GM.synthetic_selected_manifest_read_is_denied",
+    "GM.selected_manifest_really_refuses_read",
+    "GM.current_pointer_stays_readable_and_exact",
+    "GM.actual_pause_refuses_unreadable_selected_generation",
+    "GM.actual_activity_reads_report_storage_failure",
+    "GM.actual_failure_reaches_activity_page",
+    "GM.unreadable_generation_disables_mutating_controls",
+    "GM.read_failure_never_rewrites_current_pointer",
+    "GM.memory_list_and_search_survive_activity_read_failure",
+    "GM.memory_surface_survives_actual_activity_failure",
+    "GM.failure_preserves_canonical_vault",
+    "GM.original_security_descriptor_is_restored",
+    "GM.release_preserves_selected_manifest_bytes",
+    "GM.failure_preserves_complete_activity_store",
+    "GM.release_restores_exact_public_history",
+    "GM.recovery_preserves_canonical_vault"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/generation-manifest-native.json",
+  "nativeReportSha256": "759fdd324ce6b96f2cacfe2a97d4cf9586f43451d80b1efeffd4c5557b777344",
+  "nativeSummary": "51/51",
+  "processExitCode": 0,
+  "desktopSha256": "cfdd59dcbbb88faef85aa572b7522771f0e5ecc582fa934fea592fc4c82dd2f7",
+  "installerSha256": "1ca0a78c246a2bd39e98b2fc02d8c5b85e3693ae820cf41a058674110023d106",
+  "harnessSha256": "5fc3865d08e1ff5ce6d313df0e1b5d368d249c6ee9a8895d9b5819f912ec7a2e",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "reusedFrontendTests": 57,
+  "reusedHostTests": 34,
+  "reusedCoreTests": 3,
+  "limitations": [
+    "Actual current-user ReadData denial applies only to the exact selected synthetic generation manifest; parent, CURRENT and Vault permissions are unchanged.",
+    "A direct manifest read genuinely refuses access while CURRENT remains readable and byte-identical; actual overview/preview and pause refuse with storage_failed.",
+    "The actual Activity page clears source cards and disables mutation controls while Memory list/search/page remain available.",
+    "Full original security descriptor is restored and compared; manifest bytes, complete Activity tree and canonical Vault remain exact before ordinary mutations resume.",
+    "The report includes ordinary actual-operation/Core-isolation and restart recovery; counts overlap and are not full acceptance.",
+    "Other read/write phases, disk-full, physical power loss, sustained stress and real-account/production gates remain unverified; B4/J1 partial and B5 inactive."
+  ]
+}
