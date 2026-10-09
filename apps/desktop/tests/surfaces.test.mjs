@@ -40,6 +40,23 @@ test('native Activity waiting and connection gate retain a labelled keyboard sur
   }
 });
 
+test('Activity distinguishes a connected but unsaved package choice', () => {
+  const html=renderToStaticMarkup(createElement(ActivityGate,{setup:{configured:true,mode:'sandbox',folder:'package',taskName:'Enouia-Activity-Test',saved:false},onSelect(){},error:null}));
+  assert.match(html,/Package connected for this window only/);
+  assert.match(html,/select it again after restarting/);
+  assert.doesNotMatch(html,/Retry forgetting package/);
+});
+
+test('Activity failed forgetting has a named retry while successful choices stay quiet', () => {
+  const props={onSelect(){},onClear(){},error:null};
+  const html=renderToStaticMarkup(createElement(ActivityGate,{...props,setup:{configured:false,saved:false},busy:true}));
+  assert.match(html,/The saved package choice could not be cleared/);
+  assert.match(html,/disabled=""[^>]*>Retry forgetting package/);
+  for(const setup of [{configured:false},{configured:false,saved:true}]) {
+    assert.doesNotMatch(renderToStaticMarkup(createElement(ActivityGate,{...props,setup})),/Retry forgetting package|could not be cleared|window only/);
+  }
+});
+
 test('recorded Activity days keep a compact default and an accessible full-history control', () => {
   const days = Array.from({ length: 16 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, value: i === 15 ? 0 : i }));
   const html = renderToStaticMarkup(createElement(RecordedDays, { id: 'github', days, total: 16 }));

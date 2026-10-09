@@ -1,0 +1,76 @@
+{
+  "checks": [
+    {
+      "id": "J.settings_fault_is_owned_empty_directory",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "J.mutations_are_intercepted_before_native_ipc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "J.native_selection_really_reports_saved_false",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "J.unsaved_connection_notice_is_visible",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "J.unsaved_selection_still_reads_three_sources",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "J.repeated_clicks_make_one_actual_clear",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "J.failed_clear_explains_saved_choice",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "J.failed_clear_has_named_retry",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "J.only_empty_owned_fault_directory_is_removed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "J.actual_retry_accepts_clear_after_recovery",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "J.retry_success_removes_failed_clear_feedback",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "J.native_reselection_really_reports_saved_true",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "J.saved_connection_removes_temporary_notice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "EISDIR: illegal operation on a directory, lstat 'C:'"
+    }
+  ],
+  "screenshots": [],
+  "summary": "7/14"
+}

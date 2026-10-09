@@ -1,0 +1,16 @@
+{
+  "checks": [
+    {
+      "id": "J.settings_fault_is_owned_empty_directory",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "no main page"
+    }
+  ],
+  "screenshots": [],
+  "summary": "1/2"
+}

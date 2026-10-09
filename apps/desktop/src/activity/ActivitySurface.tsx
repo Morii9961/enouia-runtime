@@ -25,7 +25,16 @@ function Tag({ tone, children }: { tone?: "ok" | "warn" | "muted"; children: Rea
   return <span className={`mem-tag${tone ? ` mem-tag-${tone}` : ""}`}>{children}</span>;
 }
 
-export function Gate({ setup, onSelect, error, busy = false }: { setup: Setup | null; onSelect: () => void; error: string | null; busy?: boolean }) {
+function PackageChoiceFeedback({ setup, onClear, busy = false }: { setup: Setup | null; onClear?: () => void; busy?: boolean }) {
+  if (!setup || !("saved" in setup) || setup.saved !== false) return null;
+  if (setup.configured === true) return <div role="status" className="mem-muted">Package connected for this window only. The choice could not be saved; select it again after restarting.</div>;
+  return <div className="mem-stack">
+    <div role="status" className="mem-muted">The saved package choice could not be cleared. It may reconnect after restarting.</div>
+    {onClear && <div className="mem-actions"><button type="button" className="mem-button" disabled={busy} onClick={onClear}>Retry forgetting package</button></div>}
+  </div>;
+}
+
+export function Gate({ setup, onSelect, onClear, error, busy = false }: { setup: Setup | null; onSelect: () => void; onClear?: () => void; error: string | null; busy?: boolean }) {
   return (
     <section className="mem-gate mem-stack" data-screen-label="Activity" aria-labelledby="act-connect">
       <h1 id="act-connect" className="mem-h2">Connect the installed Activity producer</h1>
@@ -37,8 +46,8 @@ export function Gate({ setup, onSelect, error, busy = false }: { setup: Setup | 
       {error && <div role="alert" className="mem-error">{error}</div>}
       <div className="mem-actions">
         <button type="button" className="mem-button mem-primary" disabled={busy} onClick={onSelect}>Choose installed package…</button>
-        {setup?.configured === false && setup.saved === false && <span className="mem-muted">The choice could not be saved.</span>}
       </div>
+      <PackageChoiceFeedback setup={setup} onClear={onClear} busy={busy} />
     </section>
   );
 }
@@ -282,8 +291,13 @@ export default function ActivitySurface() {
   };
 
   const changePackage = async () => {
+    if (actionPending.current) return;
+    actionPending.current = true;
+    setActing(true);
+    setSetupError(null);
     try { replaceSetup(await activity.setup("clear")); }
-    catch (err) { setFailure({ text: describe(err) }); }
+    catch (err) { setSetupError(describe(err)); setFailure({ text: describe(err) }); }
+    finally { actionPending.current = false; setActing(false); }
   };
 
   const act = async (action: () => Promise<{ runId: string } | { paused: boolean }>) => {
@@ -332,7 +346,7 @@ export default function ActivitySurface() {
   };
 
   if (setup === null) return <section data-screen-label="Activity" className="mem-pad" aria-labelledby="act-check"><h1 id="act-check" className="qr18">Activity &amp; Usage</h1><p role="status" className="mem-muted">Checking the Activity package…</p></section>;
-  if (setup.configured !== true) return <Gate setup={setup} onSelect={() => void select()} error={setupError} busy={acting} />;
+  if (setup.configured !== true) return <Gate setup={setup} onSelect={() => void select()} onClear={() => void changePackage()} error={setupError} busy={acting} />;
 
   const asOf = dateInShanghai();
   const running = run !== null && ACTIVE_STAGES.includes(run.stage);
@@ -349,6 +363,8 @@ export default function ActivitySurface() {
           {overview?.generatedAt && <span className="mem-muted">Updated {when(overview.generatedAt)}</span>}
         </div>
       </header>
+
+      <PackageChoiceFeedback setup={setup} />
 
       <div className="mem-actions act-actions" role="group" aria-label="Activity actions">
         <button type="button" className="mem-button mem-primary" disabled={acting || running || !overview || paused} onClick={runNow}>Run now</button>

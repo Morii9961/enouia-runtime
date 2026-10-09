@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -65,6 +65,13 @@ const check = (id, ok, detail = '') => {
 };
 const settings = join(out, 'activity-install.json');
 let currentApp;
+let settingsDirectoryFixture = false;
+
+function removeEmptySettingsFixture() {
+  if (!settingsDirectoryFixture) throw Error('Settings directory is not an owned fixture');
+  if(realpathSync(settings)!==join(realpathSync(out),'activity-install.json')||readdirSync(settings).length!==0)throw Error('Settings fixture must be contained and empty');
+  rmdirSync(settings);settingsDirectoryFixture=false;
+}
 
 function launch(extra = []) {
   const child = spawn(exe, ['--activity-settings', settings, ...extra], {
@@ -619,6 +626,56 @@ async function setupContractMain() {
   check('Z.actual_reselection_recovers',readFileSync(settings,'utf8')===savedBefore);
   check('Z.setup_flow_preserves_complete_store',fixtureTree(manifest.dataRoot)===before);
   await shot(s,'01-setup-recovered');s.close();app.kill();await app.exited;
+}
+
+// An empty owned directory at the file path actually refuses native writes
+// and removal. It contains no personal config and is removed without recursion.
+async function choiceSaveMain() {
+  if(existsSync(settings))throw Error('Choice-save output requires an absent settings path');
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Choice-save acceptance requires contained synthetic data');
+  const before=fixtureTree(manifest.dataRoot);mkdirSync(settings);settingsDirectoryFixture=true;
+  check('J.settings_fault_is_owned_empty_directory',readdirSync(settings).length===0);
+  let app=launch(),s=await connect();
+  await s.evaluate(`(()=>{const real=window.fetch,setupUrl=window.__TAURI_INTERNALS__.convertFileSrc('activity_setup','ipc'),callUrl=window.__TAURI_INTERNALS__.convertFileSrc('activity_call','ipc');window.__choiceReplies=[];window.__choiceClearCount=0;window.__choiceMutations=0;
+    window.fetch=async(url,options)=>{const args=(url===setupUrl||url===callUrl)?JSON.parse(options.body):null;
+      if(url===callUrl&&['activity_run_now','activity_retry_pending','activity_set_paused'].includes(args.request.operation)){window.__choiceMutations++;return new Response(JSON.stringify({schemaVersion:1,kind:'activity_error',error:{code:'unconfigured',component:'activity_archive',retryable:false}}),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});}
+      if(url===setupUrl&&args.action==='clear')window.__choiceClearCount++;
+      const response=await real(url,options);if(url===setupUrl){const reply=await response.clone().json();window.__choiceReplies.push({action:args.action,saved:reply.saved,configured:reply.configured});if(args.action==='clear')await new Promise(r=>setTimeout(r,600));}return response;};return true;})()`);
+  const probe=await call(s,{operation:'activity_run_now'});
+  if(probe.kind!=='activity_error'||await s.evaluate('window.__choiceMutations')!==1)throw Error('Choice-save mutations must be intercepted');
+  check('J.mutations_are_intercepted_before_native_ipc',true);
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,has('Connect the installed Activity producer'),'choice-save gate');
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'unsaved connected package');
+  check('J.native_selection_really_reports_saved_false',await s.evaluate("window.__choiceReplies.some(r=>r.action==='select'&&r.configured===true&&r.saved===false)"));
+  check('J.unsaved_connection_notice_is_visible',await s.evaluate(has('Package connected for this window only'))&&await s.evaluate(has('select it again after restarting')));
+  check('J.unsaved_selection_still_reads_three_sources',await s.evaluate("document.querySelectorAll('.act-source').length===3"));
+  await s.evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Change package');b.click();b.click();return true;})()");
+  await waitFor(s,has('Connect the installed Activity producer'),'failed clear gate');await sleep(250);
+  check('J.repeated_clicks_make_one_actual_clear',await s.evaluate("window.__choiceClearCount===1&&window.__choiceReplies.some(r=>r.action==='clear'&&r.configured===false&&r.saved===false)"));
+  check('J.failed_clear_explains_saved_choice',await s.evaluate(has('The saved package choice could not be cleared')));
+  const retryVisible=await s.evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Retry forgetting package'&&!b.disabled)");
+  check('J.failed_clear_has_named_retry',retryVisible);
+  removeEmptySettingsFixture();check('J.only_empty_owned_fault_directory_is_removed',!existsSync(settings));
+  if(retryVisible){await press(s,'Retry forgetting package');await waitFor(s,"window.__choiceReplies.some(r=>r.action==='clear'&&r.saved===true)",'actual clear recovery');await sleep(800);}
+  check('J.actual_retry_accepts_clear_after_recovery',retryVisible&&await s.evaluate("window.__choiceReplies.some(r=>r.action==='clear'&&r.saved===true)"));
+  check('J.retry_success_removes_failed_clear_feedback',retryVisible&&!(await s.evaluate(has('The saved package choice could not be cleared')))&&!(await s.evaluate(has('Retry forgetting package'))));
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'saved reselection');
+  check('J.native_reselection_really_reports_saved_true',await s.evaluate("window.__choiceReplies.some(r=>r.action==='select'&&r.configured===true&&r.saved===true)"));
+  check('J.saved_connection_removes_temporary_notice',!(await s.evaluate(has('Package connected for this window only'))));
+  const savedRoot=JSON.parse(readFileSync(settings,'utf8')).installRoot;
+  // Rust stores a verbatim Windows path. Compare its normalized native form
+  // without Node's realpath walker treating a verbatim drive as an entry.
+  const comparableRoot=typeof savedRoot==='string'&&savedRoot.startsWith('\\\\?\\')?savedRoot.slice(4):savedRoot;
+  check('J.recovered_choice_is_a_settings_file',typeof comparableRoot==='string'&&isAbsolute(comparableRoot)&&resolve(comparableRoot).toLowerCase()===realpathSync(pkg).toLowerCase());
+  await shot(s,'01-choice-save-recovered');s.close();app.kill();await app.exited;
+  app=launch();s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'recovered choice restart');
+  check('J.restart_reads_recovered_saved_choice',true);
+  check('J.complete_activity_store_is_unchanged',fixtureTree(manifest.dataRoot)===before);
+  s.close();app.kill();await app.exited;
 }
 
 async function readContractMain(exportContract = false) {
@@ -1276,6 +1333,7 @@ try {
   if (taskMode) await taskReadMain(mode === '--task-enabled');
   else if (mode === '--confirmation') await confirmationMain();
   else if (mode === '--setup-contract') await setupContractMain();
+  else if (mode === '--choice-save') await choiceSaveMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();
@@ -1289,7 +1347,8 @@ try {
   check('run', false, String(err.message ?? err));
 } finally {
   for (const child of children) child.kill();
-  rmSync(settings, { force: true });
+  if(settingsDirectoryFixture)removeEmptySettingsFixture();
+  else rmSync(settings, { force: true });
   const passed = report.checks.filter((c) => c.ok).length;
   report.summary = `${passed}/${report.checks.length}`;
   writeFileSync(join(out, 'report.json'), JSON.stringify(report, null, 2));

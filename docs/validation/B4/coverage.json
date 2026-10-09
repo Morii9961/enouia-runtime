@@ -269,6 +269,13 @@
       "sha256": "ed1bc41b2ca64bb0a13e9eb2c4af1ddfa7c8ab5d6eec807ff261ae19a9216a45",
       "state": "passed",
       "selectorCount": 34
+    },
+    {
+      "id": "choice_save",
+      "path": "docs/validation/Activity-unified/choice-save-proof.json",
+      "sha256": "1b81278a80582ee33d2c609bebc757e67ce5878e84d433d50652c3a4c4b81786",
+      "state": "passed",
+      "selectorCount": 16
     }
   ],
   "cases": [
@@ -1209,6 +1216,27 @@
             "Z.actual_clear_removes_owned_choice",
             "Z.actual_reselection_recovers",
             "Z.setup_flow_preserves_complete_store"
+          ]
+        },
+        {
+          "report": "choice_save",
+          "selectors": [
+            "J.settings_fault_is_owned_empty_directory",
+            "J.mutations_are_intercepted_before_native_ipc",
+            "J.native_selection_really_reports_saved_false",
+            "J.unsaved_connection_notice_is_visible",
+            "J.unsaved_selection_still_reads_three_sources",
+            "J.repeated_clicks_make_one_actual_clear",
+            "J.failed_clear_explains_saved_choice",
+            "J.failed_clear_has_named_retry",
+            "J.only_empty_owned_fault_directory_is_removed",
+            "J.actual_retry_accepts_clear_after_recovery",
+            "J.retry_success_removes_failed_clear_feedback",
+            "J.native_reselection_really_reports_saved_true",
+            "J.saved_connection_removes_temporary_notice",
+            "J.recovered_choice_is_a_settings_file",
+            "J.restart_reads_recovered_saved_choice",
+            "J.complete_activity_store_is_unchanged"
           ]
         }
       ],

@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 38);
+  assert.equal(reports.size, 39);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -669,6 +669,30 @@ function validate(index) {
   assert.equal(setupContract.memoryRevision,isolation.memoryRevision);
   for(const digest of [setupContract.desktopSha256,setupContract.installerSha256,setupContract.harnessSha256])assert.match(digest,/^[a-f0-9]{64}$/);
   assert(setupContract.limitations.includes('Malformed status replies are modeled in the owned page before native IPC; all producer mutations are intercepted.'));
+  const choiceSave=reports.get('choice_save').report;
+  assert.equal(choiceSave.scope,'isolated_actual_activity_choice_save_failure');
+  const choiceRaw={};
+  for(const[name,total]of Object.entries({first:'9/16',intermediate:'7/14',before:'10/16',startup:'1/2',native:'16/16',actions:'35/35'})){
+    const raw=readLinked(choiceSave[name+'Report'],choiceSave[name+'ReportSha256']);choiceRaw[name]=raw;
+    assert.equal(raw.summary,total);assert.equal(choiceSave[name+'Summary'],total);
+  }
+  assert.equal(choiceRaw.native.checks.length,16);
+  assert(choiceRaw.native.checks.every(c=>c.ok===true));
+  assert.deepEqual(choiceSave.checks,choiceRaw.native.checks.map(c=>c.id));
+  assert.deepEqual(choiceRaw.before.checks.filter(c=>!c.ok).map(c=>c.id),['J.unsaved_connection_notice_is_visible','J.repeated_clicks_make_one_actual_clear','J.failed_clear_explains_saved_choice','J.failed_clear_has_named_retry','J.actual_retry_accepts_clear_after_recovery','J.retry_success_removes_failed_clear_feedback']);
+  assert(choiceRaw.first.checks.some(c=>c.id==='J.recovered_choice_is_a_settings_file'&&c.ok===false));
+  assert(choiceRaw.intermediate.checks.some(c=>c.id==='run'&&c.ok===false&&c.detail.startsWith('EISDIR:')));
+  assert.deepEqual(choiceRaw.startup.checks.filter(c=>!c.ok),[{id:'run',ok:false,detail:'no main page'}]);
+  assert.equal(choiceRaw.actions.checks.length,35);
+  assert(choiceRaw.actions.checks.every(c=>c.ok===true));
+  assert.deepEqual(choiceSave.frontendBefore,{tests:55,passed:53,failed:2});
+  assert.deepEqual(choiceSave.frontendAfter,{tests:55,passed:55,failed:0});
+  assert.equal(choiceSave.processExitCode,0);
+  assert.equal(choiceSave.beforeDesktopSha256,setupContract.desktopSha256);
+  assert.equal(choiceSave.runnerSha256,guidance.runnerSha256);
+  assert.equal(choiceSave.memoryRevision,isolation.memoryRevision);
+  for(const digest of [choiceSave.desktopSha256,choiceSave.installerSha256,choiceSave.harnessSha256])assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(choiceSave.limitations.includes('Save/clear failures are actual native filesystem errors against an owned empty synthetic settings directory.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -714,6 +738,7 @@ function validate(index) {
   assert(readAcl.checks.every(id=>linkedTo(c17,'activity_read_acl').includes(id)),'C17 must retain actual read ACL denial, descriptor restoration and Memory independence');
   assert(writeAcl.checks.every(id=>linkedTo(c17,'generation_write_acl').includes(id)),'C17 must retain actual pre-staging write denial, no failed commit and successful recovery');
   assert(setupContract.checks.every(id=>linkedTo(c17,'setup_contract').includes(id)),'C17 must retain setup refusals and actual selection recovery');
+  assert(choiceSave.checks.every(id=>linkedTo(c17,'choice_save').includes(id)),'C17 must retain actual choice persistence failures and recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -721,7 +746,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 28, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 29, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -768,7 +793,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'generation_write_acl'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_contract'));
   reject(x => x.cases.find(c => c.id === 'C10').evidence = x.cases.find(c => c.id === 'C10').evidence.filter(e => e.report !== 'setup_contract'));
-  result.negativeChecks = 40;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'choice_save'));
+  result.negativeChecks = 41;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
