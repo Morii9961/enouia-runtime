@@ -43,6 +43,24 @@ export function Gate({ setup, onSelect, error, busy = false }: { setup: Setup | 
   );
 }
 
+export function RunStatusCard({ run }: { run: RunStatus }) {
+  const state = run.summary?.state;
+  const label = typeof state === "string"
+    ? Object.hasOwn(RUN_STATES, state) ? RUN_STATES[state] : "Run outcome unavailable"
+    : null;
+  const count = run.summary?.sourceFailures;
+  const sourceFailures = typeof count === "number" && Number.isInteger(count) && count >= 0 && count <= SOURCES.length ? count : null;
+  return (
+    <div role="status" className={`act-run${run.stage === "failed" ? " act-run-failed" : ""}`}>
+      <span>{run.operation === "activity_retry_pending" ? "Retry pending" : "Run now"}: {STAGES[run.stage] ?? run.stage}</span>
+      {label !== null
+        ? <span>{label}</span>
+        : run.error && <span className="mem-mono">{run.error.code}</span>}
+      {sourceFailures !== null && sourceFailures > 0 && <span>{sourceFailures} source(s) failed · history retained</span>}
+    </div>
+  );
+}
+
 export function RecordedDays({ id, days, total }: { id: SourceId; days: Day[]; total: number }) {
   const [allDays, setAllDays] = useState(false);
   const shown = allDays ? days.slice().reverse() : days.slice(-14).reverse();
@@ -349,15 +367,7 @@ export default function ActivitySurface() {
         </div>
       )}
 
-      {run && (
-        <div role="status" className={`act-run${run.stage === "failed" ? " act-run-failed" : ""}`}>
-          <span>{run.operation === "activity_retry_pending" ? "Retry pending" : "Run now"}: {STAGES[run.stage] ?? run.stage}</span>
-          {typeof run.summary?.state === "string"
-            ? <span>{RUN_STATES[run.summary.state] ?? run.summary.state}</span>
-            : run.error && <span className="mem-mono">{run.error.code}</span>}
-          {typeof run.summary?.sourceFailures === "number" && run.summary.sourceFailures > 0 && <span>{run.summary.sourceFailures} source(s) failed · history retained</span>}
-        </div>
-      )}
+      {run && <RunStatusCard run={run} />}
       {failure && (
         <div role="alert" className="mem-error">
           <span>{failure.text}</span>

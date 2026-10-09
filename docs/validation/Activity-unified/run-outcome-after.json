@@ -1,0 +1,116 @@
+{
+  "checks": [
+    {
+      "id": "U.mutations_are_intercepted_before_native_ipc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.actual_synthetic_package_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.private_state_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.private_state_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.future_state_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.future_state_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.constructor_state_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.constructor_state_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.prototype_state_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.prototype_state_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.fraction_count_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.fraction_count_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.excess_count_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.excess_count_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.unsafe_count_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.unsafe_count_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.negative_count_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.negative_count_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.valid_outcome_label_is_sanitized",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.valid_outcome_count_is_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.outcome_display_preserves_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "U.choice_is_cleared",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "22/22"
+}

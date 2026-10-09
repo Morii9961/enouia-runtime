@@ -23,7 +23,7 @@ const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx
 const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
-const { default: ActivitySurface, Gate: ActivityGate, StatusCards, RecordedDays } = await server.ssrLoadModule('/src/activity/ActivitySurface.tsx');
+const { default: ActivitySurface, Gate: ActivityGate, StatusCards, RecordedDays, RunStatusCard } = await server.ssrLoadModule('/src/activity/ActivitySurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
@@ -66,6 +66,28 @@ test('an unobserved scheduler never invents a next trigger or registration', () 
   const unknown = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
   assert.match(unknown, /enablement unknown/);
   assert.match(unknown, /observation time not recorded/);
+});
+
+test('unknown Activity outcome text stays private and prototype names get a stable fallback', () => {
+  for(const state of ['C:/SYNTHETIC_PRIVATE/config.json','future_outcome','constructor','toString']) {
+    const run={schemaVersion:1,kind:'activity_run_status',runId:'run-1',stage:'completed',error:null,summary:{state}};
+    const html=renderToStaticMarkup(createElement(RunStatusCard,{run}));
+    assert.match(html,/Run outcome unavailable/);
+    assert.doesNotMatch(html,/SYNTHETIC_PRIVATE|future_outcome/);
+  }
+});
+
+test('Activity outcome counts represent only whole failures among the three sources', () => {
+  for(const sourceFailures of [1.5,4,9007199254740992,-1,0]) {
+    const run={schemaVersion:1,kind:'activity_run_status',runId:'run-1',stage:'completed',error:null,summary:{state:'delivery_disabled',sourceFailures}};
+    const html=renderToStaticMarkup(createElement(RunStatusCard,{run}));
+    assert.match(html,/New batch kept locally/);
+    assert.doesNotMatch(html,/source\(s\) failed/);
+  }
+  for(const sourceFailures of [1,2,3]) {
+    const run={schemaVersion:1,kind:'activity_run_status',runId:'run-1',stage:'completed',error:null,summary:{state:'delivery_unresolved',sourceFailures}};
+    assert.match(renderToStaticMarkup(createElement(RunStatusCard,{run})),new RegExp(`${sourceFailures} source\\(s\\) failed`));
+  }
 });
 
 test('all seven demo surfaces render exactly one screen and disclose demo mode', () => {

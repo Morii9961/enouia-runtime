@@ -56,3 +56,5 @@ The [Activity read-failure isolation drill](../validation/Activity-read-failure-
 The [request/reply correlation fix](../validation/Activity-reply-correlation-2026-10-09.md) rejects mismatched run/source/date-range/pause replies and enforces the existing exact operation/status/acknowledgement records (48 frontend tests, 12/12 modeled native checks and a separate 35/35 actual-action rerun). The producer and Memory pin stay unchanged.
 
 The [run-query recovery fix](../validation/Activity-run-polling-2026-10-09.md) retries reads for the same accepted run after query failures and keeps all existing nonterminal protocol stages active. It never repeats the start mutation and ignores late replies after unmount (17/17 modeled native checks plus a fresh 35/35 actual-action run).
+
+The [run-outcome display fix](../validation/Activity-run-outcome-2026-10-09.md) renders unknown summary state strings through a fixed fallback and displays only valid whole source-failure counts among the three sources (50 frontend tests, 22/22 modeled native checks after 15/22 and a separate 35/35 actual-action run). It preserves the generic optional summary contract.

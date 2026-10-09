@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 34);
+  assert.equal(reports.size, 35);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -578,6 +578,33 @@ function validate(index) {
   const gaps=JSON.parse(lifecycleNative.checks.find(c=>c.id==='L.retry_delays_reach_thirty_second_ceiling').detail).gapsMs;
   assert.equal(gaps.length,6);
   assert(gaps.every((gap,i)=>gap>=[1000,2000,4000,8000,16000,30000][i]-100&&gap<=[1000,2000,4000,8000,16000,30000][i]+5000));
+  const outcome=reports.get('run_outcome').report;
+  assert.equal(outcome.scope,'native_activity_outcome_display_boundary');
+  const outcomeNative=readLinked(outcome.nativeReport,outcome.nativeReportSha256);
+  const outcomeBefore=readLinked(outcome.beforeReport,outcome.beforeReportSha256);
+  const outcomeActions=readLinked(outcome.actualActionsReport,outcome.actualActionsReportSha256);
+  assert.equal(outcomeNative.summary,'22/22');
+  assert.equal(outcome.nativeSummary,outcomeNative.summary);
+  assert.equal(outcomeNative.checks.length,22);
+  assert(outcomeNative.checks.every(c=>c.ok===true));
+  assert.deepEqual(outcome.checks,outcomeNative.checks.map(c=>c.id));
+  assert.equal(outcome.processExitCode,0);
+  assert.equal(outcomeBefore.summary,'15/22');
+  assert.equal(outcome.beforeSummary,outcomeBefore.summary);
+  assert.equal(outcome.beforeProcessExitCode,1);
+  assert.deepEqual(outcomeBefore.checks.map(c=>c.id),outcome.checks);
+  assert.deepEqual(outcomeBefore.checks.filter(c=>!c.ok).map(c=>c.id),[...['private_state','future_state','constructor_state','prototype_state'].map(id=>`U.${id}_label_is_sanitized`),...['fraction_count','excess_count','unsafe_count'].map(id=>`U.${id}_count_is_valid`)]);
+  assert.equal(outcomeActions.summary,'35/35');
+  assert.equal(outcome.actualActionsSummary,outcomeActions.summary);
+  assert.equal(outcomeActions.checks.length,35);
+  assert(outcomeActions.checks.every(c=>c.ok===true));
+  assert.deepEqual(outcome.frontendBefore,{tests:50,passed:48,failed:2});
+  assert.deepEqual(outcome.frontendAfter,{tests:50,passed:50,failed:0});
+  assert.equal(outcome.beforeDesktopSha256,polling.desktopSha256);
+  assert.equal(outcome.runnerSha256,guidance.runnerSha256);
+  assert.equal(outcome.memoryRevision,isolation.memoryRevision);
+  for(const digest of [outcome.desktopSha256,outcome.installerSha256,outcome.harnessSha256])assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(outcome.limitations.includes('Unknown outcome states and counts are modeled in the owned page; all starts and status replies are intercepted before native IPC.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -619,12 +646,14 @@ function validate(index) {
   assert(correlation.checks.every(id=>linkedTo(c17,'reply_correlation').includes(id)),'C17 must retain run/pause reply correlation and exact-field evidence');
   assert(polling.checks.every(id=>linkedTo(c17,'run_polling').includes(id)),'C17 must retain same-run read recovery and intermediate-stage tracking evidence');
   assert(lifecycle.checks.every(id=>linkedTo(c17,'poll_lifecycle').includes(id)),'C17 must retain measured backoff and unmount isolation');
+  assert(outcome.checks.every(id=>linkedTo(c17,'run_outcome').includes(id)),'C17 must retain bounded outcome rendering and normal recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
+  assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 24, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 25, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -665,7 +694,9 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_polling'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'poll_lifecycle'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'timed_hourly'));
-  result.negativeChecks = 34;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_outcome'));
+  reject(x => x.cases.find(c => c.id === 'C10').evidence = x.cases.find(c => c.id === 'C10').evidence.filter(e => e.report !== 'run_outcome'));
+  result.negativeChecks = 36;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

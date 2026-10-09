@@ -241,6 +241,13 @@
       "sha256": "4a6cc06155e2281ce1c6e31c51559dde800dbc96018c2f5fa62672d3f0942757",
       "state": "passed",
       "selectorCount": 27
+    },
+    {
+      "id": "run_outcome",
+      "path": "docs/validation/Activity-unified/run-outcome-proof.json",
+      "sha256": "6ce864d3d7fa1df7078eb167de6050a3bd8f61cee475bdbddd65c410559622cb",
+      "state": "passed",
+      "selectorCount": 22
     }
   ],
   "cases": [
@@ -529,6 +536,12 @@
             "X.private_extension_never_reaches_copy",
             "X.private_day_title_never_reaches_preview",
             "X.paths_stay_private"
+          ]
+        },
+        {
+          "report": "run_outcome",
+          "selectors": [
+            "U.private_state_label_is_sanitized"
           ]
         }
       ],
@@ -1060,6 +1073,33 @@
             "desktop_closed_after_timed_test",
             "uninstall_preserves_fixture",
             "owned_task_is_removed"
+          ]
+        },
+        {
+          "report": "run_outcome",
+          "selectors": [
+            "U.mutations_are_intercepted_before_native_ipc",
+            "U.actual_synthetic_package_connects",
+            "U.private_state_label_is_sanitized",
+            "U.private_state_count_is_valid",
+            "U.future_state_label_is_sanitized",
+            "U.future_state_count_is_valid",
+            "U.constructor_state_label_is_sanitized",
+            "U.constructor_state_count_is_valid",
+            "U.prototype_state_label_is_sanitized",
+            "U.prototype_state_count_is_valid",
+            "U.fraction_count_label_is_sanitized",
+            "U.fraction_count_count_is_valid",
+            "U.excess_count_label_is_sanitized",
+            "U.excess_count_count_is_valid",
+            "U.unsafe_count_label_is_sanitized",
+            "U.unsafe_count_count_is_valid",
+            "U.negative_count_label_is_sanitized",
+            "U.negative_count_count_is_valid",
+            "U.valid_outcome_label_is_sanitized",
+            "U.valid_outcome_count_is_valid",
+            "U.outcome_display_preserves_complete_store",
+            "U.choice_is_cleared"
           ]
         }
       ],

@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -483,7 +483,13 @@ async function runPollingMain() {
   s.close();app.kill();await app.exited;
 }
 
-async function runContractMain() {
+async function runContractMain(outcomeMode=false) {
+  const prefix=outcomeMode?'U.':'Y.';
+  const outcomeCases=[
+    ...[['private_state','C:/SYNTHETIC_PRIVATE/config.json'],['future_state','future_outcome'],['constructor_state','constructor'],['prototype_state','toString']].map(([id,state])=>({id,summary:{state},label:'Run outcome unavailable',count:null})),
+    ...[['fraction_count',1.5],['excess_count',4],['unsafe_count',9007199254740992],['negative_count',-1]].map(([id,sourceFailures])=>({id,summary:{state:'delivery_disabled',sourceFailures},label:'New batch kept locally',count:null})),
+    {id:'valid_outcome',summary:{state:'delivery_unresolved',sourceFailures:2},label:'Batch kept pending',count:2},
+  ];
   rmSync(settings,{force:true});
   if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase()) throw new Error('Run-contract acceptance requires the contained synthetic data root');
   const before=fixtureTree(manifest.dataRoot);
@@ -510,24 +516,38 @@ async function runContractMain() {
         if(window.__runCase==='extra_status')reply.privatePath='SYNTHETIC_PRIVATE';
         if(window.__runCase==='wrong_operation')reply.operation='memory_list';
         if(window.__runCase==='invalid_summary')reply.summary='SYNTHETIC_PRIVATE';
+        const outcomeCase=${JSON.stringify(outcomeCases)}.find(c=>c.id===window.__runCase);
+        if(outcomeCase)reply.summary=outcomeCase.summary;
       } else return real(endpoint,options);
       return new Response(JSON.stringify(reply),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});
     };return true;
   })()`);
   const probe=await call(s,{operation:'activity_run_now'});
   if(probe.runId!=='run-contract'||await s.evaluate('window.__mutationReplies')!==1)throw Error('Run interception must be proved before page actions');
-  check('Y.mutations_are_intercepted_before_native_ipc',true);
+  check(prefix+'mutations_are_intercepted_before_native_ipc',true);
   await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
   await waitFor(s,has('Connect the installed Activity producer'),'run-contract gate');
   await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
   await waitFor(s,"document.querySelectorAll('.act-source').length===3",'run-contract actual reads');
-  check('Y.actual_synthetic_package_connects',true);
+  check(prefix+'actual_synthetic_package_connects',true);
   const reset=async scenario=>{
     await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");
     await waitFor(s,"!document.querySelector('.act-surface')",'run-contract unmount');
     await s.evaluate(`window.__runCase=${JSON.stringify(scenario)};window.__statusReplies=0;document.querySelector('nav button[aria-label="Activity"]').click();true`);
     await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Run now'&&!b.disabled)",'run-contract controls');
   };
+  if(outcomeMode) {
+    for(const scenario of outcomeCases) {
+      await reset(scenario.id);await press(s,'Run now');
+      await waitFor(s,"!!document.querySelector('.act-run')?.textContent.includes('Completed')",'modeled outcome');
+      const text=await s.evaluate("document.querySelector('.act-run').textContent");
+      check(`U.${scenario.id}_label_is_sanitized`,text.includes(scenario.label)&&!text.includes('SYNTHETIC_PRIVATE')&&!text.includes('future_outcome'));
+      check(`U.${scenario.id}_count_is_valid`,scenario.count===null?!text.includes('source(s) failed'):text.includes(`${scenario.count} source(s) failed`));
+    }
+    check('U.outcome_display_preserves_complete_store',fixtureTree(manifest.dataRoot)===before);
+    await reset('valid');await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'outcome forgotten choice');check('U.choice_is_cleared',!existsSync(settings));
+    s.close();app.kill();await app.exited;return;
+  }
   for(const scenario of ['wrong_run','invalid_run','extra_status','wrong_operation','invalid_summary','valid']) {
     await reset(scenario);await press(s,'Run now');
     await waitFor(s,'window.__statusReplies>0','modeled run status');await sleep(200);
@@ -1145,6 +1165,7 @@ try {
   else if (mode === '--read-contract') await readContractMain();
   else if (mode === '--export-contract') await readContractMain(true);
   else if (mode === '--run-contract') await runContractMain();
+  else if (mode === '--run-outcome') await runContractMain(true);
   else if (mode === '--run-polling') await runPollingMain();
   else if (mode === '--poll-lifecycle') await pollLifecycleMain();
   else await main();
