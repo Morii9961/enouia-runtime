@@ -1,0 +1,13 @@
+# Activity current-pointer replacement failure
+
+Date: 2026-10-09. Scope: an actual Windows sharing refusal at current-pointer replacement on a fresh synthetic Activity store. B4/J1 remain partial; B5 inactive.
+
+A hidden owned helper opens only the exact contained synthetic CURRENT file with read sharing and without delete sharing. It self-expires after 90 seconds and is released in finally. Unlike exclusive/read-denial drills, normal overview and preview remain readable. Actual pause IPC and a separate page Pause action both report storage_failed. Old CURRENT bytes, pause false, reserved high-water and exact public history remain unchanged. All original files retain their hashes; pinned-Core Memory list/search remain available and canonical Vault is unchanged.
+
+The writer reaches its later boundary: two complete unselected generation directories contain their new paused delivery state, and two prepared CURRENT temporary files reference those directories. These are retained failure remnants, not committed current state. The complete Activity tree therefore intentionally grows during failed writes; this report does not claim no filesystem changes. No remnant is deleted or silently promoted.
+
+After releasing the owned handle, actual pause and resume acknowledgements succeed. Archive, sequence and pending bytes stay identical; failed generation directories and temporary pointers remain present; canonical Vault stays unchanged. The normal subsequent real-operation/Core-isolation and pending/restart flow also passes. [Raw native acceptance](Activity-unified/switch-lock-native.json): **50/50**. [Hashed proof](Activity-unified/switch-lock-proof.json): fifteen additional fault/recovery assertions linked to C17.
+
+Fresh checks: actual 50/50, harness syntax, Memory integration guard, whitespace and evidence integrity **40 reports / 544 selectors / 42 negative checks**. Product source, binaries, lockfile and pin are unchanged. The previous slice's 55 frontend tests, strict build, 32+3 host/Core tests and fmt/clippy, 16/16 persistence checks, 35/35 actual actions and 26 installer checks are reused rather than rerun.
+
+Desktop remains 328a6e08dda940a5e00b638ff76c77a06c8e5332b83db4263935a8ff2675f3ec; runner cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a; Memory pin ff692ccb6fbc1c387254d5ffbef41b105eeb2a84. The unsigned installer is built, not installed, signed or published. Disk-full, other write permissions, physical mid-write power loss, sustained stress and production availability remain unverified. No personal Vault/archive, existing/production task, credentials, public upload, server or Moriium source is changed.

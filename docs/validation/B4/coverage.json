@@ -276,6 +276,13 @@
       "sha256": "1b81278a80582ee33d2c609bebc757e67ce5878e84d433d50652c3a4c4b81786",
       "state": "passed",
       "selectorCount": 16
+    },
+    {
+      "id": "current_switch_lock",
+      "path": "docs/validation/Activity-unified/switch-lock-proof.json",
+      "sha256": "fa889b6e75a184876a98201ac26ac8a6d84c0f8abde1893b8baea228dc7198c0",
+      "state": "passed",
+      "selectorCount": 15
     }
   ],
   "cases": [
@@ -1237,6 +1244,26 @@
             "J.recovered_choice_is_a_settings_file",
             "J.restart_reads_recovered_saved_choice",
             "J.complete_activity_store_is_unchanged"
+          ]
+        },
+        {
+          "report": "current_switch_lock",
+          "selectors": [
+            "L.current_is_held_without_delete_sharing",
+            "L.reads_remain_available_during_switch_lock",
+            "L.actual_pause_reports_storage_failure",
+            "L.actual_failure_is_visible_with_old_history",
+            "L.failed_switch_keeps_current_unpaused_and_exact",
+            "L.all_original_files_are_preserved",
+            "L.failed_switch_retains_two_complete_unselected_generations",
+            "L.prepared_pointer_files_are_retained",
+            "L.memory_queries_survive_actual_switch_failure",
+            "L.failure_preserves_canonical_vault",
+            "L.release_accepts_actual_pause",
+            "L.release_accepts_actual_resume",
+            "L.recovery_preserves_archive_sequence_pending",
+            "L.recovery_preserves_failed_generation_and_pointer_remnants",
+            "L.recovery_preserves_canonical_vault"
           ]
         }
       ],

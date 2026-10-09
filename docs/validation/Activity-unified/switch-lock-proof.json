@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_actual_activity_current_switch_failure",
+  "checks": [
+    "L.current_is_held_without_delete_sharing",
+    "L.reads_remain_available_during_switch_lock",
+    "L.actual_pause_reports_storage_failure",
+    "L.actual_failure_is_visible_with_old_history",
+    "L.failed_switch_keeps_current_unpaused_and_exact",
+    "L.all_original_files_are_preserved",
+    "L.failed_switch_retains_two_complete_unselected_generations",
+    "L.prepared_pointer_files_are_retained",
+    "L.memory_queries_survive_actual_switch_failure",
+    "L.failure_preserves_canonical_vault",
+    "L.release_accepts_actual_pause",
+    "L.release_accepts_actual_resume",
+    "L.recovery_preserves_archive_sequence_pending",
+    "L.recovery_preserves_failed_generation_and_pointer_remnants",
+    "L.recovery_preserves_canonical_vault"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/switch-lock-native.json",
+  "nativeReportSha256": "c0281dd672d9d5b5467255ac8f296dd84ed290b2975f339a70ef0a168f9016fe",
+  "nativeSummary": "50/50",
+  "processExitCode": 0,
+  "harnessSha256": "323d54576b5271a97f22490f491c1957410564ffdaccb2e9a8757e49c11a5dd3",
+  "desktopSha256": "328a6e08dda940a5e00b638ff76c77a06c8e5332b83db4263935a8ff2675f3ec",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "An owned hidden handle permits CURRENT reads but refuses delete sharing; it self-expires after 90 seconds and is released in finally.",
+    "Two actual failed pause commits publish complete unselected generations and prepared pointer files before the switch failure; every original file and selected state stays exact.",
+    "Failure remnants are deliberately retained; recovery accepts actual pause/resume without deleting or silently promoting failed generations.",
+    "Disk-full, other write permissions, mid-write power loss, sustained stress and production availability remain unverified.",
+    "No personal Vault/archive, existing/production task, credential or public upload is used."
+  ]
+}

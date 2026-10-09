@@ -26,9 +26,9 @@ import { createServer } from 'node:net';
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -1077,6 +1077,47 @@ async function main() {
       const resume=await call(s,{operation:'activity_set_paused',paused:false});check('N.restored_permission_accepts_resume',resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
       const recovered=fixtureImage(manifest.dataRoot);check('N.successful_recovery_preserves_archive_sequence_pending',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);
       check('N.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
+    }
+    if (mode === '--current-switch-lock') {
+      if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Switch drill escaped the synthetic root');
+      const pointer=join(manifest.dataRoot,'CURRENT'),generations=join(manifest.dataRoot,'generations');
+      if(realpathSync(pointer).toLowerCase()!==join(realpathSync(manifest.dataRoot),'CURRENT').toLowerCase())throw Error('Switch pointer escaped');
+      const original=readFileSync(pointer),image=fixtureImage(manifest.dataRoot),entries=new Set(fixtureEntries(manifest.dataRoot)),oldNames=new Set(readdirSync(generations)),canonical=fixtureTree(join(vault,'vault'));
+      const holder=spawn('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',['-NoProfile','-NonInteractive','-Command',`$f=[IO.File]::Open('${pointer.replace(/'/g,"''")}','Open','Read','Read');try{'locked';Start-Sleep -Seconds 90}finally{$f.Dispose()}`],{windowsHide:true,stdio:['ignore','pipe','pipe']});
+      children.add(holder);holder.exited=new Promise(r=>holder.once('exit',code=>{children.delete(holder);r(code);}));
+      let failedNames=[],temporaryPointers=[];
+      try {
+        await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(Error('Synthetic pointer hold not ready')),10000);holder.stdout.on('data',bytes=>{output+=bytes.toString();if(output.includes('locked')){clearTimeout(timer);resolve();}});holder.once('exit',()=>{clearTimeout(timer);reject(Error('Synthetic pointer hold exited'));});});
+        check('L.current_is_held_without_delete_sharing',true);
+        const initialReads=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'})]);
+        check('L.reads_remain_available_during_switch_lock',initialReads[0].kind==='activity_overview'&&initialReads[0].producer.paused===false&&initialReads[1].sha256===preview.sha256);
+        const failed=await call(s,{operation:'activity_set_paused',paused:true});
+        check('L.actual_pause_reports_storage_failure',failed.kind==='activity_error'&&failed.error.code==='storage_failed');
+        await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+        await waitFor(s,"document.querySelectorAll('.act-source').length===3",'switch lock readable page');
+        await press(s,'Pause activity sync');await waitFor(s,has('The Activity store could not be read or written'),'actual switch-lock failure');
+        check('L.actual_failure_is_visible_with_old_history',await s.evaluate("document.querySelectorAll('.act-source').length===3"));
+        const reads=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'})]);
+        check('L.failed_switch_keeps_current_unpaused_and_exact',readFileSync(pointer).equals(original)&&reads[0].producer.paused===false&&reads[0].producer.highestReserved===initialReads[0].producer.highestReserved&&reads[1].sha256===preview.sha256);
+        const currentEntries=new Set(fixtureEntries(manifest.dataRoot));
+        check('L.all_original_files_are_preserved',Array.from(entries).every(entry=>currentEntries.has(entry)));
+        failedNames=readdirSync(generations).filter(name=>!oldNames.has(name));temporaryPointers=readdirSync(manifest.dataRoot).filter(name=>/^CURRENT\.g-[a-zA-Z0-9-]+\.tmp$/.test(name));
+        const complete=failedNames.length===2&&failedNames.every(name=>!name.startsWith('.staging-')&&['activity.json','sequence.json','delivery.json','manifest.json'].every(file=>existsSync(join(generations,name,file)))&&JSON.parse(readFileSync(join(generations,name,'delivery.json'),'utf8')).paused===true);
+        check('L.failed_switch_retains_two_complete_unselected_generations',complete);
+        check('L.prepared_pointer_files_are_retained',temporaryPointers.length===2&&temporaryPointers.every(name=>failedNames.includes(readFileSync(join(manifest.dataRoot,name),'utf8').trim())));
+        const [list,search]=await Promise.all([memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false}),memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25})]);
+        check('L.memory_queries_survive_actual_switch_failure',!list.error&&list.result?.total===1&&!search.error&&search.result?.items?.length===1);
+        check('L.failure_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
+        await shot(s,'03-pointer-switch-failure',false);
+      } finally {holder.kill();await holder.exited;}
+      const pause=await call(s,{operation:'activity_set_paused',paused:true});
+      check('L.release_accepts_actual_pause',pause.kind==='activity_pause_acknowledged'&&pause.paused===true&&(await overview(s)).producer.paused===true);
+      const resume=await call(s,{operation:'activity_set_paused',paused:false});
+      check('L.release_accepts_actual_resume',resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
+      const recovered=fixtureImage(manifest.dataRoot);
+      check('L.recovery_preserves_archive_sequence_pending',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);
+      check('L.recovery_preserves_failed_generation_and_pointer_remnants',failedNames.every(name=>existsSync(join(generations,name)))&&temporaryPointers.every(name=>existsSync(join(manifest.dataRoot,name))));
+      check('L.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
     }
     if (['--current-read-lock','--current-acl-denial'].includes(mode)) {
       const aclMode=mode==='--current-acl-denial';

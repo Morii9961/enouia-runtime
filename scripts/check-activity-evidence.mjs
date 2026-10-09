@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 39);
+  assert.equal(reports.size, 40);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -693,6 +693,21 @@ function validate(index) {
   assert.equal(choiceSave.memoryRevision,isolation.memoryRevision);
   for(const digest of [choiceSave.desktopSha256,choiceSave.installerSha256,choiceSave.harnessSha256])assert.match(digest,/^[a-f0-9]{64}$/);
   assert(choiceSave.limitations.includes('Save/clear failures are actual native filesystem errors against an owned empty synthetic settings directory.'));
+  const switchLock=reports.get('current_switch_lock').report;
+  assert.equal(switchLock.scope,'isolated_actual_activity_current_switch_failure');
+  const switchNative=readLinked(switchLock.nativeReport,switchLock.nativeReportSha256);
+  assert.equal(switchNative.summary,'50/50');
+  assert.equal(switchNative.checks.length,50);
+  assert(switchNative.checks.every(c=>c.ok===true));
+  assert.equal(switchLock.nativeSummary,switchNative.summary);
+  assert.equal(switchLock.processExitCode,0);
+  assert.equal(switchLock.checks.length,15);
+  assert.deepEqual(switchLock.checks,switchNative.checks.filter(c=>c.id.startsWith('L.')).map(c=>c.id));
+  assert.equal(switchLock.desktopSha256,choiceSave.desktopSha256);
+  assert.equal(switchLock.runnerSha256,guidance.runnerSha256);
+  assert.equal(switchLock.memoryRevision,isolation.memoryRevision);
+  assert.match(switchLock.harnessSha256,/^[a-f0-9]{64}$/);
+  assert(switchLock.limitations.includes('Failure remnants are deliberately retained; recovery accepts actual pause/resume without deleting or silently promoting failed generations.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -739,6 +754,7 @@ function validate(index) {
   assert(writeAcl.checks.every(id=>linkedTo(c17,'generation_write_acl').includes(id)),'C17 must retain actual pre-staging write denial, no failed commit and successful recovery');
   assert(setupContract.checks.every(id=>linkedTo(c17,'setup_contract').includes(id)),'C17 must retain setup refusals and actual selection recovery');
   assert(choiceSave.checks.every(id=>linkedTo(c17,'choice_save').includes(id)),'C17 must retain actual choice persistence failures and recovery');
+  assert(switchLock.checks.every(id=>linkedTo(c17,'current_switch_lock').includes(id)),'C17 must retain actual pointer-switch failure and preserved remnants');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -746,7 +762,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 29, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 30, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -794,7 +810,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_contract'));
   reject(x => x.cases.find(c => c.id === 'C10').evidence = x.cases.find(c => c.id === 'C10').evidence.filter(e => e.report !== 'setup_contract'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'choice_save'));
-  result.negativeChecks = 41;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'current_switch_lock'));
+  result.negativeChecks = 42;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
