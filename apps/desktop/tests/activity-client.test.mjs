@@ -109,6 +109,12 @@ test('setup refusal text never resolves inherited object entries', () => {
   }
 });
 
+test('configured status accepts an optional verified saved flag, never arbitrary metadata', async () => {
+  const installed={configured:true,mode:'sandbox',taskName:'Enouia-Activity-Test',folder:'package'};
+  for(const saved of [true,false]) {recorder(()=>({...installed,saved}));assert.deepEqual(await activity.setup('status'),{...installed,saved});}
+  for(const saved of ['yes',null,0]) {recorder(()=>({...installed,saved}));await assert.rejects(activity.setup('status'),e=>e.error.code==='contract_invalid');}
+});
+
 test('malformed data and private error text become local contract failures', async () => {
   const missingSource = overview(); delete missingSource.sources.codex;
   const roundedTotal = overview(); roundedTotal.sources.codex.total = 9007199254740992;

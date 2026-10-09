@@ -42,7 +42,7 @@ test('native Activity waiting and connection gate retain a labelled keyboard sur
 
 test('Activity distinguishes a connected but unsaved package choice', () => {
   const html=renderToStaticMarkup(createElement(ActivityGate,{setup:{configured:true,mode:'sandbox',folder:'package',taskName:'Enouia-Activity-Test',saved:false},onSelect(){},error:null}));
-  assert.match(html,/Package connected for this window only/);
+  assert.match(html,/Package connected for this window/);
   assert.match(html,/select it again after restarting/);
   assert.doesNotMatch(html,/Retry forgetting package/);
 });

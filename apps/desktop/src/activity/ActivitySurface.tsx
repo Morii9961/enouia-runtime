@@ -27,7 +27,7 @@ function Tag({ tone, children }: { tone?: "ok" | "warn" | "muted"; children: Rea
 
 function PackageChoiceFeedback({ setup, onClear, busy = false }: { setup: Setup | null; onClear?: () => void; busy?: boolean }) {
   if (!setup || !("saved" in setup) || setup.saved !== false) return null;
-  if (setup.configured === true) return <div role="status" className="mem-muted">Package connected for this window only. The choice could not be saved; select it again after restarting.</div>;
+  if (setup.configured === true) return <div role="status" className="mem-muted">Package connected for this window. The choice could not be verified as saved; you may need to select it again after restarting.</div>;
   return <div className="mem-stack">
     <div role="status" className="mem-muted">The saved package choice could not be cleared. It may reconnect after restarting.</div>
     {onClear && <div className="mem-actions"><button type="button" className="mem-button" disabled={busy} onClick={onClear}>Retry forgetting package</button></div>}

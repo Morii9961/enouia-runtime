@@ -243,14 +243,14 @@ async function setup(action: "status" | "select" | "clear"): Promise<Setup> {
     else if (action === "clear") valid = closed(reply, ["configured", "saved"]) && typeof reply.saved === "boolean";
     else valid = closed(reply, ["configured", "error"]) && inList(reply.error, ["not_found", "not_a_package", "binary_changed"]);
   } else if (action !== "clear" && closed(reply, action === "select"
-    ? ["configured", "mode", "taskName", "folder", "saved"] : ["configured", "mode", "taskName", "folder"])) {
+    ? ["configured", "mode", "taskName", "folder", "saved"] : ["configured", "mode", "taskName", "folder"], action === "status" ? ["saved"] : [])) {
     const suffix = typeof reply.taskName === "string" && reply.taskName.startsWith("Enouia-Activity-")
       ? reply.taskName.slice("Enouia-Activity-".length) : "";
     valid = reply.configured === true && inList(reply.mode, ["sandbox", "production"])
       && suffix.length >= 1 && suffix.length <= 80 && !/[^A-Za-z0-9_-]/.test(suffix)
       && (reply.folder === null || (typeof reply.folder === "string" && reply.folder.length > 0
         && reply.folder !== "." && reply.folder !== ".." && !/[\\/:\0]/.test(reply.folder)))
-      && (action !== "select" || typeof reply.saved === "boolean");
+      && (action === "status" ? reply.saved === undefined || typeof reply.saved === "boolean" : typeof reply.saved === "boolean");
   }
   if (!valid) throw new ActivityError({ code: "contract_invalid", component: "activity_archive", retryable: false });
   return reply as Setup;

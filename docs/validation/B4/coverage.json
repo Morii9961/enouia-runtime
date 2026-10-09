@@ -304,6 +304,13 @@
       "sha256": "0117665828b265090ac61618d7c9ceea92dc7d9ce5c190e78ff750e7f13a8d76",
       "state": "passed",
       "selectorCount": 47
+    },
+    {
+      "id": "choice_persistence",
+      "path": "docs/validation/Activity-unified/choice-persistence-proof.json",
+      "sha256": "3608e1a9947b82bbdc11258e8b3cc1bee7fdcd4d50befc2cea909cd97696ca05",
+      "state": "passed",
+      "selectorCount": 4
     }
   ],
   "cases": [
@@ -1401,6 +1408,15 @@
             "RH.resume_preserves_archive_sequence_pending",
             "RH.only_pause_and_resume_create_generations",
             "RH.actual_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "choice_persistence",
+          "selectors": [
+            "CP.remounted_status_reports_unconfirmed_saved_choice",
+            "CP.remounted_unsaved_notice_stays_visible",
+            "CP.remounted_status_verifies_saved_choice",
+            "CP.remounted_saved_choice_stays_quiet"
           ]
         }
       ],

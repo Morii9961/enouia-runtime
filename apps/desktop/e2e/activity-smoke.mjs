@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-delete', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-delete|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -649,8 +649,14 @@ async function choiceSaveMain() {
   await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
   await waitFor(s,"document.querySelectorAll('.act-source').length===3",'unsaved connected package');
   check('J.native_selection_really_reports_saved_false',await s.evaluate("window.__choiceReplies.some(r=>r.action==='select'&&r.configured===true&&r.saved===false)"));
-  check('J.unsaved_connection_notice_is_visible',await s.evaluate(has('Package connected for this window only'))&&await s.evaluate(has('select it again after restarting')));
+  check('J.unsaved_connection_notice_is_visible',await s.evaluate(has('Package connected for this window'))&&await s.evaluate(has('select it again after restarting')));
   check('J.unsaved_selection_still_reads_three_sources',await s.evaluate("document.querySelectorAll('.act-source').length===3"));
+  if(mode==='--choice-persistence'){
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.act-surface')",'unsaved remount');await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'unsaved status remount');
+    const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");
+    check('CP.remounted_status_reports_unconfirmed_saved_choice',status.configured===true&&status.saved===false);
+    check('CP.remounted_unsaved_notice_stays_visible',await s.evaluate(has('Package connected for this window'))&&await s.evaluate(has('select it again after restarting')));
+  }
   await s.evaluate("(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Change package');b.click();b.click();return true;})()");
   await waitFor(s,has('Connect the installed Activity producer'),'failed clear gate');await sleep(250);
   check('J.repeated_clicks_make_one_actual_clear',await s.evaluate("window.__choiceClearCount===1&&window.__choiceReplies.some(r=>r.action==='clear'&&r.configured===false&&r.saved===false)"));
@@ -664,7 +670,13 @@ async function choiceSaveMain() {
   await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
   await waitFor(s,"document.querySelectorAll('.act-source').length===3",'saved reselection');
   check('J.native_reselection_really_reports_saved_true',await s.evaluate("window.__choiceReplies.some(r=>r.action==='select'&&r.configured===true&&r.saved===true)"));
-  check('J.saved_connection_removes_temporary_notice',!(await s.evaluate(has('Package connected for this window only'))));
+  check('J.saved_connection_removes_temporary_notice',!(await s.evaluate(has('Package connected for this window'))));
+  if(mode==='--choice-persistence'){
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.act-surface')",'saved remount');await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'saved status remount');
+    const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");
+    check('CP.remounted_status_verifies_saved_choice',status.configured===true&&status.saved===true);
+    check('CP.remounted_saved_choice_stays_quiet',!(await s.evaluate(has('Package connected for this window'))));
+  }
   const savedRoot=JSON.parse(readFileSync(settings,'utf8')).installRoot;
   // Rust stores a verbatim Windows path. Compare its normalized native form
   // without Node's realpath walker treating a verbatim drive as an entry.
@@ -1471,6 +1483,7 @@ try {
   else if (mode === '--confirmation') await confirmationMain();
   else if (mode === '--setup-contract') await setupContractMain();
   else if (mode === '--choice-save') await choiceSaveMain();
+  else if (mode === '--choice-persistence') await choiceSaveMain();
   else if (mode === '--choice-delete') await choiceDeleteMain();
   else if (mode === '--run-history') await runHistoryMain();
   else if (mode === '--keyboard') await keyboardMain();

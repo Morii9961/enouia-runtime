@@ -770,6 +770,20 @@ fn setup_status(install: Option<&Install>) -> Value {
     }
 }
 
+/// Recheck the native saved choice on every status read. A cached in-window
+/// connection alone does not prove that a future host can load the choice.
+fn setup_status_with_saved(install: Option<&Install>, saved: Option<PathBuf>) -> Value {
+    let mut status = setup_status(install);
+    if let Some(install) = install {
+        status["saved"] = json!(
+            saved
+                .and_then(|root| std::fs::canonicalize(root).ok())
+                .is_some_and(|root| root == install.root)
+        );
+    }
+    status
+}
+
 /// Choose, forget or report the installed Activity package. Only the
 /// folder name, mode and task name reach the page.
 #[tauri::command]
@@ -785,12 +799,12 @@ pub async fn activity_setup(
     match action.as_str() {
         "status" => {
             let handle = app.clone();
-            let install = tauri::async_runtime::spawn_blocking(move || {
-                handle.state::<ActivityHost>().current(&handle)
+            tauri::async_runtime::spawn_blocking(move || {
+                let install = handle.state::<ActivityHost>().current(&handle);
+                setup_status_with_saved(install.as_ref(), saved_root(&handle))
             })
             .await
-            .map_err(|_| "worker_failed".to_owned())?;
-            Ok(setup_status(install.as_ref()))
+            .map_err(|_| "worker_failed".to_owned())
         }
         "clear" => {
             *host.install.lock().unwrap_or_else(PoisonError::into_inner) = None;
@@ -1009,6 +1023,53 @@ mod tests {
         assert_eq!(load_install(&root), Err("not_a_package"));
         assert_eq!(load_install(&root.join("missing")), Err("not_found"));
         std::fs::remove_dir_all(&root).unwrap();
+    }
+
+    #[test]
+    fn status_verifies_the_exact_persisted_choice_without_exporting_paths() {
+        let root = std::env::temp_dir().join(format!(
+            "enouia-choice-status-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let package = root.join("package");
+        let other = root.join("other");
+        std::fs::create_dir(&package).unwrap();
+        std::fs::create_dir(&other).unwrap();
+        let install = Install {
+            root: std::fs::canonicalize(&package).unwrap(),
+            binary: package.join("synthetic.exe"),
+            config: package.join("synthetic.json"),
+            binary_sha256: String::new(),
+            task_name: "Enouia-Activity-Synthetic".to_owned(),
+            marker: String::new(),
+            mode: "sandbox".to_owned(),
+        };
+        for saved in [None, Some(other.clone()), Some(root.join("absent"))] {
+            assert_eq!(
+                setup_status_with_saved(Some(&install), saved)["saved"],
+                false
+            );
+        }
+        for saved in [&package, &package.join(".")] {
+            let status = setup_status_with_saved(Some(&install), Some(saved.clone()));
+            assert_eq!(status["saved"], true);
+            assert_eq!(status["folder"], "package");
+            assert_eq!(status.as_object().unwrap().len(), 5);
+            assert!(!status.to_string().contains("enouia-choice-status-"));
+        }
+        assert_eq!(
+            setup_status_with_saved(None, Some(package.clone())),
+            json!({"configured": false})
+        );
+        // Only the newly created empty owned directories are removed.
+        std::fs::remove_dir(other).unwrap();
+        std::fs::remove_dir(package).unwrap();
+        std::fs::remove_dir(root).unwrap();
     }
 
     #[test]
