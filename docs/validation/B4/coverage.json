@@ -227,6 +227,13 @@
       "sha256": "a34c09153403f9f1b2e96dfd5b34210b3dc94ab62a221def5e25b80f8659ccb1",
       "state": "passed",
       "selectorCount": 17
+    },
+    {
+      "id": "poll_lifecycle",
+      "path": "docs/validation/Activity-unified/poll-lifecycle-proof.json",
+      "sha256": "5344f2f9f0dccf3dcdfb50c9d0c45e957b163ec1b595632421658844c0e021f7",
+      "state": "passed",
+      "selectorCount": 11
     }
   ],
   "cases": [
@@ -998,6 +1005,22 @@
             "Z.observing_continues_to_terminal_status",
             "Z.polling_preserves_complete_store",
             "Z.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "poll_lifecycle",
+          "selectors": [
+            "L.mutations_are_intercepted_before_native_ipc",
+            "L.actual_synthetic_package_connects",
+            "L.retry_delays_reach_thirty_second_ceiling",
+            "L.retry_queries_keep_the_same_run_id",
+            "L.recovery_keeps_one_start_request",
+            "L.terminal_status_reenables_operation_controls",
+            "L.late_read_is_pending",
+            "L.late_reply_does_not_populate_remounted_page",
+            "L.unmount_stops_status_queries",
+            "L.lifecycle_preserves_complete_store",
+            "L.choice_is_cleared"
           ]
         }
       ],

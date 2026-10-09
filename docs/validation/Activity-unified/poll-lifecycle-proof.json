@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "native_activity_poll_lifecycle",
+  "checks": [
+    "L.mutations_are_intercepted_before_native_ipc",
+    "L.actual_synthetic_package_connects",
+    "L.retry_delays_reach_thirty_second_ceiling",
+    "L.retry_queries_keep_the_same_run_id",
+    "L.recovery_keeps_one_start_request",
+    "L.terminal_status_reenables_operation_controls",
+    "L.late_read_is_pending",
+    "L.late_reply_does_not_populate_remounted_page",
+    "L.unmount_stops_status_queries",
+    "L.lifecycle_preserves_complete_store",
+    "L.choice_is_cleared"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/poll-lifecycle-native.json",
+  "nativeReportSha256": "c9ac8c63029820bab75c78f055cbec869a4267691a358cf7fe8cb81c92895213",
+  "nativeSummary": "11/11",
+  "desktopSha256": "c0cdf97f701955b00d2c646fa8aeb80d69b5cc534a064ec95592167941a4f7dd",
+  "harnessSha256": "70597eebe66888d5ffdb9b5394853a077c5eeb30e6c49f7ba371b2930f084896",
+  "limitations": [
+    "Status replies and all starts are intercepted in the owned page; no real collection or delivery.",
+    "Only synthetic data; no personal Vault or production task."
+  ]
+}

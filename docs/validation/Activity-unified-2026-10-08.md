@@ -31,7 +31,7 @@ The implementation combines both branch histories. Subsequent owner-authorized c
 | Actual Activity read-sharing failure and Memory independence | [45/45 native checks](Activity-read-failure-isolation-2026-10-09.md); real overview/preview failure, Memory list/search/page survive, release restores exact history without data changes |
 | Request/reply correlation and current desktop | [12/12 modeled and 35/35 actual-action native checks, 48 frontend tests and 26/26 installer checks](Activity-reply-correlation-2026-10-09.md); requested run/source/range/pause enforced, host/Core evidence reused |
 | Run query recovery and current desktop | [17/17 modeled and 35/35 actual-action native checks, 48 frontend tests and 26 installer checks](Activity-run-polling-2026-10-09.md); same-run read retries and all nonterminal stages retain operation locks |
-| Current offline evidence integrity | [32 reports, 384 selectors, 32 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
+| Current offline evidence integrity | [33 reports, 395 selectors, 33 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
 
 Current desktop SHA-256 is `c0cdf97f701955b00d2c646fa8aeb80d69b5cc534a064ec95592167941a4f7dd`; unsigned installer is `68b6e50f7a59da98c0b62d0cd19d5a6d975fc776e82b9be06d2a55c9bf5ab079`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`. Earlier reports name their exact prior executables; the run-polling follow-up supplies current 17/17 modeled and 35/35 actual-action native evidence. The actual scheduler implementation is unchanged in this frontend slice.
 

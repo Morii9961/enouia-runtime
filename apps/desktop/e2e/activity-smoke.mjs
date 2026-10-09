@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-polling', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-polling|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -382,6 +382,54 @@ async function confirmationMain() {
 
 // Malformed replies below are modeled only in this owned page; all restored
 // reads still use the real installed runner, with no store mutation or Vault.
+async function pollLifecycleMain() {
+  rmSync(settings,{force:true});
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Lifecycle drill requires the contained synthetic store');
+  const before=fixtureTree(manifest.dataRoot),app=launch(),s=await connect();
+  await s.evaluate(`(()=>{
+    const real=window.fetch,url=window.__TAURI_INTERNALS__.convertFileSrc('activity_call','ipc');
+    window.__lifeCase='backoff';window.__lifeStarts=0;window.__lifeQueries=[];
+    window.fetch=async(endpoint,options)=>{
+      if(endpoint!==url)return real(endpoint,options);
+      const {request}=JSON.parse(options.body);let reply;
+      if(['activity_run_now','activity_retry_pending'].includes(request.operation)) {
+        window.__lifeStarts++;reply={schemaVersion:1,kind:'activity_run_accepted',runId:'run-lifecycle'};
+      } else if(request.operation==='activity_set_paused')throw Error('Unexpected lifecycle mutation');
+      else if(request.operation==='activity_get_run') {
+        window.__lifeQueries.push({runId:request.runId,at:performance.now()});
+        if(window.__lifeCase==='late')await new Promise(r=>setTimeout(r,1500));
+        reply=window.__lifeCase==='backoff'&&window.__lifeQueries.length<=6
+          ? {schemaVersion:1,kind:'activity_error',error:{code:'busy',component:'activity_archive',retryable:true}}
+          : {schemaVersion:1,kind:'activity_run_status',runId:request.runId,stage:'completed',error:null};
+      } else return real(endpoint,options);
+      return new Response(JSON.stringify(reply),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});
+    };return true;
+  })()`);
+  const probe=await call(s,{operation:'activity_run_now'});
+  if(probe.runId!=='run-lifecycle'||await s.evaluate('window.__lifeStarts')!==1)throw Error('Lifecycle interception was not proved');
+  check('L.mutations_are_intercepted_before_native_ipc',true);
+  await s.evaluate("window.__lifeStarts=0;document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,has('Connect the installed Activity producer'),'lifecycle gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Run now'&&!b.disabled)",'lifecycle actual reads');check('L.actual_synthetic_package_connects',true);
+  await press(s,'Run now');await waitFor(s,"!!document.querySelector('.act-run')?.textContent.includes('Completed')",'six failures and recovered status',90000);
+  const queries=await s.evaluate('window.__lifeQueries');
+  const gaps=queries.slice(1).map((q,i)=>q.at-queries[i].at),expected=[1000,2000,4000,8000,16000,30000];
+  check('L.retry_delays_reach_thirty_second_ceiling',queries.length===7&&gaps.every((gap,i)=>gap>=expected[i]-100&&gap<=expected[i]+5000),JSON.stringify({gapsMs:gaps}));
+  check('L.retry_queries_keep_the_same_run_id',queries.every(q=>q.runId==='run-lifecycle'));
+  check('L.recovery_keeps_one_start_request',await s.evaluate('window.__lifeStarts===1'));
+  check('L.terminal_status_reenables_operation_controls',await s.evaluate("[...document.querySelectorAll('button')].filter(b=>['Run now','Pause activity sync','Change package'].includes(b.textContent.trim())).every(b=>!b.disabled)"));
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.act-surface')",'lifecycle unmount');
+  await s.evaluate("window.__lifeCase='late';window.__lifeQueries=[];window.__lifeStarts=0;document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Run now'&&!b.disabled)",'late scenario controls');await press(s,'Run now');await waitFor(s,'window.__lifeQueries.length===1','pending late read');check('L.late_read_is_pending',true);
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.act-surface')",'late response unmount');
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'new lifecycle page');await sleep(2500);
+  check('L.late_reply_does_not_populate_remounted_page',await s.evaluate("!document.querySelector('.act-run')"));
+  check('L.unmount_stops_status_queries',await s.evaluate('window.__lifeQueries.length===1&&window.__lifeStarts===1'));
+  check('L.lifecycle_preserves_complete_store',fixtureTree(manifest.dataRoot)===before);
+  await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'lifecycle forgotten choice');check('L.choice_is_cleared',!existsSync(settings));
+  s.close();app.kill();await app.exited;
+}
+
 async function runPollingMain() {
   rmSync(settings,{force:true});
   if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Run-polling requires the contained synthetic store');
@@ -1098,6 +1146,7 @@ try {
   else if (mode === '--export-contract') await readContractMain(true);
   else if (mode === '--run-contract') await runContractMain();
   else if (mode === '--run-polling') await runPollingMain();
+  else if (mode === '--poll-lifecycle') await pollLifecycleMain();
   else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));
