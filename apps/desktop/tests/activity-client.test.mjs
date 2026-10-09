@@ -109,6 +109,13 @@ test('setup refusal text never resolves inherited object entries', () => {
   }
 });
 
+test('native setup busy errors explain that the running producer must finish', () => {
+  assert.match(describe('busy'), /busy with another run/);
+  for (const text of ['constructor', 'C:/synthetic-private', 'unknown']) {
+    assert.equal(describe(text), 'The Activity call failed');
+  }
+});
+
 test('configured status accepts an optional verified saved flag, never arbitrary metadata', async () => {
   const installed={configured:true,mode:'sandbox',taskName:'Enouia-Activity-Test',folder:'package'};
   for(const saved of [true,false]) {recorder(()=>({...installed,saved}));assert.deepEqual(await activity.setup('status'),{...installed,saved});}

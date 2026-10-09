@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 52);
+  assert.equal(reports.size, 53);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -970,6 +970,32 @@ function validate(index) {
   for (const operation of ['overview', 'preview', 'days', 'run_record', 'run_now', 'retry_pending', 'pause', 'resume']) assert(windowScope.checks.includes(`WS.overlay_refuses_${operation}`));
   for (const action of ['status', 'clear', 'select']) assert(windowScope.checks.includes(`WS.overlay_refuses_setup_${action}`));
   assert(windowScope.limitations.includes('Only the owned host loopback debugger is used; URL candidates and native window labels separately verify main and overlay identity.'));
+  const setupRunning = reports.get('setup_running').report;
+  assert.equal(setupRunning.scope, 'isolated_activity_native_setup_running_guard');
+  const runningSetupBefore = readLinked(setupRunning.beforeReport, setupRunning.beforeReportSha256);
+  const runningSetupNative = readLinked(setupRunning.nativeReport, setupRunning.nativeReportSha256);
+  const runningSetupActions = readLinked(setupRunning.actionsReport, setupRunning.actionsReportSha256);
+  assert.equal(runningSetupBefore.summary, '9/12');
+  assert.equal(runningSetupBefore.checks.length, 12);
+  assert.deepEqual(runningSetupBefore.checks.filter(c => !c.ok).map(c => c.id), ['SG.select_refuses_active_run_with_busy', 'SG.clear_refuses_active_run_with_busy', 'SG.refused_clear_preserves_exact_saved_choice']);
+  assert.equal(runningSetupNative.summary, '12/12');
+  assert.equal(runningSetupNative.checks.length, 12);
+  assert(runningSetupNative.checks.every(c => c.ok === true));
+  assert.deepEqual(setupRunning.checks, runningSetupNative.checks.map(c => c.id));
+  assert.equal(runningSetupActions.summary, '35/35');
+  assert.equal(runningSetupActions.checks.length, 35);
+  assert(runningSetupActions.checks.every(c => c.ok === true));
+  for (const [name, raw] of [['before', runningSetupBefore], ['native', runningSetupNative], ['actions', runningSetupActions]]) assert.equal(setupRunning[name + 'Summary'], raw.summary);
+  assert.deepEqual(setupRunning.frontendBefore, {tests: 58, passed: 57, failed: 1});
+  assert.equal(setupRunning.frontendTests, 58);
+  assert.equal(setupRunning.hostTests, 34);
+  assert.equal(setupRunning.coreTests, 3);
+  assert.equal(setupRunning.processExitCode, 0);
+  assert.equal(setupRunning.beforeDesktopSha256, runRemount.desktopSha256);
+  assert.equal(setupRunning.runnerSha256, guidance.runnerSha256);
+  assert.equal(setupRunning.memoryRevision, isolation.memoryRevision);
+  for (const digest of [setupRunning.desktopSha256, setupRunning.installerSha256, setupRunning.harnessSha256, setupRunning.toolsSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(setupRunning.limitations.includes('The post-dialog active-run recheck is implemented but a competing start while the picker is already open is not exercised here.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1029,6 +1055,7 @@ function validate(index) {
   assert(runnerHash.checks.every(id => linkedTo(c17, 'runner_hash_change').includes(id)), 'C17 must retain actual cached-runner hash refusal and recovery');
   assert(runRemount.checks.every(id => linkedTo(c17, 'run_remount').includes(id)), 'C17 must retain actual running-host remount lock and terminal recovery');
   assert(windowScope.checks.every(id => linkedTo(c17, 'window_scope').includes(id)), 'C17 must retain actual native overlay Activity refusals and main recovery');
+  assert(setupRunning.checks.every(id => linkedTo(c17, 'setup_running').includes(id)), 'C17 must retain actual running setup refusal, exact choice and terminal recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1036,7 +1063,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 42, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 43, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -1097,7 +1124,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_hash_change'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_remount'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'window_scope'));
-  result.negativeChecks = 54;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_running'));
+  result.negativeChecks = 55;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

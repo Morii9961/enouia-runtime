@@ -367,6 +367,13 @@
       "sha256": "d93a5c961170b5536db96e7cc5a9f0848f0f3f83fa48c9096e95cf193ed2349c",
       "state": "passed",
       "selectorCount": 19
+    },
+    {
+      "id": "setup_running",
+      "path": "docs/validation/Activity-unified/setup-running-proof.json",
+      "sha256": "2d5de60526ab584b6bfbd06e8b6a6f2e24880ce5d736b5acd45b69464e4109b6",
+      "state": "passed",
+      "selectorCount": 12
     }
   ],
   "cases": [
@@ -1647,6 +1654,23 @@
             "WS.main_read_keeps_same_public_history",
             "WS.overlay_keeps_its_allowed_show_hide_scope",
             "WS.main_final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "setup_running",
+          "selectors": [
+            "SG.known_owned_loopback_tools_are_verified",
+            "SG.actual_run_precedes_setup_changes",
+            "SG.status_reads_current_choice_during_run",
+            "SG.select_refuses_active_run_with_busy",
+            "SG.clear_refuses_active_run_with_busy",
+            "SG.refused_clear_preserves_exact_saved_choice",
+            "SG.same_run_still_active_after_setup_attempts",
+            "SG.native_choice_remains_connected",
+            "SG.original_run_reaches_terminal",
+            "SG.terminal_run_retains_actual_pending",
+            "SG.terminal_reopens_native_picker",
+            "SG.terminal_accepts_clear_and_removes_choice"
           ]
         }
       ],

@@ -807,6 +807,16 @@ pub async fn activity_setup(
     if window.label() != "main" {
         return Err("permission_denied".to_owned());
     }
+    if matches!(action.as_str(), "clear" | "select")
+        && host
+            .runs
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .active
+            .is_some()
+    {
+        return Err("busy".to_owned());
+    }
     match action.as_str() {
         "status" => {
             let handle = app.clone();
@@ -823,6 +833,11 @@ pub async fn activity_setup(
             .map_err(|_| "worker_failed".to_owned())
         }
         "clear" => {
+            // Keep admission serialized through the native choice mutation.
+            let runs = host.runs.lock().unwrap_or_else(PoisonError::into_inner);
+            if runs.active.is_some() {
+                return Err("busy".to_owned());
+            }
             *host.install.lock().unwrap_or_else(PoisonError::into_inner) = None;
             *host.loaded.lock().unwrap_or_else(PoisonError::into_inner) = true;
             let saved = save_root(&app, None);
@@ -839,8 +854,15 @@ pub async fn activity_setup(
                     .set_title("Choose the installed Activity package folder")
                     .pick_folder()
                 else {
-                    return json!({"cancelled": true});
+                    return Ok(json!({"cancelled": true}));
                 };
+                // The dialog itself never holds the run lock. Recheck after
+                // it returns, then serialize validation/save/choice replacement.
+                let host = handle.state::<ActivityHost>();
+                let runs = host.runs.lock().unwrap_or_else(PoisonError::into_inner);
+                if runs.active.is_some() {
+                    return Err("busy".to_owned());
+                }
                 match load_install(&root) {
                     Ok(install) => {
                         let saved = save_root(&handle, Some(&install.root));
@@ -854,13 +876,13 @@ pub async fn activity_setup(
                             .unwrap_or_else(PoisonError::into_inner) = None;
                         let mut status = setup_status(Some(&install));
                         status["saved"] = json!(saved);
-                        status
+                        Ok(status)
                     }
-                    Err(code) => json!({"configured": false, "error": code}),
+                    Err(code) => Ok(json!({"configured": false, "error": code})),
                 }
             })
             .await
-            .map_err(|_| "worker_failed".to_owned())
+            .map_err(|_| "worker_failed".to_owned())?
         }
         _ => Err("invalid_request".to_owned()),
     }

@@ -290,6 +290,7 @@ const SETUP: Record<string, string> = {
 /** Human text for an error: the stable code only, never subprocess output. */
 export function describe(error: unknown): string {
   if (error instanceof ActivityError) return CODES[error.error.code] ?? error.error.code;
+  if (error === "busy") return CODES.busy;
   if (typeof error === "string" && error === "permission_denied") return "This window may not reach Activity";
   return "The Activity call failed";
 }

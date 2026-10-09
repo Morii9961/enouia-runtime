@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_native_setup_running_guard",
+  "checks": [
+    "SG.known_owned_loopback_tools_are_verified",
+    "SG.actual_run_precedes_setup_changes",
+    "SG.status_reads_current_choice_during_run",
+    "SG.select_refuses_active_run_with_busy",
+    "SG.clear_refuses_active_run_with_busy",
+    "SG.refused_clear_preserves_exact_saved_choice",
+    "SG.same_run_still_active_after_setup_attempts",
+    "SG.native_choice_remains_connected",
+    "SG.original_run_reaches_terminal",
+    "SG.terminal_run_retains_actual_pending",
+    "SG.terminal_reopens_native_picker",
+    "SG.terminal_accepts_clear_and_removes_choice"
+  ],
+  "frontendBefore": {
+    "tests": 58,
+    "passed": 57,
+    "failed": 1
+  },
+  "frontendTests": 58,
+  "hostTests": 34,
+  "coreTests": 3,
+  "processExitCode": 0,
+  "beforeDesktopSha256": "593e6e4233b429f4ddfc0f8f8f7000963e060cc81aa14df6fa606faa9bc45c5f",
+  "desktopSha256": "07efe1795cd6f821ef3c45f87f38dbbcc834d1be9439d495a00677d07e9bfe49",
+  "installerSha256": "e20b9309fbcaea4492b39f2ba2a67c8e7e598506b01ade39f14399958ce56d73",
+  "harnessSha256": "36c304905129b054b327ca22ef55788cd8e2dd122118dd6bcd15cdb33d5871fb",
+  "toolsSha256": "5b8d1f6ca2eaaa6fbe79893f3c9b19322b58890fdc6a776b8aba6704836cb70a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Actual native select and clear refuse with busy during the same accepted run; exact saved-choice bytes remain unchanged and status reads remain allowed.",
+    "The known marked development SSH/descendant stand-ins linger for eight seconds; exact helper hash, scoped paths, marker and loopback-only origin are checked before launch.",
+    "After the same real run reaches terminal, the native picker and clear are allowed again; pending sequence 88 remains after unobserved loopback transport.",
+    "The post-dialog active-run recheck is implemented but a competing start while the picker is already open is not exercised here.",
+    "This is bounded synthetic admission evidence, not sustained stress, authenticated collection or public publication.",
+    "No Memory pin/domain, producer protocol, scheduler, personal Vault/archive, credentials, server or Moriium source changes; B4/J1 partial and B5 inactive."
+  ],
+  "beforeReport": "docs/validation/Activity-unified/setup-running-before.json",
+  "beforeReportSha256": "3cab016ca9ad3da1ca5d52006da8c62c80db86cf48b62e5da39ad6c812d656ed",
+  "beforeSummary": "9/12",
+  "nativeReport": "docs/validation/Activity-unified/setup-running-native.json",
+  "nativeReportSha256": "47bd94e1cded5d85fabbf47a3018f3cd58c20f98fea9a4ddb2a393be7e319f75",
+  "nativeSummary": "12/12",
+  "actionsReport": "docs/validation/Activity-unified/setup-running-actions.json",
+  "actionsReportSha256": "91c9289add8dd397385b87fdb3e790cd959a142528173e24b34081a78ed5b321",
+  "actionsSummary": "35/35"
+}
