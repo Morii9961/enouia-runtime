@@ -26,9 +26,9 @@ import { createServer } from 'node:net';
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -930,14 +930,28 @@ async function main() {
       check('O.rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
       check('O.rebuild_returns_all_approved_memories', (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === expectedMemories);
     }
-    if (mode === '--current-read-lock') {
+    if (['--current-read-lock','--current-acl-denial'].includes(mode)) {
+      const aclMode=mode==='--current-acl-denial';
+      if(aclMode&&realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('ACL drill escaped the prepared synthetic data root');
       const canonical=fixtureTree(join(vault,'vault'));
       const pointer=join(manifest.dataRoot,'CURRENT');
       if(realpathSync(pointer).toLowerCase()!==join(realpathSync(manifest.dataRoot),'CURRENT').toLowerCase()) throw new Error('Current lock escaped the synthetic Activity store');
       const original=readFileSync(pointer);
       if(!/^g-[a-zA-Z0-9-]{1,62}\n?$/.test(original.toString())) throw new Error('Expected a generated current pointer');
-      const holder=spawn('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',['-NoProfile','-NonInteractive','-Command',
-        `$f=[IO.File]::Open('${pointer.replace(/'/g,"''")}','Open','Read','None');try{'locked';Start-Sleep -Seconds 90}finally{$f.Dispose()}`],{windowsHide:true,stdio:['ignore','pipe','pipe']});
+      const powershell='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
+      const literal=pointer.replace(/'/g,"''");
+      const release=join(out,'release-current-acl');
+      const readAcl=()=>execFileSync(powershell,['-NoProfile','-NonInteractive','-Command',`([IO.File]::GetAccessControl('${literal}')).GetSecurityDescriptorSddlForm([Security.AccessControl.AccessControlSections]::All)`],{encoding:'utf8',windowsHide:true,timeout:10000}).trim();
+      const originalAcl=aclMode?readAcl():null;
+      if(aclMode&&(!originalAcl.startsWith('O:')||!originalAcl.includes('D:')))throw Error('Synthetic CURRENT ACL backup is incomplete');
+      // SetAccessControl persists modified descriptors only; reconstruct the
+      // original DACL rather than reapplying an untouched GetAccessControl result.
+      // https://learn.microsoft.com/en-us/dotnet/api/system.io.file.setaccesscontrol?view=netframework-4.8.1
+      const restoreAcl=originalAcl===null?null:`$ErrorActionPreference='Stop';$acl=[Security.AccessControl.FileSecurity]::new();$acl.SetSecurityDescriptorSddlForm([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${Buffer.from(originalAcl).toString('base64')}')),[Security.AccessControl.AccessControlSections]::Access);[IO.File]::SetAccessControl('${literal}',$acl)`;
+      const command=aclMode
+        ? `$ErrorActionPreference='Stop';$changed=[IO.File]::GetAccessControl('${literal}');$rule=[Security.AccessControl.FileSystemAccessRule]::new(([Security.Principal.WindowsIdentity]::GetCurrent()).User,[Security.AccessControl.FileSystemRights]::ReadData,[Security.AccessControl.AccessControlType]::Deny);$changed.AddAccessRule($rule);try{[IO.File]::SetAccessControl('${literal}',$changed);'locked';$watch=[Diagnostics.Stopwatch]::StartNew();while($watch.Elapsed.TotalSeconds -lt 90 -and ![IO.File]::Exists('${release.replace(/'/g,"''")}')){[Threading.Thread]::Sleep(200)}}finally{${restoreAcl}}`
+        : `$f=[IO.File]::Open('${literal}','Open','Read','None');try{'locked';Start-Sleep -Seconds 90}finally{$f.Dispose()}`;
+      const holder=spawn(powershell,['-NoProfile','-NonInteractive','-Command',command],{windowsHide:true,stdio:['ignore','pipe','pipe']});
       children.add(holder);
       holder.exited=new Promise(resolve=>holder.once('exit',code=>{children.delete(holder);resolve(code);}));
       try {
@@ -946,7 +960,8 @@ async function main() {
           holder.stdout.on('data',bytes=>{output+=bytes.toString();if(output.includes('locked')){clearTimeout(timer);resolve();}});
           holder.once('exit',()=>{clearTimeout(timer);reject(Error('Synthetic CURRENT holder exited early'));});
         });
-        check('A.synthetic_current_is_exclusively_held',true);
+        check(aclMode?'P.synthetic_current_read_is_denied':'A.synthetic_current_is_exclusively_held',true);
+        if(aclMode){let denied=false;try{readFileSync(pointer);}catch(error){denied=['EACCES','EPERM'].includes(error.code);}check('P.current_file_really_refuses_read',denied);}
         const reads=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'})]);
         check('A.actual_activity_reads_report_storage_failure',reads.every(r=>r.kind==='activity_error'&&r.error.code==='storage_failed'),JSON.stringify(reads));
         await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
@@ -961,7 +976,16 @@ async function main() {
         await waitFor(s,has('Memory · Vault open'),'Memory during Activity pointer hold');
         check('A.memory_surface_survives_actual_activity_failure',!(await s.evaluate(has('This surface could not open'))));
         check('A.failure_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
-      } finally {holder.kill();await holder.exited;}
+      } finally {
+        if(aclMode){
+          writeFileSync(release,'release');
+          await Promise.race([holder.exited,sleep(10000)]);
+          // Restore independently before terminating an unresponsive owned helper.
+          execFileSync(powershell,['-NoProfile','-NonInteractive','-Command',restoreAcl],{windowsHide:true,timeout:10000,stdio:'pipe'});
+        }
+        holder.kill();await holder.exited;
+      }
+      if(aclMode)check('P.original_security_descriptor_is_restored',readAcl()===originalAcl);
       check('A.release_preserves_current_pointer_bytes',readFileSync(pointer).equals(original));
       check('A.failure_preserves_complete_activity_store',fixtureTree(manifest.dataRoot)===treeBefore);
       await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");

@@ -1,0 +1,146 @@
+{
+  "checks": [
+    {
+      "id": "A.gate_without_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "A.unconfigured_is_structured",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.picker_connects_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.no_path_reaches_page",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.choice_saved_by_shell",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.three_fresh_sources",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.heatmaps_drawn",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.overview_kind",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.task_query_failure_stays_unknown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.preview_hash_is_published_hash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.days_filtered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.invalid_requests_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.next_trigger_not_invented",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.keyboard_surface_skip_entry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.failed_read_clears_old_values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.late_read_cannot_restore_old_values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.refresh_remains_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.refresh_recovers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.synthetic_memory_vault_opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.memory_write_before_activity_fault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.malformed_activity_keeps_memory_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.synthetic_memory_is_approved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.pinned_core_index_rebuild_starts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.activity_reads_survive_index_rebuild",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.pinned_core_index_rebuild_completes",
+      "ok": true,
+      "detail": "{\"kind\":\"index_rebuild\",\"state\":\"succeeded\",\"progress\":{\"done\":1,\"total\":4}}"
+    },
+    {
+      "id": "I.memory_rebuild_preserves_activity_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "The helper could not autoload Microsoft.PowerShell.Security for Get-Acl; no ACL had been captured or changed."
+    }
+  ],
+  "screenshots": [
+    "01-observed.png"
+  ],
+  "summary": "26/27",
+  "sanitized": true,
+  "sanitization": "Redacted the failed helper command and synthetic absolute path from the run detail.",
+  "sourceRawReportSha256": "024953a4f6e37fed95e9f866741bc395592cda4846f0d541994be160a0a032a7"
+}
