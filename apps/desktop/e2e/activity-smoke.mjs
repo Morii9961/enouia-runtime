@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--run-remount', '--setup-running', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--run-remount|--setup-running|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--run-remount', '--setup-running', '--setup-dialog-race', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--run-remount|--setup-running|--setup-dialog-race|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -79,7 +79,7 @@ function launch(extra = []) {
       ...process.env,
       WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${PORT} --remote-debugging-address=127.0.0.1`,
       WEBVIEW2_USER_DATA_FOLDER: join(out, 'webview2'),
-      ...(['--run-remount','--setup-running'].includes(mode)?{ENOU_TEST_ROOT:dirname(pkg),ENOU_TEST_CAPTURES:join(dirname(pkg),'captures'),ENOU_TEST_DESCENDANT:join(dirname(pkg),'tools','descendant.exe'),ENOU_TEST_LINGER:'ssh'}:{}),
+      ...(['--run-remount','--setup-running','--setup-dialog-race'].includes(mode)?{ENOU_TEST_ROOT:dirname(pkg),ENOU_TEST_CAPTURES:join(dirname(pkg),'captures'),ENOU_TEST_DESCENDANT:join(dirname(pkg),'tools','descendant.exe'),ENOU_TEST_LINGER:'ssh'}:{}),
     },
     stdio: 'ignore',
   });
@@ -906,7 +906,25 @@ async function setupRunningMain() {
   check('SG.known_owned_loopback_tools_are_verified',true);let app=launch(),s=await connect();
 
   await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'setup-running gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,"document.querySelectorAll('.act-source').length===3",'setup-running package');const saved=readFileSync(settings);
+  if(mode==='--setup-dialog-race'){
+    await s.evaluate("window.__dialogRace=null;window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'select'}).then(reply=>window.__dialogRace={reply},error=>window.__dialogRace={error:String(error)});true");
+    const owned=powershell(`Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+$A=[System.Windows.Automation.AutomationElement]
+$C=[System.Windows.Automation.PropertyCondition]
+for($i=0;$i -lt 40;$i++){
+  foreach($w in $A::RootElement.FindAll([System.Windows.Automation.TreeScope]::Descendants,(New-Object $C($A::ClassNameProperty,'#32770')))){if($w.Current.ProcessId -eq ${app.pid}){Write-Output 'owned-dialog';exit 0}}
+  Start-Sleep -Milliseconds 100
+}
+throw 'no owned picker'`);
+    check('DG.actual_owned_picker_precedes_run',owned==='owned-dialog'&&await s.evaluate('window.__dialogRace===null'));
+  }
   const accepted=await call(s,{operation:'activity_run_now'});if(accepted.kind!=='activity_run_accepted')throw Error('Actual run required');const runId=accepted.runId;const ready=Date.now()+10000;while(!existsSync(linger)&&Date.now()<ready)await sleep(50);if(!existsSync(linger))throw Error('Owned linger missing');check('SG.actual_run_precedes_setup_changes',(await call(s,{operation:'activity_get_run',runId})).stage==='running');
+  if(mode==='--setup-dialog-race'){
+    fillDialog(app.pid,pkg);await waitFor(s,'window.__dialogRace!==null','post-dialog busy reply');
+    check('DG.confirmed_picker_refuses_new_active_run',(await s.evaluate('window.__dialogRace')).error==='busy');
+    check('DG.post_dialog_preserves_exact_saved_choice',existsSync(settings)&&readFileSync(settings).equals(saved));
+  }
+
   const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");check('SG.status_reads_current_choice_during_run',status.configured===true&&status.saved===true);
   await s.evaluate("window.__setupAttempt=null;window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'select'}).then(reply=>window.__setupAttempt={reply},error=>window.__setupAttempt={error:String(error)});true");await sleep(500);
   if(!(await s.evaluate('window.__setupAttempt!==null'))){fillDialog(app.pid,null);await waitFor(s,'window.__setupAttempt!==null','old native dialog cancellation');}
@@ -1759,7 +1777,7 @@ try {
   else if (mode === '--runner-hash-change') await runnerHashMain();
   else if (mode === '--run-remount') await runRemountMain();
   else if (mode === '--window-scope') await windowScopeMain();
-  else if (mode === '--setup-running') await setupRunningMain();
+  else if (['--setup-running','--setup-dialog-race'].includes(mode)) await setupRunningMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();

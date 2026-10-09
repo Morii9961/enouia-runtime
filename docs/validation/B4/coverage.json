@@ -374,6 +374,13 @@
       "sha256": "2d5de60526ab584b6bfbd06e8b6a6f2e24880ce5d736b5acd45b69464e4109b6",
       "state": "passed",
       "selectorCount": 12
+    },
+    {
+      "id": "setup_dialog_race",
+      "path": "docs/validation/Activity-unified/setup-dialog-race-proof.json",
+      "sha256": "6d3d4c75a5d93a7c71d4eae60d9dac7274b6216d7e55e3ad4291d707fc4d1c1e",
+      "state": "passed",
+      "selectorCount": 15
     }
   ],
   "cases": [
@@ -1661,6 +1668,26 @@
           "selectors": [
             "SG.known_owned_loopback_tools_are_verified",
             "SG.actual_run_precedes_setup_changes",
+            "SG.status_reads_current_choice_during_run",
+            "SG.select_refuses_active_run_with_busy",
+            "SG.clear_refuses_active_run_with_busy",
+            "SG.refused_clear_preserves_exact_saved_choice",
+            "SG.same_run_still_active_after_setup_attempts",
+            "SG.native_choice_remains_connected",
+            "SG.original_run_reaches_terminal",
+            "SG.terminal_run_retains_actual_pending",
+            "SG.terminal_reopens_native_picker",
+            "SG.terminal_accepts_clear_and_removes_choice"
+          ]
+        },
+        {
+          "report": "setup_dialog_race",
+          "selectors": [
+            "SG.known_owned_loopback_tools_are_verified",
+            "DG.actual_owned_picker_precedes_run",
+            "SG.actual_run_precedes_setup_changes",
+            "DG.confirmed_picker_refuses_new_active_run",
+            "DG.post_dialog_preserves_exact_saved_choice",
             "SG.status_reads_current_choice_during_run",
             "SG.select_refuses_active_run_with_busy",
             "SG.clear_refuses_active_run_with_busy",

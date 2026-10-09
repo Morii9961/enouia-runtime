@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 53);
+  assert.equal(reports.size, 54);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -996,6 +996,21 @@ function validate(index) {
   assert.equal(setupRunning.memoryRevision, isolation.memoryRevision);
   for (const digest of [setupRunning.desktopSha256, setupRunning.installerSha256, setupRunning.harnessSha256, setupRunning.toolsSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(setupRunning.limitations.includes('The post-dialog active-run recheck is implemented but a competing start while the picker is already open is not exercised here.'));
+  const dialogRace = reports.get('setup_dialog_race').report;
+  assert.equal(dialogRace.scope, 'isolated_activity_actual_setup_dialog_run_interleave');
+  const dialogNative = readLinked(dialogRace.nativeReport, dialogRace.nativeReportSha256);
+  assert.equal(dialogNative.summary, '15/15');
+  assert.equal(dialogNative.checks.length, 15);
+  assert(dialogNative.checks.every(c => c.ok === true));
+  assert.deepEqual(dialogRace.checks, dialogNative.checks.map(c => c.id));
+  assert.equal(dialogRace.nativeSummary, dialogNative.summary);
+  assert.equal(dialogRace.processExitCode, 0);
+  for (const key of ['desktopSha256','installerSha256','runnerSha256','toolsSha256','memoryRevision']) assert.equal(dialogRace[key], setupRunning[key]);
+  assert.match(dialogRace.harnessSha256, /^[a-f0-9]{64}$/);
+  assert.equal(dialogRace.reusedFrontendTests, 58);
+  assert.equal(dialogRace.reusedHostTests, 34);
+  assert.equal(dialogRace.reusedCoreTests, 3);
+  for (const id of ['DG.actual_owned_picker_precedes_run','DG.confirmed_picker_refuses_new_active_run','DG.post_dialog_preserves_exact_saved_choice']) assert(dialogRace.checks.includes(id));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1056,6 +1071,7 @@ function validate(index) {
   assert(runRemount.checks.every(id => linkedTo(c17, 'run_remount').includes(id)), 'C17 must retain actual running-host remount lock and terminal recovery');
   assert(windowScope.checks.every(id => linkedTo(c17, 'window_scope').includes(id)), 'C17 must retain actual native overlay Activity refusals and main recovery');
   assert(setupRunning.checks.every(id => linkedTo(c17, 'setup_running').includes(id)), 'C17 must retain actual running setup refusal, exact choice and terminal recovery');
+  assert(dialogRace.checks.every(id => linkedTo(c17, 'setup_dialog_race').includes(id)), 'C17 must retain actual open-picker interleave and recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1063,7 +1079,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 43, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 44, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -1125,7 +1141,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_remount'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'window_scope'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_running'));
-  result.negativeChecks = 55;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_dialog_race'));
+  result.negativeChecks = 56;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
