@@ -18,7 +18,7 @@
 // scripts/test-activity-package.ps1 -LiveScheduler -NativeDesktop <exe>.
 // Default/keyboard fixtures publish only over 127.0.0.1. Synthetic data only.
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, rmdirSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, rmdirSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--run-remount', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--run-remount|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -79,6 +79,7 @@ function launch(extra = []) {
       ...process.env,
       WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${PORT} --remote-debugging-address=127.0.0.1`,
       WEBVIEW2_USER_DATA_FOLDER: join(out, 'webview2'),
+      ...(mode==='--run-remount'?{ENOU_TEST_ROOT:dirname(pkg),ENOU_TEST_CAPTURES:join(dirname(pkg),'captures'),ENOU_TEST_DESCENDANT:join(dirname(pkg),'tools','descendant.exe'),ENOU_TEST_LINGER:'ssh'}:{}),
     },
     stdio: 'ignore',
   });
@@ -855,6 +856,30 @@ async function runnerHashMain() {
   const recovered=fixtureImage(manifest.dataRoot);check('HB.archive_sequence_and_pending_stay_exact',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);check('HB.only_pause_resume_add_two_generations',readdirSync(join(manifest.dataRoot,'generations')).length===count+2);
   s.close();app.kill();await app.exited;app=launch();s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'restored runner restart');check('HB.restart_reconnects_restored_verified_choice',true);
   const clear=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'clear'})");check('HB.final_clear_removes_owned_choice',clear.configured===false&&clear.saved===true&&!existsSync(settings));await shot(s,'01-runner-hash-recovery');s.close();app.kill();await app.exited;
+}
+
+async function runRemountMain() {
+  if(existsSync(settings))throw Error('Run-remount requires absent settings');
+  const base=realpathSync(dirname(pkg)),config=JSON.parse(readFileSync(join(pkg,'activity-config.json'),'utf8')),tools=join(base,'tools'),standin=join(tools,'ssh.exe'),descendant=join(tools,'descendant.exe'),linger=join(base,'traces','linger-ssh.json'),hash=b=>createHash('sha256').update(b).digest('hex');
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(base,'data').toLowerCase()||config.mode!=='sandbox'||config.delivery?.restrictedAlias!=='sandbox-handback'||!config.delivery.publicOrigin.startsWith('http://127.0.0.1:')||realpathSync(config.delivery.sshExecutable).toLowerCase()!==realpathSync(standin).toLowerCase()||readFileSync(join(base,'ACTIVITY_SANDBOX_FIXTURE'),'utf8')!=='enouia-activity-isolated-handback-v1'||existsSync(descendant)||existsSync(linger))throw Error('Run-remount fixture must be new, contained and loopback-only');
+  if(hash(readFileSync(standin))!==hash(readFileSync(resolve(import.meta.dirname,'../../../target/release/examples/sandbox_tools.exe'))))throw Error('Only the known development stand-in is allowed');copyFileSync(standin,descendant);
+  check('RM.only_known_marked_loopback_test_tools_are_used',true);let app=launch(),s=await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'run-remount gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Run now'&&!b.disabled)",'run-remount reads');
+  await s.evaluate(`(()=>{const real=window.fetch,url=window.__TAURI_INTERNALS__.convertFileSrc('activity_call','ipc');window.__remountStarts=0;window.__remountId=null;window.fetch=async(u,o)=>{const response=await real(u,o);if(u===url&&JSON.parse(o.body).request.operation==='activity_run_now'){window.__remountStarts++;window.__remountId=(await response.clone().json()).runId;}return response;};return true;})()`);
+  await press(s,'Run now');await waitFor(s,'typeof window.__remountId===\"string\"','actual started run');const runId=await s.evaluate('window.__remountId');
+  const deadline=Date.now()+10000;while(!existsSync(linger)&&Date.now()<deadline)await sleep(50);if(!existsSync(linger))throw Error('Actual owned SSH linger did not start');check('RM.actual_owned_standin_run_is_in_progress',true);
+  check('RM.local_run_initially_disables_operations',await disabled(s,'Run now')&&await disabled(s,'Pause activity sync')&&await disabled(s,'Change package'));
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.act-surface')",'run unmount');await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'active run remount');
+  const [observed,status]=await Promise.all([overview(s),call(s,{operation:'activity_get_run',runId})]);check('RM.remounted_native_host_still_reports_running',observed.schedule.mode==='running'&&status.stage==='running');if(observed.schedule.mode!=='running'||status.stage!=='running')throw Error('Active native bracket required before checking remounted controls');
+  check('RM.remounted_page_has_no_invented_local_run_record',await s.evaluate("!document.querySelector('.act-run')"));
+  check('RM.remounted_running_host_disables_all_mutations',await disabled(s,'Run now')&&await disabled(s,'Retry pending')&&await disabled(s,'Pause activity sync')&&await disabled(s,'Change package'));
+  let terminal;const end=Date.now()+15000;do{terminal=await call(s,{operation:'activity_get_run',runId});if(['completed','failed','blocked'].includes(terminal.stage))break;await sleep(100);}while(Date.now()<end);
+  check('RM.same_actual_run_reaches_terminal_status',terminal.kind==='activity_run_status'&&terminal.runId===runId&&['completed','failed','blocked'].includes(terminal.stage));
+  await press(s,'Refresh');await waitFor(s,has('#88'),'finished run remount refresh');const final=await overview(s);
+  check('RM.finished_refresh_recovers_operation_controls',await s.evaluate("[...document.querySelectorAll('button')].filter(b=>['Run now','Retry pending','Pause activity sync','Change package'].includes(b.textContent.trim())).every(b=>!b.disabled)"));
+  check('RM.remount_never_sends_a_second_start',await s.evaluate('window.__remountStarts===1'));
+  check('RM.actual_pending_is_retained_after_failed_loopback_observation',final.schedule.mode==='idle'&&final.pending?.sequence===88&&final.producer.highestReserved===88&&final.pending.failureCount===1);
+  await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'run-remount forgotten');check('RM.owned_choice_is_cleared',!existsSync(settings));await shot(s,'01-run-remount-recovered');s.close();app.kill();await app.exited;
 }
 
 async function readContractMain(exportContract = false) {
@@ -1691,6 +1716,7 @@ try {
   else if (mode === '--run-history') await runHistoryMain();
   else if (mode === '--run-admission') await runAdmissionMain();
   else if (mode === '--runner-hash-change') await runnerHashMain();
+  else if (mode === '--run-remount') await runRemountMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();

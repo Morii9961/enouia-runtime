@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 50);
+  assert.equal(reports.size, 51);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -923,6 +923,33 @@ function validate(index) {
   assert.equal(runnerHash.reusedCoreTests, 3);
   assert.match(runnerHash.harnessSha256, /^[a-f0-9]{64}$/);
   assert(runnerHash.limitations.includes('Only the runner copy in a new synthetic installed package is changed after actual pause; original bytes are saved and restored in finally.'));
+  const runRemount = reports.get('run_remount').report;
+  assert.equal(runRemount.scope, 'isolated_activity_actual_running_host_remount');
+  const remountBefore = readLinked(runRemount.beforeReport, runRemount.beforeReportSha256);
+  const remountNative = readLinked(runRemount.nativeReport, runRemount.nativeReportSha256);
+  const remountActions = readLinked(runRemount.actionsReport, runRemount.actionsReportSha256);
+  assert.equal(remountBefore.summary, '10/11');
+  assert.equal(remountBefore.checks.length, 11);
+  assert.deepEqual(remountBefore.checks.filter(c => !c.ok).map(c => c.id), ['RM.remounted_running_host_disables_all_mutations']);
+  assert.equal(remountNative.summary, '11/11');
+  assert.equal(remountNative.checks.length, 11);
+  assert(remountNative.checks.every(c => c.ok === true));
+  assert.deepEqual(runRemount.checks, remountNative.checks.map(c => c.id));
+  assert.equal(remountActions.summary, '35/35');
+  assert.equal(remountActions.checks.length, 35);
+  assert(remountActions.checks.every(c => c.ok === true));
+  assert.equal(runRemount.beforeSummary, remountBefore.summary);
+  assert.equal(runRemount.nativeSummary, remountNative.summary);
+  assert.equal(runRemount.actionsSummary, remountActions.summary);
+  assert.equal(runRemount.processExitCode, 0);
+  assert.equal(runRemount.frontendTests, 57);
+  assert.equal(runRemount.reusedHostTests, 34);
+  assert.equal(runRemount.reusedCoreTests, 3);
+  assert.equal(runRemount.beforeDesktopSha256, selectRecovery.desktopSha256);
+  assert.equal(runRemount.runnerSha256, guidance.runnerSha256);
+  assert.equal(runRemount.memoryRevision, isolation.memoryRevision);
+  for (const digest of [runRemount.desktopSha256, runRemount.installerSha256, runRemount.harnessSha256, runRemount.toolsSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(runRemount.limitations.includes('The native overview and same accepted run status must both still report running before remounted controls are checked; no running reply is modeled.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -980,6 +1007,7 @@ function validate(index) {
   assert(admission.checks.every(id => linkedTo(c17, 'run_admission').includes(id)), 'C17 must retain real concurrent admission and exact paused state');
   assert(generationManifest.checks.every(id => linkedTo(c17, 'generation_manifest_acl').includes(id)), 'C17 must retain selected-manifest refusal and exact permission/data restoration');
   assert(runnerHash.checks.every(id => linkedTo(c17, 'runner_hash_change').includes(id)), 'C17 must retain actual cached-runner hash refusal and recovery');
+  assert(runRemount.checks.every(id => linkedTo(c17, 'run_remount').includes(id)), 'C17 must retain actual running-host remount lock and terminal recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -987,7 +1015,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 40, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 41, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -1046,7 +1074,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_admission'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'generation_manifest_acl'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_hash_change'));
-  result.negativeChecks = 52;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_remount'));
+  result.negativeChecks = 53;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

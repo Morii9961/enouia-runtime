@@ -354,7 +354,7 @@ export default function ActivitySurface() {
   if (setup.configured !== true) return <Gate setup={setup} onSelect={() => void select()} onClear={() => void changePackage()} error={setupError} busy={acting} />;
 
   const asOf = dateInShanghai();
-  const running = run !== null && ACTIVE_STAGES.includes(run.stage);
+  const running = (run !== null && ACTIVE_STAGES.includes(run.stage)) || overview?.schedule.mode === "running";
   const paused = overview?.producer?.paused ?? overview?.schedule.mode === "paused";
   return (
     <section className="act-surface" data-screen-label="Activity" aria-labelledby="act-title">

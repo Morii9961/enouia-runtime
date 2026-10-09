@@ -1,0 +1,63 @@
+{
+  "checks": [
+    {
+      "id": "RM.only_known_marked_loopback_test_tools_are_used",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.actual_owned_standin_run_is_in_progress",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.local_run_initially_disables_operations",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.remounted_native_host_still_reports_running",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.remounted_page_has_no_invented_local_run_record",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.remounted_running_host_disables_all_mutations",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "RM.same_actual_run_reaches_terminal_status",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.finished_refresh_recovers_operation_controls",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.remount_never_sends_a_second_start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.actual_pending_is_retained_after_failed_loopback_observation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RM.owned_choice_is_cleared",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-run-remount-recovered.png"
+  ],
+  "summary": "10/11"
+}
