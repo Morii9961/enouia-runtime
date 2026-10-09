@@ -11,6 +11,7 @@ import {
 import { DELIVERY, FRESHNESS, LABELS, RUN_STATES, STAGES, age, calendar, dateInShanghai, exact, requiresRunConfirmation } from "./model";
 
 type Failure = { text: string; retry?: () => void } | null;
+const ACTIVE_STAGES: readonly RunStatus["stage"][] = ["queued", "running", "collecting", "persisting", "uploading", "observing"];
 const when = (iso: string | null | undefined) => {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -211,18 +212,28 @@ export default function ActivitySurface() {
 
   // Poll a started run until it ends; the runner reports only its outcome.
   useEffect(() => {
-    if (!run || !["queued", "running"].includes(run.stage)) return;
+    if (!run || !ACTIVE_STAGES.includes(run.stage)) return;
     let stopped = false;
-    const timer = setTimeout(async () => {
+    let timer: ReturnType<typeof setTimeout>;
+    let failures = 0;
+    let queryFailure: string | null = null;
+    const poll = async () => {
       try {
         const next = await activity.run(run.runId);
         if (stopped) return;
+        if (queryFailure !== null) setFailure(current => current?.text === queryFailure ? null : current);
         setRun(next);
-        if (!["queued", "running"].includes(next.stage)) void refresh();
+        if (!ACTIVE_STAGES.includes(next.stage)) void refresh();
       } catch (err) {
-        if (!stopped) setFailure({ text: describe(err) });
+        if (stopped) return;
+        queryFailure = describe(err);
+        setFailure({ text: queryFailure });
+        // Retry only the read for this same run. Never repeat its mutation.
+        const delay = Math.min(30_000, 1000 * 2 ** Math.min(failures++, 5));
+        timer = setTimeout(() => void poll(), delay);
       }
-    }, 1000);
+    };
+    timer = setTimeout(() => void poll(), 1000);
     return () => { stopped = true; clearTimeout(timer); };
   }, [run, refresh]);
 
@@ -306,7 +317,7 @@ export default function ActivitySurface() {
   if (setup.configured !== true) return <Gate setup={setup} onSelect={() => void select()} error={setupError} busy={acting} />;
 
   const asOf = dateInShanghai();
-  const running = run !== null && ["queued", "running"].includes(run.stage);
+  const running = run !== null && ACTIVE_STAGES.includes(run.stage);
   const paused = overview?.producer?.paused ?? overview?.schedule.mode === "paused";
   return (
     <section className="act-surface" data-screen-label="Activity" aria-labelledby="act-title">

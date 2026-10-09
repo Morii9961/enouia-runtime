@@ -129,6 +129,10 @@ export const DELIVERY: Record<string, string> = {
 export const STAGES: Record<string, string> = {
   queued: "Queued",
   running: "Running in the installed runner",
+  collecting: "Collecting",
+  persisting: "Saving locally",
+  uploading: "Sending",
+  observing: "Checking publication",
   completed: "Completed",
   blocked: "Stopped before publication",
   failed: "Failed",

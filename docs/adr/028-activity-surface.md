@@ -54,3 +54,5 @@ The [diagnostic/payload field-boundary fix](../validation/Activity-export-contra
 The [Activity read-failure isolation drill](../validation/Activity-read-failure-isolation-2026-10-09.md) verifies that an actual CURRENT sharing failure does not prevent pinned-Core Memory queries or page access. Release restores the exact Activity history without changes to pointer, Activity or canonical Vault bytes (45/45 native checks). Other storage faults remain separate.
 
 The [request/reply correlation fix](../validation/Activity-reply-correlation-2026-10-09.md) rejects mismatched run/source/date-range/pause replies and enforces the existing exact operation/status/acknowledgement records (48 frontend tests, 12/12 modeled native checks and a separate 35/35 actual-action rerun). The producer and Memory pin stay unchanged.
+
+The [run-query recovery fix](../validation/Activity-run-polling-2026-10-09.md) retries reads for the same accepted run after query failures and keeps all existing nonterminal protocol stages active. It never repeats the start mutation and ignores late replies after unmount (17/17 modeled native checks plus a fresh 35/35 actual-action run).

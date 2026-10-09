@@ -220,6 +220,13 @@
       "sha256": "70be1e4b9dda53be68d0177e7347aa70d4d2fb20f7cf16c77caebb16c8a3dd38",
       "state": "passed",
       "selectorCount": 12
+    },
+    {
+      "id": "run_polling",
+      "path": "docs/validation/Activity-unified/run-polling-proof.json",
+      "sha256": "a34c09153403f9f1b2e96dfd5b34210b3dc94ab62a221def5e25b80f8659ccb1",
+      "state": "passed",
+      "selectorCount": 17
     }
   ],
   "cases": [
@@ -969,6 +976,28 @@
             "Y.rejects_opposite_pause_ack",
             "Y.modeled_operations_preserve_complete_store",
             "Y.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "run_polling",
+          "selectors": [
+            "Z.mutations_are_intercepted_before_native_ipc",
+            "Z.actual_synthetic_package_connects",
+            "Z.busy_status_is_visible",
+            "Z.busy_keeps_operation_controls_disabled",
+            "Z.busy_recovers_without_second_run",
+            "Z.queued_keeps_operation_controls_disabled",
+            "Z.queued_continues_to_terminal_status",
+            "Z.collecting_keeps_operation_controls_disabled",
+            "Z.collecting_continues_to_terminal_status",
+            "Z.persisting_keeps_operation_controls_disabled",
+            "Z.persisting_continues_to_terminal_status",
+            "Z.uploading_keeps_operation_controls_disabled",
+            "Z.uploading_continues_to_terminal_status",
+            "Z.observing_keeps_operation_controls_disabled",
+            "Z.observing_continues_to_terminal_status",
+            "Z.polling_preserves_complete_store",
+            "Z.choice_is_cleared"
           ]
         }
       ],

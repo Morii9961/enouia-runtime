@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-polling', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-polling|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -382,6 +382,59 @@ async function confirmationMain() {
 
 // Malformed replies below are modeled only in this owned page; all restored
 // reads still use the real installed runner, with no store mutation or Vault.
+async function runPollingMain() {
+  rmSync(settings,{force:true});
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Run-polling requires the contained synthetic store');
+  const before=fixtureTree(manifest.dataRoot),app=launch(),s=await connect();
+  await s.evaluate(`(()=>{
+    const real=window.fetch,url=window.__TAURI_INTERNALS__.convertFileSrc('activity_call','ipc');
+    window.__pollCase='busy';window.__pollReplies=0;window.__pollStarts=0;
+    window.fetch=async(endpoint,options)=>{
+      if(endpoint!==url)return real(endpoint,options);
+      const {request}=JSON.parse(options.body);let reply;
+      if(['activity_run_now','activity_retry_pending'].includes(request.operation)) {
+        window.__pollStarts++;reply={schemaVersion:1,kind:'activity_run_accepted',runId:'run-polling'};
+      } else if(request.operation==='activity_set_paused') {
+        throw Error('Unexpected mutation in read-polling drill');
+      } else if(request.operation==='activity_get_run') {
+        window.__pollReplies++;
+        reply=window.__pollCase==='busy'&&window.__pollReplies===1
+          ? {schemaVersion:1,kind:'activity_error',error:{code:'busy',component:'activity_archive',retryable:true}}
+          : {schemaVersion:1,kind:'activity_run_status',runId:request.runId,stage:window.__pollReplies===1?window.__pollCase:'completed',error:null};
+      } else return real(endpoint,options);
+      return new Response(JSON.stringify(reply),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});
+    };return true;
+  })()`);
+  const probe=await call(s,{operation:'activity_run_now'});
+  if(probe.runId!=='run-polling'||await s.evaluate('window.__pollStarts')!==1)throw Error('Polling interception was not proved');
+  check('Z.mutations_are_intercepted_before_native_ipc',true);
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,has('Connect the installed Activity producer'),'polling gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'polling actual reads');check('Z.actual_synthetic_package_connects',true);
+  const reset=async scenario=>{
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");await waitFor(s,"!document.querySelector('.act-surface')",'polling unmount');
+    await s.evaluate(`window.__pollCase=${JSON.stringify(scenario)};window.__pollReplies=0;window.__pollStarts=0;document.querySelector('nav button[aria-label="Activity"]').click();true`);
+    await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Run now'&&!b.disabled)",'polling controls');
+  };
+  const recovered=async()=>{
+    try{await waitFor(s,'window.__pollReplies>=2','second status query',4000);}catch{return false;}
+    await sleep(100);return await s.evaluate("!!document.querySelector('.act-run')?.textContent.includes('Completed')&&![...document.querySelectorAll('[role=alert]')].some(e=>e.textContent.includes('busy'))&&window.__pollStarts===1");
+  };
+  const blocked=()=>s.evaluate("[...document.querySelectorAll('button')].filter(b=>['Run now','Pause activity sync','Change package'].includes(b.textContent.trim())).every(b=>b.disabled)");
+  await reset('busy');await press(s,'Run now');await waitFor(s,'window.__pollReplies===1','busy response');await sleep(100);
+  check('Z.busy_status_is_visible',await s.evaluate(has('The Activity producer is busy with another run')));
+  check('Z.busy_keeps_operation_controls_disabled',await blocked());
+  check('Z.busy_recovers_without_second_run',await recovered());
+  for(const stage of ['queued','collecting','persisting','uploading','observing']) {
+    await reset(stage);await press(s,'Run now');await waitFor(s,'window.__pollReplies===1','intermediate response');await sleep(100);
+    check(`Z.${stage}_keeps_operation_controls_disabled`,await blocked());
+    check(`Z.${stage}_continues_to_terminal_status`,await recovered());
+  }
+  check('Z.polling_preserves_complete_store',fixtureTree(manifest.dataRoot)===before);
+  await reset('queued');await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'polling forgotten choice');check('Z.choice_is_cleared',!existsSync(settings));
+  s.close();app.kill();await app.exited;
+}
+
 async function runContractMain() {
   rmSync(settings,{force:true});
   if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase()) throw new Error('Run-contract acceptance requires the contained synthetic data root');
@@ -1044,6 +1097,7 @@ try {
   else if (mode === '--read-contract') await readContractMain();
   else if (mode === '--export-contract') await readContractMain(true);
   else if (mode === '--run-contract') await runContractMain();
+  else if (mode === '--run-polling') await runPollingMain();
   else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));
