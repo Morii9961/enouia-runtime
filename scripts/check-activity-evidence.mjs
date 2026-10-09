@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 27);
+  assert.equal(reports.size, 28);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -422,6 +422,28 @@ function validate(index) {
   assert(timed.limitations.includes('Short rearmed boundaries are actual time-trigger evidence, not elapsed hourly repetition.'));
   assert.equal(timed.runnerSha256,guidance.runnerSha256);
   for(const digest of [timed.harnessSha256,timed.exactPendingSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  const sourceContract=reports.get('source_contract').report;
+  assert.equal(sourceContract.scope,'native_activity_source_semantics');
+  const sourceNative=readLinked(sourceContract.nativeReport,sourceContract.nativeReportSha256);
+  const sourceBefore=readLinked(sourceContract.beforeReport,sourceContract.beforeReportSha256);
+  assert.equal(sourceContract.nativeSummary,'23/23');
+  assert.equal(sourceNative.summary,sourceContract.nativeSummary);
+  assert.equal(sourceNative.checks.length,23);
+  assert(sourceNative.checks.every(c=>c.ok===true));
+  assert.equal(sourceContract.processExitCode,0);
+  assert.equal(sourceBefore.summary,'14/23');
+  assert.equal(sourceContract.beforeSummary,sourceBefore.summary);
+  assert.equal(sourceContract.beforeProcessExitCode,1);
+  assert.deepEqual(sourceNative.checks.map(c=>c.id),sourceBefore.checks.map(c=>c.id));
+  assert.deepEqual(sourceBefore.checks.filter(c=>!c.ok).map(c=>c.id),['github_metric','codex_timezone','extra_overview_source','overview_impossible_date','claude_preview_metric','preview_impossible_date','preview_duplicate_date','preview_unsafe_total','preview_unsorted_days'].map(id=>`V.rejects_${id}`));
+  assert.deepEqual(sourceContract.checks,sourceNative.checks.map(c=>c.id));
+  assert.deepEqual(sourceContract.frontendBefore,{tests:42,passed:39,failed:3});
+  assert.deepEqual(sourceContract.frontendAfter,{tests:42,passed:42,failed:0});
+  assert.equal(sourceContract.runnerSha256,guidance.runnerSha256);
+  assert.equal(sourceContract.memoryRevision,isolation.memoryRevision);
+  assert.equal(sourceContract.beforeDesktopSha256,nextTrigger.desktopSha256);
+  for(const digest of [sourceContract.desktopSha256,sourceContract.installerSha256,sourceContract.harnessSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(sourceContract.limitations.includes('Invalid replies are modeled only in the owned page; each restoration uses the actual installed runner.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -456,10 +478,11 @@ function validate(index) {
   assert(staticRead.checks.every(id=>linkedTo(c17,'static_read').includes(id)),'C17 must retain copied-author removal, independent static restart and unchanged package/data evidence');
   assert(nextTrigger.checks.every(id=>linkedTo(c17,'next_trigger').includes(id)),'C17 must retain observed task time and read-only scheduler evidence');
   assert(timed.checks.every(id=>linkedTo(c17,'timed_trigger').includes(id)),'C17 must retain actual time-trigger and pending preservation evidence');
+  assert(sourceContract.checks.every(id=>linkedTo(c17,'source_contract').includes(id)),'C17 must retain strict source semantics and real-read recovery evidence');
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 17, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 18, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -492,7 +515,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C18').evidence = x.cases.find(c => c.id === 'C18').evidence.filter(e => e.report !== 'full_days'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'next_trigger'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'timed_trigger'));
-  result.negativeChecks = 26;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'source_contract'));
+  result.negativeChecks = 27;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

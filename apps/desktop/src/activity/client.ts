@@ -102,19 +102,49 @@ export function setTransport(next: Transport): void {
 type ObjectValue = Record<string, unknown>;
 const object = (value: unknown): value is ObjectValue => value !== null && typeof value === "object" && !Array.isArray(value);
 const nullableText = (value: unknown) => value === null || typeof value === "string";
-const natural = (value: unknown) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+const natural = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 const hash = (value: unknown) => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 const inList = (value: unknown, values: readonly string[]) => typeof value === "string" && values.includes(value);
 const modes = ["unconfigured", "idle", "running", "paused"];
 const errorCodes = ["busy", "unconfigured", "unsupported_method", "source_invalid", "clock_regression", "storage_failed", "delivery_unverified", "contract_invalid"];
+const sourceMetadata = {
+  github: { timezone: "GitHub", metric: "contributions" },
+  codex: { timezone: "Codex", metric: "tokens" },
+  claude: { timezone: "Asia/Shanghai", metric: "tokens" },
+} as const;
+
+function realDate(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const year = Number(value.slice(0, 4)), month = Number(value.slice(5, 7)), day = Number(value.slice(8, 10));
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const limit = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  return month >= 1 && month <= 12 && day >= 1 && day <= limit;
+}
+
+function sourceSet(value: unknown): value is Record<SourceId, unknown> {
+  return object(value) && Object.keys(value).length === SOURCES.length && SOURCES.every(id => Object.hasOwn(value, id));
+}
+
+function recordedDays(value: unknown): value is Day[] {
+  if (!Array.isArray(value)) return false;
+  let previous = "", total = 0;
+  for (const day of value) {
+    if (!object(day) || !realDate(day.date) || day.date <= previous || !natural(day.value)) return false;
+    total += day.value;
+    if (!Number.isSafeInteger(total)) return false;
+    previous = day.date;
+  }
+  return true;
+}
 
 const validError = (value: unknown): value is StructuredError => object(value)
   && inList(value.code, errorCodes) && typeof value.component === "string" && typeof value.retryable === "boolean";
 
-function summary(value: unknown): boolean {
-  return object(value) && inList(value.timezone, ["GitHub", "Codex", "Asia/Shanghai"])
-    && inList(value.metric, ["contributions", "tokens"]) && natural(value.recordedDays)
-    && nullableText(value.firstDate) && nullableText(value.lastDate)
+function summary(value: unknown, id: SourceId): boolean {
+  return object(value) && value.timezone === sourceMetadata[id].timezone
+    && value.metric === sourceMetadata[id].metric && natural(value.recordedDays)
+    && (value.recordedDays === 0 ? value.firstDate === null && value.lastDate === null
+      : realDate(value.firstDate) && realDate(value.lastDate) && value.firstDate <= value.lastDate)
     && typeof value.total === "string" && /^(0|[1-9][0-9]*)$/.test(value.total)
     && nullableText(value.lastAttemptAt) && nullableText(value.lastSuccessAt)
     && inList(value.lastResult, ["unknown", "success", "failed"])
@@ -124,7 +154,8 @@ function summary(value: unknown): boolean {
 /** Reject malformed replies before they can crash a shared desktop surface. */
 function validReply(reply: ObjectValue, kind: string): boolean {
   if (kind === "activity_overview") {
-    if (!object(reply.sources) || !SOURCES.every(id => summary((reply.sources as ObjectValue)[id]))) return false;
+    const sources = reply.sources;
+    if (!sourceSet(sources) || !SOURCES.every(id => summary(sources[id], id))) return false;
     const s = reply.schedule, d = reply.delivery;
     if (!object(s) || !inList(s.mode, modes) || !nullableText(s.nextTriggerAt)
       || (s.task != null && (!object(s.task) || typeof s.task.registered !== "boolean" || !(s.task.enabled === null || typeof s.task.enabled === "boolean")))) return false;
@@ -142,17 +173,17 @@ function validReply(reply: ObjectValue, kind: string): boolean {
       && inList(h.state, ["healthy", "degraded", "unavailable", "recovering"]) && inList(h.mode, modes)
       && nullableText(h.observedAt) && nullableText(h.lastSuccessAt) && (h.ageSeconds === null || natural(h.ageSeconds)));
   }
-  const days = (value: unknown) => Array.isArray(value) && value.every(d => object(d) && typeof d.date === "string" && natural(d.value));
   if (kind === "activity_public_preview") {
     const data = reply.data;
-    if (!hash(reply.sha256) || !object(data) || data.version !== 1 || !object(data.sources)) return false;
+    if (!hash(reply.sha256) || !object(data) || data.version !== 1 || !sourceSet(data.sources)) return false;
     const sources = data.sources;
     return SOURCES.every(id => {
       const s = sources[id];
-      return s === null || (object(s) && typeof s.updatedAt === "string" && typeof s.timezone === "string" && typeof s.metric === "string" && days(s.days));
+      return s === null || (object(s) && typeof s.updatedAt === "string" && s.timezone === sourceMetadata[id].timezone
+        && s.metric === sourceMetadata[id].metric && recordedDays(s.days));
     });
   }
-  if (kind === "activity_days") return inList(reply.source, SOURCES) && days(reply.days);
+  if (kind === "activity_days") return inList(reply.source, SOURCES) && recordedDays(reply.days);
   if (kind === "activity_pause_acknowledged") return typeof reply.paused === "boolean";
   if (kind === "activity_run_accepted") return typeof reply.runId === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(reply.runId);
   if (kind === "activity_run_status") return typeof reply.runId === "string"

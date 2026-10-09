@@ -192,6 +192,13 @@
       "sha256": "60ac09739d580ea21f786b71a255eb3f19d7934c0923fb5006a642e96e2f337a",
       "state": "passed",
       "selectorCount": 25
+    },
+    {
+      "id": "source_contract",
+      "path": "docs/validation/Activity-unified/source-contract-proof.json",
+      "sha256": "62bd618417068d2c81e936142f235a81f3ebddd1ad431fd9bd5bc102c3b3a37c",
+      "state": "passed",
+      "selectorCount": 23
     }
   ],
   "cases": [
@@ -832,6 +839,34 @@
             "desktop_closed_after_timed_test",
             "uninstall_preserves_fixture",
             "owned_task_is_removed"
+          ]
+        },
+        {
+          "report": "source_contract",
+          "selectors": [
+            "V.actual_package_connects",
+            "V.actual_three_source_snapshot",
+            "V.rejects_github_metric",
+            "V.recovers_github_metric",
+            "V.rejects_codex_timezone",
+            "V.recovers_codex_timezone",
+            "V.rejects_extra_overview_source",
+            "V.recovers_extra_overview_source",
+            "V.rejects_overview_impossible_date",
+            "V.recovers_overview_impossible_date",
+            "V.rejects_claude_preview_metric",
+            "V.recovers_claude_preview_metric",
+            "V.rejects_preview_impossible_date",
+            "V.recovers_preview_impossible_date",
+            "V.rejects_preview_duplicate_date",
+            "V.recovers_preview_duplicate_date",
+            "V.rejects_preview_unsafe_total",
+            "V.recovers_preview_unsafe_total",
+            "V.rejects_preview_unsorted_days",
+            "V.recovers_preview_unsorted_days",
+            "V.invalid_replies_preserve_actual_store",
+            "V.paths_stay_private",
+            "V.choice_is_cleared"
           ]
         }
       ],

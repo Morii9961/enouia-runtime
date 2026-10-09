@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -378,6 +378,47 @@ async function confirmationMain() {
   s.close();
   app.kill();
   await app.exited;
+}
+
+// Malformed replies below are modeled only in this owned page; all restored
+// reads still use the real installed runner, with no store mutation or Vault.
+async function readContractMain() {
+  rmSync(settings,{force:true});
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase()) throw new Error('Read-contract acceptance requires the contained synthetic data root');
+  const before=fixtureTree(manifest.dataRoot), app=launch(), s=await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,has('Connect the installed Activity producer'),'read-contract gate');
+  await press(s,'Choose installed package…'); fillDialog(app.pid,pkg);
+  await waitFor(s,has('Publication observed'),'actual valid source data');
+  check('V.actual_package_connects',true);
+  const actual=await call(s,{operation:'activity_preview_public_payload'});
+  check('V.actual_three_source_snapshot',actual.kind==='activity_public_preview'&&Object.keys(actual.data.sources).length===3);
+  const cases=[
+    ['github_metric','activity_overview',"reply.sources.github.metric='tokens';"],
+    ['codex_timezone','activity_overview',"reply.sources.codex.timezone='Asia/Shanghai';"],
+    ['extra_overview_source','activity_overview',"reply.sources.claude_design=reply.sources.claude;"],
+    ['overview_impossible_date','activity_overview',"reply.sources.github.firstDate='2026-02-30';"],
+    ['claude_preview_metric','activity_public_preview',"reply.data.sources.claude.metric='contributions';"],
+    ['preview_impossible_date','activity_public_preview',"reply.data.sources.github.days[0].date='2026-02-30';"],
+    ['preview_duplicate_date','activity_public_preview',"reply.data.sources.codex.days[1].date=reply.data.sources.codex.days[0].date;"],
+    ['preview_unsafe_total','activity_public_preview',"reply.data.sources.codex.days[0].value=Number.MAX_SAFE_INTEGER;reply.data.sources.codex.days[1].value=1;"],
+    ['preview_unsorted_days','activity_public_preview',"reply.data.sources.github.days.reverse();"],
+  ];
+  for(const [id,kind,transform] of cases) {
+    await s.evaluate(`(()=>{window.__contractReplyDone=false;const callbacks=window.__TAURI_INTERNALS__.callbacks,before=new Set(callbacks.keys());[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Refresh').click();const added=[...callbacks.keys()].filter(id=>!before.has(id));if(added.length!==4)throw Error('Expected two Activity reads');for(const key of added){const original=callbacks.get(key);callbacks.set(key,reply=>{if(reply?.kind===${JSON.stringify(kind)}){${transform}window.__contractReplyDone=true;}original(reply);});}return true;})()`);
+    await waitFor(s,"window.__contractReplyDone===true",'modeled invalid reply '+id);
+    await new Promise(resolve=>setTimeout(resolve,200));
+    const rejected=await s.evaluate(`${has('The response did not match Activity IPC v1')} && document.querySelectorAll('.act-source').length===0`);
+    check('V.rejects_'+id,rejected);
+    if(id==='preview_impossible_date'&&rejected) await shot(s,'01-invalid-source-date');
+    await press(s,'Refresh'); await waitFor(s,has('Publication observed'),'real read recovers '+id);
+    check('V.recovers_'+id,await s.evaluate("document.querySelectorAll('.act-source').length===3"));
+  }
+  check('V.invalid_replies_preserve_actual_store',fixtureTree(manifest.dataRoot)===before);
+  check('V.paths_stay_private',!(await s.evaluate(`document.body.innerText.includes(${JSON.stringify(pkg)})`)));
+  await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'clear contract-read choice');
+  check('V.choice_is_cleared',!existsSync(settings));
+  s.close();app.kill();await app.exited;
 }
 
 async function fullDaysMain() {
@@ -863,6 +904,7 @@ try {
   else if (mode === '--confirmation') await confirmationMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
+  else if (mode === '--read-contract') await readContractMain();
   else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "native_activity_source_semantics",
+  "checks": [
+    "V.actual_package_connects",
+    "V.actual_three_source_snapshot",
+    "V.rejects_github_metric",
+    "V.recovers_github_metric",
+    "V.rejects_codex_timezone",
+    "V.recovers_codex_timezone",
+    "V.rejects_extra_overview_source",
+    "V.recovers_extra_overview_source",
+    "V.rejects_overview_impossible_date",
+    "V.recovers_overview_impossible_date",
+    "V.rejects_claude_preview_metric",
+    "V.recovers_claude_preview_metric",
+    "V.rejects_preview_impossible_date",
+    "V.recovers_preview_impossible_date",
+    "V.rejects_preview_duplicate_date",
+    "V.recovers_preview_duplicate_date",
+    "V.rejects_preview_unsafe_total",
+    "V.recovers_preview_unsafe_total",
+    "V.rejects_preview_unsorted_days",
+    "V.recovers_preview_unsorted_days",
+    "V.invalid_replies_preserve_actual_store",
+    "V.paths_stay_private",
+    "V.choice_is_cleared"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/source-contract-after.json",
+  "nativeReportSha256": "d7d97480855844f4a32906244eb649ad09a7f65126538a8bce587f58e884cc1d",
+  "nativeSummary": "23/23",
+  "processExitCode": 0,
+  "beforeReport": "docs/validation/Activity-unified/source-contract-before.json",
+  "beforeReportSha256": "7a219af368490f68bd1cdfe9fc02b1d3bfccffb58bb03cc7751f5b46b235bcd8",
+  "beforeSummary": "14/23",
+  "beforeProcessExitCode": 1,
+  "beforeDesktopSha256": "9c41dde375bd6b8e0debc32bebbfe57bd15531ca15b4c2c0a3235294ab588e9c",
+  "desktopSha256": "ad307d480bd1bcb85ff7e04586e42afe6a29cdc6973e87548881c706a9b484e4",
+  "installerSha256": "a0bee2f656c75bf8308c4ec556053591df2d23da52586097dc22a57c4300cd8c",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "harnessSha256": "343ff6091820797ebecdef2a59ef2af5d2706f5ac4879d864faf7f9b93d922ed",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "frontendBefore": {
+    "tests": 42,
+    "passed": 39,
+    "failed": 3
+  },
+  "frontendAfter": {
+    "tests": 42,
+    "passed": 42,
+    "failed": 0
+  },
+  "limitations": [
+    "Invalid replies are modeled only in the owned page; each restoration uses the actual installed runner.",
+    "The flow is read-only, uses a synthetic package, and opens no Vault.",
+    "The native folder dialog is assisted; full Windows accessibility and production acceptance remain unverified.",
+    "The unsigned installer is built and statically checked, not installed, signed or published."
+  ]
+}

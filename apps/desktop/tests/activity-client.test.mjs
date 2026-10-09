@@ -87,3 +87,50 @@ test('malformed data and private error text become local contract failures', asy
   }
   assert.doesNotMatch(describeSetup('C:\\private\\path'), /private/);
 });
+
+test('each Activity source keeps its own unit and day boundary in both replies', async () => {
+  for (const id of ['github', 'codex', 'claude']) {
+    for (const field of ['timezone', 'metric']) {
+      const o = overview();
+      o.sources[id][field] = field === 'timezone' ? (id === 'codex' ? 'GitHub' : 'Codex') : (id === 'github' ? 'tokens' : 'contributions');
+      const p = preview();
+      p.data.sources[id] = { updatedAt: o.sources[id].lastSuccessAt, timezone: o.sources[id].timezone, metric: o.sources[id].metric, days: [] };
+      for (const [read, reply] of [[activity.overview, o], [activity.preview, p]]) {
+        recorder(() => reply);
+        await assert.rejects(read(), e => e instanceof ActivityError && e.error.code === 'contract_invalid');
+      }
+    }
+  }
+});
+
+test('Activity calendar replies reject impossible, duplicate, unsorted and unsafe days', async () => {
+  const cases = [
+    [{ date: '2026-02-30', value: 1 }], [{ date: '2026-02-29', value: 1 }],
+    [{ date: '2026-1-01', value: 1 }], [{ date: 'private', value: 1 }],
+    [{ date: '2026-10-06', value: 1 }, { date: '2026-10-06', value: 2 }],
+    [{ date: '2026-10-07', value: 1 }, { date: '2026-10-06', value: 2 }],
+    [{ date: '2026-10-06', value: -1 }], [{ date: '2026-10-06', value: Number.MAX_SAFE_INTEGER + 1 }],
+    [{ date: '2026-10-06', value: Number.MAX_SAFE_INTEGER }, { date: '2026-10-07', value: 1 }],
+  ];
+  for (const days of cases) {
+    const p = preview(); p.data.sources.github.days = days;
+    for (const [read, reply] of [[activity.preview, p], [() => activity.days('github', '2026-01-01', '2026-12-31'), { schemaVersion: 1, kind: 'activity_days', source: 'github', days }]]) {
+      recorder(() => reply);
+      await assert.rejects(read(), e => e instanceof ActivityError && e.error.code === 'contract_invalid');
+    }
+  }
+  const p = preview(); p.data.sources.github.days = [{ date: '2024-02-29', value: 0 }, { date: '2026-10-07', value: 12 }];
+  recorder(() => p);
+  assert.deepEqual((await activity.preview()).data.sources.github.days, p.data.sources.github.days);
+});
+
+test('Activity overview date ranges and the public source set stay canonical', async () => {
+  for (const mutate of [o => o.sources.github.firstDate = '2026-02-30', o => o.sources.github.lastDate = '2026-01-01',
+    o => o.sources.github.firstDate = null, o => o.sources.claude_design = o.sources.claude]) {
+    const o = overview(); mutate(o); recorder(() => o);
+    await assert.rejects(activity.overview(), e => e.error.code === 'contract_invalid');
+  }
+  const p = preview(); p.data.sources.claude_design = p.data.sources.claude;
+  recorder(() => p);
+  await assert.rejects(activity.preview(), e => e.error.code === 'contract_invalid');
+});
