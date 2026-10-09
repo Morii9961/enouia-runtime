@@ -332,6 +332,13 @@
       "sha256": "596071a1bdf647eeec5b83877a24f65f34e59904e22b239616b7ec76b8f1f642",
       "state": "passed",
       "selectorCount": 17
+    },
+    {
+      "id": "run_admission",
+      "path": "docs/validation/Activity-unified/run-admission-proof.json",
+      "sha256": "5fdac9851f53b11dc4af7554847941107fe74617dd6a3e79a76f1455c5ab7b81",
+      "state": "passed",
+      "selectorCount": 37
     }
   ],
   "cases": [
@@ -1483,6 +1490,48 @@
             "PC.successful_recovery_preserves_archive_sequence_pending",
             "PC.recovery_retains_failed_generations",
             "PC.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "run_admission",
+          "selectors": [
+            "RA.actual_pause_is_required_before_run_pairs",
+            "RA.1_one_admission_and_one_retryable_busy",
+            "RA.1_terminal_matches_same_paused_operation",
+            "RA.1_pair_preserves_exact_paused_store",
+            "RA.2_one_admission_and_one_retryable_busy",
+            "RA.2_terminal_matches_same_paused_operation",
+            "RA.2_pair_preserves_exact_paused_store",
+            "RA.3_one_admission_and_one_retryable_busy",
+            "RA.3_terminal_matches_same_paused_operation",
+            "RA.3_pair_preserves_exact_paused_store",
+            "RA.4_one_admission_and_one_retryable_busy",
+            "RA.4_terminal_matches_same_paused_operation",
+            "RA.4_pair_preserves_exact_paused_store",
+            "RA.5_one_admission_and_one_retryable_busy",
+            "RA.5_terminal_matches_same_paused_operation",
+            "RA.5_pair_preserves_exact_paused_store",
+            "RA.6_one_admission_and_one_retryable_busy",
+            "RA.6_terminal_matches_same_paused_operation",
+            "RA.6_pair_preserves_exact_paused_store",
+            "RA.7_one_admission_and_one_retryable_busy",
+            "RA.7_terminal_matches_same_paused_operation",
+            "RA.7_pair_preserves_exact_paused_store",
+            "RA.8_one_admission_and_one_retryable_busy",
+            "RA.8_terminal_matches_same_paused_operation",
+            "RA.8_pair_preserves_exact_paused_store",
+            "RA.9_one_admission_and_one_retryable_busy",
+            "RA.9_terminal_matches_same_paused_operation",
+            "RA.9_pair_preserves_exact_paused_store",
+            "RA.10_one_admission_and_one_retryable_busy",
+            "RA.10_terminal_matches_same_paused_operation",
+            "RA.10_pair_preserves_exact_paused_store",
+            "RA.ten_accepted_runs_have_distinct_ids",
+            "RA.all_ten_correlated_records_remain_readable",
+            "RA.actual_resume_succeeds_after_concurrent_pairs",
+            "RA.archive_sequence_and_pending_remain_exact",
+            "RA.only_pause_resume_add_two_generations",
+            "RA.owned_saved_choice_is_actually_removed"
           ]
         }
       ],

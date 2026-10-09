@@ -1,0 +1,193 @@
+{
+  "checks": [
+    {
+      "id": "RA.actual_pause_is_required_before_run_pairs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.1_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.1_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.1_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.2_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.2_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.2_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.3_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.3_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.3_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.4_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.4_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.4_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.5_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.5_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.5_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.6_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.6_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.6_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.7_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.7_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.7_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.8_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.8_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.8_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.9_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.9_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.9_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.10_one_admission_and_one_retryable_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.10_terminal_matches_same_paused_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.10_pair_preserves_exact_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.ten_accepted_runs_have_distinct_ids",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.all_ten_correlated_records_remain_readable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.actual_resume_succeeds_after_concurrent_pairs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.archive_sequence_and_pending_remain_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.only_pause_resume_add_two_generations",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RA.owned_saved_choice_is_actually_removed",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-run-admission.png"
+  ],
+  "summary": "37/37"
+}

@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -793,6 +793,36 @@ async function runHistoryMain() {
   s.close();app.kill();await app.exited;
 }
 
+async function runAdmissionMain() {
+  if(existsSync(settings))throw Error('Run-admission output requires absent settings');
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Run-admission escaped synthetic root');
+  const image=fixtureImage(manifest.dataRoot),count=readdirSync(join(manifest.dataRoot,'generations')).length,app=launch(),s=await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'admission gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,"document.querySelectorAll('.act-source').length===3",'admission package');
+  const paused=await call(s,{operation:'activity_set_paused',paused:true});
+  check('RA.actual_pause_is_required_before_run_pairs',paused.kind==='activity_pause_acknowledged'&&paused.paused===true&&(await overview(s)).producer.paused===true);
+  if(paused.kind!=='activity_pause_acknowledged'||paused.paused!==true)throw Error('Concurrent rehearsal requires actual pause');
+  const tree=fixtureTree(manifest.dataRoot),ids=[],operations=[];
+  for(let number=1;number<=10;number++){
+    const requests=number%2?['activity_run_now','activity_retry_pending']:['activity_retry_pending','activity_run_now'];
+    const replies=await Promise.all(requests.map(operation=>call(s,{operation}))),accepted=replies.map((reply,i)=>({reply,operation:requests[i]})).filter(x=>x.reply.kind==='activity_run_accepted'),busy=replies.filter(reply=>reply.kind==='activity_error'&&reply.error?.code==='busy'&&reply.error?.retryable===true);
+    check('RA.'+number+'_one_admission_and_one_retryable_busy',accepted.length===1&&busy.length===1);
+    if(accepted.length!==1||busy.length!==1)throw Error('Pair did not establish exclusive active admission');
+    const {reply,operation}=accepted[0];ids.push(reply.runId);operations.push(operation);
+    let status;const deadline=Date.now()+10000;do{status=await call(s,{operation:'activity_get_run',runId:reply.runId});if(['completed','failed','blocked'].includes(status.stage))break;await sleep(50);}while(Date.now()<deadline);
+    check('RA.'+number+'_terminal_matches_same_paused_operation',status.kind==='activity_run_status'&&status.runId===reply.runId&&status.operation===operation&&status.stage==='blocked'&&status.summary?.state==='paused');
+    if(status.stage!=='blocked'||status.summary?.state!=='paused')throw Error('Expected no-work paused outcome');
+    check('RA.'+number+'_pair_preserves_exact_paused_store',fixtureTree(manifest.dataRoot)===tree);
+  }
+  check('RA.ten_accepted_runs_have_distinct_ids',ids.length===10&&new Set(ids).size===10);
+  const records=await Promise.all(ids.map(runId=>call(s,{operation:'activity_get_run',runId})));
+  check('RA.all_ten_correlated_records_remain_readable',records.every((r,i)=>r.kind==='activity_run_status'&&r.runId===ids[i]&&r.operation===operations[i]&&r.stage==='blocked'&&r.summary?.state==='paused'));
+  const resume=await call(s,{operation:'activity_set_paused',paused:false});check('RA.actual_resume_succeeds_after_concurrent_pairs',resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
+  const recovered=fixtureImage(manifest.dataRoot);check('RA.archive_sequence_and_pending_remain_exact',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);
+  check('RA.only_pause_resume_add_two_generations',readdirSync(join(manifest.dataRoot,'generations')).length===count+2);
+  const clear=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'clear'})");check('RA.owned_saved_choice_is_actually_removed',clear.configured===false&&clear.saved===true&&!existsSync(settings));
+  await shot(s,'01-run-admission');s.close();app.kill();await app.exited;
+}
+
 async function readContractMain(exportContract = false) {
   const prefix=exportContract?'X.':'V.';
   const privateMarker='SYNTHETIC_PRIVATE_MARKER';
@@ -1555,6 +1585,7 @@ try {
   else if (mode === '--choice-persistence') await choiceSaveMain();
   else if (['--choice-delete','--choice-clear-remount','--choice-select-recovery'].includes(mode)) await choiceDeleteMain();
   else if (mode === '--run-history') await runHistoryMain();
+  else if (mode === '--run-admission') await runAdmissionMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();
