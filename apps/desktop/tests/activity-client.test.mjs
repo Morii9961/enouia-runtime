@@ -71,6 +71,44 @@ test('package setup goes through its own command and maps refusal codes', async 
   assert.match(describeSetup(result.error), /hash/);
 });
 
+test('setup accepts only the native status, selection and clear reply shapes', async () => {
+  const installed = { configured: true, mode: 'sandbox', taskName: 'Enouia-Activity-Test_1', folder: 'installed & independent' };
+  for (const [action, reply] of [['status', installed], ['status', { ...installed, mode: 'production', folder: null }],
+    ['status', { configured: false }], ['status', { ...installed, taskName: 'Enouia-Activity-' + 'a'.repeat(80), folder: '合成目录' }],
+    ['select', { ...installed, saved: false }], ['select', { ...installed, saved: true }],
+    ['select', { cancelled: true }], ['clear', { configured: false, saved: true }],
+    ...['not_found', 'not_a_package', 'binary_changed'].map(error => ['select', { configured: false, error }])]) {
+    const sent = recorder(() => reply);
+    assert.deepEqual(await activity.setup(action), reply);
+    assert.deepEqual(sent, [{ command: 'activity_setup', args: { action } }]);
+  }
+});
+
+test('setup refuses malformed fields and mismatched action replies before the page sees them', async () => {
+  const installed = { configured: true, mode: 'sandbox', taskName: 'Enouia-Activity-Test_1', folder: 'package' };
+  const cases = [null, [], {}, { ...installed, mode: 'future' }, { ...installed, folder: 'C:\\private\\package' },
+    { ...installed, taskName: '../private' }, { ...installed, taskName: 'Enouia-Activity-Test_1\n' }, { ...installed, taskName: 'Enouia-Activity-' + 'a'.repeat(81) },
+    { ...installed, folder: '' }, { ...installed, folder: '..' }, { ...installed, folder: '/private' }, { ...installed, folder: 'private\0package' },
+    { ...installed, rawConfig: 'SYNTHETIC_PRIVATE_MARKER' }, { ...installed, cancelled: true },
+    { ...installed, saved: 'yes' }, { configured: false, error: 'constructor' }, { cancelled: true }];
+  for (const reply of cases) {
+    recorder(() => reply);
+    await assert.rejects(activity.setup('status'), e => e instanceof ActivityError && e.error.code === 'contract_invalid' && !retryable(e));
+  }
+  for (const [action, reply] of [['select', installed], ['select', { configured: false }],
+    ['select', { configured: false, error: 'C:\\private\\package' }], ['clear', installed],
+    ['clear', { configured: false }], ['clear', { configured: false, saved: true, cancelled: true }]]) {
+    recorder(() => reply);
+    await assert.rejects(activity.setup(action), e => e instanceof ActivityError && e.error.code === 'contract_invalid');
+  }
+});
+
+test('setup refusal text never resolves inherited object entries', () => {
+  for (const code of ['constructor', 'toString', '__proto__', 'SYNTHETIC_PRIVATE_MARKER']) {
+    assert.equal(describeSetup(code), 'The installed package could not be selected');
+  }
+});
+
 test('malformed data and private error text become local contract failures', async () => {
   const missingSource = overview(); delete missingSource.sources.codex;
   const roundedTotal = overview(); roundedTotal.sources.codex.total = 9007199254740992;

@@ -1,0 +1,173 @@
+{
+  "checks": [
+    {
+      "id": "Z.actual_package_selection_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.mutations_are_intercepted_before_native_ipc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.future_mode_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.future_mode_no_producer_requests",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.future_mode_no_private_text",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.extra_fields_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.extra_fields_no_producer_requests",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.extra_fields_no_private_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.absolute_folder_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.absolute_folder_no_producer_requests",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.absolute_folder_no_private_text",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.invalid_task_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.invalid_task_no_producer_requests",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.invalid_task_no_private_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.invalid_saved_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.invalid_saved_no_producer_requests",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.invalid_saved_no_private_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.contradictory_cancel_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.contradictory_cancel_no_producer_requests",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.contradictory_cancel_no_private_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.status_error_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.status_error_no_producer_requests",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.status_error_no_private_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.clear_as_status_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.clear_as_status_no_producer_requests",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.clear_as_status_no_private_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.cancel_as_status_contract_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.cancel_as_status_no_producer_requests",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.cancel_as_status_no_private_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.actual_status_recovers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.actual_clear_removes_owned_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.actual_reselection_recovers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.setup_flow_preserves_complete_store",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-setup-recovered.png"
+  ],
+  "summary": "16/33"
+}

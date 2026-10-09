@@ -78,8 +78,9 @@ export type RunStatus = {
   operation?: "activity_run_now" | "activity_retry_pending" | "activity_set_paused";
   summary?: Record<string, unknown> | null;
 };
+export type SetupErrorCode = "not_found" | "not_a_package" | "binary_changed";
 export type Setup =
-  | { configured: false; error?: string; cancelled?: undefined; saved?: boolean }
+  | { configured: false; error?: SetupErrorCode; cancelled?: undefined; saved?: boolean }
   | { configured: true; mode: "sandbox" | "production"; taskName: string; folder: string | null; saved?: boolean }
   | { cancelled: true; configured?: undefined };
 
@@ -231,6 +232,30 @@ async function request<T>(operation: string, fields: Record<string, unknown>, ki
   return reply as T;
 }
 
+// Setup has its own native command, outside Activity IPC v1. Match the host's
+// action-specific shapes before a package choice can start producer reads.
+async function setup(action: "status" | "select" | "clear"): Promise<Setup> {
+  const reply = await transport("activity_setup", { action });
+  let valid = false;
+  if (action === "select" && closed(reply, ["cancelled"]) && reply.cancelled === true) valid = true;
+  else if (object(reply) && reply.configured === false) {
+    if (action === "status") valid = closed(reply, ["configured"]);
+    else if (action === "clear") valid = closed(reply, ["configured", "saved"]) && typeof reply.saved === "boolean";
+    else valid = closed(reply, ["configured", "error"]) && inList(reply.error, ["not_found", "not_a_package", "binary_changed"]);
+  } else if (action !== "clear" && closed(reply, action === "select"
+    ? ["configured", "mode", "taskName", "folder", "saved"] : ["configured", "mode", "taskName", "folder"])) {
+    const suffix = typeof reply.taskName === "string" && reply.taskName.startsWith("Enouia-Activity-")
+      ? reply.taskName.slice("Enouia-Activity-".length) : "";
+    valid = reply.configured === true && inList(reply.mode, ["sandbox", "production"])
+      && suffix.length >= 1 && suffix.length <= 80 && !/[^A-Za-z0-9_-]/.test(suffix)
+      && (reply.folder === null || (typeof reply.folder === "string" && reply.folder.length > 0
+        && reply.folder !== "." && reply.folder !== ".." && !/[\\/:\0]/.test(reply.folder)))
+      && (action !== "select" || typeof reply.saved === "boolean");
+  }
+  if (!valid) throw new ActivityError({ code: "contract_invalid", component: "activity_archive", retryable: false });
+  return reply as Setup;
+}
+
 export const activity = {
   overview: () => request<Overview>("activity_get_overview", {}, "activity_overview"),
   preview: () => request<Preview>("activity_preview_public_payload", {}, "activity_public_preview"),
@@ -241,7 +266,7 @@ export const activity = {
   setPaused: (paused: boolean) =>
     request<{ paused: boolean }>("activity_set_paused", { paused }, "activity_pause_acknowledged"),
   run: (runId: string) => request<RunStatus>("activity_get_run", { runId }, "activity_run_status"),
-  setup: (action: "status" | "select" | "clear") => transport("activity_setup", { action }) as Promise<Setup>,
+  setup,
 };
 
 const CODES: Record<ErrorCode, string> = {
@@ -268,5 +293,5 @@ export function describe(error: unknown): string {
   return "The Activity call failed";
 }
 
-export const describeSetup = (code: string): string => SETUP[code] ?? "The installed package could not be selected";
+export const describeSetup = (code: string): string => Object.hasOwn(SETUP, code) ? SETUP[code] : "The installed package could not be selected";
 export const retryable = (error: unknown): boolean => error instanceof ActivityError && error.error.retryable;

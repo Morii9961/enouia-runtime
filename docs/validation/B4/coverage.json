@@ -262,6 +262,13 @@
       "sha256": "8cef7edf5b3e3d39ca9c0ad084822747d23ebea660d4049fc538f6ab4a101082",
       "state": "passed",
       "selectorCount": 13
+    },
+    {
+      "id": "setup_contract",
+      "path": "docs/validation/Activity-unified/setup-contract-proof.json",
+      "sha256": "ed1bc41b2ca64bb0a13e9eb2c4af1ddfa7c8ab5d6eec807ff261ae19a9216a45",
+      "state": "passed",
+      "selectorCount": 34
     }
   ],
   "cases": [
@@ -556,6 +563,20 @@
           "report": "run_outcome",
           "selectors": [
             "U.private_state_label_is_sanitized"
+          ]
+        },
+        {
+          "report": "setup_contract",
+          "selectors": [
+            "Z.future_mode_no_private_text",
+            "Z.extra_fields_no_private_text",
+            "Z.absolute_folder_no_private_text",
+            "Z.invalid_task_no_private_text",
+            "Z.invalid_saved_no_private_text",
+            "Z.contradictory_cancel_no_private_text",
+            "Z.status_error_no_private_text",
+            "Z.clear_as_status_no_private_text",
+            "Z.cancel_as_status_no_private_text"
           ]
         }
       ],
@@ -1149,6 +1170,45 @@
             "N.restored_permission_accepts_resume",
             "N.successful_recovery_preserves_archive_sequence_pending",
             "N.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "setup_contract",
+          "selectors": [
+            "Z.actual_cancel_preserves_unconfigured_choice",
+            "Z.actual_package_selection_connects",
+            "Z.mutations_are_intercepted_before_native_ipc",
+            "Z.future_mode_contract_failure",
+            "Z.future_mode_no_producer_requests",
+            "Z.future_mode_no_private_text",
+            "Z.extra_fields_contract_failure",
+            "Z.extra_fields_no_producer_requests",
+            "Z.extra_fields_no_private_text",
+            "Z.absolute_folder_contract_failure",
+            "Z.absolute_folder_no_producer_requests",
+            "Z.absolute_folder_no_private_text",
+            "Z.invalid_task_contract_failure",
+            "Z.invalid_task_no_producer_requests",
+            "Z.invalid_task_no_private_text",
+            "Z.invalid_saved_contract_failure",
+            "Z.invalid_saved_no_producer_requests",
+            "Z.invalid_saved_no_private_text",
+            "Z.contradictory_cancel_contract_failure",
+            "Z.contradictory_cancel_no_producer_requests",
+            "Z.contradictory_cancel_no_private_text",
+            "Z.status_error_contract_failure",
+            "Z.status_error_no_producer_requests",
+            "Z.status_error_no_private_text",
+            "Z.clear_as_status_contract_failure",
+            "Z.clear_as_status_no_producer_requests",
+            "Z.clear_as_status_no_private_text",
+            "Z.cancel_as_status_contract_failure",
+            "Z.cancel_as_status_no_producer_requests",
+            "Z.cancel_as_status_no_private_text",
+            "Z.actual_status_recovers",
+            "Z.actual_clear_removes_owned_choice",
+            "Z.actual_reselection_recovers",
+            "Z.setup_flow_preserves_complete_store"
           ]
         }
       ],

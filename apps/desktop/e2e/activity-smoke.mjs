@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -166,8 +166,8 @@ throw 'foreign'`);
   } catch { throw new Error('foreign debug listener'); }
 }
 
-// Fill this process's native folder dialog: path into the name edit
-// (WM_SETTEXT), then its default button (BM_CLICK). Nothing else is touched.
+// Fill or cancel this process's own native folder dialog. A null path clicks
+// its cancel button; a string fills the name edit and default button.
 function fillDialog(pid, path) {
   powershell(`Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 $A = [System.Windows.Automation.AutomationElement]
@@ -180,11 +180,14 @@ for ($i = 0; $i -lt 80 -and -not $dialog; $i++) {
 if (-not $dialog) { throw 'no dialog' }
 Add-Type -Namespace E2E -Name User32 -MemberDefinition '[DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern System.IntPtr SendMessage(System.IntPtr h, uint m, System.IntPtr w, string l);'
 $all = $dialog.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)
+${path === null ? `$cancel = $all | Where-Object { $_.Current.ClassName -eq 'Button' -and $_.Current.AutomationId -eq '2' } | Select-Object -First 1
+if (-not $cancel) { throw 'cancel control not found' }
+[E2E.User32]::SendMessage([System.IntPtr]$cancel.Current.NativeWindowHandle, 0x00F5, [System.IntPtr]::Zero, $null) | Out-Null` : `
 $edit = $all | Where-Object { $_.Current.ClassName -eq 'Edit' -and ($_.Current.AutomationId -eq '1148' -or $_.Current.AutomationId -eq '1152') } | Select-Object -First 1
 $open = $all | Where-Object { $_.Current.ClassName -eq 'Button' -and $_.Current.AutomationId -eq '1' } | Select-Object -First 1
 if (-not $edit -or -not $open) { throw 'dialog controls not found' }
 [E2E.User32]::SendMessage([System.IntPtr]$edit.Current.NativeWindowHandle, 0x000C, [System.IntPtr]::Zero, '${path.replace(/'/g, "''")}') | Out-Null
-[E2E.User32]::SendMessage([System.IntPtr]$open.Current.NativeWindowHandle, 0x00F5, [System.IntPtr]::Zero, $null) | Out-Null`);
+[E2E.User32]::SendMessage([System.IntPtr]$open.Current.NativeWindowHandle, 0x00F5, [System.IntPtr]::Zero, $null) | Out-Null`}`);
 }
 
 // The installed runner itself, outside the shell.
@@ -563,6 +566,59 @@ async function runContractMain(outcomeMode=false) {
   await reset('valid');await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'run-contract forgotten choice');
   check('Y.choice_is_cleared',!existsSync(settings));
   s.close();app.kill();await app.exited;
+}
+
+// Status faults are modeled before native IPC. Selection, cancellation and
+// clearing below use the existing installed synthetic package and own dialog.
+async function setupContractMain() {
+  rmSync(settings,{force:true});
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase()) throw new Error('Setup acceptance requires contained synthetic data');
+  const before=fixtureTree(manifest.dataRoot),app=launch(),s=await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,has('Connect the installed Activity producer'),'setup gate');
+  await press(s,'Choose installed package…');fillDialog(app.pid,null);
+  await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Choose installed package…'&&!b.disabled)",'actual cancelled selection');
+  check('Z.actual_cancel_preserves_unconfigured_choice',!existsSync(settings)&&await s.evaluate(has('Connect the installed Activity producer'))&&!(await s.evaluate(has('The response did not match Activity IPC v1'))));
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'actual setup selection');
+  check('Z.actual_package_selection_connects',true);
+  await s.evaluate(`(()=>{const real=window.fetch,setupUrl=window.__TAURI_INTERNALS__.convertFileSrc('activity_setup','ipc'),callUrl=window.__TAURI_INTERNALS__.convertFileSrc('activity_call','ipc');
+    window.__setupCase=null;window.__setupReads=0;window.__setupMutations=0;
+    window.fetch=async(url,options)=>{const args=(url===setupUrl||url===callUrl)?JSON.parse(options.body):null;
+      if(url===callUrl){if(['activity_run_now','activity_retry_pending','activity_set_paused'].includes(args.request.operation)){window.__setupMutations++;return new Response(JSON.stringify({schemaVersion:1,kind:'activity_error',error:{code:'unconfigured',component:'activity_archive',retryable:false}}),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});}window.__setupReads++;}
+      if(url===setupUrl&&args.action==='status'&&window.__setupCase!==null)return new Response(JSON.stringify(window.__setupCase),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});
+      return real(url,options);};return true;})()`);
+  const probe=await call(s,{operation:'activity_run_now'});
+  if(probe.kind!=='activity_error'||await s.evaluate('window.__setupMutations')!==1)throw Error('Setup mutation interception must be proved');
+  check('Z.mutations_are_intercepted_before_native_ipc',true);
+  const installed={configured:true,mode:'sandbox',taskName:manifest.taskName,folder:'package'};
+  const cases=[['future_mode',{...installed,mode:'SYNTHETIC_PRIVATE_MARKER'}],['extra_fields',{...installed,rawConfig:'SYNTHETIC_PRIVATE_MARKER'}],
+    ['absolute_folder',{...installed,folder:'C:\\SYNTHETIC_PRIVATE_MARKER\\package'}],['invalid_task',{...installed,taskName:'../SYNTHETIC_PRIVATE_MARKER'}],
+    ['invalid_saved',{...installed,saved:'SYNTHETIC_PRIVATE_MARKER'}],['contradictory_cancel',{...installed,cancelled:true}],
+    ['status_error',{configured:false,error:'constructor'}],['clear_as_status',{configured:false,saved:true}],['cancel_as_status',{cancelled:true}]];
+  for(const[name,reply]of cases){
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");
+    await waitFor(s,"!document.querySelector('.act-surface')",'setup unmount');
+    await s.evaluate(`window.__setupCase=${JSON.stringify(reply)};window.__setupReads=0;window.__setupMutations=0;document.querySelector('nav button[aria-label="Activity"]').click();true`);
+    await sleep(700);
+    check(`Z.${name}_contract_failure`,await s.evaluate(has('The response did not match Activity IPC v1')));
+    check(`Z.${name}_no_producer_requests`,await s.evaluate('window.__setupReads===0&&window.__setupMutations===0'));
+    check(`Z.${name}_no_private_text`,!(await s.evaluate(has('SYNTHETIC_PRIVATE_MARKER'))));
+  }
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");
+  await waitFor(s,"!document.querySelector('.act-surface')",'setup final unmount');
+  await s.evaluate("window.__setupCase=null;document.querySelector('nav button[aria-label=\"Activity\"]').click();true");
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'real status recovery');
+  check('Z.actual_status_recovers',true);
+  const savedBefore=readFileSync(settings,'utf8');
+  await press(s,'Change package');
+  await waitFor(s,has('Connect the installed Activity producer'),'actual clear');
+  check('Z.actual_clear_removes_owned_choice',!existsSync(settings));
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'actual reselection');
+  check('Z.actual_reselection_recovers',readFileSync(settings,'utf8')===savedBefore);
+  check('Z.setup_flow_preserves_complete_store',fixtureTree(manifest.dataRoot)===before);
+  await shot(s,'01-setup-recovered');s.close();app.kill();await app.exited;
 }
 
 async function readContractMain(exportContract = false) {
@@ -1219,6 +1275,7 @@ async function main() {
 try {
   if (taskMode) await taskReadMain(mode === '--task-enabled');
   else if (mode === '--confirmation') await confirmationMain();
+  else if (mode === '--setup-contract') await setupContractMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();
