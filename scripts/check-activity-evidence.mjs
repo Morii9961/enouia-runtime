@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 29);
+  assert.equal(reports.size, 30);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -471,6 +471,25 @@ function validate(index) {
   assert.equal(exportContract.runnerSha256,guidance.runnerSha256);
   for(const digest of [exportContract.desktopSha256,exportContract.installerSha256,exportContract.harnessSha256,exportContract.beforeHarnessSha256]) assert.match(digest,/^[a-f0-9]{64}$/);
   assert(exportContract.limitations.includes('The page clipboard write is intercepted in memory; the system clipboard is never changed.'));
+  const activityReadLock=reports.get('activity_read_lock').report;
+  assert.equal(activityReadLock.scope,'isolated_actual_activity_read_failure');
+  const lockNative=readLinked(activityReadLock.nativeReport,activityReadLock.nativeReportSha256);
+  const lockIntermediate=readLinked(activityReadLock.intermediateReport,activityReadLock.intermediateReportSha256);
+  assert.equal(lockNative.summary,'45/45');
+  assert.equal(lockNative.checks.length,45);
+  assert(lockNative.checks.every(c=>c.ok===true));
+  assert.equal(activityReadLock.nativeSummary,lockNative.summary);
+  assert.equal(activityReadLock.processExitCode,0);
+  assert.equal(lockIntermediate.summary,'34/35');
+  assert.equal(activityReadLock.intermediateSummary,lockIntermediate.summary);
+  assert.deepEqual(lockIntermediate.checks.filter(c=>!c.ok).map(c=>c.id),['run']);
+  assert.equal(activityReadLock.checks.length,10);
+  assert.deepEqual(activityReadLock.checks,lockNative.checks.filter(c=>c.id.startsWith('A.')&&!['A.gate_without_package','A.unconfigured_is_structured'].includes(c.id)).map(c=>c.id));
+  assert.equal(activityReadLock.desktopSha256,exportContract.desktopSha256);
+  assert.equal(activityReadLock.runnerSha256,guidance.runnerSha256);
+  assert.equal(activityReadLock.memoryRevision,isolation.memoryRevision);
+  assert.match(activityReadLock.harnessSha256,/^[a-f0-9]{64}$/);
+  assert(activityReadLock.limitations.includes('This is an actual Windows sharing violation, not disk-full, ACL denial, power loss or production availability.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -507,12 +526,13 @@ function validate(index) {
   assert(timed.checks.every(id=>linkedTo(c17,'timed_trigger').includes(id)),'C17 must retain actual time-trigger and pending preservation evidence');
   assert(sourceContract.checks.every(id=>linkedTo(c17,'source_contract').includes(id)),'C17 must retain strict source semantics and real-read recovery evidence');
   assert(exportContract.checks.every(id=>linkedTo(c17,'export_contract').includes(id)),'C17 must retain export field refusals and actual recovery evidence');
+  assert(activityReadLock.checks.every(id=>linkedTo(c17,'activity_read_lock').includes(id)),'C17 must retain actual Activity failure, Memory independence and read recovery evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 19, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 20, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -548,7 +568,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'source_contract'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'export_contract'));
   reject(x => x.cases.find(c => c.id === 'C10').evidence = x.cases.find(c => c.id === 'C10').evidence.filter(e => e.report !== 'export_contract'));
-  result.negativeChecks = 29;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'activity_read_lock'));
+  result.negativeChecks = 30;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

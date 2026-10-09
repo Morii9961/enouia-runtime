@@ -28,7 +28,8 @@ The implementation combines both branch histories. Subsequent owner-authorized c
 | Actual timer-driven invocation | [25 assertions](Activity-timed-trigger-2026-10-09.md), zero demand starts, paused no-write / resumed next sequence / exact pending retry; short rearmed boundaries, elapsed hourly/logon still open |
 | Strict frontend source semantics | [23/23 native checks, 42 frontend tests, 32+3 host/Core tests and 26/26 installer checks](Activity-source-contract-2026-10-09.md); modeled invalid replies plus real-read recovery after 14/23 baseline |
 | Diagnostic/payload field boundaries and current desktop checks | [36/36 native checks, 45 frontend tests, strict build and 26/26 installer checks](Activity-export-contract-2026-10-09.md); extra fields refused, copy/preview isolated; unchanged 32+3 host/Core evidence reused |
-| Current offline evidence integrity | [29 reports, 345 selectors, 29 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
+| Actual Activity read-sharing failure and Memory independence | [45/45 native checks](Activity-read-failure-isolation-2026-10-09.md); real overview/preview failure, Memory list/search/page survive, release restores exact history without data changes |
+| Current offline evidence integrity | [30 reports, 355 selectors, 30 negative checks](B4-coverage.md); all 18 rows partial, B4/B5 false |
 
 Current desktop SHA-256 is `8bf0075f72cc671409d166380f5fe32b7ae03ffd899ff34df60ecd9587cd6447`; unsigned installer is `b4bb9aff47d55a161b9d7da923a4ed8121535ceda1ac480bcf9f5b00f0a77079`. Runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`, and Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`. Earlier reports name their exact prior executables; the export-contract run supplies current 36/36 native evidence. The actual scheduler implementation is unchanged in this frontend slice.
 

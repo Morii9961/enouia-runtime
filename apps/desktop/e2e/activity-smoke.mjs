@@ -26,9 +26,9 @@ import { createServer } from 'node:net';
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -746,6 +746,47 @@ async function main() {
       check('O.rebuild_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === overlapCanonical);
       check('O.rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
       check('O.rebuild_returns_all_approved_memories', (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === expectedMemories);
+    }
+    if (mode === '--current-read-lock') {
+      const canonical=fixtureTree(join(vault,'vault'));
+      const pointer=join(manifest.dataRoot,'CURRENT');
+      if(realpathSync(pointer).toLowerCase()!==join(realpathSync(manifest.dataRoot),'CURRENT').toLowerCase()) throw new Error('Current lock escaped the synthetic Activity store');
+      const original=readFileSync(pointer);
+      if(!/^g-[a-zA-Z0-9-]{1,62}\n?$/.test(original.toString())) throw new Error('Expected a generated current pointer');
+      const holder=spawn('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',['-NoProfile','-NonInteractive','-Command',
+        `$f=[IO.File]::Open('${pointer.replace(/'/g,"''")}','Open','Read','None');try{'locked';Start-Sleep -Seconds 90}finally{$f.Dispose()}`],{windowsHide:true,stdio:['ignore','pipe','pipe']});
+      children.add(holder);
+      holder.exited=new Promise(resolve=>holder.once('exit',code=>{children.delete(holder);resolve(code);}));
+      try {
+        await new Promise((resolve,reject)=>{
+          const timer=setTimeout(()=>reject(Error('Synthetic CURRENT lock did not become ready')),10000);let output='';
+          holder.stdout.on('data',bytes=>{output+=bytes.toString();if(output.includes('locked')){clearTimeout(timer);resolve();}});
+          holder.once('exit',()=>{clearTimeout(timer);reject(Error('Synthetic CURRENT holder exited early'));});
+        });
+        check('A.synthetic_current_is_exclusively_held',true);
+        const reads=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'})]);
+        check('A.actual_activity_reads_report_storage_failure',reads.every(r=>r.kind==='activity_error'&&r.error.code==='storage_failed'),JSON.stringify(reads));
+        await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+        await press(s,'Refresh');await waitFor(s,has('The Activity store could not be read or written'),'actual Activity sharing failure');
+        check('A.actual_failure_reaches_activity_page',await s.evaluate("document.querySelectorAll('.act-source').length===0"));
+        await shot(s,'03-activity-read-failure',false);
+        const [list,search]=await Promise.all([
+          memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false}),
+          memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25})]);
+        check('A.memory_list_and_search_survive_activity_read_failure',!list.error&&list.result?.total===1&&!search.error&&search.result?.items?.length===1);
+        await s.evaluate("document.querySelector('nav button[aria-label=\"Memory\"]').click()");
+        await waitFor(s,has('Memory · Vault open'),'Memory during Activity pointer hold');
+        check('A.memory_surface_survives_actual_activity_failure',!(await s.evaluate(has('This surface could not open'))));
+        check('A.failure_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
+      } finally {holder.kill();await holder.exited;}
+      check('A.release_preserves_current_pointer_bytes',readFileSync(pointer).equals(original));
+      check('A.failure_preserves_complete_activity_store',fixtureTree(manifest.dataRoot)===treeBefore);
+      await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+      await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Refresh'&&!b.disabled)",'Activity read controls after pointer release');
+      await press(s,'Refresh');await waitFor(s,has('Publication observed'),'Activity after pointer release');
+      const recovered=await call(s,{operation:'activity_preview_public_payload'});
+      check('A.release_restores_exact_public_history',recovered.sha256===preview.sha256&&await s.evaluate("document.querySelectorAll('.act-source').length===3"));
+      check('A.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
     }
     if (mode === '--locked-index') {
       const canonical = fixtureTree(join(vault, 'vault'));
