@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-delete', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-delete|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-delete', '--run-history', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-delete|--run-history|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -713,6 +713,45 @@ async function choiceDeleteMain() {
   check('T.restart_stays_unconfigured_after_actual_delete',await s.evaluate("document.querySelectorAll('.act-source').length===0")&&!existsSync(settings));
   check('T.complete_activity_store_is_unchanged',fixtureTree(manifest.dataRoot)===before);
   await shot(s,'01-forgotten-choice');s.close();app.kill();await app.exited;
+}
+
+async function runHistoryMain() {
+  if(existsSync(settings))throw Error('Run-history output requires an absent settings file');
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Run-history acceptance requires contained synthetic data');
+  const image=fixtureImage(manifest.dataRoot),count=readdirSync(join(manifest.dataRoot,'generations')).length;let app=launch(),s=await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'run-history gate');
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,"document.querySelectorAll('.act-source').length===3",'run-history package');
+  check('RH.actual_synthetic_package_connects',true);
+  const paused=await call(s,{operation:'activity_set_paused',paused:true});
+  check('RH.producer_is_actually_paused',paused.kind==='activity_pause_acknowledged'&&paused.paused===true&&(await overview(s)).producer.paused===true);
+  if(paused.kind!=='activity_pause_acknowledged'||paused.paused!==true)throw Error('Paused run rehearsal must not continue without actual pause');
+  const pausedTree=fixtureTree(manifest.dataRoot),ids=[],operations=[];
+  for(let number=1;number<=17;number++){
+    const operation=number%2?'activity_run_now':'activity_retry_pending',accepted=await call(s,{operation});
+    if(accepted.kind!=='activity_run_accepted')throw Error('Paused run was not accepted');ids.push(accepted.runId);operations.push(operation);
+    check(`RH.${number}_accepts_distinct_actual_run`,typeof accepted.runId==='string'&&new Set(ids).size===ids.length);
+    let status;const deadline=Date.now()+10000;do{status=await call(s,{operation:'activity_get_run',runId:accepted.runId});if(['completed','blocked','failed'].includes(status.stage))break;await sleep(50);}while(Date.now()<deadline);
+    check(`RH.${number}_terminal_is_same_paused_operation`,status.kind==='activity_run_status'&&status.runId===accepted.runId&&status.operation===operation&&status.stage==='blocked'&&status.summary?.state==='paused');
+    if(status.stage!=='blocked'||status.summary?.state!=='paused')throw Error('Paused producer did not return its expected no-work outcome');
+  }
+  const expired=await call(s,{operation:'activity_get_run',runId:ids[0]});
+  check('RH.seventeenth_run_evicts_oldest_with_contract_error',expired.kind==='activity_error'&&expired.error.code==='contract_invalid'&&expired.error.retryable===false);
+  const kept=await Promise.all(ids.slice(1).map(runId=>call(s,{operation:'activity_get_run',runId})));
+  check('RH.latest_sixteen_exact_records_remain_readable',kept.every((r,i)=>r.kind==='activity_run_status'&&r.runId===ids[i+1]&&r.operation===operations[i+1]&&r.stage==='blocked'&&r.summary?.state==='paused'));
+  check('RH.seventeen_actual_ids_are_unique',new Set(ids).size===17);
+  check('RH.all_paused_runs_preserve_complete_store',fixtureTree(manifest.dataRoot)===pausedTree);
+  const afterRuns=fixtureImage(manifest.dataRoot);
+  check('RH.paused_runs_preserve_archive_sequence_pending',afterRuns.activity===image.activity&&afterRuns.sequence===image.sequence&&afterRuns.pending===image.pending);
+  s.close();app.kill();await app.exited;app=launch();s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'run-history restart');
+  const forgotten=await call(s,{operation:'activity_get_run',runId:ids.at(-1)});
+  check('RH.restart_does_not_invent_old_session_records',forgotten.kind==='activity_error'&&forgotten.error.code==='contract_invalid'&&forgotten.error.retryable===false);
+  check('RH.restart_keeps_actual_paused_state_and_store',(await overview(s)).producer.paused===true&&fixtureTree(manifest.dataRoot)===pausedTree);
+  const resumed=await call(s,{operation:'activity_set_paused',paused:false});
+  check('RH.actual_resume_recovers',resumed.kind==='activity_pause_acknowledged'&&resumed.paused===false&&(await overview(s)).producer.paused===false);
+  const final=fixtureImage(manifest.dataRoot);check('RH.resume_preserves_archive_sequence_pending',final.activity===image.activity&&final.sequence===image.sequence&&final.pending===image.pending);
+  check('RH.only_pause_and_resume_create_generations',readdirSync(join(manifest.dataRoot,'generations')).length===count+2);
+  await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'run-history clear');check('RH.actual_clear_removes_owned_choice',!existsSync(settings));
+  s.close();app.kill();await app.exited;
 }
 
 async function readContractMain(exportContract = false) {
@@ -1433,6 +1472,7 @@ try {
   else if (mode === '--setup-contract') await setupContractMain();
   else if (mode === '--choice-save') await choiceSaveMain();
   else if (mode === '--choice-delete') await choiceDeleteMain();
+  else if (mode === '--run-history') await runHistoryMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();

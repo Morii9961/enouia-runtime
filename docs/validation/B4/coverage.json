@@ -297,6 +297,13 @@
       "sha256": "96066b9095a0688dcc7083a57913b0145c8b0e5b232556fe9195df0f43dcc2ff",
       "state": "passed",
       "selectorCount": 42
+    },
+    {
+      "id": "run_history",
+      "path": "docs/validation/Activity-unified/run-history-proof.json",
+      "sha256": "0117665828b265090ac61618d7c9ceea92dc7d9ce5c190e78ff750e7f13a8d76",
+      "state": "passed",
+      "selectorCount": 47
     }
   ],
   "cases": [
@@ -1342,6 +1349,58 @@
             "RPT.10_archive_sequence_pending_and_vault_are_exact",
             "RPT.ten_rebuilds_have_distinct_operation_ids",
             "RPT.twenty_mutations_create_exactly_twenty_generations"
+          ]
+        },
+        {
+          "report": "run_history",
+          "selectors": [
+            "RH.actual_synthetic_package_connects",
+            "RH.producer_is_actually_paused",
+            "RH.1_accepts_distinct_actual_run",
+            "RH.1_terminal_is_same_paused_operation",
+            "RH.2_accepts_distinct_actual_run",
+            "RH.2_terminal_is_same_paused_operation",
+            "RH.3_accepts_distinct_actual_run",
+            "RH.3_terminal_is_same_paused_operation",
+            "RH.4_accepts_distinct_actual_run",
+            "RH.4_terminal_is_same_paused_operation",
+            "RH.5_accepts_distinct_actual_run",
+            "RH.5_terminal_is_same_paused_operation",
+            "RH.6_accepts_distinct_actual_run",
+            "RH.6_terminal_is_same_paused_operation",
+            "RH.7_accepts_distinct_actual_run",
+            "RH.7_terminal_is_same_paused_operation",
+            "RH.8_accepts_distinct_actual_run",
+            "RH.8_terminal_is_same_paused_operation",
+            "RH.9_accepts_distinct_actual_run",
+            "RH.9_terminal_is_same_paused_operation",
+            "RH.10_accepts_distinct_actual_run",
+            "RH.10_terminal_is_same_paused_operation",
+            "RH.11_accepts_distinct_actual_run",
+            "RH.11_terminal_is_same_paused_operation",
+            "RH.12_accepts_distinct_actual_run",
+            "RH.12_terminal_is_same_paused_operation",
+            "RH.13_accepts_distinct_actual_run",
+            "RH.13_terminal_is_same_paused_operation",
+            "RH.14_accepts_distinct_actual_run",
+            "RH.14_terminal_is_same_paused_operation",
+            "RH.15_accepts_distinct_actual_run",
+            "RH.15_terminal_is_same_paused_operation",
+            "RH.16_accepts_distinct_actual_run",
+            "RH.16_terminal_is_same_paused_operation",
+            "RH.17_accepts_distinct_actual_run",
+            "RH.17_terminal_is_same_paused_operation",
+            "RH.seventeenth_run_evicts_oldest_with_contract_error",
+            "RH.latest_sixteen_exact_records_remain_readable",
+            "RH.seventeen_actual_ids_are_unique",
+            "RH.all_paused_runs_preserve_complete_store",
+            "RH.paused_runs_preserve_archive_sequence_pending",
+            "RH.restart_does_not_invent_old_session_records",
+            "RH.restart_keeps_actual_paused_state_and_store",
+            "RH.actual_resume_recovers",
+            "RH.resume_preserves_archive_sequence_pending",
+            "RH.only_pause_and_resume_create_generations",
+            "RH.actual_clear_removes_owned_choice"
           ]
         }
       ],

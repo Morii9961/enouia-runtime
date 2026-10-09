@@ -72,3 +72,5 @@ The [current-pointer replacement failure drill](../validation/Activity-pointer-s
 The [saved-choice deletion drill](../validation/Activity-choice-delete-2026-10-09.md) verifies actual saved false, exact retained config and real reconnection after restart while deletion is refused. Release plus the named retry removes the choice and a further restart stays unconfigured (12/12). Product source is unchanged.
 
 The [bounded repeated isolation drill](../validation/Activity-repeated-pause-2026-10-09.md) verifies ten pause/resume cycles and ten independent Core rebuilds with per-cycle archive/sequence/pending/canonical-Vault preservation, and twenty intentional generations (77/77). It does not establish sustained stress or collection/delivery overlap.
+
+The [session run-record drill](../validation/Activity-run-history-2026-10-09.md) verifies seventeen actual paused starts, exact latest-sixteen retention and nonretryable oldest/post-restart refusal without paused-store writes (47/47). It does not establish active-run eviction or simultaneous start admission.

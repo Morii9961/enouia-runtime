@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 42);
+  assert.equal(reports.size, 43);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -741,6 +741,23 @@ function validate(index) {
   assert.equal(repeatPause.memoryRevision,isolation.memoryRevision);
   assert.match(repeatPause.harnessSha256,/^[a-f0-9]{64}$/);
   assert(repeatPause.limitations.includes('This is not sustained stress, concurrent collection/delivery, real-account acceptance or production timing.'));
+  const runHistory=reports.get('run_history').report;
+  assert.equal(runHistory.scope,'isolated_actual_activity_run_record_retention');
+  const historyNative=readLinked(runHistory.nativeReport,runHistory.nativeReportSha256);
+  assert.equal(historyNative.summary,'47/47');
+  assert.equal(historyNative.checks.length,47);
+  assert(historyNative.checks.every(c=>c.ok===true));
+  assert.deepEqual(runHistory.checks,historyNative.checks.map(c=>c.id));
+  assert.equal(runHistory.nativeSummary,historyNative.summary);
+  assert.equal(runHistory.startedRuns,17);
+  assert.equal(runHistory.retainedRuns,16);
+  assert.equal(runHistory.processExitCode,0);
+  assert.equal(runHistory.desktopSha256,choiceSave.desktopSha256);
+  assert.equal(runHistory.runnerSha256,guidance.runnerSha256);
+  assert.equal(runHistory.memoryRevision,isolation.memoryRevision);
+  assert.match(runHistory.harnessSha256,/^[a-f0-9]{64}$/);
+  for(let number=1;number<=17;number++)for(const suffix of ['accepts_distinct_actual_run','terminal_is_same_paused_operation'])assert(runHistory.checks.includes(`RH.${number}_${suffix}`));
+  assert(runHistory.limitations.includes('This mode creates no Vault and does not establish active-run eviction, concurrent starts, authenticated collection or production timing.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -790,6 +807,7 @@ function validate(index) {
   assert(switchLock.checks.every(id=>linkedTo(c17,'current_switch_lock').includes(id)),'C17 must retain actual pointer-switch failure and preserved remnants');
   assert(choiceDelete.checks.every(id=>linkedTo(c17,'choice_delete').includes(id)),'C17 must retain actual saved-choice deletion refusal and restart recovery');
   assert(repeatPause.checks.every(id=>linkedTo(c17,'repeat_pause').includes(id)),'C17 must retain bounded repeated mutations and independent rebuild isolation');
+  assert(runHistory.checks.every(id=>linkedTo(c17,'run_history').includes(id)),'C17 must retain actual record retention, expiration and restart boundaries');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -797,7 +815,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 32, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 33, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -848,7 +866,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'current_switch_lock'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'choice_delete'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'repeat_pause'));
-  result.negativeChecks = 44;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'run_history'));
+  result.negativeChecks = 45;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

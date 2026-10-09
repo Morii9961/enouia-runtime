@@ -1,0 +1,11 @@
+# Activity bounded session run records
+
+Date: 2026-10-09. Scope: actual native run-record retention and restart while the newly prepared synthetic producer is durably paused. B4/J1 remain partial; B5 inactive.
+
+Seventeen actual starts alternate sync and retry. Every accepted ID is unique, and each terminal record matches that ID and operation with blocked stage and paused outcome. These are actual installed-runner results, not modeled statuses. The complete paused Activity store stays unchanged: no collector or delivery work is performed. After the seventeenth start, the oldest query returns nonretryable contract_invalid, while all latest sixteen exact records remain readable.
+
+A new host reconnects through its owned saved package choice and still reads the durable paused producer state. Querying the previous session's latest run returns contract_invalid; the host does not invent persistent history. Actual resume succeeds. Archive, sequence and pending bytes remain exact, and only pause/resume create two new generations. The final actual clear removes the owned choice. [Raw native acceptance](Activity-unified/run-history-native.json): **47/47**. [Hashed proof](Activity-unified/run-history-proof.json) binds exact helper/build identities and scope.
+
+Fresh checks: actual 47/47, harness syntax, Memory integration guard, whitespace and evidence integrity **43 reports / 645 selectors / 45 negative checks**. Product source/binaries/lockfile/pin are unchanged. The last implementation's 55 frontend tests, strict build, 32+3 host/Core tests and fmt/clippy, 16/16 save/clear checks, 35/35 actual actions and 26 installer checks are reused rather than rerun.
+
+Desktop remains 328a6e08dda940a5e00b638ff76c77a06c8e5332b83db4263935a8ff2675f3ec; runner cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a; Memory pin ff692ccb6fbc1c387254d5ffbef41b105eeb2a84. This mode creates no Vault and does not establish active-run eviction, simultaneous start admission, authenticated collection or production timing. The unsigned installer is built, not installed, signed or published. No personal Vault/archive, existing/production task, credentials, public upload, server or Moriium source is changed.
