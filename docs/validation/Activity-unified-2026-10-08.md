@@ -127,3 +127,7 @@ The attempted `test-activity-package.ps1 -LiveScheduler` was rejected by automat
 Read-only actual-hostname HTTPS probes to `https://morii9961.top/zh/` and `https://morii9961.top/status-data/current.json` return curl **exit 35, HTTP 000**, with TLS failure and no HTTP response. The older preflight's receiver-absence/404 finding cannot be freshly observed through this failure; its inferred hosting cause is not established by these probes. Reachability/observed publication (O6), Moriium-owned receiver/restricted account deployment (O2), reviewed real seed/cutover/reconciliation and production task activation remain open. Historical private-account inventory was not repeated, no personal archive/Vault was opened, no credentials were copied, no public upload was performed, and neither Moriium nor the server was changed.
 
 Full B4/J1 acceptance, deployed About/cache behavior, power-loss/storage-fault acceptance, complete accessibility, signing and B5 cutover remain outside the completed implementation and synthetic checks above.
+
+## Read-only public HTTPS refresh, 2026-10-09
+
+[Supplemental HTTPS observation](Activity-public-https-2026-10-09.md) remains partial and outside the passed matrix selector counts. Node verifies TLSv1.3 for the About request before ECONNRESET, while the public manifest request records no verified handshake. Neither receives HTTP; independent Schannel checks still return exit 35/HTTP 000. This does not confirm publication or infer a global outage/hosting cause. No production change is made.

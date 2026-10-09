@@ -53,7 +53,7 @@ const report = {
   observedAt: new Date().toISOString(),
   client: { node: process.version, openssl: process.versions.openssl },
   checks: await Promise.all(['/zh/', '/status-data/current.json'].map(probe)),
-  limitations: ['No HTTP status is inferred when the TLS connection fails.', 'This reads public URLs only; it establishes no new producer publication, cutover or receiver deployment.'],
+  limitations: ['No HTTP status is inferred without a received HTTP response; a verified TLS handshake may still be followed by connection reset.', 'This reads public URLs only; it establishes no new producer publication, cutover or receiver deployment.'],
 };
 writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));
