@@ -204,10 +204,13 @@ function validReply(reply: ObjectValue, kind: string): boolean {
     });
   }
   if (kind === "activity_days") return closed(reply, ["schemaVersion", "kind", "source", "days"]) && inList(reply.source, SOURCES) && recordedDays(reply.days);
-  if (kind === "activity_pause_acknowledged") return typeof reply.paused === "boolean";
-  if (kind === "activity_run_accepted") return typeof reply.runId === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(reply.runId);
-  if (kind === "activity_run_status") return typeof reply.runId === "string"
+  if (kind === "activity_pause_acknowledged") return closed(reply, ["schemaVersion", "kind", "paused"]) && typeof reply.paused === "boolean";
+  if (kind === "activity_run_accepted") return closed(reply, ["schemaVersion", "kind", "runId"]) && typeof reply.runId === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(reply.runId);
+  if (kind === "activity_run_status") return closed(reply, ["schemaVersion", "kind", "runId", "stage", "error"], ["operation", "summary"])
+    && typeof reply.runId === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(reply.runId)
     && inList(reply.stage, ["queued", "running", "collecting", "persisting", "uploading", "observing", "completed", "failed", "blocked"])
+    && (reply.operation === undefined || inList(reply.operation, ["activity_run_now", "activity_retry_pending", "activity_set_paused"]))
+    && (reply.summary === undefined || reply.summary === null || object(reply.summary))
     && (reply.error === null || validError(reply.error));
   return false;
 }
@@ -221,6 +224,10 @@ async function request<T>(operation: string, fields: Record<string, unknown>, ki
     throw new ActivityError(reply.error);
   }
   if (reply.kind !== kind || !validReply(reply, kind)) throw invalid();
+  if (kind === "activity_run_status" && reply.runId !== fields.runId) throw invalid();
+  if (kind === "activity_pause_acknowledged" && reply.paused !== fields.paused) throw invalid();
+  if (kind === "activity_days" && (reply.source !== fields.source || !Array.isArray(reply.days)
+    || reply.days.some(day => !object(day) || typeof day.date !== "string" || typeof fields.from !== "string" || typeof fields.to !== "string" || day.date < fields.from || day.date > fields.to))) throw invalid();
   return reply as T;
 }
 

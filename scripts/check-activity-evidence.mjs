@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 30);
+  assert.equal(reports.size, 31);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -490,6 +490,36 @@ function validate(index) {
   assert.equal(activityReadLock.memoryRevision,isolation.memoryRevision);
   assert.match(activityReadLock.harnessSha256,/^[a-f0-9]{64}$/);
   assert(activityReadLock.limitations.includes('This is an actual Windows sharing violation, not disk-full, ACL denial, power loss or production availability.'));
+  const correlation=reports.get('reply_correlation').report;
+  assert.equal(correlation.scope,'native_activity_reply_correlation');
+  const correlationNative=readLinked(correlation.nativeReport,correlation.nativeReportSha256);
+  const correlationBefore=readLinked(correlation.beforeReport,correlation.beforeReportSha256);
+  const correlationIntermediate=readLinked(correlation.intermediateReport,correlation.intermediateReportSha256);
+  const correlationActions=readLinked(correlation.actualActionsReport,correlation.actualActionsReportSha256);
+  assert.equal(correlationNative.summary,'12/12');
+  assert.equal(correlation.nativeSummary,correlationNative.summary);
+  assert.equal(correlation.processExitCode,0);
+  assert.equal(correlationNative.checks.length,12);
+  assert(correlationNative.checks.every(c=>c.ok===true));
+  assert.deepEqual(correlation.checks,correlationNative.checks.map(c=>c.id));
+  assert.equal(correlationBefore.summary,'5/12');
+  assert.equal(correlation.beforeSummary,correlationBefore.summary);
+  assert.equal(correlation.beforeProcessExitCode,1);
+  assert.deepEqual(correlationBefore.checks.map(c=>c.id),correlation.checks);
+  assert.deepEqual(correlationBefore.checks.filter(c=>!c.ok).map(c=>c.id),['wrong_run','invalid_run','extra_status','wrong_operation','invalid_summary','extra_accepted','opposite_pause_ack'].map(id=>`Y.rejects_${id}`));
+  assert.equal(correlationIntermediate.summary,'4/12');
+  assert.equal(correlation.intermediateSummary,correlationIntermediate.summary);
+  assert.equal(correlationActions.summary,'35/35');
+  assert.equal(correlation.actualActionsSummary,correlationActions.summary);
+  assert.equal(correlationActions.checks.length,35);
+  assert(correlationActions.checks.every(c=>c.ok===true));
+  assert.deepEqual(correlation.frontendBefore,{tests:48,passed:45,failed:3});
+  assert.deepEqual(correlation.frontendAfter,{tests:48,passed:48,failed:0});
+  assert.equal(correlation.beforeDesktopSha256,exportContract.desktopSha256);
+  assert.equal(correlation.runnerSha256,guidance.runnerSha256);
+  assert.equal(correlation.memoryRevision,isolation.memoryRevision);
+  for(const digest of [correlation.desktopSha256,correlation.installerSha256,correlation.harnessSha256])assert.match(digest,/^[a-f0-9]{64}$/);
+  assert(correlation.limitations.includes('Run-contract mutations and status replies are modeled only in the owned page and intercepted before native IPC.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -527,12 +557,13 @@ function validate(index) {
   assert(sourceContract.checks.every(id=>linkedTo(c17,'source_contract').includes(id)),'C17 must retain strict source semantics and real-read recovery evidence');
   assert(exportContract.checks.every(id=>linkedTo(c17,'export_contract').includes(id)),'C17 must retain export field refusals and actual recovery evidence');
   assert(activityReadLock.checks.every(id=>linkedTo(c17,'activity_read_lock').includes(id)),'C17 must retain actual Activity failure, Memory independence and read recovery evidence');
+  assert(correlation.checks.every(id=>linkedTo(c17,'reply_correlation').includes(id)),'C17 must retain run/pause reply correlation and exact-field evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 20, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 21, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -569,7 +600,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'export_contract'));
   reject(x => x.cases.find(c => c.id === 'C10').evidence = x.cases.find(c => c.id === 'C10').evidence.filter(e => e.report !== 'export_contract'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'activity_read_lock'));
-  result.negativeChecks = 30;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'reply_correlation'));
+  result.negativeChecks = 31;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

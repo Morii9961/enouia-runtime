@@ -213,6 +213,13 @@
       "sha256": "c0e23081d361168a291af23561a12de5ac4e7b22ea63379c9391eebf692ff68e",
       "state": "passed",
       "selectorCount": 10
+    },
+    {
+      "id": "reply_correlation",
+      "path": "docs/validation/Activity-unified/run-contract-proof.json",
+      "sha256": "70be1e4b9dda53be68d0177e7347aa70d4d2fb20f7cf16c77caebb16c8a3dd38",
+      "state": "passed",
+      "selectorCount": 12
     }
   ],
   "cases": [
@@ -945,6 +952,23 @@
             "A.failure_preserves_complete_activity_store",
             "A.release_restores_exact_public_history",
             "A.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "reply_correlation",
+          "selectors": [
+            "Y.mutations_are_intercepted_before_native_ipc",
+            "Y.actual_synthetic_package_connects",
+            "Y.rejects_wrong_run",
+            "Y.rejects_invalid_run",
+            "Y.rejects_extra_status",
+            "Y.rejects_wrong_operation",
+            "Y.rejects_invalid_summary",
+            "Y.matching_terminal_status_recovers",
+            "Y.rejects_extra_accepted",
+            "Y.rejects_opposite_pause_ack",
+            "Y.modeled_operations_preserve_complete_store",
+            "Y.choice_is_cleared"
           ]
         }
       ],

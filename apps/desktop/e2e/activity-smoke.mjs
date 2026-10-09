@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -382,6 +382,68 @@ async function confirmationMain() {
 
 // Malformed replies below are modeled only in this owned page; all restored
 // reads still use the real installed runner, with no store mutation or Vault.
+async function runContractMain() {
+  rmSync(settings,{force:true});
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase()) throw new Error('Run-contract acceptance requires the contained synthetic data root');
+  const before=fixtureTree(manifest.dataRoot);
+  const app=launch();const s=await connect();
+  await s.evaluate(`(() => {
+    const real=window.fetch;
+    const url=window.__TAURI_INTERNALS__.convertFileSrc('activity_call','ipc');
+    window.__runCase='valid';window.__statusReplies=0;window.__mutationReplies=0;
+    window.fetch=async (endpoint,options)=>{
+      if(endpoint!==url)return real(endpoint,options);
+      const {request}=JSON.parse(options.body);let reply;
+      if(['activity_run_now','activity_retry_pending'].includes(request.operation)) {
+        window.__mutationReplies++;
+        reply={schemaVersion:1,kind:'activity_run_accepted',runId:'run-contract'};
+        if(window.__runCase==='extra_accepted')reply.privatePath='SYNTHETIC_PRIVATE';
+      } else if(request.operation==='activity_set_paused') {
+        window.__mutationReplies++;
+        reply={schemaVersion:1,kind:'activity_pause_acknowledged',paused:!request.paused};
+      } else if(request.operation==='activity_get_run') {
+        window.__statusReplies++;
+        reply={schemaVersion:1,kind:'activity_run_status',runId:request.runId,stage:'completed',error:null,operation:'activity_run_now',summary:null};
+        if(window.__runCase==='wrong_run')reply.runId='another-run';
+        if(window.__runCase==='invalid_run')reply.runId='../private';
+        if(window.__runCase==='extra_status')reply.privatePath='SYNTHETIC_PRIVATE';
+        if(window.__runCase==='wrong_operation')reply.operation='memory_list';
+        if(window.__runCase==='invalid_summary')reply.summary='SYNTHETIC_PRIVATE';
+      } else return real(endpoint,options);
+      return new Response(JSON.stringify(reply),{headers:{'Content-Type':'application/json','Tauri-Response':'ok'}});
+    };return true;
+  })()`);
+  const probe=await call(s,{operation:'activity_run_now'});
+  if(probe.runId!=='run-contract'||await s.evaluate('window.__mutationReplies')!==1)throw Error('Run interception must be proved before page actions');
+  check('Y.mutations_are_intercepted_before_native_ipc',true);
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,has('Connect the installed Activity producer'),'run-contract gate');
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'run-contract actual reads');
+  check('Y.actual_synthetic_package_connects',true);
+  const reset=async scenario=>{
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Home\"]').click()");
+    await waitFor(s,"!document.querySelector('.act-surface')",'run-contract unmount');
+    await s.evaluate(`window.__runCase=${JSON.stringify(scenario)};window.__statusReplies=0;document.querySelector('nav button[aria-label="Activity"]').click();true`);
+    await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Run now'&&!b.disabled)",'run-contract controls');
+  };
+  for(const scenario of ['wrong_run','invalid_run','extra_status','wrong_operation','invalid_summary','valid']) {
+    await reset(scenario);await press(s,'Run now');
+    await waitFor(s,'window.__statusReplies>0','modeled run status');await sleep(200);
+    const invalid=await s.evaluate(has('The response did not match Activity IPC v1'));
+    const completed=await s.evaluate("!!document.querySelector('.act-run')?.textContent.includes('Completed')");
+    check(scenario==='valid'?'Y.matching_terminal_status_recovers':`Y.rejects_${scenario}`,scenario==='valid'?!invalid&&completed:invalid&&!completed);
+  }
+  await reset('extra_accepted');await press(s,'Run now');await sleep(200);
+  check('Y.rejects_extra_accepted',await s.evaluate(has('The response did not match Activity IPC v1'))&&await s.evaluate('window.__statusReplies')===0);
+  await reset('opposite_pause');await press(s,'Pause activity sync');await sleep(200);
+  check('Y.rejects_opposite_pause_ack',await s.evaluate(has('The response did not match Activity IPC v1')));
+  check('Y.modeled_operations_preserve_complete_store',fixtureTree(manifest.dataRoot)===before);
+  await reset('valid');await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'run-contract forgotten choice');
+  check('Y.choice_is_cleared',!existsSync(settings));
+  s.close();app.kill();await app.exited;
+}
+
 async function readContractMain(exportContract = false) {
   const prefix=exportContract?'X.':'V.';
   const privateMarker='SYNTHETIC_PRIVATE_MARKER';
@@ -981,6 +1043,7 @@ try {
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();
   else if (mode === '--export-contract') await readContractMain(true);
+  else if (mode === '--run-contract') await runContractMain();
   else await main();
 } catch (err) {
   check('run', false, String(err.message ?? err));

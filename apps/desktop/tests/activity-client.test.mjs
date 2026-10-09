@@ -22,7 +22,9 @@ test('each operation sends exactly its IPC v1 request shape', async () => {
     if (kind === 'activity_overview') return overview();
     if (kind === 'activity_public_preview') return preview();
     if (kind === 'activity_days') return { schemaVersion: 1, kind, source: request.source, days: [] };
-    return { schemaVersion: 1, kind, runId: 'run-1', paused: request.paused, stage: 'completed', error: null };
+    if (kind === 'activity_pause_acknowledged') return { schemaVersion: 1, kind, paused: request.paused };
+    if (kind === 'activity_run_status') return { schemaVersion: 1, kind, runId: request.runId, stage: 'completed', error: null };
+    return { schemaVersion: 1, kind, runId: 'run-1' };
   });
   await activity.overview();
   await activity.preview();
@@ -186,5 +188,50 @@ test('supported dates and explicit-offset times remain valid without host-zone p
   for (const time of ['2026-02-30T00:00:00Z', '2026-10-08T24:00:00Z', '2026-10-08T00:00:00+24:00', '2026-10-08T00:00:00', 'Thu, 08 Oct 2026 00:00:00 GMT']) {
     const p = preview(); p.data.sources.github.updatedAt = time; recorder(() => p);
     await assert.rejects(activity.preview(), e => e.error.code === 'contract_invalid');
+  }
+});
+
+test('run status must identify the requested run and keep its documented fields', async () => {
+  for (const reply of [
+    { schemaVersion: 1, kind: 'activity_run_status', runId: 'another-run', stage: 'completed', error: null },
+    { schemaVersion: 1, kind: 'activity_run_status', runId: '../private', stage: 'completed', error: null },
+    { schemaVersion: 1, kind: 'activity_run_status', runId: 'run-1', stage: 'completed', error: null, privatePath: 'SYNTHETIC_PRIVATE' },
+    { schemaVersion: 1, kind: 'activity_run_status', runId: 'run-1', stage: 'completed', error: null, operation: 'memory_list' },
+  ]) {
+    recorder(() => reply);
+    await assert.rejects(activity.run('run-1'), e => e instanceof ActivityError && e.error.code === 'contract_invalid');
+  }
+  const valid = { schemaVersion: 1, kind: 'activity_run_status', runId: 'run-1', stage: 'running', error: null, operation: 'activity_run_now', summary: null };
+  recorder(() => valid);
+  assert.deepEqual(await activity.run('run-1'), valid);
+});
+
+test('filtered days cannot switch sources or escape the requested inclusive date range', async () => {
+  for (const reply of [
+    { schemaVersion: 1, kind: 'activity_days', source: 'codex', days: [] },
+    { schemaVersion: 1, kind: 'activity_days', source: 'github', days: [{ date: '2026-08-31', value: 1 }] },
+    { schemaVersion: 1, kind: 'activity_days', source: 'github', days: [{ date: '2026-10-01', value: 1 }] },
+  ]) {
+    recorder(() => reply);
+    await assert.rejects(activity.days('github', '2026-09-01', '2026-09-30'), e => e.error.code === 'contract_invalid');
+  }
+  const valid={schemaVersion:1,kind:'activity_days',source:'github',days:[{date:'2026-09-01',value:0},{date:'2026-09-30',value:1}]};
+  recorder(() => valid);
+  assert.deepEqual((await activity.days('github','2026-09-01','2026-09-30')).days,valid.days);
+});
+
+test('accepted runs and pause acknowledgements use exact fields and the requested state', async () => {
+  for(const reply of [
+    {schemaVersion:1,kind:'activity_run_accepted',runId:'run-1',privatePath:'SYNTHETIC_PRIVATE'},
+    {schemaVersion:1,kind:'activity_pause_acknowledged',paused:false},
+    {schemaVersion:1,kind:'activity_pause_acknowledged',paused:true,runId:'wrong-branch'},
+  ]) {
+    recorder(() => reply);
+    const call=reply.kind==='activity_run_accepted'?activity.runNow:()=>activity.setPaused(true);
+    await assert.rejects(call(),e=>e.error.code==='contract_invalid');
+  }
+  for(const paused of [true,false]) {
+    recorder(()=>({schemaVersion:1,kind:'activity_pause_acknowledged',paused}));
+    assert.equal((await activity.setPaused(paused)).paused,paused);
   }
 });
