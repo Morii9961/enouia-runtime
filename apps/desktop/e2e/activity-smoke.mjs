@@ -26,9 +26,9 @@ import { createServer } from 'node:net';
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-delete', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-delete|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-delete', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-delete|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -1079,6 +1079,26 @@ async function main() {
       check('O.rebuild_preserves_canonical_vault', fixtureTree(join(vault,'vault')) === overlapCanonical);
       check('O.rebuild_preserves_activity_bytes', fixtureTree(manifest.dataRoot) === treeBefore);
       check('O.rebuild_returns_all_approved_memories', (await memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})).result?.total === expectedMemories);
+    }
+    if (mode === '--repeat-pause') {
+      const canonical=fixtureTree(join(vault,'vault')),image=fixtureImage(manifest.dataRoot),generationCount=readdirSync(join(manifest.dataRoot,'generations')).length,operations=[];
+      for(let cycle=1;cycle<=10;cycle++) {
+        const rebuild=await memoryCall(s,'index_rebuild');if(!rebuild.result?.operationId)throw Error('Repeated synthetic rebuild was not accepted');operations.push(rebuild.result.operationId);
+        // Commands are issued together; their actual replies do not assert
+        // that the rebuild worker stayed running throughout every request.
+        const [pause,list]=await Promise.all([call(s,{operation:'activity_set_paused',paused:true}),memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false})]);
+        check(`RPT.${cycle}_pause_and_memory_list_are_durable`,pause.kind==='activity_pause_acknowledged'&&pause.paused===true&&(await overview(s)).producer.paused===true&&!list.error&&list.result?.total===1);
+        const resume=await call(s,{operation:'activity_set_paused',paused:false});
+        check(`RPT.${cycle}_resume_is_durable`,resume.kind==='activity_pause_acknowledged'&&resume.paused===false&&(await overview(s)).producer.paused===false);
+        let terminal;const deadline=Date.now()+30000;
+        do{terminal=(await memoryCall(s,'operation_get',{operationId:rebuild.result.operationId})).result;if(terminal&&['succeeded','failed','cancelled'].includes(terminal.state))break;await sleep(100);}while(Date.now()<deadline);
+        const search=await memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25});
+        check(`RPT.${cycle}_rebuild_and_search_recover`,terminal?.state==='succeeded'&&!search.error&&search.result?.items?.length===1);
+        const after=fixtureImage(manifest.dataRoot);
+        check(`RPT.${cycle}_archive_sequence_pending_and_vault_are_exact`,after.activity===image.activity&&after.sequence===image.sequence&&after.pending===image.pending&&fixtureTree(join(vault,'vault'))===canonical);
+      }
+      check('RPT.ten_rebuilds_have_distinct_operation_ids',operations.length===10&&new Set(operations).size===10);
+      check('RPT.twenty_mutations_create_exactly_twenty_generations',readdirSync(join(manifest.dataRoot,'generations')).length===generationCount+20&&fixtureImage(manifest.dataRoot).generation!==image.generation);
     }
     if(mode==='--generation-write-denial') {
       if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Write ACL drill escaped the prepared synthetic data root');

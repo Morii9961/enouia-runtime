@@ -290,6 +290,13 @@
       "sha256": "fcc5d97bc8065ce172058510d2d8fe5deb16c9911a2d183eeaa2df04d7d40afb",
       "state": "passed",
       "selectorCount": 12
+    },
+    {
+      "id": "repeat_pause",
+      "path": "docs/validation/Activity-unified/repeat-pause-proof.json",
+      "sha256": "96066b9095a0688dcc7083a57913b0145c8b0e5b232556fe9195df0f43dcc2ff",
+      "state": "passed",
+      "selectorCount": 42
     }
   ],
   "cases": [
@@ -1288,6 +1295,53 @@
             "T.released_retry_clears_failure_feedback",
             "T.restart_stays_unconfigured_after_actual_delete",
             "T.complete_activity_store_is_unchanged"
+          ]
+        },
+        {
+          "report": "repeat_pause",
+          "selectors": [
+            "RPT.1_pause_and_memory_list_are_durable",
+            "RPT.1_resume_is_durable",
+            "RPT.1_rebuild_and_search_recover",
+            "RPT.1_archive_sequence_pending_and_vault_are_exact",
+            "RPT.2_pause_and_memory_list_are_durable",
+            "RPT.2_resume_is_durable",
+            "RPT.2_rebuild_and_search_recover",
+            "RPT.2_archive_sequence_pending_and_vault_are_exact",
+            "RPT.3_pause_and_memory_list_are_durable",
+            "RPT.3_resume_is_durable",
+            "RPT.3_rebuild_and_search_recover",
+            "RPT.3_archive_sequence_pending_and_vault_are_exact",
+            "RPT.4_pause_and_memory_list_are_durable",
+            "RPT.4_resume_is_durable",
+            "RPT.4_rebuild_and_search_recover",
+            "RPT.4_archive_sequence_pending_and_vault_are_exact",
+            "RPT.5_pause_and_memory_list_are_durable",
+            "RPT.5_resume_is_durable",
+            "RPT.5_rebuild_and_search_recover",
+            "RPT.5_archive_sequence_pending_and_vault_are_exact",
+            "RPT.6_pause_and_memory_list_are_durable",
+            "RPT.6_resume_is_durable",
+            "RPT.6_rebuild_and_search_recover",
+            "RPT.6_archive_sequence_pending_and_vault_are_exact",
+            "RPT.7_pause_and_memory_list_are_durable",
+            "RPT.7_resume_is_durable",
+            "RPT.7_rebuild_and_search_recover",
+            "RPT.7_archive_sequence_pending_and_vault_are_exact",
+            "RPT.8_pause_and_memory_list_are_durable",
+            "RPT.8_resume_is_durable",
+            "RPT.8_rebuild_and_search_recover",
+            "RPT.8_archive_sequence_pending_and_vault_are_exact",
+            "RPT.9_pause_and_memory_list_are_durable",
+            "RPT.9_resume_is_durable",
+            "RPT.9_rebuild_and_search_recover",
+            "RPT.9_archive_sequence_pending_and_vault_are_exact",
+            "RPT.10_pause_and_memory_list_are_durable",
+            "RPT.10_resume_is_durable",
+            "RPT.10_rebuild_and_search_recover",
+            "RPT.10_archive_sequence_pending_and_vault_are_exact",
+            "RPT.ten_rebuilds_have_distinct_operation_ids",
+            "RPT.twenty_mutations_create_exactly_twenty_generations"
           ]
         }
       ],

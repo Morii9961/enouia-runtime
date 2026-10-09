@@ -70,3 +70,5 @@ The [choice-persistence feedback fix](../validation/Activity-choice-save-2026-10
 The [current-pointer replacement failure drill](../validation/Activity-pointer-switch-2026-10-09.md) permits actual reads while Windows refuses replacement. Two failed pause writes retain selected state, original files, complete unselected generations and prepared temporary pointers; release allows pause/resume without deleting remnants (50/50 native checks). Product code is unchanged.
 
 The [saved-choice deletion drill](../validation/Activity-choice-delete-2026-10-09.md) verifies actual saved false, exact retained config and real reconnection after restart while deletion is refused. Release plus the named retry removes the choice and a further restart stays unconfigured (12/12). Product source is unchanged.
+
+The [bounded repeated isolation drill](../validation/Activity-repeated-pause-2026-10-09.md) verifies ten pause/resume cycles and ten independent Core rebuilds with per-cycle archive/sequence/pending/canonical-Vault preservation, and twenty intentional generations (77/77). It does not establish sustained stress or collection/delivery overlap.
