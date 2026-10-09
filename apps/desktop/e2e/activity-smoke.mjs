@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-delete', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--current-switch-lock', '--generation-write-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-delete|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--current-switch-lock|--generation-write-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -676,6 +676,43 @@ async function choiceSaveMain() {
   check('J.restart_reads_recovered_saved_choice',true);
   check('J.complete_activity_store_is_unchanged',fixtureTree(manifest.dataRoot)===before);
   s.close();app.kill();await app.exited;
+}
+
+async function choiceDeleteMain() {
+  if(existsSync(settings))throw Error('Choice-delete output requires an absent settings file');
+  if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Choice-delete acceptance requires contained synthetic data');
+  const before=fixtureTree(manifest.dataRoot);let app=launch(),s=await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+  await waitFor(s,has('Connect the installed Activity producer'),'choice-delete gate');await press(s,'Choose installed package…');fillDialog(app.pid,pkg);
+  await waitFor(s,"document.querySelectorAll('.act-source').length===3",'choice-delete selection');
+  check('T.actual_selection_saves_owned_file',existsSync(settings));
+  if(realpathSync(settings)!==join(realpathSync(out),'activity-install.json'))throw Error('Choice-delete file escaped output');
+  const saved=readFileSync(settings),holder=spawn('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',['-NoProfile','-NonInteractive','-Command',`$f=[IO.File]::Open('${settings.replace(/'/g,"''")}','Open','Read','Read');try{'locked';Start-Sleep -Seconds 90}finally{$f.Dispose()}`],{windowsHide:true,stdio:['ignore','pipe','pipe']});
+  children.add(holder);holder.exited=new Promise(r=>holder.once('exit',code=>{children.delete(holder);r(code);}));
+  try {
+    await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(Error('Synthetic choice hold not ready')),10000);holder.stdout.on('data',bytes=>{output+=bytes.toString();if(output.includes('locked')){clearTimeout(timer);resolve();}});holder.once('exit',()=>{clearTimeout(timer);reject(Error('Synthetic choice hold exited'));});});
+    check('T.saved_choice_is_held_without_delete_sharing',true);
+    await s.evaluate(`(()=>{const real=window.fetch,url=window.__TAURI_INTERNALS__.convertFileSrc('activity_setup','ipc');window.__deleteReply=null;window.fetch=async(u,o)=>{const response=await real(u,o);if(u===url&&JSON.parse(o.body).action==='clear')window.__deleteReply=await response.clone().json();return response;};return true;})()`);
+    await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'failed delete gate');
+    check('T.actual_delete_refusal_reports_saved_false',await s.evaluate('window.__deleteReply?.configured===false&&window.__deleteReply.saved===false'));
+    check('T.refusal_explains_reconnect_and_retry',await s.evaluate(has('It may reconnect after restarting'))&&await s.evaluate(has('Retry forgetting package')));
+    check('T.failed_clear_preserves_exact_saved_file',readFileSync(settings).equals(saved));
+    s.close();app.kill();await app.exited;app=launch();s=await connect();
+    await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");
+    await waitFor(s,"document.querySelectorAll('.act-source').length===3",'retained choice restart');
+    check('T.restart_really_reconnects_retained_choice',true);
+    check('T.restart_keeps_saved_file_exact',readFileSync(settings).equals(saved));
+    await press(s,'Change package');await waitFor(s,has('Retry forgetting package'),'second actual delete refusal');
+    check('T.restarted_host_reports_same_clear_failure',await s.evaluate(has('The saved package choice could not be cleared')));
+  }finally{holder.kill();await holder.exited;}
+  await press(s,'Retry forgetting package');await waitFor(s,"![...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Retry forgetting package')",'delete after release');
+  check('T.released_retry_removes_saved_choice',!existsSync(settings));
+  check('T.released_retry_clears_failure_feedback',!(await s.evaluate(has('The saved package choice could not be cleared'))));
+  s.close();app.kill();await app.exited;app=launch();s=await connect();
+  await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'forgotten choice restart');
+  check('T.restart_stays_unconfigured_after_actual_delete',await s.evaluate("document.querySelectorAll('.act-source').length===0")&&!existsSync(settings));
+  check('T.complete_activity_store_is_unchanged',fixtureTree(manifest.dataRoot)===before);
+  await shot(s,'01-forgotten-choice');s.close();app.kill();await app.exited;
 }
 
 async function readContractMain(exportContract = false) {
@@ -1375,6 +1412,7 @@ try {
   else if (mode === '--confirmation') await confirmationMain();
   else if (mode === '--setup-contract') await setupContractMain();
   else if (mode === '--choice-save') await choiceSaveMain();
+  else if (mode === '--choice-delete') await choiceDeleteMain();
   else if (mode === '--keyboard') await keyboardMain();
   else if (mode === '--full-days') await fullDaysMain();
   else if (mode === '--read-contract') await readContractMain();

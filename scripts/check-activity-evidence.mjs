@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 40);
+  assert.equal(reports.size, 41);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -708,6 +708,20 @@ function validate(index) {
   assert.equal(switchLock.memoryRevision,isolation.memoryRevision);
   assert.match(switchLock.harnessSha256,/^[a-f0-9]{64}$/);
   assert(switchLock.limitations.includes('Failure remnants are deliberately retained; recovery accepts actual pause/resume without deleting or silently promoting failed generations.'));
+  const choiceDelete=reports.get('choice_delete').report;
+  assert.equal(choiceDelete.scope,'isolated_actual_activity_saved_choice_delete_failure');
+  const deleteNative=readLinked(choiceDelete.nativeReport,choiceDelete.nativeReportSha256);
+  assert.equal(deleteNative.summary,'12/12');
+  assert.equal(deleteNative.checks.length,12);
+  assert(deleteNative.checks.every(c=>c.ok===true));
+  assert.deepEqual(choiceDelete.checks,deleteNative.checks.map(c=>c.id));
+  assert.equal(choiceDelete.nativeSummary,deleteNative.summary);
+  assert.equal(choiceDelete.processExitCode,0);
+  assert.equal(choiceDelete.desktopSha256,choiceSave.desktopSha256);
+  assert.equal(choiceDelete.runnerSha256,guidance.runnerSha256);
+  assert.equal(choiceDelete.memoryRevision,isolation.memoryRevision);
+  assert.match(choiceDelete.harnessSha256,/^[a-f0-9]{64}$/);
+  assert(choiceDelete.limitations.includes('Complete Activity bytes stay unchanged; this mode creates no Vault and performs no producer mutation.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -755,6 +769,7 @@ function validate(index) {
   assert(setupContract.checks.every(id=>linkedTo(c17,'setup_contract').includes(id)),'C17 must retain setup refusals and actual selection recovery');
   assert(choiceSave.checks.every(id=>linkedTo(c17,'choice_save').includes(id)),'C17 must retain actual choice persistence failures and recovery');
   assert(switchLock.checks.every(id=>linkedTo(c17,'current_switch_lock').includes(id)),'C17 must retain actual pointer-switch failure and preserved remnants');
+  assert(choiceDelete.checks.every(id=>linkedTo(c17,'choice_delete').includes(id)),'C17 must retain actual saved-choice deletion refusal and restart recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -762,7 +777,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 30, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 31, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -811,7 +826,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C10').evidence = x.cases.find(c => c.id === 'C10').evidence.filter(e => e.report !== 'setup_contract'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'choice_save'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'current_switch_lock'));
-  result.negativeChecks = 42;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'choice_delete'));
+  result.negativeChecks = 43;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

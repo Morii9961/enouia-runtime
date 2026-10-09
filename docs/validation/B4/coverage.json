@@ -283,6 +283,13 @@
       "sha256": "fa889b6e75a184876a98201ac26ac8a6d84c0f8abde1893b8baea228dc7198c0",
       "state": "passed",
       "selectorCount": 15
+    },
+    {
+      "id": "choice_delete",
+      "path": "docs/validation/Activity-unified/choice-delete-proof.json",
+      "sha256": "fcc5d97bc8065ce172058510d2d8fe5deb16c9911a2d183eeaa2df04d7d40afb",
+      "state": "passed",
+      "selectorCount": 12
     }
   ],
   "cases": [
@@ -1264,6 +1271,23 @@
             "L.recovery_preserves_archive_sequence_pending",
             "L.recovery_preserves_failed_generation_and_pointer_remnants",
             "L.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "choice_delete",
+          "selectors": [
+            "T.actual_selection_saves_owned_file",
+            "T.saved_choice_is_held_without_delete_sharing",
+            "T.actual_delete_refusal_reports_saved_false",
+            "T.refusal_explains_reconnect_and_retry",
+            "T.failed_clear_preserves_exact_saved_file",
+            "T.restart_really_reconnects_retained_choice",
+            "T.restart_keeps_saved_file_exact",
+            "T.restarted_host_reports_same_clear_failure",
+            "T.released_retry_removes_saved_choice",
+            "T.released_retry_clears_failure_feedback",
+            "T.restart_stays_unconfigured_after_actual_delete",
+            "T.complete_activity_store_is_unchanged"
           ]
         }
       ],
