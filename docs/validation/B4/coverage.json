@@ -500,6 +500,13 @@
       "sha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
       "state": "passed",
       "selectorCount": 51
+    },
+    {
+      "id": "days_source_metadata",
+      "path": "docs/validation/Activity-days-metadata/proof.json",
+      "sha256": "2ca6af9fac5b9e67ea65c669832059ebf7c2dc5b6f6e7052503165a272dd276f",
+      "state": "passed",
+      "selectorCount": 37
     }
   ],
   "cases": [
@@ -2327,6 +2334,48 @@
             "DP.complete_store_remains_exact",
             "T.days_rejects_invalid_series_before_filtering",
             "T.days_preserves_empty_and_exact_values"
+          ]
+        },
+        {
+          "report": "days_source_metadata",
+          "selectors": [
+            "DM.actual_producer_starts_healthy",
+            "DM.owned_reply_runner_matches_manifest",
+            "DM.actual_picker_selects_sandbox_helper",
+            "DM.github_boundary_refuses_conflicting_metadata",
+            "DM.github_boundary_refusal_keeps_paths_private",
+            "DM.codex_boundary_refuses_conflicting_metadata",
+            "DM.codex_boundary_refusal_keeps_paths_private",
+            "DM.claude_boundary_refuses_conflicting_metadata",
+            "DM.claude_boundary_refusal_keeps_paths_private",
+            "DM.github_unit_refuses_conflicting_metadata",
+            "DM.github_unit_refusal_keeps_paths_private",
+            "DM.codex_unit_refuses_conflicting_metadata",
+            "DM.codex_unit_refusal_keeps_paths_private",
+            "DM.claude_unit_refuses_conflicting_metadata",
+            "DM.claude_unit_refusal_keeps_paths_private",
+            "DM.missing_boundary_refuses_conflicting_metadata",
+            "DM.missing_boundary_refusal_keeps_paths_private",
+            "DM.missing_unit_refuses_conflicting_metadata",
+            "DM.missing_unit_refusal_keeps_paths_private",
+            "DM.private_boundary_refuses_conflicting_metadata",
+            "DM.private_boundary_refusal_keeps_paths_private",
+            "DM.private_unit_refuses_conflicting_metadata",
+            "DM.private_unit_refusal_keeps_paths_private",
+            "DM.github_correct_metadata_preserves_days",
+            "DM.github_explicit_null_remains_empty",
+            "DM.codex_correct_metadata_preserves_days",
+            "DM.codex_explicit_null_remains_empty",
+            "DM.claude_correct_metadata_preserves_days",
+            "DM.claude_explicit_null_remains_empty",
+            "DM.runner_error_passes_through",
+            "DM.controlled_reads_preserve_store",
+            "DM.original_runner_and_manifest_restored",
+            "DM.actual_picker_recovers_original_runner",
+            "DM.recovery_retains_exact_history",
+            "DM.choice_remains_exact",
+            "DM.complete_store_remains_exact",
+            "T.days_rejects_conflicting_units_and_boundaries"
           ]
         }
       ],

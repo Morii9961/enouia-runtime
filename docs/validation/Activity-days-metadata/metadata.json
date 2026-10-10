@@ -1,0 +1,186 @@
+{
+  "checks": [
+    {
+      "id": "DM.actual_producer_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.owned_reply_runner_matches_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.actual_picker_selects_sandbox_helper",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.github_boundary_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.github_boundary_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.codex_boundary_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.codex_boundary_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.claude_boundary_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.claude_boundary_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.github_unit_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.github_unit_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.codex_unit_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.codex_unit_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.claude_unit_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.claude_unit_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.missing_boundary_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.missing_boundary_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.missing_unit_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.missing_unit_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.private_boundary_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.private_boundary_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.private_unit_refuses_conflicting_metadata",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DM.private_unit_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.github_correct_metadata_preserves_days",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.github_explicit_null_remains_empty",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.codex_correct_metadata_preserves_days",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.codex_explicit_null_remains_empty",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.claude_correct_metadata_preserves_days",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.claude_explicit_null_remains_empty",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.runner_error_passes_through",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.controlled_reads_preserve_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.original_runner_and_manifest_restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.actual_picker_recovers_original_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.recovery_retains_exact_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.choice_remains_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DM.complete_store_remains_exact",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "36/36"
+}

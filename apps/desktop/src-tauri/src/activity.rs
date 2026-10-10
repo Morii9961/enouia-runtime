@@ -720,14 +720,28 @@ fn days(preview: &Value, source: &str, from: &str, to: &str) -> Value {
     // must never become an apparently valid empty day list.
     let entries: &[Value] = if snapshot.is_null() {
         &[]
-    } else if let Some(entries) = snapshot
-        .as_object()
-        .and_then(|snapshot| snapshot.get("days"))
-        .and_then(Value::as_array)
-    {
-        entries
     } else {
-        return invalid();
+        let (timezone, metric) = match source {
+            "github" => ("GitHub", "contributions"),
+            "codex" => ("Codex", "tokens"),
+            "claude" => ("Asia/Shanghai", "tokens"),
+            _ => return invalid(),
+        };
+        // The derived DTO carries only the source ID. Refuse conflicting
+        // units/boundaries before their metadata would be discarded.
+        if snapshot["timezone"].as_str() != Some(timezone)
+            || snapshot["metric"].as_str() != Some(metric)
+        {
+            return invalid();
+        }
+        let Some(entries) = snapshot
+            .as_object()
+            .and_then(|snapshot| snapshot.get("days"))
+            .and_then(Value::as_array)
+        else {
+            return invalid();
+        };
+        entries
     };
     let mut previous = "";
     let mut total = 0_u64;
@@ -1660,7 +1674,7 @@ mod tests {
     #[test]
     fn days_filter_one_preview_without_inventing_dates() {
         let preview = json!({"schemaVersion": 1, "kind": "activity_public_preview", "sha256": "0",
-            "data": {"version": 1, "sources": {"github": null, "codex": {"days": [
+            "data": {"version": 1, "sources": {"github": null, "codex": {"timezone":"Codex","metric":"tokens","days": [
                 {"date": "2026-09-23", "value": 0}, {"date": "2026-09-24", "value": 5}]}, "claude": null}}});
         let days = days(&preview, "codex", "2026-09-24", "2026-12-31");
         assert_eq!(days["days"], json!([{"date": "2026-09-24", "value": 5}]));
@@ -1677,7 +1691,7 @@ mod tests {
 
     #[test]
     fn days_refuses_missing_or_malformed_history_before_filtering() {
-        let base = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{"github":null,"codex":{"days":[]},"claude":null}}});
+        let base = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{"github":null,"codex":{"timezone":"Codex","metric":"tokens","days":[]},"claude":null}}});
         let mut cases = Vec::new();
         let mut wrong_version = base.clone();
         wrong_version["schemaVersion"] = json!(2);
@@ -1734,7 +1748,8 @@ mod tests {
         let mut preview = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{"codex":null}}});
         let range = ("2026-10-01", "2026-10-31");
         assert_eq!(days(&preview, "codex", range.0, range.1)["days"], json!([]));
-        preview["data"]["sources"]["codex"] = json!({"days":[]});
+        preview["data"]["sources"]["codex"] =
+            json!({"timezone":"Codex","metric":"tokens","days":[]});
         assert_eq!(days(&preview, "codex", range.0, range.1)["days"], json!([]));
         let entries = json!([{"date":"2026-09-30","value":4},{"date":"2026-10-01","value":0},{"date":"2026-10-31","value":2.0},{"date":"2026-11-01","value":8}]);
         preview["data"]["sources"]["codex"]["days"] = entries.clone();
@@ -1748,6 +1763,44 @@ mod tests {
         preview["schemaVersion"] = json!(1.0);
         preview["data"]["version"] = json!(1.0);
         assert_eq!(days(&preview, "codex", range.0, range.1)["days"], maximum);
+    }
+
+    #[test]
+    fn days_refuses_conflicting_source_units_and_boundaries() {
+        for (source, timezone, metric) in [
+            ("github", "GitHub", "contributions"),
+            ("codex", "Codex", "tokens"),
+            ("claude", "Asia/Shanghai", "tokens"),
+        ] {
+            let entries = json!([{"date":"2026-10-01","value":2}]);
+            let mut preview = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{source:{"timezone":timezone,"metric":metric,"days":entries}}}});
+            for field in ["timezone", "metric"] {
+                let expected = preview["data"]["sources"][source][field].clone();
+                preview["data"]["sources"][source][field] = json!("conflicting-private-value");
+                assert_eq!(
+                    days(&preview, source, "2026-10-01", "2026-10-01"),
+                    error("contract_invalid", "activity_archive", false)
+                );
+                preview["data"]["sources"][source]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove(field);
+                assert_eq!(
+                    days(&preview, source, "2026-10-01", "2026-10-01"),
+                    error("contract_invalid", "activity_archive", false)
+                );
+                preview["data"]["sources"][source][field] = expected;
+            }
+            assert_eq!(
+                days(&preview, source, "2026-10-01", "2026-10-01")["days"],
+                entries
+            );
+            preview["data"]["sources"][source] = Value::Null;
+            assert_eq!(
+                days(&preview, source, "2026-10-01", "2026-10-01")["days"],
+                json!([])
+            );
+        }
     }
 
     #[test]

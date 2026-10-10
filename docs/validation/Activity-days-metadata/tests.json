@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "cargo test --offline --locked -- --nocapture",
+  "hostTests": 54,
+  "coreTests": 3,
+  "results": [
+    {
+      "id": "T.days_rejects_conflicting_units_and_boundaries",
+      "name": "days_refuses_conflicting_source_units_and_boundaries",
+      "passed": true
+    }
+  ],
+  "baseline": {
+    "scope": "focused source-routing metadata regression",
+    "passed": 0,
+    "failed": 1,
+    "observed": "Conflicting source metadata was discarded while the derived days response claimed github"
+  },
+  "sources": [
+    "github",
+    "codex",
+    "claude"
+  ],
+  "explicitNullSourcesPreserved": true,
+  "correctSourceMetadataPreserved": true
+}
