@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 
 const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0000_0400;
 const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x0020_0000;
-const MAX_CURRENT_BYTES: usize = 66;
+pub(crate) const MAX_CURRENT_BYTES: usize = 66;
 const MAX_MANIFEST_BYTES: usize = 16 * 1024;
 pub(crate) const MAX_SEQUENCE_BYTES: usize = 64;
 pub(crate) const MAX_PENDING_BYTES: usize = 4 * 1024 * 1024;

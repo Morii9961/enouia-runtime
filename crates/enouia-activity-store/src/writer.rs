@@ -2,7 +2,7 @@
 
 use crate::ActivityLockGuard;
 use crate::generation::{GenerationError, GenerationImage, ValidatedGeneration};
-use crate::reader::{ReadError, read_current};
+use crate::reader::{MAX_CURRENT_BYTES, ReadError, read_current, read_file};
 use crate::recovery::{RecoveryError, audit_generations};
 use enouia_activity_contract::{
     ActivityData, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms, public_data_bytes, sha256_hex,
@@ -393,9 +393,37 @@ pub(crate) fn write_generation<F: FnMut(CommitPhase) -> Result<(), ()>>(
     after(hook, CommitPhase::GenerationPublished)?;
 
     let staged_current = root.join(format!("CURRENT.{next_id}.tmp"));
-    write_synced(&staged_current, format!("{next_id}\n").as_bytes())?;
+    write_synced(&staged_current, format!("{next_id}\n").as_bytes())
+        .map_err(|error| retract_unselected(root, next_id, &final_path, &staging, error))?;
     after(hook, CommitPhase::CurrentPrepared)?;
-    switch_current(&staged_current, &root.join("CURRENT"), replace_current)?;
+    switch_current(&staged_current, &root.join("CURRENT"), replace_current)
+        .map_err(|error| retract_unselected(root, next_id, &final_path, &staging, error))?;
     after(hook, CommitPhase::CurrentSwitched)?;
     Ok(())
+}
+
+/// A failed pointer write observed by this live writer leaves CURRENT on the
+/// old generation. Rename the never-selected directory back to its staging name
+/// so recovery does not mistake it for a rolled-back pointer; nothing is
+/// deleted. Process death cannot run this, and any doubt keeps the orphan.
+fn retract_unselected(
+    root: &Path,
+    next_id: &str,
+    final_path: &Path,
+    staging: &Path,
+    error: CommitError,
+) -> CommitError {
+    let selected = match read_file(
+        &root.join("CURRENT"),
+        MAX_CURRENT_BYTES,
+        ReadError::MissingCurrent,
+    ) {
+        Ok(bytes) => bytes.strip_suffix(b"\n") == Some(next_id.as_bytes()),
+        Err(ReadError::MissingCurrent) => false,
+        Err(_) => true,
+    };
+    if !selected && !staging.exists() {
+        let _ = fs::rename(final_path, staging);
+    }
+    error
 }
