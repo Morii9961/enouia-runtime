@@ -423,6 +423,13 @@
       "sha256": "c3238cd76ac62e9fe3c1595375de9d8a18a05ec8de3192b5b5d3652118e82336",
       "state": "passed",
       "selectorCount": 16
+    },
+    {
+      "id": "saved_choice_atomic",
+      "path": "docs/validation/Activity-atomic-choice/proof.json",
+      "sha256": "2ca9e0f8f5089f020535822e5b35afc4e621c58ad9b3364eb7580fbb8e273496",
+      "state": "passed",
+      "selectorCount": 22
     }
   ],
   "cases": [
@@ -1933,6 +1940,33 @@
             "CW.restart_reconnects_saved_choice",
             "CW.all_write_faults_leave_complete_store_exact",
             "CW.final_clear_removes_only_owned_choice"
+          ]
+        },
+        {
+          "report": "saved_choice_atomic",
+          "selectors": [
+            "AR.owned_prior_choice_is_written",
+            "AR.startup_connects_prior_choice",
+            "AR.owned_finite_holder_is_ready",
+            "AR.actual_write_open_remains_available",
+            "AR.settings_remain_readable_during_hold",
+            "AR.actual_picker_save_reports_saved_false",
+            "AR.refused_save_keeps_exact_prior_bytes",
+            "AR.refused_replacement_removes_only_own_staging_file",
+            "AR.refused_save_keeps_three_exact_histories",
+            "AR.status_stays_configured_during_hold",
+            "AR.refused_save_preserves_complete_store",
+            "AR.release_keeps_exact_prior_bytes",
+            "AR.released_picker_saves_verified_choice",
+            "AR.released_save_replaces_prior_with_canonical_choice",
+            "AR.successful_replacement_leaves_no_staging_file",
+            "AR.restart_reconnects_saved_choice",
+            "AR.all_write_faults_leave_complete_store_exact",
+            "AR.final_clear_removes_only_owned_choice",
+            "T.saved_choice_partial_write_failure_preserves_old_bytes_and_retries",
+            "T.saved_choice_process_death_keeps_prior_choice_and_ignores_staging",
+            "T.saved_choice_replacement_sharing_refusal_preserves_bytes_and_retries",
+            "T.saved_choice_shared_reader_retains_complete_old_snapshot"
           ]
         }
       ],

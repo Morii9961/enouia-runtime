@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 60);
+  assert.equal(reports.size, 61);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1141,6 +1141,37 @@ function validate(index) {
   for (const field of ['desktopSha256', 'runnerSha256', 'installerSha256']) assert.equal(choiceWrite[field], lateSwitch[field], 'choice-write drill must use the integrated binaries');
   assert.equal(choiceWrite.memoryRevision, isolation.memoryRevision);
   for (const field of ['harnessSha256', 'drillSha256', 'fixturePreparerSha256']) assert.match(choiceWrite[field], /^[a-f0-9]{64}$/);
+  const atomicChoice = reports.get('saved_choice_atomic').report;
+  assert.equal(atomicChoice.scope, 'isolated_activity_staged_choice_save');
+  assert.equal(atomicChoice.productSourceChanged, true);
+  assert.equal(atomicChoice.modeledReplies, false);
+  assert.equal(atomicChoice.tasksCreated, false);
+  assert.equal(atomicChoice.memoryRevision, isolation.memoryRevision);
+  assert.deepEqual(atomicChoice.processDeathPhases, ['legacy-partial', 'staged-partial', 'staged-complete']);
+  const atomicReports = new Map();
+  for (const entry of atomicChoice.nativeReports) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    const raw = JSON.parse(bytes);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(c => c.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert(!atomicReports.has(entry.id));
+    atomicReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...atomicReports.keys()], ['replacement', 'write', 'directory', 'actions']);
+  assert.deepEqual(atomicChoice.nativeReports.map(entry => entry.summary), ['18/18', '16/16', '16/16', '35/35']);
+  const atomicTestBytes = readFileSync(contained(atomicChoice.testReport));
+  assert.equal(hash(atomicTestBytes), atomicChoice.testReportSha256);
+  const atomicTests = JSON.parse(atomicTestBytes);
+  assert.equal(atomicTests.state, 'passed');
+  assert.equal(atomicTests.hostTests, 40);
+  assert.equal(atomicTests.coreTests, 3);
+  assert.equal(atomicTests.results.length, 4);
+  assert(atomicTests.results.every(test => test.passed === true));
+  assert.deepEqual(atomicChoice.checks, [...atomicReports.get('replacement').checks.map(c => c.id), ...atomicTests.results.map(test => test.id)]);
+  for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(atomicChoice[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1210,6 +1241,7 @@ function validate(index) {
   assert(lateSwitch.checks.filter(id => /^(T|RS)\./.test(id)).every(id => linkedTo(c12, 'store_late_switch').includes(id)), 'C12 must retain refused pointer-switch retraction and same-sequence recovery');
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
+  assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1286,7 +1318,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_read_sharing'));
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_late_switch'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
-  result.negativeChecks = 62;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
+  result.negativeChecks = 63;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

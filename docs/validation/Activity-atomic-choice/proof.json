@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_staged_choice_save",
+  "baseline": "7eb401587ff10da99c40e2546a3f31aa09c15a41",
+  "checks": [
+    "AR.owned_prior_choice_is_written",
+    "AR.startup_connects_prior_choice",
+    "AR.owned_finite_holder_is_ready",
+    "AR.actual_write_open_remains_available",
+    "AR.settings_remain_readable_during_hold",
+    "AR.actual_picker_save_reports_saved_false",
+    "AR.refused_save_keeps_exact_prior_bytes",
+    "AR.refused_replacement_removes_only_own_staging_file",
+    "AR.refused_save_keeps_three_exact_histories",
+    "AR.status_stays_configured_during_hold",
+    "AR.refused_save_preserves_complete_store",
+    "AR.release_keeps_exact_prior_bytes",
+    "AR.released_picker_saves_verified_choice",
+    "AR.released_save_replaces_prior_with_canonical_choice",
+    "AR.successful_replacement_leaves_no_staging_file",
+    "AR.restart_reconnects_saved_choice",
+    "AR.all_write_faults_leave_complete_store_exact",
+    "AR.final_clear_removes_only_owned_choice",
+    "T.saved_choice_partial_write_failure_preserves_old_bytes_and_retries",
+    "T.saved_choice_process_death_keeps_prior_choice_and_ignores_staging",
+    "T.saved_choice_replacement_sharing_refusal_preserves_bytes_and_retries",
+    "T.saved_choice_shared_reader_retains_complete_old_snapshot"
+  ],
+  "productSourceChanged": true,
+  "modeledReplies": false,
+  "tasksCreated": false,
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "processDeathPhases": [
+    "legacy-partial",
+    "staged-partial",
+    "staged-complete"
+  ],
+  "processDeathScope": "owned Rust test subprocess; deterministic write boundaries, not a desktop kill or power-loss drill",
+  "nativeReports": [
+    {
+      "id": "replacement",
+      "path": "docs/validation/Activity-atomic-choice/replacement.json",
+      "sha256": "bda3cd407747c0a92bf5428b0b4fd7dc3e7135927ab683d33c6bef1b6fe4ef8f",
+      "summary": "18/18",
+      "exitCode": 0
+    },
+    {
+      "id": "write",
+      "path": "docs/validation/Activity-atomic-choice/write.json",
+      "sha256": "33803028c881f60d28f8e0df2b43334f9960f8916bf3aaf55a1cc765c471f9bc",
+      "summary": "16/16",
+      "exitCode": 0
+    },
+    {
+      "id": "directory",
+      "path": "docs/validation/Activity-atomic-choice/directory.json",
+      "sha256": "00609ee083507729248d99b9dfaa4d27edd92000ae1f988357e2c81267e1b313",
+      "summary": "16/16",
+      "exitCode": 0
+    },
+    {
+      "id": "actions",
+      "path": "docs/validation/Activity-atomic-choice/actions.json",
+      "sha256": "a3fe5373858b8e43d9e2f46441e302627704c3773c57a0b2d253ae9955a0e893",
+      "summary": "35/35",
+      "exitCode": 0
+    }
+  ],
+  "testReport": "docs/validation/Activity-atomic-choice/tests.json",
+  "testReportSha256": "ce582a7c1808efdaf8a5bfa4f8aad1297dda89e46188105a5f5cdb4df12c2570",
+  "desktopSha256": "78d9fd2e9c13b5f4f361a5680b55c780e38e36e509e69e4f853154f5de04ebed",
+  "installerSha256": "5df4058c57fe2fa977fae9c5583b3860f0e58c5b8a66cab2162d83823a47105e",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "productSourceSha256": "47fe6780331c90241b15a57b15b0f4e8eae9421717e2d58bcf899519f66a330c",
+  "harnessSha256": "7bac381abdce4e491b4e8995fac40190b6e569ef0921ffdb1f15863106d828e4",
+  "drillSha256": "953451e370f9af3967b25672a51c2cd1e583c7ddc57ef360df7a18e8e6e158cb",
+  "frozenDesktopStable": true,
+  "limitations": [
+    "WriteZero is injected after a partial staging write; no actual disk-full.",
+    "Staging files left by killed processes are ignored and retained.",
+    "No power-loss, personal data, real accounts, scheduler activation, signing, installation or production publication."
+  ]
+}

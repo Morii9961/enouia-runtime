@@ -19,7 +19,7 @@
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 use std::collections::VecDeque;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -150,16 +150,59 @@ fn save_root(app: &AppHandle, root: Option<&Path>) -> bool {
     let Some(path) = settings_path(app) else {
         return false;
     };
+    save_root_at(&path, root)
+}
+
+fn save_root_at(path: &Path, root: Option<&Path>) -> bool {
     match root {
-        None => std::fs::remove_file(&path).is_ok() || !path.exists(),
+        None => std::fs::remove_file(path).is_ok() || !path.exists(),
         Some(root) => {
             let Some(parent) = path.parent() else {
                 return false;
             };
-            std::fs::create_dir_all(parent).is_ok()
-                && std::fs::write(&path, format!("{}\n", json!({"installRoot": root}))).is_ok()
+            let bytes = format!("{}\n", json!({"installRoot": root}));
+            root.is_absolute()
+                && bytes.len() as u64 <= MAX_MANIFEST
+                && std::fs::create_dir_all(parent).is_ok()
+                && replace_saved_choice(path, |file| file.write_all(bytes.as_bytes())).is_ok()
         }
     }
+}
+
+/// Never truncate the selected choice. A failed write/flush/replacement leaves
+/// the old file intact; ordinary failures remove only this attempt's staging
+/// file. A killed process can leave an ignored staging file, never a startup
+/// choice. This is a local filesystem replacement, not a power-loss guarantee.
+fn replace_saved_choice(
+    path: &Path,
+    write: impl FnOnce(&mut std::fs::File) -> std::io::Result<()>,
+) -> std::io::Result<()> {
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let name = path.file_name().ok_or(std::io::ErrorKind::InvalidInput)?;
+    let mut staged_name = std::ffi::OsString::from(".");
+    staged_name.push(name);
+    staged_name.push(format!(
+        ".{}-{}-{}.tmp",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(std::io::Error::other)?
+            .as_nanos(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    let staged = path.with_file_name(staged_name);
+    // create_new refuses collisions; it never opens another attempt's file.
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&staged)?;
+    let result = write(&mut file).and_then(|()| file.sync_all());
+    drop(file);
+    let result = result.and_then(|()| std::fs::rename(&staged, path));
+    if result.is_err() {
+        let _ = std::fs::remove_file(&staged);
+    }
+    result
 }
 
 fn is_hex(text: &str, length: usize) -> bool {
@@ -904,6 +947,180 @@ pub async fn activity_setup(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn choice_fixture() -> PathBuf {
+        let directory = std::env::temp_dir().join(format!(
+            "enouia-atomic-choice-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&directory).unwrap();
+        directory
+    }
+
+    #[test]
+    fn saved_choice_partial_write_failure_preserves_old_bytes_and_retries() {
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        let old = directory.join("old-package");
+        assert!(save_root_at(&path, Some(&old)));
+        let bytes = std::fs::read(&path).unwrap();
+        let error = replace_saved_choice(&path, |file| {
+            file.write_all(b"{\"installRoot\":")?;
+            Err(std::io::ErrorKind::WriteZero.into())
+        })
+        .unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::WriteZero);
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        assert_eq!(read_saved_root(&path), Some(old));
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 1);
+        assert!(!save_root_at(&path, Some(Path::new("relative"))));
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        let new = directory.join("new-package");
+        assert!(save_root_at(&path, Some(&new)));
+        assert_eq!(read_saved_root(&path), Some(new));
+        assert!(save_root_at(&path, None));
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 0);
+    }
+
+    // Runs only as an owned subprocess of the test below. No release-mode
+    // hook, page request or real settings path can enter this boundary.
+    #[test]
+    fn saved_choice_writer_child() {
+        let Some(directory) = std::env::var_os("ENOUIA_CHOICE_TEST_ROOT") else {
+            return;
+        };
+        let directory = PathBuf::from(directory);
+        let phase = std::env::var("ENOUIA_CHOICE_TEST_PHASE").unwrap();
+        let path = directory.join(SETTINGS_FILE);
+        let hold = |file: &mut std::fs::File| -> std::io::Result<()> {
+            if phase == "staged-complete" {
+                file.write_all(
+                    format!("{}\n", json!({"installRoot":directory.join("new-package")}))
+                        .as_bytes(),
+                )?;
+            } else {
+                file.write_all(b"{")?;
+            }
+            file.sync_all()?;
+            std::fs::write(directory.join("ready"), b"ready")?;
+            loop {
+                std::thread::park();
+            }
+        };
+        if phase == "legacy-partial" {
+            // File::create is the same truncate-before-write step used by
+            // the previous std::fs::write implementation.
+            hold(&mut std::fs::File::create(path).unwrap()).unwrap();
+        } else {
+            replace_saved_choice(&path, hold).unwrap();
+        }
+    }
+
+    #[test]
+    fn saved_choice_process_death_keeps_prior_choice_and_ignores_staging() {
+        for phase in ["legacy-partial", "staged-partial", "staged-complete"] {
+            let directory = choice_fixture();
+            let path = directory.join(SETTINGS_FILE);
+            let old = directory.join("old-package");
+            assert!(save_root_at(&path, Some(&old)));
+            let bytes = std::fs::read(&path).unwrap();
+            let mut child = Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "activity::tests::saved_choice_writer_child",
+                    "--nocapture",
+                ])
+                .env("ENOUIA_CHOICE_TEST_ROOT", &directory)
+                .env("ENOUIA_CHOICE_TEST_PHASE", phase)
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap();
+            let deadline = Instant::now() + Duration::from_secs(10);
+            while !directory.join("ready").exists() && Instant::now() < deadline {
+                if child.try_wait().unwrap().is_some() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            let ready = directory.join("ready").exists();
+            let _ = child.kill();
+            child.wait().unwrap();
+            assert!(ready, "owned child never reached {phase}");
+            if phase == "legacy-partial" {
+                assert_eq!(std::fs::read(&path).unwrap(), b"{");
+                assert_eq!(read_saved_root(&path), None);
+            } else {
+                assert_eq!(std::fs::read(&path).unwrap(), bytes);
+                assert_eq!(read_saved_root(&path), Some(old));
+                let staged = std::fs::read_dir(&directory)
+                    .unwrap()
+                    .map(|item| item.unwrap().path())
+                    .find(|item| item.extension().is_some_and(|ext| ext == "tmp"))
+                    .unwrap();
+                let staged_bytes = std::fs::read(&staged).unwrap();
+                let new = directory.join("recovered-package");
+                assert!(save_root_at(&path, Some(&new)));
+                assert_eq!(read_saved_root(&path), Some(new));
+                assert_eq!(std::fs::read(staged).unwrap(), staged_bytes);
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_replacement_sharing_refusal_preserves_bytes_and_retries() {
+        use std::os::windows::fs::OpenOptionsExt;
+        use windows_sys::Win32::Storage::FileSystem::{FILE_SHARE_READ, FILE_SHARE_WRITE};
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        let old = directory.join("old-package");
+        let new = directory.join("new-package");
+        assert!(save_root_at(&path, Some(&old)));
+        let bytes = std::fs::read(&path).unwrap();
+        let holder = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
+            .open(&path)
+            .unwrap();
+        // Writing is shared, deletion/replacement is not. The new code must
+        // refuse instead of falling back to the old truncating writer.
+        assert!(!save_root_at(&path, Some(&new)));
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        assert_eq!(read_saved_root(&path), Some(old));
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 1);
+        drop(holder);
+        assert!(save_root_at(&path, Some(&new)));
+        assert_eq!(read_saved_root(&path), Some(new));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_shared_reader_retains_complete_old_snapshot() {
+        use std::os::windows::fs::OpenOptionsExt;
+        use windows_sys::Win32::Storage::FileSystem::{
+            FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
+        };
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        assert!(save_root_at(&path, Some(&directory.join("old-package"))));
+        let bytes = std::fs::read(&path).unwrap();
+        let mut reader = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+            .open(&path)
+            .unwrap();
+        let new = directory.join("new-package");
+        assert!(save_root_at(&path, Some(&new)));
+        let mut snapshot = Vec::new();
+        reader.read_to_end(&mut snapshot).unwrap();
+        assert_eq!(snapshot, bytes);
+        assert_eq!(read_saved_root(&path), Some(new));
+    }
 
     #[test]
     fn saved_choices_are_bounded_absolute_and_leave_invalid_bytes_intact() {
