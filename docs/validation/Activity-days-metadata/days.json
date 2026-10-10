@@ -1,0 +1,253 @@
+{
+  "checks": [
+    {
+      "id": "DP.actual_producer_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.owned_reply_runner_matches_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.actual_picker_selects_sandbox_helper",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.wrong_preview_version_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.wrong_preview_version_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.wrong_data_version_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.wrong_data_version_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.missing_sources_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.missing_sources_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.missing_source_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.missing_source_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.primitive_source_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.primitive_source_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.missing_days_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.missing_days_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.null_days_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.null_days_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.primitive_days_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.primitive_days_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.invalid_date_type_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.invalid_date_type_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.impossible_date_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.impossible_date_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.negative_value_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.negative_value_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.fractional_value_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.fractional_value_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.unsafe_value_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.unsafe_value_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.private_day_field_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.private_day_field_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.duplicate_dates_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.duplicate_dates_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.descending_dates_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.descending_dates_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.unsafe_sum_refuses_before_filtering",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "DP.unsafe_sum_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.explicit_null_source_is_empty",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.explicit_empty_array_is_empty",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.inclusive_range_keeps_zero_and_exact_values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.maximum_safe_value_remains_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.integral_numeric_representations_remain_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.runner_error_passes_through",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.controlled_reads_preserve_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.original_runner_and_manifest_restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.actual_picker_recovers_original_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.recovery_retains_exact_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.choice_remains_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DP.complete_store_remains_exact",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-days-provenance-recovered.png"
+  ],
+  "summary": "49/49"
+}

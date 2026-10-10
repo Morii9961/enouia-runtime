@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_offline_evidence_selector_admission_probe",
+  "mode": "after",
+  "baselineLinks": 1079,
+  "results": [
+    {
+      "id": "duplicate_link",
+      "accepted": false,
+      "evidenceLinks": null,
+      "reason": "C17/receiver: duplicate selector"
+    },
+    {
+      "id": "duplicate_reference",
+      "accepted": false,
+      "evidenceLinks": null,
+      "reason": "C17: duplicate evidence link"
+    },
+    {
+      "id": "duplicate_report_selector",
+      "accepted": false,
+      "evidenceLinks": null,
+      "reason": "error_feedback_ownership: duplicate selector"
+    },
+    {
+      "id": "nonstring_report_selector",
+      "accepted": false,
+      "evidenceLinks": null,
+      "reason": "error_feedback_ownership: selectors must be nonblank strings"
+    },
+    {
+      "id": "blank_report_selector",
+      "accepted": false,
+      "evidenceLinks": null,
+      "reason": "error_feedback_ownership: selectors must be nonblank strings"
+    }
+  ],
+  "disjointReferencesAccepted": true,
+  "productionActivated": false,
+  "realReportsChanged": false,
+  "checkerSnapshotSha256": "9be3642ae059d49860abddd7ac1fce38c83553fea7abb9f085d2b4975c0361ca"
+}

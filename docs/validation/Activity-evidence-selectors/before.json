@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_offline_evidence_selector_admission_probe",
+  "mode": "before",
+  "baselineLinks": 1079,
+  "results": [
+    {
+      "id": "duplicate_link",
+      "accepted": true,
+      "evidenceLinks": 1080,
+      "reason": null
+    },
+    {
+      "id": "duplicate_reference",
+      "accepted": true,
+      "evidenceLinks": 1081,
+      "reason": null
+    },
+    {
+      "id": "duplicate_report_selector",
+      "accepted": true,
+      "evidenceLinks": 1079,
+      "reason": null
+    },
+    {
+      "id": "nonstring_report_selector",
+      "accepted": true,
+      "evidenceLinks": 1079,
+      "reason": null
+    },
+    {
+      "id": "blank_report_selector",
+      "accepted": true,
+      "evidenceLinks": 1079,
+      "reason": null
+    }
+  ],
+  "disjointReferencesAccepted": true,
+  "productionActivated": false,
+  "realReportsChanged": false,
+  "checkerSnapshotSha256": "95191a02c90e8fecd7aaf5aabad4d261a132de24b49f90011cbcc69c6010ea85"
+}

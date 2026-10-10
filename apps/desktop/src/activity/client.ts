@@ -104,6 +104,7 @@ type ObjectValue = Record<string, unknown>;
 const object = (value: unknown): value is ObjectValue => value !== null && typeof value === "object" && !Array.isArray(value);
 const nullableTimestamp = (value: unknown) => value === null || timestamp(value);
 const natural = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+const sequence = (value: unknown): value is number => natural(value) && value > 0;
 const hash = (value: unknown) => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 const inList = (value: unknown, values: readonly string[]) => typeof value === "string" && values.includes(value);
 const modes = ["unconfigured", "idle", "running", "paused"];
@@ -180,13 +181,13 @@ function validReply(reply: ObjectValue, kind: string): boolean {
     const s = reply.schedule, d = reply.delivery;
     if (!closed(s, ["mode", "nextTriggerAt"], ["task"]) || !inList(s.mode, modes) || !nullableTimestamp(s.nextTriggerAt)
       || (s.task != null && (!closed(s.task, ["registered", "enabled"]) || typeof s.task.registered !== "boolean" || !(s.task.enabled === null || typeof s.task.enabled === "boolean")))) return false;
-    if (!closed(d, ["pendingSequence", "lastTransportAt", "publicationObservedAt", "publicHash", "state"]) || !(d.pendingSequence === null || natural(d.pendingSequence))
+    if (!closed(d, ["pendingSequence", "lastTransportAt", "publicationObservedAt", "publicHash", "state"]) || !(d.pendingSequence === null || sequence(d.pendingSequence))
       || !nullableTimestamp(d.lastTransportAt) || !nullableTimestamp(d.publicationObservedAt)
       || !(d.publicHash === null || hash(d.publicHash))
       || !inList(d.state, ["unconfigured", "idle", "pending", "transported", "observed", "unverified", "paused"])) return false;
     if (reply.producer != null && (!closed(reply.producer, ["mode", "deliveryEnabled", "paused", "highestReserved"]) || !inList(reply.producer.mode, ["sandbox", "production"])
       || typeof reply.producer.paused !== "boolean" || typeof reply.producer.deliveryEnabled !== "boolean" || !natural(reply.producer.highestReserved))) return false;
-    if (reply.pending != null && (!closed(reply.pending, ["sequence", "createdAt", "ageSeconds", "exactSha256", "failureCount", "nextEligibleAt", "lastErrorCode"]) || !natural(reply.pending.sequence)
+    if (reply.pending != null && (!closed(reply.pending, ["sequence", "createdAt", "ageSeconds", "exactSha256", "failureCount", "nextEligibleAt", "lastErrorCode"]) || !sequence(reply.pending.sequence)
       || !natural(reply.pending.failureCount) || !hash(reply.pending.exactSha256) || !natural(reply.pending.ageSeconds)
       || !nullableTimestamp(reply.pending.createdAt) || !nullableTimestamp(reply.pending.nextEligibleAt)
       || !(reply.pending.lastErrorCode === null || inList(reply.pending.lastErrorCode, errorCodes)))) return false;

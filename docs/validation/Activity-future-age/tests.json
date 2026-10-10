@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "npm test",
+  "frontendTests": 63,
+  "baseline": {
+    "tests": 63,
+    "passed": 62,
+    "failed": 1,
+    "failure": "A future observation was shown as 0 s ago"
+  },
+  "results": [
+    {
+      "id": "T.future_observations_have_unknown_age",
+      "name": "future observations have unknown age after a clock rollback",
+      "passed": true
+    }
+  ]
+}

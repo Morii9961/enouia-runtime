@@ -1,0 +1,11 @@
+{
+  "checks": [
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "The requested module 'node:path' does not provide an export named 'realpathSync'"
+    }
+  ],
+  "screenshots": [],
+  "summary": "0/1"
+}

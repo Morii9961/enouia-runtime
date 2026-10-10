@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "cargo test --offline --locked -- --nocapture",
+  "hostTests": 47,
+  "coreTests": 3,
+  "results": [
+    {
+      "id": "T.runner_pipe_preserves_complete_output_and_nonzero_exit",
+      "passed": true
+    },
+    {
+      "id": "T.runner_pipe_accepts_exact_limit_and_refuses_the_probe_byte",
+      "passed": true
+    },
+    {
+      "id": "T.runner_pipe_deadline_covers_exited_and_live_parents_with_inherited_stdout",
+      "passed": true
+    },
+    {
+      "id": "T.runner_pipe_deadline_terminates_only_the_owned_hanging_parent",
+      "passed": true
+    }
+  ],
+  "timings": [
+    {
+      "mode": "hang",
+      "timeoutMs": 200,
+      "elapsedMs": 201
+    },
+    {
+      "mode": "leaked",
+      "timeoutMs": 200,
+      "elapsedMs": 200
+    },
+    {
+      "mode": "leaked-hanging",
+      "timeoutMs": 200,
+      "elapsedMs": 201
+    }
+  ],
+  "initialFocusedAttempt": {
+    "summary": "2/4",
+    "excludedFromAcceptance": true,
+    "reason": "Elapsed measurement included helper compilation and process spawn outside the adapter execution deadline. Corrected tests prepare/spawn and await holder readiness before measuring the pipe deadline."
+  }
+}

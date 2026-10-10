@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "cargo test --offline --locked -- --nocapture",
+  "hostTests": 50,
+  "coreTests": 3,
+  "childHelperTests": 1,
+  "results": [
+    {
+      "id": "T.clear_denial_is_not_success",
+      "name": "saved_choice_clear_permission_denial_is_not_success",
+      "passed": true
+    },
+    {
+      "id": "T.clear_accepts_absence_and_removes_existing",
+      "name": "saved_choice_clear_accepts_absence_and_removes_existing_choice",
+      "passed": true
+    }
+  ],
+  "baseline": {
+    "scope": "focused saved_choice_clear tests, including owned child helper",
+    "passed": 2,
+    "failed": 1,
+    "negativeControl": true,
+    "exactDescriptorsAndBytesRestored": true
+  }
+}

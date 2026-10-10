@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "final_cumulative_activity_keyboard_and_feedback_review",
+  "baseline": "3cc9354a01afeef256ffaf91e84c0294dbd6b269",
+  "productSourceChanged": false,
+  "newB4Selectors": 0,
+  "desktopSha256": "8af3a06d1a6c38091215b96928c1883f855f3d3f18cd1c00d2d336518df604b5",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "sourceFiles": [
+    {
+      "path": "apps/desktop/src/activity/ActivitySurface.tsx",
+      "sha256": "b57df62731ad89c05e8ba6f7c0297c46ac2179976ff28cec7287c9b9effbd22b"
+    },
+    {
+      "path": "apps/desktop/src/activity/model.ts",
+      "sha256": "d73e795367cc415c9f3718713f7e34eb5759d7b4bb7b7492389c7116c595cf01"
+    },
+    {
+      "path": "apps/desktop/src/activity/client.ts",
+      "sha256": "2fb09ede8cf1c2d880776100dd367a12155c2feb396eda861632a80d4c23c838"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "sha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784"
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.toml",
+      "sha256": "9064f69f6e2ed06e752a2e5a383f0fd861bdc44c12b6ea1c8a17754f2fb85efd"
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "58c4ef788053aae7d7fe21760043c5c5fb2e4fd619a8074b9662114a50aa753a"
+    },
+    {
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "sha256": "c25335508ad7990be019e9ce23d2da72a7798cc312d5f1ef4df78bea2a10fde3"
+    },
+    {
+      "path": "apps/desktop/e2e/activity-copy-lifecycle.mjs",
+      "sha256": "c9402890d6e8460422f34c53a7409259bcc924e9a297b13bcab533f020810e9a"
+    },
+    {
+      "path": "apps/desktop/e2e/activity-error-ownership.mjs",
+      "sha256": "9a887cfcf9e4f368ed71a30b28f03a2072d404641dc38a7f76947f47142e8138"
+    },
+    {
+      "path": "apps/desktop/e2e/activity-date-only.mjs",
+      "sha256": "54c9505570e259f500811b8f58a25b370c05a4b96e8f74e56216df71c1d615d4"
+    },
+    {
+      "path": "apps/desktop/e2e/activity-sequence-contract.mjs",
+      "sha256": "d509c1a1dc5e56a79d46ea625781b509f72005040f05ce168113434b39664b8a"
+    }
+  ],
+  "reports": [
+    {
+      "id": "keyboard",
+      "path": "docs/validation/Activity-final-review/keyboard.json",
+      "sha256": "88c0677ec5b604b5c413516495d3e28270350ae4c7d07e787f039eb1c6bb7456",
+      "summary": "11/11",
+      "exitCode": 0,
+      "manifestPreserved": true,
+      "scope": "actual keyboard-driven owned producer actions and loopback-only transport"
+    },
+    {
+      "id": "days",
+      "path": "docs/validation/Activity-final-review/days.json",
+      "sha256": "13e214292aaec35e31cc566894b0eb6e7d07344242ae6f8565c3836e2dc01a02",
+      "summary": "16/16",
+      "exitCode": 0,
+      "manifestPreserved": true,
+      "scope": "actual keyboard-driven owned producer actions and loopback-only transport"
+    },
+    {
+      "id": "copy",
+      "path": "docs/validation/Activity-final-review/copy.json",
+      "sha256": "235c57f60e8703fe294d9e91d89837d2f1299b3a0acb3dea64418caa3854fc13",
+      "summary": "22/22",
+      "exitCode": 0,
+      "manifestPreserved": true,
+      "scope": "modeled asynchronous clipboard/status/read completion; actual healthy setup and source recovery"
+    },
+    {
+      "id": "errors",
+      "path": "docs/validation/Activity-final-review/errors.json",
+      "sha256": "8a0c5082b9081f9a623e262b29028041251578969dc5b1ef5084c5c706c45cae",
+      "summary": "23/23",
+      "exitCode": 0,
+      "manifestPreserved": true,
+      "scope": "modeled asynchronous clipboard/status/read completion; actual healthy setup and source recovery"
+    },
+    {
+      "id": "poll",
+      "path": "docs/validation/Activity-final-review/poll.json",
+      "sha256": "5225756018a22b6300b6220f3411f1e610455c3581f7d2eb474bf40e9f78b599",
+      "summary": "11/11",
+      "exitCode": 0,
+      "manifestPreserved": true,
+      "scope": "modeled asynchronous clipboard/status/read completion; actual healthy setup and source recovery"
+    }
+  ],
+  "frontendEvidence": "docs/validation/Activity-date-only/tests.json",
+  "frontendEvidenceSha256": "8f8568a030b42f958a55989ee4e1cee152ba96c22fa01d667f10efa97f550d01",
+  "hostEvidence": "docs/validation/Activity-runner-pipe/tests.json",
+  "hostEvidenceSha256": "6bb4fbb4cd84358071aae708c6708b6a6f048cd870e8cded3b178cc7dd824e83",
+  "frozenDesktopStable": true,
+  "tasksCreated": false,
+  "b4SignedOff": false,
+  "b5Activated": false,
+  "limitations": [
+    "No personal Vault, account, credentials, scheduled task, real upload, installation or signing.",
+    "The keyboard drill uses CDP key events inside the owned window; this is not a full accessibility or physical keyboard audit.",
+    "Clipboard writes and selected asynchronous failures are explicitly modeled; no real clipboard contents are changed."
+  ],
+  "currentDateEvidence": "docs/validation/Activity-date-only/proof.json",
+  "currentDateEvidenceSha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+  "installerSha256": "ccc699f46aea9f0c1bde36bfcbfd86c605ba75573bdfdf62c9807eb4d5acb020",
+  "sourceBytesMatchCommittedBaseline": true,
+  "reusedEvidenceHashesVerified": true,
+  "rawReportChecks": 83
+}

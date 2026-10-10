@@ -1,0 +1,78 @@
+{
+  "checks": [
+    {
+      "id": "FA.actual_package_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "FA.future_reply_is_proved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "FA.future_keeps_three_source_cards",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "FA.future_clock_labels_are_retained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "FA.future_source_ages_remain_unknown",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "FA.future_pending_age_remains_unknown",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "FA.past_reply_is_proved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "FA.past_source_ages_are_preserved",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "FA.past_pending_age_is_preserved",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "FA.date_only_source_ages_stay_unknown",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "FA.date_only_pending_age_stays_unknown",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "FA.no_producer_mutation_was_attempted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "FA.saved_choice_store_and_manifest_remain_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "FA.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-future-age.png"
+  ],
+  "summary": "8/14"
+}

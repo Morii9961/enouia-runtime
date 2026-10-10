@@ -1,0 +1,118 @@
+{
+  "checks": [
+    {
+      "id": "CP.actual_package_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.clipboard_substitution_is_proved_before_testing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.copy_keeps_exact_sanitized_three_source_snapshot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.copy_contains_no_package_paths",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.current_success_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.refresh_clears_prior_copy_feedback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.pre_refresh_success_cannot_reappear",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.pre_refresh_failure_cannot_reappear",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.actual_refresh_replies_are_observed_before_timing_hold",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.copy_started_during_refresh_cannot_label_new_snapshot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.latest_concurrent_success_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.older_failure_cannot_replace_latest_success",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.latest_concurrent_failure_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.older_success_cannot_replace_latest_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.private_clipboard_error_is_never_rendered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.actual_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.previous_package_copy_cannot_reappear_after_selection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.current_copy_recovers_after_reselection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.reselection_preserves_saved_choice_and_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.all_clipboard_requests_use_only_sanitized_overviews",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.entire_store_and_manifest_remain_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CP.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-copy-lifecycle-recovered.png"
+  ],
+  "summary": "22/22"
+}

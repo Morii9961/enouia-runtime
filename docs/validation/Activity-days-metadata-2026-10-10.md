@@ -1,0 +1,13 @@
+# Preserve source units and day boundaries during conversion
+
+Date: 2026-10-10. Baseline: `30a77de6bb47141dea7c4474547398a26dd8fe24`. This changes only requested-source routing metadata checks in the Activity host's day conversion. Producer/store, wire schema, frontend, dependencies and Memory pin remain unchanged. J1/B4 remain partial and B5 is inactive.
+
+The converter previously discarded snapshot metadata while returning a source-labelled days DTO. A GitHub snapshot with a different unit or day boundary could therefore appear as valid GitHub daily contributions. The converter now enforces the client's existing source rules before deriving the reply: GitHub/contributions, Codex/tokens and Asia/Shanghai/tokens for Claude. Conflicting or missing labels produce the existing structured `contract_invalid` error; values and day labels are never converted or relabelled.
+
+The [hashed proof](Activity-days-metadata/proof.json) records [36/36 actual native checks](Activity-days-metadata/metadata.json), against [26/36 on the old executable](Activity-days-metadata/before.json). The ten baseline failures cover each source's conflicting unit/boundary, missing fields and private text in those labels. An owned finite runner emits replies through actual package selection, binary hash checking, bounded reading and native IPC. No browser replies are substituted. Correct labels preserve exact days and explicit zero for all three sources, and each explicit null source remains empty. Existing structured errors pass through unchanged.
+
+The [54 host + 3 pinned-Core tests](Activity-days-metadata/tests.json) pass. Before the product fix, the focused regression showed a conflicting snapshot producing a valid `activity_days` reply claiming `github`. Existing valid unit fixtures now state their source labels explicitly. Separate [49/49 day-series checks](Activity-days-metadata/days.json) and [35/35 actual producer/Core action checks](Activity-days-metadata/actions.json) pass on the new frozen executable. Original runner/manifest, saved choice and complete Activity store remain exact after recovery.
+
+Fresh fmt/clippy, strict TypeScript/build, unsigned NSIS build, 26 installer ownership checks and Memory/domain guards with 8/7 negatives pass. The unchanged frontend's 63-test evidence is reused with model/client source digests. C17 adds 37 selectors, bringing the index to 72 reports / 1,267 selectors / 79 negative checks. All 18 rows remain partial.
+
+This validates requested-source routing metadata together with the preceding series guards, not unrelated snapshot timestamps, other sources or the entire preview. No personal data, accounts, scheduled task, live delivery, installation, signing or deployment was involved.

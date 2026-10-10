@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "id": "EO.actual_package_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.modeled_start_is_proved_before_page_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_failure_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_recovery_clears_its_own_error",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_recovery_keeps_one_start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.failed_refresh_retains_retry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.equal_error_text_is_not_duplicated",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_recovery_preserves_same_text_read_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "EO.failed_refresh_keeps_mutations_disabled",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.first_collision_keeps_one_start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "Error: unavailable Retry\n    at <anonymous>:1:136\n    at <anonymous>:1:194"
+    }
+  ],
+  "screenshots": [],
+  "summary": "9/11"
+}

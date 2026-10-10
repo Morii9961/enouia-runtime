@@ -1,13 +1,16 @@
 import { spawn } from 'node:child_process';
-import { closeSync, existsSync, openSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Actual write-sharing refusal on an existing owned saved choice while the
-// real native picker saves a new one. The holder still shares reads. No
+// Actual write or replacement sharing refusal on an owned saved choice while
+// the real native picker saves a new one. The holder still shares reads. No
 // modeled IPC, ACL change, producer write or personal configuration.
 export async function savedChoiceWriteLockMain(ctx) {
-  const { settings, out, pkg, manifest, fixtureTree, launch, connect, check,
+  const { settings, out, pkg, manifest, fixtureTree, launch, connect,
     fillDialog, waitFor, has, overview, shot, children } = ctx;
+  const replacementOnly = ctx.replacementOnly === true;
+  const check = (id, ok, detail) => ctx.check(replacementOnly ? id.replace(/^CW\./, 'AR.') : id, ok, detail);
+  const noStaging = () => !readdirSync(out).some(name => name.startsWith('.activity-install.json.') && name.endsWith('.tmp'));
   if (existsSync(settings) ||
       realpathSync(manifest.dataRoot).toLowerCase() !== join(realpathSync(pkg + '/..'), 'data').toLowerCase()) {
     throw Error('Choice-write acceptance requires fresh contained synthetic settings/data');
@@ -38,7 +41,7 @@ export async function savedChoiceWriteLockMain(ctx) {
 
   const holder = spawn('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',
     ['-NoProfile', '-NonInteractive', '-Command',
-      `$ErrorActionPreference='Stop';$f=[IO.File]::Open('${settings.replace(/'/g, "''")}','Open','Read','Read');try{'locked';Start-Sleep -Seconds 120}finally{$f.Dispose()}`],
+      `$ErrorActionPreference='Stop';$f=[IO.File]::Open('${settings.replace(/'/g, "''")}','Open','Read','${replacementOnly ? 'ReadWrite' : 'Read'}');try{'locked';Start-Sleep -Seconds 120}finally{$f.Dispose()}`],
     { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
   children.add(holder);
   holder.exited = new Promise(r => holder.once('exit', code => { children.delete(holder); r(code); }));
@@ -52,13 +55,14 @@ export async function savedChoiceWriteLockMain(ctx) {
       holder.once('exit', () => { clearTimeout(timer); reject(Error('Choice-write holder exited')); });
     });
     check('CW.owned_finite_holder_is_ready', holder.pid > 0 && holder.exitCode === null);
-    let refused = false;
-    try { closeSync(openSync(settings, 'r+')); } catch (error) { refused = ['EBUSY', 'EACCES', 'EPERM'].includes(error.code); }
-    check('CW.actual_settings_write_is_refused', refused);
+    let refused = false, opened = false;
+    try { closeSync(openSync(settings, 'r+')); opened = true; } catch (error) { refused = ['EBUSY', 'EACCES', 'EPERM'].includes(error.code); }
+    check(replacementOnly ? 'CW.actual_write_open_remains_available' : 'CW.actual_settings_write_is_refused', replacementOnly ? opened : refused);
     check('CW.settings_remain_readable_during_hold', readFileSync(settings).equals(prior));
     refusedReply = await select();
     check('CW.actual_picker_save_reports_saved_false', refusedReply.configured === true && refusedReply.saved === false, JSON.stringify(refusedReply));
     check('CW.refused_save_keeps_exact_prior_bytes', readFileSync(settings).equals(prior));
+    if (replacementOnly) check('CW.refused_replacement_removes_only_own_staging_file', noStaging());
     await waitFor(s, "document.querySelectorAll('.act-source').length===3", 'connection after refused save');
     check('CW.refused_save_keeps_three_exact_histories', JSON.stringify((await overview(s)).sources) === JSON.stringify(expected.sources));
     const held = await status();
@@ -72,6 +76,7 @@ export async function savedChoiceWriteLockMain(ctx) {
   check('CW.released_picker_saves_verified_choice', recovered.configured === true && recovered.saved === true && (await status()).saved === true, JSON.stringify(recovered));
   check('CW.released_save_replaces_prior_with_canonical_choice', !canonical.equals(prior) &&
     JSON.parse(canonical).installRoot.replace(/^\\\\\?\\/, '').toLowerCase() === realpathSync(pkg).toLowerCase());
+  if (replacementOnly) check('CW.successful_replacement_leaves_no_staging_file', noStaging());
   await stopApp(); app = launch(); s = await connect(); await activity();
   await waitFor(s, "document.querySelectorAll('.act-source').length===3", 'recovered choice restart');
   check('CW.restart_reconnects_saved_choice', (await status()).saved === true && readFileSync(settings).equals(canonical));
