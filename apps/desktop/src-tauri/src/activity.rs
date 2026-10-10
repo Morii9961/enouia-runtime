@@ -704,19 +704,69 @@ fn days(preview: &Value, source: &str, from: &str, to: &str) -> Value {
     if preview.get("kind").and_then(Value::as_str) != Some("activity_public_preview") {
         return preview.clone();
     }
-    let days: Vec<Value> = preview["data"]["sources"][source]["days"]
-        .as_array()
-        .map(|days| {
-            days.iter()
-                .filter(|day| {
-                    day["date"]
-                        .as_str()
-                        .is_some_and(|date| date >= from && date <= to)
-                })
-                .cloned()
-                .collect()
+    let invalid = || error("contract_invalid", "activity_archive", false);
+    if preview["schemaVersion"].as_f64() != Some(1.0)
+        || preview["data"]["version"].as_f64() != Some(1.0)
+    {
+        return invalid();
+    }
+    let Some(snapshot) = preview["data"]["sources"]
+        .as_object()
+        .and_then(|sources| sources.get(source))
+    else {
+        return invalid();
+    };
+    // An explicit null source means no history. Missing or malformed data
+    // must never become an apparently valid empty day list.
+    let entries: &[Value] = if snapshot.is_null() {
+        &[]
+    } else if let Some(entries) = snapshot
+        .as_object()
+        .and_then(|snapshot| snapshot.get("days"))
+        .and_then(Value::as_array)
+    {
+        entries
+    } else {
+        return invalid();
+    };
+    let mut previous = "";
+    let mut total = 0_u64;
+    const MAX_SAFE_INTEGER: u64 = 9_007_199_254_740_991;
+    // Validate the entire requested source before filtering. Otherwise an
+    // invalid entry outside the range disappears before the client sees it.
+    for day in entries {
+        let Some(object) = day.as_object() else {
+            return invalid();
+        };
+        let Some(date) = day["date"].as_str() else {
+            return invalid();
+        };
+        let Some(value) = day["value"].as_f64() else {
+            return invalid();
+        };
+        if !exact_keys(object, &["date", "value"])
+            || !real_date(date)
+            || date <= previous
+            || !(0.0..=MAX_SAFE_INTEGER as f64).contains(&value)
+            || value.fract() != 0.0
+        {
+            return invalid();
+        }
+        total += value as u64;
+        if total > MAX_SAFE_INTEGER {
+            return invalid();
+        }
+        previous = date;
+    }
+    let days: Vec<Value> = entries
+        .iter()
+        .filter(|day| {
+            day["date"]
+                .as_str()
+                .is_some_and(|date| date >= from && date <= to)
         })
-        .unwrap_or_default();
+        .cloned()
+        .collect();
     json!({"schemaVersion": 1, "kind": "activity_days", "source": source, "days": days})
 }
 
@@ -1623,6 +1673,81 @@ mod tests {
             super::days(&failure, "codex", "2026-01-01", "2026-12-31"),
             failure
         );
+    }
+
+    #[test]
+    fn days_refuses_missing_or_malformed_history_before_filtering() {
+        let base = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{"github":null,"codex":{"days":[]},"claude":null}}});
+        let mut cases = Vec::new();
+        let mut wrong_version = base.clone();
+        wrong_version["schemaVersion"] = json!(2);
+        cases.push(wrong_version);
+        let mut wrong_data_version = base.clone();
+        wrong_data_version["data"]["version"] = json!(2);
+        cases.push(wrong_data_version);
+        let mut missing_sources = base.clone();
+        missing_sources["data"] = json!({"version":1});
+        cases.push(missing_sources);
+        let mut missing = base.clone();
+        missing["data"]["sources"]
+            .as_object_mut()
+            .unwrap()
+            .remove("codex");
+        cases.push(missing);
+        for snapshot in [
+            json!(false),
+            json!({}),
+            json!({"days":null}),
+            json!({"days":"private-synthetic-path"}),
+        ] {
+            let mut preview = base.clone();
+            preview["data"]["sources"]["codex"] = snapshot;
+            cases.push(preview);
+        }
+        for entries in [
+            json!([{"date":null,"value":1}]),
+            json!([{"date":"2026-02-30","value":1}]),
+            json!([{"date":"2026-01-01","value":-1}]),
+            json!([{"date":"2026-01-01","value":1.5}]),
+            json!([{"date":"2026-01-01","value":9007199254740992_u64}]),
+            json!([{"date":"2026-01-01","value":1,"privatePath":"private-synthetic-path"}]),
+            json!([{"date":"2026-01-01","value":1},{"date":"2026-01-01","value":2}]),
+            json!([{"date":"2026-01-02","value":1},{"date":"2026-01-01","value":2}]),
+            json!([{"date":"2026-01-01","value":9007199254740991_u64},{"date":"2026-01-02","value":1}]),
+        ] {
+            let mut preview = base.clone();
+            preview["data"]["sources"]["codex"]["days"] = entries;
+            cases.push(preview);
+        }
+        for preview in cases {
+            // Bad entries are deliberately outside this range. Filtering
+            // must not erase their invalidity and fabricate a valid empty list.
+            assert_eq!(
+                days(&preview, "codex", "2026-10-01", "2026-10-31"),
+                error("contract_invalid", "activity_archive", false)
+            );
+        }
+    }
+
+    #[test]
+    fn days_preserves_explicit_empty_and_exact_inclusive_values() {
+        let mut preview = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{"codex":null}}});
+        let range = ("2026-10-01", "2026-10-31");
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], json!([]));
+        preview["data"]["sources"]["codex"] = json!({"days":[]});
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], json!([]));
+        let entries = json!([{"date":"2026-09-30","value":4},{"date":"2026-10-01","value":0},{"date":"2026-10-31","value":2.0},{"date":"2026-11-01","value":8}]);
+        preview["data"]["sources"]["codex"]["days"] = entries.clone();
+        assert_eq!(
+            days(&preview, "codex", range.0, range.1)["days"],
+            json!([entries[1], entries[2]])
+        );
+        let maximum = json!([{"date":"2026-10-01","value":9007199254740991_u64}]);
+        preview["data"]["sources"]["codex"]["days"] = maximum.clone();
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], maximum);
+        preview["schemaVersion"] = json!(1.0);
+        preview["data"]["version"] = json!(1.0);
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], maximum);
     }
 
     #[test]

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "cargo test --offline --locked -- --nocapture",
+  "hostTests": 53,
+  "coreTests": 3,
+  "results": [
+    {
+      "id": "T.days_rejects_invalid_series_before_filtering",
+      "name": "days_refuses_missing_or_malformed_history_before_filtering",
+      "passed": true
+    },
+    {
+      "id": "T.days_preserves_empty_and_exact_values",
+      "name": "days_preserves_explicit_empty_and_exact_inclusive_values",
+      "passed": true
+    }
+  ],
+  "baseline": {
+    "scope": "initial focused missing-source regression before guards; later cases are also exercised by the old native executable",
+    "passed": 0,
+    "failed": 1,
+    "observed": "A missing requested source returned valid activity_days with an empty array"
+  },
+  "validCases": [
+    "explicit null source",
+    "empty array",
+    "inclusive boundaries",
+    "explicit zero",
+    "maximum safe integer",
+    "integral floating-point representation"
+  ]
+}

@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 70);
+  assert.equal(reports.size, 71);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1558,6 +1558,46 @@ function validate(index) {
   assert.equal(scheduleContainer.frontendSourceSha256, futureAge.productSourceSha256);
   assert.equal(scheduleContainer.beforeDesktopSha256, clearDenial.desktopSha256);
   for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256', 'replyRunnerSha256']) assert.match(scheduleContainer[field], /^[a-f0-9]{64}$/);
+  const daysProvenance = reports.get('days_provenance').report;
+  assert.equal(daysProvenance.scope, 'isolated_activity_days_provenance');
+  for (const field of ['productSourceChanged', 'controlledRunnerOutput', 'requestedSeriesValidatedBeforeFiltering', 'explicitNullAndEmptyPreserved', 'inclusiveRangeAndZeroPreserved', 'safeIntegerAndSumBoundsPreserved', 'integralNumericRepresentationsPreserved', 'originalRunnerAndManifestRestored', 'frozenDesktopStable']) assert.equal(daysProvenance[field], true);
+  assert.equal(daysProvenance.modeledReplies, false);
+  assert.equal(daysProvenance.tasksCreated, false);
+  assert.equal(daysProvenance.memoryRevision, isolation.memoryRevision);
+  const daysReports = new Map();
+  for (const entry of daysProvenance.nativeReports) {
+    const raw = readLinked(entry.path, entry.sha256);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(check => check.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert(!daysReports.has(entry.id));
+    daysReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...daysReports.keys()], ['days', 'schedule', 'actions']);
+  assert.deepEqual(daysProvenance.nativeReports.map(entry => entry.summary), ['49/49', '27/27', '35/35']);
+  const daysBefore = readLinked(daysProvenance.beforeReport, daysProvenance.beforeReportSha256);
+  assert.equal(daysBefore.summary, '32/49');
+  const daysRefusals = daysBefore.checks.filter(check => !check.ok);
+  assert.equal(daysRefusals.length, 17);
+  assert(daysRefusals.every(check => check.id.endsWith('_refuses_before_filtering')));
+  assert(daysRefusals.some(check => check.id === 'DP.missing_source_refuses_before_filtering'));
+  assert(daysRefusals.some(check => check.id === 'DP.unsafe_sum_refuses_before_filtering'));
+  const daysTests = readLinked(daysProvenance.testReport, daysProvenance.testReportSha256);
+  assert.equal(daysTests.state, 'passed');
+  assert.equal(daysTests.hostTests, 53);
+  assert.equal(daysTests.coreTests, 3);
+  assert.equal(daysTests.results.length, 2);
+  assert(daysTests.results.every(test => test.passed === true));
+  assert.equal(daysTests.baseline.passed, 0);
+  assert.equal(daysTests.baseline.failed, 1);
+  assert.deepEqual(daysProvenance.checks, [...daysReports.get('days').checks.map(check => check.id), ...daysTests.results.map(test => test.id)]);
+  assert.equal(daysProvenance.frontendEvidence, futureAge.testReport);
+  assert.equal(daysProvenance.frontendEvidenceSha256, hash(readFileSync(contained(daysProvenance.frontendEvidence))));
+  assert.equal(daysProvenance.frontendSourceSha256, futureAge.productSourceSha256);
+  assert.equal(daysProvenance.beforeDesktopSha256, scheduleContainer.desktopSha256);
+  assert.equal(daysProvenance.replyRunnerSha256, scheduleContainer.replyRunnerSha256);
+  for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'clientSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(daysProvenance[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1642,6 +1682,7 @@ function validate(index) {
   assert(futureAge.checks.every(id => linkedTo(c17, 'future_observation_age').includes(id)), 'C17 must retain future-age refusal and normal past/date-only display evidence');
   assert(clearDenial.checks.every(id => linkedTo(c17, 'saved_choice_clear_denial').includes(id)), 'C17 must retain actual hidden-existence clear denial and exact restoration/recovery evidence');
   assert(scheduleContainer.checks.every(id => linkedTo(c17, 'schedule_container').includes(id)), 'C17 must retain actual runner schedule-container refusals and healthy restoration evidence');
+  assert(daysProvenance.checks.every(id => linkedTo(c17, 'days_provenance').includes(id)), 'C17 must retain actual day-series provenance refusal and exact range/empty semantics');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1729,6 +1770,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'future_observation_age'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_clear_denial'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'schedule_container'));
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'days_provenance'));
   reject(x => x.cases[0].evidence[0].selectors.push(x.cases[0].evidence[0].selectors[0]));
   reject(x => x.cases[0].evidence.push(structuredClone(x.cases[0].evidence[0])));
   for (const invalid of [['same', 'same'], ['valid', 22], ['valid', ' ']]) {
