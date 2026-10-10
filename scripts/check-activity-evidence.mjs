@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 68);
+  assert.equal(reports.size, 69);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1480,6 +1480,43 @@ function validate(index) {
   assert.equal(futureAge.hostEvidenceSha256, hash(readFileSync(contained(futureAge.hostEvidence))));
   assert.equal(futureAge.hostSourceSha256, pipeDeadline.productSourceSha256);
   for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(futureAge[field], /^[a-f0-9]{64}$/);
+  const clearDenial = reports.get('saved_choice_clear_denial').report;
+  assert.equal(clearDenial.scope, 'isolated_activity_saved_choice_clear_denial');
+  for (const field of ['productSourceChanged', 'actualAclDenial', 'existenceHiddenDuringDenial', 'clearRequiresSuccessOrNotFound', 'failedClearDisconnectsCurrentWindow', 'retainedChoiceReconnectsAfterRestart', 'exactDescriptorsAndBytesRestored', 'absentFileRemainsSuccess', 'frozenDesktopStable']) assert.equal(clearDenial[field], true);
+  assert.equal(clearDenial.modeledReplies, false);
+  assert.equal(clearDenial.tasksCreated, false);
+  assert.equal(clearDenial.memoryRevision, isolation.memoryRevision);
+  const clearReports = new Map();
+  for (const entry of clearDenial.nativeReports) {
+    const raw = readLinked(entry.path, entry.sha256);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(check => check.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert(!clearReports.has(entry.id));
+    clearReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...clearReports.keys()], ['denial', 'sharing', 'actions']);
+  assert.deepEqual(clearDenial.nativeReports.map(entry => entry.summary), ['17/17', '19/19', '35/35']);
+  const clearDenialBefore = readLinked(clearDenial.beforeReport, clearDenial.beforeReportSha256);
+  assert.equal(clearDenialBefore.summary, '13/17');
+  assert.deepEqual(clearDenialBefore.checks.filter(check => !check.ok).map(check => check.id), ['CD.native_clear_reports_saved_false', 'CD.refusal_explains_reconnect_and_retry', 'CD.native_status_retains_failed_clear', 'CD.remount_keeps_failed_clear_feedback']);
+  const clearTests = readLinked(clearDenial.testReport, clearDenial.testReportSha256);
+  assert.equal(clearTests.state, 'passed');
+  assert.equal(clearTests.hostTests, 50);
+  assert.equal(clearTests.coreTests, 3);
+  assert.equal(clearTests.results.length, 2);
+  assert(clearTests.results.every(test => test.passed === true));
+  assert.equal(clearTests.baseline.passed, 2);
+  assert.equal(clearTests.baseline.failed, 1);
+  assert.equal(clearTests.baseline.negativeControl, true);
+  assert.equal(clearTests.baseline.exactDescriptorsAndBytesRestored, true);
+  assert.deepEqual(clearDenial.checks, [...clearReports.get('denial').checks.map(check => check.id), ...clearTests.results.map(test => test.id)]);
+  assert.equal(clearDenial.frontendEvidence, futureAge.testReport);
+  assert.equal(clearDenial.frontendEvidenceSha256, hash(readFileSync(contained(clearDenial.frontendEvidence))));
+  assert.equal(clearDenial.frontendSourceSha256, futureAge.productSourceSha256);
+  assert.equal(clearDenial.beforeDesktopSha256, futureAge.desktopSha256);
+  for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256', 'denialHelperSha256']) assert.match(clearDenial[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1562,6 +1599,7 @@ function validate(index) {
   assert(positiveSequence.checks.every(id => linkedTo(c17, 'positive_pending_sequence').includes(id)), 'C17 must retain positive sequence bounds, exact values and legitimate empty state evidence');
   assert(datePrecision.checks.every(id => linkedTo(c17, 'date_only_precision').includes(id)), 'C17 must retain date-only precision and explicit-offset display evidence');
   assert(futureAge.checks.every(id => linkedTo(c17, 'future_observation_age').includes(id)), 'C17 must retain future-age refusal and normal past/date-only display evidence');
+  assert(clearDenial.checks.every(id => linkedTo(c17, 'saved_choice_clear_denial').includes(id)), 'C17 must retain actual hidden-existence clear denial and exact restoration/recovery evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1647,6 +1685,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'positive_pending_sequence'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'date_only_precision'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'future_observation_age'));
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_clear_denial'));
   reject(x => x.cases[0].evidence[0].selectors.push(x.cases[0].evidence[0].selectors[0]));
   reject(x => x.cases[0].evidence.push(structuredClone(x.cases[0].evidence[0])));
   for (const invalid of [['same', 'same'], ['valid', 22], ['valid', ' ']]) {

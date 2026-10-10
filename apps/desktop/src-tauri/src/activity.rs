@@ -164,7 +164,12 @@ fn save_root(app: &AppHandle, root: Option<&Path>) -> bool {
 
 fn save_root_at(path: &Path, root: Option<&Path>) -> bool {
     match root {
-        None => std::fs::remove_file(path).is_ok() || !path.exists(),
+        // An existence query can also return false when access is denied.
+        // Only deletion or an explicit missing-file error proves this clear.
+        None => match std::fs::remove_file(path) {
+            Ok(()) => true,
+            Err(error) => error.kind() == std::io::ErrorKind::NotFound,
+        },
         Some(root) => {
             let Some(parent) = path.parent() else {
                 return false;
@@ -1236,6 +1241,71 @@ mod tests {
         ));
         std::fs::create_dir(&directory).unwrap();
         directory
+    }
+
+    #[test]
+    fn saved_choice_clear_accepts_absence_and_removes_existing_choice() {
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        assert!(save_root_at(&path, None));
+        assert!(save_root_at(&path, Some(&directory.join("old-package"))));
+        assert!(save_root_at(&path, None));
+        assert!(!path.exists());
+        assert!(save_root_at(&path, None));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_clear_denial_child() {
+        let Some(directory) = std::env::var_os("ENOUIA_CLEAR_DENIAL_ROOT") else {
+            return;
+        };
+        let path = PathBuf::from(directory).join(SETTINGS_FILE);
+        assert!(!path.exists(), "owned denial must hide existence");
+        let error = std::fs::remove_file(&path).unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        // Negative control: existence returns false for this access error,
+        // so the old `is_ok() || !exists()` expression reports success.
+        assert!(!path.exists());
+        println!("delete_permission_denied_and_legacy_false_success=true");
+        assert!(!save_root_at(&path, None));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_clear_permission_denial_is_not_success() {
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        assert!(save_root_at(&path, Some(&directory.join("old-package"))));
+        let bytes = std::fs::read(&path).unwrap();
+        let script =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/choice-clear-denial.ps1");
+        let output = Command::new("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe")
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+            ])
+            .arg(script)
+            .arg("-Directory")
+            .arg(&directory)
+            .arg("-ProbeExecutable")
+            .arg(std::env::current_exe().unwrap())
+            .env("ENOUIA_CLEAR_DENIAL_ROOT", &directory)
+            .output()
+            .unwrap();
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(stdout.contains("delete_permission_denied_and_legacy_false_success=true"));
+        assert!(stdout.contains("exact_owned_descriptors_and_bytes_restored=true"));
+        assert!(
+            output.status.success(),
+            "{stdout}\n{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(save_root_at(&path, None));
     }
 
     #[test]

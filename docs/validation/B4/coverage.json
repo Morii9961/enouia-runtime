@@ -479,6 +479,13 @@
       "sha256": "90dfe0683bf3ce27aebe28d4f72f1a8ce0a417c05cfa1c6564939ac879c709c4",
       "state": "passed",
       "selectorCount": 15
+    },
+    {
+      "id": "saved_choice_clear_denial",
+      "path": "docs/validation/Activity-clear-denial/proof.json",
+      "sha256": "99f2f353aa9a71ed39a3e666ed05b4551d492e829507de98b7966a73d96f3faa",
+      "state": "passed",
+      "selectorCount": 19
     }
   ],
   "cases": [
@@ -2193,6 +2200,30 @@
             "FA.saved_choice_store_and_manifest_remain_exact",
             "FA.final_clear_removes_only_owned_choice",
             "T.future_observations_have_unknown_age"
+          ]
+        },
+        {
+          "report": "saved_choice_clear_denial",
+          "selectors": [
+            "CD.actual_selection_saves_owned_choice",
+            "CD.real_acl_denial_hides_choice_existence",
+            "CD.native_clear_reports_saved_false",
+            "CD.refusal_explains_reconnect_and_retry",
+            "CD.native_status_retains_failed_clear",
+            "CD.denial_never_changes_activity_store",
+            "CD.exact_owned_descriptors_and_bytes_restored",
+            "CD.failed_clear_preserves_exact_choice_bytes",
+            "CD.package_manifest_and_store_remain_exact",
+            "CD.remount_keeps_failed_clear_feedback",
+            "CD.restart_reconnects_retained_choice",
+            "CD.restart_verifies_retained_choice_saved",
+            "CD.recovery_clear_reports_saved_true",
+            "CD.recovery_clear_removes_owned_file",
+            "CD.recovery_status_retains_success",
+            "CD.successful_clear_stays_forgotten_after_restart",
+            "CD.complete_store_and_manifest_remain_exact",
+            "T.clear_denial_is_not_success",
+            "T.clear_accepts_absence_and_removes_existing"
           ]
         }
       ],
