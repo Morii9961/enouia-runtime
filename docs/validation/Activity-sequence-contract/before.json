@@ -1,0 +1,98 @@
+{
+  "checks": [
+    {
+      "id": "SQ.initial_real_reads_are_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.modeled_overview_is_proved_before_cases",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.delivery_zero_refuses_before_display_and_mutation",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "SQ.delivery_negative_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.delivery_fraction_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.delivery_unsafe_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.delivery_string_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.pending_zero_refuses_before_display_and_mutation",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "SQ.pending_negative_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.pending_fraction_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.pending_unsafe_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.pending_string_refuses_before_display_and_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.minimum_positive_sequence_is_preserved_exactly",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.maximum_positive_sequence_is_preserved_exactly",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.null_pending_and_zero_reservation_remain_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.no_producer_mutation_was_attempted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.saved_choice_store_and_manifest_remain_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SQ.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-sequence-contract-empty.png"
+  ],
+  "summary": "16/18"
+}

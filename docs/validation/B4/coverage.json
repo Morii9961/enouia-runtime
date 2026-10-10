@@ -458,6 +458,13 @@
       "sha256": "52c77c83b20a6d2e405262bb51f0929561b70969022e8104cb28326b9eda378a",
       "state": "passed",
       "selectorCount": 23
+    },
+    {
+      "id": "positive_pending_sequence",
+      "path": "docs/validation/Activity-sequence-contract/proof.json",
+      "sha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
+      "state": "passed",
+      "selectorCount": 20
     }
   ],
   "cases": [
@@ -2104,6 +2111,31 @@
             "EO.recovered_histories_match_real_producer",
             "EO.entire_store_and_manifest_remain_exact",
             "EO.final_clear_removes_only_owned_choice"
+          ]
+        },
+        {
+          "report": "positive_pending_sequence",
+          "selectors": [
+            "SQ.initial_real_reads_are_healthy",
+            "SQ.modeled_overview_is_proved_before_cases",
+            "SQ.delivery_zero_refuses_before_display_and_mutation",
+            "SQ.delivery_negative_refuses_before_display_and_mutation",
+            "SQ.delivery_fraction_refuses_before_display_and_mutation",
+            "SQ.delivery_unsafe_refuses_before_display_and_mutation",
+            "SQ.delivery_string_refuses_before_display_and_mutation",
+            "SQ.pending_zero_refuses_before_display_and_mutation",
+            "SQ.pending_negative_refuses_before_display_and_mutation",
+            "SQ.pending_fraction_refuses_before_display_and_mutation",
+            "SQ.pending_unsafe_refuses_before_display_and_mutation",
+            "SQ.pending_string_refuses_before_display_and_mutation",
+            "SQ.minimum_positive_sequence_is_preserved_exactly",
+            "SQ.maximum_positive_sequence_is_preserved_exactly",
+            "SQ.null_pending_and_zero_reservation_remain_valid",
+            "SQ.no_producer_mutation_was_attempted",
+            "SQ.saved_choice_store_and_manifest_remain_exact",
+            "SQ.final_clear_removes_only_owned_choice",
+            "T.pending_sequence_refusals",
+            "T.pending_sequence_positive_and_empty_bounds"
           ]
         }
       ],

@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 65);
+  assert.equal(reports.size, 66);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1346,6 +1346,51 @@ function validate(index) {
   assert.equal(errorOwnership.hostEvidence, pipeDeadline.testReport);
   assert.equal(errorOwnership.hostEvidenceSha256, hash(readFileSync(contained(errorOwnership.hostEvidence))));
   for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(errorOwnership[field], /^[a-f0-9]{64}$/);
+  const positiveSequence = reports.get('positive_pending_sequence').report;
+  assert.equal(positiveSequence.scope, 'isolated_activity_positive_pending_sequence_contract');
+  assert.equal(positiveSequence.productSourceChanged, true);
+  assert.equal(positiveSequence.modeledReplies, true);
+  assert.equal(positiveSequence.tasksCreated, false);
+  assert.equal(positiveSequence.frozenDesktopStable, true);
+  assert.equal(positiveSequence.memoryRevision, isolation.memoryRevision);
+  assert.equal(positiveSequence.minimumSequence, 1);
+  assert.equal(positiveSequence.maximumSequence, 9007199254740991);
+  assert.equal(positiveSequence.zeroReservationAccepted, true);
+  assert.equal(positiveSequence.nullPendingAccepted, true);
+  const sequenceReports = new Map();
+  for (const entry of positiveSequence.nativeReports) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    const raw = JSON.parse(bytes);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(c => c.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert.equal(entry.manifestRestored, true);
+    assert(!sequenceReports.has(entry.id));
+    sequenceReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...sequenceReports.keys()], ['sequence', 'errors', 'actions']);
+  assert.deepEqual(positiveSequence.nativeReports.map(entry => entry.summary), ['18/18', '23/23', '35/35']);
+  const sequenceBeforeBytes = readFileSync(contained(positiveSequence.beforeReport));
+  assert.equal(hash(sequenceBeforeBytes), positiveSequence.beforeReportSha256);
+  const sequenceBefore = JSON.parse(sequenceBeforeBytes);
+  assert.equal(sequenceBefore.summary, '16/18');
+  assert.deepEqual(sequenceBefore.checks.filter(c => !c.ok).map(c => c.id), ['SQ.delivery_zero_refuses_before_display_and_mutation', 'SQ.pending_zero_refuses_before_display_and_mutation']);
+  const sequenceTestBytes = readFileSync(contained(positiveSequence.testReport));
+  assert.equal(hash(sequenceTestBytes), positiveSequence.testReportSha256);
+  const sequenceTests = JSON.parse(sequenceTestBytes);
+  assert.equal(sequenceTests.state, 'passed');
+  assert.equal(sequenceTests.frontendTests, 60);
+  assert.equal(sequenceTests.results.length, 2);
+  assert(sequenceTests.results.every(test => test.passed === true));
+  assert.equal(sequenceTests.baseline.passed, 59);
+  assert.equal(sequenceTests.baseline.failed, 1);
+  assert.deepEqual(positiveSequence.checks, [...sequenceReports.get('sequence').checks.map(c => c.id), ...sequenceTests.results.map(test => test.id)]);
+  assert.equal(positiveSequence.hostSourceSha256, pipeDeadline.productSourceSha256);
+  assert.equal(positiveSequence.hostEvidence, pipeDeadline.testReport);
+  assert.equal(positiveSequence.hostEvidenceSha256, hash(readFileSync(contained(positiveSequence.hostEvidence))));
+  for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'schemaSha256', 'harnessSha256', 'drillSha256']) assert.match(positiveSequence[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1425,6 +1470,7 @@ function validate(index) {
   assert(pipeDeadline.checks.every(id => linkedTo(c17, 'runner_pipe_deadline').includes(id)), 'C17 must retain actual Windows pipe deadline and producer recovery evidence');
   assert(copyLifecycle.checks.every(id => linkedTo(c17, 'copy_feedback_lifecycle').includes(id)), 'C17 must retain copy feedback sequencing and real package recovery evidence');
   assert(errorOwnership.checks.every(id => linkedTo(c17, 'error_feedback_ownership').includes(id)), 'C17 must retain independent refresh/status error ownership and recovery evidence');
+  assert(positiveSequence.checks.every(id => linkedTo(c17, 'positive_pending_sequence').includes(id)), 'C17 must retain positive sequence bounds, exact values and legitimate empty state evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1507,6 +1553,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_pipe_deadline'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'copy_feedback_lifecycle'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'error_feedback_ownership'));
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'positive_pending_sequence'));
   reject(x => x.cases[0].evidence[0].selectors.push(x.cases[0].evidence[0].selectors[0]));
   reject(x => x.cases[0].evidence.push(structuredClone(x.cases[0].evidence[0])));
   for (const invalid of [['same', 'same'], ['valid', 22], ['valid', ' ']]) {

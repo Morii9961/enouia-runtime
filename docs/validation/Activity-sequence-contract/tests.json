@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "npm test",
+  "frontendTests": 60,
+  "results": [
+    {
+      "id": "T.pending_sequence_refusals",
+      "name": "pending sequences refuse zero, negative, fractional, unsafe and nonnumeric values",
+      "passed": true
+    },
+    {
+      "id": "T.pending_sequence_positive_and_empty_bounds",
+      "name": "pending sequences keep exact positive limits and legitimate empty state",
+      "passed": true
+    }
+  ],
+  "baseline": {
+    "tests": 60,
+    "passed": 59,
+    "failed": 1,
+    "failure": "Missing expected rejection: delivery: 0"
+  }
+}
