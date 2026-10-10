@@ -2,7 +2,22 @@
 
 更新日期：2026-10-10。仓库：`E:\Enouia Runtime`。这份文件补充已有的 `ACTIVITY_USAGE_CLAUDE_HANDOFF.md`，不覆盖它或原启动提示词。用户现在希望 Claude 与下一次 Codex 在不同工作树并行；配套 [下一次 Codex 交接](ACTIVITY_CODEX_NEXT_SESSION_2026-10-10.md) 规定分工与汇合规则。
 
-## 当前状态与接手入口
+
+## 本会话续作状态（2026-10-10）
+
+共同交接基线保持 **451d70ed245d1a46166bf7d29a941b69cca3f111**，包含两份交接且 a289e18 为祖先。Codex 新工作树为 C:\Users\Morii\.codex\worktrees\activity-desktop-followup\Enouia Runtime，独立分支 codex/activity-desktop-followup。桌面共享读取验收已 commit/push：**e210bf852bc208a2b09f50a4f96e9e9f0bd4cc39**，远端 SHA 已核对。随后证据/交接提交由整合分支串行快进吸收，原 SHA 保持相同；接手实时核对 HEAD 与 PR #28。
+
+[保存选择文件共享读取验收](validation/Activity-codex-choice-read-2026-10-10.md) **24/24**：实际 FileShare.None 拒绝读取；缓存连接保留三源历史但保存核验失败，释放后同一 host 恢复；锁定期间启动拒绝，释放后真实 picker 与重启恢复。设置与完整 Activity store 字节保留。未发现产品缺陷，未修改产品源码/协议/pin。最初独立 exe 副本缺 WebView2Loader.dll 的 **0/1 no main page** 前置失败已保留；补齐 DLL 后以全新 Temp 夹具通过。
+
+当前证据索引为 **58 报告 / 902 选择器 / 60 负向检查**，18 行均 partial，B4/B5 false。桌面/runner 哈希与 a289e18 相同；此前 58 前端、35+3 host/Core、严格/原生/安装包构建、26 安装包与35/35实际操作证据明确复用，未重新执行以增加计数。新鲜检查仅为此次24/24、E2E语法/whitespace、Memory守卫8负向和证据守卫60负向。
+
+Claude 正在 E:\Enouia Runtime\.claude\worktrees\activity-producer-followup-569bc3 的 claude/activity-producer-followup 实施 store reader/writer/late_switch_failure，起点已实时核对为451d70ed。此前新树登记路径曾变化，以 git worktree list 为准。Codex未改这些文件，未读取个人数据；截至此记录尚无Claude新提交/原始报告可接收，**不得把dirty代码或旧7309cb9再次汇合**。后续先收其已推送SHA与完整报告，再审查范围/祖先/哈希并串行整合；产品变更后需相关新二进制实际操作验证。
+
+额度最新查询：5小时已用 **88%**，剩余 **12%**（账户共享快照，会变化）。本会话停止开启新功能，保留提交、推送、PR和交接余量，不使用重置券。主仓库仍保留用户 docs/ACTIVITY_USAGE_CLAUDE_HANDOFF.md、docs/prompts/CLAUDE_ACTIVITY_USAGE_START.md；main/旧Claude/e8f6未重置。此次原生进程/holder已结束，Temp夹具保留。
+
+下一候选是**实际已存在保存选择文件的共享写入拒绝**：真实picker保存失败时保留旧字节和明确反馈，释放后恢复。先审查已有保存失败（目录阻塞）覆盖，额度足够再启动；不要重做缺runner/启动/busy/picker交错/bounded-read切片。
+
+## 首次交接快照：当前状态与接手入口
 
 整合分支为 `codex/activity-desktop-integration`，现有 [PR #28](https://github.com/Morii9961/enouia-runtime/pull/28)，保持 OPEN DRAFT。下一次 Codex 负责最终汇合；Claude 在自己的新分支上工作，不直接更新整合分支或 PR。不要重建 PR、合并 main 或重做 Claude 已合入的工作。接手时必须先核对实际分支、工作区、远端 SHA、PR 状态和已附证据；这是一份快照。
 

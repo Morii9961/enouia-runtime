@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 57);
+  assert.equal(reports.size, 58);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1072,6 +1072,29 @@ function validate(index) {
   assert.equal(choiceBoundary.memoryRevision, isolation.memoryRevision);
   for (const digest of [choiceBoundary.desktopSha256,choiceBoundary.installerSha256,choiceBoundary.harnessSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
   assert(choiceBoundary.limitations.includes('The same file handle reads at most 64 KiB plus one; the pure-file regression also accepts the exact 64 KiB boundary and refuses the next byte.'));
+
+  const choiceRead = reports.get('saved_choice_read_sharing').report;
+  assert.equal(choiceRead.scope, 'isolated_activity_actual_saved_choice_read_sharing');
+  const choiceReadBytes = readFileSync(contained(choiceRead.nativeReport));
+  assert.equal(hash(choiceReadBytes), choiceRead.nativeReportSha256);
+  const choiceReadNative = JSON.parse(choiceReadBytes);
+  assert.equal(choiceReadNative.summary, '24/24');
+  assert.equal(choiceReadNative.checks.length, 24);
+  assert(choiceReadNative.checks.every(c => c.ok === true));
+  assert.deepEqual(choiceRead.checks, choiceReadNative.checks.map(c => c.id));
+  assert.equal(choiceRead.nativeSummary, choiceReadNative.summary);
+  assert.equal(choiceRead.processExitCode, 0);
+  const choiceReadPrerequisiteBytes = readFileSync(contained(choiceRead.prerequisiteReport));
+  assert.equal(hash(choiceReadPrerequisiteBytes), choiceRead.prerequisiteReportSha256);
+  const choiceReadPrerequisite = JSON.parse(choiceReadPrerequisiteBytes);
+  assert.equal(choiceReadPrerequisite.summary, '0/1');
+  assert.deepEqual(choiceReadPrerequisite.checks, [{id:'run',ok:false,detail:'no main page'}]);
+  assert.equal(choiceRead.desktopSha256, choiceBoundary.desktopSha256);
+  assert.equal(choiceRead.runnerSha256, choiceBoundary.runnerSha256);
+  assert.equal(choiceRead.memoryRevision, isolation.memoryRevision);
+  assert.equal(choiceRead.baseline, '451d70ed245d1a46166bf7d29a941b69cca3f111');
+  for(const flag of ['productSourceChanged','modeledReplies','tasksCreated']) assert.equal(choiceRead[flag], false);
+  for(const field of ['probeSha256','harnessSha256','fixturePreparerSha256','webviewLoaderSha256','standinSha256']) assert.match(choiceRead[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1136,6 +1159,7 @@ function validate(index) {
   assert(runnerMissing.checks.every(id => linkedTo(c17, 'runner_missing').includes(id)), 'C17 must retain actual missing installed runner refusal and exact recovery');
   assert(missingRestart.checks.every(id => linkedTo(c17, 'runner_missing_restart').includes(id)), 'C17 must retain actual saved-choice missing-runner startup and recovery');
   assert(choiceBoundary.checks.every(id => linkedTo(c17, 'saved_choice_boundary').includes(id)), 'C17 must retain actual bounded absolute saved choice and real picker recovery');
+  assert(choiceRead.checks.every(id => linkedTo(c17, 'saved_choice_read_sharing').includes(id)), 'C17 must retain actual saved-choice read sharing and explicit recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1209,7 +1233,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_missing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_missing_restart'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_boundary'));
-  result.negativeChecks = 59;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_read_sharing'));
+  result.negativeChecks = 60;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

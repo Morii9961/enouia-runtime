@@ -402,6 +402,13 @@
       "sha256": "2af9d4b3830b1de18fb9bbc2d0f03fbfb062fc10ef281810dd7aaab1e86cd9f6",
       "state": "passed",
       "selectorCount": 20
+    },
+    {
+      "id": "saved_choice_read_sharing",
+      "path": "docs/validation/Activity-codex-choice-read/proof.json",
+      "sha256": "5feea6bd0fcf53a5ac24518b2045c373c093bc7f35081fe1664134d99f3d9a3a",
+      "state": "passed",
+      "selectorCount": 24
     }
   ],
   "cases": [
@@ -1802,6 +1809,35 @@
             "SB.actual_recovery_reports_verified_saved",
             "SB.recovery_preserves_complete_activity_store",
             "SB.final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "saved_choice_read_sharing",
+          "selectors": [
+            "CR.real_picker_saves_verified_choice",
+            "CR.owned_finite_holder_is_ready",
+            "CR.actual_settings_read_is_refused",
+            "CR.cached_status_retains_connection_but_saved_false",
+            "CR.cached_three_histories_remain_exact",
+            "CR.cached_remount_explains_unverified_choice",
+            "CR.cached_remount_retains_three_histories",
+            "CR.release_restores_exact_choice_bytes",
+            "CR.same_host_reverifies_saved_choice_after_release",
+            "CR.recovered_remount_clears_unverified_warning",
+            "CR.cached_fault_preserves_complete_store",
+            "CR.startup_actual_settings_read_is_refused",
+            "CR.startup_status_refuses_without_invented_saved_outcome",
+            "CR.startup_overview_refuses_unconfigured",
+            "CR.startup_page_has_gate_without_history",
+            "CR.startup_has_no_invented_save_or_clear_failure",
+            "CR.startup_fault_preserves_complete_store",
+            "CR.startup_release_restores_exact_choice_bytes",
+            "CR.actual_picker_recovers_verified_saved_choice",
+            "CR.reselection_retains_exact_choice_bytes",
+            "CR.recovery_restores_exact_three_histories",
+            "CR.restart_reconnects_verified_saved_choice",
+            "CR.all_read_faults_leave_complete_store_exact",
+            "CR.final_clear_removes_only_owned_choice"
           ]
         }
       ],
