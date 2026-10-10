@@ -3,6 +3,20 @@
 更新日期：2026-10-10。仓库：`E:\Enouia Runtime`。这份文件补充已有的 `ACTIVITY_USAGE_CLAUDE_HANDOFF.md`，不覆盖它或原启动提示词。用户现在希望 Claude 与下一次 Codex 在不同工作树并行；配套 [下一次 Codex 交接](ACTIVITY_CODEX_NEXT_SESSION_2026-10-10.md) 规定分工与汇合规则。
 
 
+## Claude 接手整合（2026-10-10，Codex 额度用尽后）
+
+Codex 额度用尽后，所有者明确把整合分支、公共证据索引/计数、PR #28 和桌面原生验收交给 Claude 完成本轮。Claude 工作树为 `E:\Enouia Runtime\.claude\worktrees\activity-producer-followup-569bc3`，本地分支 `claude/activity-integration-work` 推送到 `codex/activity-desktop-integration`；worker 分支 `claude/activity-producer-followup` 保留原提交 `63d17b5`/`1c9cf9f`，以合并提交 `10a44c3` 汇入（无冲突）。主工作区 `E:\Enouia Runtime` 的本地整合分支落后于远端，恢复前先 `git pull --ff-only`，并保留用户未跟踪的两个交接文件。
+
+[整合与原生验收](validation/Activity-late-switch-integration-2026-10-10.md)：
+- 新增 `--run-switch-lock`：旧 runner `cb665419` 32/38（刷新的 orphan 阻塞下一次 run），整合 runner `ea6b732b` 46/46（退回 `.staging-<id>`，下一次 run 只预留一次序号 88）；先前的 33/38 harness 修订记录单独保留。
+- 两个既有暂停演练改为预期 staging 命名残留：指针替换 50/50、指针创建 ACL 52/52（完整 SDDL 已恢复）；旧报告对旧 runner 仍有效。
+- 实际操作/Core 隔离 35/35，release runner 强杀 24 项，store 强杀 23/161（worker 重跑）。
+- 新鲜检查：根工作区 230 测试、桌面 35+3、fmt/clippy、严格 TS、前端 58、桌面与未签名 NSIS 构建、安装包 26/26、Memory/domain 守卫 8/7 负向。
+- 证据索引 **59 报告 / 952 选择器 / 61 负向检查**；18 行仍为 partial，B4/B5 false。
+- 当前二进制：桌面 `ff22aef5…`（源码自 a289e18 未变，换工作树路径重建）、安装包 `3344efeb…`、runner `ea6b732b…`。同源 release runner 多次干净构建字节不同，证据只认 proof 中的冻结副本。
+
+下一候选：Codex 列出的“实际已存在保存选择文件的共享写入拒绝”。另有：进程死亡后新批次/收据孤儿仍需运维对账（可考虑带审计的显式对账命令设计）、`CURRENT.<id>.tmp` 残留累积。真实登录/电源、磁盘满/断电、持续压力、真实账户/调度/收据/发布仍是未授权门槛。
+
 ## 本会话续作状态（2026-10-10）
 
 共同交接基线保持 **451d70ed245d1a46166bf7d29a941b69cca3f111**，包含两份交接且 a289e18 为祖先。Codex 新工作树为 C:\Users\Morii\.codex\worktrees\activity-desktop-followup\Enouia Runtime，独立分支 codex/activity-desktop-followup。桌面共享读取验收已 commit/push：**e210bf852bc208a2b09f50a4f96e9e9f0bd4cc39**，远端 SHA 已核对。随后证据/交接提交由整合分支串行快进吸收，原 SHA 保持相同；接手实时核对 HEAD 与 PR #28。

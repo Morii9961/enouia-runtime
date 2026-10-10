@@ -409,6 +409,13 @@
       "sha256": "5feea6bd0fcf53a5ac24518b2045c373c093bc7f35081fe1664134d99f3d9a3a",
       "state": "passed",
       "selectorCount": 24
+    },
+    {
+      "id": "store_late_switch",
+      "path": "docs/validation/Activity-claude-late-switch/proof.json",
+      "sha256": "b84fff55e7e44c7b244a46f05f826cec8322125c4e91305654cc9db8043c4b55",
+      "state": "passed",
+      "selectorCount": 50
     }
   ],
   "cases": [
@@ -755,6 +762,29 @@
           "report": "runner",
           "selectors": [
             "ssh: Runtime/tool/grandchild live handles all signal within bound"
+          ]
+        },
+        {
+          "report": "store_late_switch",
+          "selectors": [
+            "T.refused_pointer_preparation_of_new_batch_keeps_the_sequence_retryable",
+            "T.refused_retraction_keeps_the_conservative_orphan",
+            "T.refused_switch_of_new_batch_keeps_the_sequence_retryable",
+            "T.refused_switch_of_receipt_keeps_the_acknowledgment_retryable",
+            "T.retraction_changes_only_the_failed_generation_name",
+            "T.simulated_interruption_after_publication_still_leaves_the_conservative_orphan",
+            "T.refused_pointer_replacement_fails_one_sync_and_the_next_sync_commits",
+            "RS.current_is_held_without_delete_sharing",
+            "RS.actual_run_reports_storage_failure",
+            "RS.failed_run_keeps_current_high_water_and_history_exact",
+            "RS.failed_run_preserves_all_original_files",
+            "RS.failed_run_retracts_its_generation_to_staging",
+            "RS.prepared_pointer_file_is_retained",
+            "RS.memory_queries_survive_actual_run_failure",
+            "RS.next_run_after_release_is_not_storage_blocked",
+            "RS.next_run_reserves_the_same_sequence_once",
+            "RS.retracted_generation_and_pointer_remain_unselected",
+            "RS.recovery_preserves_canonical_vault"
           ]
         }
       ],
@@ -1838,6 +1868,43 @@
             "CR.restart_reconnects_verified_saved_choice",
             "CR.all_read_faults_leave_complete_store_exact",
             "CR.final_clear_removes_only_owned_choice"
+          ]
+        },
+        {
+          "report": "store_late_switch",
+          "selectors": [
+            "L.current_is_held_without_delete_sharing",
+            "L.reads_remain_available_during_switch_lock",
+            "L.actual_pause_reports_storage_failure",
+            "L.actual_failure_is_visible_with_old_history",
+            "L.failed_switch_keeps_current_unpaused_and_exact",
+            "L.all_original_files_are_preserved",
+            "L.failed_switch_retracts_two_complete_generations_to_staging",
+            "L.prepared_pointer_files_are_retained",
+            "L.memory_queries_survive_actual_switch_failure",
+            "L.failure_preserves_canonical_vault",
+            "L.release_accepts_actual_pause",
+            "L.release_accepts_actual_resume",
+            "L.recovery_preserves_archive_sequence_pending",
+            "L.recovery_preserves_failed_generation_and_pointer_remnants",
+            "L.recovery_preserves_canonical_vault",
+            "PC.synthetic_root_file_creation_is_denied",
+            "PC.root_file_creation_really_refuses_access",
+            "PC.actual_pause_write_reports_storage_failure",
+            "PC.failed_pause_is_visible",
+            "PC.failed_writes_keep_unpaused_reads_and_exact_history",
+            "PC.memory_queries_survive_actual_write_failure",
+            "PC.failed_writes_preserve_exact_current_pointer",
+            "PC.all_original_files_keep_exact_hashes",
+            "PC.failed_preparation_retracts_two_complete_generations_to_staging",
+            "PC.failed_preparation_creates_no_temporary_pointer_file",
+            "PC.failed_writes_preserve_canonical_vault",
+            "PC.original_directory_security_descriptor_is_restored",
+            "PC.restored_permission_accepts_pause",
+            "PC.restored_permission_accepts_resume",
+            "PC.successful_recovery_preserves_archive_sequence_pending",
+            "PC.recovery_retains_failed_generations",
+            "PC.recovery_preserves_canonical_vault"
           ]
         }
       ],

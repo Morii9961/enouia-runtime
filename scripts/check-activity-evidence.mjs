@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 58);
+  assert.equal(reports.size, 59);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1095,6 +1095,38 @@ function validate(index) {
   assert.equal(choiceRead.baseline, '451d70ed245d1a46166bf7d29a941b69cca3f111');
   for(const flag of ['productSourceChanged','modeledReplies','tasksCreated']) assert.equal(choiceRead[flag], false);
   for(const field of ['probeSha256','harnessSha256','fixturePreparerSha256','webviewLoaderSha256','standinSha256']) assert.match(choiceRead[field], /^[a-f0-9]{64}$/);
+
+  const lateSwitch = reports.get('store_late_switch').report;
+  assert.equal(lateSwitch.scope, 'isolated_activity_store_late_switch_retraction');
+  assert.equal(lateSwitch.baseline, '451d70ed245d1a46166bf7d29a941b69cca3f111');
+  assert.deepEqual(lateSwitch.integratedCommits, ['63d17b56d21d4fd26efdbc71a1f861b179b82efd', '1c9cf9fd702ce769168d7bf1bbf90210539d14e4']);
+  assert.equal(lateSwitch.productSourceChanged, true);
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(lateSwitch[flag], false);
+  const lateRaw = {};
+  for (const [key, summary] of [['harnessRevision', '33/38'], ['before', '32/38'], ['native', '46/46'], ['switchLock', '50/50'], ['pointerCreate', '52/52'], ['actions', '35/35']]) {
+    const bytes = readFileSync(contained(lateSwitch[key + 'Report']));
+    assert.equal(hash(bytes), lateSwitch[key + 'ReportSha256'], 'late-switch raw report changed: ' + key);
+    lateRaw[key] = JSON.parse(bytes);
+    assert.equal(lateRaw[key].summary, summary);
+    assert.equal(lateSwitch[key + 'Summary'], summary);
+  }
+  for (const key of ['native', 'switchLock', 'pointerCreate', 'actions']) assert(lateRaw[key].checks.every(c => c.ok === true));
+  for (const id of ['RS.failed_run_retracts_its_generation_to_staging', 'RS.next_run_after_release_is_not_storage_blocked', 'RS.next_run_reserves_the_same_sequence_once']) assert.equal(lateRaw.before.checks.find(c => c.id === id)?.ok, false, 'old runner baseline must record the blocked recovery');
+  const lateIds = (key, prefix) => lateRaw[key].checks.filter(c => c.id.startsWith(prefix)).map(c => c.id);
+  const lateTests = JSON.parse(readFileSync(contained(lateSwitch.testsReport)));
+  assert.equal(hash(readFileSync(contained(lateSwitch.testsReport))), lateSwitch.testsReportSha256);
+  const lateTestIds = lateTests.runs.flatMap(r => r.output.map(l => /^test (\S+) \.\.\. ok$/.exec(l)?.[1]).filter(Boolean)).map(n => 'T.' + n);
+  assert.equal(lateTestIds.length, 7);
+  assert.deepEqual(lateSwitch.checks, [...lateTestIds, ...lateIds('native', 'RS.'), ...lateIds('switchLock', 'L.'), ...lateIds('pointerCreate', 'PC.')]);
+  const lateKill = JSON.parse(readFileSync(contained(lateSwitch.runnerHardKillReport)));
+  assert.equal(hash(readFileSync(contained(lateSwitch.runnerHardKillReport))), lateSwitch.runnerHardKillReportSha256);
+  assert(lateKill.state === 'passed' && lateKill.checks.length === lateSwitch.runnerHardKillChecks && lateSwitch.runnerHardKillChecks === 24);
+  for (const worker of lateSwitch.workerReports) assert.equal(hash(readFileSync(contained(worker.path))), worker.sha256, 'worker report changed');
+  assert.deepEqual(lateSwitch.workerSummaries, { storeBaseline: '1/5', runnerBaseline: '0/1', storeHardKill: '23/161' });
+  assert.equal(lateSwitch.beforeRunnerSha256, choiceRead.runnerSha256);
+  assert.notEqual(lateSwitch.runnerSha256, lateSwitch.beforeRunnerSha256);
+  assert.equal(lateSwitch.memoryRevision, isolation.memoryRevision);
+  for (const field of ['runnerSha256', 'desktopSha256', 'installerSha256', 'sandboxToolsSha256', 'harnessSha256', 'fixturePreparerSha256']) assert.match(lateSwitch[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1160,6 +1192,9 @@ function validate(index) {
   assert(missingRestart.checks.every(id => linkedTo(c17, 'runner_missing_restart').includes(id)), 'C17 must retain actual saved-choice missing-runner startup and recovery');
   assert(choiceBoundary.checks.every(id => linkedTo(c17, 'saved_choice_boundary').includes(id)), 'C17 must retain actual bounded absolute saved choice and real picker recovery');
   assert(choiceRead.checks.every(id => linkedTo(c17, 'saved_choice_read_sharing').includes(id)), 'C17 must retain actual saved-choice read sharing and explicit recovery');
+  const c12 = index.cases.find(c => c.id === 'C12');
+  assert(lateSwitch.checks.filter(id => /^(T|RS)\./.test(id)).every(id => linkedTo(c12, 'store_late_switch').includes(id)), 'C12 must retain refused pointer-switch retraction and same-sequence recovery');
+  assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1234,7 +1269,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_missing_restart'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_boundary'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_read_sharing'));
-  result.negativeChecks = 60;
+  reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_late_switch'));
+  result.negativeChecks = 61;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

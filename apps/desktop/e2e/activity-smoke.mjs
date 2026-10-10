@@ -26,9 +26,9 @@ import { createServer } from 'node:net';
 const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--runner-missing', '--runner-missing-restart', '--run-remount', '--setup-running', '--setup-dialog-race', '--saved-choice-boundary', '--saved-choice-read-lock', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--runner-missing|--runner-missing-restart|--run-remount|--setup-running|--setup-dialog-race|--saved-choice-boundary|--saved-choice-read-lock|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--run-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--runner-missing', '--runner-missing-restart', '--run-remount', '--setup-running', '--setup-dialog-race', '--saved-choice-boundary', '--saved-choice-read-lock', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--run-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--runner-missing|--runner-missing-restart|--run-remount|--setup-running|--setup-dialog-race|--saved-choice-boundary|--saved-choice-read-lock|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--run-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -1427,7 +1427,7 @@ async function main() {
         check('PC.failed_writes_preserve_exact_current_pointer',readFileSync(join(manifest.dataRoot,'CURRENT')).equals(original));
         const afterEntries=new Set(fixtureEntries(manifest.dataRoot));check('PC.all_original_files_keep_exact_hashes',Array.from(entries).every(entry=>afterEntries.has(entry)));
         failedNames=readdirSync(generations).filter(name=>!oldNames.has(name));
-        check('PC.failed_preparation_retains_two_complete_unselected_generations',failedNames.length===2&&failedNames.every(name=>!name.startsWith('.staging-')&&['activity.json','sequence.json','delivery.json','manifest.json'].every(file=>existsSync(join(generations,name,file)))&&JSON.parse(readFileSync(join(generations,name,'delivery.json'),'utf8')).paused===true));
+        check('PC.failed_preparation_retracts_two_complete_generations_to_staging',failedNames.length===2&&failedNames.every(name=>name.startsWith('.staging-g-')&&['activity.json','sequence.json','delivery.json','manifest.json'].every(file=>existsSync(join(generations,name,file)))&&JSON.parse(readFileSync(join(generations,name,'delivery.json'),'utf8')).paused===true));
         check('PC.failed_preparation_creates_no_temporary_pointer_file',!readdirSync(manifest.dataRoot).some(name=>/^CURRENT\.g-.*\.tmp$/.test(name)));
         check('PC.failed_writes_preserve_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
       }finally{writeFileSync(release,'release');await Promise.race([holder.exited,sleep(10000)]);execFileSync(powershell,['-NoProfile','-NonInteractive','-Command',restore],{windowsHide:true,timeout:10000,stdio:'pipe'});holder.kill();await holder.exited;}
@@ -1462,9 +1462,9 @@ async function main() {
         const currentEntries=new Set(fixtureEntries(manifest.dataRoot));
         check('L.all_original_files_are_preserved',Array.from(entries).every(entry=>currentEntries.has(entry)));
         failedNames=readdirSync(generations).filter(name=>!oldNames.has(name));temporaryPointers=readdirSync(manifest.dataRoot).filter(name=>/^CURRENT\.g-[a-zA-Z0-9-]+\.tmp$/.test(name));
-        const complete=failedNames.length===2&&failedNames.every(name=>!name.startsWith('.staging-')&&['activity.json','sequence.json','delivery.json','manifest.json'].every(file=>existsSync(join(generations,name,file)))&&JSON.parse(readFileSync(join(generations,name,'delivery.json'),'utf8')).paused===true);
-        check('L.failed_switch_retains_two_complete_unselected_generations',complete);
-        check('L.prepared_pointer_files_are_retained',temporaryPointers.length===2&&temporaryPointers.every(name=>failedNames.includes(readFileSync(join(manifest.dataRoot,name),'utf8').trim())));
+        const complete=failedNames.length===2&&failedNames.every(name=>name.startsWith('.staging-g-')&&['activity.json','sequence.json','delivery.json','manifest.json'].every(file=>existsSync(join(generations,name,file)))&&JSON.parse(readFileSync(join(generations,name,'delivery.json'),'utf8')).paused===true);
+        check('L.failed_switch_retracts_two_complete_generations_to_staging',complete);
+        check('L.prepared_pointer_files_are_retained',temporaryPointers.length===2&&temporaryPointers.every(name=>failedNames.includes('.staging-'+readFileSync(join(manifest.dataRoot,name),'utf8').trim())));
         const [list,search]=await Promise.all([memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false}),memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25})]);
         check('L.memory_queries_survive_actual_switch_failure',!list.error&&list.result?.total===1&&!search.error&&search.result?.items?.length===1);
         check('L.failure_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
@@ -1478,6 +1478,42 @@ async function main() {
       check('L.recovery_preserves_archive_sequence_pending',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);
       check('L.recovery_preserves_failed_generation_and_pointer_remnants',failedNames.every(name=>existsSync(join(generations,name)))&&temporaryPointers.every(name=>existsSync(join(manifest.dataRoot,name))));
       check('L.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
+    }
+    if (mode === '--run-switch-lock') {
+      // An actual sync whose CURRENT replacement is refused must fail once and
+      // leave the next run able to reserve the same sequence (store retraction).
+      if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Run switch drill escaped the synthetic root');
+      const pointer=join(manifest.dataRoot,'CURRENT'),generations=join(manifest.dataRoot,'generations');
+      if(realpathSync(pointer).toLowerCase()!==join(realpathSync(manifest.dataRoot),'CURRENT').toLowerCase())throw Error('Run switch pointer escaped');
+      if(readdirSync(manifest.dataRoot).some(name=>/^CURRENT\..*\.tmp$/.test(name)))throw Error('Run switch drill requires no pointer remnants');
+      const original=readFileSync(pointer),entries=new Set(fixtureEntries(manifest.dataRoot)),oldNames=new Set(readdirSync(generations)),canonical=fixtureTree(join(vault,'vault')),reserved=o.producer.highestReserved;
+      const runToEnd=async()=>{const accepted=await call(s,{operation:'activity_run_now'});if(accepted.kind!=='activity_run_accepted')return accepted;let status;const deadline=Date.now()+60000;do{status=await call(s,{operation:'activity_get_run',runId:accepted.runId});if(['completed','failed','blocked'].includes(status.stage))break;await sleep(100);}while(Date.now()<deadline);return status;};
+      const holder=spawn('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',['-NoProfile','-NonInteractive','-Command',`$f=[IO.File]::Open('${pointer.replace(/'/g,"''")}','Open','Read','Read');try{'locked';Start-Sleep -Seconds 90}finally{$f.Dispose()}`],{windowsHide:true,stdio:['ignore','pipe','pipe']});
+      children.add(holder);holder.exited=new Promise(r=>holder.once('exit',code=>{children.delete(holder);r(code);}));
+      let failedNames=[],temporaryPointers=[];
+      try {
+        await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(Error('Synthetic pointer hold not ready')),10000);holder.stdout.on('data',bytes=>{output+=bytes.toString();if(output.includes('locked')){clearTimeout(timer);resolve();}});holder.once('exit',()=>{clearTimeout(timer);reject(Error('Synthetic pointer hold exited'));});});
+        check('RS.current_is_held_without_delete_sharing',true);
+        const failed=await runToEnd();
+        check('RS.actual_run_reports_storage_failure',failed.kind==='activity_run_status'&&failed.stage==='failed'&&failed.error?.code==='storage_failed',JSON.stringify({stage:failed.stage,error:failed.error,state:failed.summary?.state}));
+        const [read,payload]=await Promise.all([overview(s),call(s,{operation:'activity_preview_public_payload'})]);
+        check('RS.failed_run_keeps_current_high_water_and_history_exact',readFileSync(pointer).equals(original)&&read.producer.highestReserved===reserved&&read.pending===null&&payload.sha256===preview.sha256);
+        const currentEntries=new Set(fixtureEntries(manifest.dataRoot));
+        check('RS.failed_run_preserves_all_original_files',Array.from(entries).every(entry=>currentEntries.has(entry)));
+        failedNames=readdirSync(generations).filter(name=>!oldNames.has(name));temporaryPointers=readdirSync(manifest.dataRoot).filter(name=>/^CURRENT\.g-[a-zA-Z0-9-]+\.tmp$/.test(name));
+        const pendingSequence=name=>{try{return JSON.parse(readFileSync(join(generations,name,'pending.json'),'utf8')).sequence;}catch{return null;}};
+        check('RS.failed_run_retracts_its_generation_to_staging',failedNames.length===1&&failedNames[0].startsWith('.staging-g-run-')&&['activity.json','sequence.json','pending.json','delivery.json','manifest.json'].every(file=>existsSync(join(generations,failedNames[0],file)))&&pendingSequence(failedNames[0])===reserved+1,JSON.stringify(failedNames));
+        check('RS.prepared_pointer_file_is_retained',temporaryPointers.length===1&&failedNames.length===1&&failedNames[0]==='.staging-'+readFileSync(join(manifest.dataRoot,temporaryPointers[0]),'utf8').trim());
+        const [list,search]=await Promise.all([memoryCall(s,'memory_list',{cursor:null,limit:25,includeInactive:false}),memoryCall(s,'memory_search',{query:'isolation',includeHistorical:false,cursor:null,limit:25})]);
+        check('RS.memory_queries_survive_actual_run_failure',!list.error&&list.result?.total===1&&!search.error&&search.result?.items?.length===1);
+        await shot(s,'03-run-switch-failure',false);
+      } finally {holder.kill();await holder.exited;}
+      const next=await runToEnd();
+      check('RS.next_run_after_release_is_not_storage_blocked',next.kind==='activity_run_status'&&next.stage!=='failed'&&next.summary?.sequence===reserved+1,JSON.stringify({stage:next.stage,error:next.error,state:next.summary?.state,sequence:next.summary?.sequence}));
+      const after=await overview(s);
+      check('RS.next_run_reserves_the_same_sequence_once',after.producer.highestReserved===reserved+1&&after.pending?.sequence===reserved+1&&after.pending.failureCount===1);
+      check('RS.retracted_generation_and_pointer_remain_unselected',failedNames.length===1&&failedNames[0].startsWith('.staging-g-run-')&&existsSync(join(generations,failedNames[0]))&&temporaryPointers.every(name=>existsSync(join(manifest.dataRoot,name)))&&fixtureImage(manifest.dataRoot).generation!==failedNames[0].slice('.staging-'.length));
+      check('RS.recovery_preserves_canonical_vault',fixtureTree(join(vault,'vault'))===canonical);
     }
     if (['--current-read-lock','--current-acl-denial'].includes(mode)) {
       const aclMode=mode==='--current-acl-denial';
@@ -1756,8 +1792,12 @@ async function main() {
 
   // No collector is configured and the SSH stand-in refuses outside its
   // harness, so the run must commit a failed-source batch and keep it pending.
-  await press(s, 'Run now');
-  await waitFor(s, has('Batch kept pending'), 'run ended', 60000);
+  // The run-switch drill already made this run through IPC after release.
+  if (mode === '--run-switch-lock') await press(s, 'Refresh');
+  else {
+    await press(s, 'Run now');
+    await waitFor(s, has('Batch kept pending'), 'run ended', 60000);
+  }
   await waitFor(s, has('#88'), 'pending shown');
   const after = await overview(s);
   check('E.run_now_commits_and_keeps_pending', after.pending?.sequence === 88 && after.pending.failureCount === 1 && after.producer.highestReserved === 88);
