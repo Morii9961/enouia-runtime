@@ -1,0 +1,138 @@
+{
+  "checks": [
+    {
+      "id": "HR.original_selected_runner_matches_manifest_hash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.actual_pause_precedes_binary_change",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.owned_binary_change_really_breaks_manifest_hash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.development_runner_exists_while_installed_runner_is_absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.cached_reads_refuse_changed_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.pause_refuses_changed_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.1_run_is_correlated_to_native_id",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.1_terminal_refuses_changed_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.2_run_is_correlated_to_native_id",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.2_terminal_refuses_changed_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.changed_runner_error_clears_cards_and_disables_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.changed_runner_attempts_preserve_complete_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.restart_shows_actual_unconfigured_gate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.startup_does_not_invent_clear_or_save_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.restart_preserves_exact_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.startup_reads_refuse_and_preserve_paused_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.actual_forget_removes_owned_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.actual_selection_refuses_changed_binary",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.refused_selection_leaves_native_unconfigured",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.original_runner_bytes_restore_exactly",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.actual_reselection_recovers_three_histories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.actual_resume_accepts_restored_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.archive_sequence_and_pending_stay_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.only_pause_resume_add_two_generations",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.restart_reconnects_restored_verified_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "HR.final_clear_removes_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-runner-hash-recovery.png"
+  ],
+  "summary": "26/26"
+}

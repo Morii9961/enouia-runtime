@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--runner-missing', '--run-remount', '--setup-running', '--setup-dialog-race', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--runner-missing|--run-remount|--setup-running|--setup-dialog-race|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--runner-missing', '--runner-missing-restart', '--run-remount', '--setup-running', '--setup-dialog-race', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--runner-missing|--runner-missing-restart|--run-remount|--setup-running|--setup-dialog-race|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -825,7 +825,7 @@ async function runAdmissionMain() {
 }
 
 async function runnerHashMain() {
-  const missing=mode==='--runner-missing',probe=(id,ok,detail)=>check((missing?'HM.':'HB.')+id,ok,detail);
+  const startupMissing=mode==='--runner-missing-restart',missing=startupMissing||mode==='--runner-missing',probe=(id,ok,detail)=>check((startupMissing?'HR.':missing?'HM.':'HB.')+id,ok,detail);
   if(existsSync(settings))throw Error('Runner-hash output requires absent settings');
   if(realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase())throw Error('Runner-hash escaped synthetic data');
   const binary=join(pkg,'enouia-activity.exe');if(realpathSync(binary).toLowerCase()!==join(realpathSync(pkg),'enouia-activity.exe').toLowerCase())throw Error('Synthetic binary cannot be redirected');
@@ -848,7 +848,15 @@ async function runnerHashMain() {
     }
     await press(s,'Refresh');await waitFor(s,has('The installed Activity package is missing, changed'),'hash read failure');probe('changed_runner_error_clears_cards_and_disables_mutation',await s.evaluate("document.querySelectorAll('.act-source').length===0")&&await disabled(s,'Run now')&&await disabled(s,'Retry pending')&&await disabled(s,'Pause activity sync'));
     probe('changed_runner_attempts_preserve_complete_paused_store',fixtureTree(manifest.dataRoot)===tree);
-    await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'hash forget');probe('actual_forget_removes_owned_saved_choice',!existsSync(settings));
+    if(startupMissing){
+      const saved=readFileSync(settings);s.close();app.kill();await app.exited;app=launch();s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,has('Connect the installed Activity producer'),'missing runner startup gate');
+      probe('restart_shows_actual_unconfigured_gate',await s.evaluate("document.querySelectorAll('.act-source').length===0"));
+      const startup=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");probe('startup_does_not_invent_clear_or_save_failure',startup.configured===false&&!Object.hasOwn(startup,'saved'));
+      probe('restart_preserves_exact_saved_choice',existsSync(settings)&&readFileSync(settings).equals(saved));
+      probe('startup_reads_refuse_and_preserve_paused_store',(await overview(s)).error?.code==='unconfigured'&&fixtureTree(manifest.dataRoot)===tree);
+      const cleared=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'clear'})");if(cleared.configured!==false||cleared.saved!==true)throw Error('Missing startup choice did not clear');
+    }else{await press(s,'Change package');await waitFor(s,has('Connect the installed Activity producer'),'hash forget');}
+    probe('actual_forget_removes_owned_saved_choice',!existsSync(settings));
     await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,has(missing?'That folder is not an installed Activity package':"The package's runner no longer matches its recorded hash"),'actual hash selection refusal');probe('actual_selection_refuses_changed_binary',true);
     const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");probe('refused_selection_leaves_native_unconfigured',status.configured===false&&!existsSync(settings));
   }finally{writeFileSync(binary,original);}
@@ -1776,7 +1784,7 @@ try {
   else if (['--choice-delete','--choice-clear-remount','--choice-select-recovery'].includes(mode)) await choiceDeleteMain();
   else if (mode === '--run-history') await runHistoryMain();
   else if (mode === '--run-admission') await runAdmissionMain();
-  else if (['--runner-hash-change','--runner-missing'].includes(mode)) await runnerHashMain();
+  else if (['--runner-hash-change','--runner-missing','--runner-missing-restart'].includes(mode)) await runnerHashMain();
   else if (mode === '--run-remount') await runRemountMain();
   else if (mode === '--window-scope') await windowScopeMain();
   else if (['--setup-running','--setup-dialog-race'].includes(mode)) await setupRunningMain();

@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 55);
+  assert.equal(reports.size, 56);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1028,6 +1028,19 @@ function validate(index) {
   assert.equal(runnerMissing.reusedCoreTests, 3);
   assert(runnerMissing.checks.includes('HM.development_runner_exists_while_installed_runner_is_absent'));
   assert(runnerMissing.limitations.includes('The development checkout runner remains present while cached reads/pause and both admitted runs refuse the missing installed executable; no fallback is observed.'));
+  const missingRestart = reports.get('runner_missing_restart').report;
+  assert.equal(missingRestart.scope, 'isolated_activity_actual_saved_choice_missing_runner_restart');
+  const restartNative = readLinked(missingRestart.nativeReport, missingRestart.nativeReportSha256);
+  assert.equal(restartNative.summary, '26/26');
+  assert.equal(restartNative.checks.length, 26);
+  assert(restartNative.checks.every(c => c.ok === true));
+  assert.deepEqual(missingRestart.checks, restartNative.checks.map(c => c.id));
+  assert.equal(missingRestart.nativeSummary, restartNative.summary);
+  assert.equal(missingRestart.processExitCode, 0);
+  for (const key of ['desktopSha256','installerSha256','runnerSha256','memoryRevision','reusedFrontendTests','reusedHostTests','reusedCoreTests']) assert.equal(missingRestart[key], runnerMissing[key]);
+  assert.equal(missingRestart.restoredFixtureRunnerSha256, missingRestart.runnerSha256);
+  assert.match(missingRestart.harnessSha256, /^[a-f0-9]{64}$/);
+  for (const id of ['HR.restart_shows_actual_unconfigured_gate','HR.startup_does_not_invent_clear_or_save_failure','HR.restart_preserves_exact_saved_choice','HR.startup_reads_refuse_and_preserve_paused_store']) assert(missingRestart.checks.includes(id));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1090,6 +1103,7 @@ function validate(index) {
   assert(setupRunning.checks.every(id => linkedTo(c17, 'setup_running').includes(id)), 'C17 must retain actual running setup refusal, exact choice and terminal recovery');
   assert(dialogRace.checks.every(id => linkedTo(c17, 'setup_dialog_race').includes(id)), 'C17 must retain actual open-picker interleave and recovery');
   assert(runnerMissing.checks.every(id => linkedTo(c17, 'runner_missing').includes(id)), 'C17 must retain actual missing installed runner refusal and exact recovery');
+  assert(missingRestart.checks.every(id => linkedTo(c17, 'runner_missing_restart').includes(id)), 'C17 must retain actual saved-choice missing-runner startup and recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1097,7 +1111,7 @@ function validate(index) {
   const c18=index.cases.find(c=>c.id==='C18');
   assert(fullDays.checks.every(id=>linkedTo(c18,'full_days').includes(id)),'C18 must retain full recorded-day keyboard and existing action-flow evidence');
   assert(index.remainingGates.length >= 5);
-  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: 45, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
+  return { state: 'index_integrity_passed', recordedReports: reports.size, historicalReports: 10, currentFollowupReports: reports.size - 10, matrixCases: 18, evidenceLinks: linked, signedOffCases: 0, b4SignedOff: false, b5Activated: false, historicalUnresolvedComparisons: 2, historicalUnresolvedLiteralShapes: literal.unresolvedCaseIds.length, unresolvedComparisons: frozen3.unresolvedCaseIds.length, unresolvedLiteralShapes: literal2.unresolvedCaseIds.length, classifiedTimestampRefusals: literal2.intentionalRefusalCaseIds.length };
 }
 
 const index = JSON.parse(readFileSync(contained(indexPath)));
@@ -1161,7 +1175,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_running'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_dialog_race'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_missing'));
-  result.negativeChecks = 57;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_missing_restart'));
+  result.negativeChecks = 58;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

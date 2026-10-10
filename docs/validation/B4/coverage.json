@@ -388,6 +388,13 @@
       "sha256": "9854d4215fb102fce2deaee4b8278f28291ee3cf5f08d56dcf816ab8c521c4e0",
       "state": "passed",
       "selectorCount": 22
+    },
+    {
+      "id": "runner_missing_restart",
+      "path": "docs/validation/Activity-unified/runner-missing-restart-proof.json",
+      "sha256": "0d03f8e8d567648d488ad1477baf85c007e487a3eeec584357ab2a098cc1002a",
+      "state": "passed",
+      "selectorCount": 26
     }
   ],
   "cases": [
@@ -1732,6 +1739,37 @@
             "HM.only_pause_resume_add_two_generations",
             "HM.restart_reconnects_restored_verified_choice",
             "HM.final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "runner_missing_restart",
+          "selectors": [
+            "HR.original_selected_runner_matches_manifest_hash",
+            "HR.actual_pause_precedes_binary_change",
+            "HR.owned_binary_change_really_breaks_manifest_hash",
+            "HR.development_runner_exists_while_installed_runner_is_absent",
+            "HR.cached_reads_refuse_changed_runner",
+            "HR.pause_refuses_changed_runner",
+            "HR.1_run_is_correlated_to_native_id",
+            "HR.1_terminal_refuses_changed_runner",
+            "HR.2_run_is_correlated_to_native_id",
+            "HR.2_terminal_refuses_changed_runner",
+            "HR.changed_runner_error_clears_cards_and_disables_mutation",
+            "HR.changed_runner_attempts_preserve_complete_paused_store",
+            "HR.restart_shows_actual_unconfigured_gate",
+            "HR.startup_does_not_invent_clear_or_save_failure",
+            "HR.restart_preserves_exact_saved_choice",
+            "HR.startup_reads_refuse_and_preserve_paused_store",
+            "HR.actual_forget_removes_owned_saved_choice",
+            "HR.actual_selection_refuses_changed_binary",
+            "HR.refused_selection_leaves_native_unconfigured",
+            "HR.original_runner_bytes_restore_exactly",
+            "HR.actual_reselection_recovers_three_histories",
+            "HR.actual_resume_accepts_restored_runner",
+            "HR.archive_sequence_and_pending_stay_exact",
+            "HR.only_pause_resume_add_two_generations",
+            "HR.restart_reconnects_restored_verified_choice",
+            "HR.final_clear_removes_owned_choice"
           ]
         }
       ],
