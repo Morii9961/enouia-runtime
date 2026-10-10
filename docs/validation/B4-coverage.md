@@ -105,3 +105,5 @@ The [selector uniqueness guard](Activity-evidence-selectors-2026-10-10.md) rejec
 The [positive pending sequence contract](Activity-sequence-contract-2026-10-10.md) rejects zero for both pending fields as IPC v1 already requires. The 18/18 modeled native boundary drill, 60 frontend tests, 23/23 error-feedback regression and 35/35 actual action/Core regression keep positive safe-integer and legitimate empty-state behavior. The underlying producer and wire schema are unchanged.
 
 The [date-only display precision](Activity-date-only-2026-10-10.md) preserves the supported date-only metadata without adding a local clock time or elapsed-hour age. Sixteen native modeled-display checks, 62 frontend tests, 18 sequence checks and 35 actual action/Core checks pass. Explicit-offset timestamps keep their existing display.
+
+The [final cumulative keyboard and feedback review](Activity-final-review-2026-10-10.md) verifies the final frozen desktop through 11 keyboard, 16 full-history, 22 copy-feedback, 23 error-ownership and 11 polling-lifecycle checks. These repeat existing behavior on the combined product build and add zero indexed selectors or acceptance gates.
