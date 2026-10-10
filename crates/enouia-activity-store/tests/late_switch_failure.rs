@@ -7,7 +7,7 @@
 use enouia_activity_contract::{normalize_batch, public_data_bytes, sha256_hex};
 use enouia_activity_store::generation::GenerationImage;
 use enouia_activity_store::reader::read_current;
-use enouia_activity_store::recovery::audit_generations;
+use enouia_activity_store::recovery::{RecoveryError, audit_generations};
 use enouia_activity_store::run_start::{RunDecision, decide_run_start};
 use enouia_activity_store::writer::{
     CommitError, CommitPhase, PublicationEvidence, commit, commit_publication_observed,
@@ -16,6 +16,7 @@ use enouia_activity_store::writer::{
 use enouia_activity_store::{ActivityLockGuard, WindowsActivityLock};
 use enouia_common::{FakeClock, LockProvider};
 use serde_json::{Value, json};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::fs::{self, File, OpenOptions};
 use std::os::windows::fs::OpenOptionsExt;
@@ -299,4 +300,41 @@ fn simulated_interruption_after_publication_still_leaves_the_conservative_orphan
         drop(guard);
         clean(&root);
     }
+}
+
+#[test]
+fn refused_retraction_keeps_the_conservative_orphan() {
+    // A handle inside the new directory makes its rename back fail as well.
+    // The writer must then leave the published orphan for reconciliation.
+    let root = root();
+    let guard = seed(&root);
+    let holds = RefCell::new(Vec::new());
+    let error = commit_with_hook(
+        &guard,
+        "g-0-seed",
+        "g-1-pinned",
+        &pending_image(),
+        &clock(),
+        |phase| {
+            if phase == CommitPhase::CurrentPrepared {
+                holds.borrow_mut().push(hold_current(&root));
+                holds
+                    .borrow_mut()
+                    .push(File::open(root.join("generations/g-1-pinned/activity.json")).unwrap());
+            }
+            Ok(())
+        },
+    )
+    .unwrap_err();
+    assert_eq!(error, CommitError::SwitchFailed);
+    drop(holds);
+    assert_eq!(fs::read(root.join("CURRENT")).unwrap(), b"g-0-seed\n");
+    assert!(root.join("generations/g-1-pinned").is_dir());
+    assert!(!root.join("generations/.staging-g-1-pinned").exists());
+    assert_eq!(
+        audit_generations(&root, &clock()).err().unwrap(),
+        RecoveryError::HigherReservedSequence
+    );
+    drop(guard);
+    clean(&root);
 }

@@ -101,7 +101,7 @@ node scripts/rehearse-store-hard-kill.mjs <absolute crash_writer.exe> <absolute 
 - **Not covered:**
   - Delivery-only orphans left by process death are still permitted. Process-death orphans for new batches and receipts still need explicit operator reconciliation.
   - Leftover `CURRENT.<id>.tmp` files accumulate across repeated failures. They are never read, and none is deleted.
-  - Rename refusal for the retraction itself, for example a handle open inside the new directory, falls back to the old blocking orphan. It was reasoned through but not driven by a test.
+  - Rename refusal for the retraction itself falls back to the old blocking orphan. This is now tested: follow-up test `refused_retraction_keeps_the_conservative_orphan` holds CURRENT and a file inside the new directory, and gets `SwitchFailed` followed by `higher_reserved_sequence`. That test postdates both raw reports, so it is not in their counts. It changes no product code, so the runner hash above still applies.
 - **Still unverified:** disk-full, mid-write power loss, sustained stress, a real scanner or indexer as the sharing holder, and all production, real-account, scheduler and remote-receipt gates.
 
 No personal archive or Vault, credentials, real account, scheduled task, desktop window, public upload, server or Moriium source was touched. Every root was a new synthetic temporary directory.
