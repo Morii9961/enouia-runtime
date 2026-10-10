@@ -189,6 +189,7 @@ export default function ActivitySurface() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [failure, setFailure] = useState<Failure>(null);
+  const [runQueryFailure, setRunQueryFailure] = useState<string | null>(null);
   const [run, setRun] = useState<RunStatus | null>(null);
   const [acting, setActing] = useState(false);
   const [showPayload, setShowPayload] = useState(false);
@@ -250,18 +251,16 @@ export default function ActivitySurface() {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout>;
     let failures = 0;
-    let queryFailure: string | null = null;
     const poll = async () => {
       try {
         const next = await activity.run(run.runId);
         if (stopped) return;
-        if (queryFailure !== null) setFailure(current => current?.text === queryFailure ? null : current);
+        setRunQueryFailure(null);
         setRun(next);
         if (!ACTIVE_STAGES.includes(next.stage)) void refresh();
       } catch (err) {
         if (stopped) return;
-        queryFailure = describe(err);
-        setFailure({ text: queryFailure });
+        setRunQueryFailure(describe(err));
         // Retry only the read for this same run. Never repeat its mutation.
         const delay = Math.min(30_000, 1000 * 2 ** Math.min(failures++, 5));
         timer = setTimeout(() => void poll(), delay);
@@ -275,6 +274,7 @@ export default function ActivitySurface() {
     context.current += 1;
     generation.current += 1;
     setOverview(null); setPreview(null); setFailure(null); setRun(null);
+    setRunQueryFailure(null);
     setConfirming(false); setCopied(null); setShowPayload(false);
     setSetup(s);
   };
@@ -409,6 +409,9 @@ export default function ActivitySurface() {
           <span>{failure.text}</span>
           {failure.retry && <button type="button" className="mem-button" onClick={failure.retry}>Retry</button>}
         </div>
+      )}
+      {runQueryFailure && runQueryFailure !== failure?.text && (
+        <div role="alert" className="mem-error">{runQueryFailure}</div>
       )}
 
       {overview ? (

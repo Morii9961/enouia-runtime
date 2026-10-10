@@ -451,6 +451,13 @@
       "sha256": "ed86e0fe37d81812c05c1f968d84d1f25c75faa5399d9f16b6687cd2caa30438",
       "state": "passed",
       "selectorCount": 22
+    },
+    {
+      "id": "error_feedback_ownership",
+      "path": "docs/validation/Activity-error-ownership/proof.json",
+      "sha256": "52c77c83b20a6d2e405262bb51f0929561b70969022e8104cb28326b9eda378a",
+      "state": "passed",
+      "selectorCount": 23
     }
   ],
   "cases": [
@@ -2069,6 +2076,34 @@
             "CP.all_clipboard_requests_use_only_sanitized_overviews",
             "CP.entire_store_and_manifest_remain_exact",
             "CP.final_clear_removes_only_owned_choice"
+          ]
+        },
+        {
+          "report": "error_feedback_ownership",
+          "selectors": [
+            "EO.actual_package_starts_healthy",
+            "EO.modeled_start_is_proved_before_page_mutation",
+            "EO.status_failure_is_visible",
+            "EO.status_recovery_clears_its_own_error",
+            "EO.status_recovery_keeps_one_start",
+            "EO.failed_refresh_retains_retry",
+            "EO.equal_error_text_is_not_duplicated",
+            "EO.status_recovery_preserves_same_text_read_failure",
+            "EO.failed_refresh_keeps_mutations_disabled",
+            "EO.first_collision_keeps_one_start",
+            "EO.actual_read_retry_clears_read_failure",
+            "EO.repeated_status_failures_cannot_erase_read_failure",
+            "EO.repeated_status_failure_keeps_one_start",
+            "EO.healthy_refresh_preserves_unrecovered_status_failure",
+            "EO.healthy_refresh_keeps_three_sources",
+            "EO.final_status_recovery_clears_only_its_error",
+            "EO.distinct_errors_remain_independently_visible",
+            "EO.nonretryable_read_error_has_no_retry",
+            "EO.distinct_read_failure_survives_status_recovery",
+            "EO.all_scenarios_preserve_exact_saved_choice",
+            "EO.recovered_histories_match_real_producer",
+            "EO.entire_store_and_manifest_remain_exact",
+            "EO.final_clear_removes_only_owned_choice"
           ]
         }
       ],

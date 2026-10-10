@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 64);
+  assert.equal(reports.size, 65);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1300,6 +1300,45 @@ function validate(index) {
   assert.equal(copyLifecycle.hostEvidence, pipeDeadline.testReport);
   assert.equal(copyLifecycle.hostEvidenceSha256, hash(readFileSync(contained(copyLifecycle.hostEvidence))));
   for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(copyLifecycle[field], /^[a-f0-9]{64}$/);
+  const errorOwnership = reports.get('error_feedback_ownership').report;
+  assert.equal(errorOwnership.scope, 'isolated_activity_error_feedback_ownership');
+  assert.equal(errorOwnership.productSourceChanged, true);
+  assert.equal(errorOwnership.modeledReplies, true);
+  assert.equal(errorOwnership.tasksCreated, false);
+  assert.equal(errorOwnership.frozenDesktopStable, true);
+  assert.equal(errorOwnership.memoryRevision, isolation.memoryRevision);
+  const errorReports = new Map();
+  for (const entry of errorOwnership.nativeReports) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    const raw = JSON.parse(bytes);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(c => c.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert.equal(entry.manifestRestored, true);
+    assert(!errorReports.has(entry.id));
+    errorReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...errorReports.keys()], ['errors', 'copy', 'polling', 'actions']);
+  assert.deepEqual(errorOwnership.nativeReports.map(entry => entry.summary), ['23/23', '22/22', '11/11', '35/35']);
+  const errorBeforeBytes = readFileSync(contained(errorOwnership.beforeReport));
+  assert.equal(hash(errorBeforeBytes), errorOwnership.beforeReportSha256);
+  const errorBefore = JSON.parse(errorBeforeBytes);
+  assert.equal(errorBefore.summary, '18/23');
+  assert.equal(errorBefore.checks.filter(c => !c.ok).length, 5);
+  assert.deepEqual(errorOwnership.checks, errorReports.get('errors').checks.map(c => c.id));
+  const errorInitialBytes = readFileSync(contained(errorOwnership.initialReport));
+  assert.equal(hash(errorInitialBytes), errorOwnership.initialReportSha256);
+  assert.equal(JSON.parse(errorInitialBytes).summary, '9/11');
+  assert.equal(errorOwnership.initialExcludedFromAcceptance, true);
+  const errorFirstBytes = readFileSync(contained(errorOwnership.firstBaselineReport));
+  assert.equal(hash(errorFirstBytes), errorOwnership.firstBaselineReportSha256);
+  assert.equal(JSON.parse(errorFirstBytes).summary, '16/20');
+  assert.equal(errorOwnership.hostSourceSha256, pipeDeadline.productSourceSha256);
+  assert.equal(errorOwnership.hostEvidence, pipeDeadline.testReport);
+  assert.equal(errorOwnership.hostEvidenceSha256, hash(readFileSync(contained(errorOwnership.hostEvidence))));
+  for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(errorOwnership[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1373,6 +1412,7 @@ function validate(index) {
   assert(manifestRead.checks.every(id => linkedTo(c17, 'manifest_bounded_read').includes(id)), 'C17 must retain same-handle manifest bounds and actual picker/restart recovery');
   assert(pipeDeadline.checks.every(id => linkedTo(c17, 'runner_pipe_deadline').includes(id)), 'C17 must retain actual Windows pipe deadline and producer recovery evidence');
   assert(copyLifecycle.checks.every(id => linkedTo(c17, 'copy_feedback_lifecycle').includes(id)), 'C17 must retain copy feedback sequencing and real package recovery evidence');
+  assert(errorOwnership.checks.every(id => linkedTo(c17, 'error_feedback_ownership').includes(id)), 'C17 must retain independent refresh/status error ownership and recovery evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1453,7 +1493,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_pipe_deadline'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'copy_feedback_lifecycle'));
-  result.negativeChecks = 66;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'error_feedback_ownership'));
+  result.negativeChecks = 67;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
