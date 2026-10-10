@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 59);
+  assert.equal(reports.size, 60);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1127,6 +1127,20 @@ function validate(index) {
   assert.notEqual(lateSwitch.runnerSha256, lateSwitch.beforeRunnerSha256);
   assert.equal(lateSwitch.memoryRevision, isolation.memoryRevision);
   for (const field of ['runnerSha256', 'desktopSha256', 'installerSha256', 'sandboxToolsSha256', 'harnessSha256', 'fixturePreparerSha256']) assert.match(lateSwitch[field], /^[a-f0-9]{64}$/);
+
+  const choiceWrite = reports.get('saved_choice_write_sharing').report;
+  assert.equal(choiceWrite.scope, 'isolated_activity_actual_saved_choice_write_sharing');
+  const choiceWriteBytes = readFileSync(contained(choiceWrite.nativeReport));
+  assert.equal(hash(choiceWriteBytes), choiceWrite.nativeReportSha256);
+  const choiceWriteNative = JSON.parse(choiceWriteBytes);
+  assert.equal(choiceWriteNative.summary, '16/16');
+  assert(choiceWriteNative.checks.every(c => c.ok === true));
+  assert.deepEqual(choiceWrite.checks, choiceWriteNative.checks.map(c => c.id));
+  assert.equal(choiceWrite.nativeSummary, choiceWriteNative.summary);
+  for (const flag of ['productSourceChanged', 'modeledReplies', 'tasksCreated']) assert.equal(choiceWrite[flag], false);
+  for (const field of ['desktopSha256', 'runnerSha256', 'installerSha256']) assert.equal(choiceWrite[field], lateSwitch[field], 'choice-write drill must use the integrated binaries');
+  assert.equal(choiceWrite.memoryRevision, isolation.memoryRevision);
+  for (const field of ['harnessSha256', 'drillSha256', 'fixturePreparerSha256']) assert.match(choiceWrite[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1195,6 +1209,7 @@ function validate(index) {
   const c12 = index.cases.find(c => c.id === 'C12');
   assert(lateSwitch.checks.filter(id => /^(T|RS)\./.test(id)).every(id => linkedTo(c12, 'store_late_switch').includes(id)), 'C12 must retain refused pointer-switch retraction and same-sequence recovery');
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
+  assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1270,7 +1285,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_boundary'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_read_sharing'));
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_late_switch'));
-  result.negativeChecks = 61;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
+  result.negativeChecks = 62;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

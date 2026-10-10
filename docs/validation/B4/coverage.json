@@ -416,6 +416,13 @@
       "sha256": "b84fff55e7e44c7b244a46f05f826cec8322125c4e91305654cc9db8043c4b55",
       "state": "passed",
       "selectorCount": 50
+    },
+    {
+      "id": "saved_choice_write_sharing",
+      "path": "docs/validation/Activity-claude-choice-write/proof.json",
+      "sha256": "c3238cd76ac62e9fe3c1595375de9d8a18a05ec8de3192b5b5d3652118e82336",
+      "state": "passed",
+      "selectorCount": 16
     }
   ],
   "cases": [
@@ -1905,6 +1912,27 @@
             "PC.successful_recovery_preserves_archive_sequence_pending",
             "PC.recovery_retains_failed_generations",
             "PC.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "saved_choice_write_sharing",
+          "selectors": [
+            "CW.owned_prior_choice_is_written",
+            "CW.startup_connects_prior_choice",
+            "CW.owned_finite_holder_is_ready",
+            "CW.actual_settings_write_is_refused",
+            "CW.settings_remain_readable_during_hold",
+            "CW.actual_picker_save_reports_saved_false",
+            "CW.refused_save_keeps_exact_prior_bytes",
+            "CW.refused_save_keeps_three_exact_histories",
+            "CW.status_stays_configured_during_hold",
+            "CW.refused_save_preserves_complete_store",
+            "CW.release_keeps_exact_prior_bytes",
+            "CW.released_picker_saves_verified_choice",
+            "CW.released_save_replaces_prior_with_canonical_choice",
+            "CW.restart_reconnects_saved_choice",
+            "CW.all_write_faults_leave_complete_store_exact",
+            "CW.final_clear_removes_only_owned_choice"
           ]
         }
       ],
