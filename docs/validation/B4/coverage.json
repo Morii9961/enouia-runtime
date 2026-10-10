@@ -444,6 +444,13 @@
       "sha256": "1cbe7a1cde385982c7b8e751929eddb58ece3223f4efaed4d78971abd9739856",
       "state": "passed",
       "selectorCount": 20
+    },
+    {
+      "id": "copy_feedback_lifecycle",
+      "path": "docs/validation/Activity-copy-lifecycle/proof.json",
+      "sha256": "ed86e0fe37d81812c05c1f968d84d1f25c75faa5399d9f16b6687cd2caa30438",
+      "state": "passed",
+      "selectorCount": 22
     }
   ],
   "cases": [
@@ -2035,6 +2042,33 @@
             "T.runner_pipe_accepts_exact_limit_and_refuses_the_probe_byte",
             "T.runner_pipe_deadline_covers_exited_and_live_parents_with_inherited_stdout",
             "T.runner_pipe_deadline_terminates_only_the_owned_hanging_parent"
+          ]
+        },
+        {
+          "report": "copy_feedback_lifecycle",
+          "selectors": [
+            "CP.actual_package_starts_healthy",
+            "CP.clipboard_substitution_is_proved_before_testing",
+            "CP.copy_keeps_exact_sanitized_three_source_snapshot",
+            "CP.copy_contains_no_package_paths",
+            "CP.current_success_is_visible",
+            "CP.refresh_clears_prior_copy_feedback",
+            "CP.pre_refresh_success_cannot_reappear",
+            "CP.pre_refresh_failure_cannot_reappear",
+            "CP.actual_refresh_replies_are_observed_before_timing_hold",
+            "CP.copy_started_during_refresh_cannot_label_new_snapshot",
+            "CP.latest_concurrent_success_is_visible",
+            "CP.older_failure_cannot_replace_latest_success",
+            "CP.latest_concurrent_failure_is_visible",
+            "CP.older_success_cannot_replace_latest_failure",
+            "CP.private_clipboard_error_is_never_rendered",
+            "CP.actual_clear_removes_only_owned_choice",
+            "CP.previous_package_copy_cannot_reappear_after_selection",
+            "CP.current_copy_recovers_after_reselection",
+            "CP.reselection_preserves_saved_choice_and_history",
+            "CP.all_clipboard_requests_use_only_sanitized_overviews",
+            "CP.entire_store_and_manifest_remain_exact",
+            "CP.final_clear_removes_only_owned_choice"
           ]
         }
       ],

@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 63);
+  assert.equal(reports.size, 64);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1258,6 +1258,48 @@ function validate(index) {
   assert.equal(pipeTests.initialFocusedAttempt.excludedFromAcceptance, true);
   assert.deepEqual(pipeDeadline.checks, [...pipeReports.get('pipe').checks.map(c => c.id), ...pipeTests.results.map(test => test.id)]);
   for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256', 'fixtureSha256']) assert.match(pipeDeadline[field], /^[a-f0-9]{64}$/);
+  const copyLifecycle = reports.get('copy_feedback_lifecycle').report;
+  assert.equal(copyLifecycle.scope, 'isolated_activity_copy_feedback_lifecycle');
+  assert.equal(copyLifecycle.productSourceChanged, true);
+  for (const flag of ['modeledReplies', 'realSystemClipboardWritten', 'tasksCreated']) assert.equal(copyLifecycle[flag], false);
+  assert.equal(copyLifecycle.modeledClipboard, true);
+  assert.equal(copyLifecycle.responseTimingHeld, true);
+  assert.equal(copyLifecycle.frozenDesktopStable, true);
+  assert.equal(copyLifecycle.memoryRevision, isolation.memoryRevision);
+  const copyReports = new Map();
+  for (const entry of copyLifecycle.nativeReports) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    const raw = JSON.parse(bytes);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(c => c.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert.equal(entry.manifestRestored, true);
+    assert(!copyReports.has(entry.id));
+    copyReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...copyReports.keys()], ['copy', 'polling', 'actions']);
+  assert.equal(copyReports.get('copy').summary, '22/22');
+  assert.equal(copyReports.get('polling').summary, '11/11');
+  assert.equal(copyReports.get('actions').summary, '35/35');
+  const copyBeforeBytes = readFileSync(contained(copyLifecycle.beforeReport));
+  assert.equal(hash(copyBeforeBytes), copyLifecycle.beforeReportSha256);
+  const copyBefore = JSON.parse(copyBeforeBytes);
+  assert.equal(copyBefore.summary, '15/22');
+  assert.equal(copyBefore.checks.filter(c => !c.ok).length, 7);
+  assert.deepEqual(copyLifecycle.checks, copyReports.get('copy').checks.map(c => c.id));
+  const copyInitialBytes = readFileSync(contained(copyLifecycle.initialReport));
+  assert.equal(hash(copyInitialBytes), copyLifecycle.initialReportSha256);
+  assert.equal(JSON.parse(copyInitialBytes).summary, '0/1');
+  assert.equal(copyLifecycle.initialExcludedFromAcceptance, true);
+  const copyFirstBytes = readFileSync(contained(copyLifecycle.firstBaselineReport));
+  assert.equal(hash(copyFirstBytes), copyLifecycle.firstBaselineReportSha256);
+  assert.equal(JSON.parse(copyFirstBytes).summary, '14/20');
+  assert.equal(copyLifecycle.hostSourceSha256, pipeDeadline.productSourceSha256);
+  assert.equal(copyLifecycle.hostEvidence, pipeDeadline.testReport);
+  assert.equal(copyLifecycle.hostEvidenceSha256, hash(readFileSync(contained(copyLifecycle.hostEvidence))));
+  for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(copyLifecycle[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1330,6 +1372,7 @@ function validate(index) {
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
   assert(manifestRead.checks.every(id => linkedTo(c17, 'manifest_bounded_read').includes(id)), 'C17 must retain same-handle manifest bounds and actual picker/restart recovery');
   assert(pipeDeadline.checks.every(id => linkedTo(c17, 'runner_pipe_deadline').includes(id)), 'C17 must retain actual Windows pipe deadline and producer recovery evidence');
+  assert(copyLifecycle.checks.every(id => linkedTo(c17, 'copy_feedback_lifecycle').includes(id)), 'C17 must retain copy feedback sequencing and real package recovery evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1409,7 +1452,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_pipe_deadline'));
-  result.negativeChecks = 65;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'copy_feedback_lifecycle'));
+  result.negativeChecks = 66;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

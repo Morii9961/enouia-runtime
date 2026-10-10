@@ -197,17 +197,24 @@ export default function ActivitySurface() {
   const generation = useRef(0);
   const context = useRef(0);
   const actionPending = useRef(false);
+  const copyRequest = useRef(0);
 
   const refresh = useCallback(async () => {
     const current = ++generation.current;
+    setCopied(null);
     try {
       const [o, p] = await Promise.all([activity.overview(), activity.preview()]);
       if (generation.current !== current) return;
+      // A copy started while this read was pending still belongs to the
+      // previous visible snapshot. Its completion cannot label new data.
+      copyRequest.current += 1;
+      setCopied(null);
       setOverview(o);
       setPreview(p);
       setFailure(null);
     } catch (err) {
       if (generation.current === current) {
+        copyRequest.current += 1;
         setOverview(null);
         setPreview(null);
         setConfirming(false);
@@ -342,11 +349,19 @@ export default function ActivitySurface() {
 
   const copySummary = async () => {
     if (!overview) return;
+    const request = ++copyRequest.current;
+    const reading = generation.current;
+    const source = context.current;
+    setCopied(null);
+    let feedback: string;
     try {
       await navigator.clipboard.writeText(JSON.stringify(overview, null, 2));
-      setCopied("Sanitized summary copied");
+      feedback = "Sanitized summary copied";
     } catch {
-      setCopied("Copy failed");
+      feedback = "Copy failed";
+    }
+    if (copyRequest.current === request && generation.current === reading && context.current === source) {
+      setCopied(feedback);
     }
   };
 
