@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "historical_source_receipts_against_exact_slice_commits",
+  "checks": [
+    {
+      "report": "docs/validation/Activity-atomic-choice/proof.json",
+      "reportSha256": "2ca9e0f8f5089f020535822e5b35afc4e621c58ad9b3364eb7580fbb8e273496",
+      "commit": "74c7e8fb5dcc2b9ca0d00e79c8e54fafc7688af6",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "recordedSha256": "47fe6780331c90241b15a57b15b0f4e8eae9421717e2d58bcf899519f66a330c",
+      "committedSha256": "47fe6780331c90241b15a57b15b0f4e8eae9421717e2d58bcf899519f66a330c",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-atomic-choice/proof.json",
+      "reportSha256": "2ca9e0f8f5089f020535822e5b35afc4e621c58ad9b3364eb7580fbb8e273496",
+      "commit": "74c7e8fb5dcc2b9ca0d00e79c8e54fafc7688af6",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "recordedSha256": "7bac381abdce4e491b4e8995fac40190b6e569ef0921ffdb1f15863106d828e4",
+      "committedSha256": "7bac381abdce4e491b4e8995fac40190b6e569ef0921ffdb1f15863106d828e4",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-atomic-choice/proof.json",
+      "reportSha256": "2ca9e0f8f5089f020535822e5b35afc4e621c58ad9b3364eb7580fbb8e273496",
+      "commit": "74c7e8fb5dcc2b9ca0d00e79c8e54fafc7688af6",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-choice-write-lock.mjs",
+      "recordedSha256": "953451e370f9af3967b25672a51c2cd1e583c7ddc57ef360df7a18e8e6e158cb",
+      "committedSha256": "953451e370f9af3967b25672a51c2cd1e583c7ddc57ef360df7a18e8e6e158cb",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-manifest-boundary/proof.json",
+      "reportSha256": "2935bd708fcdc6eb3ddf794ce4686343bb7cf6d12252ee8c5f7633b0414af304",
+      "commit": "3a1dd8c1183f8e54764df34246d0c243ac13b93a",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "recordedSha256": "a66ac81fbe5fba2335d8ff0e171db1c52aed662dbd01e55639be5108deb97364",
+      "committedSha256": "a66ac81fbe5fba2335d8ff0e171db1c52aed662dbd01e55639be5108deb97364",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-manifest-boundary/proof.json",
+      "reportSha256": "2935bd708fcdc6eb3ddf794ce4686343bb7cf6d12252ee8c5f7633b0414af304",
+      "commit": "3a1dd8c1183f8e54764df34246d0c243ac13b93a",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "recordedSha256": "a86249ea2d5371db57927fb7509c3d5025bfa35a068b2d1745e1116807cc84be",
+      "committedSha256": "a86249ea2d5371db57927fb7509c3d5025bfa35a068b2d1745e1116807cc84be",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-manifest-boundary/proof.json",
+      "reportSha256": "2935bd708fcdc6eb3ddf794ce4686343bb7cf6d12252ee8c5f7633b0414af304",
+      "commit": "3a1dd8c1183f8e54764df34246d0c243ac13b93a",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-manifest-boundary.mjs",
+      "recordedSha256": "3997404e67fa2b73dbbb19d9988d8bea33b24c34a86885d1f4663c80b689969b",
+      "committedSha256": "3997404e67fa2b73dbbb19d9988d8bea33b24c34a86885d1f4663c80b689969b",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-runner-pipe/proof.json",
+      "reportSha256": "1cbe7a1cde385982c7b8e751929eddb58ece3223f4efaed4d78971abd9739856",
+      "commit": "4375cbde02efea98a7b75bca138ea1db96b6853d",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "recordedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "committedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-runner-pipe/proof.json",
+      "reportSha256": "1cbe7a1cde385982c7b8e751929eddb58ece3223f4efaed4d78971abd9739856",
+      "commit": "4375cbde02efea98a7b75bca138ea1db96b6853d",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "recordedSha256": "7f4f4a825dc0472779f1d3bb5f6556a1be8e4a21abcb9fd4504b285066c7d900",
+      "committedSha256": "7f4f4a825dc0472779f1d3bb5f6556a1be8e4a21abcb9fd4504b285066c7d900",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-runner-pipe/proof.json",
+      "reportSha256": "1cbe7a1cde385982c7b8e751929eddb58ece3223f4efaed4d78971abd9739856",
+      "commit": "4375cbde02efea98a7b75bca138ea1db96b6853d",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-pipe-deadline.mjs",
+      "recordedSha256": "10e4a15a44b5db2d6270ab7c04eb5f52e935dad90495357e1282ba6441dc6e79",
+      "committedSha256": "10e4a15a44b5db2d6270ab7c04eb5f52e935dad90495357e1282ba6441dc6e79",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-copy-lifecycle/proof.json",
+      "reportSha256": "ed86e0fe37d81812c05c1f968d84d1f25c75faa5399d9f16b6687cd2caa30438",
+      "commit": "04dc3583b6c387a730f8ba033ac6b3ee83dcbe1e",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src/activity/ActivitySurface.tsx",
+      "recordedSha256": "af2015b809ca592c41bb2e0719d21c44fa3a5cea8b2433999aea8490bf959a49",
+      "committedSha256": "af2015b809ca592c41bb2e0719d21c44fa3a5cea8b2433999aea8490bf959a49",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-copy-lifecycle/proof.json",
+      "reportSha256": "ed86e0fe37d81812c05c1f968d84d1f25c75faa5399d9f16b6687cd2caa30438",
+      "commit": "04dc3583b6c387a730f8ba033ac6b3ee83dcbe1e",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "recordedSha256": "aa5485987dd2fdf4a35eb233a12122323325f253b8b44111d28021309bef1edf",
+      "committedSha256": "aa5485987dd2fdf4a35eb233a12122323325f253b8b44111d28021309bef1edf",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-copy-lifecycle/proof.json",
+      "reportSha256": "ed86e0fe37d81812c05c1f968d84d1f25c75faa5399d9f16b6687cd2caa30438",
+      "commit": "04dc3583b6c387a730f8ba033ac6b3ee83dcbe1e",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-copy-lifecycle.mjs",
+      "recordedSha256": "c9402890d6e8460422f34c53a7409259bcc924e9a297b13bcab533f020810e9a",
+      "committedSha256": "c9402890d6e8460422f34c53a7409259bcc924e9a297b13bcab533f020810e9a",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-copy-lifecycle/proof.json",
+      "reportSha256": "ed86e0fe37d81812c05c1f968d84d1f25c75faa5399d9f16b6687cd2caa30438",
+      "commit": "04dc3583b6c387a730f8ba033ac6b3ee83dcbe1e",
+      "field": "hostSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "recordedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "committedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-error-ownership/proof.json",
+      "reportSha256": "52c77c83b20a6d2e405262bb51f0929561b70969022e8104cb28326b9eda378a",
+      "commit": "21c0e5fb2eca9bfbb92f822f585d940bae4041e7",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src/activity/ActivitySurface.tsx",
+      "recordedSha256": "0e4c1c41fc5ad8abc35f42efd643577a7fcee2643a09a23129d0c7f58b2c9265",
+      "committedSha256": "0e4c1c41fc5ad8abc35f42efd643577a7fcee2643a09a23129d0c7f58b2c9265",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-error-ownership/proof.json",
+      "reportSha256": "52c77c83b20a6d2e405262bb51f0929561b70969022e8104cb28326b9eda378a",
+      "commit": "21c0e5fb2eca9bfbb92f822f585d940bae4041e7",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "recordedSha256": "ac1f8399227e40e693a122054d83bcfe8cc86828b9ecc320c9c10cf8b65cd568",
+      "committedSha256": "ac1f8399227e40e693a122054d83bcfe8cc86828b9ecc320c9c10cf8b65cd568",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-error-ownership/proof.json",
+      "reportSha256": "52c77c83b20a6d2e405262bb51f0929561b70969022e8104cb28326b9eda378a",
+      "commit": "21c0e5fb2eca9bfbb92f822f585d940bae4041e7",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-error-ownership.mjs",
+      "recordedSha256": "9a887cfcf9e4f368ed71a30b28f03a2072d404641dc38a7f76947f47142e8138",
+      "committedSha256": "9a887cfcf9e4f368ed71a30b28f03a2072d404641dc38a7f76947f47142e8138",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-error-ownership/proof.json",
+      "reportSha256": "52c77c83b20a6d2e405262bb51f0929561b70969022e8104cb28326b9eda378a",
+      "commit": "21c0e5fb2eca9bfbb92f822f585d940bae4041e7",
+      "field": "hostSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "recordedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "committedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-sequence-contract/proof.json",
+      "reportSha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
+      "commit": "b8c9e8f7d919b30023d91ba9b30a5170c7b5866f",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src/activity/client.ts",
+      "recordedSha256": "2fb09ede8cf1c2d880776100dd367a12155c2feb396eda861632a80d4c23c838",
+      "committedSha256": "2fb09ede8cf1c2d880776100dd367a12155c2feb396eda861632a80d4c23c838",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-sequence-contract/proof.json",
+      "reportSha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
+      "commit": "b8c9e8f7d919b30023d91ba9b30a5170c7b5866f",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "recordedSha256": "83b0315177ed671866cbbceb90eddadbc563f2261847128ae15f538345a17396",
+      "committedSha256": "83b0315177ed671866cbbceb90eddadbc563f2261847128ae15f538345a17396",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-sequence-contract/proof.json",
+      "reportSha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
+      "commit": "b8c9e8f7d919b30023d91ba9b30a5170c7b5866f",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-sequence-contract.mjs",
+      "recordedSha256": "d509c1a1dc5e56a79d46ea625781b509f72005040f05ce168113434b39664b8a",
+      "committedSha256": "d509c1a1dc5e56a79d46ea625781b509f72005040f05ce168113434b39664b8a",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-sequence-contract/proof.json",
+      "reportSha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
+      "commit": "b8c9e8f7d919b30023d91ba9b30a5170c7b5866f",
+      "field": "hostSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "recordedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "committedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-sequence-contract/proof.json",
+      "reportSha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
+      "commit": "b8c9e8f7d919b30023d91ba9b30a5170c7b5866f",
+      "field": "schemaSha256",
+      "path": "contracts/ipc/activity-v1.schema.json",
+      "recordedSha256": "3a7456accba5e9e71b1bb4e79d907cdc227d7e278eaec333204d614c92dc8d70",
+      "committedSha256": "3a7456accba5e9e71b1bb4e79d907cdc227d7e278eaec333204d614c92dc8d70",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-date-only/proof.json",
+      "reportSha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "commit": "3cc9354a01afeef256ffaf91e84c0294dbd6b269",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src/activity/ActivitySurface.tsx",
+      "recordedSha256": "b57df62731ad89c05e8ba6f7c0297c46ac2179976ff28cec7287c9b9effbd22b",
+      "committedSha256": "b57df62731ad89c05e8ba6f7c0297c46ac2179976ff28cec7287c9b9effbd22b",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-date-only/proof.json",
+      "reportSha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "commit": "3cc9354a01afeef256ffaf91e84c0294dbd6b269",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "recordedSha256": "c25335508ad7990be019e9ce23d2da72a7798cc312d5f1ef4df78bea2a10fde3",
+      "committedSha256": "c25335508ad7990be019e9ce23d2da72a7798cc312d5f1ef4df78bea2a10fde3",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-date-only/proof.json",
+      "reportSha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "commit": "3cc9354a01afeef256ffaf91e84c0294dbd6b269",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-date-only.mjs",
+      "recordedSha256": "54c9505570e259f500811b8f58a25b370c05a4b96e8f74e56216df71c1d615d4",
+      "committedSha256": "54c9505570e259f500811b8f58a25b370c05a4b96e8f74e56216df71c1d615d4",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-date-only/proof.json",
+      "reportSha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "commit": "3cc9354a01afeef256ffaf91e84c0294dbd6b269",
+      "field": "hostSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "recordedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "committedSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-date-only/proof.json",
+      "reportSha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "commit": "3cc9354a01afeef256ffaf91e84c0294dbd6b269",
+      "field": "modelSourceSha256",
+      "path": "apps/desktop/src/activity/model.ts",
+      "recordedSha256": "d73e795367cc415c9f3718713f7e34eb5759d7b4bb7b7492389c7116c595cf01",
+      "committedSha256": "d73e795367cc415c9f3718713f7e34eb5759d7b4bb7b7492389c7116c595cf01",
+      "ok": true
+    },
+    {
+      "report": "docs/validation/Activity-date-only/proof.json",
+      "reportSha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "commit": "3cc9354a01afeef256ffaf91e84c0294dbd6b269",
+      "field": "schemaSha256",
+      "path": "contracts/ipc/activity-v1.schema.json",
+      "recordedSha256": "3a7456accba5e9e71b1bb4e79d907cdc227d7e278eaec333204d614c92dc8d70",
+      "committedSha256": "3a7456accba5e9e71b1bb4e79d907cdc227d7e278eaec333204d614c92dc8d70",
+      "ok": true
+    }
+  ],
+  "productSourceChanged": false,
+  "newB4Selectors": 0,
+  "b4SignedOff": false,
+  "b5Activated": false,
+  "limitations": [
+    "Git byte digests verify recorded source identities; they do not independently establish build provenance or runtime acceptance."
+  ]
+}
