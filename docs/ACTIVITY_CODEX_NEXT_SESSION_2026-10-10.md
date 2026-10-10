@@ -11,11 +11,16 @@
 
 当前证据索引为 **58 报告 / 902 选择器 / 60 负向检查**，18 行均 partial，B4/B5 false。桌面/runner 哈希与 a289e18 相同；此前 58 前端、35+3 host/Core、严格/原生/安装包构建、26 安装包与35/35实际操作证据明确复用，未重新执行以增加计数。新鲜检查仅为此次24/24、E2E语法/whitespace、Memory守卫8负向和证据守卫60负向。
 
-Claude 正在 E:\Enouia Runtime\.claude\worktrees\activity-producer-followup-569bc3 的 claude/activity-producer-followup 实施 store reader/writer/late_switch_failure，起点已实时核对为451d70ed。此前新树登记路径曾变化，以 git worktree list 为准。Codex未改这些文件，未读取个人数据；截至此记录尚无Claude新提交/原始报告可接收，**不得把dirty代码或旧7309cb9再次汇合**。后续先收其已推送SHA与完整报告，再审查范围/祖先/哈希并串行整合；产品变更后需相关新二进制实际操作验证。
+Claude 正在 E:\Enouia Runtime\.claude\worktrees\activity-producer-followup-569bc3 的 claude/activity-producer-followup 实施 store reader/writer/late_switch_failure，起点已实时核对为451d70ed。此前新树登记路径曾变化，以 git worktree list 为准。Codex未改这些文件，未读取个人数据；截至此记录尚无Claude已推送最终切片可接收（初步原始报告状态见下），**不得把dirty代码或旧7309cb9再次汇合**。后续先收其已推送SHA与完整报告，再审查范围/祖先/哈希并串行整合；产品变更后需相关新二进制实际操作验证。
 
 额度最新查询：5小时已用 **88%**，剩余 **12%**（账户共享快照，会变化）。本会话停止开启新功能，保留提交、推送、PR和交接余量，不使用重置券。主仓库仍保留用户 docs/ACTIVITY_USAGE_CLAUDE_HANDOFF.md、docs/prompts/CLAUDE_ACTIVITY_USAGE_START.md；main/旧Claude/e8f6未重置。此次原生进程/holder已结束，Temp夹具保留。
 
 下一候选是**实际已存在保存选择文件的共享写入拒绝**：真实picker保存失败时保留旧字节和明确反馈，释放后恢复。先审查已有保存失败（目录阻塞）覆盖，额度足够再启动；不要重做缺runner/启动/busy/picker交错/bounded-read切片。
+
+
+串行汇合已完成：Codex 两个提交保持原 SHA 快进进入 codex/activity-desktop-integration，整合远端和 PR #28（OPEN DRAFT）已核对到311cbe7b04b026d82e146c80befd3df2a6fb9721；之后仅补充本段交接记录，实时HEAD须再次查询。提交字节审计通过：58个索引报告及关联文件共138个SHA-256文件均与Git HEAD一致；产品源码/manifest/lock/pin相对a289e18完全未变。
+
+收尾时额度已用90%，剩余10%，不启动新切片。Claude新生成的未跟踪原始报告 Activity-claude-late-switch-tests-2026-10-10.json 与 Activity-claude-late-switch-hard-kill-2026-10-10.json 已初步收取查看；仍无已提交/推送的最终交付。报告显示其关注新批次/收据在晚期指针失败后的可重试性及强杀保守恢复，属于producer/store/runner范围。未完成独立审查、不计入58/902/60、不汇合dirty代码；接手需取得完整提交SHA、原始报告与最终binary身份后再验证。此处不是Claude功能完成或产品验收声明。
 
 ## 首次交接快照：已完成到哪里
 
