@@ -1,0 +1,15 @@
+# Future observation ages after clock rollback
+
+Date: 2026-10-10. Baseline: `b75d827d6912fea4c74c0bc3a1ebea8c7bec97df`. This changes only the frontend age helper. Producer timestamps, clock-regression rules, IPC schema, native adapter, dependencies and Memory pin remain unchanged. J1/B4 remain partial and B5 is inactive.
+
+The helper clamped every negative duration to zero, so an observation later than the frontend's current clock displayed as `0 s ago`. A clock rollback can leave retained observations ahead of the current clock without making their elapsed age zero. Future parsed instants now have unknown age. Their original clock labels and source state remain visible; the frontend neither restamps data nor invents a producer failure.
+
+The [hashed proof](Activity-future-age/proof.json) records [14/14 native checks](Activity-future-age/future.json), against [12/14 on the old build](Activity-future-age/before.json). The two baseline failures are specifically future source age and future pending age. The drill models only overview timestamps using actual healthy source data, then verifies future, past and date-only display. Native setup and healthy reads remain actual IPC; run/retry/pause are blocked and none is attempted. Saved choice, package manifest and entire store remain exact.
+
+The first observer produced [8/14](Activity-future-age/before-observer.json) because it checked after a fixed delay while the overview/preview pair was still pending. It was corrected to wait for the modeled timestamp label to commit, then rerun on the unchanged old executable. That initial result is hashed and excluded from acceptance. The final screenshot was inspected: future source clock labels remain visible without an elapsed-age suffix, and pending age is unknown.
+
+The [63/63 frontend tests](Activity-future-age/tests.json) cover a future instant only one millisecond ahead, an offset future instant, exact zero elapsed time, a past instant one millisecond earlier, and ordinary two-hour age. Before the product change the same suite was 62/63, failing with `0 s ago` instead of unknown. Separate [16/16 date precision](Activity-future-age/dates.json) and [35/35 actual producer/Core action regressions](Activity-future-age/actions.json) pass on the new frozen build.
+
+Fresh checks pass: strict TypeScript/build, native/unsigned NSIS build, 26 installer ownership checks and Memory/domain guards with 8/7 negatives. The [47 host + 3 Core tests](Activity-runner-pipe/tests.json) retain applicability because Rust source, Cargo files and the pinned revision are unchanged; the proof hashes the exact host source. C17 adds 15 selectors, bringing the index to 68 reports / 1,132 selectors / 75 negative checks. All 18 rows remain partial.
+
+The OS clock was not changed. Modeled future timestamps establish display behavior, not an actual producer clock-regression or recovery decision. No personal data, accounts, scheduled task, live delivery, installation, signing or deployment was involved.

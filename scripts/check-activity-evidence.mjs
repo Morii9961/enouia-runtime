@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 67);
+  assert.equal(reports.size, 68);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1443,6 +1443,43 @@ function validate(index) {
   assert.equal(datePrecision.hostEvidence, pipeDeadline.testReport);
   assert.equal(datePrecision.hostEvidenceSha256, hash(readFileSync(contained(datePrecision.hostEvidence))));
   for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'modelSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(datePrecision[field], /^[a-f0-9]{64}$/);
+  const futureAge = reports.get('future_observation_age').report;
+  assert.equal(futureAge.scope, 'isolated_activity_future_observation_age');
+  for (const field of ['productSourceChanged', 'modeledReplies', 'futureAgeUnknown', 'pastAgePreserved', 'dateOnlyAgeUnknown', 'zeroElapsedPreserved', 'frozenDesktopStable']) assert.equal(futureAge[field], true);
+  assert.equal(futureAge.tasksCreated, false);
+  assert.equal(futureAge.memoryRevision, isolation.memoryRevision);
+  const futureReports = new Map();
+  for (const entry of futureAge.nativeReports) {
+    const raw = readLinked(entry.path, entry.sha256);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(check => check.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert.equal(entry.manifestPreserved, true);
+    assert(!futureReports.has(entry.id));
+    futureReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...futureReports.keys()], ['future', 'dates', 'actions']);
+  assert.deepEqual(futureAge.nativeReports.map(entry => entry.summary), ['14/14', '16/16', '35/35']);
+  const futureBefore = readLinked(futureAge.beforeReport, futureAge.beforeReportSha256);
+  assert.equal(futureBefore.summary, '12/14');
+  assert.deepEqual(futureBefore.checks.filter(check => !check.ok).map(check => check.id), ['FA.future_source_ages_remain_unknown', 'FA.future_pending_age_remains_unknown']);
+  const futureTests = readLinked(futureAge.testReport, futureAge.testReportSha256);
+  assert.equal(futureTests.state, 'passed');
+  assert.equal(futureTests.frontendTests, 63);
+  assert.equal(futureTests.results.length, 1);
+  assert(futureTests.results.every(test => test.passed === true));
+  assert.equal(futureTests.baseline.passed, 62);
+  assert.equal(futureTests.baseline.failed, 1);
+  assert.deepEqual(futureAge.checks, [...futureReports.get('future').checks.map(check => check.id), ...futureTests.results.map(test => test.id)]);
+  assert.equal(futureAge.intermediates.length, 1);
+  const futureObserver = futureAge.intermediates[0];
+  assert.equal(readLinked(futureObserver.path, futureObserver.sha256).summary, '8/14');
+  assert.equal(futureObserver.excludedFromAcceptance, true);
+  assert.equal(futureAge.hostEvidence, pipeDeadline.testReport);
+  assert.equal(futureAge.hostEvidenceSha256, hash(readFileSync(contained(futureAge.hostEvidence))));
+  assert.equal(futureAge.hostSourceSha256, pipeDeadline.productSourceSha256);
+  for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(futureAge[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1524,6 +1561,7 @@ function validate(index) {
   assert(errorOwnership.checks.every(id => linkedTo(c17, 'error_feedback_ownership').includes(id)), 'C17 must retain independent refresh/status error ownership and recovery evidence');
   assert(positiveSequence.checks.every(id => linkedTo(c17, 'positive_pending_sequence').includes(id)), 'C17 must retain positive sequence bounds, exact values and legitimate empty state evidence');
   assert(datePrecision.checks.every(id => linkedTo(c17, 'date_only_precision').includes(id)), 'C17 must retain date-only precision and explicit-offset display evidence');
+  assert(futureAge.checks.every(id => linkedTo(c17, 'future_observation_age').includes(id)), 'C17 must retain future-age refusal and normal past/date-only display evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1608,6 +1646,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'error_feedback_ownership'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'positive_pending_sequence'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'date_only_precision'));
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'future_observation_age'));
   reject(x => x.cases[0].evidence[0].selectors.push(x.cases[0].evidence[0].selectors[0]));
   reject(x => x.cases[0].evidence.push(structuredClone(x.cases[0].evidence[0])));
   for (const invalid of [['same', 'same'], ['valid', 22], ['valid', ' ']]) {

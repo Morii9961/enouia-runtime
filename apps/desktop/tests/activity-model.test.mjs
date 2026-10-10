@@ -74,3 +74,12 @@ test('date-only observations do not invent an elapsed age', () => {
   assert.equal(age('2026-10-10', now), null);
   assert.equal(age('2026-10-09T12:00:00+03:00', Date.parse('2026-10-09T10:00:00Z')), '60 min ago');
 });
+
+test('future observations have unknown age after a clock rollback', () => {
+  const now = Date.parse('2026-10-10T12:00:00Z');
+  assert.equal(age('2026-10-10T12:00:00.001Z', now), null);
+  assert.equal(age('2026-10-10T20:30:00+08:00', now), null);
+  assert.equal(age('2026-10-10T12:00:00Z', now), '0 s ago');
+  assert.equal(age('2026-10-10T11:59:59.999Z', now), '0 s ago');
+  assert.equal(age('2026-10-10T10:00:00Z', now), '2 h ago');
+});

@@ -109,8 +109,8 @@ export function age(iso: string | null | undefined, now: number = Date.now()): s
   if (!iso) return null;
   if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
   const at = Date.parse(iso);
-  if (Number.isNaN(at)) return null;
-  const s = Math.max(0, Math.round((now - at) / 1000));
+  if (Number.isNaN(at) || at > now) return null;
+  const s = Math.round((now - at) / 1000);
   if (s < 90) return `${s} s ago`;
   if (s < 5400) return `${Math.round(s / 60)} min ago`;
   if (s < 172_800) return `${Math.round(s / 3600)} h ago`;

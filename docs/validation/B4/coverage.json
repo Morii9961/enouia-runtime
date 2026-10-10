@@ -472,6 +472,13 @@
       "sha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
       "state": "passed",
       "selectorCount": 18
+    },
+    {
+      "id": "future_observation_age",
+      "path": "docs/validation/Activity-future-age/proof.json",
+      "sha256": "90dfe0683bf3ce27aebe28d4f72f1a8ce0a417c05cfa1c6564939ac879c709c4",
+      "state": "passed",
+      "selectorCount": 15
     }
   ],
   "cases": [
@@ -2166,6 +2173,26 @@
             "DO.final_clear_removes_only_owned_choice",
             "T.date_only_observations_preserve_precision",
             "T.date_only_ages_remain_unknown"
+          ]
+        },
+        {
+          "report": "future_observation_age",
+          "selectors": [
+            "FA.actual_package_starts_healthy",
+            "FA.future_reply_is_proved",
+            "FA.future_keeps_three_source_cards",
+            "FA.future_clock_labels_are_retained",
+            "FA.future_source_ages_remain_unknown",
+            "FA.future_pending_age_remains_unknown",
+            "FA.past_reply_is_proved",
+            "FA.past_source_ages_are_preserved",
+            "FA.past_pending_age_is_preserved",
+            "FA.date_only_source_ages_stay_unknown",
+            "FA.date_only_pending_age_stays_unknown",
+            "FA.no_producer_mutation_was_attempted",
+            "FA.saved_choice_store_and_manifest_remain_exact",
+            "FA.final_clear_removes_only_owned_choice",
+            "T.future_observations_have_unknown_age"
           ]
         }
       ],
