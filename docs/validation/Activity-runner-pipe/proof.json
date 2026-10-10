@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_windows_activity_runner_pipe_deadline",
+  "baseline": "3a1dd8c1183f8e54764df34246d0c243ac13b93a",
+  "checks": [
+    "PP.initial_real_producer_is_healthy",
+    "PP.owned_helper_matches_selected_manifest",
+    "PP.actual_picker_selects_only_sandbox_helper",
+    "PP.both_owned_inherited_pipe_holders_are_ready",
+    "PP.actual_read_deadlines_return_busy",
+    "PP.elapsed_read_window_is_bounded",
+    "PP.actual_timeout_feedback_is_visible",
+    "PP.failure_replies_keep_helper_paths_private",
+    "PP.timeout_retains_exact_saved_choice",
+    "PP.timeout_preserves_complete_activity_store",
+    "PP.owned_holders_finish_after_release",
+    "PP.original_runner_and_manifest_are_restored",
+    "PP.actual_picker_reconnects_healthy_producer",
+    "PP.recovery_keeps_exact_three_source_history",
+    "PP.recovery_keeps_complete_store",
+    "PP.final_clear_removes_only_owned_choice",
+    "T.runner_pipe_preserves_complete_output_and_nonzero_exit",
+    "T.runner_pipe_accepts_exact_limit_and_refuses_the_probe_byte",
+    "T.runner_pipe_deadline_covers_exited_and_live_parents_with_inherited_stdout",
+    "T.runner_pipe_deadline_terminates_only_the_owned_hanging_parent"
+  ],
+  "productSourceChanged": true,
+  "modeledReplies": false,
+  "syntheticProducer": true,
+  "tasksCreated": false,
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "readTimeoutMs": 20000,
+  "outputLimit": 8388608,
+  "probeBytes": 8388609,
+  "platform": "windows",
+  "beforeReport": "docs/validation/Activity-runner-pipe/before.json",
+  "beforeReportSha256": "f53b2ad3a8ed69d0ec9f21ffa8eef0b783367d6349df6447770097618bb4c091",
+  "beforeDesktopSha256": "10a669f4c2483979925e0b313063bdf0273e2aaf45fa3db155f8f6bdd00ff6bb",
+  "intermediates": [
+    {
+      "id": "restore_intermediate",
+      "path": "docs/validation/Activity-runner-pipe/restore_intermediate.json",
+      "sha256": "4ac2cfcfaec1bbdc3beaf006bf410e8f0415103943863f835d7b74a3dfd72659",
+      "summary": "11/12",
+      "excludedFromAcceptance": true,
+      "reason": "The actual 20-second timeout passed, but immediate rewriting hit Windows image sharing. The owned producer was restored after the image lock released; the harness now retries exact-byte restoration within ten seconds."
+    },
+    {
+      "id": "before_observer",
+      "path": "docs/validation/Activity-runner-pipe/before_observer.json",
+      "sha256": "73f0acea17fa3c4e5d8f5d082441a9a2c803bc2f9f328d37d83e888220dc7542",
+      "summary": "13/16",
+      "excludedFromAcceptance": true,
+      "reason": "The read-only Tauri invoke property prevented response observation; elapsed observation window is not a call duration."
+    },
+    {
+      "id": "after_observer",
+      "path": "docs/validation/Activity-runner-pipe/after_observer.json",
+      "sha256": "d3ef7ac73a3bb19fa9f7b97a9f5e360800b769a19a1646d1f97f33acdeffbd13",
+      "summary": "14/16",
+      "excludedFromAcceptance": true,
+      "reason": "The read-only Tauri invoke property prevented response observation; elapsed observation window is not a call duration."
+    }
+  ],
+  "nativeReports": [
+    {
+      "id": "pipe",
+      "path": "docs/validation/Activity-runner-pipe/pipe.json",
+      "sha256": "a708476b9153bebcbe7dd8a8c32a61db19a941a02f93911000dcf69633b19119",
+      "summary": "16/16",
+      "exitCode": 0,
+      "packageRestored": true
+    },
+    {
+      "id": "manifest",
+      "path": "docs/validation/Activity-runner-pipe/manifest.json",
+      "sha256": "3ae0b6ebc36234a239ffbcb3d9434ae9e9a756d47115b32c2a6e67f660c74e68",
+      "summary": "21/21",
+      "exitCode": 0,
+      "packageRestored": true
+    },
+    {
+      "id": "atomic",
+      "path": "docs/validation/Activity-runner-pipe/atomic.json",
+      "sha256": "bda3cd407747c0a92bf5428b0b4fd7dc3e7135927ab683d33c6bef1b6fe4ef8f",
+      "summary": "18/18",
+      "exitCode": 0,
+      "packageRestored": true
+    },
+    {
+      "id": "actions",
+      "path": "docs/validation/Activity-runner-pipe/actions.json",
+      "sha256": "a3fe5373858b8e43d9e2f46441e302627704c3773c57a0b2d253ae9955a0e893",
+      "summary": "35/35",
+      "exitCode": 0,
+      "packageRestored": true
+    }
+  ],
+  "testReport": "docs/validation/Activity-runner-pipe/tests.json",
+  "testReportSha256": "6bb4fbb4cd84358071aae708c6708b6a6f048cd870e8cded3b178cc7dd824e83",
+  "desktopSha256": "589fb9805b11acb8a2ca93795b26508e83291327c86f52a07b931007c1554946",
+  "installerSha256": "e466d064ce62dae5141ce1280d364c4770a57b4de90ef8764d46cb3d64ec3d38",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "productSourceSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+  "harnessSha256": "7f4f4a825dc0472779f1d3bb5f6556a1be8e4a21abcb9fd4504b285066c7d900",
+  "drillSha256": "10e4a15a44b5db2d6270ab7c04eb5f52e935dad90495357e1282ba6441dc6e79",
+  "fixtureSha256": "d98afc667923efa648dc80afc13abc7e3bfdf32d09be1de740b858b1096e1ce5",
+  "frozenDesktopStable": true,
+  "limitations": [
+    "The deadline starts after process spawn, as before.",
+    "The Windows reader owns one synchronous pipe handle without competing or outstanding reads; no arbitrary OS stall guarantee.",
+    "Only the explicitly owned direct child is terminated; fixture descendants are released separately and have finite ceilings.",
+    "The non-Windows reader is unchanged and has no new deadline proof.",
+    "No personal data, accounts, production task, live delivery, server, installation or signing."
+  ]
+}

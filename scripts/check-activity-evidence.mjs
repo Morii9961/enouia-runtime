@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 62);
+  assert.equal(reports.size, 63);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1206,6 +1206,58 @@ function validate(index) {
   assert(manifestTests.results.every(test => test.passed === true));
   assert.deepEqual(manifestRead.checks, [...manifestReports.get('manifest').checks.map(c => c.id), ...manifestTests.results.map(test => test.id)]);
   for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(manifestRead[field], /^[a-f0-9]{64}$/);
+  const pipeDeadline = reports.get('runner_pipe_deadline').report;
+  assert.equal(pipeDeadline.scope, 'isolated_windows_activity_runner_pipe_deadline');
+  assert.equal(pipeDeadline.platform, 'windows');
+  assert.equal(pipeDeadline.productSourceChanged, true);
+  assert.equal(pipeDeadline.syntheticProducer, true);
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(pipeDeadline[flag], false);
+  assert.equal(pipeDeadline.frozenDesktopStable, true);
+  assert.equal(pipeDeadline.memoryRevision, isolation.memoryRevision);
+  assert.equal(pipeDeadline.readTimeoutMs, 20000);
+  assert.equal(pipeDeadline.outputLimit, 8388608);
+  assert.equal(pipeDeadline.probeBytes, 8388609);
+  const pipeReports = new Map();
+  for (const entry of pipeDeadline.nativeReports) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    const raw = JSON.parse(bytes);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(c => c.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert.equal(entry.packageRestored, true);
+    assert(!pipeReports.has(entry.id));
+    pipeReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...pipeReports.keys()], ['pipe', 'manifest', 'atomic', 'actions']);
+  assert.deepEqual(pipeDeadline.nativeReports.map(entry => entry.summary), ['16/16', '21/21', '18/18', '35/35']);
+  const pipeBeforeBytes = readFileSync(contained(pipeDeadline.beforeReport));
+  assert.equal(hash(pipeBeforeBytes), pipeDeadline.beforeReportSha256);
+  const pipeBefore = JSON.parse(pipeBeforeBytes);
+  assert.equal(pipeBefore.summary, '13/16');
+  assert.deepEqual(pipeBefore.checks.filter(c => !c.ok).map(c => c.id), ['PP.actual_read_deadlines_return_busy', 'PP.elapsed_read_window_is_bounded', 'PP.actual_timeout_feedback_is_visible']);
+  assert(pipeBefore.checks.find(c => c.id === 'PP.actual_read_deadlines_return_busy').detail.includes('contract_invalid'));
+  for (const entry of pipeDeadline.intermediates) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    assert.equal(JSON.parse(bytes).summary, entry.summary);
+    assert.equal(entry.excludedFromAcceptance, true);
+  }
+  assert.deepEqual(pipeDeadline.intermediates.map(entry => entry.summary), ['11/12', '13/16', '14/16']);
+  const pipeTestBytes = readFileSync(contained(pipeDeadline.testReport));
+  assert.equal(hash(pipeTestBytes), pipeDeadline.testReportSha256);
+  const pipeTests = JSON.parse(pipeTestBytes);
+  assert.equal(pipeTests.state, 'passed');
+  assert.equal(pipeTests.hostTests, 47);
+  assert.equal(pipeTests.coreTests, 3);
+  assert.equal(pipeTests.results.length, 4);
+  assert(pipeTests.results.every(test => test.passed === true));
+  assert.deepEqual(pipeTests.timings.map(t => t.mode).sort(), ['hang', 'leaked', 'leaked-hanging']);
+  assert(pipeTests.timings.every(t => t.timeoutMs === 200 && t.elapsedMs >= 200 && t.elapsedMs < 1000));
+  assert.equal(pipeTests.initialFocusedAttempt.excludedFromAcceptance, true);
+  assert.deepEqual(pipeDeadline.checks, [...pipeReports.get('pipe').checks.map(c => c.id), ...pipeTests.results.map(test => test.id)]);
+  for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256', 'fixtureSha256']) assert.match(pipeDeadline[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1277,6 +1329,7 @@ function validate(index) {
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
   assert(manifestRead.checks.every(id => linkedTo(c17, 'manifest_bounded_read').includes(id)), 'C17 must retain same-handle manifest bounds and actual picker/restart recovery');
+  assert(pipeDeadline.checks.every(id => linkedTo(c17, 'runner_pipe_deadline').includes(id)), 'C17 must retain actual Windows pipe deadline and producer recovery evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1355,7 +1408,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));
-  result.negativeChecks = 64;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_pipe_deadline'));
+  result.negativeChecks = 65;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

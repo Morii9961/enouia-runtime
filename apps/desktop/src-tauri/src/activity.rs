@@ -341,33 +341,123 @@ fn bounded_output(mut process: Command, timeout: Duration) -> Result<(i32, Vec<u
         process.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
     }
     let mut child = process.spawn().map_err(|_| "unconfigured")?;
-    let mut stdout = child.stdout.take().ok_or("storage_failed")?;
-    let reader = std::thread::spawn(move || {
-        let mut bytes = Vec::new();
-        let complete = (&mut stdout)
-            .take(MAX_OUTPUT as u64 + 1)
-            .read_to_end(&mut bytes)
-            .is_ok()
-            && bytes.len() <= MAX_OUTPUT;
-        complete.then_some(bytes)
-    });
-    let deadline = Instant::now() + timeout;
-    let status = loop {
-        match child.try_wait() {
-            Ok(Some(status)) => break status,
-            Ok(None) if Instant::now() < deadline => {
-                std::thread::sleep(Duration::from_millis(25));
+    let stdout = child.stdout.take().ok_or("storage_failed")?;
+    #[cfg(windows)]
+    {
+        bounded_windows_pipe(child, stdout, timeout)
+    }
+    #[cfg(not(windows))]
+    {
+        let mut stdout = stdout;
+        let reader = std::thread::spawn(move || {
+            let mut bytes = Vec::new();
+            let complete = (&mut stdout)
+                .take(MAX_OUTPUT as u64 + 1)
+                .read_to_end(&mut bytes)
+                .is_ok()
+                && bytes.len() <= MAX_OUTPUT;
+            complete.then_some(bytes)
+        });
+        let deadline = Instant::now() + timeout;
+        let status = loop {
+            match child.try_wait() {
+                Ok(Some(status)) => break status,
+                Ok(None) if Instant::now() < deadline => {
+                    std::thread::sleep(Duration::from_millis(25));
+                }
+                _ => {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    let _ = reader.join();
+                    return Err("busy");
+                }
             }
-            _ => {
-                let _ = child.kill();
-                let _ = child.wait();
-                let _ = reader.join();
+        };
+        let bytes = reader.join().ok().flatten().ok_or("contract_invalid")?;
+        Ok((status.code().unwrap_or(-1), bytes))
+    }
+}
+
+#[cfg(windows)]
+fn bounded_windows_pipe(
+    mut child: std::process::Child,
+    mut stdout: std::process::ChildStdout,
+    timeout: Duration,
+) -> Result<(i32, Vec<u8>), &'static str> {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Foundation::ERROR_BROKEN_PIPE;
+    use windows_sys::Win32::System::Pipes::PeekNamedPipe;
+    let result = (|| {
+        let deadline = Instant::now() + timeout;
+        let mut bytes = Vec::new();
+        let mut buffer = [0_u8; 64 * 1024];
+        let mut status = None;
+        let mut eof = false;
+        let mut idle_delay = Duration::from_millis(1);
+        loop {
+            let mut available = 0;
+            if !eof {
+                // This thread exclusively owns the anonymous pipe's read
+                // handle, with no outstanding read or cloned reader. Probe
+                // before each read; never block awaiting a descendant's EOF.
+                // https://learn.microsoft.com/windows/win32/api/namedpipeapi/nf-namedpipeapi-peeknamedpipe
+                // SAFETY: stdout owns a live read handle; available is a live
+                // local DWORD. All other optional output pointers are null.
+                let success = unsafe {
+                    PeekNamedPipe(
+                        stdout.as_raw_handle(),
+                        std::ptr::null_mut(),
+                        0,
+                        std::ptr::null_mut(),
+                        &mut available,
+                        std::ptr::null_mut(),
+                    )
+                };
+                if success == 0 {
+                    if std::io::Error::last_os_error().raw_os_error()
+                        == Some(ERROR_BROKEN_PIPE as i32)
+                    {
+                        eof = true;
+                    } else {
+                        return Err("contract_invalid");
+                    }
+                } else if available > 0 {
+                    idle_delay = Duration::from_millis(1);
+                    let limit = (available as usize)
+                        .min(buffer.len())
+                        .min(MAX_OUTPUT + 1 - bytes.len());
+                    let count = stdout
+                        .read(&mut buffer[..limit])
+                        .map_err(|_| "contract_invalid")?;
+                    eof = count == 0;
+                    bytes.extend_from_slice(&buffer[..count]);
+                    if bytes.len() > MAX_OUTPUT {
+                        return Err("contract_invalid");
+                    }
+                }
+            }
+            if status.is_none() {
+                status = child.try_wait().map_err(|_| "busy")?;
+            }
+            if let Some(status) = status.filter(|_| eof) {
+                return Ok((status.code().unwrap_or(-1), bytes));
+            }
+            let Some(remaining) = deadline.checked_duration_since(Instant::now()) else {
                 return Err("busy");
+            };
+            if available == 0 {
+                std::thread::sleep(remaining.min(idle_delay));
+                idle_delay = (idle_delay * 2).min(Duration::from_millis(25));
             }
         }
-    };
-    let bytes = reader.join().ok().flatten().ok_or("contract_invalid")?;
-    Ok((status.code().unwrap_or(-1), bytes))
+    })();
+    if result.is_err() {
+        // Only this explicitly owned direct child is terminated. No Job with
+        // kill-on-host-exit is introduced; a started run still survives UI exit.
+        let _ = child.kill();
+        let _ = child.wait();
+    }
+    result
 }
 
 /// Map a runner exit to the structured code the page shows.
@@ -947,6 +1037,123 @@ pub async fn activity_setup(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(windows)]
+    fn pipe_fixture_command(mode: &str) -> Command {
+        static EXECUTABLE: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
+        let executable = EXECUTABLE.get_or_init(|| {
+            let directory = choice_fixture();
+            let executable = directory.join("pipe-child.exe");
+            let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pipe-child.rs");
+            let compiler = std::env::var_os("RUSTC").unwrap_or_else(|| "rustc".into());
+            let output = Command::new(compiler)
+                .arg("--edition=2024")
+                .arg(source)
+                .arg("-o")
+                .arg(&executable)
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "{}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            executable
+        });
+        let mut command = Command::new(executable);
+        command.arg(mode);
+        command
+    }
+
+    #[cfg(windows)]
+    fn spawn_pipe_fixture(
+        mut command: Command,
+    ) -> (std::process::Child, std::process::ChildStdout) {
+        use std::os::windows::process::CommandExt;
+        command
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .creation_flags(0x0800_0000);
+        let mut child = command.spawn().unwrap();
+        let stdout = child.stdout.take().unwrap();
+        (child, stdout)
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_preserves_complete_output_and_nonzero_exit() {
+        for (mode, code) in [("small", 0), ("failure", 5)] {
+            let output =
+                bounded_output(pipe_fixture_command(mode), Duration::from_secs(5)).unwrap();
+            assert_eq!(output, (code, b"{\"synthetic\":true}".to_vec()));
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_accepts_exact_limit_and_refuses_the_probe_byte() {
+        let exact = bounded_output(pipe_fixture_command("exact"), Duration::from_secs(15)).unwrap();
+        assert_eq!(exact.0, 0);
+        assert_eq!(exact.1, vec![b'x'; MAX_OUTPUT]);
+        assert_eq!(
+            bounded_output(pipe_fixture_command("oversize"), Duration::from_secs(15)),
+            Err("contract_invalid")
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_deadline_covers_exited_and_live_parents_with_inherited_stdout() {
+        for mode in ["leaked", "leaked-hanging"] {
+            let directory = choice_fixture();
+            let mut command = pipe_fixture_command(mode);
+            command.arg(&directory);
+            let (child, stdout) = spawn_pipe_fixture(command);
+            let ready_deadline = Instant::now() + Duration::from_secs(3);
+            while !directory.join("ready").exists() && Instant::now() < ready_deadline {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            let start = Instant::now();
+            let result = bounded_windows_pipe(child, stdout, Duration::from_millis(200));
+            let elapsed = start.elapsed();
+            println!(
+                "PIPE_DEADLINE mode={mode} timeout_ms=200 elapsed_ms={}",
+                elapsed.as_millis()
+            );
+            // Release only the explicitly owned finite helper, even if the
+            // regression fails. It has an independent five-second ceiling.
+            std::fs::write(directory.join("release"), b"release").unwrap();
+            let deadline = Instant::now() + Duration::from_secs(3);
+            while !directory.join("done").exists() && Instant::now() < deadline {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            assert!(directory.join("ready").exists(), "holder never started");
+            assert!(
+                directory.join("done").exists(),
+                "owned holder did not finish"
+            );
+            assert_eq!(result, Err("busy"), "{mode}");
+            assert!(elapsed < Duration::from_secs(1), "{mode}: {elapsed:?}");
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_deadline_terminates_only_the_owned_hanging_parent() {
+        let (child, stdout) = spawn_pipe_fixture(pipe_fixture_command("hang"));
+        let start = Instant::now();
+        assert_eq!(
+            bounded_windows_pipe(child, stdout, Duration::from_millis(200)),
+            Err("busy")
+        );
+        let elapsed = start.elapsed();
+        println!(
+            "PIPE_DEADLINE mode=hang timeout_ms=200 elapsed_ms={}",
+            elapsed.as_millis()
+        );
+        assert!(elapsed < Duration::from_secs(1));
+    }
 
     #[test]
     fn package_json_reads_stop_after_the_limit_probe_byte() {

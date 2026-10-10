@@ -437,6 +437,13 @@
       "sha256": "2935bd708fcdc6eb3ddf794ce4686343bb7cf6d12252ee8c5f7633b0414af304",
       "state": "passed",
       "selectorCount": 24
+    },
+    {
+      "id": "runner_pipe_deadline",
+      "path": "docs/validation/Activity-runner-pipe/proof.json",
+      "sha256": "1cbe7a1cde385982c7b8e751929eddb58ece3223f4efaed4d78971abd9739856",
+      "state": "passed",
+      "selectorCount": 20
     }
   ],
   "cases": [
@@ -2003,6 +2010,31 @@
             "T.package_json_reads_stop_after_the_limit_probe_byte",
             "T.package_json_growth_after_open_cannot_bypass_the_read_limit",
             "T.installed_package_manifest_keeps_exact_limit_and_refusal_boundaries"
+          ]
+        },
+        {
+          "report": "runner_pipe_deadline",
+          "selectors": [
+            "PP.initial_real_producer_is_healthy",
+            "PP.owned_helper_matches_selected_manifest",
+            "PP.actual_picker_selects_only_sandbox_helper",
+            "PP.both_owned_inherited_pipe_holders_are_ready",
+            "PP.actual_read_deadlines_return_busy",
+            "PP.elapsed_read_window_is_bounded",
+            "PP.actual_timeout_feedback_is_visible",
+            "PP.failure_replies_keep_helper_paths_private",
+            "PP.timeout_retains_exact_saved_choice",
+            "PP.timeout_preserves_complete_activity_store",
+            "PP.owned_holders_finish_after_release",
+            "PP.original_runner_and_manifest_are_restored",
+            "PP.actual_picker_reconnects_healthy_producer",
+            "PP.recovery_keeps_exact_three_source_history",
+            "PP.recovery_keeps_complete_store",
+            "PP.final_clear_removes_only_owned_choice",
+            "T.runner_pipe_preserves_complete_output_and_nonzero_exit",
+            "T.runner_pipe_accepts_exact_limit_and_refuses_the_probe_byte",
+            "T.runner_pipe_deadline_covers_exited_and_live_parents_with_inherited_stdout",
+            "T.runner_pipe_deadline_terminates_only_the_owned_hanging_parent"
           ]
         }
       ],
