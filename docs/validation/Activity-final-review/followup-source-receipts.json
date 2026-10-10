@@ -1,0 +1,614 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "committed_activity_followup_source_receipts",
+  "baseline": "04afe3e133c11882de865260012623e2aa62631a",
+  "sourceReceipts": 18,
+  "priorAudit": {
+    "path": "docs/validation/Activity-final-review/source-receipts.json",
+    "sha256": "6da7233ddfee44b1d71e73fad540d604a53ef1df93ea31f49a269fb1bf220aac",
+    "historicalSourceReceipts": 28
+  },
+  "indexedReports": 71,
+  "receipts": [
+    {
+      "proofPath": "docs/validation/Activity-future-age/proof.json",
+      "proofSha256": "90dfe0683bf3ce27aebe28d4f72f1a8ce0a417c05cfa1c6564939ac879c709c4",
+      "commit": "9f1441dcbd929bf6eea0d8ce86488a43ca0a2554",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src/activity/model.ts",
+      "sha256": "ed4f5c85a3ac545fcfe13cb32533e5e433db949259ac0593de9e539c32a2239f",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-future-age/proof.json",
+      "proofSha256": "90dfe0683bf3ce27aebe28d4f72f1a8ce0a417c05cfa1c6564939ac879c709c4",
+      "commit": "9f1441dcbd929bf6eea0d8ce86488a43ca0a2554",
+      "field": "hostSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "sha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-future-age/proof.json",
+      "proofSha256": "90dfe0683bf3ce27aebe28d4f72f1a8ce0a417c05cfa1c6564939ac879c709c4",
+      "commit": "9f1441dcbd929bf6eea0d8ce86488a43ca0a2554",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "sha256": "957478004d80546ddb15fa6ef6d41d6e4438af6d9e5b38561fbc4aa161b4c834",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-future-age/proof.json",
+      "proofSha256": "90dfe0683bf3ce27aebe28d4f72f1a8ce0a417c05cfa1c6564939ac879c709c4",
+      "commit": "9f1441dcbd929bf6eea0d8ce86488a43ca0a2554",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-future-age.mjs",
+      "sha256": "6c4d1fc2841871c01ab3fc45bd936a65279905eed276be5133ac55cbeda31d37",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-clear-denial/proof.json",
+      "proofSha256": "99f2f353aa9a71ed39a3e666ed05b4551d492e829507de98b7966a73d96f3faa",
+      "commit": "26ee28116588cc86db6fce6386f321c7a75b487f",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "sha256": "846dc7474410ef9586ad97d9ec4bf57ffcfbdf129a764f51078c33a9237b5d43",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-clear-denial/proof.json",
+      "proofSha256": "99f2f353aa9a71ed39a3e666ed05b4551d492e829507de98b7966a73d96f3faa",
+      "commit": "26ee28116588cc86db6fce6386f321c7a75b487f",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "sha256": "bacfb82b5d912dd2f9dd24e8407bf63b33e39fe24bf1a5e3b4b6e77e6236c838",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-clear-denial/proof.json",
+      "proofSha256": "99f2f353aa9a71ed39a3e666ed05b4551d492e829507de98b7966a73d96f3faa",
+      "commit": "26ee28116588cc86db6fce6386f321c7a75b487f",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-clear-denial.mjs",
+      "sha256": "14e39031f0eb0b738bcb2ca9eaf137e2640fdef2742aa5669504414f44c5fa70",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-clear-denial/proof.json",
+      "proofSha256": "99f2f353aa9a71ed39a3e666ed05b4551d492e829507de98b7966a73d96f3faa",
+      "commit": "26ee28116588cc86db6fce6386f321c7a75b487f",
+      "field": "denialHelperSha256",
+      "path": "apps/desktop/src-tauri/tests/fixtures/choice-clear-denial.ps1",
+      "sha256": "c931d2e9fbe59873d7262c026ee70dc16add7de18016b8912170e20b3bbf24a4",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-schedule-container/proof.json",
+      "proofSha256": "f57f7a18001c8204e4134e41f0a5694faa8306250a381d179f17e6b3d414f0a2",
+      "commit": "5be43d1e97164839377f1c0a3339aa16631b2146",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "sha256": "0c154378dfe8dadd92f89a05dd9a3f6b68868bc973216f9495faaf31f14e6e8c",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-schedule-container/proof.json",
+      "proofSha256": "f57f7a18001c8204e4134e41f0a5694faa8306250a381d179f17e6b3d414f0a2",
+      "commit": "5be43d1e97164839377f1c0a3339aa16631b2146",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "sha256": "bf37c4b990ac67a0c176e4e24c4912fb84d7c918f04b95ba5a21b834a7bf8d7e",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-schedule-container/proof.json",
+      "proofSha256": "f57f7a18001c8204e4134e41f0a5694faa8306250a381d179f17e6b3d414f0a2",
+      "commit": "5be43d1e97164839377f1c0a3339aa16631b2146",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-schedule-container.mjs",
+      "sha256": "6322e4f838bb878a72d62a6a30985daaccaac7c1d322da666d9cdb0dc697cd4e",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-schedule-container/proof.json",
+      "proofSha256": "f57f7a18001c8204e4134e41f0a5694faa8306250a381d179f17e6b3d414f0a2",
+      "commit": "5be43d1e97164839377f1c0a3339aa16631b2146",
+      "field": "replyRunnerSha256",
+      "path": "apps/desktop/src-tauri/tests/fixtures/reply-runner.rs",
+      "sha256": "3f587574a49d0358c25a3d510e52b865f80304295428ffe39838f9d67714edb8",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-provenance/proof.json",
+      "proofSha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
+      "commit": "04afe3e133c11882de865260012623e2aa62631a",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "sha256": "4d127282097136aad932c913b916d3e1619c38d22f1132d6de7a6ed6d3f369b9",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-provenance/proof.json",
+      "proofSha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
+      "commit": "04afe3e133c11882de865260012623e2aa62631a",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "sha256": "1a45e67951466f9f3bcf7b3a43343c1ba662b3de02e7299384c2a8850fc574af",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-provenance/proof.json",
+      "proofSha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
+      "commit": "04afe3e133c11882de865260012623e2aa62631a",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-days-provenance.mjs",
+      "sha256": "c32551776729fe2a986b95c73f5c811a801f34abc3241ae5a6efd94ded30f9ea",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-provenance/proof.json",
+      "proofSha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
+      "commit": "04afe3e133c11882de865260012623e2aa62631a",
+      "field": "replyRunnerSha256",
+      "path": "apps/desktop/src-tauri/tests/fixtures/reply-runner.rs",
+      "sha256": "3f587574a49d0358c25a3d510e52b865f80304295428ffe39838f9d67714edb8",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-provenance/proof.json",
+      "proofSha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
+      "commit": "04afe3e133c11882de865260012623e2aa62631a",
+      "field": "frontendSourceSha256",
+      "path": "apps/desktop/src/activity/model.ts",
+      "sha256": "ed4f5c85a3ac545fcfe13cb32533e5e433db949259ac0593de9e539c32a2239f",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-provenance/proof.json",
+      "proofSha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
+      "commit": "04afe3e133c11882de865260012623e2aa62631a",
+      "field": "clientSourceSha256",
+      "path": "apps/desktop/src/activity/client.ts",
+      "sha256": "2fb09ede8cf1c2d880776100dd367a12155c2feb396eda861632a80d4c23c838",
+      "matched": true
+    }
+  ],
+  "reports": [
+    {
+      "id": "receiver",
+      "path": "docs/validation/B4/reference-receiver.json",
+      "sha256": "8df55b20771403d43c4c4b4ba3613f11d574ae029f8381a7de8e9392b828da11",
+      "matched": true
+    },
+    {
+      "id": "frozen",
+      "path": "docs/validation/B4/frozen-comparison.json",
+      "sha256": "7e5b6b17c23f3fa6a9a8b713f65c8b6b47f7593ced01ebde69b43db168381a97",
+      "matched": true
+    },
+    {
+      "id": "handback",
+      "path": "docs/validation/B4/subprocess-handback.json",
+      "sha256": "a26c81a0437d5dc228a3dbbc32f5e9674ace00714712848944a532c8c71b953e",
+      "matched": true
+    },
+    {
+      "id": "ccusage",
+      "path": "docs/validation/B1.2/ccusage-capability.json",
+      "sha256": "612f681445bc4e0c1b32726be82684221b83cfcd62288222858407c8995aa917",
+      "matched": true
+    },
+    {
+      "id": "store",
+      "path": "docs/validation/B4/store-hard-kill.json",
+      "sha256": "7d915ef0442519b6a9bb354ea076a86c1df77106eec4cff9a082ae4e7eb30f37",
+      "matched": true
+    },
+    {
+      "id": "publisher",
+      "path": "docs/validation/B4/publisher-hard-kill.json",
+      "sha256": "0cb510efcf61bad14b57ac0f050b3ccc55daf0d60a9d224a2d11ce20055a49f7",
+      "matched": true
+    },
+    {
+      "id": "runner",
+      "path": "docs/validation/B4/runner-hard-kill.json",
+      "sha256": "6bbbf81d839af05e85aa257dcbe681d2db7d90f63fc73494584060a46e4162d4",
+      "matched": true
+    },
+    {
+      "id": "regression",
+      "path": "docs/validation/B4/reference-regression.json",
+      "sha256": "90ea7ca4bac130d20ad75b6070da852ddd34975cb4f07c7bbf322d0f2dc4a834",
+      "matched": true
+    },
+    {
+      "id": "literal",
+      "path": "docs/validation/B4/literal-comparison.json",
+      "sha256": "3134cba5c8c1570b4b01fca0f7b95ed05860163f194106820f07b6c0046103cb",
+      "matched": true
+    },
+    {
+      "id": "frozen2",
+      "path": "docs/validation/B4/frozen-comparison-v2.json",
+      "sha256": "6cee1e6bf9c31795dea39356b37a72062414f9522728cdd3ff76ca2d97efa563",
+      "matched": true
+    },
+    {
+      "id": "frozen3",
+      "path": "docs/validation/B4/frozen-comparison-v3.json",
+      "sha256": "66430c277fae3ee5bf7a84ef68fe785a3bd332bed7c68d7c85203730d93058cb",
+      "matched": true
+    },
+    {
+      "id": "literal2",
+      "path": "docs/validation/B4/literal-comparison-v2.json",
+      "sha256": "49b3a132a382916cb913a775d9e347c655d4c27492053c2c05fd9ecd6e841240",
+      "matched": true
+    },
+    {
+      "id": "scheduler_closed_ui",
+      "path": "docs/validation/Activity-unified/closed-ui-proof.json",
+      "sha256": "46865a48d51678dd79f6ae1d06cbb304089a8b15d4c4b1b22d1eca7285e37a01",
+      "matched": true
+    },
+    {
+      "id": "independent_package",
+      "path": "docs/validation/Activity-unified/independent-package.json",
+      "sha256": "0051ee93907ef967d53d59206dc7b1d2192b2dd1cdae291ca8f7b7a9edbcc279",
+      "matched": true
+    },
+    {
+      "id": "index_isolation",
+      "path": "docs/validation/Activity-unified/index-isolation-proof.json",
+      "sha256": "3699163bddd939f27007307f7e6547df95f969472745a802518104b3c0ec169d",
+      "matched": true
+    },
+    {
+      "id": "missing_index",
+      "path": "docs/validation/Activity-unified/missing-index-proof.json",
+      "sha256": "afcc41f696975da9713cab9dc0d84ba288a0bed810625f7a90ddcca7ec46311b",
+      "matched": true
+    },
+    {
+      "id": "malformed_index",
+      "path": "docs/validation/Activity-unified/malformed-index-proof.json",
+      "sha256": "5c0dd14aba9dbeacd51a087a5f0bb5769cec200a5126e82cb6d6c7794cc0f0ea",
+      "matched": true
+    },
+    {
+      "id": "locked_index",
+      "path": "docs/validation/Activity-unified/locked-index-proof.json",
+      "sha256": "f811386f4810f06ccdf2127072bb9f5dd50cf6ec51bfaeb34662ab82df479012",
+      "matched": true
+    },
+    {
+      "id": "rebuild_overlap",
+      "path": "docs/validation/Activity-unified/rebuild-overlap-proof.json",
+      "sha256": "d705e3a4f6101209de77927ab999e65b591f3d5c0b3669f9c6ccad47b1e5ef94",
+      "matched": true
+    },
+    {
+      "id": "rebuild_cancel",
+      "path": "docs/validation/Activity-unified/rebuild-cancel-proof.json",
+      "sha256": "6a6f3d8addfdcf199c0c393bf31b0458c7614ad6456c935dd8189aa8994a90f6",
+      "matched": true
+    },
+    {
+      "id": "rebuild_partial",
+      "path": "docs/validation/Activity-unified/rebuild-partial-proof.json",
+      "sha256": "a4f305f1cde338ad4e74cf8930c3a3e61c503ed8fbdcc65a85131471d706c3af",
+      "matched": true
+    },
+    {
+      "id": "index_guidance",
+      "path": "docs/validation/Activity-unified/index-guidance-proof.json",
+      "sha256": "ba860d6fcb27750822a9b6b79a7a2836806a36cfd8a408d404fd06fe70f48a5b",
+      "matched": true
+    },
+    {
+      "id": "rebuild_mutations",
+      "path": "docs/validation/Activity-unified/rebuild-mutations-proof.json",
+      "sha256": "7c43ce4d9a006587a152c7720c336216267e1062514a4b53d03e12d57c1b1707",
+      "matched": true
+    },
+    {
+      "id": "static_read",
+      "path": "docs/validation/Activity-unified/static-read.json",
+      "sha256": "902eb4d6284a1dbb4fc7e1758a40365ece55bfaf9e8c828fc885622508c00b52",
+      "matched": true
+    },
+    {
+      "id": "full_days",
+      "path": "docs/validation/Activity-unified/full-days-proof.json",
+      "sha256": "edb6b8a25a4f0447ab00113629b2a3f8187d5b5eb8269049df5416be92774bb7",
+      "matched": true
+    },
+    {
+      "id": "next_trigger",
+      "path": "docs/validation/Activity-unified/next-trigger-proof.json",
+      "sha256": "2e0e89ac1328abb6d3a9d1a115f28bb813feef556b18d5d251fcd7dbdede4d2d",
+      "matched": true
+    },
+    {
+      "id": "timed_trigger",
+      "path": "docs/validation/Activity-unified/timed-trigger-short.json",
+      "sha256": "60ac09739d580ea21f786b71a255eb3f19d7934c0923fb5006a642e96e2f337a",
+      "matched": true
+    },
+    {
+      "id": "source_contract",
+      "path": "docs/validation/Activity-unified/source-contract-proof.json",
+      "sha256": "62bd618417068d2c81e936142f235a81f3ebddd1ad431fd9bd5bc102c3b3a37c",
+      "matched": true
+    },
+    {
+      "id": "export_contract",
+      "path": "docs/validation/Activity-unified/export-contract-proof.json",
+      "sha256": "dc4421bc5ab232d7d6d7d4b7497ce71e55d8de66a85c56642847850ad3fda717",
+      "matched": true
+    },
+    {
+      "id": "activity_read_lock",
+      "path": "docs/validation/Activity-unified/current-lock-proof.json",
+      "sha256": "c0e23081d361168a291af23561a12de5ac4e7b22ea63379c9391eebf692ff68e",
+      "matched": true
+    },
+    {
+      "id": "reply_correlation",
+      "path": "docs/validation/Activity-unified/run-contract-proof.json",
+      "sha256": "70be1e4b9dda53be68d0177e7347aa70d4d2fb20f7cf16c77caebb16c8a3dd38",
+      "matched": true
+    },
+    {
+      "id": "run_polling",
+      "path": "docs/validation/Activity-unified/run-polling-proof.json",
+      "sha256": "a34c09153403f9f1b2e96dfd5b34210b3dc94ab62a221def5e25b80f8659ccb1",
+      "matched": true
+    },
+    {
+      "id": "poll_lifecycle",
+      "path": "docs/validation/Activity-unified/poll-lifecycle-proof.json",
+      "sha256": "5344f2f9f0dccf3dcdfb50c9d0c45e957b163ec1b595632421658844c0e021f7",
+      "matched": true
+    },
+    {
+      "id": "timed_hourly",
+      "path": "docs/validation/Activity-unified/timed-trigger-hourly.json",
+      "sha256": "4a6cc06155e2281ce1c6e31c51559dde800dbc96018c2f5fa62672d3f0942757",
+      "matched": true
+    },
+    {
+      "id": "run_outcome",
+      "path": "docs/validation/Activity-unified/run-outcome-proof.json",
+      "sha256": "6ce864d3d7fa1df7078eb167de6050a3bd8f61cee475bdbddd65c410559622cb",
+      "matched": true
+    },
+    {
+      "id": "activity_read_acl",
+      "path": "docs/validation/Activity-unified/current-acl-proof.json",
+      "sha256": "d6ebd3ffef57523020454b3fa6d32541537c899b870d30bea2b700c362384872",
+      "matched": true
+    },
+    {
+      "id": "generation_write_acl",
+      "path": "docs/validation/Activity-unified/generation-write-acl-proof.json",
+      "sha256": "8cef7edf5b3e3d39ca9c0ad084822747d23ebea660d4049fc538f6ab4a101082",
+      "matched": true
+    },
+    {
+      "id": "setup_contract",
+      "path": "docs/validation/Activity-unified/setup-contract-proof.json",
+      "sha256": "ed1bc41b2ca64bb0a13e9eb2c4af1ddfa7c8ab5d6eec807ff261ae19a9216a45",
+      "matched": true
+    },
+    {
+      "id": "choice_save",
+      "path": "docs/validation/Activity-unified/choice-save-proof.json",
+      "sha256": "1b81278a80582ee33d2c609bebc757e67ce5878e84d433d50652c3a4c4b81786",
+      "matched": true
+    },
+    {
+      "id": "current_switch_lock",
+      "path": "docs/validation/Activity-unified/switch-lock-proof.json",
+      "sha256": "fa889b6e75a184876a98201ac26ac8a6d84c0f8abde1893b8baea228dc7198c0",
+      "matched": true
+    },
+    {
+      "id": "choice_delete",
+      "path": "docs/validation/Activity-unified/choice-delete-proof.json",
+      "sha256": "fcc5d97bc8065ce172058510d2d8fe5deb16c9911a2d183eeaa2df04d7d40afb",
+      "matched": true
+    },
+    {
+      "id": "repeat_pause",
+      "path": "docs/validation/Activity-unified/repeat-pause-proof.json",
+      "sha256": "96066b9095a0688dcc7083a57913b0145c8b0e5b232556fe9195df0f43dcc2ff",
+      "matched": true
+    },
+    {
+      "id": "run_history",
+      "path": "docs/validation/Activity-unified/run-history-proof.json",
+      "sha256": "0117665828b265090ac61618d7c9ceea92dc7d9ce5c190e78ff750e7f13a8d76",
+      "matched": true
+    },
+    {
+      "id": "choice_persistence",
+      "path": "docs/validation/Activity-unified/choice-persistence-proof.json",
+      "sha256": "3608e1a9947b82bbdc11258e8b3cc1bee7fdcd4d50befc2cea909cd97696ca05",
+      "matched": true
+    },
+    {
+      "id": "clear_remount",
+      "path": "docs/validation/Activity-unified/clear-remount-proof.json",
+      "sha256": "eec3f13399e75df3710d41c4f96caf578b06610996c8f87424544e3b4f30ba59",
+      "matched": true
+    },
+    {
+      "id": "select_recovery",
+      "path": "docs/validation/Activity-unified/select-recovery-proof.json",
+      "sha256": "50f425e3b9730bf84ecff184960807cec9981e9ca663a39bf88b8dab8deb835c",
+      "matched": true
+    },
+    {
+      "id": "pointer_create_acl",
+      "path": "docs/validation/Activity-unified/pointer-create-proof.json",
+      "sha256": "596071a1bdf647eeec5b83877a24f65f34e59904e22b239616b7ec76b8f1f642",
+      "matched": true
+    },
+    {
+      "id": "run_admission",
+      "path": "docs/validation/Activity-unified/run-admission-proof.json",
+      "sha256": "5fdac9851f53b11dc4af7554847941107fe74617dd6a3e79a76f1455c5ab7b81",
+      "matched": true
+    },
+    {
+      "id": "generation_manifest_acl",
+      "path": "docs/validation/Activity-unified/generation-manifest-proof.json",
+      "sha256": "cc7bc7a32f87007ff741a87482b421203c0de19c97a38c1fd0a8f9686f7f6750",
+      "matched": true
+    },
+    {
+      "id": "runner_hash_change",
+      "path": "docs/validation/Activity-unified/runner-hash-proof.json",
+      "sha256": "599865b8617b35df9a78293049e298acb794b7d626e85dd2daaeb6f0f36e464a",
+      "matched": true
+    },
+    {
+      "id": "run_remount",
+      "path": "docs/validation/Activity-unified/run-remount-proof.json",
+      "sha256": "3ce59a57d93cfa7142b9d9733223e1f75e189914223169a0e2e2f90a24b11ec6",
+      "matched": true
+    },
+    {
+      "id": "window_scope",
+      "path": "docs/validation/Activity-unified/window-scope-proof.json",
+      "sha256": "d93a5c961170b5536db96e7cc5a9f0848f0f3f83fa48c9096e95cf193ed2349c",
+      "matched": true
+    },
+    {
+      "id": "setup_running",
+      "path": "docs/validation/Activity-unified/setup-running-proof.json",
+      "sha256": "2d5de60526ab584b6bfbd06e8b6a6f2e24880ce5d736b5acd45b69464e4109b6",
+      "matched": true
+    },
+    {
+      "id": "setup_dialog_race",
+      "path": "docs/validation/Activity-unified/setup-dialog-race-proof.json",
+      "sha256": "6d3d4c75a5d93a7c71d4eae60d9dac7274b6216d7e55e3ad4291d707fc4d1c1e",
+      "matched": true
+    },
+    {
+      "id": "runner_missing",
+      "path": "docs/validation/Activity-unified/runner-missing-proof.json",
+      "sha256": "9854d4215fb102fce2deaee4b8278f28291ee3cf5f08d56dcf816ab8c521c4e0",
+      "matched": true
+    },
+    {
+      "id": "runner_missing_restart",
+      "path": "docs/validation/Activity-unified/runner-missing-restart-proof.json",
+      "sha256": "0d03f8e8d567648d488ad1477baf85c007e487a3eeec584357ab2a098cc1002a",
+      "matched": true
+    },
+    {
+      "id": "saved_choice_boundary",
+      "path": "docs/validation/Activity-unified/saved-choice-boundary-proof.json",
+      "sha256": "2af9d4b3830b1de18fb9bbc2d0f03fbfb062fc10ef281810dd7aaab1e86cd9f6",
+      "matched": true
+    },
+    {
+      "id": "saved_choice_read_sharing",
+      "path": "docs/validation/Activity-codex-choice-read/proof.json",
+      "sha256": "5feea6bd0fcf53a5ac24518b2045c373c093bc7f35081fe1664134d99f3d9a3a",
+      "matched": true
+    },
+    {
+      "id": "store_late_switch",
+      "path": "docs/validation/Activity-claude-late-switch/proof.json",
+      "sha256": "b84fff55e7e44c7b244a46f05f826cec8322125c4e91305654cc9db8043c4b55",
+      "matched": true
+    },
+    {
+      "id": "saved_choice_write_sharing",
+      "path": "docs/validation/Activity-claude-choice-write/proof.json",
+      "sha256": "c3238cd76ac62e9fe3c1595375de9d8a18a05ec8de3192b5b5d3652118e82336",
+      "matched": true
+    },
+    {
+      "id": "saved_choice_atomic",
+      "path": "docs/validation/Activity-atomic-choice/proof.json",
+      "sha256": "2ca9e0f8f5089f020535822e5b35afc4e621c58ad9b3364eb7580fbb8e273496",
+      "matched": true
+    },
+    {
+      "id": "manifest_bounded_read",
+      "path": "docs/validation/Activity-manifest-boundary/proof.json",
+      "sha256": "2935bd708fcdc6eb3ddf794ce4686343bb7cf6d12252ee8c5f7633b0414af304",
+      "matched": true
+    },
+    {
+      "id": "runner_pipe_deadline",
+      "path": "docs/validation/Activity-runner-pipe/proof.json",
+      "sha256": "1cbe7a1cde385982c7b8e751929eddb58ece3223f4efaed4d78971abd9739856",
+      "matched": true
+    },
+    {
+      "id": "copy_feedback_lifecycle",
+      "path": "docs/validation/Activity-copy-lifecycle/proof.json",
+      "sha256": "ed86e0fe37d81812c05c1f968d84d1f25c75faa5399d9f16b6687cd2caa30438",
+      "matched": true
+    },
+    {
+      "id": "error_feedback_ownership",
+      "path": "docs/validation/Activity-error-ownership/proof.json",
+      "sha256": "52c77c83b20a6d2e405262bb51f0929561b70969022e8104cb28326b9eda378a",
+      "matched": true
+    },
+    {
+      "id": "positive_pending_sequence",
+      "path": "docs/validation/Activity-sequence-contract/proof.json",
+      "sha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
+      "matched": true
+    },
+    {
+      "id": "date_only_precision",
+      "path": "docs/validation/Activity-date-only/proof.json",
+      "sha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "matched": true
+    },
+    {
+      "id": "future_observation_age",
+      "path": "docs/validation/Activity-future-age/proof.json",
+      "sha256": "90dfe0683bf3ce27aebe28d4f72f1a8ce0a417c05cfa1c6564939ac879c709c4",
+      "matched": true
+    },
+    {
+      "id": "saved_choice_clear_denial",
+      "path": "docs/validation/Activity-clear-denial/proof.json",
+      "sha256": "99f2f353aa9a71ed39a3e666ed05b4551d492e829507de98b7966a73d96f3faa",
+      "matched": true
+    },
+    {
+      "id": "schedule_container",
+      "path": "docs/validation/Activity-schedule-container/proof.json",
+      "sha256": "f57f7a18001c8204e4134e41f0a5694faa8306250a381d179f17e6b3d414f0a2",
+      "matched": true
+    },
+    {
+      "id": "days_provenance",
+      "path": "docs/validation/Activity-days-provenance/proof.json",
+      "sha256": "0e87ae33eab668cd91aa98534f20b3727d7e8f0acc6e8cc5a922d578459770af",
+      "matched": true
+    }
+  ],
+  "currentDesktopSha256": "7741db949e682d05e3b70163458a11782f147870270e6b9383b7c35152e951aa",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "newB4Selectors": 0,
+  "limitations": [
+    "This matches recorded source digests to their exact historical Git blobs; it does not rerun old behavior tests.",
+    "The 83-check review remains scoped to its original eight-fix frozen desktop. Later native reports retain their own executable scopes.",
+    "The current four follow-up receipts and 71 report blobs match the committed product baseline; remote publication is checked separately."
+  ]
+}
