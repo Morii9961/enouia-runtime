@@ -486,6 +486,13 @@
       "sha256": "99f2f353aa9a71ed39a3e666ed05b4551d492e829507de98b7966a73d96f3faa",
       "state": "passed",
       "selectorCount": 19
+    },
+    {
+      "id": "schedule_container",
+      "path": "docs/validation/Activity-schedule-container/proof.json",
+      "sha256": "f57f7a18001c8204e4134e41f0a5694faa8306250a381d179f17e6b3d414f0a2",
+      "state": "passed",
+      "selectorCount": 28
     }
   ],
   "cases": [
@@ -2224,6 +2231,39 @@
             "CD.complete_store_and_manifest_remain_exact",
             "T.clear_denial_is_not_success",
             "T.clear_accepts_absence_and_removes_existing"
+          ]
+        },
+        {
+          "report": "schedule_container",
+          "selectors": [
+            "SC.actual_producer_starts_healthy",
+            "SC.owned_reply_runner_matches_manifest",
+            "SC.actual_picker_selects_sandbox_helper",
+            "SC.string_schedule_returns_contract_invalid",
+            "SC.string_refusal_keeps_paths_private",
+            "SC.client_displays_contract_refusal",
+            "SC.contract_failure_disables_mutations",
+            "SC.boolean_schedule_returns_contract_invalid",
+            "SC.boolean_refusal_keeps_paths_private",
+            "SC.number_schedule_returns_contract_invalid",
+            "SC.number_refusal_keeps_paths_private",
+            "SC.array_schedule_returns_contract_invalid",
+            "SC.array_refusal_keeps_paths_private",
+            "SC.null_schedule_returns_contract_invalid",
+            "SC.null_refusal_keeps_paths_private",
+            "SC.missing_schedule_returns_contract_invalid",
+            "SC.missing_refusal_keeps_paths_private",
+            "SC.valid_object_keeps_source_history",
+            "SC.valid_object_retains_schedule_mode",
+            "SC.valid_object_adds_one_scheduler_health",
+            "SC.runner_error_passes_through",
+            "SC.controlled_reads_preserve_store",
+            "SC.original_runner_and_manifest_restored",
+            "SC.actual_picker_recovers_original_runner",
+            "SC.recovery_retains_exact_history",
+            "SC.choice_remains_exact",
+            "SC.complete_store_remains_exact",
+            "T.schedule_container_refuses_without_panicking"
           ]
         }
       ],

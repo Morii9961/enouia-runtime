@@ -1,0 +1,91 @@
+{
+  "checks": [
+    {
+      "id": "CD.actual_selection_saves_owned_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.real_acl_denial_hides_choice_existence",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.native_clear_reports_saved_false",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.refusal_explains_reconnect_and_retry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.native_status_retains_failed_clear",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.denial_never_changes_activity_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.exact_owned_descriptors_and_bytes_restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.failed_clear_preserves_exact_choice_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.package_manifest_and_store_remain_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.remount_keeps_failed_clear_feedback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.restart_reconnects_retained_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.restart_verifies_retained_choice_saved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.recovery_clear_reports_saved_true",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.recovery_clear_removes_owned_file",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.recovery_status_retains_success",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.successful_clear_stays_forgotten_after_restart",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CD.complete_store_and_manifest_remain_exact",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "17/17"
+}

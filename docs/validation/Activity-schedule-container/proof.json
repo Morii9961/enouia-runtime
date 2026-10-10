@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_schedule_container",
+  "baseline": "26ee28116588cc86db6fce6386f321c7a75b487f",
+  "checks": [
+    "SC.actual_producer_starts_healthy",
+    "SC.owned_reply_runner_matches_manifest",
+    "SC.actual_picker_selects_sandbox_helper",
+    "SC.string_schedule_returns_contract_invalid",
+    "SC.string_refusal_keeps_paths_private",
+    "SC.client_displays_contract_refusal",
+    "SC.contract_failure_disables_mutations",
+    "SC.boolean_schedule_returns_contract_invalid",
+    "SC.boolean_refusal_keeps_paths_private",
+    "SC.number_schedule_returns_contract_invalid",
+    "SC.number_refusal_keeps_paths_private",
+    "SC.array_schedule_returns_contract_invalid",
+    "SC.array_refusal_keeps_paths_private",
+    "SC.null_schedule_returns_contract_invalid",
+    "SC.null_refusal_keeps_paths_private",
+    "SC.missing_schedule_returns_contract_invalid",
+    "SC.missing_refusal_keeps_paths_private",
+    "SC.valid_object_keeps_source_history",
+    "SC.valid_object_retains_schedule_mode",
+    "SC.valid_object_adds_one_scheduler_health",
+    "SC.runner_error_passes_through",
+    "SC.controlled_reads_preserve_store",
+    "SC.original_runner_and_manifest_restored",
+    "SC.actual_picker_recovers_original_runner",
+    "SC.recovery_retains_exact_history",
+    "SC.choice_remains_exact",
+    "SC.complete_store_remains_exact",
+    "T.schedule_container_refuses_without_panicking"
+  ],
+  "productSourceChanged": true,
+  "modeledReplies": false,
+  "controlledRunnerOutput": true,
+  "tasksCreated": false,
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "nonObjectScheduleRefused": true,
+  "missingScheduleNotInvented": true,
+  "completeDtoValidationRemainsClientOwned": true,
+  "originalRunnerAndManifestRestored": true,
+  "beforeReport": "docs/validation/Activity-schedule-container/before.json",
+  "beforeReportSha256": "10de7612277ead0f4325db67abc80b015cf7efd74891840e861fd89affbf155a",
+  "beforeDesktopSha256": "d78d16d2b2839323cad4f49377a70b580174b5d9979ce8555e2f861c77910e55",
+  "testReport": "docs/validation/Activity-schedule-container/tests.json",
+  "testReportSha256": "409d5ce5f435ccbc5943c373dba05f1b7ea259e0d190dab6f7624a4191b7f61a",
+  "nativeReports": [
+    {
+      "id": "schedule",
+      "path": "docs/validation/Activity-schedule-container/schedule.json",
+      "sha256": "1b850f0a313c7e818dfae503ada509ecf7b83ca4986eb5f7477095a4bea42d84",
+      "summary": "27/27",
+      "exitCode": 0
+    },
+    {
+      "id": "clear",
+      "path": "docs/validation/Activity-schedule-container/clear.json",
+      "sha256": "6bd11ce08786d84f4ffa867d5cee02941cdebb57b83f1c02b20d40674ff03fe7",
+      "summary": "17/17",
+      "exitCode": 0
+    },
+    {
+      "id": "actions",
+      "path": "docs/validation/Activity-schedule-container/actions.json",
+      "sha256": "a3fe5373858b8e43d9e2f46441e302627704c3773c57a0b2d253ae9955a0e893",
+      "summary": "35/35",
+      "exitCode": 0
+    }
+  ],
+  "intermediates": [
+    {
+      "path": "docs/validation/Activity-schedule-container/before-observer.json",
+      "sha256": "7c95ef5b3b81f5fbacd4a26e0a3b15b0d2179e310168a52211ebad8537f05d31",
+      "summary": "19/27",
+      "excludedFromAcceptance": true,
+      "reason": "The pass-through observer compared JSON serialization order; object content is now compared and the unchanged old executable rerun. Only seven product failures remain."
+    }
+  ],
+  "frontendEvidence": "docs/validation/Activity-future-age/tests.json",
+  "frontendEvidenceSha256": "a2f2cb0e478901af7ffafed21949b8a0253d921547b2dd9be7f5aaa320a6e999",
+  "frontendSourceSha256": "ed4f5c85a3ac545fcfe13cb32533e5e433db949259ac0593de9e539c32a2239f",
+  "desktopSha256": "112d39ab2b4dc0c3669d085d1c74ecc80b7fe58cdf74fb92d4fcfc315253927f",
+  "installerSha256": "c39ec63bb4d425f11761d47b8c6ed754c14bc0a345eb65b339b2a2b57685838f",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "productSourceSha256": "0c154378dfe8dadd92f89a05dd9a3f6b68868bc973216f9495faaf31f14e6e8c",
+  "harnessSha256": "bf37c4b990ac67a0c176e4e24c4912fb84d7c918f04b95ba5a21b834a7bf8d7e",
+  "drillSha256": "6322e4f838bb878a72d62a6a30985daaccaac7c1d322da666d9cdb0dc697cd4e",
+  "replyRunnerSha256": "3f587574a49d0358c25a3d510e52b865f80304295428ffe39838f9d67714edb8",
+  "frozenDesktopStable": true,
+  "limitations": [
+    "Controlled runner output comes through the actual selected sandbox runner, hash check, bounded process reader and native IPC. No browser replies are substituted.",
+    "Only the container required by host decoration is checked here; the client retains full DTO validation.",
+    "The original runner/manifest, saved choice and complete Activity store remain exact after recovery.",
+    "No personal data, accounts, scheduled task, live delivery, installation, signing or deployment."
+  ]
+}

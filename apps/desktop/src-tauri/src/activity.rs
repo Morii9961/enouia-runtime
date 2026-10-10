@@ -724,6 +724,12 @@ fn add_schedule(mut overview: Value, task: Value, next: Value, running: bool) ->
     if overview.get("kind").and_then(Value::as_str) != Some("activity_overview") {
         return overview;
     }
+    // The client validates the complete DTO. Before decorating it here,
+    // require the container that mutable JSON indexing would otherwise
+    // create from null or panic on for a primitive/array.
+    if !overview["schedule"].is_object() {
+        return error("contract_invalid", "activity_archive", false);
+    }
     let state = match (task["registered"].as_bool(), task["enabled"].as_bool()) {
         (Some(true), Some(true)) => "healthy",
         (Some(true), _) => "degraded",
@@ -1252,6 +1258,35 @@ mod tests {
         assert!(save_root_at(&path, None));
         assert!(!path.exists());
         assert!(save_root_at(&path, None));
+    }
+
+    #[test]
+    fn schedule_decoration_refuses_non_object_schedule_without_panicking() {
+        let refused = error("contract_invalid", "activity_archive", false);
+        for schedule in [
+            json!("private path"),
+            json!(false),
+            json!(2),
+            json!([]),
+            Value::Null,
+        ] {
+            for running in [false, true] {
+                let reply = json!({"schemaVersion": 1, "kind": "activity_overview", "schedule": schedule, "health": []});
+                let outcome = std::panic::catch_unwind(|| {
+                    add_schedule(reply, Value::Null, Value::Null, running)
+                });
+                assert_eq!(outcome.expect("invalid schedule must not panic"), refused);
+            }
+        }
+        assert_eq!(
+            add_schedule(
+                json!({"schemaVersion": 1, "kind": "activity_overview", "health": []}),
+                Value::Null,
+                Value::Null,
+                false
+            ),
+            refused
+        );
     }
 
     #[cfg(windows)]

@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 69);
+  assert.equal(reports.size, 70);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1517,6 +1517,47 @@ function validate(index) {
   assert.equal(clearDenial.frontendSourceSha256, futureAge.productSourceSha256);
   assert.equal(clearDenial.beforeDesktopSha256, futureAge.desktopSha256);
   for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256', 'denialHelperSha256']) assert.match(clearDenial[field], /^[a-f0-9]{64}$/);
+  const scheduleContainer = reports.get('schedule_container').report;
+  assert.equal(scheduleContainer.scope, 'isolated_activity_schedule_container');
+  for (const field of ['productSourceChanged', 'controlledRunnerOutput', 'nonObjectScheduleRefused', 'missingScheduleNotInvented', 'completeDtoValidationRemainsClientOwned', 'originalRunnerAndManifestRestored', 'frozenDesktopStable']) assert.equal(scheduleContainer[field], true);
+  assert.equal(scheduleContainer.modeledReplies, false);
+  assert.equal(scheduleContainer.tasksCreated, false);
+  assert.equal(scheduleContainer.memoryRevision, isolation.memoryRevision);
+  const scheduleReports = new Map();
+  for (const entry of scheduleContainer.nativeReports) {
+    const raw = readLinked(entry.path, entry.sha256);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(check => check.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert(!scheduleReports.has(entry.id));
+    scheduleReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...scheduleReports.keys()], ['schedule', 'clear', 'actions']);
+  assert.deepEqual(scheduleContainer.nativeReports.map(entry => entry.summary), ['27/27', '17/17', '35/35']);
+  const scheduleBefore = readLinked(scheduleContainer.beforeReport, scheduleContainer.beforeReportSha256);
+  assert.equal(scheduleBefore.summary, '20/27');
+  assert.deepEqual(scheduleBefore.checks.filter(check => !check.ok).map(check => check.id), ['SC.string_schedule_returns_contract_invalid', 'SC.client_displays_contract_refusal', 'SC.boolean_schedule_returns_contract_invalid', 'SC.number_schedule_returns_contract_invalid', 'SC.array_schedule_returns_contract_invalid', 'SC.null_schedule_returns_contract_invalid', 'SC.missing_schedule_returns_contract_invalid']);
+  const scheduleTests = readLinked(scheduleContainer.testReport, scheduleContainer.testReportSha256);
+  assert.equal(scheduleTests.state, 'passed');
+  assert.equal(scheduleTests.hostTests, 51);
+  assert.equal(scheduleTests.coreTests, 3);
+  assert.equal(scheduleTests.results.length, 1);
+  assert(scheduleTests.results.every(test => test.passed === true));
+  assert.equal(scheduleTests.baseline.passed, 0);
+  assert.equal(scheduleTests.baseline.failed, 1);
+  assert.equal(scheduleTests.runningAndIdleBranches, true);
+  assert.deepEqual(scheduleTests.cases, ['string', 'boolean', 'number', 'array', 'null', 'missing']);
+  assert.deepEqual(scheduleContainer.checks, [...scheduleReports.get('schedule').checks.map(check => check.id), ...scheduleTests.results.map(test => test.id)]);
+  assert.equal(scheduleContainer.intermediates.length, 1);
+  const scheduleObserver = scheduleContainer.intermediates[0];
+  assert.equal(readLinked(scheduleObserver.path, scheduleObserver.sha256).summary, '19/27');
+  assert.equal(scheduleObserver.excludedFromAcceptance, true);
+  assert.equal(scheduleContainer.frontendEvidence, futureAge.testReport);
+  assert.equal(scheduleContainer.frontendEvidenceSha256, hash(readFileSync(contained(scheduleContainer.frontendEvidence))));
+  assert.equal(scheduleContainer.frontendSourceSha256, futureAge.productSourceSha256);
+  assert.equal(scheduleContainer.beforeDesktopSha256, clearDenial.desktopSha256);
+  for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256', 'replyRunnerSha256']) assert.match(scheduleContainer[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1600,6 +1641,7 @@ function validate(index) {
   assert(datePrecision.checks.every(id => linkedTo(c17, 'date_only_precision').includes(id)), 'C17 must retain date-only precision and explicit-offset display evidence');
   assert(futureAge.checks.every(id => linkedTo(c17, 'future_observation_age').includes(id)), 'C17 must retain future-age refusal and normal past/date-only display evidence');
   assert(clearDenial.checks.every(id => linkedTo(c17, 'saved_choice_clear_denial').includes(id)), 'C17 must retain actual hidden-existence clear denial and exact restoration/recovery evidence');
+  assert(scheduleContainer.checks.every(id => linkedTo(c17, 'schedule_container').includes(id)), 'C17 must retain actual runner schedule-container refusals and healthy restoration evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1686,6 +1728,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'date_only_precision'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'future_observation_age'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_clear_denial'));
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'schedule_container'));
   reject(x => x.cases[0].evidence[0].selectors.push(x.cases[0].evidence[0].selectors[0]));
   reject(x => x.cases[0].evidence.push(structuredClone(x.cases[0].evidence[0])));
   for (const invalid of [['same', 'same'], ['valid', 22], ['valid', ' ']]) {
