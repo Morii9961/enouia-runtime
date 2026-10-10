@@ -17,6 +17,12 @@ function contained(path) {
   return full;
 }
 
+function assertUniqueSelectors(selectors, label) {
+  assert(Array.isArray(selectors), `${label}: selectors must be an array`);
+  assert(selectors.every(selector => typeof selector === 'string' && selector.trim()), `${label}: selectors must be nonblank strings`);
+  assert.equal(new Set(selectors).size, selectors.length, `${label}: duplicate selector`);
+}
+
 function validate(index) {
   assert.equal(index.schemaVersion, 1);
   assert.equal(index.scope, 'historical_isolated_evidence_index');
@@ -34,6 +40,7 @@ function validate(index) {
     assert.equal(report.schemaVersion, 1);
     assert.equal(report.state, entry.state);
     const selectors = [...(report.checks ?? []), ...(report.results ?? []).map(r => r.id)];
+    assertUniqueSelectors(selectors, entry.id);
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
@@ -1345,10 +1352,15 @@ function validate(index) {
     assert.equal(row.signedOff, false);
     assert(row.remaining.length > 0 && row.remaining.every(s => typeof s === 'string' && s.trim()));
     assert(row.evidence.length > 0, `missing evidence for ${row.id}`);
+    const seenSelectors = new Set();
     for (const ref of row.evidence) {
       assert(reports.has(ref.report), `unknown report: ${ref.report}`);
+      assertUniqueSelectors(ref.selectors, `${row.id}/${ref.report}`);
       assert(ref.selectors.length > 0);
       for (const selector of ref.selectors) {
+        const key = JSON.stringify([ref.report, selector]);
+        assert(!seenSelectors.has(key), `${row.id}: duplicate evidence link`);
+        seenSelectors.add(key);
         assert(reports.get(ref.report).selectors.includes(selector), `missing evidence selector: ${selector}`);
         linked++;
       }
@@ -1426,7 +1438,8 @@ function validate(index) {
 const index = JSON.parse(readFileSync(contained(indexPath)));
 const result = validate(index);
 if (process.argv.includes('--self-test')) {
-  const reject = change => { const copy = structuredClone(index); change(copy); assert.throws(() => validate(copy)); };
+  let negativeChecks = 0;
+  const reject = change => { const copy = structuredClone(index); change(copy); assert.throws(() => validate(copy)); negativeChecks++; };
   reject(x => x.cases.pop());
   reject(x => x.reports[0].sha256 = '0'.repeat(64));
   reject(x => x.cases[0].evidence[0].selectors.push('nonexistent evidence'));
@@ -1494,7 +1507,20 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_pipe_deadline'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'copy_feedback_lifecycle'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'error_feedback_ownership'));
-  result.negativeChecks = 67;
+  reject(x => x.cases[0].evidence[0].selectors.push(x.cases[0].evidence[0].selectors[0]));
+  reject(x => x.cases[0].evidence.push(structuredClone(x.cases[0].evidence[0])));
+  for (const invalid of [['same', 'same'], ['valid', 22], ['valid', ' ']]) {
+    assert.throws(() => assertUniqueSelectors(invalid, 'report self-test'));
+    negativeChecks++;
+  }
+  // Disjoint references to the same report are valid; only repeated links
+  // inflate coverage. The same selector may also support different rows.
+  const disjoint = structuredClone(index);
+  const row = disjoint.cases.find(c => c.id === 'C17');
+  const reference = row.evidence.find(ref => ref.selectors.length > 1);
+  row.evidence.push({ report: reference.report, selectors: [reference.selectors.pop()] });
+  assert.equal(validate(disjoint).evidenceLinks, result.evidenceLinks);
+  result.negativeChecks = negativeChecks;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
