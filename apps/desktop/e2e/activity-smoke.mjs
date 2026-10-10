@@ -27,8 +27,8 @@ const [exe, pkg, out, mode] = process.argv.slice(2);
 const taskMode = ['--task-disabled', '--task-enabled'].includes(mode);
 const overlapMode = ['--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
 const indexMode = ['--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations'].includes(mode);
-if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--runner-missing', '--runner-missing-restart', '--run-remount', '--setup-running', '--setup-dialog-race', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
-  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--runner-missing|--runner-missing-restart|--run-remount|--setup-running|--setup-dialog-race|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
+if (!out || !isAbsolute(out) || !isAbsolute(exe) || !isAbsolute(pkg) || (mode && !['--keyboard', '--full-days', '--read-contract', '--export-contract', '--run-contract', '--run-outcome', '--setup-contract', '--choice-save', '--choice-persistence', '--choice-delete', '--choice-clear-remount', '--choice-select-recovery', '--run-history', '--run-admission', '--runner-hash-change', '--runner-missing', '--runner-missing-restart', '--run-remount', '--setup-running', '--setup-dialog-race', '--saved-choice-boundary', '--window-scope', '--run-polling', '--poll-lifecycle', '--confirmation', '--index-isolation', '--missing-index', '--malformed-index', '--current-read-lock', '--current-acl-denial', '--generation-manifest-denial', '--current-switch-lock', '--repeat-pause', '--generation-write-denial', '--pointer-create-denial', '--locked-index', '--rebuild-overlap', '--rebuild-cancel', '--rebuild-partial', '--rebuild-mutations', '--task-disabled', '--task-enabled'].includes(mode)) || process.argv.length > 6) {
+  throw new Error('usage: activity-smoke.mjs <absolute exe> <package-root> <out-dir> [--keyboard|--full-days|--read-contract|--export-contract|--run-contract|--run-outcome|--setup-contract|--choice-save|--choice-persistence|--choice-delete|--choice-clear-remount|--choice-select-recovery|--run-history|--run-admission|--runner-hash-change|--runner-missing|--runner-missing-restart|--run-remount|--setup-running|--setup-dialog-race|--saved-choice-boundary|--window-scope|--run-polling|--poll-lifecycle|--confirmation|--index-isolation|--missing-index|--malformed-index|--current-read-lock|--current-acl-denial|--generation-manifest-denial|--current-switch-lock|--repeat-pause|--generation-write-denial|--pointer-create-denial|--locked-index|--rebuild-overlap|--rebuild-cancel|--rebuild-partial|--rebuild-mutations|--task-disabled|--task-enabled]');
 }
 if (!mode || indexMode) {
   for (let ancestor = out; ; ancestor = dirname(ancestor)) {
@@ -75,6 +75,7 @@ function removeEmptySettingsFixture() {
 
 function launch(extra = []) {
   const child = spawn(exe, ['--activity-settings', settings, ...extra], {
+    ... (mode==='--saved-choice-boundary'?{cwd:dirname(pkg)}:{}),
     env: {
       ...process.env,
       WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${PORT} --remote-debugging-address=127.0.0.1`,
@@ -866,6 +867,30 @@ async function runnerHashMain() {
   const recovered=fixtureImage(manifest.dataRoot);probe('archive_sequence_and_pending_stay_exact',recovered.activity===image.activity&&recovered.sequence===image.sequence&&recovered.pending===image.pending);probe('only_pause_resume_add_two_generations',readdirSync(join(manifest.dataRoot,'generations')).length===count+2);
   s.close();app.kill();await app.exited;app=launch();s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.querySelectorAll('.act-source').length===3",'restored runner restart');probe('restart_reconnects_restored_verified_choice',true);
   const clear=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'clear'})");probe('final_clear_removes_owned_choice',clear.configured===false&&clear.saved===true&&!existsSync(settings));await shot(s,'01-runner-hash-recovery');s.close();app.kill();await app.exited;
+}
+
+async function savedChoiceBoundaryMain() {
+  if(existsSync(settings)||realpathSync(manifest.dataRoot).toLowerCase()!==join(realpathSync(dirname(pkg)),'data').toLowerCase()||basename(pkg)!=='package')throw Error('Saved-choice boundary requires a new owned fixture');
+  const tree=fixtureTree(manifest.dataRoot),cases=[['relative',JSON.stringify({installRoot:'package'})],['oversized',JSON.stringify({installRoot:pkg})+' '.repeat(65537)],['malformed','{"installRoot":']];
+  check('SB.only_owned_synthetic_choice_is_used',true);
+  let app,s;
+  for(const[name,text]of cases){
+    writeFileSync(settings,text);const original=readFileSync(settings);app=launch();s=await connect();await s.evaluate("document.querySelector('nav button[aria-label=\"Activity\"]').click()");await waitFor(s,"document.body.innerText.includes('Connect the installed Activity producer')||document.querySelectorAll('.act-source').length===3",'saved-choice startup result');
+    const status=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})"),read=await overview(s);
+    check('SB.'+name+'_native_status_refuses_invalid_choice',status.configured===false&&!Object.hasOwn(status,'saved'));
+    check('SB.'+name+'_native_read_refuses_invalid_choice',read.kind==='activity_error'&&read.error?.code==='unconfigured');
+    check('SB.'+name+'_page_shows_gate_without_history',await s.evaluate("document.body.innerText.includes('Connect the installed Activity producer')&&document.querySelectorAll('.act-source').length===0"));
+    check('SB.'+name+'_retains_exact_invalid_settings',readFileSync(settings).equals(original));
+    check('SB.'+name+'_preserves_complete_activity_store',fixtureTree(manifest.dataRoot)===tree);
+    if(name!=='malformed'){s.close();app.kill();await app.exited;}
+  }
+  await press(s,'Choose installed package…');fillDialog(app.pid,pkg);await waitFor(s,"document.querySelectorAll('.act-source').length===3",'saved-choice actual recovery');
+  const choice=JSON.parse(readFileSync(settings,'utf8'));
+  const ordinaryRoot=choice.installRoot.startsWith('\\\\?\\')?choice.installRoot.slice(4):choice.installRoot;
+  check('SB.real_picker_recovers_canonical_absolute_choice',isAbsolute(choice.installRoot)&&realpathSync(ordinaryRoot)===realpathSync(pkg));
+  const configured=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'status'})");check('SB.actual_recovery_reports_verified_saved',configured.configured===true&&configured.saved===true);
+  check('SB.recovery_preserves_complete_activity_store',fixtureTree(manifest.dataRoot)===tree);
+  const clear=await s.evaluate("window.__TAURI_INTERNALS__.invoke('activity_setup',{action:'clear'})");check('SB.final_clear_removes_owned_choice',clear.configured===false&&clear.saved===true&&!existsSync(settings));await shot(s,'01-saved-choice-boundary-recovered');s.close();app.kill();await app.exited;
 }
 
 async function runRemountMain() {
@@ -1785,6 +1810,7 @@ try {
   else if (mode === '--run-history') await runHistoryMain();
   else if (mode === '--run-admission') await runAdmissionMain();
   else if (['--runner-hash-change','--runner-missing','--runner-missing-restart'].includes(mode)) await runnerHashMain();
+  else if (mode==='--saved-choice-boundary') await savedChoiceBoundaryMain();
   else if (mode === '--run-remount') await runRemountMain();
   else if (mode === '--window-scope') await windowScopeMain();
   else if (['--setup-running','--setup-dialog-race'].includes(mode)) await setupRunningMain();

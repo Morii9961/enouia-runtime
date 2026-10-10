@@ -125,12 +125,25 @@ fn settings_path(app: &AppHandle) -> Option<PathBuf> {
 }
 
 fn saved_root(app: &AppHandle) -> Option<PathBuf> {
-    let bytes = std::fs::read(settings_path(app)?).ok()?;
+    read_saved_root(&settings_path(app)?)
+}
+
+fn read_saved_root(path: &Path) -> Option<PathBuf> {
+    // This file records a canonical native picker choice, never a path
+    // relative to the process's current directory. Bound reads on the same
+    // open handle so a damaged/growing settings file cannot allocate freely.
+    let file = std::fs::File::open(path).ok()?;
+    let mut bytes = Vec::new();
+    file.take(MAX_MANIFEST + 1).read_to_end(&mut bytes).ok()?;
+    if bytes.len() as u64 > MAX_MANIFEST {
+        return None;
+    }
     let value: Value = serde_json::from_slice(&bytes).ok()?;
-    value
+    let root = value
         .get("installRoot")
         .and_then(Value::as_str)
-        .map(PathBuf::from)
+        .map(PathBuf::from)?;
+    root.is_absolute().then_some(root)
 }
 
 fn save_root(app: &AppHandle, root: Option<&Path>) -> bool {
@@ -891,6 +904,48 @@ pub async fn activity_setup(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn saved_choices_are_bounded_absolute_and_leave_invalid_bytes_intact() {
+        let directory = std::env::temp_dir().join(format!(
+            "enouia-activity-settings-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&directory).unwrap();
+        let path = directory.join("activity-install.json");
+        assert_eq!(read_saved_root(&path), None);
+        for value in [
+            json!({"installRoot":"package"}),
+            json!({"installRoot":""}),
+            json!({"installRoot":null}),
+            json!({}),
+        ] {
+            let bytes = serde_json::to_vec(&value).unwrap();
+            std::fs::write(&path, &bytes).unwrap();
+            assert_eq!(read_saved_root(&path), None);
+            assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        }
+        let expected = directory.join("package");
+        let bytes = serde_json::to_vec(&json!({"installRoot":expected})).unwrap();
+        let mut boundary = bytes.clone();
+        boundary.resize(MAX_MANIFEST as usize, b' ');
+        std::fs::write(&path, &boundary).unwrap();
+        assert_eq!(read_saved_root(&path), Some(expected.clone()));
+        boundary.push(b' ');
+        std::fs::write(&path, &boundary).unwrap();
+        assert_eq!(read_saved_root(&path), None);
+        assert_eq!(std::fs::read(&path).unwrap(), boundary);
+        std::fs::write(&path, b"{\"installRoot\":").unwrap();
+        assert_eq!(read_saved_root(&path), None);
+        std::fs::write(&path, bytes).unwrap();
+        assert_eq!(read_saved_root(&path), Some(expected));
+        std::fs::remove_file(path).unwrap();
+        std::fs::remove_dir(directory).unwrap();
+    }
 
     #[test]
     fn acceptance_settings_are_native_and_explicit() {

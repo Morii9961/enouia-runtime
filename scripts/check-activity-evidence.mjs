@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 56);
+  assert.equal(reports.size, 57);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1041,6 +1041,37 @@ function validate(index) {
   assert.equal(missingRestart.restoredFixtureRunnerSha256, missingRestart.runnerSha256);
   assert.match(missingRestart.harnessSha256, /^[a-f0-9]{64}$/);
   for (const id of ['HR.restart_shows_actual_unconfigured_gate','HR.startup_does_not_invent_clear_or_save_failure','HR.restart_preserves_exact_saved_choice','HR.startup_reads_refuse_and_preserve_paused_store']) assert(missingRestart.checks.includes(id));
+  const choiceBoundary = reports.get('saved_choice_boundary').report;
+  assert.equal(choiceBoundary.scope, 'isolated_activity_actual_saved_choice_read_boundary');
+  const boundaryHarness = readLinked(choiceBoundary.harnessReport, choiceBoundary.harnessReportSha256);
+  const boundaryBefore = readLinked(choiceBoundary.beforeReport, choiceBoundary.beforeReportSha256);
+  const boundaryNative = readLinked(choiceBoundary.nativeReport, choiceBoundary.nativeReportSha256);
+  const boundaryActions = readLinked(choiceBoundary.actionsReport, choiceBoundary.actionsReportSha256);
+  const boundaryFailures = ['relative','oversized'].flatMap(name => ['native_status_refuses_invalid_choice','native_read_refuses_invalid_choice','page_shows_gate_without_history'].map(suffix => `SB.${name}_${suffix}`));
+  assert.equal(boundaryHarness.summary, '10/17');
+  assert.equal(boundaryHarness.checks.length, 17);
+  assert.deepEqual(boundaryHarness.checks.filter(c => !c.ok).map(c => c.id), [...boundaryFailures, 'run']);
+  assert.match(boundaryHarness.checks.find(c => c.id === 'run').detail, /EISDIR/);
+  assert.equal(boundaryBefore.summary, '14/20');
+  assert.equal(boundaryBefore.checks.length, 20);
+  assert.deepEqual(boundaryBefore.checks.filter(c => !c.ok).map(c => c.id), boundaryFailures);
+  assert.equal(boundaryNative.summary, '20/20');
+  assert.equal(boundaryNative.checks.length, 20);
+  assert(boundaryNative.checks.every(c => c.ok === true));
+  assert.deepEqual(choiceBoundary.checks, boundaryNative.checks.map(c => c.id));
+  assert.equal(boundaryActions.summary, '35/35');
+  assert.equal(boundaryActions.checks.length, 35);
+  assert(boundaryActions.checks.every(c => c.ok === true));
+  for (const [name, raw] of [['harness',boundaryHarness],['before',boundaryBefore],['native',boundaryNative],['actions',boundaryActions]]) assert.equal(choiceBoundary[name+'Summary'], raw.summary);
+  assert.equal(choiceBoundary.frontendTests, 58);
+  assert.equal(choiceBoundary.hostTests, 35);
+  assert.equal(choiceBoundary.coreTests, 3);
+  assert.equal(choiceBoundary.processExitCode, 0);
+  assert.equal(choiceBoundary.beforeDesktopSha256, setupRunning.desktopSha256);
+  assert.equal(choiceBoundary.runnerSha256, guidance.runnerSha256);
+  assert.equal(choiceBoundary.memoryRevision, isolation.memoryRevision);
+  for (const digest of [choiceBoundary.desktopSha256,choiceBoundary.installerSha256,choiceBoundary.harnessSha256]) assert.match(digest, /^[a-f0-9]{64}$/);
+  assert(choiceBoundary.limitations.includes('The same file handle reads at most 64 KiB plus one; the pure-file regression also accepts the exact 64 KiB boundary and refuses the next byte.'));
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1104,6 +1135,7 @@ function validate(index) {
   assert(dialogRace.checks.every(id => linkedTo(c17, 'setup_dialog_race').includes(id)), 'C17 must retain actual open-picker interleave and recovery');
   assert(runnerMissing.checks.every(id => linkedTo(c17, 'runner_missing').includes(id)), 'C17 must retain actual missing installed runner refusal and exact recovery');
   assert(missingRestart.checks.every(id => linkedTo(c17, 'runner_missing_restart').includes(id)), 'C17 must retain actual saved-choice missing-runner startup and recovery');
+  assert(choiceBoundary.checks.every(id => linkedTo(c17, 'saved_choice_boundary').includes(id)), 'C17 must retain actual bounded absolute saved choice and real picker recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1176,7 +1208,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'setup_dialog_race'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_missing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'runner_missing_restart'));
-  result.negativeChecks = 58;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_boundary'));
+  result.negativeChecks = 59;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));
