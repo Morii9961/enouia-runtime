@@ -37,7 +37,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 61);
+  assert.equal(reports.size, 62);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1172,6 +1172,40 @@ function validate(index) {
   assert(atomicTests.results.every(test => test.passed === true));
   assert.deepEqual(atomicChoice.checks, [...atomicReports.get('replacement').checks.map(c => c.id), ...atomicTests.results.map(test => test.id)]);
   for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(atomicChoice[field], /^[a-f0-9]{64}$/);
+  assert.equal(atomicChoice.frozenDesktopStable, true);
+  const manifestRead = reports.get('manifest_bounded_read').report;
+  assert.equal(manifestRead.scope, 'isolated_activity_same_handle_manifest_read');
+  assert.equal(manifestRead.productSourceChanged, true);
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(manifestRead[flag], false);
+  assert.equal(manifestRead.frozenDesktopStable, true);
+  assert.equal(manifestRead.memoryRevision, isolation.memoryRevision);
+  assert.equal(manifestRead.readLimit, 65536);
+  assert.equal(manifestRead.probeBytes, 65537);
+  const manifestReports = new Map();
+  for (const entry of manifestRead.nativeReports) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    const raw = JSON.parse(bytes);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(c => c.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert.equal(entry.manifestRestored, true);
+    assert(!manifestReports.has(entry.id));
+    manifestReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...manifestReports.keys()], ['manifest', 'settings', 'atomic', 'actions']);
+  assert.deepEqual(manifestRead.nativeReports.map(entry => entry.summary), ['21/21', '20/20', '18/18', '35/35']);
+  const manifestTestBytes = readFileSync(contained(manifestRead.testReport));
+  assert.equal(hash(manifestTestBytes), manifestRead.testReportSha256);
+  const manifestTests = JSON.parse(manifestTestBytes);
+  assert.equal(manifestTests.state, 'passed');
+  assert.equal(manifestTests.hostTests, 43);
+  assert.equal(manifestTests.coreTests, 3);
+  assert.equal(manifestTests.results.length, 3);
+  assert(manifestTests.results.every(test => test.passed === true));
+  assert.deepEqual(manifestRead.checks, [...manifestReports.get('manifest').checks.map(c => c.id), ...manifestTests.results.map(test => test.id)]);
+  for (const field of ['desktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(manifestRead[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1242,6 +1276,7 @@ function validate(index) {
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
+  assert(manifestRead.checks.every(id => linkedTo(c17, 'manifest_bounded_read').includes(id)), 'C17 must retain same-handle manifest bounds and actual picker/restart recovery');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1319,7 +1354,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_late_switch'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
-  result.negativeChecks = 63;
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));
+  result.negativeChecks = 64;
 }
 assert(process.argv.slice(2).every(arg => arg === '--self-test'), 'unsupported argument');
 console.log(JSON.stringify(result, null, 2));

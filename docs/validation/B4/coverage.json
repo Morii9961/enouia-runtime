@@ -430,6 +430,13 @@
       "sha256": "2ca9e0f8f5089f020535822e5b35afc4e621c58ad9b3364eb7580fbb8e273496",
       "state": "passed",
       "selectorCount": 22
+    },
+    {
+      "id": "manifest_bounded_read",
+      "path": "docs/validation/Activity-manifest-boundary/proof.json",
+      "sha256": "2935bd708fcdc6eb3ddf794ce4686343bb7cf6d12252ee8c5f7633b0414af304",
+      "state": "passed",
+      "selectorCount": 24
     }
   ],
   "cases": [
@@ -1967,6 +1974,35 @@
             "T.saved_choice_process_death_keeps_prior_choice_and_ignores_staging",
             "T.saved_choice_replacement_sharing_refusal_preserves_bytes_and_retries",
             "T.saved_choice_shared_reader_retains_complete_old_snapshot"
+          ]
+        },
+        {
+          "report": "manifest_bounded_read",
+          "selectors": [
+            "MB.probe_byte_startup_refuses_package",
+            "MB.probe_byte_startup_retains_settings",
+            "MB.probe_byte_real_picker_refuses_manifest",
+            "MB.probe_byte_refusal_keeps_exact_manifest",
+            "MB.probe_byte_refusal_keeps_exact_settings_and_store",
+            "MB.large_startup_refuses_package",
+            "MB.large_startup_retains_settings",
+            "MB.large_real_picker_refuses_manifest",
+            "MB.large_refusal_keeps_exact_manifest",
+            "MB.large_refusal_keeps_exact_settings_and_store",
+            "MB.malformed_startup_refuses_package",
+            "MB.malformed_startup_retains_settings",
+            "MB.malformed_real_picker_refuses_manifest",
+            "MB.malformed_refusal_keeps_exact_manifest",
+            "MB.malformed_refusal_keeps_exact_settings_and_store",
+            "MB.exact_limit_startup_connects",
+            "MB.exact_limit_real_picker_accepts",
+            "MB.exact_limit_keeps_manifest_and_histories",
+            "MB.restored_manifest_restarts_verified",
+            "MB.all_refusals_preserve_complete_store",
+            "MB.clear_removes_only_owned_choice",
+            "T.package_json_reads_stop_after_the_limit_probe_byte",
+            "T.package_json_growth_after_open_cannot_bypass_the_read_limit",
+            "T.installed_package_manifest_keeps_exact_limit_and_refusal_boundaries"
           ]
         }
       ],

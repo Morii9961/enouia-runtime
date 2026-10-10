@@ -132,18 +132,27 @@ fn read_saved_root(path: &Path) -> Option<PathBuf> {
     // This file records a canonical native picker choice, never a path
     // relative to the process's current directory. Bound reads on the same
     // open handle so a damaged/growing settings file cannot allocate freely.
-    let file = std::fs::File::open(path).ok()?;
-    let mut bytes = Vec::new();
-    file.take(MAX_MANIFEST + 1).read_to_end(&mut bytes).ok()?;
-    if bytes.len() as u64 > MAX_MANIFEST {
-        return None;
-    }
-    let value: Value = serde_json::from_slice(&bytes).ok()?;
+    let value = read_bounded_json(path)?;
     let root = value
         .get("installRoot")
         .and_then(Value::as_str)
         .map(PathBuf::from)?;
     root.is_absolute().then_some(root)
+}
+
+fn read_bounded_json(path: &Path) -> Option<Value> {
+    bounded_json(std::fs::File::open(path).ok()?)
+}
+
+/// Count bytes from the open reader instead of trusting an earlier size query.
+/// The extra byte distinguishes an exact-limit document from a growing file.
+fn bounded_json(reader: impl Read) -> Option<Value> {
+    let mut bytes = Vec::new();
+    reader.take(MAX_MANIFEST + 1).read_to_end(&mut bytes).ok()?;
+    if bytes.len() as u64 > MAX_MANIFEST {
+        return None;
+    }
+    serde_json::from_slice(&bytes).ok()
 }
 
 fn save_root(app: &AppHandle, root: Option<&Path>) -> bool {
@@ -263,16 +272,7 @@ fn file_sha256(path: &Path) -> Option<String> {
 pub fn load_install(root: &Path) -> Result<Install, &'static str> {
     let root = std::fs::canonicalize(root).map_err(|_| "not_found")?;
     let manifest = root.join("install.json");
-    let size = std::fs::metadata(&manifest)
-        .map_err(|_| "not_a_package")?
-        .len();
-    if size > MAX_MANIFEST {
-        return Err("not_a_package");
-    }
-    let value: Value = std::fs::read(&manifest)
-        .ok()
-        .and_then(|bytes| serde_json::from_slice(&bytes).ok())
-        .ok_or("not_a_package")?;
+    let value = read_bounded_json(&manifest).ok_or("not_a_package")?;
     let text = |key: &str| value.get(key).and_then(Value::as_str);
     let binary = root.join("enouia-activity.exe");
     let config = root.join("activity-config.json");
@@ -948,6 +948,76 @@ pub async fn activity_setup(
 mod tests {
     use super::*;
 
+    #[test]
+    fn package_json_reads_stop_after_the_limit_probe_byte() {
+        struct CountingReader {
+            bytes: std::io::Cursor<Vec<u8>>,
+            count: usize,
+        }
+        impl Read for CountingReader {
+            fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+                let read = self.bytes.read(buffer)?;
+                self.count += read;
+                Ok(read)
+            }
+        }
+        let mut bytes = b"{\"schemaVersion\":1}".to_vec();
+        bytes.resize(MAX_MANIFEST as usize, b' ');
+        assert_eq!(
+            bounded_json(std::io::Cursor::new(&bytes)),
+            Some(json!({"schemaVersion":1}))
+        );
+        bytes.resize(4 * MAX_MANIFEST as usize, b' ');
+        let mut reader = CountingReader {
+            bytes: std::io::Cursor::new(bytes),
+            count: 0,
+        };
+        assert_eq!(bounded_json(&mut reader), None);
+        assert_eq!(reader.count, MAX_MANIFEST as usize + 1);
+        assert_eq!(bounded_json(std::io::Cursor::new(b"{invalid")), None);
+    }
+
+    #[test]
+    fn package_json_growth_after_open_cannot_bypass_the_read_limit() {
+        let directory = choice_fixture();
+        let path = directory.join("install.json");
+        std::fs::write(&path, b"{\"schemaVersion\":1}").unwrap();
+        let reader = std::fs::File::open(&path).unwrap();
+        let earlier_size = reader.metadata().unwrap().len();
+        assert!(earlier_size <= MAX_MANIFEST);
+        let padding = vec![b' '; 2 * MAX_MANIFEST as usize];
+        std::fs::OpenOptions::new()
+            .append(true)
+            .open(&path)
+            .unwrap()
+            .write_all(&padding)
+            .unwrap();
+        // Negative control: the old size-check + unbounded-read sequence
+        // consumes and accepts the grown JSON document, including its padding.
+        let legacy_bytes = std::fs::read(&path).unwrap();
+        assert!(legacy_bytes.len() as u64 > MAX_MANIFEST);
+        assert_eq!(
+            serde_json::from_slice::<Value>(&legacy_bytes).unwrap(),
+            json!({"schemaVersion":1})
+        );
+        assert_eq!(bounded_json(reader), None);
+        assert_eq!(read_bounded_json(&path), None);
+    }
+
+    #[test]
+    fn installed_package_manifest_keeps_exact_limit_and_refusal_boundaries() {
+        let root = package("bounded-manifest");
+        let path = root.join("install.json");
+        let mut bytes = std::fs::read(&path).unwrap();
+        bytes.resize(MAX_MANIFEST as usize, b' ');
+        std::fs::write(&path, &bytes).unwrap();
+        assert!(load_install(&root).is_ok());
+        bytes.push(b' ');
+        std::fs::write(&path, &bytes).unwrap();
+        assert_eq!(load_install(&root), Err("not_a_package"));
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+    }
+
     fn choice_fixture() -> PathBuf {
         let directory = std::env::temp_dir().join(format!(
             "enouia-atomic-choice-{}-{}",
@@ -1301,10 +1371,15 @@ mod tests {
     }
 
     fn package(name: &str) -> PathBuf {
-        let root =
-            std::env::temp_dir().join(format!("enouia-activity-pkg-{name}-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&root);
-        std::fs::create_dir_all(&root).unwrap();
+        let root = std::env::temp_dir().join(format!(
+            "enouia-activity-pkg-{name}-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
         std::fs::write(root.join("enouia-activity.exe"), b"synthetic runner").unwrap();
         std::fs::write(root.join("activity-config.json"), b"{}").unwrap();
         let hash = file_sha256(&root.join("enouia-activity.exe"))
