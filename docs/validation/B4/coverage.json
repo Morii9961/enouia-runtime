@@ -381,6 +381,13 @@
       "sha256": "6d3d4c75a5d93a7c71d4eae60d9dac7274b6216d7e55e3ad4291d707fc4d1c1e",
       "state": "passed",
       "selectorCount": 15
+    },
+    {
+      "id": "runner_missing",
+      "path": "docs/validation/Activity-unified/runner-missing-proof.json",
+      "sha256": "9854d4215fb102fce2deaee4b8278f28291ee3cf5f08d56dcf816ab8c521c4e0",
+      "state": "passed",
+      "selectorCount": 22
     }
   ],
   "cases": [
@@ -1698,6 +1705,33 @@
             "SG.terminal_run_retains_actual_pending",
             "SG.terminal_reopens_native_picker",
             "SG.terminal_accepts_clear_and_removes_choice"
+          ]
+        },
+        {
+          "report": "runner_missing",
+          "selectors": [
+            "HM.original_selected_runner_matches_manifest_hash",
+            "HM.actual_pause_precedes_binary_change",
+            "HM.owned_binary_change_really_breaks_manifest_hash",
+            "HM.development_runner_exists_while_installed_runner_is_absent",
+            "HM.cached_reads_refuse_changed_runner",
+            "HM.pause_refuses_changed_runner",
+            "HM.1_run_is_correlated_to_native_id",
+            "HM.1_terminal_refuses_changed_runner",
+            "HM.2_run_is_correlated_to_native_id",
+            "HM.2_terminal_refuses_changed_runner",
+            "HM.changed_runner_error_clears_cards_and_disables_mutation",
+            "HM.changed_runner_attempts_preserve_complete_paused_store",
+            "HM.actual_forget_removes_owned_saved_choice",
+            "HM.actual_selection_refuses_changed_binary",
+            "HM.refused_selection_leaves_native_unconfigured",
+            "HM.original_runner_bytes_restore_exactly",
+            "HM.actual_reselection_recovers_three_histories",
+            "HM.actual_resume_accepts_restored_runner",
+            "HM.archive_sequence_and_pending_stay_exact",
+            "HM.only_pause_resume_add_two_generations",
+            "HM.restart_reconnects_restored_verified_choice",
+            "HM.final_clear_removes_owned_choice"
           ]
         }
       ],
