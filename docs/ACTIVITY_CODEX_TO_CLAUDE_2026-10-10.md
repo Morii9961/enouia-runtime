@@ -1,10 +1,10 @@
-# Activity 原生整合：Codex → Claude 交接
+# Activity 并行续作：Codex → Claude 交接
 
-更新日期：2026-10-10。仓库：`E:\Enouia Runtime`。这份文件补充已有的 `ACTIVITY_USAGE_CLAUDE_HANDOFF.md`，不覆盖它或原启动提示词。
+更新日期：2026-10-10。仓库：`E:\Enouia Runtime`。这份文件补充已有的 `ACTIVITY_USAGE_CLAUDE_HANDOFF.md`，不覆盖它或原启动提示词。用户现在希望 Claude 与下一次 Codex 在不同工作树并行；配套 [下一次 Codex 交接](ACTIVITY_CODEX_NEXT_SESSION_2026-10-10.md) 规定分工与汇合规则。
 
 ## 当前状态与接手入口
 
-工作分支为 `codex/activity-desktop-integration`，现有 [PR #28](https://github.com/Morii9961/enouia-runtime/pull/28)，保持 OPEN DRAFT。不要重建 PR、合并 main 或重做 Claude 已合入的工作。接手时必须先核对实际分支、工作区、远端 SHA、PR 状态和已附证据；这是一份快照。
+整合分支为 `codex/activity-desktop-integration`，现有 [PR #28](https://github.com/Morii9961/enouia-runtime/pull/28)，保持 OPEN DRAFT。下一次 Codex 负责最终汇合；Claude 在自己的新分支上工作，不直接更新整合分支或 PR。不要重建 PR、合并 main 或重做 Claude 已合入的工作。接手时必须先核对实际分支、工作区、远端 SHA、PR 状态和已附证据；这是一份快照。
 
 截至当前，最后已提交并推送的功能为 `a289e1882f5944fc1af2ba180eb38441ecbf0274`。本文自身会有后续文档提交，不改变该功能 SHA。原生 Activity 已接入分别安装的生产器，Claude 分支的剩余 Runtime 实现已通过合并保留祖先关系。不是完整 J1/B4 验收，也没有启用 B5。
 
@@ -61,22 +61,30 @@ Co-authored-by: Codex <267193182+codex@users.noreply.github.com>
 
 Windows 工具链为 Rust 1.98.1 GNU，PATH 中 UCRT64 在 cargo 前；已缓存依赖可离线构建。按 Memory integration v1 运行受影响检查，尤其 Memory pin 和生产依赖边界；新产品二进制需要新实际操作回归。仅脚本/文档变化可明确复用未变更产品的有效证据。原始 JSON 统一 LF 后再哈希，索引和 Git 提交中的字节必须一致，不覆盖旧失败报告。
 
-最新用户要求：多任务共享限额，提前留余量，接近限额时停止新功能、完成可完成的当前切片并整理交接，不能等到完全耗尽。Codex 当前采用短周期使用量约 70% 即开始收尾的保守阈值。上一轮额度耗尽导致自动审批没有执行下一组命令；恢复后已经继续，不能绕过审批或自行消费限额重置券。
+最新用户要求：多任务共享限额，提前留余量，接近限额时停止新功能、完成可完成的当前切片并整理交接，不能等到完全耗尽。此次查询 Codex 的 5 小时窗口已使用 72%，剩余 28%，因此本轮只更新交接。不同 Codex 会话/工作树共用账户限额，开新会话不会重置它；这里没有查询 Claude 的独立额度。下次开始前刷新实际用量，给多任务波动、验证、提交、推送和交接留余量，不自行消费重置券。
 
-## 后续候选项
+## Claude 的并行范围
 
-先核对最终 SHA、PR 和本文的快照，确认保存选择切片已经完成，避免重做。下一步可选一个未覆盖且有价值的独立故障/兼容性边界，例如实际保存选择文件的 Windows 共享读取失败及恢复；只用新合成设置文件，不改变个人设置。运行选择与 admission 的其他竞争顺序可以先研究，但当前并没有已复现的新增缺陷，不要按猜测修改产品。
+Claude 负责 Activity 生产器/store/runner 的本地合成验收和有复现依据的修复；Codex 负责桌面 host/surface/E2E、公共证据索引和最终整合。双方以新增配套 Codex 交接文件的同一个提交为起点，记录完整基线 SHA。它包含 `a289e18` 和两份交接；不要从 main 或旧 Claude HEAD `7309cb9` 开始。基线查找、文件归属和验收资源规则见配套交接。
+
+Claude 可修改 `crates/enouia-activity/`、`crates/enouia-activity-store/`、`crates/enouia-activity-runner/`，新增 `scripts/claude-activity-*` 与 `docs/validation/Activity-claude-*` 文件。桌面文件、现有公共验收脚本、证据索引/检查器、汇总文档、根 workspace manifest/lock 和 PR 正文由 Codex 协调；不要同时修改。跨边界问题交付复现与建议，由对应负责人处理。
+
+第一项先对照 store 的 writer/generation/recovery 测试和 C12/C17 已有覆盖，寻找一个尚未覆盖的晚期写入或 generation 恢复边界，用独立临时目录复现，必要时修复并验证。CURRENT 读取、generation 创建、临时指针创建与 CURRENT 替换的已完成拒绝/恢复验收不要重复。这里列的是研究候选，不是已确认产品缺陷；没有实际缺口时记录发现与剩余门槛，不新增凑数报告。不涉及物理断电、真实磁盘满或生产数据。
+
+每个切片在自己的新分支验证、commit、push，再交付基线/提交 SHA、文件清单、检查与原始失败/成功报告及哈希。保留旧失败报告。独立原始报告可先提交，由 Codex 汇合后统一接入索引和调整计数；未经整合验证不得更新 57/878/59 或 B4/B5。保留已有 Codex trailer；Claude 自己的新提交不能把没有参与的 Codex 列为共同作者。
 
 真实登录/电源/生产门槛需要另外授权。若授权范围内没有有价值的代码或隔离验收可继续，就整理具体所需证据与授权项，不要重复已完成检查来增加报告数量，也不要为了持续工作自行跨过真实环境门槛。
 
 ## 可复制给 Claude 的接手指令
 
 ```text
-请接手 E:\Enouia Runtime 的 Activity 原生整合剩余工作。
-先完整阅读 docs/ACTIVITY_CODEX_TO_CLAUDE_2026-10-10.md、AGENTS.md 和其中引用的最新验证/索引。
-核对当前分支、dirty/untracked 状态、远端 SHA、现有 draft PR #28、证据哈希和产品二进制；不要覆盖其他任务文件，不要重做已完成切片或改动 main/原 Claude 工作树。
+请接手 Enouia Runtime 的 Activity 生产器/store/runner 本地合成续作，与下一次 Codex 分工并行。
+先在 E:\Enouia Runtime 阅读 docs/ACTIVITY_CODEX_TO_CLAUDE_2026-10-10.md、docs/ACTIVITY_CODEX_NEXT_SESSION_2026-10-10.md、AGENTS.md 和引用的验证/索引。
+用 git log --diff-filter=A --format=%H -- docs/ACTIVITY_CODEX_NEXT_SESSION_2026-10-10.md 找到共同交接提交，核对它包含两份文档且 a289e18 为祖先，并记录完整 SHA。从该提交建立自己的新工作树和独立 claude/ 分支（例如 claude/activity-producer-followup；先检查名称和目录未被占用）。不要重置、复用或清理现有 Claude/Codex 工作树，不在主整合工作区实施。
+核对 dirty/untracked、远端 SHA、draft PR #28、证据哈希和当前工具链；新工作树不保证已有 target/node_modules/忽略的 helper，按文档自行准备独立构建与夹具。
 保存选择读取修复已在 a289e1882f5944fc1af2ba180eb38441ecbf0274 完成并推送，后面可能只有交接文档提交。
-选择一个有价值且仍未覆盖的 Runtime 本地合成验收/实现项，先复现，再修复、验证，每完成一个功能独立 commit 并 push，保留精确 Codex trailer 的既有提交。
+先审查 store 晚期写入/generation 恢复的真实覆盖缺口；只在自己的 producer/store/runner 和新 claude-activity 验证文件内先复现、按需修复、验证，每完成一个功能独立 commit 并 push 自己的分支。
+Codex 独占桌面接入、公共索引/检查器/汇总和 PR 更新；你的交付记录基线 SHA、提交 SHA、检查范围、原始报告与哈希、剩余门槛。不要改公共索引计数、整合分支或 PR，也不要执行其他任务的原生窗口/快捷键/定时任务验收。遵循配套交接的资源隔离和汇合规则。
 Activity 保持 github/codex/claude 三源及独立 Memory 边界；禁止个人数据/凭据/真实账户/生产上传、生产调度启用、Moriium 修改和服务器部署。B4/J1 仍 partial、B5 未启用，不能把合成或旧二进制证据当作生产验收。
 共享额度快用尽时提前收尾并更新交接，留足提交、推送和核对余量。
 ```
