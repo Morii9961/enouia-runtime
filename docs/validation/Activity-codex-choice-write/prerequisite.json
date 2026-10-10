@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "id": "CW.original_picker_choice_is_verified",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.actual_write_open_is_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.ordinary_read_remains_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "Error: unavailable Choose another package…\n    at <anonymous>:1:154\n    at <anonymous>:1:230"
+    }
+  ],
+  "screenshots": [],
+  "summary": "3/4"
+}
