@@ -85,6 +85,24 @@ test('an unobserved scheduler never invents a next trigger or registration', () 
   assert.match(unknown, /observation time not recorded/);
 });
 
+test('Activity date-only observations do not invent local clock times', () => {
+  const overview = activityOverview();
+  overview.schedule.nextTriggerAt = '2026-10-12';
+  overview.delivery.lastTransportAt = '2026-10-07';
+  overview.delivery.publicationObservedAt = '2026-10-08';
+  overview.delivery.publicHash = 'a'.repeat(64);
+  overview.pending = { sequence: 1, createdAt: '2026-10-06', ageSeconds: 0, exactSha256: 'b'.repeat(64), failureCount: 0, nextEligibleAt: '2026-10-09', lastErrorCode: null };
+  const html = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
+  assert.match(html, /Next trigger<\/dt><dd>2026-10-12<\/dd>/);
+  assert.match(html, /Last transport<\/dt><dd>2026-10-07<\/dd>/);
+  assert.match(html, /Published<\/dt><dd>2026-10-08 · /);
+  assert.match(html, /Next retry<\/dt><dd>2026-10-09<\/dd>/);
+  assert.doesNotMatch(html, /2026-10-\d{2} \d{2}:\d{2}/);
+  overview.schedule.nextTriggerAt = '2026-10-12T01:23:00Z';
+  const instant = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
+  assert.match(instant, /Next trigger<\/dt><dd>\d{4}-\d{2}-\d{2} \d{2}:\d{2}<\/dd>/);
+});
+
 test('unknown Activity outcome text stays private and prototype names get a stable fallback', () => {
   for(const state of ['C:/SYNTHETIC_PRIVATE/config.json','future_outcome','constructor','toString']) {
     const run={schemaVersion:1,kind:'activity_run_status',runId:'run-1',stage:'completed',error:null,summary:{state}};

@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 66);
+  assert.equal(reports.size, 67);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1391,6 +1391,58 @@ function validate(index) {
   assert.equal(positiveSequence.hostEvidence, pipeDeadline.testReport);
   assert.equal(positiveSequence.hostEvidenceSha256, hash(readFileSync(contained(positiveSequence.hostEvidence))));
   for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'schemaSha256', 'harnessSha256', 'drillSha256']) assert.match(positiveSequence[field], /^[a-f0-9]{64}$/);
+  const datePrecision = reports.get('date_only_precision').report;
+  assert.equal(datePrecision.scope, 'isolated_activity_date_only_display_precision');
+  assert.equal(datePrecision.productSourceChanged, true);
+  assert.equal(datePrecision.modeledReplies, true);
+  assert.equal(datePrecision.tasksCreated, false);
+  assert.equal(datePrecision.frozenDesktopStable, true);
+  assert.equal(datePrecision.memoryRevision, isolation.memoryRevision);
+  assert.equal(datePrecision.dateOnlyPreserved, true);
+  assert.equal(datePrecision.dateOnlyAgeUnknown, true);
+  assert.equal(datePrecision.explicitOffsetClockDisplayPreserved, true);
+  const dateReports = new Map();
+  for (const entry of datePrecision.nativeReports) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    const raw = JSON.parse(bytes);
+    assert.equal(raw.summary, entry.summary);
+    assert.equal(raw.checks.length, Number(entry.summary.split('/')[1]));
+    assert(raw.checks.every(c => c.ok === true));
+    assert.equal(entry.exitCode, 0);
+    assert.equal(entry.manifestRestored, true);
+    assert(!dateReports.has(entry.id));
+    dateReports.set(entry.id, raw);
+  }
+  assert.deepEqual([...dateReports.keys()], ['dates', 'sequence', 'actions']);
+  assert.deepEqual(datePrecision.nativeReports.map(entry => entry.summary), ['16/16', '18/18', '35/35']);
+  const dateBeforeBytes = readFileSync(contained(datePrecision.beforeReport));
+  assert.equal(hash(dateBeforeBytes), datePrecision.beforeReportSha256);
+  const dateBefore = JSON.parse(dateBeforeBytes);
+  assert.equal(dateBefore.summary, '8/16');
+  assert.equal(dateBefore.checks.filter(c => !c.ok).length, 8);
+  const dateTestBytes = readFileSync(contained(datePrecision.testReport));
+  assert.equal(hash(dateTestBytes), datePrecision.testReportSha256);
+  const dateTests = JSON.parse(dateTestBytes);
+  assert.equal(dateTests.state, 'passed');
+  assert.equal(dateTests.frontendTests, 62);
+  assert.equal(dateTests.results.length, 2);
+  assert(dateTests.results.every(test => test.passed === true));
+  assert.equal(dateTests.baseline.passed, 60);
+  assert.equal(dateTests.baseline.failed, 1);
+  assert.equal(dateTests.ageIntermediate.passed, 61);
+  assert.equal(dateTests.ageIntermediate.failed, 1);
+  for (const entry of datePrecision.intermediates) {
+    const bytes = readFileSync(contained(entry.path));
+    assert.equal(hash(bytes), entry.sha256);
+    assert.equal(JSON.parse(bytes).summary, entry.summary);
+    assert.equal(entry.excludedFromAcceptance, true);
+  }
+  assert.deepEqual(datePrecision.checks, [...dateReports.get('dates').checks.map(c => c.id), ...dateTests.results.map(test => test.id)]);
+  assert.equal(datePrecision.hostSourceSha256, pipeDeadline.productSourceSha256);
+  assert.equal(datePrecision.hostEvidence, pipeDeadline.testReport);
+  assert.equal(datePrecision.hostEvidenceSha256, hash(readFileSync(contained(datePrecision.hostEvidence))));
+  for (const field of ['desktopSha256', 'beforeDesktopSha256', 'installerSha256', 'runnerSha256', 'productSourceSha256', 'modelSourceSha256', 'harnessSha256', 'drillSha256']) assert.match(datePrecision[field], /^[a-f0-9]{64}$/);
   let linked = 0;
   for (const row of index.cases) {
     assert.equal(row.status, 'partial');
@@ -1471,6 +1523,7 @@ function validate(index) {
   assert(copyLifecycle.checks.every(id => linkedTo(c17, 'copy_feedback_lifecycle').includes(id)), 'C17 must retain copy feedback sequencing and real package recovery evidence');
   assert(errorOwnership.checks.every(id => linkedTo(c17, 'error_feedback_ownership').includes(id)), 'C17 must retain independent refresh/status error ownership and recovery evidence');
   assert(positiveSequence.checks.every(id => linkedTo(c17, 'positive_pending_sequence').includes(id)), 'C17 must retain positive sequence bounds, exact values and legitimate empty state evidence');
+  assert(datePrecision.checks.every(id => linkedTo(c17, 'date_only_precision').includes(id)), 'C17 must retain date-only precision and explicit-offset display evidence');
   const c10=index.cases.find(c=>c.id==='C10');
   assert(['X.private_extension_never_reaches_copy','X.private_day_title_never_reaches_preview','X.paths_stay_private'].every(id=>linkedTo(c10,'export_contract').includes(id)),'C10 must retain clipboard/preview privacy evidence');
   assert(linkedTo(c10,'run_outcome').includes('U.private_state_label_is_sanitized'),'C10 must retain private outcome text refusal');
@@ -1554,6 +1607,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'copy_feedback_lifecycle'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'error_feedback_ownership'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'positive_pending_sequence'));
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'date_only_precision'));
   reject(x => x.cases[0].evidence[0].selectors.push(x.cases[0].evidence[0].selectors[0]));
   reject(x => x.cases[0].evidence.push(structuredClone(x.cases[0].evidence[0])));
   for (const invalid of [['same', 'same'], ['valid', 22], ['valid', ' ']]) {

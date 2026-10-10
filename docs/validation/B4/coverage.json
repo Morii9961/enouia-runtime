@@ -465,6 +465,13 @@
       "sha256": "b2fc8ee2c8aed5ea5ab679cf7679d4c3ee93b81792ac49bf165eece0c1a700b0",
       "state": "passed",
       "selectorCount": 20
+    },
+    {
+      "id": "date_only_precision",
+      "path": "docs/validation/Activity-date-only/proof.json",
+      "sha256": "eafd828541800992ebb9e78df77ccf4ed0cfa084d39995c827dd8b0460fcad2b",
+      "state": "passed",
+      "selectorCount": 18
     }
   ],
   "cases": [
@@ -2136,6 +2143,29 @@
             "SQ.final_clear_removes_only_owned_choice",
             "T.pending_sequence_refusals",
             "T.pending_sequence_positive_and_empty_bounds"
+          ]
+        },
+        {
+          "report": "date_only_precision",
+          "selectors": [
+            "DO.actual_package_starts_healthy",
+            "DO.date_only_reply_is_proved_before_display",
+            "DO.date_only_keeps_source_cards",
+            "DO.updated_header_keeps_date_precision",
+            "DO.next_trigger_keeps_date_precision",
+            "DO.next_retry_keeps_date_precision",
+            "DO.last_transport_keeps_date_precision",
+            "DO.publication_keeps_date_precision",
+            "DO.source_observations_do_not_invent_clock_times",
+            "DO.source_date_only_ages_remain_unknown",
+            "DO.pending_date_only_age_remains_unknown",
+            "DO.explicit_offset_observations_keep_clock_display",
+            "DO.explicit_offset_source_cards_stay_healthy",
+            "DO.no_producer_mutation_was_attempted",
+            "DO.saved_choice_store_and_manifest_remain_exact",
+            "DO.final_clear_removes_only_owned_choice",
+            "T.date_only_observations_preserve_precision",
+            "T.date_only_ages_remain_unknown"
           ]
         }
       ],

@@ -14,6 +14,8 @@ type Failure = { text: string; retry?: () => void } | null;
 const ACTIVE_STAGES: readonly RunStatus["stage"][] = ["queued", "running", "collecting", "persisting", "uploading", "observing"];
 const when = (iso: string | null | undefined) => {
   if (!iso) return "—";
+  // Supported date-only observations do not specify a clock time or zone.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   const pad = (n: number) => String(n).padStart(2, "0");

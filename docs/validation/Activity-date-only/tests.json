@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "npm test",
+  "frontendTests": 62,
+  "results": [
+    {
+      "id": "T.date_only_observations_preserve_precision",
+      "name": "Activity date-only observations do not invent local clock times",
+      "passed": true
+    },
+    {
+      "id": "T.date_only_ages_remain_unknown",
+      "name": "date-only observations do not invent an elapsed age",
+      "passed": true
+    }
+  ],
+  "baseline": {
+    "tests": 61,
+    "passed": 60,
+    "failed": 1,
+    "failure": "Date-only next trigger rendered with an invented local clock time"
+  },
+  "ageIntermediate": {
+    "tests": 62,
+    "passed": 61,
+    "failed": 1,
+    "failure": "36 h ago instead of unknown age"
+  }
+}

@@ -107,6 +107,7 @@ export function exact(value: string | number): string {
 /** "4 min ago" style age from an ISO time; null when unknown. */
 export function age(iso: string | null | undefined, now: number = Date.now()): string | null {
   if (!iso) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
   const at = Date.parse(iso);
   if (Number.isNaN(at)) return null;
   const s = Math.max(0, Math.round((now - at) / 1000));
