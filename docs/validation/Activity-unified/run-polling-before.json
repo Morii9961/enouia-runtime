@@ -1,0 +1,91 @@
+{
+  "checks": [
+    {
+      "id": "Z.mutations_are_intercepted_before_native_ipc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.actual_synthetic_package_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.busy_status_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.busy_keeps_operation_controls_disabled",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.busy_recovers_without_second_run",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.queued_keeps_operation_controls_disabled",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.queued_continues_to_terminal_status",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.collecting_keeps_operation_controls_disabled",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.collecting_continues_to_terminal_status",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.persisting_keeps_operation_controls_disabled",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.persisting_continues_to_terminal_status",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.uploading_keeps_operation_controls_disabled",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.uploading_continues_to_terminal_status",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.observing_keeps_operation_controls_disabled",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.observing_continues_to_terminal_status",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Z.polling_preserves_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Z.choice_is_cleared",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "8/17"
+}

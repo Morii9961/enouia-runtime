@@ -135,7 +135,7 @@ function Write-ActivityNewFile([string] $Path, [string] $Text) {
 }
 
 function Install-ActivityPackage {
-    param([string] $Binary, [string] $Config, [string] $InstallRoot, [string] $RuntimeToolsRoot, [string] $TaskName = 'Enouia-Activity-Sandbox', [switch] $RegisterSandbox)
+    param([string] $Binary, [string] $Config, [string] $InstallRoot, [string] $RuntimeToolsRoot, [string] $TaskName = 'Enouia-Activity-Sandbox', [switch] $RegisterSandbox, [switch] $Production)
     if ($TaskName -notmatch '^Enouia-Activity-[A-Za-z0-9_-]{1,80}$') { throw 'Use an Enouia-Activity- task name.' }
     $binaryPath = Resolve-ActivityPath $Binary -File
     $configPath = Resolve-ActivityPath $Config -File
@@ -145,7 +145,14 @@ function Install-ActivityPackage {
     $settings = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json -AsHashtable
     $dataRoot = Resolve-ActivityPath $settings.dataRoot
     if ((Test-ActivityWithin $dataRoot $installPath) -or (Test-ActivityWithin $installPath $dataRoot)) { throw 'Install and Activity data directories must be disjoint.' }
-    if ($settings.mode -notin 'sandbox', 'production' -or $settings['deliveryEnabled']) { throw 'Packaging requires a sandbox/production configuration with delivery disabled.' }
+    if ($Production) {
+        # B5 (ADR-030): an explicit production package may deliver; it is still installed paused and unregistered.
+        $delivery = $settings['delivery']
+        if ($settings.mode -ne 'production' -or $settings['deliveryEnabled'] -ne $true -or -not $delivery -or $RegisterSandbox -or
+            "$($delivery['publicOrigin'])" -notmatch '^https://[A-Za-z0-9.-]+$' -or "$($delivery['restrictedAlias'])" -notmatch '^[A-Za-z0-9._-]{1,64}$') {
+            throw 'A production package needs mode production, delivery enabled, an HTTPS origin and a restricted alias.'
+        }
+    } elseif ($settings.mode -notin 'sandbox', 'production' -or $settings['deliveryEnabled']) { throw 'Packaging requires a sandbox/production configuration with delivery disabled.' }
     if ($RegisterSandbox -and $settings.mode -ne 'sandbox') { throw 'Production task registration belongs to the B5 cutover, not this installer.' }
     $diagnostic = Invoke-ActivityProbe $binaryPath @('diagnostics', '--config', $configPath)
     if ($diagnostic.exitCode -ne 0) { throw 'The configuration must diagnose a valid idle store before installation.' }
@@ -183,7 +190,7 @@ function Install-ActivityPackage {
     [IO.File]::Copy($configPath, $installedConfig, $false)
     $management = Join-Path $installPath 'management'
     [void][IO.Directory]::CreateDirectory($management)
-    foreach ($script in @('activity-package.psm1', 'install-activity.ps1', 'query-activity.ps1', 'uninstall-activity.ps1')) {
+    foreach ($script in @('activity-package.psm1', 'install-activity.ps1', 'query-activity.ps1', 'uninstall-activity.ps1', 'register-activity-production.ps1')) {
         [IO.File]::Copy((Join-Path $PSScriptRoot $script), (Join-Path $management $script), $false)
     }
     Write-ActivityNewFile (Join-Path $installPath 'task.xml') $xml
@@ -242,6 +249,63 @@ function Register-ActivitySandbox([string] $InstallRoot) {
     if (-not $task -or $task.State -ne 'Disabled') { throw 'Registered task did not remain disabled.' }
 }
 
+function Assert-ActivityProductionPackage($Manifest, [string] $ConfirmTaskName) {
+    if ($Manifest.mode -ne 'production' -or $ConfirmTaskName -cne $Manifest.taskName) { throw 'Confirm the exact production task name of a production package.' }
+    foreach ($kind in @('binary', 'config')) {
+        $path = Resolve-ActivityPath $Manifest[$kind] -File
+        if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $Manifest[$kind + 'Hash']) { throw 'Installed content changed; prepare a new package before registration.' }
+    }
+    $settings = Get-Content -LiteralPath $Manifest.config -Raw | ConvertFrom-Json -AsHashtable
+    if ($settings.mode -ne 'production' -or $settings['deliveryEnabled'] -ne $true) { throw 'Only a delivery-enabled production configuration can be scheduled.' }
+}
+
+# B5 Stage 5 (ADR-030). Registration creates the task disabled; enabling is a
+# separate call that requires an observed publication and no pending batch.
+function Register-ActivityProduction([string] $InstallRoot, [string] $ConfirmTaskName) {
+    $manifest = Read-ActivityPackage $InstallRoot
+    Assert-ActivityProductionPackage $manifest $ConfirmTaskName
+    if (@(Get-ScheduledTask -TaskPath '\' -ErrorAction Stop | Where-Object { $_.TaskName -eq $manifest.taskName }).Count) { throw 'Task already exists; it will not be overwritten.' }
+    $xml = New-ActivityTaskXml $manifest.binary $manifest.config $manifest.userSid $manifest.marker
+    [void](Register-ScheduledTask -TaskName $manifest.taskName -TaskPath '\' -Xml $xml -ErrorAction Stop)
+    $task = Get-ActivityOwnedTask $manifest
+    if (-not $task -or $task.State -ne 'Disabled') { throw 'Registered task did not remain disabled.' }
+    return @{ schemaVersion = 1; state = 'production_registered_disabled'; taskName = $manifest.taskName }
+}
+
+function Enable-ActivityProduction([string] $InstallRoot, [string] $ConfirmTaskName) {
+    $manifest = Read-ActivityPackage $InstallRoot
+    Assert-ActivityProductionPackage $manifest $ConfirmTaskName
+    $task = Get-ActivityOwnedTask $manifest
+    if (-not $task -or $task.State -ne 'Disabled') { throw 'Enable only a registered, disabled task owned by this package.' }
+    $probe = Invoke-ActivityProbe $manifest.binary @('overview', '--config', $manifest.config)
+    if ($probe.exitCode -ne 0) { throw 'The production store must be readable before scheduling.' }
+    # Newer PowerShell versions otherwise coerce ISO literals to DateTime.
+    # Keep the wire timestamp for exact validation on every supported version.
+    $jsonOptions = @{ AsHashtable = $true }
+    if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) { $jsonOptions.DateKind = 'String' }
+    $overview = $probe.output | ConvertFrom-Json @jsonOptions
+    if ($overview.schemaVersion -ne 1 -or $overview.kind -cne 'activity_overview' -or
+        $overview.producer -isnot [Collections.IDictionary] -or $overview.delivery -isnot [Collections.IDictionary] -or
+        $overview.producer.mode -cne 'production' -or $overview.producer.deliveryEnabled -isnot [bool] -or
+        $overview.producer.deliveryEnabled -ne $true -or $overview.producer.paused -isnot [bool] -or
+        $overview.producer.paused -ne $false -or -not $overview.ContainsKey('pending') -or $null -ne $overview.pending -or
+        -not $overview.delivery.ContainsKey('pendingSequence') -or $null -ne $overview.delivery.pendingSequence -or
+        $overview.delivery.state -cne 'observed' -or $overview.delivery.publicHash -isnot [string] -or
+        $overview.delivery.publicHash -cnotmatch '^[a-f0-9]{64}$') {
+        throw 'Enable only after a valid production overview confirms published sync, with sync resumed and nothing pending.'
+    }
+    $observedAt = [DateTimeOffset]::MinValue
+    if ($overview.delivery.publicationObservedAt -isnot [string] -or
+        -not [DateTimeOffset]::TryParseExact($overview.delivery.publicationObservedAt, "yyyy-MM-dd'T'HH:mm:ss.fff'Z'",
+            [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal, [ref]$observedAt)) {
+        throw 'Enable requires the runner timestamp of an actually observed publication.'
+    }
+    [void](Enable-ScheduledTask -TaskName $manifest.taskName -TaskPath '\' -ErrorAction Stop)
+    $task = Get-ActivityOwnedTask $manifest
+    if (-not $task -or $task.State -notin 'Ready', 'Running') { throw 'Task did not become enabled.' }
+    return @{ schemaVersion = 1; state = 'production_enabled'; taskName = $manifest.taskName; publicHash = $overview.delivery.publicHash }
+}
+
 function Get-ActivityPackageStatus([string] $InstallRoot) {
     $manifest = Read-ActivityPackage $InstallRoot
     foreach ($kind in @('binary', 'config')) { [void](Resolve-ActivityPath $manifest[$kind] -File) }
@@ -274,4 +338,4 @@ function Uninstall-ActivityTask([string] $InstallRoot) {
     return @{ schemaVersion = 1; state = 'uninstalled'; activityDataPreserved = $true; installedFilesPreserved = $true }
 }
 
-Export-ModuleMember -Function Install-ActivityPackage, Register-ActivitySandbox, Get-ActivityPackageStatus, Uninstall-ActivityTask, New-ActivityTaskXml, Get-ActivityPeSubsystem
+Export-ModuleMember -Function Install-ActivityPackage, Register-ActivitySandbox, Register-ActivityProduction, Enable-ActivityProduction, Get-ActivityPackageStatus, Uninstall-ActivityTask, New-ActivityTaskXml, Get-ActivityPeSubsystem

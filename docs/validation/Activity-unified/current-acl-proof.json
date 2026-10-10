@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_actual_activity_read_acl_denial",
+  "checks": [
+    "P.synthetic_current_read_is_denied",
+    "P.current_file_really_refuses_read",
+    "A.actual_activity_reads_report_storage_failure",
+    "A.actual_failure_reaches_activity_page",
+    "A.memory_list_and_search_survive_activity_read_failure",
+    "A.memory_surface_survives_actual_activity_failure",
+    "A.failure_preserves_canonical_vault",
+    "P.original_security_descriptor_is_restored",
+    "A.release_preserves_current_pointer_bytes",
+    "A.failure_preserves_complete_activity_store",
+    "A.release_restores_exact_public_history",
+    "A.recovery_preserves_canonical_vault"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/current-acl-native.json",
+  "nativeReportSha256": "515c53300199ee5ec14dd03c663315d00b1f9f5dc4d145e9571d910b4a183187",
+  "nativeSummary": "47/47",
+  "processExitCode": 0,
+  "intermediateReport": "docs/validation/Activity-unified/current-acl-intermediate.json",
+  "intermediateReportSha256": "06ac7ded2a6fda884b8033aa59ba0f8c25a1e1bed5ba42077d8738bea9f2fd31",
+  "intermediateSummary": "26/27",
+  "initialHarnessSha256": "784d9406b039775fbc5266f1cc154e5186afcc1f7bea25e9fdd130187ebe4e9e",
+  "harnessSha256": "c78870815db49d5b23d0a276678054aa14bc9f643288d3397f93dea8eb21b8fa",
+  "desktopSha256": "56715abfda68ded92a11f444810b07ae752407554f9fb96099ead25783aca061",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only the freshly prepared synthetic CURRENT file receives a temporary current-user ReadData deny rule.",
+    "The original complete security descriptor is restored and verified before normal runner mutations resume.",
+    "This tests read ACL denial, not write-permission failure, disk-full, mid-write power loss or production availability.",
+    "No personal Vault, production task, credential or public upload is used."
+  ]
+}

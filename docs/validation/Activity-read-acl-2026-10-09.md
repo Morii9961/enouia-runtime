@@ -1,0 +1,17 @@
+# Actual Activity read-permission denial
+
+Date: 2026-10-09. Scope: one freshly prepared synthetic CURRENT file; native Activity error/isolation/recovery. B4/J1 remain partial; B5 inactive.
+
+After checking exact fixture containment, the helper backs up the original complete security descriptor and temporarily adds only a current-user ReadData deny entry to CURRENT. A direct file read actually fails with EACCES/EPERM. Real desktop overview and preview both return the structured storage_failed error, the Activity page removes source cards, and pinned-Core Memory list/search/page remain available. No parent directory or Vault ACL is changed.
+
+The owned helper is hidden and self-expires after 90 seconds. Normal release restores the original DACL; the parent also restores it independently before terminating a nonresponsive owned helper. The complete resulting security descriptor is checked against the original. Pointer bytes, full Activity tree and canonical Vault remain unchanged before ordinary mutations resume; a real refresh restores the original preview hash and all three source histories.
+
+The [native result](Activity-unified/current-acl-native.json) passes **47/47**, including twelve additional denial/restoration/isolation assertions and the existing actual pause/resume/run, retained history, Core readback and exact pending across owned-shell restart flow. The [hashed proof](Activity-unified/current-acl-proof.json) records exact binary/helper identities. Raw ACL/identity strings are kept in the helper's memory, not committed or sent to the page.
+
+The first attempt passes 26/27 and stops before ACL capture/change because Windows PowerShell cannot autoload Microsoft.PowerShell.Security for Get-Acl. The [sanitized intermediate report](Activity-unified/current-acl-intermediate.json) preserves every check/result, replaces only its raw command/path error and records the private original report hash. A completely fresh fixture reruns after removing that module dependency; no product behavior is changed.
+
+Windows PowerShell 5.1.26100.9444 uses the supported .NET Framework [File.GetAccessControl](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.getaccesscontrol?view=netframework-4.8.1) and [File.SetAccessControl](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.setaccesscontrol?view=netframework-4.8.1) APIs directly. Restoration reconstructs the saved DACL using SetSecurityDescriptorSddlForm with the Access section: SetAccessControl persists modified descriptors only, so reapplying an untouched snapshot would not restore it. Owner/group remain unchanged and full descriptor equality is verified.
+
+Fresh checks: actual 47/47, harness syntax, Memory integration guard, evidence integrity **36 reports / 457 selectors / 37 negative checks**, and whitespace. Unchanged product source/binaries reuse the prior slice's 50 frontend tests, strict build, 32+3 host/Core tests, fmt/clippy, 22/22 modeled outcome checks, 35/35 actual actions and 26 installer checks; these are not rerun for a harness-only change.
+
+Desktop remains 56715abfda68ded92a11f444810b07ae752407554f9fb96099ead25783aca061; runner cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a; Memory pin ff692ccb6fbc1c387254d5ffbef41b105eeb2a84. No personal Vault/archive, existing/production task, credential, public upload, server or Moriium source is changed. This tests only CURRENT read ACL denial; write ACLs, other files, disk-full, mid-write power loss, prolonged stress and production availability remain unverified.

@@ -1,0 +1,78 @@
+# ADR-028 — Activity surface over the installed runner
+
+Date: 2026-10-07. Status: adopted and implemented. Authority: the owner's 2026-10-07 instruction to continue Activity & Usage work on both backend and frontend; Architecture v0.3 section 13 and the M0 Activity IPC v1 contract.
+
+## Context
+
+Architecture section 13 asks for a dedicated Activity screen with the three source charts, freshness, schedule, pending, transport and publication state, and manual Run now, Retry pending and Pause/Resume that "use the runner and its lock". Until now the desktop showed a fictional event timeline, and the shell registered no Activity command.
+
+The Activity producer is installed separately (B3.2) and runs from Windows Task Scheduler with the UI closed. The shell must not become a second writer, a second store reader with its own version of the format, or a way to change the scheduled task. Activity must stay outside Memory, Context and the Memory adapter.
+
+## Decision
+
+1. **The installed runner is the only path.** The shell calls the selected package's `enouia-activity.exe` as a bounded, windowless subprocess with that package's config. Reads use the runner's new `overview` and `preview` commands. They read `CURRENT` once without the writer lock, so a status refresh never makes a scheduled run busy. `sync`, `retry-pending` and `set-paused` take the runner's own lock exactly as a scheduled run does. The shell never opens the store, links the Activity crates or holds the lock.
+2. **One typed command.** `activity_call` accepts exact Activity IPC v1 requests (contracts/ipc/activity-v1.schema.json) from the main window only. Unknown operations, extra fields, unreal or reversed dates and sources other than `github`, `codex` and `claude` return `contract_invalid`. Runner exits map to structured codes, and the page never receives a path, raw report or subprocess text. Run now and Retry pending return a run ID at once and run on a background thread. `activity_get_run` reports `running`, then `completed`, `blocked` or `failed` with the runner's sanitized summary. Only one shell-started mutation runs at a time.
+3. **Package selection.** `activity_setup` chooses the package folder through a native dialog, forgets it, or reports it. The shell validates `install.json` (schema, package marker, task name, mode, the exact binary and config paths inside the folder) and the runner's SHA-256. It checks the hash again before every start, so a replaced runner is refused. Only the folder name, mode and task name reach the page. The choice is kept in the app config directory as `activity-install.json`.
+4. **Schedule is read-only.** The shell queries the package's task with `schtasks /Query /XML`, bounded by timeout and output size. A task is the package's only if its registration source equals the package marker. A failed query leaves registration unknown; unknown enablement and an unobserved next trigger stay explicit. For an enabled owned task, a separate bounded read through Windows Task Scheduler COM obtains NextRunTime, rechecking ownership and enablement. Disabled tasks, individually disabled triggers, missing/past times, malformed responses and failed queries leave nextTriggerAt null; XML trigger boundaries never stand in for an observed time. The shell never registers, enables, disables or runs the task.
+5. **Store addition.** Acknowledgment keeps the cleared batch's per-source outcomes and local observation time as `lastOutcomes` in `delivery.json`, so the last attempt survives pending clearance. It is validated on read and retained across delivery-only commits; delivery decisions never read it, and older runners ignore it.
+6. **IPC v1 additions before the first consumer.** The overview gains optional `generatedAt`, `producer`, `pending` and `schedule.task`; run status gains the `running` stage, `operation` and `summary`. They are recorded in the [contract agreement](../CONTRACT_BOUNDARIES_M0.md).
+7. **Surface.** In the native shell the Activity page shows per-source totals (exact decimal strings), recorded-day range, last success and last attempt, freshness against the three-hour window, a 53-week calendar that keeps explicit zeros, unrecorded gaps and the source's possibly incomplete current day distinct, and an accessible table. The table defaults to the most recent fourteen recorded days and provides a keyboard control for all recorded dates when more are available. It shows schedule, delivery, pending, transport and publication separately, plus a read-only public payload preview and a copy of the sanitized overview. It offers no sequence, pending or archive editing and no combined AI total. A production package with delivery enabled asks once inline before Run now. Browser previews keep the fictional timeline.
+
+## Consequences
+
+- Closing or exiting the shell leaves a started run to finish on its own; the runner and its lock decide the outcome. The native smoke terminates the shell mid-run and finds the exact pending bytes intact.
+- The UI shows the producer's real state but does not by itself prove the scheduler, live tools or production delivery. Those stay with B4/B5 and their operational gates.
+- A package installed by an older runner without `overview` and `preview` reports a structured error; reinstall the package from this revision.
+- Memory, Context and the Memory adapter are unchanged. Activity failures stay inside the Activity page.
+- The [2026-10-08 main integration](../validation/Activity-desktop-integration-2026-10-08.md) preserves strict frontend checking and the newer shell lifecycle. Read failures clear old values, incomplete replies become local contract errors, and older reads cannot overwrite newer state. A synthetic native fault drill reads back a Memory candidate while Activity is degraded.
+- Native acceptance may pass `--activity-settings <absolute file>` to keep package selection under its isolated output directory. The page cannot set that path; ordinary launches retain the app-config location.
+- The [actual registered-task drill](../validation/Activity-native-scheduler-2026-10-08.md) verifies disabled/enabled task reads and health through the release desktop. Producer pause remains independent, next trigger remains unobserved, scheduler-control IPC is refused and read-only queries preserve Activity files.
+- The [confirmation regression](../validation/Activity-send-confirmation-2026-10-08.md) keeps ordinary Run now separate from explicit Collect and send consent. Selected production mode requires confirmation even when an older valid overview lacks optional producer metadata, unless delivery is explicitly disabled. Modeled native checks intercept all send requests before IPC.
+- The [pinned-Core index isolation drill](../validation/Activity-index-isolation-2026-10-08.md) verifies unchanged Activity archive bytes across a successful synthetic Memory rebuild, then readable approved Memory after Activity source failure. It changes neither Core nor the pin and does not establish corrupt-index/storage-fault or long-running overlap acceptance.
+- The [missing-cache drill](../validation/Activity-missing-index-2026-10-08.md) verifies reopening/rebuild of a synthetic Vault after only its generated index caches are removed with the host closed. Canonical Vault and Activity bytes stay unchanged; storage-fault and long-running overlap remain separate acceptance gates.
+
+- The [malformed-cache drill](../validation/Activity-malformed-index-2026-10-08.md) confirms actual index-dependent search refusal and recovery while canonical Memory reads and Activity remain usable; canonical Vault and Activity bytes stay unchanged. No storage fault or long-running overlap is claimed.
+
+- The [index-sharing drill](../validation/Activity-locked-index-2026-10-08.md) verifies real Windows sharing-violation failure/retry while Activity remains usable and canonical Vault/Activity bytes stay unchanged. It does not establish disk-full, ACL denial or mid-write power loss.
+
+- The [running-worker overlap drill](../validation/Activity-rebuild-overlap-2026-10-08.md) brackets real Activity reads with running statuses of the same Core rebuild over 241 approved synthetic memories, preserving canonical Vault and Activity bytes. Sustained stress, cancellation and concurrent writes remain separate.
+
+- The [cooperative cancellation drill](../validation/Activity-rebuild-cancel-2026-10-08.md) verifies actual cancellation before the first applied index batch and fresh rebuild recovery while canonical Vault and Activity bytes stay unchanged. It does not establish partial-progress recovery.
+
+- The [partial-progress cancellation drill](../validation/Activity-rebuild-partial-2026-10-08.md) verifies a retained 256-commit watermark and ordinary search catch-up to 496 before a fresh successful rebuild. Canonical Vault and Activity bytes remain unchanged; sustained stress and concurrent mutations remain separate.
+
+- The [running-worker mutation drill](../validation/Activity-rebuild-mutations-2026-10-08.md) verifies actual pause/resume commits between running statuses of one Core rebuild. New operational generations are expected; archive, sequence, pending, restored delivery and canonical Vault remain intact.
+
+The [complete recorded-days follow-up](../validation/Activity-full-recorded-days-2026-10-08.md) verifies all dates and values for three synthetic histories through actual keyboard page actions (16/16), plus the existing action flow (11/11). This extends Runtime presentation without changing the producer or Memory pin.
+
+The [next-trigger follow-up](../validation/Activity-next-trigger-2026-10-08.md) supersedes the earlier unobserved-time behavior for enabled owned tasks only. It passes two native 10/10 runs and independently matches the future Windows task-info time. Disabled tasks retain null, read-only queries preserve data, and actual elapsed-trigger/production acceptance remains open.
+
+The [frontend source-semantics fix](../validation/Activity-source-contract-2026-10-09.md) enforces the existing per-source unit/day-boundary constants and canonical recorded date ordering, uniqueness and safe sums at the frontend read boundary. Modeled invalid replies cannot replace visible data; subsequent actual reads recover without store writes (23/23 after a 14/23 baseline). This adds no producer, public-wire or Memory behavior.
+
+The [diagnostic/payload field-boundary fix](../validation/Activity-export-contract-2026-10-09.md) enforces existing closed protocol records before they reach clipboard or JSON preview. Extra fields, unknown component IDs and raw text in date/time fields are refused; supported date-only and explicit-offset ISO forms stay compatible with the producer parser. Owned-page modeled privacy checks pass 36/36 after a 20/36 baseline.
+
+The [Activity read-failure isolation drill](../validation/Activity-read-failure-isolation-2026-10-09.md) verifies that an actual CURRENT sharing failure does not prevent pinned-Core Memory queries or page access. Release restores the exact Activity history without changes to pointer, Activity or canonical Vault bytes (45/45 native checks). Other storage faults remain separate.
+
+The [request/reply correlation fix](../validation/Activity-reply-correlation-2026-10-09.md) rejects mismatched run/source/date-range/pause replies and enforces the existing exact operation/status/acknowledgement records (48 frontend tests, 12/12 modeled native checks and a separate 35/35 actual-action rerun). The producer and Memory pin stay unchanged.
+
+The [run-query recovery fix](../validation/Activity-run-polling-2026-10-09.md) retries reads for the same accepted run after query failures and keeps all existing nonterminal protocol stages active. It never repeats the start mutation and ignores late replies after unmount (17/17 modeled native checks plus a fresh 35/35 actual-action run).
+
+The [run-outcome display fix](../validation/Activity-run-outcome-2026-10-09.md) renders unknown summary state strings through a fixed fallback and displays only valid whole source-failure counts among the three sources (50 frontend tests, 22/22 modeled native checks after 15/22 and a separate 35/35 actual-action run). It preserves the generic optional summary contract.
+
+The [CURRENT read ACL drill](../validation/Activity-read-acl-2026-10-09.md) verifies actual permission denial, Memory independence and exact original descriptor/data restoration on a fresh synthetic file (47/47 native checks). This changes no product code and leaves write/other-file ACL and other storage faults separate.
+
+The [generation-creation write ACL drill](../validation/Activity-generation-write-acl-2026-10-09.md) verifies actual pause failure before staging creation with complete-store preservation and subsequent successful pause/resume after exact descriptor restoration (48/48 native checks). Current-pointer replacement and other write/storage faults remain separate.
+
+The [package-choice reply fix](../validation/Activity-setup-contract-2026-10-09.md) validates the existing activity_setup command separately from Activity IPC v1. Action-specific exact records, known modes/refusal codes, bounded host task names and nullable leaf folder names are enforced before producer reads. Native setup checks pass 34/34 after a 16/33 baseline; a separate actual-action/Core-isolation rerun passes 35/35. No host or producer protocol change is made.
+
+The [choice-persistence feedback fix](../validation/Activity-choice-save-2026-10-09.md) exposes actual selection/clear saved false results, provides a clear retry and guards repeated clicks. Native filesystem fault/recovery passes 16/16 after a comparable 10/16 baseline; real operations/Core isolation pass 35/35. Warning persistence across page remount remains outside this slice.
+
+The [current-pointer replacement failure drill](../validation/Activity-pointer-switch-2026-10-09.md) permits actual reads while Windows refuses replacement. Two failed pause writes retain selected state, original files, complete unselected generations and prepared temporary pointers; release allows pause/resume without deleting remnants (50/50 native checks). Product code is unchanged.
+
+The [saved-choice deletion drill](../validation/Activity-choice-delete-2026-10-09.md) verifies actual saved false, exact retained config and real reconnection after restart while deletion is refused. Release plus the named retry removes the choice and a further restart stays unconfigured (12/12). Product source is unchanged.
+
+The [bounded repeated isolation drill](../validation/Activity-repeated-pause-2026-10-09.md) verifies ten pause/resume cycles and ten independent Core rebuilds with per-cycle archive/sequence/pending/canonical-Vault preservation, and twenty intentional generations (77/77). It does not establish sustained stress or collection/delivery overlap.
+
+The [session run-record drill](../validation/Activity-run-history-2026-10-09.md) verifies seventeen actual paused starts, exact latest-sixteen retention and nonretryable oldest/post-restart refusal without paused-store writes (47/47). It does not establish active-run eviction or simultaneous start admission.
+
+The [saved-choice status fix](../validation/Activity-choice-persistence-2026-10-09.md) adds optional saved boolean metadata to configured activity_setup status after rechecking the existing persisted root against the connected package. No path is exported and older statuses remain accepted. Actual failed-save feedback survives page remount; recovered saved state stays quiet (20/20 plus 35/35 actual actions, 56 frontend and 33+3 host/Core tests). Unconfigured status is unchanged.

@@ -55,6 +55,17 @@ test('Core errors become CallError with code and rules only', async () => {
   assert.equal(retryable(unknown), false);
 });
 
+test('index recovery guidance distinguishes persistent failure from temporary contention', () => {
+  const unavailable = new CallError({ code: 'index_not_ready', retryable: true, rules: [] });
+  assert.match(describe(unavailable), /Rebuild index in Vault & recovery/);
+  assert.doesNotMatch(describe(unavailable), /busy or rebuilding/);
+  assert.equal(retryable(unavailable), true);
+  const busy = new CallError({ code: 'index_not_ready', retryable: true, rules: ['index.busy'] });
+  assert.match(describe(busy), /Try again in a moment/);
+  assert.doesNotMatch(describe(busy), /Rebuild index/);
+  assert.equal(retryable(busy), true);
+});
+
 test('host failures are described but never retried', () => {
   assert.equal(describe('permission_denied'), 'This window may not reach Memory');
   assert.equal(describe('worker_failed'), 'The Memory worker stopped unexpectedly');

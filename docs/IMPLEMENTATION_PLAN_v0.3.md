@@ -1,10 +1,10 @@
 # Enouia Runtime v0.3 — implementation plan
 
-Date: 2026-10-02. Status: M0.1 and Activity B1-B3 implementation are present and locally verified. B4 remains partial; B5 production activation and Core A1-A3/J1 remain pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seven historical machine reports, records both unresolved GitHub comparisons, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
+Date: 2026-10-02, current progress updated 2026-10-09. M0.1 and Activity B1-B3 implementation are present and locally verified. Memory follows its owner repository's MV stages; J1 and B4 remain partial and B5 production activation remains pending. The [C01-C18 evidence index](validation/B4-coverage.md) links fifty-seven recorded reports, preserves the original unresolved counts, records [ADR-031](adr/031-strict-activity-validation-compatibility.md)'s current explicit safety classifications, actual closed-UI scheduler, independent installed-package and pinned-Core rebuild/missing-cache/malformed-cache/file-sharing isolation evidence, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
 
 Status note (2026-10-04, [ADR-025](adr/025-enouia-memory-integration.md)): the Enouia Memory repository now owns the Memory domain. Track A is replaced by Memory's MV stages plus Runtime integration slices, and the desktop shell embeds Memory's workspace Core at a pinned revision ([Memory integration v1](MEMORY_INTEGRATION_v1.md)). Track B, J1 as the join point, B4 and B5 are unchanged. The scope paragraph below predates the frontend and Memory integration work; [AGENTS.md](../AGENTS.md) holds the current scope.
 
-Current user scope: backend design; frontend work is now progressing separately. Existing backend models/ports remain available for coordination. This task edits no frontend files; future UI milestones in this plan do not override that scope.
+Current implementation follows the latest [AGENTS.md](../AGENTS.md) scope: the desktop frontend is authorized, Memory stays in its owner repository, and Activity remains Runtime's independent domain. The [combined Activity validation](validation/Activity-unified-2026-10-08.md) records the integration of Claude's remaining Runtime work with the native surface. Production and personal migration gates remain separate.
 
 Activity currently includes strict three-source adapters, generation storage/recovery, persisted pause and exact-pending retries, migration inspection/import/export, restricted transport with public observation, and scheduler packaging. Development evidence covers frozen comparison, isolated legacy handback, pinned native ccusage on synthetic stores, store/publisher process death, and ready tool-tree cleanup after release-runner death. Live inventory/authentication, deployment, scheduler triggers/battery/resume, full storage durability and UI acceptance still require evidence. Individual B1-B3 validation reports remain under docs/validation.
 
@@ -102,7 +102,7 @@ Owner paths: `enouia-activity-contract`, `enouia-activity/merge`, `contracts/act
 
 Implement both validators, public allowlist reconstruction, sorted days and compatible data-byte serializer, checked arithmetic, and per-source success/failure merge. Unit input is `previous + three SourceAttempt values + fixed clock`; output is complete ActivityData plus local deltas. No filesystem/CLI/network code in this package.
 
-Acceptance: complete source map; exact units/zones; impossible/duplicate dates rejected; safe-integer boundaries; private sentinel fields stripped at every nested public level; preserved history through moving windows; upward/downward corrections replace; zero growth succeeds; failed sources retain old timestamps; clock rollback blocks rather than evicts days. Public serialization hash matches normalized Moriium output for identical data.
+Acceptance: complete source map; exact units/zones; impossible/duplicate dates rejected; safe-integer boundaries; private sentinel fields stripped at every nested public level; preserved history through moving windows; upward/downward corrections replace, except that a lower Claude report keeps the higher archived day ([ADR-029](adr/029-claude-retains-higher-days.md)); zero growth succeeds; failed sources retain old timestamps; clock rollback blocks rather than evicts days. Public serialization hash matches normalized Moriium output for identical data.
 
 ### B1.2 Tool adapters
 
@@ -150,7 +150,11 @@ Acceptance: sandbox task uses only sandbox config/endpoint; production task init
 
 ### J1 Activity UI and health
 
-Owner paths: `apps/windows/src/features/activity`, Activity read facade/IPC and health adapters. Track A owns global navigation/lifecycle; Track B owns source meaning, DTO content, and Activity operations. Agree on the route and DTOs at M0, avoid shared-file ownership ambiguity.
+Progress (2026-10-08): [ADR-028](adr/028-activity-surface.md) connects the native desktop Activity page to the separately installed runner. The [integration report](validation/Activity-desktop-integration-2026-10-08.md) records release-build synthetic checks, retained pending bytes after shell termination, accurate unknown schedule state and an Activity fault while a synthetic Memory Vault stays usable. [Actual scheduler acceptance](validation/Activity-scheduler-live-2026-10-08.md) now includes unpaused state advancement and exact pending retention with the desktop closed, using a delivery-disabled synthetic task. Full J1 remains partial: actual trigger timing, broader operational/accessibility acceptance and production observation are not established. B4 sign-off and B5 activation are unchanged.
+
+Later [consolidated evidence](validation/Activity-unified-2026-10-08.md) includes real disabled/enabled task reads, corrected explicit production confirmation, independently installed management, healthy Core index rebuild and missing-cache recovery. The latest [native malformed-cache workflow](validation/Activity-malformed-index-2026-10-08.md) passes 45/45 with search refusal/recovery while preserving canonical Vault and Activity bytes. Every report keeps its exact artifact and acceptance limits.
+
+Owner paths: `apps/desktop/src/activity`, `apps/desktop/src-tauri/src/activity.rs`, Activity read facade/IPC and health adapters. Runtime owns global navigation/lifecycle; the independent Activity domain owns source meaning, DTO content, and Activity operations. Agree on the route and DTOs at M0, avoid shared-file ownership ambiguity.
 
 Acceptance: three source calendars/tables and separate time boundaries; totals/recorded days/last success/last attempt; failure and stale retention; schedule/pending/transport/publication indicators; safe manual actions and payload preview. No raw paths/titles/tokens in exported diagnostics, no sequence reset UI. Kill UI during a headless run and verify state; degrade Activity while performing the Track A demo. Test pending wait does not block the UI thread.
 
@@ -248,3 +252,17 @@ credentials, import personal archives, register a task, upload, or modify Moriiu
 M0.1 acceptance is an offline, independently buildable contract foundation. The contract crate must compile/test with no reference to the Moriium checkout. Metadata schemas alone do not prove real-date, cross-field, or privacy validation: tests must exercise the Rust implementation. If toolchain installation or network access is unavailable, preserve the scaffold and report that validation is blocked; do not claim checks passed. Do not expand this task to solve operational O1–O4 through live migration.
 
 After M0.1 review, finish the remaining M0 shared IPC/Track A schema agreements, then start A1 and B1 independently. Large-scale implementation ends at explicit milestone boundaries for review; production cutover remains a separate operational action.
+
+The [native index-sharing failure/retry workflow](validation/Activity-locked-index-2026-10-08.md) passes 46/46 with an exact Windows sharing-violation failure and successful release/rebuild/search recovery, preserving canonical Vault and Activity bytes. Other storage failures and long-running overlap retain their acceptance gates.
+
+The [running-Core rebuild overlap workflow](validation/Activity-rebuild-overlap-2026-10-08.md) passes 40/40: actual worker states bracket Activity reads on a 241-memory synthetic Vault, while canonical Vault and Activity bytes remain unchanged. This does not establish sustained stress, cancellation or concurrent Activity mutations.
+
+The [cooperative rebuild cancellation workflow](validation/Activity-rebuild-cancel-2026-10-08.md) passes 46/46: actual pre-first-batch cancellation followed by a fresh successful rebuild, preserving canonical Vault and Activity bytes. Partial-progress recovery remains separate.
+
+The [partial-index recovery workflow](validation/Activity-rebuild-partial-2026-10-08.md) passes 49/49 with retained watermark 256, ordinary search catch-up to 496 and successful fresh rebuild, preserving canonical Vault and Activity bytes.
+
+The [persistent index recovery guidance fix](validation/Index-recovery-guidance-2026-10-08.md) distinguishes temporary contention from persistent unavailable indexes and names the existing rebuild controls. Current desktop native checks pass 48/48, frontend 38, host/Core 31+3 and rendered/source installer ownership 26/26. Core and its pin are unchanged.
+
+The [running-Core producer mutation workflow](validation/Activity-rebuild-mutations-2026-10-08.md) passes 47/47: actual Activity pause/resume commits during a running rebuild, preserving canonical Vault and Activity domain data with expected new operational generations.
+
+The [independent loopback static-read workflow](validation/Activity-static-read-2026-10-08.md) passes 12/12 after copied publisher/receiver/author modules are removed from its unique temporary fixture; public bytes remain readable and unchanged across an independent worker restart. This does not establish deployed Nginx/HTTPS or real checkout absence.

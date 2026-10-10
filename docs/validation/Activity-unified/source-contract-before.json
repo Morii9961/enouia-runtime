@@ -1,0 +1,121 @@
+{
+  "checks": [
+    {
+      "id": "V.actual_package_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.actual_three_source_snapshot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_github_metric",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_github_metric",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_codex_timezone",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_codex_timezone",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_extra_overview_source",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_extra_overview_source",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_overview_impossible_date",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_overview_impossible_date",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_claude_preview_metric",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_claude_preview_metric",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_preview_impossible_date",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_preview_impossible_date",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_preview_duplicate_date",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_preview_duplicate_date",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_preview_unsafe_total",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_preview_unsafe_total",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.rejects_preview_unsorted_days",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "V.recovers_preview_unsorted_days",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.invalid_replies_preserve_actual_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.paths_stay_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "V.choice_is_cleared",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "14/23"
+}

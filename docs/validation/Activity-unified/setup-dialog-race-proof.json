@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_actual_setup_dialog_run_interleave",
+  "checks": [
+    "SG.known_owned_loopback_tools_are_verified",
+    "DG.actual_owned_picker_precedes_run",
+    "SG.actual_run_precedes_setup_changes",
+    "DG.confirmed_picker_refuses_new_active_run",
+    "DG.post_dialog_preserves_exact_saved_choice",
+    "SG.status_reads_current_choice_during_run",
+    "SG.select_refuses_active_run_with_busy",
+    "SG.clear_refuses_active_run_with_busy",
+    "SG.refused_clear_preserves_exact_saved_choice",
+    "SG.same_run_still_active_after_setup_attempts",
+    "SG.native_choice_remains_connected",
+    "SG.original_run_reaches_terminal",
+    "SG.terminal_run_retains_actual_pending",
+    "SG.terminal_reopens_native_picker",
+    "SG.terminal_accepts_clear_and_removes_choice"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/setup-dialog-race-native.json",
+  "nativeReportSha256": "2bc5607fca35e26b9f9fe5ee37f8ea8510f6d6ac1b5c3d5b0c236464f44d26a6",
+  "nativeSummary": "15/15",
+  "processExitCode": 0,
+  "desktopSha256": "07efe1795cd6f821ef3c45f87f38dbbcc834d1be9439d495a00677d07e9bfe49",
+  "installerSha256": "e20b9309fbcaea4492b39f2ba2a67c8e7e598506b01ade39f14399958ce56d73",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "toolsSha256": "5b8d1f6ca2eaaa6fbe79893f3c9b19322b58890fdc6a776b8aba6704836cb70a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "harnessSha256": "fe4ce8abafcb52b5eca48286ec91fe05394982acfc3441ff75cfecbbf33c1a8e",
+  "reusedFrontendTests": 58,
+  "reusedHostTests": 34,
+  "reusedCoreTests": 3,
+  "limitations": [
+    "The actual owned picker is observed before native run admission; its confirmation of the same valid package returns busy after the actual run begins.",
+    "Only a new marked fixture, exact known eight-second local stand-ins and loopback origin are used; no command reply is modeled.",
+    "The same run remains active after all setup attempts, retains exact saved-choice bytes, reaches terminal and permits picker/clear recovery.",
+    "This exercises one bounded interleaving, not all concurrent choice/admission races, sustained stress, authenticated collection or public publication.",
+    "No Memory pin/domain, producer protocol, scheduler, personal Vault/archive, credentials, server or Moriium source changes; B4/J1 partial and B5 inactive."
+  ]
+}

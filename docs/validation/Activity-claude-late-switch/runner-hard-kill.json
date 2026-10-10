@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-10T08:07:26.247Z",
+  "state": "passed",
+  "scope": "actual_release_runner_death_during_ready_synthetic_tools",
+  "node": "v24.15.0",
+  "binarySha256": "ea6b732bc3f4e4c932fca59bc1856351204aad0bfc80cd8da588a21e76d08dbf",
+  "fixtureToolsSha256": "1c73d1c89a69aa70ab65f8834cac61590b5add6b6546162fed2fd65e6e488545",
+  "harnessSha256": "0ec4fee0cb53e5239e2a108ff1c0dac3018f961c3c2454aca8c1b1e28e708eaf",
+  "fixtureToolSourceSha256": "3adab77f9fd8aeab3fa7806860fd59808bbac15955507dc9a17c6e6a6289575e",
+  "fixtureFiles": [
+    {
+      "path": "tests/fixtures/activity/github-calendar-v1.json",
+      "sha256": "212081eac86da31c4e5fe139a5ba63d7c5b503ac6b6ed4b002d3b160bbb6f8a4"
+    },
+    {
+      "path": "tests/fixtures/activity/codex-usage-v1.json",
+      "sha256": "384cc4cd734f5da1cf2761ec1aba59ff6a06ac4f8fcb49c24ea5888ef0b8eb03"
+    },
+    {
+      "path": "tests/fixtures/activity/moriium-public-data.json",
+      "sha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9"
+    }
+  ],
+  "checks": [
+    "gh: paused synthetic import at high-water 50",
+    "gh: live Runtime holds the single-writer OS lock",
+    "gh: release Runtime is forcibly terminated",
+    "gh: Runtime/tool/grandchild live handles all signal within bound",
+    "gh: restart acquires lock with unchanged pending identity",
+    "gh: killed invocation changed no committed state bytes",
+    "gh: retry/collection resumes at the correct sequence",
+    "gh: post-kill complete collection retains failed Claude and succeeds other sources",
+    "codex: paused synthetic import at high-water 50",
+    "codex: live Runtime holds the single-writer OS lock",
+    "codex: release Runtime is forcibly terminated",
+    "codex: Runtime/tool/grandchild live handles all signal within bound",
+    "codex: restart acquires lock with unchanged pending identity",
+    "codex: killed invocation changed no committed state bytes",
+    "codex: retry/collection resumes at the correct sequence",
+    "codex: post-kill complete collection retains failed Claude and succeeds other sources",
+    "ssh: paused synthetic import at high-water 50",
+    "ssh: live Runtime holds the single-writer OS lock",
+    "ssh: release Runtime is forcibly terminated",
+    "ssh: Runtime/tool/grandchild live handles all signal within bound",
+    "ssh: restart acquires lock with unchanged pending identity",
+    "ssh: killed invocation changed no committed state bytes",
+    "ssh: retry/collection resumes at the correct sequence",
+    "ssh: killed and subsequent retries send the exact original bytes"
+  ],
+  "cases": [
+    {
+      "role": "gh",
+      "highWater": 50,
+      "processesObserved": 3,
+      "ownedProcessHandlesSignalled": true,
+      "committedTreeBeforeSha256": "013b7f7adc1d927a896da6c109106899f6d3396195b1e0791a0e05e1b0b17f4f",
+      "committedTreeUnchangedAfterKill": true,
+      "pendingBeforeSha256": null,
+      "pendingAfterSha256": null,
+      "resumed": {
+        "collectionAttempted": true,
+        "errorCode": null,
+        "exitCode": 4,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 51,
+        "sourceFailures": 1,
+        "state": "delivery_disabled",
+        "transportAttempted": false,
+        "transportCompleted": false
+      }
+    },
+    {
+      "role": "codex",
+      "highWater": 50,
+      "processesObserved": 3,
+      "ownedProcessHandlesSignalled": true,
+      "committedTreeBeforeSha256": "c8ce0fa066aeb01f563a6d1dbe43af489fb00f6d730982c5b74c4a4a9d1a9e0e",
+      "committedTreeUnchangedAfterKill": true,
+      "pendingBeforeSha256": null,
+      "pendingAfterSha256": null,
+      "resumed": {
+        "collectionAttempted": true,
+        "errorCode": null,
+        "exitCode": 4,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 51,
+        "sourceFailures": 1,
+        "state": "delivery_disabled",
+        "transportAttempted": false,
+        "transportCompleted": false
+      }
+    },
+    {
+      "role": "ssh",
+      "highWater": 50,
+      "processesObserved": 3,
+      "ownedProcessHandlesSignalled": true,
+      "committedTreeBeforeSha256": "1797ebd52990e6fed30be2f7a3885c5e210d344b194bf22e3b6790c89235d6eb",
+      "committedTreeUnchangedAfterKill": true,
+      "pendingBeforeSha256": "3971497dfa6561bb173885a9eadf07480e4908e1b1a6e444232c787be3e5c2c0",
+      "pendingAfterSha256": "3971497dfa6561bb173885a9eadf07480e4908e1b1a6e444232c787be3e5c2c0",
+      "resumed": {
+        "collectionAttempted": false,
+        "errorCode": "delivery_unverified",
+        "exitCode": 4,
+        "nextEligibleAtMs": 1791623246192,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 42,
+        "sourceFailures": 3,
+        "state": "delivery_unresolved",
+        "transportAttempted": true,
+        "transportCompleted": false
+      }
+    }
+  ],
+  "limitations": [
+    "Only owned synthetic gh/Codex/SSH/descendant processes are used; no authenticated capability.",
+    "Watcher retains synchronization-only Windows process handles before the kill, avoiding PID-reuse inference.",
+    "Tests wait for ready tool descendants; the interval between process creation and job assignment is not exercised.",
+    "No production tasks, real SSH, public publication, disk-full, power loss or full B4 sign-off."
+  ]
+}

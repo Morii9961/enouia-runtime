@@ -193,3 +193,24 @@ Activity is untouched. The installer followed in ADR-027.
   - after the running-app check and outside update mode, remove only Runtime's exact startup command.
 - Uninstall owns application files only. Vaults, backups, the WebView2 profile and Activity stay in place.
 - No session-end code is added. The template closes a running Runtime through Restart Manager, and the pinned tao turns its `WM_ENDSESSION` into `RunEvent::Exit`, which runs the Memory shutdown. A real Restart Manager close in the smoke and the upgrade drill confirms this.
+
+## ADR-028 — Activity surface over the installed runner (Adopted; implemented)
+
+[ADR-028](028-activity-surface.md) connects the native shell's Activity page to the separately installed producer.
+
+- `activity_call` takes exact Activity IPC v1 requests from the main window. `activity_setup` chooses the installed package through a native dialog and validates its `install.json` and runner hash.
+- Every read and action runs the package's own `enouia-activity.exe`: lock-free `overview` and `preview` reads, and `sync`, `retry-pending` and `set-paused` under the runner's lock. The shell never opens the store and never changes the scheduled task; it only queries whether the package's task is registered and enabled.
+- Acknowledgment keeps the cleared batch's outcomes as `lastOutcomes`, and IPC v1 gains optional overview and run fields before any consumer shipped.
+- Memory, Context and the Memory adapter are unchanged. Browser previews keep the fictional timeline.
+
+## ADR-029 — Claude history keeps the higher archived day (Adopted; implemented)
+
+[ADR-029](029-claude-retains-higher-days.md) withdraws Architecture section 9 deliberate difference 6. The first real-account run showed a complete, valid Claude report that was lower for 2026-07-25 because the normal store had pruned that day's transcripts while a Cowork store kept part of it. For Claude only, a lower report for an archived day now keeps the archived value and counts `retainedHigherDays`; GitHub and Codex corrections are unchanged. Runtime matches legacy on this case.
+
+## ADR-030 — Gated production activation path for the Activity package (Adopted; implemented)
+
+[ADR-030](030-production-activation-path.md) adds the B5 tooling that B3.2 deliberately lacked. `install-activity.ps1 -Production` accepts only a production, delivery-enabled configuration with an HTTPS origin and restricted alias, still paused and unregistered. `register-activity-production.ps1 -ConfirmTaskName` registers the package's task disabled, and with `-Enable` enables it only after the runner reports an observed publication, sync resumed and nothing pending.
+
+## ADR-031 — Strict Activity validation in comparisons (Adopted clarification; behavior unchanged)
+
+[ADR-031](031-strict-activity-validation-compatibility.md) classifies two existing GitHub unique-date/safe-aggregate refusals and twelve existing nonpublishable timestamp refusals as explicit safety differences. Fresh comparisons prove failed-source history retention and rejection by the copied public manifest validator. No parser, public contract, seed or production behavior changes; unexpected differences, real-seed reconciliation and full B4/B5 acceptance stay gated.

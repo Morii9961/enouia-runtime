@@ -1,0 +1,11 @@
+{
+  "checks": [
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "no main page"
+    }
+  ],
+  "screenshots": [],
+  "summary": "0/1"
+}

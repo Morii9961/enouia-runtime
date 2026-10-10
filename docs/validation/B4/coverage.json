@@ -52,6 +52,377 @@
       "sha256": "6bbbf81d839af05e85aa257dcbe681d2db7d90f63fc73494584060a46e4162d4",
       "state": "passed",
       "selectorCount": 24
+    },
+    {
+      "id": "regression",
+      "path": "docs/validation/B4/reference-regression.json",
+      "sha256": "90ea7ca4bac130d20ad75b6070da852ddd34975cb4f07c7bbf322d0f2dc4a834",
+      "state": "passed",
+      "selectorCount": 97
+    },
+    {
+      "id": "literal",
+      "path": "docs/validation/B4/literal-comparison.json",
+      "sha256": "3134cba5c8c1570b4b01fca0f7b95ed05860163f194106820f07b6c0046103cb",
+      "state": "completed_with_unresolved_differences",
+      "selectorCount": 86
+    },
+    {
+      "id": "frozen2",
+      "path": "docs/validation/B4/frozen-comparison-v2.json",
+      "sha256": "6cee1e6bf9c31795dea39356b37a72062414f9522728cdd3ff76ca2d97efa563",
+      "state": "completed_with_unresolved_differences",
+      "selectorCount": 30
+    },
+    {
+      "id": "frozen3",
+      "path": "docs/validation/B4/frozen-comparison-v3.json",
+      "sha256": "66430c277fae3ee5bf7a84ef68fe785a3bd332bed7c68d7c85203730d93058cb",
+      "state": "passed",
+      "selectorCount": 36
+    },
+    {
+      "id": "literal2",
+      "path": "docs/validation/B4/literal-comparison-v2.json",
+      "sha256": "49b3a132a382916cb913a775d9e347c655d4c27492053c2c05fd9ecd6e841240",
+      "state": "passed",
+      "selectorCount": 124
+    },
+    {
+      "id": "scheduler_closed_ui",
+      "path": "docs/validation/Activity-unified/closed-ui-proof.json",
+      "sha256": "46865a48d51678dd79f6ae1d06cbb304089a8b15d4c4b1b22d1eca7285e37a01",
+      "state": "passed",
+      "selectorCount": 4
+    },
+    {
+      "id": "independent_package",
+      "path": "docs/validation/Activity-unified/independent-package.json",
+      "sha256": "0051ee93907ef967d53d59206dc7b1d2192b2dd1cdae291ca8f7b7a9edbcc279",
+      "state": "passed",
+      "selectorCount": 21
+    },
+    {
+      "id": "index_isolation",
+      "path": "docs/validation/Activity-unified/index-isolation-proof.json",
+      "sha256": "3699163bddd939f27007307f7e6547df95f969472745a802518104b3c0ec169d",
+      "state": "passed",
+      "selectorCount": 6
+    },
+    {
+      "id": "missing_index",
+      "path": "docs/validation/Activity-unified/missing-index-proof.json",
+      "sha256": "afcc41f696975da9713cab9dc0d84ba288a0bed810625f7a90ddcca7ec46311b",
+      "state": "passed",
+      "selectorCount": 6
+    },
+    {
+      "id": "malformed_index",
+      "path": "docs/validation/Activity-unified/malformed-index-proof.json",
+      "sha256": "5c0dd14aba9dbeacd51a087a5f0bb5769cec200a5126e82cb6d6c7794cc0f0ea",
+      "state": "passed",
+      "selectorCount": 10
+    },
+    {
+      "id": "locked_index",
+      "path": "docs/validation/Activity-unified/locked-index-proof.json",
+      "sha256": "f811386f4810f06ccdf2127072bb9f5dd50cf6ec51bfaeb34662ab82df479012",
+      "state": "passed",
+      "selectorCount": 11
+    },
+    {
+      "id": "rebuild_overlap",
+      "path": "docs/validation/Activity-unified/rebuild-overlap-proof.json",
+      "sha256": "d705e3a4f6101209de77927ab999e65b591f3d5c0b3669f9c6ccad47b1e5ef94",
+      "state": "passed",
+      "selectorCount": 5
+    },
+    {
+      "id": "rebuild_cancel",
+      "path": "docs/validation/Activity-unified/rebuild-cancel-proof.json",
+      "sha256": "6a6f3d8addfdcf199c0c393bf31b0458c7614ad6456c935dd8189aa8994a90f6",
+      "state": "passed",
+      "selectorCount": 6
+    },
+    {
+      "id": "rebuild_partial",
+      "path": "docs/validation/Activity-unified/rebuild-partial-proof.json",
+      "sha256": "a4f305f1cde338ad4e74cf8930c3a3e61c503ed8fbdcc65a85131471d706c3af",
+      "state": "passed",
+      "selectorCount": 9
+    },
+    {
+      "id": "index_guidance",
+      "path": "docs/validation/Activity-unified/index-guidance-proof.json",
+      "sha256": "ba860d6fcb27750822a9b6b79a7a2836806a36cfd8a408d404fd06fe70f48a5b",
+      "state": "passed",
+      "selectorCount": 3
+    },
+    {
+      "id": "rebuild_mutations",
+      "path": "docs/validation/Activity-unified/rebuild-mutations-proof.json",
+      "sha256": "7c43ce4d9a006587a152c7720c336216267e1062514a4b53d03e12d57c1b1707",
+      "state": "passed",
+      "selectorCount": 7
+    },
+    {
+      "id": "static_read",
+      "path": "docs/validation/Activity-unified/static-read.json",
+      "sha256": "902eb4d6284a1dbb4fc7e1758a40365ece55bfaf9e8c828fc885622508c00b52",
+      "state": "passed",
+      "selectorCount": 12
+    },
+    {
+      "id": "full_days",
+      "path": "docs/validation/Activity-unified/full-days-proof.json",
+      "sha256": "edb6b8a25a4f0447ab00113629b2a3f8187d5b5eb8269049df5416be92774bb7",
+      "state": "passed",
+      "selectorCount": 27
+    },
+    {
+      "id": "next_trigger",
+      "path": "docs/validation/Activity-unified/next-trigger-proof.json",
+      "sha256": "2e0e89ac1328abb6d3a9d1a115f28bb813feef556b18d5d251fcd7dbdede4d2d",
+      "state": "passed",
+      "selectorCount": 23
+    },
+    {
+      "id": "timed_trigger",
+      "path": "docs/validation/Activity-unified/timed-trigger-short.json",
+      "sha256": "60ac09739d580ea21f786b71a255eb3f19d7934c0923fb5006a642e96e2f337a",
+      "state": "passed",
+      "selectorCount": 25
+    },
+    {
+      "id": "source_contract",
+      "path": "docs/validation/Activity-unified/source-contract-proof.json",
+      "sha256": "62bd618417068d2c81e936142f235a81f3ebddd1ad431fd9bd5bc102c3b3a37c",
+      "state": "passed",
+      "selectorCount": 23
+    },
+    {
+      "id": "export_contract",
+      "path": "docs/validation/Activity-unified/export-contract-proof.json",
+      "sha256": "dc4421bc5ab232d7d6d7d4b7497ce71e55d8de66a85c56642847850ad3fda717",
+      "state": "passed",
+      "selectorCount": 36
+    },
+    {
+      "id": "activity_read_lock",
+      "path": "docs/validation/Activity-unified/current-lock-proof.json",
+      "sha256": "c0e23081d361168a291af23561a12de5ac4e7b22ea63379c9391eebf692ff68e",
+      "state": "passed",
+      "selectorCount": 10
+    },
+    {
+      "id": "reply_correlation",
+      "path": "docs/validation/Activity-unified/run-contract-proof.json",
+      "sha256": "70be1e4b9dda53be68d0177e7347aa70d4d2fb20f7cf16c77caebb16c8a3dd38",
+      "state": "passed",
+      "selectorCount": 12
+    },
+    {
+      "id": "run_polling",
+      "path": "docs/validation/Activity-unified/run-polling-proof.json",
+      "sha256": "a34c09153403f9f1b2e96dfd5b34210b3dc94ab62a221def5e25b80f8659ccb1",
+      "state": "passed",
+      "selectorCount": 17
+    },
+    {
+      "id": "poll_lifecycle",
+      "path": "docs/validation/Activity-unified/poll-lifecycle-proof.json",
+      "sha256": "5344f2f9f0dccf3dcdfb50c9d0c45e957b163ec1b595632421658844c0e021f7",
+      "state": "passed",
+      "selectorCount": 11
+    },
+    {
+      "id": "timed_hourly",
+      "path": "docs/validation/Activity-unified/timed-trigger-hourly.json",
+      "sha256": "4a6cc06155e2281ce1c6e31c51559dde800dbc96018c2f5fa62672d3f0942757",
+      "state": "passed",
+      "selectorCount": 27
+    },
+    {
+      "id": "run_outcome",
+      "path": "docs/validation/Activity-unified/run-outcome-proof.json",
+      "sha256": "6ce864d3d7fa1df7078eb167de6050a3bd8f61cee475bdbddd65c410559622cb",
+      "state": "passed",
+      "selectorCount": 22
+    },
+    {
+      "id": "activity_read_acl",
+      "path": "docs/validation/Activity-unified/current-acl-proof.json",
+      "sha256": "d6ebd3ffef57523020454b3fa6d32541537c899b870d30bea2b700c362384872",
+      "state": "passed",
+      "selectorCount": 12
+    },
+    {
+      "id": "generation_write_acl",
+      "path": "docs/validation/Activity-unified/generation-write-acl-proof.json",
+      "sha256": "8cef7edf5b3e3d39ca9c0ad084822747d23ebea660d4049fc538f6ab4a101082",
+      "state": "passed",
+      "selectorCount": 13
+    },
+    {
+      "id": "setup_contract",
+      "path": "docs/validation/Activity-unified/setup-contract-proof.json",
+      "sha256": "ed1bc41b2ca64bb0a13e9eb2c4af1ddfa7c8ab5d6eec807ff261ae19a9216a45",
+      "state": "passed",
+      "selectorCount": 34
+    },
+    {
+      "id": "choice_save",
+      "path": "docs/validation/Activity-unified/choice-save-proof.json",
+      "sha256": "1b81278a80582ee33d2c609bebc757e67ce5878e84d433d50652c3a4c4b81786",
+      "state": "passed",
+      "selectorCount": 16
+    },
+    {
+      "id": "current_switch_lock",
+      "path": "docs/validation/Activity-unified/switch-lock-proof.json",
+      "sha256": "fa889b6e75a184876a98201ac26ac8a6d84c0f8abde1893b8baea228dc7198c0",
+      "state": "passed",
+      "selectorCount": 15
+    },
+    {
+      "id": "choice_delete",
+      "path": "docs/validation/Activity-unified/choice-delete-proof.json",
+      "sha256": "fcc5d97bc8065ce172058510d2d8fe5deb16c9911a2d183eeaa2df04d7d40afb",
+      "state": "passed",
+      "selectorCount": 12
+    },
+    {
+      "id": "repeat_pause",
+      "path": "docs/validation/Activity-unified/repeat-pause-proof.json",
+      "sha256": "96066b9095a0688dcc7083a57913b0145c8b0e5b232556fe9195df0f43dcc2ff",
+      "state": "passed",
+      "selectorCount": 42
+    },
+    {
+      "id": "run_history",
+      "path": "docs/validation/Activity-unified/run-history-proof.json",
+      "sha256": "0117665828b265090ac61618d7c9ceea92dc7d9ce5c190e78ff750e7f13a8d76",
+      "state": "passed",
+      "selectorCount": 47
+    },
+    {
+      "id": "choice_persistence",
+      "path": "docs/validation/Activity-unified/choice-persistence-proof.json",
+      "sha256": "3608e1a9947b82bbdc11258e8b3cc1bee7fdcd4d50befc2cea909cd97696ca05",
+      "state": "passed",
+      "selectorCount": 4
+    },
+    {
+      "id": "clear_remount",
+      "path": "docs/validation/Activity-unified/clear-remount-proof.json",
+      "sha256": "eec3f13399e75df3710d41c4f96caf578b06610996c8f87424544e3b4f30ba59",
+      "state": "passed",
+      "selectorCount": 7
+    },
+    {
+      "id": "select_recovery",
+      "path": "docs/validation/Activity-unified/select-recovery-proof.json",
+      "sha256": "50f425e3b9730bf84ecff184960807cec9981e9ca663a39bf88b8dab8deb835c",
+      "state": "passed",
+      "selectorCount": 6
+    },
+    {
+      "id": "pointer_create_acl",
+      "path": "docs/validation/Activity-unified/pointer-create-proof.json",
+      "sha256": "596071a1bdf647eeec5b83877a24f65f34e59904e22b239616b7ec76b8f1f642",
+      "state": "passed",
+      "selectorCount": 17
+    },
+    {
+      "id": "run_admission",
+      "path": "docs/validation/Activity-unified/run-admission-proof.json",
+      "sha256": "5fdac9851f53b11dc4af7554847941107fe74617dd6a3e79a76f1455c5ab7b81",
+      "state": "passed",
+      "selectorCount": 37
+    },
+    {
+      "id": "generation_manifest_acl",
+      "path": "docs/validation/Activity-unified/generation-manifest-proof.json",
+      "sha256": "cc7bc7a32f87007ff741a87482b421203c0de19c97a38c1fd0a8f9686f7f6750",
+      "state": "passed",
+      "selectorCount": 16
+    },
+    {
+      "id": "runner_hash_change",
+      "path": "docs/validation/Activity-unified/runner-hash-proof.json",
+      "sha256": "599865b8617b35df9a78293049e298acb794b7d626e85dd2daaeb6f0f36e464a",
+      "state": "passed",
+      "selectorCount": 21
+    },
+    {
+      "id": "run_remount",
+      "path": "docs/validation/Activity-unified/run-remount-proof.json",
+      "sha256": "3ce59a57d93cfa7142b9d9733223e1f75e189914223169a0e2e2f90a24b11ec6",
+      "state": "passed",
+      "selectorCount": 11
+    },
+    {
+      "id": "window_scope",
+      "path": "docs/validation/Activity-unified/window-scope-proof.json",
+      "sha256": "d93a5c961170b5536db96e7cc5a9f0848f0f3f83fa48c9096e95cf193ed2349c",
+      "state": "passed",
+      "selectorCount": 19
+    },
+    {
+      "id": "setup_running",
+      "path": "docs/validation/Activity-unified/setup-running-proof.json",
+      "sha256": "2d5de60526ab584b6bfbd06e8b6a6f2e24880ce5d736b5acd45b69464e4109b6",
+      "state": "passed",
+      "selectorCount": 12
+    },
+    {
+      "id": "setup_dialog_race",
+      "path": "docs/validation/Activity-unified/setup-dialog-race-proof.json",
+      "sha256": "6d3d4c75a5d93a7c71d4eae60d9dac7274b6216d7e55e3ad4291d707fc4d1c1e",
+      "state": "passed",
+      "selectorCount": 15
+    },
+    {
+      "id": "runner_missing",
+      "path": "docs/validation/Activity-unified/runner-missing-proof.json",
+      "sha256": "9854d4215fb102fce2deaee4b8278f28291ee3cf5f08d56dcf816ab8c521c4e0",
+      "state": "passed",
+      "selectorCount": 22
+    },
+    {
+      "id": "runner_missing_restart",
+      "path": "docs/validation/Activity-unified/runner-missing-restart-proof.json",
+      "sha256": "0d03f8e8d567648d488ad1477baf85c007e487a3eeec584357ab2a098cc1002a",
+      "state": "passed",
+      "selectorCount": 26
+    },
+    {
+      "id": "saved_choice_boundary",
+      "path": "docs/validation/Activity-unified/saved-choice-boundary-proof.json",
+      "sha256": "2af9d4b3830b1de18fb9bbc2d0f03fbfb062fc10ef281810dd7aaab1e86cd9f6",
+      "state": "passed",
+      "selectorCount": 20
+    },
+    {
+      "id": "saved_choice_read_sharing",
+      "path": "docs/validation/Activity-codex-choice-read/proof.json",
+      "sha256": "5feea6bd0fcf53a5ac24518b2045c373c093bc7f35081fe1664134d99f3d9a3a",
+      "state": "passed",
+      "selectorCount": 24
+    },
+    {
+      "id": "store_late_switch",
+      "path": "docs/validation/Activity-claude-late-switch/proof.json",
+      "sha256": "b84fff55e7e44c7b244a46f05f826cec8322125c4e91305654cc9db8043c4b55",
+      "state": "passed",
+      "selectorCount": 50
+    },
+    {
+      "id": "saved_choice_write_sharing",
+      "path": "docs/validation/Activity-claude-choice-write/proof.json",
+      "sha256": "c3238cd76ac62e9fe3c1595375de9d8a18a05ec8de3192b5b5d3652118e82336",
+      "state": "passed",
+      "selectorCount": 16
     }
   ],
   "cases": [
@@ -62,6 +433,12 @@
       "evidence": [
         {
           "report": "frozen",
+          "selectors": [
+            "C01-three-success"
+          ]
+        },
+        {
+          "report": "frozen2",
           "selectors": [
             "C01-three-success"
           ]
@@ -98,10 +475,17 @@
             "C03-github-down-codex-up-claude-up",
             "C03-claude-down"
           ]
+        },
+        {
+          "report": "frozen2",
+          "selectors": [
+            "C03-claude-down",
+            "C03-github-down-codex-up-claude-up"
+          ]
         }
       ],
       "remaining": [
-        "Sign off the deliberate Claude admission-floor correction and real downward corrections."
+        "Sign off ADR-029 retained-higher Claude days and the AI admission floor on real archives; the 2026-10-07 real run retained one pruned Claude day."
       ]
     },
     {
@@ -125,6 +509,12 @@
             "C04: real runner freezes three unconfigured failures",
             "C04: every prior source date/value/time retained",
             "C04: legacy envelope derives the exact Runtime outcomes"
+          ]
+        },
+        {
+          "report": "scheduler_closed_ui",
+          "selectors": [
+            "C04: actual scheduled failures retain three histories and successful times"
           ]
         }
       ],
@@ -166,10 +556,81 @@
             "C06-unsafe-github-value",
             "C06-unsafe-github-sum"
           ]
+        },
+        {
+          "report": "literal",
+          "selectors": [
+            "C06-literal-control: both validators accept",
+            "C06-literal-control: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-github: both validators reject",
+            "C06-metric-case-github: both validators reject",
+            "C06-metric-missing-github: both validators reject",
+            "C06-timezone-swapped-github: both validators reject",
+            "C06-timezone-utc-github: both validators reject",
+            "C06-timezone-offset-github: both validators reject",
+            "C06-timezone-case-github: both validators reject",
+            "C06-timezone-missing-github: both validators reject",
+            "C06-updated-no-millis-github: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-github: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-github: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-codex: both validators reject",
+            "C06-metric-case-codex: both validators reject",
+            "C06-metric-missing-codex: both validators reject",
+            "C06-timezone-swapped-codex: both validators reject",
+            "C06-timezone-utc-codex: both validators reject",
+            "C06-timezone-offset-codex: both validators reject",
+            "C06-timezone-case-codex: both validators reject",
+            "C06-timezone-missing-codex: both validators reject",
+            "C06-updated-no-millis-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-codex: Runtime flags exactly the unpublishable retained times",
+            "C06-metric-wrong-claude: both validators reject",
+            "C06-metric-case-claude: both validators reject",
+            "C06-metric-missing-claude: both validators reject",
+            "C06-timezone-swapped-claude: both validators reject",
+            "C06-timezone-utc-claude: both validators reject",
+            "C06-timezone-offset-claude: both validators reject",
+            "C06-timezone-case-claude: both validators reject",
+            "C06-timezone-missing-claude: both validators reject",
+            "C06-updated-no-millis-claude: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-offset-claude: Runtime flags exactly the unpublishable retained times",
+            "C06-updated-date-only-claude: Runtime flags exactly the unpublishable retained times"
+          ]
+        },
+        {
+          "report": "frozen3",
+          "selectors": [
+            "C06-duplicate-github-date",
+            "C06-unsafe-github-sum",
+            "C06-duplicate-github-date: only GitHub differs",
+            "C06-duplicate-github-date: invalid legacy success becomes Runtime source failure",
+            "C06-duplicate-github-date: prior days values and success time retained exactly",
+            "C06-unsafe-github-sum: only GitHub differs",
+            "C06-unsafe-github-sum: invalid legacy success becomes Runtime source failure",
+            "C06-unsafe-github-sum: prior days values and success time retained exactly"
+          ]
+        },
+        {
+          "report": "literal2",
+          "selectors": [
+            "C06-updated-no-zone-github",
+            "C06-updated-rfc1123-github",
+            "C06-updated-hour-24-github",
+            "C06-updated-impossible-day-github",
+            "C06-updated-no-zone-codex",
+            "C06-updated-rfc1123-codex",
+            "C06-updated-hour-24-codex",
+            "C06-updated-impossible-day-codex",
+            "C06-updated-no-zone-claude",
+            "C06-updated-rfc1123-claude",
+            "C06-updated-hour-24-claude",
+            "C06-updated-impossible-day-claude",
+            "control source times satisfy the copied manifest validator"
+          ]
         }
       ],
       "remaining": [
-        "Resolve duplicate GitHub dates and unsafe aggregate differences; finish wrong-unit/time-zone matrix."
+        "Inspect real seeds under O1/O4 and reconcile any nonpublishable timestamp without automatically restamping history; finish and sign off complete C06 acceptance. ADR-031 resolves classification only."
       ]
     },
     {
@@ -243,6 +704,34 @@
           "selectors": [
             "C10-private-sentinels"
           ]
+        },
+        {
+          "report": "export_contract",
+          "selectors": [
+            "X.private_extension_never_reaches_copy",
+            "X.private_day_title_never_reaches_preview",
+            "X.paths_stay_private"
+          ]
+        },
+        {
+          "report": "run_outcome",
+          "selectors": [
+            "U.private_state_label_is_sanitized"
+          ]
+        },
+        {
+          "report": "setup_contract",
+          "selectors": [
+            "Z.future_mode_no_private_text",
+            "Z.extra_fields_no_private_text",
+            "Z.absolute_folder_no_private_text",
+            "Z.invalid_task_no_private_text",
+            "Z.invalid_saved_no_private_text",
+            "Z.contradictory_cancel_no_private_text",
+            "Z.status_error_no_private_text",
+            "Z.clear_as_status_no_private_text",
+            "Z.cancel_as_status_no_private_text"
+          ]
         }
       ],
       "remaining": [
@@ -281,6 +770,29 @@
           "selectors": [
             "ssh: Runtime/tool/grandchild live handles all signal within bound"
           ]
+        },
+        {
+          "report": "store_late_switch",
+          "selectors": [
+            "T.refused_pointer_preparation_of_new_batch_keeps_the_sequence_retryable",
+            "T.refused_retraction_keeps_the_conservative_orphan",
+            "T.refused_switch_of_new_batch_keeps_the_sequence_retryable",
+            "T.refused_switch_of_receipt_keeps_the_acknowledgment_retryable",
+            "T.retraction_changes_only_the_failed_generation_name",
+            "T.simulated_interruption_after_publication_still_leaves_the_conservative_orphan",
+            "T.refused_pointer_replacement_fails_one_sync_and_the_next_sync_commits",
+            "RS.current_is_held_without_delete_sharing",
+            "RS.actual_run_reports_storage_failure",
+            "RS.failed_run_keeps_current_high_water_and_history_exact",
+            "RS.failed_run_preserves_all_original_files",
+            "RS.failed_run_retracts_its_generation_to_staging",
+            "RS.prepared_pointer_file_is_retained",
+            "RS.memory_queries_survive_actual_run_failure",
+            "RS.next_run_after_release_is_not_storage_blocked",
+            "RS.next_run_reserves_the_same_sequence_once",
+            "RS.retracted_generation_and_pointer_remain_unselected",
+            "RS.recovery_preserves_canonical_vault"
+          ]
         }
       ],
       "remaining": [
@@ -296,6 +808,12 @@
           "report": "handback",
           "selectors": [
             "C13: both retries send the exact original bytes and sequence"
+          ]
+        },
+        {
+          "report": "scheduler_closed_ui",
+          "selectors": [
+            "C13: second scheduled invocation retains exact pending and high-water"
           ]
         }
       ],
@@ -334,10 +852,45 @@
             "C15: publisher preserves last complete data on date loss",
             "C15-refused-publication: unsafe observation retains exact pending"
           ]
+        },
+        {
+          "report": "regression",
+          "selectors": [
+            "C15-success-time-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-github: public activity reports degraded",
+            "C15-success-time-loss-github: transport completion without publication retains exact pending",
+            "C15-source-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-github: public activity reports degraded",
+            "C15-source-loss-github: transport completion without publication retains exact pending",
+            "C15-date-loss-github: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-github: public activity reports degraded",
+            "C15-date-loss-github: transport completion without publication retains exact pending",
+            "C15-success-time-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-codex: public activity reports degraded",
+            "C15-success-time-loss-codex: transport completion without publication retains exact pending",
+            "C15-source-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-codex: public activity reports degraded",
+            "C15-source-loss-codex: transport completion without publication retains exact pending",
+            "C15-date-loss-codex: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-codex: public activity reports degraded",
+            "C15-date-loss-codex: transport completion without publication retains exact pending",
+            "C15-success-time-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-success-time-loss-claude: public activity reports degraded",
+            "C15-success-time-loss-claude: transport completion without publication retains exact pending",
+            "C15-source-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-source-loss-claude: public activity reports degraded",
+            "C15-source-loss-claude: transport completion without publication retains exact pending",
+            "C15-date-loss-claude: publisher keeps prior hash and immutable bytes",
+            "C15-date-loss-claude: public activity reports degraded",
+            "C15-date-loss-claude: transport completion without publication retains exact pending",
+            "C15-whole-batch-clock-rollback: publisher keeps prior hash and immutable bytes",
+            "C15-whole-batch-clock-rollback: public activity reports degraded",
+            "C15-whole-batch-clock-rollback: transport completion without publication retains exact pending"
+          ]
         }
       ],
       "remaining": [
-        "Finish success-time-loss candidate and real degraded/public retention acceptance."
+        "Accept degraded/retained public data on the deployed publisher, static cache and three-language About pages; define the operator reconciliation procedure that resolves a refused pending without renumbering it."
       ]
     },
     {
@@ -386,10 +939,1005 @@
             "C17-installed-observer: actual curl observation acknowledges publication",
             "C17: copied executable and actual HTTP use only isolated roots"
           ]
+        },
+        {
+          "report": "scheduler_closed_ui",
+          "selectors": [
+            "C17: installed scheduled sync advances one sequence with the desktop closed",
+            "C17: owned task is removed before guarded synthetic-directory cleanup"
+          ]
+        },
+        {
+          "report": "independent_package",
+          "selectors": [
+            "bootstrap source files are absent",
+            "query and uninstall leave installation and latest Activity state intact"
+          ]
+        },
+        {
+          "report": "index_isolation",
+          "selectors": [
+            "I.memory_rebuild_preserves_activity_bytes",
+            "I.approved_memory_survives_activity_source_failure"
+          ]
+        },
+        {
+          "report": "missing_index",
+          "selectors": [
+            "R.cache_recovery_preserves_canonical_vault",
+            "R.cache_recovery_preserves_activity_bytes"
+          ]
+        },
+        {
+          "report": "malformed_index",
+          "selectors": [
+            "M.malformed_index_is_reported_not_ready",
+            "M.rebuilt_index_search_returns_approved_memory",
+            "M.cache_recovery_preserves_canonical_vault",
+            "M.cache_recovery_preserves_activity_bytes"
+          ]
+        },
+        {
+          "report": "locked_index",
+          "selectors": [
+            "S.held_index_rebuild_reports_failure",
+            "S.recovered_search_returns_approved_memory",
+            "S.recovery_preserves_canonical_vault",
+            "S.recovery_preserves_activity_bytes"
+          ]
+        },
+        {
+          "report": "rebuild_overlap",
+          "selectors": [
+            "O.synthetic_core_seed_is_approved",
+            "O.activity_reads_bracketed_by_running_rebuild",
+            "O.rebuild_preserves_canonical_vault",
+            "O.rebuild_preserves_activity_bytes",
+            "O.rebuild_returns_all_approved_memories"
+          ]
+        },
+        {
+          "report": "rebuild_cancel",
+          "selectors": [
+            "K.running_rebuild_accepts_cancellation",
+            "K.worker_reaches_actual_cancelled_state",
+            "K.cancel_preserves_canonical_vault",
+            "K.cancel_preserves_activity_bytes",
+            "K.new_rebuild_has_fresh_operation_identity",
+            "K.original_memory_survives_activity_failure"
+          ]
+        },
+        {
+          "report": "rebuild_partial",
+          "selectors": [
+            "K.partial_worker_progress_is_observed",
+            "K.running_rebuild_accepts_cancellation",
+            "K.worker_reaches_actual_cancelled_state",
+            "K.partial_cancel_keeps_committed_watermark",
+            "K.cancel_preserves_canonical_vault",
+            "K.cancel_preserves_activity_bytes",
+            "K.partial_index_updates_all_search_pages",
+            "K.new_rebuild_has_fresh_operation_identity",
+            "K.original_memory_survives_activity_failure"
+          ]
+        },
+        {
+          "report": "index_guidance",
+          "selectors": [
+            "U.persistent_index_failure_explains_rebuild",
+            "U.failed_search_is_not_empty_result",
+            "U.search_recovers_after_index_rebuild"
+          ]
+        },
+        {
+          "report": "rebuild_mutations",
+          "selectors": [
+            "W.pause_commits_while_core_rebuild_runs",
+            "W.resume_commits_while_core_rebuild_runs",
+            "W.mutations_bracketed_by_running_rebuild",
+            "W.activity_mutations_preserve_canonical_vault",
+            "W.pause_resume_preserve_archive_sequence_pending_delivery",
+            "W.pause_resume_intentionally_advance_generations",
+            "W.original_memory_survives_activity_failure"
+          ]
+        },
+        {
+          "report": "static_read",
+          "selectors": [
+            "public manifest names the exact existing payload hash",
+            "all copied publisher receiver and author modules belong to this fixture",
+            "copied author modules are absent before static worker startup",
+            "static worker uses its own outside-repository directory and system-only PATH",
+            "actual curl reads byte-identical public manifest without copied authors",
+            "actual curl reads byte-identical payload with its named hash",
+            "static worker refuses routes outside its public allowlist",
+            "first owned static worker exits without a publisher process",
+            "fresh static worker restart still reads exact public bytes",
+            "static reads leave all publisher files unchanged",
+            "static reads leave installed package and Activity data unchanged",
+            "second owned static worker exits cleanly"
+          ]
+        },
+        {
+          "report": "next_trigger",
+          "selectors": [
+            "disabled:S.synthetic_package_connects",
+            "disabled:S.actual_task_is_registered",
+            "disabled:S.actual_task_enablement",
+            "disabled:S.scheduler_health_matches_task",
+            "disabled:S.actual_state_reaches_page",
+            "disabled:S.producer_pause_is_separate",
+            "disabled:S.next_trigger_matches_enablement",
+            "disabled:S.scheduler_control_requests_are_refused",
+            "disabled:S.reads_keep_archive_and_task_unchanged",
+            "disabled:S.package_paths_stay_private",
+            "enabled:S.synthetic_package_connects",
+            "enabled:S.actual_task_is_registered",
+            "enabled:S.actual_task_enablement",
+            "enabled:S.scheduler_health_matches_task",
+            "enabled:S.actual_state_reaches_page",
+            "enabled:S.producer_pause_is_separate",
+            "enabled:S.next_trigger_matches_enablement",
+            "enabled:S.scheduler_control_requests_are_refused",
+            "enabled:S.reads_keep_archive_and_task_unchanged",
+            "enabled:S.package_paths_stay_private",
+            "task:independent_next_time_matches",
+            "task:closed_ui_exact_pending_retained",
+            "task:ownership_checked_removal"
+          ]
+        },
+        {
+          "report": "timed_trigger",
+          "selectors": [
+            "desktop_closed_before_timed_test",
+            "synthetic_import_succeeds",
+            "installed_paused_and_unregistered",
+            "registered_disabled",
+            "paused_initial:actual_task_finished",
+            "paused_initial:run_matches_time_boundary",
+            "paused_initial:expected_exit_code",
+            "paused_timer_preserves_complete_store",
+            "resume_is_durable",
+            "resumed_rearmed_time:actual_task_finished",
+            "resumed_rearmed_time:run_matches_time_boundary",
+            "resumed_rearmed_time:expected_exit_code",
+            "timer_commits_exactly_next_sequence",
+            "timer_keeps_delivery_disabled",
+            "timer_retains_failed_source:github",
+            "timer_retains_failed_source:codex",
+            "timer_retains_failed_source:claude",
+            "pending_rearmed_time:actual_task_finished",
+            "pending_rearmed_time:run_matches_time_boundary",
+            "pending_rearmed_time:expected_exit_code",
+            "pending_timer_reuses_exact_batch",
+            "pending_timer_preserves_complete_store",
+            "desktop_closed_after_timed_test",
+            "uninstall_preserves_fixture",
+            "owned_task_is_removed"
+          ]
+        },
+        {
+          "report": "source_contract",
+          "selectors": [
+            "V.actual_package_connects",
+            "V.actual_three_source_snapshot",
+            "V.rejects_github_metric",
+            "V.recovers_github_metric",
+            "V.rejects_codex_timezone",
+            "V.recovers_codex_timezone",
+            "V.rejects_extra_overview_source",
+            "V.recovers_extra_overview_source",
+            "V.rejects_overview_impossible_date",
+            "V.recovers_overview_impossible_date",
+            "V.rejects_claude_preview_metric",
+            "V.recovers_claude_preview_metric",
+            "V.rejects_preview_impossible_date",
+            "V.recovers_preview_impossible_date",
+            "V.rejects_preview_duplicate_date",
+            "V.recovers_preview_duplicate_date",
+            "V.rejects_preview_unsafe_total",
+            "V.recovers_preview_unsafe_total",
+            "V.rejects_preview_unsorted_days",
+            "V.recovers_preview_unsorted_days",
+            "V.invalid_replies_preserve_actual_store",
+            "V.paths_stay_private",
+            "V.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "export_contract",
+          "selectors": [
+            "X.actual_package_connects",
+            "X.actual_three_source_snapshot",
+            "X.rejects_extra_overview",
+            "X.private_extension_never_reaches_copy",
+            "X.recovers_extra_overview",
+            "X.rejects_extra_summary",
+            "X.recovers_extra_summary",
+            "X.rejects_extra_schedule",
+            "X.recovers_extra_schedule",
+            "X.rejects_extra_task",
+            "X.recovers_extra_task",
+            "X.rejects_extra_delivery",
+            "X.recovers_extra_delivery",
+            "X.rejects_extra_producer",
+            "X.recovers_extra_producer",
+            "X.rejects_extra_health",
+            "X.recovers_extra_health",
+            "X.rejects_raw_generated_time",
+            "X.recovers_raw_generated_time",
+            "X.rejects_raw_health_id",
+            "X.recovers_raw_health_id",
+            "X.rejects_extra_preview",
+            "X.recovers_extra_preview",
+            "X.rejects_extra_public_data",
+            "X.recovers_extra_public_data",
+            "X.rejects_extra_snapshot",
+            "X.recovers_extra_snapshot",
+            "X.rejects_extra_day",
+            "X.private_day_title_never_reaches_preview",
+            "X.recovers_extra_day",
+            "X.rejects_raw_snapshot_time",
+            "X.recovers_raw_snapshot_time",
+            "X.invalid_replies_preserve_actual_store",
+            "X.real_sanitized_copy_recovers",
+            "X.paths_stay_private",
+            "X.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "activity_read_lock",
+          "selectors": [
+            "A.synthetic_current_is_exclusively_held",
+            "A.actual_activity_reads_report_storage_failure",
+            "A.actual_failure_reaches_activity_page",
+            "A.memory_list_and_search_survive_activity_read_failure",
+            "A.memory_surface_survives_actual_activity_failure",
+            "A.failure_preserves_canonical_vault",
+            "A.release_preserves_current_pointer_bytes",
+            "A.failure_preserves_complete_activity_store",
+            "A.release_restores_exact_public_history",
+            "A.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "reply_correlation",
+          "selectors": [
+            "Y.mutations_are_intercepted_before_native_ipc",
+            "Y.actual_synthetic_package_connects",
+            "Y.rejects_wrong_run",
+            "Y.rejects_invalid_run",
+            "Y.rejects_extra_status",
+            "Y.rejects_wrong_operation",
+            "Y.rejects_invalid_summary",
+            "Y.matching_terminal_status_recovers",
+            "Y.rejects_extra_accepted",
+            "Y.rejects_opposite_pause_ack",
+            "Y.modeled_operations_preserve_complete_store",
+            "Y.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "run_polling",
+          "selectors": [
+            "Z.mutations_are_intercepted_before_native_ipc",
+            "Z.actual_synthetic_package_connects",
+            "Z.busy_status_is_visible",
+            "Z.busy_keeps_operation_controls_disabled",
+            "Z.busy_recovers_without_second_run",
+            "Z.queued_keeps_operation_controls_disabled",
+            "Z.queued_continues_to_terminal_status",
+            "Z.collecting_keeps_operation_controls_disabled",
+            "Z.collecting_continues_to_terminal_status",
+            "Z.persisting_keeps_operation_controls_disabled",
+            "Z.persisting_continues_to_terminal_status",
+            "Z.uploading_keeps_operation_controls_disabled",
+            "Z.uploading_continues_to_terminal_status",
+            "Z.observing_keeps_operation_controls_disabled",
+            "Z.observing_continues_to_terminal_status",
+            "Z.polling_preserves_complete_store",
+            "Z.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "poll_lifecycle",
+          "selectors": [
+            "L.mutations_are_intercepted_before_native_ipc",
+            "L.actual_synthetic_package_connects",
+            "L.retry_delays_reach_thirty_second_ceiling",
+            "L.retry_queries_keep_the_same_run_id",
+            "L.recovery_keeps_one_start_request",
+            "L.terminal_status_reenables_operation_controls",
+            "L.late_read_is_pending",
+            "L.late_reply_does_not_populate_remounted_page",
+            "L.unmount_stops_status_queries",
+            "L.lifecycle_preserves_complete_store",
+            "L.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "timed_hourly",
+          "selectors": [
+            "desktop_closed_before_timed_test",
+            "synthetic_import_succeeds",
+            "installed_paused_and_unregistered",
+            "registered_disabled",
+            "paused_initial:actual_task_finished",
+            "paused_initial:run_matches_time_boundary",
+            "paused_initial:expected_exit_code",
+            "paused_timer_preserves_complete_store",
+            "resume_is_durable",
+            "observed_repetition_is_exactly_one_hour",
+            "resumed_hourly_repeat:actual_task_finished",
+            "resumed_hourly_repeat:run_matches_time_boundary",
+            "resumed_hourly_repeat:expected_exit_code",
+            "actual_runs_span_elapsed_hour",
+            "timer_commits_exactly_next_sequence",
+            "timer_keeps_delivery_disabled",
+            "timer_retains_failed_source:github",
+            "timer_retains_failed_source:codex",
+            "timer_retains_failed_source:claude",
+            "pending_rearmed_time:actual_task_finished",
+            "pending_rearmed_time:run_matches_time_boundary",
+            "pending_rearmed_time:expected_exit_code",
+            "pending_timer_reuses_exact_batch",
+            "pending_timer_preserves_complete_store",
+            "desktop_closed_after_timed_test",
+            "uninstall_preserves_fixture",
+            "owned_task_is_removed"
+          ]
+        },
+        {
+          "report": "run_outcome",
+          "selectors": [
+            "U.mutations_are_intercepted_before_native_ipc",
+            "U.actual_synthetic_package_connects",
+            "U.private_state_label_is_sanitized",
+            "U.private_state_count_is_valid",
+            "U.future_state_label_is_sanitized",
+            "U.future_state_count_is_valid",
+            "U.constructor_state_label_is_sanitized",
+            "U.constructor_state_count_is_valid",
+            "U.prototype_state_label_is_sanitized",
+            "U.prototype_state_count_is_valid",
+            "U.fraction_count_label_is_sanitized",
+            "U.fraction_count_count_is_valid",
+            "U.excess_count_label_is_sanitized",
+            "U.excess_count_count_is_valid",
+            "U.unsafe_count_label_is_sanitized",
+            "U.unsafe_count_count_is_valid",
+            "U.negative_count_label_is_sanitized",
+            "U.negative_count_count_is_valid",
+            "U.valid_outcome_label_is_sanitized",
+            "U.valid_outcome_count_is_valid",
+            "U.outcome_display_preserves_complete_store",
+            "U.choice_is_cleared"
+          ]
+        },
+        {
+          "report": "activity_read_acl",
+          "selectors": [
+            "P.synthetic_current_read_is_denied",
+            "P.current_file_really_refuses_read",
+            "A.actual_activity_reads_report_storage_failure",
+            "A.actual_failure_reaches_activity_page",
+            "A.memory_list_and_search_survive_activity_read_failure",
+            "A.memory_surface_survives_actual_activity_failure",
+            "A.failure_preserves_canonical_vault",
+            "P.original_security_descriptor_is_restored",
+            "A.release_preserves_current_pointer_bytes",
+            "A.failure_preserves_complete_activity_store",
+            "A.release_restores_exact_public_history",
+            "A.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "generation_write_acl",
+          "selectors": [
+            "N.synthetic_generation_creation_is_denied",
+            "N.directory_creation_really_refuses_access",
+            "N.actual_pause_write_reports_storage_failure",
+            "N.failed_pause_is_visible",
+            "N.failed_writes_keep_unpaused_reads_and_exact_history",
+            "N.memory_queries_survive_actual_write_failure",
+            "N.failed_writes_preserve_complete_activity_store",
+            "N.failed_writes_preserve_canonical_vault",
+            "N.original_directory_security_descriptor_is_restored",
+            "N.restored_permission_accepts_pause",
+            "N.restored_permission_accepts_resume",
+            "N.successful_recovery_preserves_archive_sequence_pending",
+            "N.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "setup_contract",
+          "selectors": [
+            "Z.actual_cancel_preserves_unconfigured_choice",
+            "Z.actual_package_selection_connects",
+            "Z.mutations_are_intercepted_before_native_ipc",
+            "Z.future_mode_contract_failure",
+            "Z.future_mode_no_producer_requests",
+            "Z.future_mode_no_private_text",
+            "Z.extra_fields_contract_failure",
+            "Z.extra_fields_no_producer_requests",
+            "Z.extra_fields_no_private_text",
+            "Z.absolute_folder_contract_failure",
+            "Z.absolute_folder_no_producer_requests",
+            "Z.absolute_folder_no_private_text",
+            "Z.invalid_task_contract_failure",
+            "Z.invalid_task_no_producer_requests",
+            "Z.invalid_task_no_private_text",
+            "Z.invalid_saved_contract_failure",
+            "Z.invalid_saved_no_producer_requests",
+            "Z.invalid_saved_no_private_text",
+            "Z.contradictory_cancel_contract_failure",
+            "Z.contradictory_cancel_no_producer_requests",
+            "Z.contradictory_cancel_no_private_text",
+            "Z.status_error_contract_failure",
+            "Z.status_error_no_producer_requests",
+            "Z.status_error_no_private_text",
+            "Z.clear_as_status_contract_failure",
+            "Z.clear_as_status_no_producer_requests",
+            "Z.clear_as_status_no_private_text",
+            "Z.cancel_as_status_contract_failure",
+            "Z.cancel_as_status_no_producer_requests",
+            "Z.cancel_as_status_no_private_text",
+            "Z.actual_status_recovers",
+            "Z.actual_clear_removes_owned_choice",
+            "Z.actual_reselection_recovers",
+            "Z.setup_flow_preserves_complete_store"
+          ]
+        },
+        {
+          "report": "choice_save",
+          "selectors": [
+            "J.settings_fault_is_owned_empty_directory",
+            "J.mutations_are_intercepted_before_native_ipc",
+            "J.native_selection_really_reports_saved_false",
+            "J.unsaved_connection_notice_is_visible",
+            "J.unsaved_selection_still_reads_three_sources",
+            "J.repeated_clicks_make_one_actual_clear",
+            "J.failed_clear_explains_saved_choice",
+            "J.failed_clear_has_named_retry",
+            "J.only_empty_owned_fault_directory_is_removed",
+            "J.actual_retry_accepts_clear_after_recovery",
+            "J.retry_success_removes_failed_clear_feedback",
+            "J.native_reselection_really_reports_saved_true",
+            "J.saved_connection_removes_temporary_notice",
+            "J.recovered_choice_is_a_settings_file",
+            "J.restart_reads_recovered_saved_choice",
+            "J.complete_activity_store_is_unchanged"
+          ]
+        },
+        {
+          "report": "current_switch_lock",
+          "selectors": [
+            "L.current_is_held_without_delete_sharing",
+            "L.reads_remain_available_during_switch_lock",
+            "L.actual_pause_reports_storage_failure",
+            "L.actual_failure_is_visible_with_old_history",
+            "L.failed_switch_keeps_current_unpaused_and_exact",
+            "L.all_original_files_are_preserved",
+            "L.failed_switch_retains_two_complete_unselected_generations",
+            "L.prepared_pointer_files_are_retained",
+            "L.memory_queries_survive_actual_switch_failure",
+            "L.failure_preserves_canonical_vault",
+            "L.release_accepts_actual_pause",
+            "L.release_accepts_actual_resume",
+            "L.recovery_preserves_archive_sequence_pending",
+            "L.recovery_preserves_failed_generation_and_pointer_remnants",
+            "L.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "choice_delete",
+          "selectors": [
+            "T.actual_selection_saves_owned_file",
+            "T.saved_choice_is_held_without_delete_sharing",
+            "T.actual_delete_refusal_reports_saved_false",
+            "T.refusal_explains_reconnect_and_retry",
+            "T.failed_clear_preserves_exact_saved_file",
+            "T.restart_really_reconnects_retained_choice",
+            "T.restart_keeps_saved_file_exact",
+            "T.restarted_host_reports_same_clear_failure",
+            "T.released_retry_removes_saved_choice",
+            "T.released_retry_clears_failure_feedback",
+            "T.restart_stays_unconfigured_after_actual_delete",
+            "T.complete_activity_store_is_unchanged"
+          ]
+        },
+        {
+          "report": "repeat_pause",
+          "selectors": [
+            "RPT.1_pause_and_memory_list_are_durable",
+            "RPT.1_resume_is_durable",
+            "RPT.1_rebuild_and_search_recover",
+            "RPT.1_archive_sequence_pending_and_vault_are_exact",
+            "RPT.2_pause_and_memory_list_are_durable",
+            "RPT.2_resume_is_durable",
+            "RPT.2_rebuild_and_search_recover",
+            "RPT.2_archive_sequence_pending_and_vault_are_exact",
+            "RPT.3_pause_and_memory_list_are_durable",
+            "RPT.3_resume_is_durable",
+            "RPT.3_rebuild_and_search_recover",
+            "RPT.3_archive_sequence_pending_and_vault_are_exact",
+            "RPT.4_pause_and_memory_list_are_durable",
+            "RPT.4_resume_is_durable",
+            "RPT.4_rebuild_and_search_recover",
+            "RPT.4_archive_sequence_pending_and_vault_are_exact",
+            "RPT.5_pause_and_memory_list_are_durable",
+            "RPT.5_resume_is_durable",
+            "RPT.5_rebuild_and_search_recover",
+            "RPT.5_archive_sequence_pending_and_vault_are_exact",
+            "RPT.6_pause_and_memory_list_are_durable",
+            "RPT.6_resume_is_durable",
+            "RPT.6_rebuild_and_search_recover",
+            "RPT.6_archive_sequence_pending_and_vault_are_exact",
+            "RPT.7_pause_and_memory_list_are_durable",
+            "RPT.7_resume_is_durable",
+            "RPT.7_rebuild_and_search_recover",
+            "RPT.7_archive_sequence_pending_and_vault_are_exact",
+            "RPT.8_pause_and_memory_list_are_durable",
+            "RPT.8_resume_is_durable",
+            "RPT.8_rebuild_and_search_recover",
+            "RPT.8_archive_sequence_pending_and_vault_are_exact",
+            "RPT.9_pause_and_memory_list_are_durable",
+            "RPT.9_resume_is_durable",
+            "RPT.9_rebuild_and_search_recover",
+            "RPT.9_archive_sequence_pending_and_vault_are_exact",
+            "RPT.10_pause_and_memory_list_are_durable",
+            "RPT.10_resume_is_durable",
+            "RPT.10_rebuild_and_search_recover",
+            "RPT.10_archive_sequence_pending_and_vault_are_exact",
+            "RPT.ten_rebuilds_have_distinct_operation_ids",
+            "RPT.twenty_mutations_create_exactly_twenty_generations"
+          ]
+        },
+        {
+          "report": "run_history",
+          "selectors": [
+            "RH.actual_synthetic_package_connects",
+            "RH.producer_is_actually_paused",
+            "RH.1_accepts_distinct_actual_run",
+            "RH.1_terminal_is_same_paused_operation",
+            "RH.2_accepts_distinct_actual_run",
+            "RH.2_terminal_is_same_paused_operation",
+            "RH.3_accepts_distinct_actual_run",
+            "RH.3_terminal_is_same_paused_operation",
+            "RH.4_accepts_distinct_actual_run",
+            "RH.4_terminal_is_same_paused_operation",
+            "RH.5_accepts_distinct_actual_run",
+            "RH.5_terminal_is_same_paused_operation",
+            "RH.6_accepts_distinct_actual_run",
+            "RH.6_terminal_is_same_paused_operation",
+            "RH.7_accepts_distinct_actual_run",
+            "RH.7_terminal_is_same_paused_operation",
+            "RH.8_accepts_distinct_actual_run",
+            "RH.8_terminal_is_same_paused_operation",
+            "RH.9_accepts_distinct_actual_run",
+            "RH.9_terminal_is_same_paused_operation",
+            "RH.10_accepts_distinct_actual_run",
+            "RH.10_terminal_is_same_paused_operation",
+            "RH.11_accepts_distinct_actual_run",
+            "RH.11_terminal_is_same_paused_operation",
+            "RH.12_accepts_distinct_actual_run",
+            "RH.12_terminal_is_same_paused_operation",
+            "RH.13_accepts_distinct_actual_run",
+            "RH.13_terminal_is_same_paused_operation",
+            "RH.14_accepts_distinct_actual_run",
+            "RH.14_terminal_is_same_paused_operation",
+            "RH.15_accepts_distinct_actual_run",
+            "RH.15_terminal_is_same_paused_operation",
+            "RH.16_accepts_distinct_actual_run",
+            "RH.16_terminal_is_same_paused_operation",
+            "RH.17_accepts_distinct_actual_run",
+            "RH.17_terminal_is_same_paused_operation",
+            "RH.seventeenth_run_evicts_oldest_with_contract_error",
+            "RH.latest_sixteen_exact_records_remain_readable",
+            "RH.seventeen_actual_ids_are_unique",
+            "RH.all_paused_runs_preserve_complete_store",
+            "RH.paused_runs_preserve_archive_sequence_pending",
+            "RH.restart_does_not_invent_old_session_records",
+            "RH.restart_keeps_actual_paused_state_and_store",
+            "RH.actual_resume_recovers",
+            "RH.resume_preserves_archive_sequence_pending",
+            "RH.only_pause_and_resume_create_generations",
+            "RH.actual_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "choice_persistence",
+          "selectors": [
+            "CP.remounted_status_reports_unconfirmed_saved_choice",
+            "CP.remounted_unsaved_notice_stays_visible",
+            "CP.remounted_status_verifies_saved_choice",
+            "CP.remounted_saved_choice_stays_quiet"
+          ]
+        },
+        {
+          "report": "clear_remount",
+          "selectors": [
+            "CF.initial_unconfigured_status_has_no_invented_clear_failure",
+            "CF.remounted_status_retains_actual_clear_failure",
+            "CF.remounted_clear_warning_stays_visible",
+            "CF.remounted_clear_retry_stays_available",
+            "CF.remount_never_reconnects_or_changes_saved_file",
+            "CF.remounted_status_retains_successful_clear",
+            "CF.remounted_success_has_no_warning_or_retry"
+          ]
+        },
+        {
+          "report": "select_recovery",
+          "selectors": [
+            "SR.actual_picker_cancel_is_reported",
+            "SR.cancel_preserves_clear_warning_and_retry",
+            "SR.actual_nonpackage_selection_is_refused",
+            "SR.invalid_selection_preserves_clear_warning",
+            "SR.invalid_selection_preserves_clear_retry",
+            "SR.invalid_selection_keeps_exact_native_choice_state"
+          ]
+        },
+        {
+          "report": "pointer_create_acl",
+          "selectors": [
+            "PC.synthetic_root_file_creation_is_denied",
+            "PC.root_file_creation_really_refuses_access",
+            "PC.actual_pause_write_reports_storage_failure",
+            "PC.failed_pause_is_visible",
+            "PC.failed_writes_keep_unpaused_reads_and_exact_history",
+            "PC.memory_queries_survive_actual_write_failure",
+            "PC.failed_writes_preserve_exact_current_pointer",
+            "PC.all_original_files_keep_exact_hashes",
+            "PC.failed_preparation_retains_two_complete_unselected_generations",
+            "PC.failed_preparation_creates_no_temporary_pointer_file",
+            "PC.failed_writes_preserve_canonical_vault",
+            "PC.original_directory_security_descriptor_is_restored",
+            "PC.restored_permission_accepts_pause",
+            "PC.restored_permission_accepts_resume",
+            "PC.successful_recovery_preserves_archive_sequence_pending",
+            "PC.recovery_retains_failed_generations",
+            "PC.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "run_admission",
+          "selectors": [
+            "RA.actual_pause_is_required_before_run_pairs",
+            "RA.1_one_admission_and_one_retryable_busy",
+            "RA.1_terminal_matches_same_paused_operation",
+            "RA.1_pair_preserves_exact_paused_store",
+            "RA.2_one_admission_and_one_retryable_busy",
+            "RA.2_terminal_matches_same_paused_operation",
+            "RA.2_pair_preserves_exact_paused_store",
+            "RA.3_one_admission_and_one_retryable_busy",
+            "RA.3_terminal_matches_same_paused_operation",
+            "RA.3_pair_preserves_exact_paused_store",
+            "RA.4_one_admission_and_one_retryable_busy",
+            "RA.4_terminal_matches_same_paused_operation",
+            "RA.4_pair_preserves_exact_paused_store",
+            "RA.5_one_admission_and_one_retryable_busy",
+            "RA.5_terminal_matches_same_paused_operation",
+            "RA.5_pair_preserves_exact_paused_store",
+            "RA.6_one_admission_and_one_retryable_busy",
+            "RA.6_terminal_matches_same_paused_operation",
+            "RA.6_pair_preserves_exact_paused_store",
+            "RA.7_one_admission_and_one_retryable_busy",
+            "RA.7_terminal_matches_same_paused_operation",
+            "RA.7_pair_preserves_exact_paused_store",
+            "RA.8_one_admission_and_one_retryable_busy",
+            "RA.8_terminal_matches_same_paused_operation",
+            "RA.8_pair_preserves_exact_paused_store",
+            "RA.9_one_admission_and_one_retryable_busy",
+            "RA.9_terminal_matches_same_paused_operation",
+            "RA.9_pair_preserves_exact_paused_store",
+            "RA.10_one_admission_and_one_retryable_busy",
+            "RA.10_terminal_matches_same_paused_operation",
+            "RA.10_pair_preserves_exact_paused_store",
+            "RA.ten_accepted_runs_have_distinct_ids",
+            "RA.all_ten_correlated_records_remain_readable",
+            "RA.actual_resume_succeeds_after_concurrent_pairs",
+            "RA.archive_sequence_and_pending_remain_exact",
+            "RA.only_pause_resume_add_two_generations",
+            "RA.owned_saved_choice_is_actually_removed"
+          ]
+        },
+        {
+          "report": "generation_manifest_acl",
+          "selectors": [
+            "GM.synthetic_selected_manifest_read_is_denied",
+            "GM.selected_manifest_really_refuses_read",
+            "GM.current_pointer_stays_readable_and_exact",
+            "GM.actual_pause_refuses_unreadable_selected_generation",
+            "GM.actual_activity_reads_report_storage_failure",
+            "GM.actual_failure_reaches_activity_page",
+            "GM.unreadable_generation_disables_mutating_controls",
+            "GM.read_failure_never_rewrites_current_pointer",
+            "GM.memory_list_and_search_survive_activity_read_failure",
+            "GM.memory_surface_survives_actual_activity_failure",
+            "GM.failure_preserves_canonical_vault",
+            "GM.original_security_descriptor_is_restored",
+            "GM.release_preserves_selected_manifest_bytes",
+            "GM.failure_preserves_complete_activity_store",
+            "GM.release_restores_exact_public_history",
+            "GM.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "runner_hash_change",
+          "selectors": [
+            "HB.original_selected_runner_matches_manifest_hash",
+            "HB.actual_pause_precedes_binary_change",
+            "HB.owned_binary_change_really_breaks_manifest_hash",
+            "HB.cached_reads_refuse_changed_runner",
+            "HB.pause_refuses_changed_runner",
+            "HB.1_run_is_correlated_to_native_id",
+            "HB.1_terminal_refuses_changed_runner",
+            "HB.2_run_is_correlated_to_native_id",
+            "HB.2_terminal_refuses_changed_runner",
+            "HB.changed_runner_error_clears_cards_and_disables_mutation",
+            "HB.changed_runner_attempts_preserve_complete_paused_store",
+            "HB.actual_forget_removes_owned_saved_choice",
+            "HB.actual_selection_refuses_changed_binary",
+            "HB.refused_selection_leaves_native_unconfigured",
+            "HB.original_runner_bytes_restore_exactly",
+            "HB.actual_reselection_recovers_three_histories",
+            "HB.actual_resume_accepts_restored_runner",
+            "HB.archive_sequence_and_pending_stay_exact",
+            "HB.only_pause_resume_add_two_generations",
+            "HB.restart_reconnects_restored_verified_choice",
+            "HB.final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "run_remount",
+          "selectors": [
+            "RM.only_known_marked_loopback_test_tools_are_used",
+            "RM.actual_owned_standin_run_is_in_progress",
+            "RM.local_run_initially_disables_operations",
+            "RM.remounted_native_host_still_reports_running",
+            "RM.remounted_page_has_no_invented_local_run_record",
+            "RM.remounted_running_host_disables_all_mutations",
+            "RM.same_actual_run_reaches_terminal_status",
+            "RM.finished_refresh_recovers_operation_controls",
+            "RM.remount_never_sends_a_second_start",
+            "RM.actual_pending_is_retained_after_failed_loopback_observation",
+            "RM.owned_choice_is_cleared"
+          ]
+        },
+        {
+          "report": "window_scope",
+          "selectors": [
+            "WS.main_selects_real_synthetic_package",
+            "WS.main_reads_three_source_histories",
+            "WS.owned_quick_search_window_label_is_verified",
+            "WS.overlay_refuses_overview",
+            "WS.overlay_refuses_preview",
+            "WS.overlay_refuses_days",
+            "WS.overlay_refuses_run_record",
+            "WS.overlay_refuses_run_now",
+            "WS.overlay_refuses_retry_pending",
+            "WS.overlay_refuses_pause",
+            "WS.overlay_refuses_resume",
+            "WS.overlay_refuses_setup_status",
+            "WS.overlay_refuses_setup_clear",
+            "WS.overlay_refuses_setup_select",
+            "WS.denials_preserve_exact_saved_choice",
+            "WS.denials_preserve_complete_activity_store",
+            "WS.main_read_keeps_same_public_history",
+            "WS.overlay_keeps_its_allowed_show_hide_scope",
+            "WS.main_final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "setup_running",
+          "selectors": [
+            "SG.known_owned_loopback_tools_are_verified",
+            "SG.actual_run_precedes_setup_changes",
+            "SG.status_reads_current_choice_during_run",
+            "SG.select_refuses_active_run_with_busy",
+            "SG.clear_refuses_active_run_with_busy",
+            "SG.refused_clear_preserves_exact_saved_choice",
+            "SG.same_run_still_active_after_setup_attempts",
+            "SG.native_choice_remains_connected",
+            "SG.original_run_reaches_terminal",
+            "SG.terminal_run_retains_actual_pending",
+            "SG.terminal_reopens_native_picker",
+            "SG.terminal_accepts_clear_and_removes_choice"
+          ]
+        },
+        {
+          "report": "setup_dialog_race",
+          "selectors": [
+            "SG.known_owned_loopback_tools_are_verified",
+            "DG.actual_owned_picker_precedes_run",
+            "SG.actual_run_precedes_setup_changes",
+            "DG.confirmed_picker_refuses_new_active_run",
+            "DG.post_dialog_preserves_exact_saved_choice",
+            "SG.status_reads_current_choice_during_run",
+            "SG.select_refuses_active_run_with_busy",
+            "SG.clear_refuses_active_run_with_busy",
+            "SG.refused_clear_preserves_exact_saved_choice",
+            "SG.same_run_still_active_after_setup_attempts",
+            "SG.native_choice_remains_connected",
+            "SG.original_run_reaches_terminal",
+            "SG.terminal_run_retains_actual_pending",
+            "SG.terminal_reopens_native_picker",
+            "SG.terminal_accepts_clear_and_removes_choice"
+          ]
+        },
+        {
+          "report": "runner_missing",
+          "selectors": [
+            "HM.original_selected_runner_matches_manifest_hash",
+            "HM.actual_pause_precedes_binary_change",
+            "HM.owned_binary_change_really_breaks_manifest_hash",
+            "HM.development_runner_exists_while_installed_runner_is_absent",
+            "HM.cached_reads_refuse_changed_runner",
+            "HM.pause_refuses_changed_runner",
+            "HM.1_run_is_correlated_to_native_id",
+            "HM.1_terminal_refuses_changed_runner",
+            "HM.2_run_is_correlated_to_native_id",
+            "HM.2_terminal_refuses_changed_runner",
+            "HM.changed_runner_error_clears_cards_and_disables_mutation",
+            "HM.changed_runner_attempts_preserve_complete_paused_store",
+            "HM.actual_forget_removes_owned_saved_choice",
+            "HM.actual_selection_refuses_changed_binary",
+            "HM.refused_selection_leaves_native_unconfigured",
+            "HM.original_runner_bytes_restore_exactly",
+            "HM.actual_reselection_recovers_three_histories",
+            "HM.actual_resume_accepts_restored_runner",
+            "HM.archive_sequence_and_pending_stay_exact",
+            "HM.only_pause_resume_add_two_generations",
+            "HM.restart_reconnects_restored_verified_choice",
+            "HM.final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "runner_missing_restart",
+          "selectors": [
+            "HR.original_selected_runner_matches_manifest_hash",
+            "HR.actual_pause_precedes_binary_change",
+            "HR.owned_binary_change_really_breaks_manifest_hash",
+            "HR.development_runner_exists_while_installed_runner_is_absent",
+            "HR.cached_reads_refuse_changed_runner",
+            "HR.pause_refuses_changed_runner",
+            "HR.1_run_is_correlated_to_native_id",
+            "HR.1_terminal_refuses_changed_runner",
+            "HR.2_run_is_correlated_to_native_id",
+            "HR.2_terminal_refuses_changed_runner",
+            "HR.changed_runner_error_clears_cards_and_disables_mutation",
+            "HR.changed_runner_attempts_preserve_complete_paused_store",
+            "HR.restart_shows_actual_unconfigured_gate",
+            "HR.startup_does_not_invent_clear_or_save_failure",
+            "HR.restart_preserves_exact_saved_choice",
+            "HR.startup_reads_refuse_and_preserve_paused_store",
+            "HR.actual_forget_removes_owned_saved_choice",
+            "HR.actual_selection_refuses_changed_binary",
+            "HR.refused_selection_leaves_native_unconfigured",
+            "HR.original_runner_bytes_restore_exactly",
+            "HR.actual_reselection_recovers_three_histories",
+            "HR.actual_resume_accepts_restored_runner",
+            "HR.archive_sequence_and_pending_stay_exact",
+            "HR.only_pause_resume_add_two_generations",
+            "HR.restart_reconnects_restored_verified_choice",
+            "HR.final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "saved_choice_boundary",
+          "selectors": [
+            "SB.only_owned_synthetic_choice_is_used",
+            "SB.relative_native_status_refuses_invalid_choice",
+            "SB.relative_native_read_refuses_invalid_choice",
+            "SB.relative_page_shows_gate_without_history",
+            "SB.relative_retains_exact_invalid_settings",
+            "SB.relative_preserves_complete_activity_store",
+            "SB.oversized_native_status_refuses_invalid_choice",
+            "SB.oversized_native_read_refuses_invalid_choice",
+            "SB.oversized_page_shows_gate_without_history",
+            "SB.oversized_retains_exact_invalid_settings",
+            "SB.oversized_preserves_complete_activity_store",
+            "SB.malformed_native_status_refuses_invalid_choice",
+            "SB.malformed_native_read_refuses_invalid_choice",
+            "SB.malformed_page_shows_gate_without_history",
+            "SB.malformed_retains_exact_invalid_settings",
+            "SB.malformed_preserves_complete_activity_store",
+            "SB.real_picker_recovers_canonical_absolute_choice",
+            "SB.actual_recovery_reports_verified_saved",
+            "SB.recovery_preserves_complete_activity_store",
+            "SB.final_clear_removes_owned_choice"
+          ]
+        },
+        {
+          "report": "saved_choice_read_sharing",
+          "selectors": [
+            "CR.real_picker_saves_verified_choice",
+            "CR.owned_finite_holder_is_ready",
+            "CR.actual_settings_read_is_refused",
+            "CR.cached_status_retains_connection_but_saved_false",
+            "CR.cached_three_histories_remain_exact",
+            "CR.cached_remount_explains_unverified_choice",
+            "CR.cached_remount_retains_three_histories",
+            "CR.release_restores_exact_choice_bytes",
+            "CR.same_host_reverifies_saved_choice_after_release",
+            "CR.recovered_remount_clears_unverified_warning",
+            "CR.cached_fault_preserves_complete_store",
+            "CR.startup_actual_settings_read_is_refused",
+            "CR.startup_status_refuses_without_invented_saved_outcome",
+            "CR.startup_overview_refuses_unconfigured",
+            "CR.startup_page_has_gate_without_history",
+            "CR.startup_has_no_invented_save_or_clear_failure",
+            "CR.startup_fault_preserves_complete_store",
+            "CR.startup_release_restores_exact_choice_bytes",
+            "CR.actual_picker_recovers_verified_saved_choice",
+            "CR.reselection_retains_exact_choice_bytes",
+            "CR.recovery_restores_exact_three_histories",
+            "CR.restart_reconnects_verified_saved_choice",
+            "CR.all_read_faults_leave_complete_store_exact",
+            "CR.final_clear_removes_only_owned_choice"
+          ]
+        },
+        {
+          "report": "store_late_switch",
+          "selectors": [
+            "L.current_is_held_without_delete_sharing",
+            "L.reads_remain_available_during_switch_lock",
+            "L.actual_pause_reports_storage_failure",
+            "L.actual_failure_is_visible_with_old_history",
+            "L.failed_switch_keeps_current_unpaused_and_exact",
+            "L.all_original_files_are_preserved",
+            "L.failed_switch_retracts_two_complete_generations_to_staging",
+            "L.prepared_pointer_files_are_retained",
+            "L.memory_queries_survive_actual_switch_failure",
+            "L.failure_preserves_canonical_vault",
+            "L.release_accepts_actual_pause",
+            "L.release_accepts_actual_resume",
+            "L.recovery_preserves_archive_sequence_pending",
+            "L.recovery_preserves_failed_generation_and_pointer_remnants",
+            "L.recovery_preserves_canonical_vault",
+            "PC.synthetic_root_file_creation_is_denied",
+            "PC.root_file_creation_really_refuses_access",
+            "PC.actual_pause_write_reports_storage_failure",
+            "PC.failed_pause_is_visible",
+            "PC.failed_writes_keep_unpaused_reads_and_exact_history",
+            "PC.memory_queries_survive_actual_write_failure",
+            "PC.failed_writes_preserve_exact_current_pointer",
+            "PC.all_original_files_keep_exact_hashes",
+            "PC.failed_preparation_retracts_two_complete_generations_to_staging",
+            "PC.failed_preparation_creates_no_temporary_pointer_file",
+            "PC.failed_writes_preserve_canonical_vault",
+            "PC.original_directory_security_descriptor_is_restored",
+            "PC.restored_permission_accepts_pause",
+            "PC.restored_permission_accepts_resume",
+            "PC.successful_recovery_preserves_archive_sequence_pending",
+            "PC.recovery_retains_failed_generations",
+            "PC.recovery_preserves_canonical_vault"
+          ]
+        },
+        {
+          "report": "saved_choice_write_sharing",
+          "selectors": [
+            "CW.owned_prior_choice_is_written",
+            "CW.startup_connects_prior_choice",
+            "CW.owned_finite_holder_is_ready",
+            "CW.actual_settings_write_is_refused",
+            "CW.settings_remain_readable_during_hold",
+            "CW.actual_picker_save_reports_saved_false",
+            "CW.refused_save_keeps_exact_prior_bytes",
+            "CW.refused_save_keeps_three_exact_histories",
+            "CW.status_stays_configured_during_hold",
+            "CW.refused_save_preserves_complete_store",
+            "CW.release_keeps_exact_prior_bytes",
+            "CW.released_picker_saves_verified_choice",
+            "CW.released_save_replaces_prior_with_canonical_choice",
+            "CW.restart_reconnects_saved_choice",
+            "CW.all_write_faults_leave_complete_store_exact",
+            "CW.final_clear_removes_only_owned_choice"
+          ]
         }
       ],
       "remaining": [
-        "Complete Core/Activity isolation, closed-UI, absent-source-checkout and installed scheduler acceptance."
+        "Complete physical absent-source-checkout or filesystem-denial, disk-full/other-write-permission/mid-write storage faults, sustained rebuild stress and concurrent Activity collection/delivery, deployed author-process independence and production static-read acceptance. Copied-author-module removal and independent loopback static worker restart/read have fixture evidence; actual source checkouts remain on the host and no deployed service is claimed verified."
       ]
     },
     {
@@ -408,6 +1956,38 @@
           "selectors": [
             "C18: subsequent actual old run advances safely again"
           ]
+        },
+        {
+          "report": "full_days",
+          "selectors": [
+            "T.shortcut_opens_activity",
+            "T.actual_preview_has_three_histories",
+            "T.github_recent_days_are_exact",
+            "T.github_all_days_control_exists",
+            "T.github_all_recorded_days_are_exact",
+            "T.github_recent_view_restores",
+            "T.codex_recent_days_are_exact",
+            "T.codex_all_days_control_exists",
+            "T.codex_all_recorded_days_are_exact",
+            "T.codex_recent_view_restores",
+            "T.claude_recent_days_are_exact",
+            "T.claude_all_days_control_exists",
+            "T.claude_all_recorded_days_are_exact",
+            "T.claude_recent_view_restores",
+            "T.history_controls_preserve_activity_bytes",
+            "T.keyboard_change_package_forgets_choice",
+            "keyboard:K.shortcut_opens_activity",
+            "keyboard:K.skip_link_focuses_surface",
+            "keyboard:K.enter_opens_package_picker",
+            "keyboard:K.recorded_days_expand",
+            "keyboard:K.public_preview_expands",
+            "keyboard:K.pause_is_durable",
+            "keyboard:K.resume_is_durable",
+            "keyboard:K.run_keeps_pending",
+            "keyboard:K.retry_keeps_exact_batch",
+            "keyboard:K.refresh_keeps_retained_history",
+            "keyboard:K.change_package_forgets_choice"
+          ]
         }
       ],
       "remaining": [
@@ -423,7 +2003,8 @@
     "O5: remaining power-loss/storage-fault durability and frontend-version evidence",
     "O6: manual delivery reconciliation when public observation is inaccessible or indistinguishable",
     "J1: Core/Activity UI isolation and three-language public consumers",
-    "B4: full matrix sign-off and unresolved comparison policy",
+    "B4: full matrix sign-off and reviewed real-seed compatibility reconciliation; ADR-031 classifies the existing synthetic safety differences only",
     "B5: actual hourly/logon, battery/resume, production cutover and scheduled-run observation"
-  ]
+  ],
+  "compatibilityDecision": "ADR-031"
 }

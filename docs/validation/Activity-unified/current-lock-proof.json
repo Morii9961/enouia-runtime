@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_actual_activity_read_failure",
+  "sourceBaseRevision": "ed1a18f3ecb679acff5b469b941306776a41220f",
+  "checks": [
+    "A.synthetic_current_is_exclusively_held",
+    "A.actual_activity_reads_report_storage_failure",
+    "A.actual_failure_reaches_activity_page",
+    "A.memory_list_and_search_survive_activity_read_failure",
+    "A.memory_surface_survives_actual_activity_failure",
+    "A.failure_preserves_canonical_vault",
+    "A.release_preserves_current_pointer_bytes",
+    "A.failure_preserves_complete_activity_store",
+    "A.release_restores_exact_public_history",
+    "A.recovery_preserves_canonical_vault"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/current-lock-native.json",
+  "nativeReportSha256": "201150db5225387cfa317468357bfa557c9626b03bee7750f4dae3c2b7ebae95",
+  "nativeSummary": "45/45",
+  "processExitCode": 0,
+  "intermediateReport": "docs/validation/Activity-unified/current-lock-intermediate.json",
+  "intermediateReportSha256": "b322a9756cc2ce604074d602403245fdf99f32c1a33715d4431308a33fd18c46",
+  "intermediateSummary": "34/35",
+  "harnessSha256": "b1141a4ae6612fcc61596d5f6b68577c2edb14aeae65cc247ae78a5fa01490ec",
+  "desktopSha256": "8bf0075f72cc671409d166380f5fe32b7ae03ffd899ff34df60ecd9587cd6447",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only this freshly generated synthetic CURRENT pointer is exclusively held by an owned, self-expiring helper.",
+    "This is an actual Windows sharing violation, not disk-full, ACL denial, power loss or production availability.",
+    "No personal Vault, production task or public upload is used."
+  ]
+}

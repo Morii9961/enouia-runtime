@@ -6,7 +6,8 @@ param(
     [Parameter(Mandatory)][string] $InstallRoot,
     [string] $RuntimeToolsRoot,
     [string] $TaskName = 'Enouia-Activity-Sandbox',
-    [switch] $RegisterSandbox
+    [switch] $RegisterSandbox,
+    [switch] $Production
 )
 Import-Module (Join-Path $PSScriptRoot 'activity-package.psm1') -Force
 try { Install-ActivityPackage @PSBoundParameters | ConvertTo-Json -Depth 10 }

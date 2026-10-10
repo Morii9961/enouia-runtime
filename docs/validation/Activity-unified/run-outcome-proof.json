@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "native_activity_outcome_display_boundary",
+  "checks": [
+    "U.mutations_are_intercepted_before_native_ipc",
+    "U.actual_synthetic_package_connects",
+    "U.private_state_label_is_sanitized",
+    "U.private_state_count_is_valid",
+    "U.future_state_label_is_sanitized",
+    "U.future_state_count_is_valid",
+    "U.constructor_state_label_is_sanitized",
+    "U.constructor_state_count_is_valid",
+    "U.prototype_state_label_is_sanitized",
+    "U.prototype_state_count_is_valid",
+    "U.fraction_count_label_is_sanitized",
+    "U.fraction_count_count_is_valid",
+    "U.excess_count_label_is_sanitized",
+    "U.excess_count_count_is_valid",
+    "U.unsafe_count_label_is_sanitized",
+    "U.unsafe_count_count_is_valid",
+    "U.negative_count_label_is_sanitized",
+    "U.negative_count_count_is_valid",
+    "U.valid_outcome_label_is_sanitized",
+    "U.valid_outcome_count_is_valid",
+    "U.outcome_display_preserves_complete_store",
+    "U.choice_is_cleared"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/run-outcome-after.json",
+  "nativeReportSha256": "6a0b8adf93527698295b75c3b323f8514bb11f2a73208929ccf5919beca033cd",
+  "nativeSummary": "22/22",
+  "processExitCode": 0,
+  "beforeReport": "docs/validation/Activity-unified/run-outcome-before.json",
+  "beforeReportSha256": "51c8d300eff1d8c90fed9a71a5086dfa618a33e9ea5b1dfca921f62795190d34",
+  "beforeSummary": "15/22",
+  "beforeProcessExitCode": 1,
+  "actualActionsReport": "docs/validation/Activity-unified/run-outcome-actions.json",
+  "actualActionsReportSha256": "91c9289add8dd397385b87fdb3e790cd959a142528173e24b34081a78ed5b321",
+  "actualActionsSummary": "35/35",
+  "beforeDesktopSha256": "c0cdf97f701955b00d2c646fa8aeb80d69b5cc534a064ec95592167941a4f7dd",
+  "desktopSha256": "56715abfda68ded92a11f444810b07ae752407554f9fb96099ead25783aca061",
+  "installerSha256": "8b1984b09928a8657936b8806b0d08d06669dbc674f4c02c10f9e990157cb395",
+  "harnessSha256": "fcc9402feacaa962f089ce9c35d080d5a71e6e2acc760fd1a47c143dbc46157b",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "frontendBefore": {
+    "tests": 50,
+    "passed": 48,
+    "failed": 2
+  },
+  "frontendAfter": {
+    "tests": 50,
+    "passed": 50,
+    "failed": 0
+  },
+  "limitations": [
+    "Unknown outcome states and counts are modeled in the owned page; all starts and status replies are intercepted before native IPC.",
+    "A fresh separate synthetic package and Vault verify actual run/status, pause/resume and Core isolation.",
+    "No personal Vault, existing/production task, credential or public upload is used."
+  ]
+}

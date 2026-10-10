@@ -65,20 +65,20 @@ try {
   add('C01-three-success', input => { input.previous = structuredClone(blank); });
   add('C02-rolling-retains-history');
   add('C03-github-down-codex-up-claude-up', input => { for (const [id, value] of [['github', 8], ['codex', 5], ['claude', 20]]) input.previous.sources[id].days = [{ date: '2026-09-25', value }]; });
-  add('C03-claude-down', input => { input.previous.sources.claude.days = [{ date: '2026-09-25', value: 50 }]; }, ['claude'], 'validated_claude_downward_correction');
+  add('C03-claude-down', input => { input.previous.sources.claude.days = [{ date: '2026-09-25', value: 50 }]; });
   for (const id of ids) add(`C04-${id}-failure`, input => { input.failures = [id]; });
   add('C04-all-fail', input => { input.failures = [...ids]; });
   add('C04-null-history-all-fail', input => { input.previous = structuredClone(blank); input.failures = [...ids]; });
   add('C05-unchanged-zero-fresh', input => { input.previous = structuredClone(baseline); input.attemptedAt = '2026-09-27T08:00:00.000Z'; input.clockMs = Date.parse(input.attemptedAt) + 1000; });
   add('C05-all-empty', input => { input.github.data.user.contributionsCollection.contributionCalendar.weeks = []; input.codex.dailyUsageBuckets = []; input.codex.summary.lifetimeTokens = 0; input.claude = [{ daily: [], totals: { totalTokens: 0 } }]; });
   add('C06-impossible-github-date', input => { ghDays(input)[0].date = '2026-02-30'; });
-  add('C06-duplicate-github-date', input => { ghDays(input).push({ ...ghDays(input)[0], contributionCount: 9 }); });
+  add('C06-duplicate-github-date', input => { ghDays(input).push({ ...ghDays(input)[0], contributionCount: 9 }); }, ['github'], 'strict_github_source_validation');
   add('C06-duplicate-codex-date', input => { input.codex.dailyUsageBuckets.push(structuredClone(input.codex.dailyUsageBuckets[0])); });
   add('C06-duplicate-claude-date', input => { input.claude[0].daily.push(structuredClone(input.claude[0].daily[0])); input.claude[0].totals.totalTokens += 26; });
   add('C06-leap-date', input => { input.attemptedAt = '2028-03-01T08:00:00.000Z'; input.clockMs = Date.parse(input.attemptedAt) + 1000; ghDays(input)[0].date = '2028-02-29'; });
   add('C06-negative-github', input => { ghDays(input)[0].contributionCount = -1; });
   add('C06-unsafe-github-value', input => { ghDays(input)[0].contributionCount = Number.MAX_SAFE_INTEGER + 1; });
-  add('C06-unsafe-github-sum', input => { ghDays(input)[0].contributionCount = Number.MAX_SAFE_INTEGER - 1; ghDays(input)[1].contributionCount = 2; });
+  add('C06-unsafe-github-sum', input => { ghDays(input)[0].contributionCount = Number.MAX_SAFE_INTEGER - 1; ghDays(input)[1].contributionCount = 2; }, ['github'], 'strict_github_source_validation');
   add('C07-unsupported-method', input => { input.failures = ['codex']; });
   add('C07-missing-lifetime', input => { delete input.codex.summary.lifetimeTokens; }, ['codex'], 'strict_codex_lifetime');
   add('C07-mismatched-lifetime', input => { input.codex.summary.lifetimeTokens++; });
@@ -137,7 +137,7 @@ try {
     const total = snapshot => (snapshot?.days ?? []).reduce((sum, day) => sum + BigInt(day.value), 0n).toString();
     return { id, missingDates: dates.filter(date => priorDays.has(date) && !nextDays.has(date)), addedDates: dates.filter(date => !priorDays.has(date) && nextDays.has(date)), revisedValues: dates.filter(date => priorDays.has(date) && nextDays.has(date) && priorDays.get(date) !== nextDays.get(date)).map(date => ({ date, legacy: priorDays.get(date), runtime: nextDays.get(date) })), retainedDates: dates.filter(date => priorDays.get(date) === nextDays.get(date)), legacyDays: old?.days ?? [], runtimeDays: next?.days ?? [], legacyTotal: total(old), runtimeTotal: total(next), legacyUpdatedAt: old?.updatedAt ?? null, runtimeUpdatedAt: next?.updatedAt ?? null, legacyOutcome: oldBatch.sources[id], runtimeOutcome: newBatch.sources[id], legacyTimezone: old?.timezone ?? null, runtimeTimezone: next?.timezone ?? null, legacyMetric: old?.metric ?? null, runtimeMetric: next?.metric ?? null };
   }
-  const results = []; const unresolved = [];
+  const results = []; const unresolved = []; const checks = [];
   const publishConfig = { version: 1, sites: { moriium: null, gallery: null }, runtimeEnabled: false };
   for (const fixtureCase of cases) {
     const { id, input, allowed, policy } = fixtureCase;
@@ -158,7 +158,18 @@ try {
     const differences = ids.filter(id => !isDeepStrictEqual(oldBatch.data.sources[id], runtime.batch.data.sources[id]) || !isDeepStrictEqual(oldBatch.sources[id], runtime.batch.sources[id]));
     const classification = differences.length === 0 ? 'equal' : policy && differences.every(id => allowed.includes(id)) ? 'intentional_difference' : 'unresolved_difference';
     if (classification === 'unresolved_difference') unresolved.push(id);
-    if (id === 'C03-claude-down') { assert.equal(runtime.batch.data.sources.claude.days[0].value, 40); assert.equal(oldBatch.data.sources.claude.days[0].value, 50); assert.equal(runtime.deltas.claude.totalChange, -9); }
+    if (policy === 'strict_github_source_validation') {
+      assert(['C06-duplicate-github-date', 'C06-unsafe-github-sum'].includes(id), 'Unknown strict-validation case.');
+      assert.deepEqual(differences, ['github'], 'Strict GitHub refusal must not change other sources.');
+      checks.push(`${id}: only GitHub differs`);
+      assert.equal(oldBatch.sources.github.result, 'success');
+      assert.equal(runtime.batch.sources.github.result, 'failed');
+      checks.push(`${id}: invalid legacy success becomes Runtime source failure`);
+      assert.deepEqual(runtime.batch.data.sources.github, input.previous.sources.github);
+      assert.equal(runtime.batch.sources.github.succeededAt, input.previous.sources.github.updatedAt);
+      checks.push(`${id}: prior days values and success time retained exactly`);
+    }
+    if (id === 'C03-claude-down') { assert.equal(runtime.batch.data.sources.claude.days[0].value, 50); assert.equal(oldBatch.data.sources.claude.days[0].value, 50); assert.equal(runtime.deltas.claude.retainedHigherDays, 1); }
     const oldRoot = join(base, id, 'legacy'); const newRoot = join(base, id, 'runtime');
     await receiveBatch(join(oldRoot, 'inbox'), oldBatch, input.clockMs);
     await receiveBatch(join(newRoot, 'inbox'), runtime.batch, input.clockMs);
@@ -171,7 +182,7 @@ try {
     results.push({ id, inputSha256: sha(raw), result: classification, policy, differences, legacyDataSha256: oldManifest.activity.hash, runtimeDataSha256: newManifest.activity.hash, sources: ids.map(id => sourceDiff(oldBatch, runtime.batch, id)), runtimeDeltas: runtime.deltas });
   }
   for (const version of versions) assert.equal(sha(await readFile(join(referenceRoot, version.path))), version.sha256, 'Reference changed during comparison.');
-  const report = { schemaVersion: 1, state: unresolved.length ? 'completed_with_unresolved_differences' : 'passed', node: process.version, bridgeSha256: sha(await readFile(bridge)), bridgeChecks, referenceHead: head.stdout.trim(), referenceDirtyFiles: dirty.stdout.trim().split(/\r?\n/).filter(Boolean), referenceFiles: versions, fixtureFiles, caseCount: results.length, unresolvedCaseIds: unresolved, results, limitations: ['Synthetic fixed-time reports and pure legacy orchestration reproduction.', 'No live collection, discovery, SSH, production, credentials, or UI acceptance.', 'Unexpected differences block full B4 sign-off; no policies are changed by this harness.'] };
+  const report = { schemaVersion: 1, state: unresolved.length ? 'completed_with_unresolved_differences' : 'passed', node: process.version, bridgeSha256: sha(await readFile(bridge)), bridgeChecks, checks, compatibilityDecision: 'ADR-031', referenceHead: head.stdout.trim(), referenceDirtyFiles: dirty.stdout.trim().split(/\r?\n/).filter(Boolean), referenceFiles: versions, fixtureFiles, caseCount: results.length, unresolvedCaseIds: unresolved, results, limitations: ['Synthetic fixed-time reports and pure legacy orchestration reproduction.', 'No live collection, discovery, SSH, production, credentials, or UI acceptance.', 'ADR-031 classifies existing normative validation; this harness changes no Runtime parser or migration behavior and does not sign off B4.'] };
   await writeFile(reportArgument, `${JSON.stringify(report, null, 2)}\n`, { flag: 'wx' });
   console.log(JSON.stringify({ state: report.state, caseCount: results.length, unresolvedCaseIds: unresolved, classifications: Object.fromEntries(['equal', 'intentional_difference', 'intentional_clock_refusal', 'unresolved_difference'].map(kind => [kind, results.filter(item => item.result === kind).length])) }));
 } finally {

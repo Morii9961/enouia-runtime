@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "scope": "integrated_store_runner_late_switch_tests",
+  "runs": [
+    {
+      "id": "store",
+      "command": "cargo test --offline -p enouia-activity-store --test late_switch_failure -- --test-threads=1",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 6 tests",
+        "test refused_pointer_preparation_of_new_batch_keeps_the_sequence_retryable ... ok",
+        "test refused_retraction_keeps_the_conservative_orphan ... ok",
+        "test refused_switch_of_new_batch_keeps_the_sequence_retryable ... ok",
+        "test refused_switch_of_receipt_keeps_the_acknowledgment_retryable ... ok",
+        "test retraction_changes_only_the_failed_generation_name ... ok",
+        "test simulated_interruption_after_publication_still_leaves_the_conservative_orphan ... ok",
+        "",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "runner",
+      "command": "cargo test --offline -p enouia-activity-runner --test late_switch",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 1 test",
+        "test refused_pointer_replacement_fails_one_sync_and_the_next_sync_commits ... ok",
+        "",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s",
+        "",
+        ""
+      ]
+    }
+  ]
+}

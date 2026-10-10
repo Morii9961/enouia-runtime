@@ -1,0 +1,17 @@
+{
+  "state": "passed",
+  "scheduler": "real_unique_sandbox_task",
+  "checks": 57,
+  "closedUiSync": {
+    "sequence": 51,
+    "pendingRetryByteIdentical": true,
+    "desktopClosed": true,
+    "retainedSources": 3,
+    "deliveryEnabled": false,
+    "taskResults": [
+      4,
+      4
+    ],
+    "exactPendingSha256": "f84a9b53f8208e5fe971899b1f3195c6be48e2202863610b7442b0e7c7eb26de"
+  }
+}

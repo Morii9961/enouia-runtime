@@ -1,14 +1,19 @@
 #Requires -Version 7.2
 [CmdletBinding()]
-param([string] $Binary = (Join-Path $PSScriptRoot '..\target\release\enouia-activity.exe'), [switch] $LiveScheduler)
+param([string] $Binary = (Join-Path $PSScriptRoot '..\target\release\enouia-activity.exe'), [switch] $LiveScheduler, [switch] $ClosedUiSync, [string] $NativeDesktop)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ($ClosedUiSync -and -not $LiveScheduler) { throw '-ClosedUiSync requires -LiveScheduler and its independently owned synthetic task.' }
+if ($NativeDesktop -and -not $LiveScheduler) { throw '-NativeDesktop requires -LiveScheduler and its independently owned synthetic task.' }
 Import-Module (Join-Path $PSScriptRoot 'activity-package.psm1') -Force
 $module = Get-Module 'activity-package'
 $workspace = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $base = Join-Path $workspace ('target\scheduler-test-' + [guid]::NewGuid().ToString('N'))
 $taskName = 'Enouia-Activity-Test-' + [guid]::NewGuid().ToString('N')
 $checks = 0
+$closedUi = $null
+$nativeScheduler = @()
+$nativeOutput = Join-Path $workspace ('target\native-scheduler-' + [guid]::NewGuid().ToString('N'))
 function Assert($Condition, [string] $Message) {
     if (-not $Condition) { throw $Message }
     $script:checks++
@@ -27,6 +32,26 @@ function RunCli([string[]] $Arguments) {
     $result = & $module { param($exe, $argsList) Invoke-ActivityProbe $exe $argsList } ([IO.Path]::GetFullPath($Binary)) $Arguments
     return @{ code = $result.exitCode; value = ($result.output | ConvertFrom-Json -AsHashtable) }
 }
+function Invoke-NativeSchedulerRead([bool] $Enabled) {
+    $desktop = [IO.Path]::GetFullPath($NativeDesktop)
+    if (-not [IO.Path]::IsPathFullyQualified($NativeDesktop) -or -not (Test-Path -LiteralPath $desktop -PathType Leaf) -or (Get-ActivityPeSubsystem $desktop) -ne 2) { throw 'Native acceptance requires an absolute release desktop executable.' }
+    $stateName = if ($Enabled) { 'enabled' } else { 'disabled' }
+    $output = Join-Path $nativeOutput $stateName
+    [void][IO.Directory]::CreateDirectory($output)
+    & node (Join-Path $workspace 'apps\desktop\e2e\activity-smoke.mjs') $desktop $install $output ('--task-' + $stateName) *> (Join-Path $output 'console.log')
+    if ($LASTEXITCODE -ne 0) { throw ('Native task-read acceptance failed; inspect target/' + [IO.Path]::GetFileName($nativeOutput) + '/' + $stateName + '. The independent task will still be removed by cleanup.') }
+    $ui = Get-Content -LiteralPath (Join-Path $output 'report.json') -Raw | ConvertFrom-Json -AsHashtable
+    Assert ($ui.summary -eq '10/10' -and @($ui.checks | Where-Object { -not $_.ok }).Count -eq 0) 'Native task-read evidence is incomplete.'
+    Assert ((TreeHash $state) -eq $before) 'Native schedule reads changed Activity files.'
+    $registered = Get-ActivityPackageStatus $install
+    Assert ($registered.taskRegistered -and $registered.taskState -eq $(if ($Enabled) { 'Ready' } else { 'Disabled' })) 'Native schedule reads changed the actual task.'
+    $jsonOptions = @{ AsHashtable = $true }
+    if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) { $jsonOptions.DateKind = 'String' }
+    $next = ($ui.checks | Where-Object id -eq 'S.next_trigger_matches_enablement').detail | ConvertFrom-Json @jsonOptions
+    $windowsNext = (Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\').NextRunTime
+    Assert $(if ($Enabled) { [datetime]::ParseExact($next.nextTriggerAt, 'yyyy-MM-ddTHH:mm:ss.fffZ', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal -bor [Globalization.DateTimeStyles]::AdjustToUniversal) -eq $windowsNext.ToUniversalTime() } else { $null -eq $next.nextTriggerAt }) 'Native next trigger disagrees with independent Windows task-info read.'
+    return @{ taskEnabled = $Enabled; summary = $ui.summary; checks = $ui.checks; windowsNextTriggerAt = $(if ($Enabled) { $windowsNext.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ') } else { $null }); desktopSha256 = (Get-FileHash -LiteralPath $desktop -Algorithm SHA256).Hash.ToLowerInvariant() }
+}
 try {
     [void][IO.Directory]::CreateDirectory($base)
     $state = Join-Path $base 'state'
@@ -41,7 +66,8 @@ try {
     $import = RunCli @('migration-import', '--bundle', $legacy, '--config', $config, '--high-water', '50')
     Assert ($import.code -eq 0) 'Synthetic bootstrap failed.'
     Assert ((Get-ActivityPeSubsystem ([IO.Path]::GetFullPath($Binary))) -eq 2) 'Release console hiding is absent.'
-    $pwsh = (Get-Command pwsh.exe -CommandType Application).Source
+    # $PSHOME is the real executable; a Store install's PATH entry is an app-execution alias.
+    $pwsh = Join-Path $PSHOME 'pwsh.exe'
     $version = & $module { param($exe) Get-ActivityTool 'synthetic-version-probe' $exe 'unused.exe' @('--version') } $pwsh
     Assert ($version.configured -and $version.version -match '^7\.') 'Configured executable version probe failed.'
     Reject { & $module { param($exe) Invoke-ActivityProbe $exe @('-NoProfile', '-Command', '[Console]::Write("x" * 5000)') } $pwsh } 'Oversized probe output accepted.'
@@ -106,12 +132,14 @@ try {
             function script:Get-ScheduledTaskInfo { param($TaskName, $TaskPath, $ErrorAction) [pscustomobject]@{LastTaskResult = 3} }
             function script:Disable-ScheduledTask { param($TaskName, $TaskPath, $ErrorAction) $script:testTask.State = 'Disabled' }
             function script:Unregister-ScheduledTask { param($TaskName, $TaskPath, $Confirm, $ErrorAction) $script:testTask = $null }
+            function script:Enable-ScheduledTask { param($TaskName, $TaskPath, $ErrorAction) $script:testTask.State = 'Ready' }
         } $taskName $xml.OuterXml
     }
     Register-ActivitySandbox $install
     $query = Get-ActivityPackageStatus $install
     Assert ($query.taskRegistered -and $query.taskState -eq 'Disabled' -and $query.activity.paused) 'Registered/query state mismatch.'
     Assert (($query | ConvertTo-Json -Depth 10) -notmatch [regex]::Escape($base)) 'Query leaked local paths.'
+    if ($NativeDesktop) { $nativeScheduler += Invoke-NativeSchedulerRead $false }
     if (-not $LiveScheduler) {
         & $module { $script:testXml = $script:testXml.Replace('<RunLevel>LeastPrivilege</RunLevel>', '').Replace('<WakeToRun>false</WakeToRun>', '').Replace('<MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>', '') }
         $effective = Get-ActivityPackageStatus $install
@@ -122,6 +150,7 @@ try {
     if ($LiveScheduler) {
         # Only this unique disabled sandbox task can be enabled; all data is synthetic and delivery is disabled.
         Enable-ScheduledTask -TaskName $taskName -TaskPath '\' | Out-Null
+        if ($NativeDesktop) { $nativeScheduler += Invoke-NativeSchedulerRead $true }
         $last = (Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\').LastRunTime
         Start-ScheduledTask -TaskName $taskName -TaskPath '\'
         $deadline = [datetime]::UtcNow.AddSeconds(30)
@@ -143,6 +172,43 @@ try {
             } while (($info.LastRunTime -eq $last -or $task.State -eq 'Running') -and [datetime]::UtcNow -lt $deadline)
             Assert ($info.LastRunTime -gt $last -and $info.LastTaskResult -eq 3) 'Actual scheduled overlap did not return the busy code.'
         } finally { $lock.Dispose() }
+        if ($ClosedUiSync) {
+            Assert (@(Get-Process -Name 'enouia-desktop' -ErrorAction SilentlyContinue).Count -eq 0) 'Close the desktop before closed-UI acceptance; the test never closes user applications.'
+            Assert ((TreeHash $state) -eq $before) 'Paused/busy scheduled runs changed Activity data.'
+            $initial = (& $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('overview', '--config', $cfg) } $manifest.binary $installedConfig).output | ConvertFrom-Json -AsHashtable
+            $resumed = & $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('set-paused', 'false', '--config', $cfg) } $manifest.binary $installedConfig
+            Assert ($resumed.exitCode -eq 0 -and ($resumed.output | ConvertFrom-Json).paused -eq $false) 'Synthetic installed runner did not resume.'
+            function Invoke-ClosedUiScheduledRun {
+                $previous = (Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\').LastRunTime
+                Start-ScheduledTask -TaskName $taskName -TaskPath '\'
+                $end = [datetime]::UtcNow.AddSeconds(30)
+                do {
+                    Start-Sleep -Milliseconds 200
+                    $runInfo = Get-ScheduledTaskInfo -TaskName $taskName -TaskPath '\'
+                    $runTask = Get-ScheduledTask -TaskName $taskName -TaskPath '\'
+                } while (($runInfo.LastRunTime -eq $previous -or $runTask.State -in 'Running', 'Queued') -and [datetime]::UtcNow -lt $end)
+                Assert ($runInfo.LastRunTime -gt $previous -and $runTask.State -eq 'Ready') 'Scheduled closed-UI invocation did not finish.'
+                Assert ($runInfo.LastTaskResult -eq 4) 'Delivery-disabled sync should retain pending and return the unresolved-delivery exit code.'
+                Assert (@(Get-Process -Name 'enouia-desktop' -ErrorAction SilentlyContinue).Count -eq 0) 'A desktop process appeared during closed-UI acceptance.'
+                return $runInfo.LastTaskResult
+            }
+            $firstResult = Invoke-ClosedUiScheduledRun
+            $collected = (& $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('overview', '--config', $cfg) } $manifest.binary $installedConfig).output | ConvertFrom-Json -AsHashtable
+            Assert ($collected.pending.sequence -eq ($initial.producer.highestReserved + 1) -and $collected.producer.highestReserved -eq $collected.pending.sequence) 'Scheduled sync did not commit exactly the next sequence.'
+            Assert (-not $collected.producer.deliveryEnabled -and -not $collected.producer.paused -and $collected.delivery.state -eq 'unconfigured') 'Scheduled sync changed isolated delivery/pause policy.'
+            foreach ($source in @('github', 'codex', 'claude')) {
+                Assert ($collected.sources[$source].freshness -eq 'failed' -and $collected.sources[$source].total -ceq $initial.sources[$source].total -and $collected.sources[$source].lastSuccessAt -eq $initial.sources[$source].lastSuccessAt) ('Scheduled failure lost retained source history: ' + $source)
+            }
+            $pendingTree = TreeHash $state
+            $secondResult = Invoke-ClosedUiScheduledRun
+            $retried = (& $module { param($exe, $cfg) Invoke-ActivityProbe $exe @('overview', '--config', $cfg) } $manifest.binary $installedConfig).output | ConvertFrom-Json -AsHashtable
+            Assert ($retried.pending.sequence -eq $collected.pending.sequence -and $retried.pending.exactSha256 -ceq $collected.pending.exactSha256 -and $retried.producer.highestReserved -eq $collected.producer.highestReserved) 'Scheduled unresolved pending collected again or changed its identity.'
+            Assert ((TreeHash $state) -eq $pendingTree) 'Delivery-disabled scheduled retry rewrote stored files.'
+            $closedUi = @{ desktopClosed = $true; deliveryEnabled = $false; taskResults = @($firstResult, $secondResult); sequence = $collected.pending.sequence; exactPendingSha256 = $collected.pending.exactSha256; retainedSources = 3; pendingRetryByteIdentical = $true }
+            # Uninstall must preserve the newly committed state, rather than
+            # compare it against the pre-sync seed as the paused-only mode does.
+            $before = TreeHash $state
+        }
     } else {
         & $module { $script:testTask.State = 'Running' }
         Reject { Uninstall-ActivityTask $install } 'Running task uninstalled.'
@@ -157,10 +223,81 @@ try {
     Assert (-not (Get-ActivityPackageStatus $install).taskRegistered) 'Uninstall left a task registered.'
     $again = Uninstall-ActivityTask $install
     Assert ($again.activityDataPreserved) 'Uninstall is not idempotent.'
+    if (-not $LiveScheduler) {
+        # B5 production path (ADR-030), scheduler doubles only: explicit flag, exact name, disabled first, enable gated.
+        $prodConfig = Join-Path $base 'production-delivery.json'
+        $prodDelivery = @{ sshExecutable = (Join-Path $env:SystemRoot 'System32\OpenSSH\ssh.exe'); restrictedAlias = 'enouia-test-upload'; curlExecutable = (Join-Path $env:SystemRoot 'System32\curl.exe'); publicOrigin = 'https://status.invalid' }
+        [IO.File]::WriteAllText($prodConfig, (@{version = 1; mode = 'production'; dataRoot = $state; deliveryEnabled = $true; delivery = $prodDelivery} | ConvertTo-Json -Depth 4))
+        $releaseBinary = [IO.Path]::GetFullPath($Binary)
+        Reject { Install-ActivityPackage -Binary $releaseBinary -Config $prodConfig -InstallRoot (Join-Path $base 'prod-unflagged') } 'Delivery-enabled production package accepted without -Production.'
+        Reject { Install-ActivityPackage -Binary $releaseBinary -Config $deliveryConfig -InstallRoot (Join-Path $base 'prod-sandbox') -Production } 'Sandbox configuration accepted as production.'
+        Reject { Install-ActivityPackage -Binary $releaseBinary -Config $production -InstallRoot (Join-Path $base 'prod-disabled') -Production } 'Delivery-disabled configuration accepted as a production package.'
+        $prodRoot = Join-Path $base 'production-delivery-package'
+        $prodName = 'Enouia-Activity-Production-Test'
+        $prodInstalled = Install-ActivityPackage -Binary $releaseBinary -Config $prodConfig -InstallRoot $prodRoot -TaskName $prodName -Production
+        Assert (-not $prodInstalled.taskRegistered -and $prodInstalled.paused -and $prodInstalled.mode -eq 'production') 'Production package was not installed paused and unregistered.'
+        Assert (Test-Path -LiteralPath (Join-Path $prodRoot 'management\register-activity-production.ps1')) 'Production management script missing.'
+        Reject { Register-ActivityProduction $prodRoot $prodName.ToLowerInvariant() } 'Inexact production confirmation accepted.'
+        Reject { Register-ActivityProduction $install $taskName } 'Sandbox package registered as production.'
+        $registered = Register-ActivityProduction $prodRoot $prodName
+        Assert ($registered.state -eq 'production_registered_disabled' -and (& $module { $script:testTask.State }) -eq 'Disabled') 'Production task not registered disabled.'
+        Reject { Register-ActivityProduction $prodRoot $prodName } 'Existing production task replaced.'
+        Reject { Enable-ActivityProduction $prodRoot $prodName } 'Production task enabled without an observed publication.'
+        Assert ((& $module { $script:testTask.State }) -eq 'Disabled') 'Refused enable changed the task.'
+        # Model only the producer reply for the activation gate. Scheduler
+        # calls remain doubles: no publication or real production task exists.
+        $observed = @{
+            schemaVersion = 1; kind = 'activity_overview'; pending = $null
+            producer = @{ mode = 'production'; deliveryEnabled = $true; paused = $false }
+            delivery = @{ state = 'observed'; pendingSequence = $null; publicHash = ('a' * 64); publicationObservedAt = '2026-10-08T00:00:00.000Z' }
+        }
+        & $module {
+            $script:originalProbe = (Get-Item Function:Invoke-ActivityProbe).ScriptBlock
+            function script:Invoke-ActivityProbe {
+                param($Executable, $Arguments)
+                if ($Arguments[0] -ne 'overview') { throw 'Activation model only supports overview.' }
+                return @{ exitCode = 0; output = $script:activationReply }
+            }
+        }
+        try {
+            $mutations = @(
+                @{ name = 'paused'; change = { param($v) $v.producer.paused = $true } },
+                @{ name = 'pending'; change = { param($v) $v.pending = @{sequence = 51} } },
+                @{ name = 'unobserved'; change = { param($v) $v.delivery.state = 'transported' } },
+                @{ name = 'null pause'; change = { param($v) $v.producer.paused = $null } },
+                @{ name = 'nonboolean pause'; change = { param($v) $v.producer.paused = 0 } },
+                @{ name = 'sandbox reply'; change = { param($v) $v.producer.mode = 'sandbox' } },
+                @{ name = 'delivery disabled'; change = { param($v) $v.producer.deliveryEnabled = $false } },
+                @{ name = 'wrong kind'; change = { param($v) $v.kind = 'activity_public_preview' } },
+                @{ name = 'wrong schema'; change = { param($v) $v.schemaVersion = 2 } },
+                @{ name = 'pending delivery'; change = { param($v) $v.delivery.pendingSequence = 51 } },
+                @{ name = 'missing pending'; change = { param($v) $v.Remove('pending') } },
+                @{ name = 'missing public hash'; change = { param($v) $v.delivery.publicHash = $null } },
+                @{ name = 'invalid public hash'; change = { param($v) $v.delivery.publicHash = 'unverified' } },
+                @{ name = 'missing observation'; change = { param($v) $v.delivery.publicationObservedAt = $null } },
+                @{ name = 'invalid observation'; change = { param($v) $v.delivery.publicationObservedAt = '2026-02-30T00:00:00.000Z' } }
+            )
+            foreach ($mutation in $mutations) {
+                $reply = $observed | ConvertTo-Json -Depth 8 | ConvertFrom-Json -AsHashtable
+                & $mutation.change $reply | Out-Null
+                & $module { param($json) $script:activationReply = $json } ($reply | ConvertTo-Json -Depth 8)
+                Reject { Enable-ActivityProduction $prodRoot $prodName } ('Invalid activation reply accepted: ' + $mutation.name)
+                Assert ((& $module { $script:testTask.State }) -eq 'Disabled') ('Refused activation changed task: ' + $mutation.name)
+            }
+            & $module { param($json) $script:activationReply = $json } ($observed | ConvertTo-Json -Depth 8)
+            $enabled = Enable-ActivityProduction $prodRoot $prodName
+            Assert ($enabled.state -eq 'production_enabled' -and $enabled.publicHash -ceq ('a' * 64) -and (& $module { $script:testTask.State }) -eq 'Ready') 'Valid modeled publication did not enable the owned task double.'
+            Reject { Enable-ActivityProduction $prodRoot $prodName } 'An already enabled production task was accepted.'
+            Assert ((TreeHash $state) -eq $before) 'Production activation gates changed Activity data.'
+        } finally {
+            & $module { Set-Item Function:script:Invoke-ActivityProbe $script:originalProbe }
+        }
+        Assert ((Uninstall-ActivityTask $prodRoot).activityDataPreserved) 'Production uninstall failed.'
+    }
     # Config tampering blocks later registration before any scheduler mutation.
     Add-Content -LiteralPath $installedConfig -Value ' '
     Reject { Register-ActivitySandbox $install } 'Changed config registered.'
-    @{ checks = $checks; scheduler = $(if ($LiveScheduler) { 'real_unique_sandbox_task' } else { 'scheduler_doubles' }); state = 'passed' } | ConvertTo-Json
+    @{ checks = $checks; scheduler = $(if ($LiveScheduler) { 'real_unique_sandbox_task' } else { 'scheduler_doubles' }); state = 'passed'; closedUiSync = $closedUi; nativeSchedulerUi = $nativeScheduler } | ConvertTo-Json -Depth 8
 } finally {
     if ($LiveScheduler -and (Test-Path -LiteralPath (Join-Path $base 'installed & independent\install.json'))) {
         # Cleanup uses the same source/action/user ownership check and never force-kills a running task.

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "native_activity_reply_correlation",
+  "checks": [
+    "Y.mutations_are_intercepted_before_native_ipc",
+    "Y.actual_synthetic_package_connects",
+    "Y.rejects_wrong_run",
+    "Y.rejects_invalid_run",
+    "Y.rejects_extra_status",
+    "Y.rejects_wrong_operation",
+    "Y.rejects_invalid_summary",
+    "Y.matching_terminal_status_recovers",
+    "Y.rejects_extra_accepted",
+    "Y.rejects_opposite_pause_ack",
+    "Y.modeled_operations_preserve_complete_store",
+    "Y.choice_is_cleared"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/run-contract-after.json",
+  "nativeReportSha256": "7b231ee85e51112bd5844fa7c5672e7b50dcc2c549b856fdeddc2b3068d9ccae",
+  "nativeSummary": "12/12",
+  "processExitCode": 0,
+  "beforeReport": "docs/validation/Activity-unified/run-contract-before.json",
+  "beforeReportSha256": "b663d14be986c09fa7cfc55f485fd6d08a8aadda55f652acc4d2e7db476f905b",
+  "beforeSummary": "5/12",
+  "beforeProcessExitCode": 1,
+  "intermediateReport": "docs/validation/Activity-unified/run-contract-intermediate.json",
+  "intermediateReportSha256": "fc25cafa9158c8ea8d6898b57676dfdc387216475f3f6b756b67124a06702d4d",
+  "intermediateSummary": "4/12",
+  "actualActionsReport": "docs/validation/Activity-unified/run-contract-actions.json",
+  "actualActionsReportSha256": "91c9289add8dd397385b87fdb3e790cd959a142528173e24b34081a78ed5b321",
+  "actualActionsSummary": "35/35",
+  "harnessSha256": "0a4db029f0650a2a7004f6f06c049536a5a9c086c13916462f3ce9480546866b",
+  "beforeDesktopSha256": "8bf0075f72cc671409d166380f5fe32b7ae03ffd899ff34df60ecd9587cd6447",
+  "desktopSha256": "7477d3dad794cf332e3f405e404c3a2ab2bcf7919063a292316f2e6e45f6caf5",
+  "installerSha256": "21f6ccc404ea433545cb54931917040b3b29a1b83c2728adfa2872b1e45854e4",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "frontendBefore": {
+    "tests": 48,
+    "passed": 45,
+    "failed": 3
+  },
+  "frontendAfter": {
+    "tests": 48,
+    "passed": 48,
+    "failed": 0
+  },
+  "limitations": [
+    "Run-contract mutations and status replies are modeled only in the owned page and intercepted before native IPC.",
+    "Real pause/resume, run and Core-isolation recovery are separately verified on a fresh synthetic package and Vault.",
+    "No production task, personal Vault, credential or public upload is used."
+  ]
+}

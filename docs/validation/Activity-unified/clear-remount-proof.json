@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_clear_outcome_remount",
+  "checks": [
+    "CF.initial_unconfigured_status_has_no_invented_clear_failure",
+    "CF.remounted_status_retains_actual_clear_failure",
+    "CF.remounted_clear_warning_stays_visible",
+    "CF.remounted_clear_retry_stays_available",
+    "CF.remount_never_reconnects_or_changes_saved_file",
+    "CF.remounted_status_retains_successful_clear",
+    "CF.remounted_success_has_no_warning_or_retry"
+  ],
+  "frontendBefore": {
+    "tests": 57,
+    "passed": 56,
+    "failed": 1
+  },
+  "frontendAfter": {
+    "tests": 57,
+    "passed": 57,
+    "failed": 0
+  },
+  "hostTests": 34,
+  "coreTests": 3,
+  "processExitCode": 0,
+  "beforeDesktopSha256": "4980ec42629000a22c0e251cbc4ff95dcd84a00ea5b089d8d0b7bf5cdb9adcaf",
+  "desktopSha256": "f7ab15f23d1eee6fcd4a111741cc23bde7c3baac440a2db74fd31538bb3cf09c",
+  "installerSha256": "4cbacb78bbb371c188de9afabe1b5e56ff72f246cf37c4448e4804137dab9d29",
+  "harnessSha256": "740875d04cde5d0438099f0b678504698070085d609c714fb1a5fcfa9dae7f51",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "beforeReport": "docs/validation/Activity-unified/clear-remount-before.json",
+  "beforeReportSha256": "97fba074e489a975179070a8d79da23af2546ce2f3a42e7feb96e804e67c1687",
+  "beforeSummary": "15/19",
+  "nativeReport": "docs/validation/Activity-unified/clear-remount-native.json",
+  "nativeReportSha256": "ebb375ff9c54c06c86d47edfb755629085c2553e66faef7a35382896e744ecc7",
+  "nativeSummary": "19/19",
+  "actionsReport": "docs/validation/Activity-unified/clear-remount-actions.json",
+  "actionsReportSha256": "91c9289add8dd397385b87fdb3e790cd959a142528173e24b34081a78ed5b321",
+  "actionsSummary": "35/35",
+  "limitations": [
+    "Unconfigured status retains only an explicit clear outcome in the current host; missing or invalid startup settings alone do not invent a clear failure.",
+    "The flag records the last explicit clear attempt, not a continuous filesystem monitor; successful selection clears it and successful retry replaces it.",
+    "Actual owned settings-file deletion sharing refusal preserves exact settings and Activity bytes across remount; restart really reconnects retained settings.",
+    "After handle release, actual retry removes the settings file and clears warning/retry across remount; the next host stays unconfigured.",
+    "No Memory pin/domain, producer protocol, scheduler operation, personal Vault/archive, credential or public upload is changed.",
+    "B4/J1 remain partial and B5 remains inactive."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_actual_activity_saved_choice_delete_failure",
+  "checks": [
+    "T.actual_selection_saves_owned_file",
+    "T.saved_choice_is_held_without_delete_sharing",
+    "T.actual_delete_refusal_reports_saved_false",
+    "T.refusal_explains_reconnect_and_retry",
+    "T.failed_clear_preserves_exact_saved_file",
+    "T.restart_really_reconnects_retained_choice",
+    "T.restart_keeps_saved_file_exact",
+    "T.restarted_host_reports_same_clear_failure",
+    "T.released_retry_removes_saved_choice",
+    "T.released_retry_clears_failure_feedback",
+    "T.restart_stays_unconfigured_after_actual_delete",
+    "T.complete_activity_store_is_unchanged"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/choice-delete-native.json",
+  "nativeReportSha256": "cf619ef13997969231c9ab5cfbb8c93dc121f07e0711a4caa234d9544edf82b3",
+  "nativeSummary": "12/12",
+  "processExitCode": 0,
+  "harnessSha256": "881b053851b72cac2701584f565b105d404081eb1dc9c84ed03d16af4b515af3",
+  "desktopSha256": "328a6e08dda940a5e00b638ff76c77a06c8e5332b83db4263935a8ff2675f3ec",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only a new synthetic settings file is held by an owned hidden read handle without delete sharing; the helper self-expires after 90 seconds and closes in finally.",
+    "Failed clear retains exact settings bytes and really reconnects after restarting; release and named page retry delete the file and the next restart stays unconfigured.",
+    "Complete Activity bytes stay unchanged; this mode creates no Vault and performs no producer mutation.",
+    "Personal settings, other storage failures, real-account/production activation and full acceptance remain unverified."
+  ]
+}

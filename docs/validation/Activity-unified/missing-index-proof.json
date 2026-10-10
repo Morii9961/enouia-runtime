@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_native_missing_index_activity",
+  "sourceBaseRevision": "2ff2f0db9aa0b22638fea948f25c9c26940775cc",
+  "checks": [
+    "R.generated_index_is_absent_before_restart",
+    "R.synthetic_vault_reopens_without_index",
+    "R.missing_index_rebuild_succeeds",
+    "R.cache_recovery_preserves_canonical_vault",
+    "R.cache_recovery_preserves_activity_bytes",
+    "R.rebuilt_index_returns_approved_memory"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/missing-index-native.json",
+  "nativeReportSha256": "0f4c20cc2c9a04ff4b172aed7a59a6bec41b8446a2ae95893f72b9d97985dd19",
+  "nativeSummary": "41/41",
+  "processExitCode": 0,
+  "harnessSha256": "5f971f9112c35475f19633da37cade842e55bcd69fc532689235c3b5ade9eae0",
+  "desktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only caches generated in a freshly created synthetic Vault are removed after the owning host exits.",
+    "This is missing-cache recovery, not malformed SQLite, disk-full, permission-failure or long-running overlap acceptance.",
+    "No personal Vault, production task or public upload is used."
+  ]
+}

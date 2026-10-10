@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_actual_activity_generation_creation_denial",
+  "checks": [
+    "N.synthetic_generation_creation_is_denied",
+    "N.directory_creation_really_refuses_access",
+    "N.actual_pause_write_reports_storage_failure",
+    "N.failed_pause_is_visible",
+    "N.failed_writes_keep_unpaused_reads_and_exact_history",
+    "N.memory_queries_survive_actual_write_failure",
+    "N.failed_writes_preserve_complete_activity_store",
+    "N.failed_writes_preserve_canonical_vault",
+    "N.original_directory_security_descriptor_is_restored",
+    "N.restored_permission_accepts_pause",
+    "N.restored_permission_accepts_resume",
+    "N.successful_recovery_preserves_archive_sequence_pending",
+    "N.recovery_preserves_canonical_vault"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/generation-write-acl-native.json",
+  "nativeReportSha256": "3042cef3099b5b0bd028d92c763b6e1b5948a4c3b73dc405d951b6153c7cd256",
+  "nativeSummary": "48/48",
+  "processExitCode": 0,
+  "harnessSha256": "7a1a94cd4da561dd734aee192c873739e360c791e3e06ff4e05e7010b42e85d5",
+  "desktopSha256": "56715abfda68ded92a11f444810b07ae752407554f9fb96099ead25783aca061",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Only the fresh synthetic generations directory receives a non-inherited current-user CreateDirectories deny entry.",
+    "Failed commits are refused before staging creation; full Activity bytes and canonical Vault remain unchanged.",
+    "After restoration, successful pause/resume intentionally create new generations while archive, sequence and pending stay identical.",
+    "Other write ACL stages, disk-full, mid-write power loss and production availability remain unverified.",
+    "No personal Vault, existing/production task, credential or public upload is used."
+  ]
+}

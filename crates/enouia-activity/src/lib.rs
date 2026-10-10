@@ -78,6 +78,8 @@ pub struct SourceDelta {
     pub total_change: i64,
     pub ignored_future_days: usize,
     pub ignored_before_floor_days: usize,
+    /// Claude days whose lower report kept the stored value (ADR-029).
+    pub retained_higher_days: usize,
 }
 
 impl SourceDelta {
@@ -89,6 +91,7 @@ impl SourceDelta {
             total_change: 0,
             ignored_future_days: 0,
             ignored_before_floor_days: 0,
+            retained_higher_days: 0,
         }
     }
 }
@@ -166,6 +169,14 @@ fn merge_one(
                         delta.ignored_future_days += 1;
                     } else if source != SourceId::Github && day.date.as_str() < AI_FLOOR {
                         delta.ignored_before_floor_days += 1;
+                    } else if source == SourceId::Claude
+                        && days.get(&day.date).is_some_and(|old| day.value < *old)
+                    {
+                        // Claude stores lose transcripts upstream, so a lower
+                        // complete report for a known day is not evidence that
+                        // the day was smaller; keep the archive's value (ADR-029).
+                        accepted += 1;
+                        delta.retained_higher_days += 1;
                     } else {
                         accepted += 1;
                         match days.insert(day.date.clone(), day.value) {
@@ -202,6 +213,7 @@ fn merge_one(
         delta.new_dates = 0;
         delta.revised_dates = 0;
         delta.total_change = 0;
+        delta.retained_higher_days = 0;
     }
     delta.disposition = disposition;
     let outcome = SourceOutcome {

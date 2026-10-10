@@ -1,0 +1,15 @@
+# Activity explicit forget outcomes across page remount
+
+Date: 2026-10-09. Scope: native Activity package-choice clearing and page remount. B4/J1 remain partial; B5 inactive.
+
+When an actual saved settings file could not be deleted, the page explained the failure and offered Retry forgetting package. Moving to Home and back lost both: unconfigured status omitted the explicit clear outcome. The [old native run](Activity-unified/clear-remount-before.json) passes **15/19**, failing the retained failure status, warning, retry and successful-clear status assertions. The new client regression fails before the change (**56/57**).
+
+The host now retains the last explicit clear attempt's boolean outcome until a successful selection or another clear attempt. Unconfigured status exports it only when such an attempt occurred in this host. Missing or invalid startup settings alone still return the older unconfigured shape, without inventing a clear failure. This records an attempted operation; it does not continuously monitor later filesystem changes. Connected status continues independently verifying the persisted root. The client accepts an optional boolean for unconfigured status while refusing extra/private fields and wrong value types.
+
+The [new native run](Activity-unified/clear-remount-native.json) passes **19/19**. An owned synthetic settings file is actually held without delete sharing; failed clear preserves its exact bytes and the warning/retry across remount without reconnecting. A fresh host really reconnects the retained settings. Releasing the owned handle permits actual retry, removes the file and keeps warning/retry absent across remount; the next host stays unconfigured. Complete Activity bytes remain unchanged. The hidden owned helper expires after 90 seconds and is released in the harness's finally block.
+
+A [fresh actual-operation/Core-isolation rerun](Activity-unified/clear-remount-actions.json) passes **35/35**. [Hashed proof](Activity-unified/clear-remount-proof.json) binds reports, the pre-fix executable and new desktop/installer identities. Seven new C17 selectors cover this scope; report counts overlap and are not a full acceptance total.
+
+Fresh verification: **57 frontend tests**, **34 host and 3 Core tests**, fmt/clippy, strict frontend build, embedded native desktop and unsigned NSIS build, **26 installer ownership checks**, Memory/domain guards (8/7 negatives), harness syntax, whitespace and **45 reports / 656 selectors / 47 negative evidence checks**. Native compilation finished normally in 21.72s. The unchanged root producer reuses 223-test/release evidence. The installer is built, not installed, signed or published.
+
+Memory remains pinned to ff692ccb6fbc1c387254d5ffbef41b105eeb2a84. No Memory-domain implementation, Activity producer protocol, scheduler operation, personal Vault/archive, credentials, public upload, server or Moriium source changes. Logon/power, remaining storage faults, sustained stress and real-account/production gates stay open.

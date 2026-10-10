@@ -6,8 +6,8 @@ use crate::reader::{
     read_file, read_optional,
 };
 use enouia_activity_contract::{
-    ActivityData, Batch, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms, normalize_activity,
-    public_data_bytes, sha256_hex,
+    ActivityData, Batch, MAX_SAFE_INTEGER, Snapshot, activity_timestamp_ms,
+    exact_activity_timestamp_ms, normalize_activity, public_data_bytes, sha256_hex,
 };
 use enouia_common::Clock;
 use serde::Serialize;
@@ -36,6 +36,9 @@ pub struct LegacyInspection {
     pub raw_archive_sha256: String,
     pub raw_sequence_sha256: String,
     pub pending_sha256: Option<String>,
+    /// Sources whose retained `updatedAt` parses as ActivityData but is not
+    /// the manifest's exact UTC wire form, so a failed run cannot publish it.
+    pub unpublishable_success_times: Vec<&'static str>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -218,6 +221,19 @@ pub fn inspect_legacy_trio<C: Clock>(
     }
     let canonical_archive_bytes =
         public_data_bytes(&archive).map_err(|_| InspectError::InvalidArchive)?;
+    let unpublishable_success_times = [
+        ("github", &archive.sources.github),
+        ("codex", &archive.sources.codex),
+        ("claude", &archive.sources.claude),
+    ]
+    .into_iter()
+    .filter(|(_, snapshot)| {
+        snapshot
+            .as_ref()
+            .is_some_and(|s| exact_activity_timestamp_ms(&s.updated_at).is_none())
+    })
+    .map(|(id, _)| id)
+    .collect();
 
     let sequence: Value =
         serde_json::from_slice(&raw_sequence).map_err(|_| InspectError::InvalidSequence)?;
@@ -249,5 +265,6 @@ pub fn inspect_legacy_trio<C: Clock>(
         raw_sequence_sha256: sha256_hex(&raw_sequence),
         pending_sha256: exact_pending_bytes.as_ref().map(|bytes| sha256_hex(bytes)),
         exact_pending_bytes,
+        unpublishable_success_times,
     })
 }

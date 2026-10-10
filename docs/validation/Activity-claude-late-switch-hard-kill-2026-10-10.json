@@ -1,0 +1,1678 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-10T05:23:14.423Z",
+  "state": "passed",
+  "scope": "actual_process_termination_at_store_commit_boundaries",
+  "node": "v24.15.0",
+  "clockMs": 1790409601000,
+  "helperSha256": "1e3f1d3e7e49142749423bb2966c4a523c3865e25757bfae26546938e84852c9",
+  "harnessSha256": "a9d7da5a2a3ee0609259c4835f753c752f0ca8442f916520f4b315b9374969d3",
+  "helperSourceSha256": "f89fcedbf7f4c60395315aca7af9cd657232865cac872cf5e2b1cb6f82592e6c",
+  "sourceFiles": [
+    {
+      "path": "crates/enouia-activity-store/src/writer.rs",
+      "sha256": "864e158f43b7a1266ec9db4c2bae17e850a1d6926afe27e5f0d1fad6fa3bc480"
+    },
+    {
+      "path": "crates/enouia-activity-store/src/recovery.rs",
+      "sha256": "6b23739a5457901b39f76bf9285f6f7eb44d39097a80ecfb2127978f699595cd"
+    },
+    {
+      "path": "crates/enouia-activity-store/src/run_start.rs",
+      "sha256": "fd9cdc41f9289a1ec3d93838fa9b21f20b155a5024c3d28a0781cc77839cd337"
+    },
+    {
+      "path": "tests/fixtures/activity/moriium-oracle-input.json",
+      "sha256": "e88e1f8aadb2e20cec656903426feed3c00160da47de3589e86d5b82c115b9f9"
+    }
+  ],
+  "checks": [
+    "new_batch/flushed:activity.json: live writer owns OS lock",
+    "new_batch/flushed:activity.json: lock releases after forced termination",
+    "new_batch/flushed:activity.json: CURRENT references one complete generation",
+    "new_batch/flushed:activity.json: published orphan recovery follows fail-closed policy",
+    "new_batch/flushed:activity.json: next action preserves pending/pause/sequence",
+    "new_batch/flushed:activity.json: every prior generation stays byte-exact",
+    "new_batch/flushed:activity.json: restarted writer safely commits next pending",
+    "new_batch/flushed:sequence.json: live writer owns OS lock",
+    "new_batch/flushed:sequence.json: lock releases after forced termination",
+    "new_batch/flushed:sequence.json: CURRENT references one complete generation",
+    "new_batch/flushed:sequence.json: published orphan recovery follows fail-closed policy",
+    "new_batch/flushed:sequence.json: next action preserves pending/pause/sequence",
+    "new_batch/flushed:sequence.json: every prior generation stays byte-exact",
+    "new_batch/flushed:sequence.json: restarted writer safely commits next pending",
+    "new_batch/flushed:pending.json: live writer owns OS lock",
+    "new_batch/flushed:pending.json: lock releases after forced termination",
+    "new_batch/flushed:pending.json: CURRENT references one complete generation",
+    "new_batch/flushed:pending.json: published orphan recovery follows fail-closed policy",
+    "new_batch/flushed:pending.json: next action preserves pending/pause/sequence",
+    "new_batch/flushed:pending.json: every prior generation stays byte-exact",
+    "new_batch/flushed:pending.json: restarted writer safely commits next pending",
+    "new_batch/flushed:delivery.json: live writer owns OS lock",
+    "new_batch/flushed:delivery.json: lock releases after forced termination",
+    "new_batch/flushed:delivery.json: CURRENT references one complete generation",
+    "new_batch/flushed:delivery.json: published orphan recovery follows fail-closed policy",
+    "new_batch/flushed:delivery.json: next action preserves pending/pause/sequence",
+    "new_batch/flushed:delivery.json: every prior generation stays byte-exact",
+    "new_batch/flushed:delivery.json: restarted writer safely commits next pending",
+    "new_batch/flushed:manifest.json: live writer owns OS lock",
+    "new_batch/flushed:manifest.json: lock releases after forced termination",
+    "new_batch/flushed:manifest.json: CURRENT references one complete generation",
+    "new_batch/flushed:manifest.json: published orphan recovery follows fail-closed policy",
+    "new_batch/flushed:manifest.json: next action preserves pending/pause/sequence",
+    "new_batch/flushed:manifest.json: every prior generation stays byte-exact",
+    "new_batch/flushed:manifest.json: restarted writer safely commits next pending",
+    "new_batch/generation_published: live writer owns OS lock",
+    "new_batch/generation_published: lock releases after forced termination",
+    "new_batch/generation_published: CURRENT references one complete generation",
+    "new_batch/generation_published: published orphan recovery follows fail-closed policy",
+    "new_batch/generation_published: next action preserves pending/pause/sequence",
+    "new_batch/generation_published: every prior generation stays byte-exact",
+    "new_batch/generation_published: unresolved state forbids a competing collection",
+    "new_batch/current_prepared: live writer owns OS lock",
+    "new_batch/current_prepared: lock releases after forced termination",
+    "new_batch/current_prepared: CURRENT references one complete generation",
+    "new_batch/current_prepared: published orphan recovery follows fail-closed policy",
+    "new_batch/current_prepared: next action preserves pending/pause/sequence",
+    "new_batch/current_prepared: every prior generation stays byte-exact",
+    "new_batch/current_prepared: unresolved state forbids a competing collection",
+    "new_batch/current_switched: live writer owns OS lock",
+    "new_batch/current_switched: lock releases after forced termination",
+    "new_batch/current_switched: CURRENT references one complete generation",
+    "new_batch/current_switched: published orphan recovery follows fail-closed policy",
+    "new_batch/current_switched: next action preserves pending/pause/sequence",
+    "new_batch/current_switched: every prior generation stays byte-exact",
+    "new_batch/current_switched: unresolved state forbids a competing collection",
+    "pause/flushed:activity.json: live writer owns OS lock",
+    "pause/flushed:activity.json: lock releases after forced termination",
+    "pause/flushed:activity.json: CURRENT references one complete generation",
+    "pause/flushed:activity.json: published orphan recovery follows fail-closed policy",
+    "pause/flushed:activity.json: next action preserves pending/pause/sequence",
+    "pause/flushed:activity.json: every prior generation stays byte-exact",
+    "pause/flushed:activity.json: unresolved state forbids a competing collection",
+    "pause/flushed:sequence.json: live writer owns OS lock",
+    "pause/flushed:sequence.json: lock releases after forced termination",
+    "pause/flushed:sequence.json: CURRENT references one complete generation",
+    "pause/flushed:sequence.json: published orphan recovery follows fail-closed policy",
+    "pause/flushed:sequence.json: next action preserves pending/pause/sequence",
+    "pause/flushed:sequence.json: every prior generation stays byte-exact",
+    "pause/flushed:sequence.json: unresolved state forbids a competing collection",
+    "pause/flushed:pending.json: live writer owns OS lock",
+    "pause/flushed:pending.json: lock releases after forced termination",
+    "pause/flushed:pending.json: CURRENT references one complete generation",
+    "pause/flushed:pending.json: published orphan recovery follows fail-closed policy",
+    "pause/flushed:pending.json: next action preserves pending/pause/sequence",
+    "pause/flushed:pending.json: every prior generation stays byte-exact",
+    "pause/flushed:pending.json: unresolved state forbids a competing collection",
+    "pause/flushed:delivery.json: live writer owns OS lock",
+    "pause/flushed:delivery.json: lock releases after forced termination",
+    "pause/flushed:delivery.json: CURRENT references one complete generation",
+    "pause/flushed:delivery.json: published orphan recovery follows fail-closed policy",
+    "pause/flushed:delivery.json: next action preserves pending/pause/sequence",
+    "pause/flushed:delivery.json: every prior generation stays byte-exact",
+    "pause/flushed:delivery.json: unresolved state forbids a competing collection",
+    "pause/flushed:manifest.json: live writer owns OS lock",
+    "pause/flushed:manifest.json: lock releases after forced termination",
+    "pause/flushed:manifest.json: CURRENT references one complete generation",
+    "pause/flushed:manifest.json: published orphan recovery follows fail-closed policy",
+    "pause/flushed:manifest.json: next action preserves pending/pause/sequence",
+    "pause/flushed:manifest.json: every prior generation stays byte-exact",
+    "pause/flushed:manifest.json: unresolved state forbids a competing collection",
+    "pause/generation_published: live writer owns OS lock",
+    "pause/generation_published: lock releases after forced termination",
+    "pause/generation_published: CURRENT references one complete generation",
+    "pause/generation_published: published orphan recovery follows fail-closed policy",
+    "pause/generation_published: next action preserves pending/pause/sequence",
+    "pause/generation_published: every prior generation stays byte-exact",
+    "pause/generation_published: unresolved state forbids a competing collection",
+    "pause/current_prepared: live writer owns OS lock",
+    "pause/current_prepared: lock releases after forced termination",
+    "pause/current_prepared: CURRENT references one complete generation",
+    "pause/current_prepared: published orphan recovery follows fail-closed policy",
+    "pause/current_prepared: next action preserves pending/pause/sequence",
+    "pause/current_prepared: every prior generation stays byte-exact",
+    "pause/current_prepared: unresolved state forbids a competing collection",
+    "pause/current_switched: live writer owns OS lock",
+    "pause/current_switched: lock releases after forced termination",
+    "pause/current_switched: CURRENT references one complete generation",
+    "pause/current_switched: published orphan recovery follows fail-closed policy",
+    "pause/current_switched: next action preserves pending/pause/sequence",
+    "pause/current_switched: every prior generation stays byte-exact",
+    "pause/current_switched: unresolved state forbids a competing collection",
+    "acknowledge/flushed:activity.json: live writer owns OS lock",
+    "acknowledge/flushed:activity.json: lock releases after forced termination",
+    "acknowledge/flushed:activity.json: CURRENT references one complete generation",
+    "acknowledge/flushed:activity.json: published orphan recovery follows fail-closed policy",
+    "acknowledge/flushed:activity.json: next action preserves pending/pause/sequence",
+    "acknowledge/flushed:activity.json: every prior generation stays byte-exact",
+    "acknowledge/flushed:activity.json: unresolved state forbids a competing collection",
+    "acknowledge/flushed:sequence.json: live writer owns OS lock",
+    "acknowledge/flushed:sequence.json: lock releases after forced termination",
+    "acknowledge/flushed:sequence.json: CURRENT references one complete generation",
+    "acknowledge/flushed:sequence.json: published orphan recovery follows fail-closed policy",
+    "acknowledge/flushed:sequence.json: next action preserves pending/pause/sequence",
+    "acknowledge/flushed:sequence.json: every prior generation stays byte-exact",
+    "acknowledge/flushed:sequence.json: unresolved state forbids a competing collection",
+    "acknowledge/flushed:delivery.json: live writer owns OS lock",
+    "acknowledge/flushed:delivery.json: lock releases after forced termination",
+    "acknowledge/flushed:delivery.json: CURRENT references one complete generation",
+    "acknowledge/flushed:delivery.json: published orphan recovery follows fail-closed policy",
+    "acknowledge/flushed:delivery.json: next action preserves pending/pause/sequence",
+    "acknowledge/flushed:delivery.json: every prior generation stays byte-exact",
+    "acknowledge/flushed:delivery.json: unresolved state forbids a competing collection",
+    "acknowledge/flushed:manifest.json: live writer owns OS lock",
+    "acknowledge/flushed:manifest.json: lock releases after forced termination",
+    "acknowledge/flushed:manifest.json: CURRENT references one complete generation",
+    "acknowledge/flushed:manifest.json: published orphan recovery follows fail-closed policy",
+    "acknowledge/flushed:manifest.json: next action preserves pending/pause/sequence",
+    "acknowledge/flushed:manifest.json: every prior generation stays byte-exact",
+    "acknowledge/flushed:manifest.json: unresolved state forbids a competing collection",
+    "acknowledge/generation_published: live writer owns OS lock",
+    "acknowledge/generation_published: lock releases after forced termination",
+    "acknowledge/generation_published: CURRENT references one complete generation",
+    "acknowledge/generation_published: published orphan recovery follows fail-closed policy",
+    "acknowledge/generation_published: next action preserves pending/pause/sequence",
+    "acknowledge/generation_published: every prior generation stays byte-exact",
+    "acknowledge/generation_published: unresolved state forbids a competing collection",
+    "acknowledge/current_prepared: live writer owns OS lock",
+    "acknowledge/current_prepared: lock releases after forced termination",
+    "acknowledge/current_prepared: CURRENT references one complete generation",
+    "acknowledge/current_prepared: published orphan recovery follows fail-closed policy",
+    "acknowledge/current_prepared: next action preserves pending/pause/sequence",
+    "acknowledge/current_prepared: every prior generation stays byte-exact",
+    "acknowledge/current_prepared: unresolved state forbids a competing collection",
+    "acknowledge/current_switched: live writer owns OS lock",
+    "acknowledge/current_switched: lock releases after forced termination",
+    "acknowledge/current_switched: CURRENT references one complete generation",
+    "acknowledge/current_switched: published orphan recovery follows fail-closed policy",
+    "acknowledge/current_switched: next action preserves pending/pause/sequence",
+    "acknowledge/current_switched: every prior generation stays byte-exact",
+    "acknowledge/current_switched: restarted writer safely commits next pending"
+  ],
+  "cases": [
+    {
+      "kind": "new_batch",
+      "phase": "flushed:activity.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-after",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "new_batch",
+      "phase": "flushed:sequence.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-after",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "new_batch",
+      "phase": "flushed:pending.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-after",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "new_batch",
+      "phase": "flushed:delivery.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-after",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "new_batch",
+      "phase": "flushed:manifest.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-after",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "new_batch",
+      "phase": "generation_published",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "state": "higher_reserved_sequence"
+        },
+        "decision": {
+          "reason": "higher_reserved_sequence",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "state": "higher_reserved_sequence"
+        },
+        "decision": {
+          "reason": "higher_reserved_sequence",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": true
+    },
+    {
+      "kind": "new_batch",
+      "phase": "current_prepared",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "state": "higher_reserved_sequence"
+        },
+        "decision": {
+          "reason": "higher_reserved_sequence",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "state": "higher_reserved_sequence"
+        },
+        "decision": {
+          "reason": "higher_reserved_sequence",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": true
+    },
+    {
+      "kind": "new_batch",
+      "phase": "current_switched",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-crash",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-crash",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7a390925a5a5c4faddd632cb270da48ebfe1dafd1c09344539033d00b9fdf3e2",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "flushed:activity.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "flushed:sequence.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "flushed:pending.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "flushed:delivery.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "flushed:manifest.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "generation_published",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 3,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 3,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "current_prepared",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 3,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 3,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "pause",
+      "phase": "current_switched",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 3,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "state": "paused"
+        },
+        "deliverySha256": "65621e1f84e4d4c8a8f600310339fb24c2360d28b8739289b45fc5aa5c8440c1",
+        "generation": "g-1-crash",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 3,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "state": "paused"
+        },
+        "deliverySha256": "65621e1f84e4d4c8a8f600310339fb24c2360d28b8739289b45fc5aa5c8440c1",
+        "generation": "g-1-crash",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "flushed:activity.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "flushed:sequence.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "flushed:delivery.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "flushed:manifest.json",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "generation_published",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "state": "conflicting_generation"
+        },
+        "decision": {
+          "reason": "conflicting_generation",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "state": "conflicting_generation"
+        },
+        "decision": {
+          "reason": "conflicting_generation",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": true
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "current_prepared",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "state": "conflicting_generation"
+        },
+        "decision": {
+          "reason": "conflicting_generation",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "state": "conflicting_generation"
+        },
+        "decision": {
+          "reason": "conflicting_generation",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": true
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "current_switched",
+      "termination": {
+        "forcedTermination": true,
+        "gracefulExit": false
+      },
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "after": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 3,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 2,
+          "state": "collect"
+        },
+        "deliverySha256": "7ff7664392fa91409e890ca947e41ad006d4965ae95858b686e181963d59046b",
+        "generation": "g-1-crash",
+        "pendingSha256": null,
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "advanced": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 4,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 2,
+          "sha256": "d77eb518f85142acd0998d058b502efd978c4b960ebe52579b24c523cec8f352",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "7ff7664392fa91409e890ca947e41ad006d4965ae95858b686e181963d59046b",
+        "generation": "g-1-after",
+        "pendingSha256": "d77eb518f85142acd0998d058b502efd978c4b960ebe52579b24c523cec8f352",
+        "sequence": 2,
+        "state": "inspected"
+      },
+      "previousGenerationFilesSha256": "7aa8d48094025d9b63983984b65c902d3791bccfbd3141258b2db40fd1d610dc",
+      "blockedBeforeSwitch": false
+    }
+  ],
+  "limitations": [
+    "Windows owned child processes are forcibly terminated after production writer hooks; no fault hook error/graceful cleanup is used.",
+    "All roots, archives and publication receipt evidence are synthetic; receipt construction does not prove public observation.",
+    "This covers process termination with the OS/storage still running, not real power loss, disk-full, hardware failure or server kills.",
+    "No real collectors, credentials, production migration, scheduler, or network endpoint is involved."
+  ]
+}

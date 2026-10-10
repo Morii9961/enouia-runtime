@@ -1,0 +1,103 @@
+{
+  "checks": [
+    {
+      "id": "CF.initial_unconfigured_status_has_no_invented_clear_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.actual_selection_saves_owned_file",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.saved_choice_is_held_without_delete_sharing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.actual_delete_refusal_reports_saved_false",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.refusal_explains_reconnect_and_retry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.failed_clear_preserves_exact_saved_file",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CF.remounted_status_retains_actual_clear_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CF.remounted_clear_warning_stays_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CF.remounted_clear_retry_stays_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CF.remount_never_reconnects_or_changes_saved_file",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.restart_really_reconnects_retained_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.restart_keeps_saved_file_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.restarted_host_reports_same_clear_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.released_retry_removes_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.released_retry_clears_failure_feedback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CF.remounted_status_retains_successful_clear",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CF.remounted_success_has_no_warning_or_retry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.restart_stays_unconfigured_after_actual_delete",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "T.complete_activity_store_is_unchanged",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-forgotten-choice.png"
+  ],
+  "summary": "19/19"
+}

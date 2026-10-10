@@ -8,7 +8,11 @@ use std::io;
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
-const MAX_DEPTH: usize = 6;
+// Cowork keeps task stores about three levels down, but its roots also hold
+// other trees (installed skills reach ten levels on a real profile). The walk
+// stays complete and fails closed past these bounds rather than skip a store.
+const MAX_DEPTH: usize = 32;
+const MAX_DIRECTORIES: usize = 50_000;
 const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0000_0400;
 const COMPONENT: ComponentId = ComponentId::ActivityCollectorClaude;
 const STORE_NAMES: [&str; 2] = ["local-agent-mode-sessions", "claude-code-sessions"];
@@ -82,9 +86,19 @@ fn has_transcript(store: &Path) -> Result<bool, StructuredError> {
 }
 
 fn visit_root(root: &Path, found: &mut BTreeMap<String, PathBuf>) -> Result<(), StructuredError> {
+    visit_root_within(root, found, MAX_DEPTH, MAX_DIRECTORIES)
+}
+
+fn visit_root_within(
+    root: &Path,
+    found: &mut BTreeMap<String, PathBuf>,
+    max_depth: usize,
+    max_directories: usize,
+) -> Result<(), StructuredError> {
     if !optional_directory(root)? {
         return Ok(());
     }
+    let mut visited = 0_usize;
     let mut stack = vec![(root.to_path_buf(), 0_usize)];
     while let Some((directory, depth)) = stack.pop() {
         for entry in fs::read_dir(directory).map_err(|_| invalid())? {
@@ -97,11 +111,17 @@ fn visit_root(root: &Path, found: &mut BTreeMap<String, PathBuf>) -> Result<(), 
             if !metadata.is_dir() {
                 continue;
             }
+            // Store leaves also consume the inventory budget; otherwise a
+            // root containing many .claude directories could bypass it.
+            if visited == max_directories {
+                return Err(invalid());
+            }
+            visited += 1;
             if entry.file_name() == ".claude" {
                 if has_transcript(&path)? {
                     insert_store(found, &path)?;
                 }
-            } else if depth == MAX_DEPTH {
+            } else if depth == max_depth {
                 return Err(invalid());
             } else {
                 stack.push((path, depth + 1));
@@ -166,4 +186,42 @@ pub fn discover_claude_stores(
     let mut stores = vec![normal.clone()];
     stores.extend(found.into_values().filter(|path| key(path) != key(&normal)));
     Ok(stores)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn claude_store_directories_use_the_inventory_budget() {
+        let root =
+            std::env::temp_dir().join(format!("enouia-cowork-store-budget-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        for name in ["a", "b"] {
+            fs::create_dir_all(root.join(name).join(".claude")).unwrap();
+        }
+        let mut found = BTreeMap::new();
+        let complete = visit_root_within(&root, &mut found, 4, 4);
+        let bounded = visit_root_within(&root, &mut found, 4, 2);
+        fs::remove_dir_all(&root).unwrap();
+        assert!(complete.is_ok());
+        assert_eq!(bounded.unwrap_err().code, ErrorCode::SourceInvalid);
+    }
+
+    #[test]
+    fn a_tree_over_the_directory_budget_fails_closed() {
+        let root =
+            std::env::temp_dir().join(format!("enouia-cowork-budget-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        for name in ["a", "b", "c"] {
+            fs::create_dir_all(root.join(name)).unwrap();
+        }
+        let mut found = BTreeMap::new();
+        assert!(visit_root_within(&root, &mut found, 4, 3).is_ok());
+        assert_eq!(
+            visit_root_within(&root, &mut found, 4, 2).unwrap_err().code,
+            ErrorCode::SourceInvalid
+        );
+        fs::remove_dir_all(&root).unwrap();
+    }
 }

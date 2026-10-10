@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_saved_choice_status_remount",
+  "checks": [
+    "CP.remounted_status_reports_unconfirmed_saved_choice",
+    "CP.remounted_unsaved_notice_stays_visible",
+    "CP.remounted_status_verifies_saved_choice",
+    "CP.remounted_saved_choice_stays_quiet"
+  ],
+  "frontendBefore": {
+    "tests": 56,
+    "passed": 55,
+    "failed": 1
+  },
+  "frontendAfter": {
+    "tests": 56,
+    "passed": 56,
+    "failed": 0
+  },
+  "hostTests": 33,
+  "coreTests": 3,
+  "processExitCode": 0,
+  "beforeDesktopSha256": "328a6e08dda940a5e00b638ff76c77a06c8e5332b83db4263935a8ff2675f3ec",
+  "desktopSha256": "4980ec42629000a22c0e251cbc4ff95dcd84a00ea5b089d8d0b7bf5cdb9adcaf",
+  "installerSha256": "9744b21d2f837f6244f7f04702a925ef2b034fddcd72b6076df49afb2bb43487",
+  "harnessSha256": "efbe1c71b5718ec465bc2b0d1b6d97eb2925a7dfa4d7dc6369c6405d2d95aada",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "beforeReport": "docs/validation/Activity-unified/choice-persistence-before.json",
+  "beforeReportSha256": "6a733868f89d86d72be2e1e20045e7d42322e48af2c92640e8d31c96f7dd2d8b",
+  "beforeSummary": "17/20",
+  "nativeReport": "docs/validation/Activity-unified/choice-persistence-native.json",
+  "nativeReportSha256": "b165ca3dea5d8db9c8abf92696101817ce0f700fd0b5f1b97fa5bef88fea5885",
+  "nativeSummary": "20/20",
+  "actionsReport": "docs/validation/Activity-unified/choice-persistence-actions.json",
+  "actionsReportSha256": "91c9289add8dd397385b87fdb3e790cd959a142528173e24b34081a78ed5b321",
+  "actionsSummary": "35/35",
+  "limitations": [
+    "Configured native status adds a saved boolean only after reading and canonicalizing the stored choice against the current installed root; the page receives no path.",
+    "Actual failed saving and subsequent recovery are tested across page unmount/remount; older configured statuses without saved remain accepted.",
+    "Saved false means persistence could not be confirmed, including absent, unreadable, missing or different stored roots; it is not a claim that no settings file exists.",
+    "No Memory pin/domain, producer protocol, scheduler operation, personal Vault/archive, credential or public upload is changed.",
+    "B4/J1 remain partial and B5 remains inactive."
+  ]
+}

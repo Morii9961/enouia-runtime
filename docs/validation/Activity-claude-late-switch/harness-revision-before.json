@@ -1,0 +1,199 @@
+{
+  "checks": [
+    {
+      "id": "A.gate_without_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "A.unconfigured_is_structured",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.picker_connects_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.no_path_reaches_page",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.choice_saved_by_shell",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.three_fresh_sources",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "B.heatmaps_drawn",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.overview_kind",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.task_query_failure_stays_unknown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.preview_hash_is_published_hash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.days_filtered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.invalid_requests_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.next_trigger_not_invented",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.keyboard_surface_skip_entry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.failed_read_clears_old_values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.late_read_cannot_restore_old_values",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.refresh_remains_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.refresh_recovers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.synthetic_memory_vault_opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.memory_write_before_activity_fault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.malformed_activity_keeps_memory_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.synthetic_memory_is_approved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.pinned_core_index_rebuild_starts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.activity_reads_survive_index_rebuild",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I.pinned_core_index_rebuild_completes",
+      "ok": true,
+      "detail": "{\"kind\":\"index_rebuild\",\"state\":\"succeeded\",\"progress\":{\"done\":1,\"total\":4}}"
+    },
+    {
+      "id": "I.memory_rebuild_preserves_activity_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RS.current_is_held_without_delete_sharing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RS.actual_run_reports_storage_failure",
+      "ok": true,
+      "detail": "{\"stage\":\"failed\",\"error\":{\"code\":\"storage_failed\",\"component\":\"activity_archive\",\"retryable\":false},\"state\":\"storage_failed\"}"
+    },
+    {
+      "id": "RS.failed_run_keeps_current_high_water_and_history_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RS.failed_run_preserves_all_original_files",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RS.failed_run_retracts_its_generation_to_staging",
+      "ok": false,
+      "detail": "[\"g-run-36344-18dd1c389bed38d0-0\"]"
+    },
+    {
+      "id": "RS.prepared_pointer_file_is_retained",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "RS.memory_queries_survive_actual_run_failure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RS.next_run_after_release_is_not_storage_blocked",
+      "ok": false,
+      "detail": "{\"stage\":\"failed\",\"error\":{\"code\":\"storage_failed\",\"component\":\"activity_archive\",\"retryable\":false},\"state\":\"storage_failed\",\"sequence\":null}"
+    },
+    {
+      "id": "RS.next_run_reserves_the_same_sequence_once",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "RS.retracted_generation_and_pointer_remain_unselected",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "RS.recovery_preserves_canonical_vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "timeout: paused | -10 15:40 · success 0 more not recorded current day Recent recorded days (14 of 220) Claude Code Fresh tokens · Asia/Shanghai days · local Claude Code and Cowork Total 422,783,625 tokens Recorded days 250 · 2026-01-20 – 2026-10-06 Last success 2026-10-10 15:40 · 21 min ago Last attempt 2026-10-10 15:40 · success 0 more not recorded current day Recent recorded days (14 of 250) Public payload preview · 931b8fb1b72b… No combined AI total is shown: each source keeps its own unit and day boundary."
+    }
+  ],
+  "screenshots": [
+    "01-observed.png",
+    "03-run-switch-failure.png"
+  ],
+  "summary": "33/38"
+}

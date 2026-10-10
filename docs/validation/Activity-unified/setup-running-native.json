@@ -1,0 +1,68 @@
+{
+  "checks": [
+    {
+      "id": "SG.known_owned_loopback_tools_are_verified",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.actual_run_precedes_setup_changes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.status_reads_current_choice_during_run",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.select_refuses_active_run_with_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.clear_refuses_active_run_with_busy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.refused_clear_preserves_exact_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.same_run_still_active_after_setup_attempts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.native_choice_remains_connected",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.original_run_reaches_terminal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.terminal_run_retains_actual_pending",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.terminal_reopens_native_picker",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SG.terminal_accepts_clear_and_removes_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-setup-running-recovered.png"
+  ],
+  "summary": "12/12"
+}

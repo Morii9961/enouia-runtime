@@ -1,0 +1,66 @@
+{
+  "checks": [
+    {
+      "id": "Y.mutations_are_intercepted_before_native_ipc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Y.actual_synthetic_package_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Y.rejects_wrong_run",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.rejects_invalid_run",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.rejects_extra_status",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.rejects_wrong_operation",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.rejects_invalid_summary",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.matching_terminal_status_recovers",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.rejects_extra_accepted",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.rejects_opposite_pause_ack",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "Y.modeled_operations_preserve_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Y.choice_is_cleared",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "4/12"
+}

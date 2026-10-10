@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_native_running_rebuild_activity",
+  "sourceBaseRevision": "ac587023dbbf340ffd037d4a654460012919b15e",
+  "checks": [
+    "O.synthetic_core_seed_is_approved",
+    "O.activity_reads_bracketed_by_running_rebuild",
+    "O.rebuild_preserves_canonical_vault",
+    "O.rebuild_preserves_activity_bytes",
+    "O.rebuild_returns_all_approved_memories"
+  ],
+  "nativeReport": "docs/validation/Activity-unified/rebuild-overlap-native.json",
+  "nativeReportSha256": "d395001e1b161eacf1066def0724dd697614473cd44204da63fe6460ee0950c8",
+  "nativeSummary": "40/40",
+  "processExitCode": 0,
+  "harnessSha256": "3c56c0af09c4d795721e640de4522b44f79835f6480c7956e5681d727f5c4d0c",
+  "desktopSha256": "9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a",
+  "runnerSha256": "cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "241 synthetic approved memories are seeded exclusively through pinned Core requests within its text and review limits.",
+    "Only Activity reads are bracketed by an actually running rebuild; this is not sustained stress, rebuild cancellation or concurrent Activity mutation acceptance.",
+    "No personal Vault, production task or public upload is used."
+  ]
+}

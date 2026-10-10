@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "state": "partial",
+  "scope": "read_only_public_https_followup_2026_10_09",
+  "nodeReport": "docs/validation/Activity-unified/public-node-2026-10-09.json",
+  "nodeReportSha256": "9d3ac06ebbb57162b28adcbfd28a972e9968ea8cdbfbd93a597c0c18c4c8f50f",
+  "schannelReport": "docs/validation/Activity-unified/public-schannel-2026-10-09.json",
+  "schannelReportSha256": "6d62e654effff84c2557ca1cf16dd31c4e27dc379621a603366ebccdb2ee9898",
+  "recordedProbeScriptSha256": "62d9bd46c4e7378dcb62d3ee9ef9b74bffbd992497387d45fd78481ec76e61d8",
+  "aboutVerifiedTlsHandshake": true,
+  "receivedHttpResponse": false,
+  "publicationObserved": false,
+  "b4SignedOff": false,
+  "b5Activated": false,
+  "limitations": [
+    "The About request completed a verified TLSv1.3 handshake before ECONNRESET; the manifest request did not record a verified handshake.",
+    "Neither request received an HTTP response; Schannel independently returned exit 35/HTTP 000 for both addresses.",
+    "This distinguishes a completed handshake from HTTP/publication evidence and does not establish global outage, hosting cause or remote receiver deployment.",
+    "The raw Node report used the pre-change script; this slice clarifies only the scripts limitation text and preserves the original report bytes.",
+    "These supplemental observations are outside the C01-C18 passed evidence selector counts and cannot authorize activation."
+  ]
+}

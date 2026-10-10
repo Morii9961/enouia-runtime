@@ -584,3 +584,68 @@ fn acknowledgment_interruption_selects_only_complete_old_or_new_generation() {
         clean(&root);
     }
 }
+
+#[test]
+fn acknowledgment_keeps_last_outcomes_for_lock_free_status_readers() {
+    use enouia_activity_store::overview::read_activity_status;
+    let root = root();
+    let (batch, _) = seed(&root);
+    let before = read_activity_status(&root, &clock()).unwrap();
+    assert_eq!(before.pending.as_ref().unwrap().batch, batch);
+    assert!(before.publication.is_none() && before.last_outcomes.is_none());
+    let guard = WindowsActivityLock
+        .try_acquire(&root.join("sync.lock"))
+        .unwrap();
+    observe_and_acknowledge_locked(
+        &guard,
+        &clock(),
+        ORIGIN,
+        &valid_fetcher(&batch),
+        "g-42-observed",
+        &NeverCancelled,
+    )
+    .unwrap();
+    // A status read needs no lock, even while a writer holds it.
+    let status = read_activity_status(&root, &clock()).unwrap();
+    assert!(status.pending.is_none());
+    let receipt = status.publication.unwrap();
+    assert_eq!(receipt.sequence, 42);
+    assert_eq!(
+        receipt.activity_sha256,
+        sha256_hex(&public_data_bytes(&batch.data).unwrap())
+    );
+    let last = status.last_outcomes.unwrap();
+    assert_eq!(last.sequence, 42);
+    assert_eq!(last.observed_at_ms, clock().now_unix_ms());
+    assert_eq!(
+        serde_json::to_value(&last.sources).unwrap(),
+        serde_json::to_value(&batch.sources).unwrap()
+    );
+    set_paused_locked(&guard, &clock(), "g-42-paused", true).unwrap();
+    assert_eq!(
+        read_activity_status(&root, &clock()).unwrap().last_outcomes,
+        Some(last)
+    );
+    let selected = read_current(&root, &clock()).unwrap();
+    let mut delivery: Value = serde_json::from_slice(&selected.image.delivery).unwrap();
+    delivery.as_object_mut().unwrap().remove("lastOutcomes");
+    let erased = GenerationImage {
+        activity: selected.image.activity.clone(),
+        sequence: selected.image.sequence.clone(),
+        pending: None,
+        delivery: format!("{delivery}\n").into_bytes(),
+    };
+    assert_eq!(
+        commit(&guard, "g-42-paused", "g-42-erased", &erased, &clock()),
+        Err(CommitError::InvalidTransition)
+    );
+    let mut forged: Value = serde_json::from_slice(&selected.image.delivery).unwrap();
+    forged["lastOutcomes"]["sequence"] = json!(43);
+    let forged = GenerationImage {
+        delivery: format!("{forged}\n").into_bytes(),
+        ..erased
+    };
+    assert!(forged.manifest_bytes("g-42-forged", &clock()).is_err());
+    drop(guard);
+    clean(&root);
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-08T08:18:22.939Z",
+  "scope": "read_only_actual_hostname_https",
+  "checks": [
+    {
+      "url": "https://morii9961.top/zh/",
+      "exitCode": 35,
+      "httpCode": "000",
+      "error": "curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed\r\n"
+    },
+    {
+      "url": "https://morii9961.top/status-data/current.json",
+      "exitCode": 35,
+      "httpCode": "000",
+      "error": "curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed\r\n"
+    }
+  ]
+}
