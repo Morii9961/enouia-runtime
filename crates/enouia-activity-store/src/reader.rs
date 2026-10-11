@@ -1,7 +1,8 @@
 //! Windows read side of the Activity generation store. It never selects a fallback.
 
 use crate::generation::{
-    GenerationError, GenerationImage, ValidatedGeneration, valid_generation_id,
+    GenerationError, GenerationImage, GenerationSummary, ValidatedGeneration, summarize_generation,
+    valid_generation_id,
 };
 use enouia_common::Clock;
 use std::fs::{self, File, OpenOptions};
@@ -120,6 +121,31 @@ pub fn read_current<C: Clock>(root: &Path, clock: &C) -> Result<LoadedGeneration
         .ok_or(ReadError::InvalidCurrent)?
         .to_owned();
     read_named_generation(&root, &id, clock)
+}
+
+/// Read only the manifest and `sequence.json` of a named generation (ADR-034).
+pub(crate) fn read_generation_summary(
+    root: &Path,
+    id: &str,
+) -> Result<GenerationSummary, ReadError> {
+    if !valid_generation_id(id) {
+        return Err(ReadError::InvalidCurrent);
+    }
+    let generations = root.join("generations");
+    checked_directory(&generations, ReadError::MissingGeneration)?;
+    let generation = generations.join(id);
+    checked_directory(&generation, ReadError::MissingGeneration)?;
+    let manifest = read_file(
+        &generation.join("manifest.json"),
+        MAX_MANIFEST_BYTES,
+        ReadError::MissingFile,
+    )?;
+    let sequence = read_file(
+        &generation.join("sequence.json"),
+        MAX_SEQUENCE_BYTES,
+        ReadError::MissingFile,
+    )?;
+    summarize_generation(&manifest, id, &sequence).map_err(ReadError::InvalidGeneration)
 }
 
 pub(crate) fn read_named_generation<C: Clock>(

@@ -659,6 +659,7 @@ fn copied_executable_inspects_and_retracts_one_confirmed_orphan() {
     assert_eq!(code, 0);
     assert_eq!(inspected["writable"], true);
     assert_eq!(inspected["stagingDirectories"], 1);
+    assert_eq!(inspected["damagedOlderGenerations"], json!([]));
     let (code, result) = fixture.run("sync", &[]);
     assert_eq!(code, 4, "{result}");
     assert_eq!(result["sequence"], 51);

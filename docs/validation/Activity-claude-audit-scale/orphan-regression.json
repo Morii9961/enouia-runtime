@@ -1,0 +1,704 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-11T09:13:06.139Z",
+  "state": "passed",
+  "scope": "actual_process_termination_orphan_reconciliation",
+  "node": "v24.15.0",
+  "helperSha256": "f419b8d6c458cccbd4a3705d8d747312b6b69f9fabcc5ae5d978a913be48f282",
+  "runnerSha256": "bcc8b9ccd056674441fc3dd9e14df4c1615dd241918e1eae648ea54aeadbd41a",
+  "harnessSha256": "23c5dc3f40a74185b60b4ab7d4fed6e0ddb5c2968c89ce5e8f2257bbccb3d571",
+  "sourceFiles": [
+    {
+      "path": "crates/enouia-activity-store/src/reconcile.rs",
+      "sha256": "1003aaf5fb8421059421c101bcb47abbf17982b6bace9ce845bbc0129ace1ee9"
+    },
+    {
+      "path": "crates/enouia-activity-store/src/recovery.rs",
+      "sha256": "4943e3a38e21a16d77296bdf0e3194cebd56d8c97742e50815c7a599d2e96a3e"
+    },
+    {
+      "path": "crates/enouia-activity-store/src/writer.rs",
+      "sha256": "8c4adad1ce789a8ccfb3e15a243304892bdadab770b443ab47f894235717c406"
+    },
+    {
+      "path": "crates/enouia-activity-runner/src/cli.rs",
+      "sha256": "89034091ae41d6f8b3f839c855c6e2457951c1ce6f45aadad27a1b15179b1749"
+    },
+    {
+      "path": "crates/enouia-activity-store/examples/crash_writer.rs",
+      "sha256": "f89fcedbf7f4c60395315aca7af9cd657232865cac872cf5e2b1cb6f82592e6c"
+    }
+  ],
+  "checks": [
+    "new_batch/generation_published: actual termination leaves a blocking orphan",
+    "new_batch/generation_published: runner sync stays blocked before reconciliation",
+    "new_batch/generation_published: blocked sync changes no file",
+    "new_batch/generation_published: inspection reports one blocking orphan",
+    "new_batch/generation_published: inspection names CURRENT and its reservation",
+    "new_batch/generation_published: reported manifest hash matches the orphan bytes",
+    "new_batch/generation_published: prepared pointer evidence is absent",
+    "new_batch/generation_published: inspection output carries no private path",
+    "new_batch/generation_published: inspection changes no file",
+    "new_batch/generation_published: retraction without confirmation is refused",
+    "new_batch/generation_published: retraction with another manifest hash is refused",
+    "new_batch/generation_published: refused retractions change no file",
+    "new_batch/generation_published: confirmed retraction restores writing",
+    "new_batch/generation_published: durable record matches the reported evidence",
+    "new_batch/generation_published: every orphan byte is retained under its staging name",
+    "new_batch/generation_published: a repeated retraction is refused",
+    "new_batch/generation_published: store audit passes and keeps the original next action",
+    "new_batch/generation_published: next runner sync proceeds without delivery",
+    "new_batch/generation_published: final state retains one pending batch at sequence 1",
+    "new_batch/generation_published: the reconciled root stays writable after the next sync",
+    "new_batch/current_prepared: actual termination leaves a blocking orphan",
+    "new_batch/current_prepared: runner sync stays blocked before reconciliation",
+    "new_batch/current_prepared: blocked sync changes no file",
+    "new_batch/current_prepared: inspection reports one blocking orphan",
+    "new_batch/current_prepared: inspection names CURRENT and its reservation",
+    "new_batch/current_prepared: reported manifest hash matches the orphan bytes",
+    "new_batch/current_prepared: prepared pointer evidence is exact",
+    "new_batch/current_prepared: inspection output carries no private path",
+    "new_batch/current_prepared: inspection changes no file",
+    "new_batch/current_prepared: retraction without confirmation is refused",
+    "new_batch/current_prepared: retraction with another manifest hash is refused",
+    "new_batch/current_prepared: refused retractions change no file",
+    "new_batch/current_prepared: confirmed retraction restores writing",
+    "new_batch/current_prepared: durable record matches the reported evidence",
+    "new_batch/current_prepared: every orphan byte is retained under its staging name",
+    "new_batch/current_prepared: a repeated retraction is refused",
+    "new_batch/current_prepared: store audit passes and keeps the original next action",
+    "new_batch/current_prepared: next runner sync proceeds without delivery",
+    "new_batch/current_prepared: final state retains one pending batch at sequence 1",
+    "new_batch/current_prepared: the reconciled root stays writable after the next sync",
+    "acknowledge/generation_published: actual termination leaves a blocking orphan",
+    "acknowledge/generation_published: runner sync stays blocked before reconciliation",
+    "acknowledge/generation_published: blocked sync changes no file",
+    "acknowledge/generation_published: inspection reports one blocking orphan",
+    "acknowledge/generation_published: inspection names CURRENT and its reservation",
+    "acknowledge/generation_published: reported manifest hash matches the orphan bytes",
+    "acknowledge/generation_published: prepared pointer evidence is absent",
+    "acknowledge/generation_published: inspection output carries no private path",
+    "acknowledge/generation_published: inspection changes no file",
+    "acknowledge/generation_published: retraction without confirmation is refused",
+    "acknowledge/generation_published: retraction with another manifest hash is refused",
+    "acknowledge/generation_published: refused retractions change no file",
+    "acknowledge/generation_published: confirmed retraction restores writing",
+    "acknowledge/generation_published: durable record matches the reported evidence",
+    "acknowledge/generation_published: every orphan byte is retained under its staging name",
+    "acknowledge/generation_published: a repeated retraction is refused",
+    "acknowledge/generation_published: store audit passes and keeps the original next action",
+    "acknowledge/generation_published: next runner sync proceeds without delivery",
+    "acknowledge/generation_published: final state retains one pending batch at sequence 1",
+    "acknowledge/generation_published: the original pending bytes are retried unchanged",
+    "acknowledge/generation_published: the reconciled root stays writable after the next sync",
+    "acknowledge/current_prepared: actual termination leaves a blocking orphan",
+    "acknowledge/current_prepared: runner sync stays blocked before reconciliation",
+    "acknowledge/current_prepared: blocked sync changes no file",
+    "acknowledge/current_prepared: inspection reports one blocking orphan",
+    "acknowledge/current_prepared: inspection names CURRENT and its reservation",
+    "acknowledge/current_prepared: reported manifest hash matches the orphan bytes",
+    "acknowledge/current_prepared: prepared pointer evidence is exact",
+    "acknowledge/current_prepared: inspection output carries no private path",
+    "acknowledge/current_prepared: inspection changes no file",
+    "acknowledge/current_prepared: retraction without confirmation is refused",
+    "acknowledge/current_prepared: retraction with another manifest hash is refused",
+    "acknowledge/current_prepared: refused retractions change no file",
+    "acknowledge/current_prepared: confirmed retraction restores writing",
+    "acknowledge/current_prepared: durable record matches the reported evidence",
+    "acknowledge/current_prepared: every orphan byte is retained under its staging name",
+    "acknowledge/current_prepared: a repeated retraction is refused",
+    "acknowledge/current_prepared: store audit passes and keeps the original next action",
+    "acknowledge/current_prepared: next runner sync proceeds without delivery",
+    "acknowledge/current_prepared: final state retains one pending batch at sequence 1",
+    "acknowledge/current_prepared: the original pending bytes are retried unchanged",
+    "acknowledge/current_prepared: the reconciled root stays writable after the next sync"
+  ],
+  "cases": [
+    {
+      "kind": "new_batch",
+      "phase": "generation_published",
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "killed": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "state": "higher_reserved_sequence"
+        },
+        "decision": {
+          "reason": "higher_reserved_sequence",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "inspected": {
+        "blocking": [
+          {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b7d26056ba18d44d1887cd040dcff95f704c679edbfd5bf909e325e1f16688d2",
+            "pendingSequence": 1,
+            "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+            "preparedPointer": "absent",
+            "standing": "higher_reserved_sequence"
+          }
+        ],
+        "current": {
+          "highestReserved": 0,
+          "id": "g-0-resumed",
+          "manifestSha256": "966e95f7c1bafbec558dbf577e6a52f3876cce33138f8e43202dccdaf8e24836",
+          "pendingSequence": null
+        },
+        "damagedOlderGenerations": [],
+        "exitCode": 0,
+        "olderGenerations": 1,
+        "schemaVersion": 1,
+        "stagingDirectories": 0,
+        "state": "recovery_inspected",
+        "writable": false
+      },
+      "retracted": {
+        "exitCode": 0,
+        "record": {
+          "action": "retract_unselected_generation",
+          "current": {
+            "highestReserved": 0,
+            "id": "g-0-resumed",
+            "manifestSha256": "966e95f7c1bafbec558dbf577e6a52f3876cce33138f8e43202dccdaf8e24836",
+            "pendingSequence": null
+          },
+          "generation": {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b7d26056ba18d44d1887cd040dcff95f704c679edbfd5bf909e325e1f16688d2",
+            "pendingSequence": 1,
+            "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+            "preparedPointer": "absent",
+            "retainedAs": "generations/.staging-g-1-crash",
+            "standing": "higher_reserved_sequence"
+          },
+          "operatorConfirmed": "never_selected",
+          "retractedAtMs": 1791709984895,
+          "schemaVersion": 1
+        },
+        "remainingBlocking": 0,
+        "schemaVersion": 1,
+        "state": "generation_retracted",
+        "writable": true
+      },
+      "reconciled": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "synced": {
+        "collectionAttempted": true,
+        "errorCode": null,
+        "exitCode": 4,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 1,
+        "sourceFailures": 3,
+        "state": "delivery_disabled",
+        "transportAttempted": false,
+        "transportCompleted": false
+      },
+      "final": {
+        "deliveryEnabled": false,
+        "exitCode": 0,
+        "paused": false,
+        "pending": {
+          "ageMs": 46,
+          "exactPendingSha256": "ac0ac85b5ee8a7a67aa6eb100f3f18b1d009ee21a4fb74611083f12db50f78df",
+          "retry": null,
+          "sequence": 1
+        },
+        "pendingAbandoned": null,
+        "schemaVersion": 1,
+        "state": "diagnostics",
+        "toolsPresent": {
+          "claude": false,
+          "codex": false,
+          "curl": false,
+          "github": false,
+          "ssh": false
+        }
+      }
+    },
+    {
+      "kind": "new_batch",
+      "phase": "current_prepared",
+      "before": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "killed": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "state": "higher_reserved_sequence"
+        },
+        "decision": {
+          "reason": "higher_reserved_sequence",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "inspected": {
+        "blocking": [
+          {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b7d26056ba18d44d1887cd040dcff95f704c679edbfd5bf909e325e1f16688d2",
+            "pendingSequence": 1,
+            "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+            "preparedPointer": "exact",
+            "standing": "higher_reserved_sequence"
+          }
+        ],
+        "current": {
+          "highestReserved": 0,
+          "id": "g-0-resumed",
+          "manifestSha256": "966e95f7c1bafbec558dbf577e6a52f3876cce33138f8e43202dccdaf8e24836",
+          "pendingSequence": null
+        },
+        "damagedOlderGenerations": [],
+        "exitCode": 0,
+        "olderGenerations": 1,
+        "schemaVersion": 1,
+        "stagingDirectories": 0,
+        "state": "recovery_inspected",
+        "writable": false
+      },
+      "retracted": {
+        "exitCode": 0,
+        "record": {
+          "action": "retract_unselected_generation",
+          "current": {
+            "highestReserved": 0,
+            "id": "g-0-resumed",
+            "manifestSha256": "966e95f7c1bafbec558dbf577e6a52f3876cce33138f8e43202dccdaf8e24836",
+            "pendingSequence": null
+          },
+          "generation": {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b7d26056ba18d44d1887cd040dcff95f704c679edbfd5bf909e325e1f16688d2",
+            "pendingSequence": 1,
+            "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+            "preparedPointer": "exact",
+            "retainedAs": "generations/.staging-g-1-crash",
+            "standing": "higher_reserved_sequence"
+          },
+          "operatorConfirmed": "never_selected",
+          "retractedAtMs": 1791709985271,
+          "schemaVersion": 1
+        },
+        "remainingBlocking": 0,
+        "schemaVersion": 1,
+        "state": "generation_retracted",
+        "writable": true
+      },
+      "reconciled": {
+        "archiveSha256": "62262fe44a1ef54e462c8faf0432dfea79bc51cf61ea65b7ab6f2d45b7f5dfa9",
+        "audit": {
+          "olderGenerations": 1,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "nextSequence": 1,
+          "state": "collect"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-0-resumed",
+        "pendingSha256": null,
+        "sequence": 0,
+        "state": "inspected"
+      },
+      "synced": {
+        "collectionAttempted": true,
+        "errorCode": null,
+        "exitCode": 4,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 1,
+        "sourceFailures": 3,
+        "state": "delivery_disabled",
+        "transportAttempted": false,
+        "transportCompleted": false
+      },
+      "final": {
+        "deliveryEnabled": false,
+        "exitCode": 0,
+        "paused": false,
+        "pending": {
+          "ageMs": 43,
+          "exactPendingSha256": "4177db889b30714507f485d0ea39a7b1c18ded463d2f5209409549963f8754e5",
+          "retry": null,
+          "sequence": 1
+        },
+        "pendingAbandoned": null,
+        "schemaVersion": 1,
+        "state": "diagnostics",
+        "toolsPresent": {
+          "claude": false,
+          "codex": false,
+          "curl": false,
+          "github": false,
+          "ssh": false
+        }
+      }
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "generation_published",
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "killed": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "state": "conflicting_generation"
+        },
+        "decision": {
+          "reason": "conflicting_generation",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "inspected": {
+        "blocking": [
+          {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b41e729d8424e486e7a55f6e1291c3a4badf8a1f1e991743fd3a27c264740803",
+            "pendingSequence": null,
+            "pendingSha256": null,
+            "preparedPointer": "absent",
+            "standing": "conflicting_generation"
+          }
+        ],
+        "current": {
+          "highestReserved": 1,
+          "id": "g-1-pending",
+          "manifestSha256": "0d9f696e8811bf75ba40b96117fddcb1d507b151c9103553ba95816569c20b24",
+          "pendingSequence": 1
+        },
+        "damagedOlderGenerations": [],
+        "exitCode": 0,
+        "olderGenerations": 2,
+        "schemaVersion": 1,
+        "stagingDirectories": 0,
+        "state": "recovery_inspected",
+        "writable": false
+      },
+      "retracted": {
+        "exitCode": 0,
+        "record": {
+          "action": "retract_unselected_generation",
+          "current": {
+            "highestReserved": 1,
+            "id": "g-1-pending",
+            "manifestSha256": "0d9f696e8811bf75ba40b96117fddcb1d507b151c9103553ba95816569c20b24",
+            "pendingSequence": 1
+          },
+          "generation": {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b41e729d8424e486e7a55f6e1291c3a4badf8a1f1e991743fd3a27c264740803",
+            "pendingSequence": null,
+            "pendingSha256": null,
+            "preparedPointer": "absent",
+            "retainedAs": "generations/.staging-g-1-crash",
+            "standing": "conflicting_generation"
+          },
+          "operatorConfirmed": "never_selected",
+          "retractedAtMs": 1791709985678,
+          "schemaVersion": 1
+        },
+        "remainingBlocking": 0,
+        "schemaVersion": 1,
+        "state": "generation_retracted",
+        "writable": true
+      },
+      "reconciled": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "synced": {
+        "collectionAttempted": false,
+        "errorCode": null,
+        "exitCode": 4,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 1,
+        "sourceFailures": 1,
+        "state": "delivery_disabled",
+        "transportAttempted": false,
+        "transportCompleted": false
+      },
+      "final": {
+        "deliveryEnabled": false,
+        "exitCode": 0,
+        "paused": false,
+        "pending": {
+          "ageMs": 1300384756,
+          "exactPendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "retry": null,
+          "sequence": 1
+        },
+        "pendingAbandoned": null,
+        "schemaVersion": 1,
+        "state": "diagnostics",
+        "toolsPresent": {
+          "claude": false,
+          "codex": false,
+          "curl": false,
+          "github": false,
+          "ssh": false
+        }
+      }
+    },
+    {
+      "kind": "acknowledge",
+      "phase": "current_prepared",
+      "before": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 0,
+          "state": "passed"
+        },
+        "candidateArchiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "candidatePendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "killed": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "state": "conflicting_generation"
+        },
+        "decision": {
+          "reason": "conflicting_generation",
+          "state": "blocked"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "inspected": {
+        "blocking": [
+          {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b41e729d8424e486e7a55f6e1291c3a4badf8a1f1e991743fd3a27c264740803",
+            "pendingSequence": null,
+            "pendingSha256": null,
+            "preparedPointer": "exact",
+            "standing": "conflicting_generation"
+          }
+        ],
+        "current": {
+          "highestReserved": 1,
+          "id": "g-1-pending",
+          "manifestSha256": "0d9f696e8811bf75ba40b96117fddcb1d507b151c9103553ba95816569c20b24",
+          "pendingSequence": 1
+        },
+        "damagedOlderGenerations": [],
+        "exitCode": 0,
+        "olderGenerations": 2,
+        "schemaVersion": 1,
+        "stagingDirectories": 0,
+        "state": "recovery_inspected",
+        "writable": false
+      },
+      "retracted": {
+        "exitCode": 0,
+        "record": {
+          "action": "retract_unselected_generation",
+          "current": {
+            "highestReserved": 1,
+            "id": "g-1-pending",
+            "manifestSha256": "0d9f696e8811bf75ba40b96117fddcb1d507b151c9103553ba95816569c20b24",
+            "pendingSequence": 1
+          },
+          "generation": {
+            "highestReserved": 1,
+            "id": "g-1-crash",
+            "manifestSha256": "b41e729d8424e486e7a55f6e1291c3a4badf8a1f1e991743fd3a27c264740803",
+            "pendingSequence": null,
+            "pendingSha256": null,
+            "preparedPointer": "exact",
+            "retainedAs": "generations/.staging-g-1-crash",
+            "standing": "conflicting_generation"
+          },
+          "operatorConfirmed": "never_selected",
+          "retractedAtMs": 1791709986046,
+          "schemaVersion": 1
+        },
+        "remainingBlocking": 0,
+        "schemaVersion": 1,
+        "state": "generation_retracted",
+        "writable": true
+      },
+      "reconciled": {
+        "archiveSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
+        "audit": {
+          "olderGenerations": 2,
+          "stagingDirectories": 1,
+          "state": "passed"
+        },
+        "decision": {
+          "sequence": 1,
+          "sha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "state": "retry_pending"
+        },
+        "deliverySha256": "aa3c22bd0475454224cddea3b5bdf3cefdedd3a84118576b785890dbd3601464",
+        "generation": "g-1-pending",
+        "pendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+        "sequence": 1,
+        "state": "inspected"
+      },
+      "synced": {
+        "collectionAttempted": false,
+        "errorCode": null,
+        "exitCode": 4,
+        "nextEligibleAtMs": null,
+        "publicationObserved": false,
+        "schemaVersion": 1,
+        "sequence": 1,
+        "sourceFailures": 1,
+        "state": "delivery_disabled",
+        "transportAttempted": false,
+        "transportCompleted": false
+      },
+      "final": {
+        "deliveryEnabled": false,
+        "exitCode": 0,
+        "paused": false,
+        "pending": {
+          "ageMs": 1300385123,
+          "exactPendingSha256": "43e2ab3c95408ba413b8fa6a2367f512dc1db0cadead091200d166eb21a6e808",
+          "retry": null,
+          "sequence": 1
+        },
+        "pendingAbandoned": null,
+        "schemaVersion": 1,
+        "state": "diagnostics",
+        "toolsPresent": {
+          "claude": false,
+          "codex": false,
+          "curl": false,
+          "github": false,
+          "ssh": false
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Owned crash-writer children are forcibly terminated after production writer hooks; the runner then acts on the state they leave.",
+    "The operator confirmation is supplied by this harness; it is not evidence that a real orphan was never selected or delivered.",
+    "All roots, archives and receipts are synthetic; delivery is disabled and no network endpoint is involved.",
+    "This covers process termination with the OS and storage running, not power loss, disk-full or hardware failure."
+  ]
+}

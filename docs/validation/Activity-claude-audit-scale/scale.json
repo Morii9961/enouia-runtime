@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "state": "measured",
+  "scope": "development_audit_scale",
+  "archiveBytes": 41343,
+  "sourcesDays": 365,
+  "measure": "minimum of three diagnostics runs, each one full write-path audit",
+  "runners": [
+    {
+      "name": "before",
+      "sha256": "c762ccaa39f29fca9137909e0b6a5874df98fc27655486711d5b65353dd4c735"
+    },
+    {
+      "name": "after",
+      "sha256": "bcc8b9ccd056674441fc3dd9e14df4c1615dd241918e1eae648ea54aeadbd41a"
+    }
+  ],
+  "importRunnerSha256": "bcc8b9ccd056674441fc3dd9e14df4c1615dd241918e1eae648ea54aeadbd41a",
+  "points": [
+    {
+      "generations": 100,
+      "beforeMs": 161,
+      "afterMs": 27
+    },
+    {
+      "generations": 1000,
+      "beforeMs": 1188,
+      "afterMs": 133
+    },
+    {
+      "generations": 2000,
+      "beforeMs": 2322,
+      "afterMs": 235
+    },
+    {
+      "generations": 4380,
+      "beforeMs": 5034,
+      "afterMs": 501
+    },
+    {
+      "generations": 8760,
+      "beforeMs": 10353,
+      "afterMs": 1205
+    }
+  ],
+  "node": "v24.15.0",
+  "harnessSha256": "f1d421aa26fe57767ca37cf750cd8ad3111d946ab11c85d73111559b0fc84a65",
+  "limitations": [
+    "Wall-clock timings on one Windows workstation with a warm file cache; absolute values vary by machine.",
+    "Synthesized generations share one reservation and archive, so this measures per-generation audit cost, not a real hourly delivery history whose archive also grows."
+  ]
+}

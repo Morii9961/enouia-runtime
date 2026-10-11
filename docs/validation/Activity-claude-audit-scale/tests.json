@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "scope": "isolated_activity_summary_audit_tests",
+  "runs": [
+    {
+      "id": "after",
+      "command": "cargo test --offline --locked -p enouia-activity-store --test audit_summary -- --test-threads=1",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 4 tests",
+        "test a_damaged_older_archive_is_reported_by_inspection_only ... ok",
+        "test a_tampered_older_sequence_or_manifest_still_blocks ... ok",
+        "test an_orphan_with_a_damaged_archive_blocks_and_cannot_be_retracted ... ok",
+        "test an_unreadable_older_archive_does_not_stop_writing ... ok",
+        "",
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out",
+        ""
+      ]
+    }
+  ],
+  "control": {
+    "description": "The same four tests against the previous recovery.rs (git HEAD f523a07).",
+    "exitCode": 101,
+    "output": [
+      "test an_unreadable_older_archive_does_not_stop_writing ... FAILED",
+      "test an_orphan_with_a_damaged_archive_blocks_and_cannot_be_retracted ... FAILED",
+      "test a_tampered_older_sequence_or_manifest_still_blocks ... FAILED",
+      "test a_damaged_older_archive_is_reported_by_inspection_only ... FAILED",
+      "thread 'an_unreadable_older_archive_does_not_stop_writing' panicked at crates\\enouia-activity-store\\tests\\audit_summary.rs:118:61:",
+      "thread 'an_orphan_with_a_damaged_archive_blocks_and_cannot_be_retracted' panicked at crates\\enouia-activity-store\\tests\\audit_summary.rs:226:5:",
+      "  left: CorruptGeneration(InvalidGeneration(HashMismatch))",
+      " right: HigherReservedSequence",
+      "thread 'a_tampered_older_sequence_or_manifest_still_blocks' panicked at crates\\enouia-activity-store\\tests\\audit_summary.rs:182:5:",
+      "  left: Recovery(CorruptGeneration(InvalidGeneration(HashMismatch)))",
+      " right: Recovery(CorruptGeneration(InvalidGeneration(InvalidManifest)))",
+      "thread 'a_damaged_older_archive_is_reported_by_inspection_only' panicked at crates\\enouia-activity-store\\tests\\audit_summary.rs:144:14:",
+      "test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out"
+    ]
+  }
+}
