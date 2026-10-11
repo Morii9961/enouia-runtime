@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 72);
+  assert.equal(reports.size, 73);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1133,6 +1133,28 @@ function validate(index) {
   assert.equal(lateSwitch.beforeRunnerSha256, choiceRead.runnerSha256);
   assert.notEqual(lateSwitch.runnerSha256, lateSwitch.beforeRunnerSha256);
   assert.equal(lateSwitch.memoryRevision, isolation.memoryRevision);
+  const orphan = reports.get('store_orphan_reconcile').report;
+  assert.equal(orphan.scope, 'isolated_activity_orphan_reconciliation');
+  assert.equal(orphan.baseline, 'a07291e4d89ec416d81cd02566d36226ce8a6bf6');
+  assert.equal(orphan.productSourceChanged, true);
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(orphan[flag], false);
+  const orphanTestsBytes = readFileSync(contained(orphan.testsReport));
+  assert.equal(hash(orphanTestsBytes), orphan.testsReportSha256, 'orphan reconciliation test record changed');
+  const orphanTests = JSON.parse(orphanTestsBytes);
+  assert(orphanTests.runs.every(r => r.exitCode === 0));
+  const orphanTestIds = orphanTests.runs.flatMap(r => r.output.map(l => /^test (\S+) \.\.\. ok$/.exec(l)?.[1]).filter(Boolean)).map(n => 'T.' + n);
+  assert.equal(orphanTestIds.length, 6);
+  const orphanDrillBytes = readFileSync(contained(orphan.drillReport));
+  assert.equal(hash(orphanDrillBytes), orphan.drillReportSha256, 'orphan reconciliation drill changed');
+  const orphanDrill = JSON.parse(orphanDrillBytes);
+  assert.equal(orphanDrill.state, 'passed');
+  assert.equal(orphanDrill.scope, 'actual_process_termination_orphan_reconciliation');
+  assert.deepEqual(orphanDrill.cases.map(c => `${c.kind}/${c.phase}`), ['new_batch/generation_published', 'new_batch/current_prepared', 'acknowledge/generation_published', 'acknowledge/current_prepared']);
+  assert(orphanDrill.cases.every(c => c.killed.decision.state === 'blocked' && c.retracted.writable === true), 'each actual orphan must start blocked and end writable');
+  assert(orphanDrill.cases.length === orphan.drillCases && orphanDrill.checks.length === orphan.drillChecks && orphan.drillChecks === 82);
+  assert.equal(orphanDrill.runnerSha256, orphan.runnerSha256);
+  assert.equal(orphanDrill.helperSha256, orphan.crashWriterSha256);
+  assert.deepEqual(orphan.checks, [...orphanTestIds, ...orphanDrill.checks.map(id => 'D.' + id)]);
   for (const field of ['runnerSha256', 'desktopSha256', 'installerSha256', 'sandboxToolsSha256', 'harnessSha256', 'fixturePreparerSha256']) assert.match(lateSwitch[field], /^[a-f0-9]{64}$/);
 
   const choiceWrite = reports.get('saved_choice_write_sharing').report;
@@ -1712,6 +1734,7 @@ function validate(index) {
   assert(choiceRead.checks.every(id => linkedTo(c17, 'saved_choice_read_sharing').includes(id)), 'C17 must retain actual saved-choice read sharing and explicit recovery');
   const c12 = index.cases.find(c => c.id === 'C12');
   assert(lateSwitch.checks.filter(id => /^(T|RS)\./.test(id)).every(id => linkedTo(c12, 'store_late_switch').includes(id)), 'C12 must retain refused pointer-switch retraction and same-sequence recovery');
+  assert(orphan.checks.every(id => linkedTo(c12, 'store_orphan_reconcile').includes(id)), 'C12 must retain actual process-death orphan inspection, refusal and confirmed retraction');
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
@@ -1802,6 +1825,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_boundary'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_read_sharing'));
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_late_switch'));
+  reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_orphan_reconcile'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));

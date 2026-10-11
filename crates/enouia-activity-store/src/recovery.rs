@@ -27,6 +27,29 @@ pub struct RecoveryAudit {
     pub staging_directories: usize,
 }
 
+/// How one published, unselected generation relates to CURRENT.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Standing {
+    Older,
+    HigherReservedSequence,
+    ConflictingGeneration,
+    Corrupt(ReadError),
+}
+
+pub struct PublishedGeneration {
+    pub id: String,
+    pub standing: Standing,
+    /// Present only when the generation validated.
+    pub loaded: Option<LoadedGeneration>,
+}
+
+pub struct GenerationInventory {
+    pub current: LoadedGeneration,
+    /// Every published directory except CURRENT's, in directory order.
+    pub published: Vec<PublishedGeneration>,
+    pub staging_directories: usize,
+}
+
 fn recorded_pending_clear(current: &LoadedGeneration, older: &LoadedGeneration) -> bool {
     let (Some(pending_bytes), Some(pending)) = (&older.image.pending, &older.validated.pending)
     else {
@@ -55,11 +78,14 @@ fn recorded_pending_clear(current: &LoadedGeneration, older: &LoadedGeneration) 
         && receipt["receivedAtMs"].as_i64().is_some()
 }
 
-/// Never chooses a fallback or deletes remnants. A published directory with
-/// newer or conflicting state requires manual reconciliation before writing.
-pub fn audit_generations<C: Clock>(root: &Path, clock: &C) -> Result<RecoveryAudit, RecoveryError> {
+/// Read-only classification of every published directory. Unknown, reparse
+/// or non-directory entries still fail the whole inventory.
+pub fn inventory_generations<C: Clock>(
+    root: &Path,
+    clock: &C,
+) -> Result<GenerationInventory, RecoveryError> {
     let current = read_current(root, clock).map_err(RecoveryError::Current)?;
-    let mut older_generations = 0;
+    let mut published = Vec::new();
     let mut staging_directories = 0;
     let entries = fs::read_dir(root.join("generations")).map_err(|_| RecoveryError::Io)?;
     for entry in entries {
@@ -85,23 +111,54 @@ pub fn audit_generations<C: Clock>(root: &Path, clock: &C) -> Result<RecoveryAud
         if name == current.id {
             continue;
         }
-        let other =
-            read_named_generation(root, &name, clock).map_err(RecoveryError::CorruptGeneration)?;
-        if other.validated.highest_reserved > current.validated.highest_reserved {
-            return Err(RecoveryError::HigherReservedSequence);
+        let (standing, loaded) = match read_named_generation(root, &name, clock) {
+            Err(error) => (Standing::Corrupt(error), None),
+            Ok(other) => (standing(&current, &other), Some(other)),
+        };
+        published.push(PublishedGeneration {
+            id: name,
+            standing,
+            loaded,
+        });
+    }
+    Ok(GenerationInventory {
+        current,
+        published,
+        staging_directories,
+    })
+}
+
+fn standing(current: &LoadedGeneration, other: &LoadedGeneration) -> Standing {
+    if other.validated.highest_reserved > current.validated.highest_reserved {
+        return Standing::HigherReservedSequence;
+    }
+    if other.validated.highest_reserved == current.validated.highest_reserved
+        && (other.validated.archive != current.validated.archive
+            || (other.image.pending != current.image.pending
+                && !recorded_pending_clear(current, other)))
+    {
+        return Standing::ConflictingGeneration;
+    }
+    Standing::Older
+}
+
+/// Never chooses a fallback or deletes remnants. A published directory with
+/// newer or conflicting state requires manual reconciliation before writing.
+pub fn audit_generations<C: Clock>(root: &Path, clock: &C) -> Result<RecoveryAudit, RecoveryError> {
+    let inventory = inventory_generations(root, clock)?;
+    for generation in &inventory.published {
+        match &generation.standing {
+            Standing::Older => {}
+            Standing::HigherReservedSequence => return Err(RecoveryError::HigherReservedSequence),
+            Standing::ConflictingGeneration => return Err(RecoveryError::ConflictingGeneration),
+            Standing::Corrupt(error) => {
+                return Err(RecoveryError::CorruptGeneration(error.clone()));
+            }
         }
-        if other.validated.highest_reserved == current.validated.highest_reserved
-            && (other.validated.archive != current.validated.archive
-                || (other.image.pending != current.image.pending
-                    && !recorded_pending_clear(&current, &other)))
-        {
-            return Err(RecoveryError::ConflictingGeneration);
-        }
-        older_generations += 1;
     }
     Ok(RecoveryAudit {
-        current,
-        older_generations,
-        staging_directories,
+        older_generations: inventory.published.len(),
+        current: inventory.current,
+        staging_directories: inventory.staging_directories,
     })
 }

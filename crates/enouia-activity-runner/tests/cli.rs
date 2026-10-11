@@ -539,3 +539,137 @@ fn overview_and_preview_are_lock_free_ipc_v1_reads() {
     );
     assert!(!overview.to_string().contains("PRIVATE"));
 }
+
+/// Leave the on-disk state process death leaves after publishing a new batch
+/// and preparing its pointer, before CURRENT is replaced.
+fn interrupted_sync(fixture: &Fixture) -> (String, String) {
+    fixture.import();
+    let (code, _) = fixture.invoke(&[
+        "set-paused".into(),
+        "false".into(),
+        "--config".into(),
+        fixture.config.as_os_str().to_owned(),
+    ]);
+    assert_eq!(code, 0);
+    let current = fs::read(fixture.root.join("CURRENT")).unwrap();
+    let (code, result) = fixture.run("sync", &[]);
+    assert_eq!(code, 4, "{result}");
+    let next = fs::read(fixture.root.join("CURRENT")).unwrap();
+    let next_id = String::from_utf8(next.strip_suffix(b"\n").unwrap().to_vec()).unwrap();
+    fs::write(
+        fixture.root.join(format!("CURRENT.{next_id}.tmp")),
+        format!("{next_id}\n"),
+    )
+    .unwrap();
+    fs::write(fixture.root.join("CURRENT"), &current).unwrap();
+    let current_id = String::from_utf8(current.strip_suffix(b"\n").unwrap().to_vec()).unwrap();
+    (current_id, next_id)
+}
+
+#[test]
+fn copied_executable_inspects_and_retracts_one_confirmed_orphan() {
+    let fixture = Fixture::new();
+    let (current_id, orphan_id) = interrupted_sync(&fixture);
+    let (code, result) = fixture.run("sync", &[]);
+    assert_eq!(code, 6, "{result}");
+
+    let (code, inspected) = fixture.run("recovery-inspect", &[]);
+    assert_eq!(code, 0, "{inspected}");
+    assert_eq!(inspected["state"], "recovery_inspected");
+    assert_eq!(inspected["writable"], false);
+    assert_eq!(inspected["current"]["id"], current_id.as_str());
+    assert_eq!(inspected["current"]["highestReserved"], 50);
+    let blocking = &inspected["blocking"][0];
+    assert_eq!(inspected["blocking"].as_array().unwrap().len(), 1);
+    assert_eq!(blocking["id"], orphan_id.as_str());
+    assert_eq!(blocking["standing"], "higher_reserved_sequence");
+    assert_eq!(blocking["highestReserved"], 51);
+    assert_eq!(blocking["pendingSequence"], 51);
+    assert_eq!(blocking["preparedPointer"], "exact");
+    let hash = blocking["manifestSha256"].as_str().unwrap().to_owned();
+
+    let retract = |confirm: &str, manifest: &str| {
+        fixture.invoke(&[
+            "recovery-retract".into(),
+            "--config".into(),
+            fixture.config.as_os_str().to_owned(),
+            "--generation".into(),
+            orphan_id.as_str().into(),
+            "--manifest-sha256".into(),
+            manifest.into(),
+            "--confirm-never-selected".into(),
+            confirm.into(),
+        ])
+    };
+    let (code, result) = fixture.invoke(&[
+        "recovery-retract".into(),
+        "--config".into(),
+        fixture.config.as_os_str().to_owned(),
+        "--generation".into(),
+        orphan_id.as_str().into(),
+        "--manifest-sha256".into(),
+        hash.as_str().into(),
+    ]);
+    assert_eq!(
+        (code, result["state"].as_str()),
+        (5, Some("invalid_arguments"))
+    );
+    assert_eq!(retract("yes", &hash).0, 5);
+    assert_eq!(retract("true", &hash.to_uppercase()).0, 5);
+    let (code, result) = retract("true", &"0".repeat(64));
+    assert_eq!(
+        (code, result["state"].as_str()),
+        (6, Some("manifest_mismatch"))
+    );
+    let guard = WindowsActivityLock
+        .try_acquire(&fixture.root.join("sync.lock"))
+        .unwrap();
+    let (code, result) = retract("true", &hash);
+    assert_eq!((code, result["state"].as_str()), (3, Some("busy")));
+    drop(guard);
+    assert!(fixture.root.join("generations").join(&orphan_id).is_dir());
+
+    let (code, result) = retract("true", &hash);
+    assert_eq!(code, 0, "{result}");
+    assert_eq!(result["state"], "generation_retracted");
+    assert_eq!(result["writable"], true);
+    assert_eq!(result["record"]["generation"]["id"], orphan_id.as_str());
+    assert_eq!(
+        result["record"]["generation"]["manifestSha256"],
+        hash.as_str()
+    );
+    assert_eq!(result["record"]["current"]["id"], current_id.as_str());
+    let record: Value = serde_json::from_slice(
+        &fs::read(
+            fixture
+                .root
+                .join(format!("reconciliations/retract-{orphan_id}.json")),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(record, result["record"]);
+    let (code, result) = retract("true", &hash);
+    assert_eq!(
+        (code, result["state"].as_str()),
+        (6, Some("not_retractable"))
+    );
+
+    let (code, inspected) = fixture.run("recovery-inspect", &[]);
+    assert_eq!(code, 0);
+    assert_eq!(inspected["writable"], true);
+    assert_eq!(inspected["stagingDirectories"], 1);
+    let (code, result) = fixture.run("sync", &[]);
+    assert_eq!(code, 4, "{result}");
+    assert_eq!(result["sequence"], 51);
+}
+
+#[test]
+fn help_lists_the_recovery_commands() {
+    let fixture = Fixture::new();
+    let (code, result) = fixture.invoke(&["--help".into()]);
+    assert_eq!(code, 0);
+    let commands = result["commands"].as_array().unwrap();
+    assert!(commands.contains(&json!("recovery-inspect")));
+    assert!(commands.contains(&json!("recovery-retract")));
+}

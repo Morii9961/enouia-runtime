@@ -18,6 +18,8 @@ pub mod pause;
 #[cfg(windows)]
 pub mod reader;
 #[cfg(windows)]
+pub mod reconcile;
+#[cfg(windows)]
 pub mod recovery;
 #[cfg(windows)]
 pub mod retry;

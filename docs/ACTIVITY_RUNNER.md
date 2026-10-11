@@ -33,6 +33,8 @@ enouia-activity set-paused true|false --config PATH
 enouia-activity migration-inspect --input COPIED_TRIO --output NEW_REPORT [--against BASELINE_TRIO]
 enouia-activity migration-import --bundle COPIED_TRIO --config PATH --high-water N [--verified-unused true]
 enouia-activity migration-export-legacy --config PATH --output NEW_DIRECTORY
+enouia-activity recovery-inspect --config PATH
+enouia-activity recovery-retract --config PATH --generation ID --manifest-sha256 HEX --confirm-never-selected true
 ```
 
 `diagnostics` reports pause, pending sequence/hash/age/retry state, delivery configuration, and tool-file presence. Presence is not a capability or authentication claim. Diagnostics never collects, sends, or probes authenticated tools. It acquires the same lock for a consistent view; a busy store returns code 3.
@@ -48,6 +50,28 @@ SSH exit zero means only `transportCompleted`. When publication is observed and 
 `migration-inspect` validates a quiescent copied trio, records raw and canonical hashes plus source time/date-count/total/range inventory, and optionally compares it against another validated trio. `unpublishableSuccessTimes` lists sources whose retained `updatedAt` is valid ActivityData but not the manifest's exact UTC millisecond form, without changing the string. Comparison lists date gaps, value corrections, success-time regressions, source hashes, and reconciliation flags; it chooses no winner. The new report must be outside the input directory and cannot replace an existing file.
 
 `migration-import` requires an explicit reconciled high-water covering known local/receiver/publisher state. It bootstraps only an unused root, preserves exact pending bytes and successful history, and persists pause. Zero requires verified unused identity and empty archive constraints. A seed with any unpublishable success time is refused as `unpublishable_history` (code 6) before any write; reconcile a reviewed copy rather than letting Runtime restamp it. Interrupted bootstrap remnants block a repeat import for explicit reconciliation. `migration-export-legacy` exports the current audited archive/high-water/pending trio to a new separate directory. These three commands never upload or collect.
+
+### Reconciling a generation left by process death
+
+If the process dies after a new generation directory is published but before `CURRENT` names it, `sync` and the other writers fail with `storage_failed`. The [recovery audit](validation/B2.1-recovery-audit.md) cannot tell that directory from a rolled-back pointer, so it blocks every later commit rather than risk reusing a sequence. A live writer that sees its own pointer write fail already retracts the directory itself. Process death skips that step, so an operator has to decide.
+
+`recovery-inspect` holds the writer lock, changes nothing and prints:
+
+- `CURRENT`'s id, manifest hash, highest reserved sequence and pending sequence.
+- For each blocking generation: its id and standing (`higher_reserved_sequence`, `conflicting_generation` or `corrupt`), raw manifest hash, highest reserved sequence, pending sequence and hash, and `preparedPointer`.
+
+`preparedPointer` is `exact` when `CURRENT.<id>.tmp` still holds that generation's pointer. A completed switch consumes this file, so `exact` shows that this prepared pointer never replaced `CURRENT`. `absent` means the process died before preparing it, or the pointer was consumed or removed. Neither value rules out an external restore of `CURRENT`, and neither shows what the receiver accepted.
+
+Before retracting, the operator confirms that the generation was never selected and its batch was never delivered. Check that no backup restore or manual pointer edit happened. For a higher reserved sequence, check that the receiver and the public data have not accepted that sequence. Then run `recovery-retract` with the generation id, the `manifestSha256` reported by inspection and `--confirm-never-selected true`. Retraction refuses:
+
+- missing confirmation (code 5);
+- a different hash (`manifest_mismatch`);
+- `CURRENT`, an older generation, an absent generation or a corrupt one (`not_retractable`);
+- an occupied staging name (`staging_occupied`).
+
+On success it renames `generations/<id>` to `generations/.staging-<id>`, where the audit ignores it. It deletes nothing and leaves `CURRENT` and the prepared pointer file untouched. It writes `reconciliations/retract-<id>.json` with the evidence it acted on and reports whether writing is allowed again (`writable`). Writing stays blocked while another blocking generation remains. The next commit reserves from `CURRENT` again, so the retracted sequence may be reused with different bytes. That is why the confirmation matters.
+
+If the record cannot be written after the rename, the state is `retracted_record_failed` (code 6) and stdout carries the record. Corrupt generations and interrupted first imports still need manual handling.
 
 ## Results and exit categories
 
