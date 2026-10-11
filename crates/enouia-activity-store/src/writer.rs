@@ -62,8 +62,10 @@ pub struct PublicationEvidence {
 pub struct AbandonEvidence {
     pub sequence: u64,
     pub exact_pending_sha256: String,
-    /// The new highest reserved sequence; at least `sequence`.
-    pub reserved_through: u64,
+    /// A new highest reserved sequence, at least the current one. `None`
+    /// keeps the current reservation, which an import may have set above
+    /// the pending sequence.
+    pub reserved_through: Option<u64>,
 }
 
 /// What may clear a pending batch: observed publication or abandonment.
@@ -106,13 +108,13 @@ fn publication_receipt_retained(old: &GenerationImage, next: &GenerationImage) -
         && old_delivery.get("pendingAbandoned") == next_delivery.get("pendingAbandoned")
 }
 
-fn abandonment_recorded(next: &GenerationImage, evidence: &AbandonEvidence) -> bool {
+fn abandonment_recorded(next: &GenerationImage, evidence: &AbandonEvidence, reserved: u64) -> bool {
     serde_json::from_slice::<Value>(&next.delivery).is_ok_and(|delivery| {
         let record = &delivery["pendingAbandoned"];
         delivery.get("retry").is_none()
             && record["sequence"].as_u64() == Some(evidence.sequence)
             && record["exactPendingSha256"].as_str() == Some(evidence.exact_pending_sha256.as_str())
-            && record["reservedThrough"].as_u64() == Some(evidence.reserved_through)
+            && record["reservedThrough"].as_u64() == Some(reserved)
     })
 }
 
@@ -147,10 +149,14 @@ fn valid_transition(
             Some(PendingClear::Abandoned(evidence)) => {
                 old.pending.as_ref().map(|batch| batch.sequence) == Some(evidence.sequence)
                     && sha256_hex(previous_bytes) == evidence.exact_pending_sha256
-                    && next.highest_reserved == evidence.reserved_through
-                    && next.highest_reserved >= old.highest_reserved
+                    && match evidence.reserved_through {
+                        None => next.highest_reserved == old.highest_reserved,
+                        Some(through) => {
+                            next.highest_reserved == through && through >= old.highest_reserved
+                        }
+                    }
                     && next.archive == old.archive
-                    && abandonment_recorded(next_image, evidence)
+                    && abandonment_recorded(next_image, evidence, next.highest_reserved)
             }
         },
         (None, None) => {
@@ -357,7 +363,7 @@ pub fn commit_publication_observed_with_hook<C: Clock, F: FnMut(CommitPhase) -> 
 /// End one pending batch without publication (ADR-033). The store must be
 /// paused, the batch must match the operator's sequence and exact hash, and the
 /// archive is kept. The sequence stays consumed; `reserved_through` may move
-/// the reservation above a known remote high-water.
+/// the reservation above a known remote high-water, and otherwise it stays.
 pub fn commit_pending_abandoned<C: Clock>(
     guard: &ActivityLockGuard,
     expected_id: &str,
@@ -391,11 +397,18 @@ pub fn commit_pending_abandoned_with_hook<C: Clock, F: FnMut(CommitPhase) -> Res
     };
     if batch.sequence != evidence.sequence
         || sha256_hex(pending) != evidence.exact_pending_sha256
-        || evidence.reserved_through < current.validated.highest_reserved
-        || evidence.reserved_through > MAX_SAFE_INTEGER
+        || evidence
+            .reserved_through
+            .is_some_and(|through| through < current.validated.highest_reserved)
+        || evidence
+            .reserved_through
+            .is_some_and(|through| through > MAX_SAFE_INTEGER)
     {
         return Err(CommitError::InvalidEvidence);
     }
+    let reserved_through = evidence
+        .reserved_through
+        .unwrap_or(current.validated.highest_reserved);
     let abandoned_at_ms = clock.now_unix_ms();
     if abandoned_at_ms < 0 {
         return Err(CommitError::InvalidEvidence);
@@ -414,7 +427,7 @@ pub fn commit_pending_abandoned_with_hook<C: Clock, F: FnMut(CommitPhase) -> Res
             "sequence": evidence.sequence,
             "exactPendingSha256": evidence.exact_pending_sha256,
             "activitySha256": activity_sha256,
-            "reservedThrough": evidence.reserved_through,
+            "reservedThrough": reserved_through,
             "abandonedAtMs": abandoned_at_ms,
             "reason": ABANDON_REASON,
         }),
@@ -426,7 +439,7 @@ pub fn commit_pending_abandoned_with_hook<C: Clock, F: FnMut(CommitPhase) -> Res
     }
     let image = GenerationImage {
         activity: current.image.activity,
-        sequence: format!("{{\"sequence\":{}}}\n", evidence.reserved_through).into_bytes(),
+        sequence: format!("{{\"sequence\":{reserved_through}}}\n").into_bytes(),
         pending: None,
         delivery,
     };

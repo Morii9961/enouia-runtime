@@ -781,3 +781,33 @@ fn copied_executable_abandons_a_refused_pending_only_when_paused_and_exact() {
     let (code, result) = fixture.run("migration-export-legacy", &[("--output", &bundle)]);
     assert_eq!((code, result["highestReserved"].as_u64()), (0, Some(61)));
 }
+
+#[test]
+fn abandoning_an_imported_pending_keeps_a_higher_reconciled_high_water() {
+    let fixture = Fixture::new();
+    let mut raw: Value = serde_json::from_str(ORACLE).unwrap();
+    raw["sequence"] = json!(42);
+    let batch = normalize_batch(&raw, &FakeClock::new(1_790_410_200_000)).unwrap();
+    let mut pending = serde_json::to_vec(&batch).unwrap();
+    pending.push(b'\n');
+    fs::write(fixture.source.join("pending.json"), &pending).unwrap();
+    fixture.import();
+    let (_, diagnostics) = fixture.run("diagnostics", &[]);
+    assert_eq!(diagnostics["pending"]["sequence"], 42);
+    let hash = enouia_activity_contract::sha256_hex(&pending);
+    let (code, result) = fixture.invoke(&[
+        "pending-abandon".into(),
+        "--config".into(),
+        fixture.config.as_os_str().to_owned(),
+        "--sequence".into(),
+        "42".into(),
+        "--pending-sha256".into(),
+        hash.as_str().into(),
+        "--confirm-refused".into(),
+        "true".into(),
+    ]);
+    assert_eq!(code, 0, "{result}");
+    assert_eq!(result["highestReserved"], 50);
+    assert_eq!(result["nextSequence"], 51);
+    assert_eq!(result["record"]["pendingAbandoned"]["reservedThrough"], 50);
+}

@@ -25,7 +25,7 @@ In both cases the producer stops collecting, and a hand edit of the store is the
    - The store is paused.
    - The current pending batch has exactly sequence `N` and SHA-256 `HEX`.
    - The confirmation is given.
-2. The new generation keeps the archive and the batch's sequence. Without `--reserve-through`, the highest reserved sequence stays at `N`, so the next collection uses `N + 1`. With `--reserve-through M`, where `M ≥ N`, the reservation moves to `M`, so the next collection uses `M + 1` and stays above a known remote high-water. Sequence `N` is never reused or renumbered.
+2. The new generation keeps the archive and the batch's sequence. Without `--reserve-through`, the highest reserved sequence stays where it is: normally `N`, or higher if a migration import reconciled a higher high-water. The next collection uses the sequence after it. With `--reserve-through M`, where `M ≥ N`, the reservation moves to `M`, so the next collection uses `M + 1` and stays above a known remote high-water. Sequence `N` is never reused or renumbered.
 3. The new generation has no pending batch. Its `delivery.json` drops the retry state and records `pendingAbandoned` with:
    - `sequence`, `exactPendingSha256` and `activitySha256`;
    - `reservedThrough`;
@@ -35,7 +35,7 @@ In both cases the producer stops collecting, and a hand edit of the store is the
    Pause and earlier publication receipts are kept.
 4. The store accepts this transition only through the abandonment entry point:
    - Pending → none with matching `pendingAbandoned` evidence and an unchanged archive.
-   - The reservation may move forward only up to the safe-integer limit.
+   - The reservation may only stay or move forward, up to the safe-integer limit.
    - Later pause and retry commits must keep `pendingAbandoned` unchanged.
    - Generation validation checks the record's shape and bounds.
    - The recovery audit accepts an older generation that holds the abandoned bytes at the same reservation.
@@ -44,7 +44,7 @@ In both cases the producer stops collecting, and a hand edit of the store is the
    - `abandon-<N>-pending.json`, a copy of the exact pending bytes, so that the evidence survives any later generation pruning.
 
    If either write fails after the commit, the result is `abandoned_record_failed` (code 6), and stdout carries the record.
-6. The overview reports delivery state `observed` only when the last observed publication is the highest reserved sequence. After an abandonment it reports `idle`. The [ADR-030](030-production-activation-path.md) enable gate therefore cannot pass on a publication observed before the abandoned batch.
+6. The overview reports delivery state `observed` only when no recorded abandonment is newer than the last observed publication. Otherwise it reports `idle`. The [ADR-030](030-production-activation-path.md) enable gate therefore cannot pass on a publication observed before the abandoned batch. Receipts without an abandonment are reported as before, including a migrated batch published below a higher reconciled high-water.
 
 ## Consequences
 

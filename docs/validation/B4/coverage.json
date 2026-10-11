@@ -518,9 +518,9 @@
     {
       "id": "pending_abandonment",
       "path": "docs/validation/Activity-claude-pending-abandon/proof.json",
-      "sha256": "665470fb16ec23418ce6264755f01657dbd3e4b3a01d70ba889342e8ef3ee1f2",
+      "sha256": "49228c3f433bd2a7f51a9346b73c1774e3704bdd32734e3b18ab9cf6a0f35b65",
       "state": "passed",
-      "selectorCount": 33
+      "selectorCount": 34
     }
   ],
   "cases": [
@@ -1107,6 +1107,7 @@
             "T.generation_validation_bounds_the_record",
             "T.later_commits_must_keep_the_record_and_publication_receipt",
             "T.reserve_through_moves_the_next_sequence_above_a_remote_high_water",
+            "T.abandoning_an_imported_pending_keeps_a_higher_reconciled_high_water",
             "T.copied_executable_abandons_a_refused_pending_only_when_paused_and_exact",
             "T.abandoned_pending_is_never_reported_as_observed_publication",
             "D.remote-ahead: another producer publishes sequence 60",

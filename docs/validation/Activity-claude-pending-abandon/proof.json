@@ -7,22 +7,24 @@
  "productSourceChanged": true,
  "modeledReplies": false,
  "tasksCreated": false,
- "rootTests": 242,
+ "rootTests": 243,
  "testsReport": "docs/validation/Activity-claude-pending-abandon/tests.json",
- "testsReportSha256": "ac407be319a0f65fa743a0a6fbb1628ea6752881ebfbd06e7096ae3751917325",
+ "testsReportSha256": "9dd18e01ed626f88611205b62b9bedc7b7e5712d4b60a2b81880ba90bd84d2b3",
  "drillReport": "docs/validation/Activity-claude-pending-abandon/drill.json",
- "drillReportSha256": "b45b3c9d0925de39d29be5f65af0cd8f9050f8795effb911159f989835af4bdd",
+ "drillReportSha256": "5ff665e36450b1ca08d4260506c81f779d1533a586d7c335d81cdf23ed8be24f",
  "drillChecks": 27,
  "drillCases": [
   "remote-ahead",
   "archive-regression"
  ],
+ "runnerSha256": "c762ccaa39f29fca9137909e0b6a5874df98fc27655486711d5b65353dd4c735",
  "referenceHead": "fd48f88c8b480480fd48a8efe36ef400b3be99b8",
  "checks": [
   "T.abandonment_needs_a_paused_exact_request_and_keeps_the_sequence_consumed",
   "T.generation_validation_bounds_the_record",
   "T.later_commits_must_keep_the_record_and_publication_receipt",
   "T.reserve_through_moves_the_next_sequence_above_a_remote_high_water",
+  "T.abandoning_an_imported_pending_keeps_a_higher_reconciled_high_water",
   "T.copied_executable_abandons_a_refused_pending_only_when_paused_and_exact",
   "T.abandoned_pending_is_never_reported_as_observed_publication",
   "D.remote-ahead: another producer publishes sequence 60",
@@ -52,6 +54,5 @@
   "D.reference remained unchanged: scripts/lib/status-batch.mjs",
   "D.reference remained unchanged: src/lib/activity.ts",
   "D.reference remained unchanged: src/lib/status.ts"
- ],
- "runnerSha256": "129aab474d55e137e48f67f2b3c4f93f901b32f6a7d0d2044d2cf904ea7b8fe4"
+ ]
 }

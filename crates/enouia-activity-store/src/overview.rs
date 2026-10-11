@@ -100,6 +100,7 @@ pub struct ActivityStatus {
     pub pending: Option<PendingStatus>,
     pub publication: Option<PublicationRecord>,
     pub last_outcomes: Option<LastOutcomes>,
+    pub abandoned: Option<AbandonedRecord>,
 }
 
 /// Lock-free status read: CURRENT is read once and its generation is
@@ -141,5 +142,6 @@ pub fn read_activity_status<C: Clock>(
         pending,
         publication: publication_from_delivery(delivery),
         last_outcomes: last_outcomes_from_delivery(delivery),
+        abandoned: abandoned_from_delivery(delivery),
     })
 }

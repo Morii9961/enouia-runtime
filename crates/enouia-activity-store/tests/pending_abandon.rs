@@ -105,7 +105,7 @@ fn evidence(sequence: u64, bytes: &[u8], reserved_through: u64) -> AbandonEviden
     AbandonEvidence {
         sequence,
         exact_pending_sha256: sha256_hex(bytes),
-        reserved_through,
+        reserved_through: Some(reserved_through),
     }
 }
 

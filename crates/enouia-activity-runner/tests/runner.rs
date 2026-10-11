@@ -929,7 +929,7 @@ fn abandoned_pending_is_never_reported_as_observed_publication() {
         &AbandonEvidence {
             sequence: 44,
             exact_pending_sha256: sha256_hex(&bytes),
-            reserved_through: 44,
+            reserved_through: None,
         },
         &clock(),
     )

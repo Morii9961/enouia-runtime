@@ -86,7 +86,7 @@ A pending batch blocks collection until its exact data is observed published ([A
 
 The command refuses to run unless the store is paused (`not_paused`). It also refuses a sequence or hash that differs from the current pending batch (`pending_mismatch`), a missing confirmation, and a reservation below the pending sequence (code 5).
 
-On success the archive is kept, the pending batch is cleared and its sequence stays consumed. The next collection uses `highestReserved + 1`, which is `M + 1` with `--reserve-through M`. `delivery.json` records `pendingAbandoned`, and `diagnostics` shows it. The command also writes `reconciliations/abandon-<N>.json` and a copy of the exact bytes as `abandon-<N>-pending.json`. Until a later batch is observed, the overview reports `idle` rather than `observed`, so an earlier publication cannot satisfy the production enable gate.
+On success the archive is kept, the pending batch is cleared and its sequence stays consumed. Without `--reserve-through`, the current reservation is kept, even when a migration import set it above the pending sequence. The next collection uses `highestReserved + 1`, which is `M + 1` with `--reserve-through M`. `delivery.json` records `pendingAbandoned`, and `diagnostics` shows it. The command also writes `reconciliations/abandon-<N>.json` and a copy of the exact bytes as `abandon-<N>-pending.json`. Until a later batch is observed, the overview reports `idle` rather than `observed`, so an earlier publication cannot satisfy the production enable gate.
 
 Abandonment does not repair data. If the archive itself is what the publisher refuses, the next batch is refused as well, and the archive must be reconciled first.
 

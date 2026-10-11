@@ -20,14 +20,15 @@
     },
     {
       "id": "runner_cli",
-      "command": "cargo test --offline --locked -p enouia-activity-runner --test cli -- --test-threads=1 copied_executable_abandons_a_refused_pending_only_when_paused_and_exact",
+      "command": "cargo test --offline --locked -p enouia-activity-runner --test cli -- --test-threads=1 copied_executable_abandons_a_refused_pending_only_when_paused_and_exact abandoning_an_imported_pending_keeps_a_higher_reconciled_high_water",
       "exitCode": 0,
       "output": [
         "",
-        "running 1 test",
+        "running 2 tests",
+        "test abandoning_an_imported_pending_keeps_a_higher_reconciled_high_water ... ok",
         "test copied_executable_abandons_a_refused_pending_only_when_paused_and_exact ... ok",
         "",
-        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out",
         ""
       ]
     },

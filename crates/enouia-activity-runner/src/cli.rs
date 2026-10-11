@@ -252,14 +252,14 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
         };
         let sequence = number("--sequence")?;
         let reserved_through = if args.options.contains_key("--reserve-through") {
-            number("--reserve-through")?
+            Some(number("--reserve-through")?)
         } else {
-            sequence
+            None
         };
         let hash = args.text("--pending-sha256")?;
         if args.text("--confirm-refused")? != "true"
             || !valid_manifest_sha256(hash)
-            || reserved_through < sequence
+            || reserved_through.is_some_and(|through| through < sequence)
         {
             return Err(failure(5, "invalid_arguments"));
         }

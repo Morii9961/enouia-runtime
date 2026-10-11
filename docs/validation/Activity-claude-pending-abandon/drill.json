@@ -34,21 +34,21 @@
   "cases": [
     {
       "id": "remote-ahead",
-      "stuckPendingSha256": "bfc43cc0bd1604bf13f9094c59a822c17f91445d08c23e116218e430f2c80f33",
+      "stuckPendingSha256": "4c7bc64f824497270adfe186432354c6037e55ea312d3141024399bc2b6f7852",
       "abandoned": {
         "exitCode": 0,
         "highestReserved": 60,
         "nextSequence": 61,
         "record": {
           "action": "abandon_refused_pending",
-          "fromGeneration": "g-run-45264-18dd629ea5bdfde8-0",
+          "fromGeneration": "g-run-35140-18dd62f9509c2f50-0",
           "highestReserved": 60,
           "nextSequence": 61,
           "operatorConfirmed": "refused_or_remote_ahead",
           "pendingAbandoned": {
-            "abandonedAtMs": 1791696660355,
-            "activitySha256": "335fdee526fa4224f06ee9c318955624b53937e74f00520e4d83b6ce6222afb1",
-            "exactPendingSha256": "bfc43cc0bd1604bf13f9094c59a822c17f91445d08c23e116218e430f2c80f33",
+            "abandonedAtMs": 1791697049772,
+            "activitySha256": "b84b103d2522100567d23a8ae9d70a295ee7359897a3d362d61256ce96b14c2a",
+            "exactPendingSha256": "4c7bc64f824497270adfe186432354c6037e55ea312d3141024399bc2b6f7852",
             "reason": "operator_confirmed_refused",
             "reservedThrough": 60,
             "sequence": 52
@@ -56,7 +56,7 @@
           "pendingCopy": "reconciliations/abandon-52-pending.json",
           "previousHighestReserved": 52,
           "schemaVersion": 1,
-          "toGeneration": "g-run-19236-18dd629ea9924708-0"
+          "toGeneration": "g-run-44692-18dd62f954a1123c-0"
         },
         "schemaVersion": 1,
         "sequence": 52,
@@ -85,14 +85,14 @@
         "nextSequence": 53,
         "record": {
           "action": "abandon_refused_pending",
-          "fromGeneration": "g-run-45148-18dd629f0719509c-0",
+          "fromGeneration": "g-run-43380-18dd62f9b6d71b90-0",
           "highestReserved": 52,
           "nextSequence": 53,
           "operatorConfirmed": "refused_or_remote_ahead",
           "pendingAbandoned": {
-            "abandonedAtMs": 1791696662006,
-            "activitySha256": "4b68b20880a938f1b69be6b869684247f64ca1e236f0c5186a36d656ca9c54b7",
-            "exactPendingSha256": "5c6ddd3116f04336adced8af97946298177113a4d74078fdce3fde82e7a0aa9b",
+            "abandonedAtMs": 1791697051507,
+            "activitySha256": "2c160ad70c00f4c8642fcf38bc0c200a55b9dfe22793712cb9dfb79f7ee731c6",
+            "exactPendingSha256": "6cfdc445b00d9877577cd7589295b4840db451e04ac67c4458aacfe1bd179a39",
             "reason": "operator_confirmed_refused",
             "reservedThrough": 52,
             "sequence": 52
@@ -100,7 +100,7 @@
           "pendingCopy": "reconciliations/abandon-52-pending.json",
           "previousHighestReserved": 52,
           "schemaVersion": 1,
-          "toGeneration": "g-run-20752-18dd629f0bfec308-0"
+          "toGeneration": "g-run-42080-18dd62f9bc0d9f80-0"
         },
         "schemaVersion": 1,
         "sequence": 52,
@@ -110,7 +110,7 @@
         "collectionAttempted": true,
         "errorCode": "delivery_unverified",
         "exitCode": 4,
-        "nextEligibleAtMs": 1791700262544,
+        "nextEligibleAtMs": 1791700652035,
         "publicationObserved": false,
         "schemaVersion": 1,
         "sequence": 53,
@@ -123,7 +123,7 @@
     }
   ],
   "node": "v24.15.0",
-  "runtimeBinarySha256": "129aab474d55e137e48f67f2b3c4f93f901b32f6a7d0d2044d2cf904ea7b8fe4",
+  "runtimeBinarySha256": "c762ccaa39f29fca9137909e0b6a5874df98fc27655486711d5b65353dd4c735",
   "fixtureToolsSha256": "20dca5964aa0b5c06033ac82333c958d026bcb6e559347c1be4f081c83fad534",
   "fixtureSha256": "754acd97ebfa4d97fe566779e7dbda0d03a5f6c426194729abc07aa25ac80bc9",
   "harnessSha256": "19adf607fb294ad42d9b46406d2c2ada76cf59cc17f849fec4c3ce9d4bb1297a",

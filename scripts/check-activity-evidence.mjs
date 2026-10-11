@@ -1165,7 +1165,7 @@ function validate(index) {
   const abandonTests = JSON.parse(abandonTestsBytes);
   assert(abandonTests.runs.every(r => r.exitCode === 0));
   const abandonTestIds = abandonTests.runs.flatMap(r => r.output.map(l => /^test (\S+) \.\.\. ok$/.exec(l)?.[1]).filter(Boolean)).map(n => 'T.' + n);
-  assert.equal(abandonTestIds.length, 6);
+  assert.equal(abandonTestIds.length, 7);
   const abandonDrillBytes = readFileSync(contained(abandonment.drillReport));
   assert.equal(hash(abandonDrillBytes), abandonment.drillReportSha256, 'abandonment drill changed');
   const abandonDrill = JSON.parse(abandonDrillBytes);
