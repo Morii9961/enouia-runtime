@@ -2,8 +2,9 @@
 
 use crate::ActivityLockGuard;
 use crate::generation::{
-    LastOutcomes, PublicationRecord, RetryState, last_outcomes_from_delivery, paused_from_delivery,
-    publication_from_delivery, retry_from_delivery,
+    AbandonedRecord, LastOutcomes, PublicationRecord, RetryState, abandoned_from_delivery,
+    last_outcomes_from_delivery, paused_from_delivery, publication_from_delivery,
+    retry_from_delivery,
 };
 use crate::reader::{ReadError, read_current};
 use crate::recovery::{RecoveryError, audit_generations};
@@ -31,6 +32,8 @@ pub struct PendingOverview {
 pub struct DeliveryOverview {
     pub paused: bool,
     pub pending: Option<PendingOverview>,
+    /// The latest operator abandonment (ADR-033), if any.
+    pub abandoned: Option<AbandonedRecord>,
 }
 
 /// Derive age from the durable batch creation time; never persist an age that
@@ -72,7 +75,11 @@ pub fn read_delivery_overview_locked<C: Clock>(
             })
         })
         .transpose()?;
-    Ok(DeliveryOverview { paused, pending })
+    Ok(DeliveryOverview {
+        paused,
+        pending,
+        abandoned: abandoned_from_delivery(&current.image.delivery),
+    })
 }
 
 /// Pending batch as status readers see it. Its exact bytes stay in the store.

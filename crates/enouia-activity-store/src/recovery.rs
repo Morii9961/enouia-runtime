@@ -1,6 +1,6 @@
 //! Read-only audit before any new generation is reserved under the writer lock.
 
-use crate::generation::valid_generation_id;
+use crate::generation::{ABANDON_REASON, valid_generation_id};
 use crate::reader::{LoadedGeneration, ReadError, read_current, read_named_generation};
 use enouia_activity_contract::{public_data_bytes, sha256_hex};
 use enouia_common::Clock;
@@ -61,6 +61,17 @@ fn recorded_pending_clear(current: &LoadedGeneration, older: &LoadedGeneration) 
     let Ok(delivery) = serde_json::from_slice::<Value>(&current.image.delivery) else {
         return false;
     };
+    // An operator abandonment (ADR-033) records the exact bytes it ended.
+    let abandoned = &delivery["pendingAbandoned"];
+    if abandoned["sequence"].as_u64() == Some(pending.sequence)
+        && abandoned["exactPendingSha256"].as_str() == Some(sha256_hex(pending_bytes).as_str())
+        && abandoned["reason"].as_str() == Some(ABANDON_REASON)
+        && public_data_bytes(&pending.data).is_ok_and(|bytes| {
+            abandoned["activitySha256"].as_str() == Some(sha256_hex(&bytes).as_str())
+        })
+    {
+        return true;
+    }
     let receipt = &delivery["publicationObserved"];
     receipt["origin"]
         .as_str()

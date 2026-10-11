@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 73);
+  assert.equal(reports.size, 74);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1155,6 +1155,28 @@ function validate(index) {
   assert.equal(orphanDrill.runnerSha256, orphan.runnerSha256);
   assert.equal(orphanDrill.helperSha256, orphan.crashWriterSha256);
   assert.deepEqual(orphan.checks, [...orphanTestIds, ...orphanDrill.checks.map(id => 'D.' + id)]);
+  const abandonment = reports.get('pending_abandonment').report;
+  assert.equal(abandonment.scope, 'isolated_activity_pending_abandonment');
+  assert.equal(abandonment.decision, 'ADR-033');
+  assert.equal(abandonment.baseline, '5cc1be3611660af923a0caffe0bf428b8294f142');
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(abandonment[flag], false);
+  const abandonTestsBytes = readFileSync(contained(abandonment.testsReport));
+  assert.equal(hash(abandonTestsBytes), abandonment.testsReportSha256, 'abandonment test record changed');
+  const abandonTests = JSON.parse(abandonTestsBytes);
+  assert(abandonTests.runs.every(r => r.exitCode === 0));
+  const abandonTestIds = abandonTests.runs.flatMap(r => r.output.map(l => /^test (\S+) \.\.\. ok$/.exec(l)?.[1]).filter(Boolean)).map(n => 'T.' + n);
+  assert.equal(abandonTestIds.length, 6);
+  const abandonDrillBytes = readFileSync(contained(abandonment.drillReport));
+  assert.equal(hash(abandonDrillBytes), abandonment.drillReportSha256, 'abandonment drill changed');
+  const abandonDrill = JSON.parse(abandonDrillBytes);
+  assert.equal(abandonDrill.scope, 'development_reference_pending_abandonment');
+  assert.deepEqual(abandonDrill.cases.map(c => c.id), ['remote-ahead', 'archive-regression']);
+  const [ahead, archiveRegression] = abandonDrill.cases;
+  assert(ahead.abandoned.highestReserved === 60 && ahead.next.sequence === 61 && ahead.next.publicationObserved === true, 'remote-ahead abandonment must lead to an observed higher sequence');
+  assert(archiveRegression.next.sequence === 53 && archiveRegression.next.publicationObserved === false && archiveRegression.publicState === 'degraded', 'abandonment must not be shown repairing a regressed archive');
+  assert(abandonDrill.checks.length === abandonment.drillChecks && abandonment.drillChecks === 27);
+  assert.equal(abandonDrill.runtimeBinarySha256, abandonment.runnerSha256);
+  assert.deepEqual(abandonment.checks, [...abandonTestIds, ...abandonDrill.checks.map(id => 'D.' + id)]);
   for (const field of ['runnerSha256', 'desktopSha256', 'installerSha256', 'sandboxToolsSha256', 'harnessSha256', 'fixturePreparerSha256']) assert.match(lateSwitch[field], /^[a-f0-9]{64}$/);
 
   const choiceWrite = reports.get('saved_choice_write_sharing').report;
@@ -1735,6 +1757,8 @@ function validate(index) {
   const c12 = index.cases.find(c => c.id === 'C12');
   assert(lateSwitch.checks.filter(id => /^(T|RS)\./.test(id)).every(id => linkedTo(c12, 'store_late_switch').includes(id)), 'C12 must retain refused pointer-switch retraction and same-sequence recovery');
   assert(orphan.checks.every(id => linkedTo(c12, 'store_orphan_reconcile').includes(id)), 'C12 must retain actual process-death orphan inspection, refusal and confirmed retraction');
+  assert(abandonment.checks.every(id => linkedTo(index.cases.find(c => c.id === 'C15'), 'pending_abandonment').includes(id)), 'C15 must retain the refused-pending abandonment procedure and its limit');
+  assert(abandonment.checks.filter(id => id.startsWith('D.remote-ahead')).every(id => linkedTo(index.cases.find(c => c.id === 'C14'), 'pending_abandonment').includes(id)), 'C14 must retain the remote-ahead reservation and observed recovery');
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
@@ -1826,6 +1850,8 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_read_sharing'));
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_late_switch'));
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_orphan_reconcile'));
+  reject(x => x.cases.find(c => c.id === 'C15').evidence = x.cases.find(c => c.id === 'C15').evidence.filter(e => e.report !== 'pending_abandonment'));
+  reject(x => x.cases.find(c => c.id === 'C14').evidence = x.cases.find(c => c.id === 'C14').evidence.filter(e => e.report !== 'pending_abandonment'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));

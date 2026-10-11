@@ -184,7 +184,13 @@ pub fn overview(status: &ActivityStatus, config: &Config, now_ms: i64) -> Value 
         } else {
             "pending"
         }
-    } else if status.publication.is_some() {
+    } else if status
+        .publication
+        .as_ref()
+        .is_some_and(|receipt| receipt.sequence == status.highest_reserved)
+    {
+        // An older receipt does not cover a later reserved sequence, such as
+        // one an operator abandoned (ADR-033).
         "observed"
     } else {
         "idle"

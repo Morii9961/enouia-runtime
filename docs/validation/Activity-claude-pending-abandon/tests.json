@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "scope": "isolated_activity_pending_abandonment_tests",
+  "runs": [
+    {
+      "id": "store",
+      "command": "cargo test --offline --locked -p enouia-activity-store --test pending_abandon -- --test-threads=1",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 4 tests",
+        "test abandonment_needs_a_paused_exact_request_and_keeps_the_sequence_consumed ... ok",
+        "test generation_validation_bounds_the_record ... ok",
+        "test later_commits_must_keep_the_record_and_publication_receipt ... ok",
+        "test reserve_through_moves_the_next_sequence_above_a_remote_high_water ... ok",
+        "",
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out",
+        ""
+      ]
+    },
+    {
+      "id": "runner_cli",
+      "command": "cargo test --offline --locked -p enouia-activity-runner --test cli -- --test-threads=1 copied_executable_abandons_a_refused_pending_only_when_paused_and_exact",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 1 test",
+        "test copied_executable_abandons_a_refused_pending_only_when_paused_and_exact ... ok",
+        "",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out",
+        ""
+      ]
+    },
+    {
+      "id": "runner_ipc",
+      "command": "cargo test --offline --locked -p enouia-activity-runner --test runner -- --test-threads=1 abandoned_pending_is_never_reported_as_observed_publication",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 1 test",
+        "test abandoned_pending_is_never_reported_as_observed_publication ... ok",
+        "",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out",
+        ""
+      ]
+    }
+  ]
+}

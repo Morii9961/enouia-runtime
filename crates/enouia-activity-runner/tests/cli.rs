@@ -673,3 +673,111 @@ fn help_lists_the_recovery_commands() {
     assert!(commands.contains(&json!("recovery-inspect")));
     assert!(commands.contains(&json!("recovery-retract")));
 }
+
+#[test]
+fn copied_executable_abandons_a_refused_pending_only_when_paused_and_exact() {
+    let fixture = Fixture::new();
+    fixture.import();
+    let set_paused = |paused: &str| {
+        let (code, result) = fixture.invoke(&[
+            "set-paused".into(),
+            paused.into(),
+            "--config".into(),
+            fixture.config.as_os_str().to_owned(),
+        ]);
+        assert_eq!(code, 0, "{result}");
+    };
+    set_paused("false");
+    let (code, result) = fixture.run("sync", &[]);
+    assert_eq!((code, result["sequence"].as_u64()), (4, Some(51)));
+    let (_, diagnostics) = fixture.run("diagnostics", &[]);
+    let hash = diagnostics["pending"]["exactPendingSha256"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+
+    let abandon = |extra: &[(&str, &str)]| {
+        let mut args: Vec<OsString> = vec![
+            "pending-abandon".into(),
+            "--config".into(),
+            fixture.config.as_os_str().to_owned(),
+        ];
+        for (key, value) in extra {
+            args.extend([OsString::from(key), OsString::from(value)]);
+        }
+        fixture.invoke(&args)
+    };
+    let exact = [
+        ("--sequence", "51"),
+        ("--pending-sha256", hash.as_str()),
+        ("--confirm-refused", "true"),
+    ];
+    let (code, result) = abandon(&exact);
+    assert_eq!((code, result["state"].as_str()), (6, Some("not_paused")));
+    set_paused("true");
+    let other = "0".repeat(64);
+    let (code, result) = abandon(&[
+        ("--sequence", "51"),
+        ("--pending-sha256", other.as_str()),
+        ("--confirm-refused", "true"),
+    ]);
+    assert_eq!(
+        (code, result["state"].as_str()),
+        (6, Some("pending_mismatch"))
+    );
+    assert_eq!(abandon(&exact[..2]).0, 5);
+    assert_eq!(
+        abandon(&[exact[0], exact[1], ("--confirm-refused", "yes")]).0,
+        5
+    );
+    assert_eq!(
+        abandon(&[exact[0], exact[1], exact[2], ("--reserve-through", "50")]).0,
+        5
+    );
+    assert_eq!(abandon(&[("--sequence", "0"), exact[1], exact[2]]).0, 5);
+    let (_, unchanged) = fixture.run("diagnostics", &[]);
+    assert_eq!(unchanged["pending"]["sequence"], 51);
+
+    let (code, result) = abandon(&[exact[0], exact[1], exact[2], ("--reserve-through", "60")]);
+    assert_eq!(code, 0, "{result}");
+    assert_eq!(result["state"], "pending_abandoned");
+    assert_eq!(result["highestReserved"], 60);
+    assert_eq!(result["nextSequence"], 61);
+    let record: Value = serde_json::from_slice(
+        &fs::read(fixture.root.join("reconciliations/abandon-51.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(record, result["record"]);
+    assert_eq!(
+        record["pendingAbandoned"]["exactPendingSha256"],
+        hash.as_str()
+    );
+    assert_eq!(record["previousHighestReserved"], 51);
+    let copy = fs::read(fixture.root.join("reconciliations/abandon-51-pending.json")).unwrap();
+    assert_eq!(enouia_activity_contract::sha256_hex(&copy), hash);
+    let (code, result) = abandon(&exact);
+    assert_eq!(
+        (code, result["state"].as_str()),
+        (6, Some("pending_mismatch"))
+    );
+
+    let (_, diagnostics) = fixture.run("diagnostics", &[]);
+    assert_eq!(diagnostics["pending"], Value::Null);
+    assert_eq!(diagnostics["pendingAbandoned"]["sequence"], 51);
+    assert_eq!(diagnostics["pendingAbandoned"]["reservedThrough"], 60);
+    set_paused("false");
+    let (code, overview) = fixture.run("overview", &[]);
+    assert_eq!(code, 0);
+    assert_eq!(overview["delivery"]["state"], "idle");
+    assert_eq!(overview["delivery"]["pendingSequence"], Value::Null);
+    assert_eq!(overview["producer"]["highestReserved"], 60);
+    let (code, result) = fixture.run("sync", &[]);
+    assert_eq!(
+        (code, result["sequence"].as_u64()),
+        (4, Some(61)),
+        "{result}"
+    );
+    let bundle = fixture.base.join("rollback-after-abandon");
+    let (code, result) = fixture.run("migration-export-legacy", &[("--output", &bundle)]);
+    assert_eq!((code, result["highestReserved"].as_u64()), (0, Some(61)));
+}

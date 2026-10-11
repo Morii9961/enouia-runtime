@@ -514,6 +514,13 @@
       "sha256": "61f1d3ff80b1aed2f9dc68acd26c3a8a8737b2158fbbb046068657d5c894b806",
       "state": "passed",
       "selectorCount": 88
+    },
+    {
+      "id": "pending_abandonment",
+      "path": "docs/validation/Activity-claude-pending-abandon/proof.json",
+      "sha256": "665470fb16ec23418ce6264755f01657dbd3e4b3a01d70ba889342e8ef3ee1f2",
+      "state": "passed",
+      "selectorCount": 33
     }
   ],
   "cases": [
@@ -1018,6 +1025,27 @@
             "C14: higher remote sequence changes public hash",
             "C14-higher-remote: unsafe observation retains exact pending"
           ]
+        },
+        {
+          "report": "pending_abandonment",
+          "selectors": [
+            "T.reserve_through_moves_the_next_sequence_above_a_remote_high_water",
+            "T.abandoned_pending_is_never_reported_as_observed_publication",
+            "D.remote-ahead: another producer publishes sequence 60",
+            "D.remote-ahead: pending 52 is transported once but never published",
+            "D.remote-ahead: the receiver keeps sequence 60 and its public hash",
+            "D.remote-ahead: the stuck batch blocks collection",
+            "D.remote-ahead: abandonment is refused while the store runs",
+            "D.remote-ahead: pause before reconciliation",
+            "D.remote-ahead: abandonment of other bytes is refused",
+            "D.remote-ahead: confirmed abandonment reserves through the remote high-water",
+            "D.remote-ahead: the record and exact pending copy are kept",
+            "D.remote-ahead: resume after reconciliation",
+            "D.remote-ahead: overview reports idle rather than an old observation",
+            "D.remote-ahead: the next sync sends sequence 61",
+            "D.remote-ahead: sequence 61 is published and observed",
+            "D.remote-ahead: diagnostics show no pending and the abandonment"
+          ]
         }
       ],
       "remaining": [
@@ -1071,10 +1099,48 @@
             "C15-whole-batch-clock-rollback: public activity reports degraded",
             "C15-whole-batch-clock-rollback: transport completion without publication retains exact pending"
           ]
+        },
+        {
+          "report": "pending_abandonment",
+          "selectors": [
+            "T.abandonment_needs_a_paused_exact_request_and_keeps_the_sequence_consumed",
+            "T.generation_validation_bounds_the_record",
+            "T.later_commits_must_keep_the_record_and_publication_receipt",
+            "T.reserve_through_moves_the_next_sequence_above_a_remote_high_water",
+            "T.copied_executable_abandons_a_refused_pending_only_when_paused_and_exact",
+            "T.abandoned_pending_is_never_reported_as_observed_publication",
+            "D.remote-ahead: another producer publishes sequence 60",
+            "D.remote-ahead: pending 52 is transported once but never published",
+            "D.remote-ahead: the receiver keeps sequence 60 and its public hash",
+            "D.remote-ahead: the stuck batch blocks collection",
+            "D.remote-ahead: abandonment is refused while the store runs",
+            "D.remote-ahead: pause before reconciliation",
+            "D.remote-ahead: abandonment of other bytes is refused",
+            "D.remote-ahead: confirmed abandonment reserves through the remote high-water",
+            "D.remote-ahead: the record and exact pending copy are kept",
+            "D.remote-ahead: resume after reconciliation",
+            "D.remote-ahead: overview reports idle rather than an old observation",
+            "D.remote-ahead: the next sync sends sequence 61",
+            "D.remote-ahead: sequence 61 is published and observed",
+            "D.remote-ahead: diagnostics show no pending and the abandonment",
+            "D.archive-regression: baseline 51 is published",
+            "D.archive-regression: the publisher refuses the date-loss batch",
+            "D.archive-regression: pause before reconciliation",
+            "D.archive-regression: abandonment keeps sequence 52 consumed",
+            "D.archive-regression: resume after reconciliation",
+            "D.archive-regression: the next batch uses 53 and is still refused",
+            "D.all HTTP observations stayed on isolated status paths",
+            "D.reference remained unchanged: scripts/status-receive.mjs",
+            "D.reference remained unchanged: scripts/status-publish.mjs",
+            "D.reference remained unchanged: scripts/lib/status-store.mjs",
+            "D.reference remained unchanged: scripts/lib/status-batch.mjs",
+            "D.reference remained unchanged: src/lib/activity.ts",
+            "D.reference remained unchanged: src/lib/status.ts"
+          ]
         }
       ],
       "remaining": [
-        "Accept degraded/retained public data on the deployed publisher, static cache and three-language About pages; define the operator reconciliation procedure that resolves a refused pending without renumbering it."
+        "Accept degraded/retained public data on the deployed publisher, static cache and three-language About pages; use the ADR-033 abandonment procedure only with real server evidence of the refusal or remote high-water."
       ]
     },
     {
