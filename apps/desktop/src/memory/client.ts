@@ -26,6 +26,7 @@ export class CallError extends Error {
 const WRITES = new Set([
   "review_confirm", "forget_plan", "remember", "correction_propose", "import_start",
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
+  "provider_confirm", "external_prepare", "external_send",
 ]);
 
 export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;
@@ -99,6 +100,20 @@ const RULES: Record<string, string> = {
   "root.missing": "That folder does not exist",
   "root.not_a_directory": "That is not a folder",
   "root.unreadable": "That folder's properties could not be read",
+  "workspace.key_reuse": "This request key was already used for different content. Start the action again",
+  "workspace.token_busy": "That choice is already being used by another action. Wait for it to finish",
+  "workspace.excerpt_budget": "The excerpt budget is too small for this text",
+  "import.input_not_regular_file": "The chosen item is not a regular file. Choose the file again",
+  "import.input_changed": "The file changed after it was chosen. Choose it again",
+  "import.input_too_large": "The file is too large to import",
+  "mock.recompile_required": "The saved context is out of date. Ask again",
+  "provider.not_configured": "External providers are not set up on this computer",
+  "provider.api_not_configured": "That provider is not set up on this computer",
+  "provider.call_running": "A provider call is still running. Cancel it and wait for it to stop first",
+  "provider.call_unknown": "That prepared request is no longer available. Prepare it again",
+  "provider.call_expired": "That prepared request expired. Prepare it again",
+  "provider.plan_unknown": "That plan is no longer available. Create it again",
+  "review.stale_plan": "The content changed since you reviewed it. Review it again",
 };
 
 const HOST: Record<string, string> = {

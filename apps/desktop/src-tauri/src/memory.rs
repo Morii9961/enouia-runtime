@@ -664,7 +664,10 @@ mod tests {
                 "context_preview",
                 "index_rebuild",
                 "vault_verify",
-                "backup_export"
+                "backup_export",
+                "provider_confirm",
+                "external_prepare",
+                "external_send"
             ]
         );
         for read in [

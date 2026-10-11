@@ -8,8 +8,8 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 |---|---|
 | Repository | `https://github.com/Morii9961/enouia-memory.git` (public) |
 | Revision | recorded in [docs/integration/memory-pin.json](integration/memory-pin.json), in `apps/desktop/src-tauri/Cargo.toml` and in its `Cargo.lock` |
-| Consumed crates | `enouia-memory-workspace`, and `enouia-memory-contract` for its command catalog (long-running and write commands) |
-| Contract | workspace IPC v1 (`schemaVersion: 1`, 36 commands) |
+| Consumed crates | `enouia-memory-workspace`, `enouia-memory-contract` for its command catalog (long-running and write commands), and `enouia-memory-provider` for native text Provider setup (Memory ADR-MEM-48) |
+| Contract | workspace IPC v1 (`schemaVersion: 1`, 43 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
