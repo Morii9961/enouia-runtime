@@ -10,6 +10,7 @@ import { useAction, useLatestRead } from "./hooks";
 import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { SessionEventBody } from "./SessionEventBody";
+import { ExternalPanel } from "./ExternalPanel";
 
 type Branch = { sessionId: string; branchId: string };
 
@@ -148,7 +149,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                   await list();
                 });
               }}>
-                <label className="mem-label" htmlFor="mem-ask">Ask (local Mock; answers cite approved memories only)</label>
+                <label className="mem-label" htmlFor="mem-ask">Ask (Send uses the local Mock, which cites approved memories only; an external provider is in the inspector)</label>
                 <textarea ref={questionInput} id="mem-ask" className="mem-textarea" value={text} disabled={busy} onChange={(e) => editDraft("text", e.target.value)} />
                 <div className="mem-actions">
                   <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || busy}>Send</button>
@@ -174,6 +175,9 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           )}
           {detail && current && (
             <>
+              <ExternalPanel branch={current} text={text} invocations={detail.invocations ?? []}
+                consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
+                onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">
                 <h3 className="mem-h3">Checkpoints</h3>
                 <p className="mem-muted">Provisional session artifacts. They become memories only after review.</p>

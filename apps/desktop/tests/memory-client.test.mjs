@@ -4,7 +4,7 @@
 // covered by src-tauri/tests/memory_core.rs.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CallError, call, describe, pick, retryable, setTransport, shell } from '../src/memory/client.ts';
+import { CallError, call, describe, pick, providerKey, providerSetup, retryable, setTransport, shell } from '../src/memory/client.ts';
 
 const KEY = /^[A-Za-z0-9_-]{16,128}$/;
 const REQUEST_ID = /^req_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -109,4 +109,31 @@ test('shell commands are the declared window and startup commands', async () => 
   await shell.startupSet(true);
   assert.deepEqual(sent.map((s) => s.command), ['show_main', 'hide_window', 'exit_app', 'startup_status', 'startup_set']);
   assert.deepEqual(sent[4].args, { enabled: true });
+});
+
+test('provider setup and keys use only native commands and never carry a key', async () => {
+  const sent = recorder((command) => command === 'memory_provider_setup' ? { state: 'absent', file: 'memory-providers.json' } : { saved: true });
+  assert.equal((await providerSetup()).state, 'absent');
+  assert.deepEqual(await providerKey('openai', 'set'), { saved: true });
+  await providerKey('anthropic', 'remove');
+  assert.deepEqual(sent, [
+    { command: 'memory_provider_setup', args: {} },
+    { command: 'memory_provider_key', args: { api: 'openai', action: 'set' } },
+    { command: 'memory_provider_key', args: { api: 'anthropic', action: 'remove' } },
+  ]);
+  for (const rule of ['provider_busy', 'credential_malformed', 'credential_failed', 'credential_prompt_failed']) {
+    assert.doesNotMatch(describe(rule), /Memory call failed/, rule);
+  }
+});
+
+test('external commands are keyed writes, and provider rules have owner text', async () => {
+  const sent = recorder(() => ({ kind: 'external_prepared', result: {} }));
+  await call('external_prepare', {});
+  await call('provider_confirm', {});
+  await call('provider_status', {});
+  assert.match(sent[0].args.request.idempotencyKey, KEY);
+  assert.match(sent[1].args.request.idempotencyKey, KEY);
+  assert.equal(sent[2].args.request.idempotencyKey, null);
+  const refused = new CallError({ code: 'provider_unavailable', retryable: false, rules: ['provider.not_configured'] });
+  assert.match(describe(refused), /not set up/);
 });

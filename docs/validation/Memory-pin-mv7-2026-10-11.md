@@ -20,3 +20,15 @@ The desktop shell now embeds Enouia Memory `3f1671b8c8053d821b3d4086d731e978ab6e
 | `npm run desktop:build` + `e2e/memory-smoke.mjs` (default) | Passed 101/101 on a fresh synthetic Vault (`enouia-memory init`) and a synthetic Markdown file. |
 
 The smoke covers the existing Memory surfaces only. The Memory-side rows between `ff692cc` and this revision are behavior corrections already exercised by Memory's own tests; Runtime-specific evidence for them is limited to this smoke. No Provider call, credential or real data was used.
+
+## Follow-up: native setup (ADR-032) and the Sessions provider panel
+
+`provider.rs` parses the owner's `memory-providers.json` and injects Memory's native setup. Two main-window commands report the setup state and run the native key prompt. The Sessions inspector gains an external provider panel. It explains the off state; when a setup exists it shows the provider/model, a native key set/remove, grant review and revocation by exact content, preparation of the composer text with the exact request body, a single "Send once" operation, the session's Provider calls and local closing of unknown ones.
+
+| Check | Result |
+|---|---|
+| src-tauri `cargo test --locked`, clippy | Passed: 39 + 3 tests, including settings parsing, refusal rules, application to the pinned Core and the fixed credential names. |
+| `npm run check`, `npm test` | Passed 61/61, including native-command shapes, keyed external writes, owner text for the new rules and the panel's initial read state. |
+| `npm run desktop:build` + default smoke | First run 99/101: two quick-search hotkey checks failed (the intermittent foreground-focus observation already recorded for this mode), unrelated to Sessions. The rerun on a fresh synthetic Vault passed 101/101. Its Sessions screenshot shows the panel's off-state text. |
+
+Not exercised: a configured setup in the built app, the Windows credential prompt, Credential Manager writes, HTTPS and any provider. No settings file existed in the owner's Runtime configuration folder during the smoke.
