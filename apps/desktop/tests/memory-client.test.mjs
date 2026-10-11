@@ -4,7 +4,7 @@
 // covered by src-tauri/tests/memory_core.rs.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CallError, call, describe, pick, providerKey, providerSetup, retryable, setTransport, shell } from '../src/memory/client.ts';
+import { CallError, call, describe, pick, providerKey, providerSetup, providerReload, retryable, setTransport, shell } from '../src/memory/client.ts';
 
 const KEY = /^[A-Za-z0-9_-]{16,128}$/;
 const REQUEST_ID = /^req_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -114,10 +114,12 @@ test('shell commands are the declared window and startup commands', async () => 
 test('provider setup and keys use only native commands and never carry a key', async () => {
   const sent = recorder((command) => command === 'memory_provider_setup' ? { state: 'absent', file: 'memory-providers.json' } : { saved: true });
   assert.equal((await providerSetup()).state, 'absent');
+  await providerReload();
   assert.deepEqual(await providerKey('openai', 'set'), { saved: true });
   await providerKey('anthropic', 'remove');
   assert.deepEqual(sent, [
     { command: 'memory_provider_setup', args: {} },
+    { command: 'memory_provider_reload', args: {} },
     { command: 'memory_provider_key', args: { api: 'openai', action: 'set' } },
     { command: 'memory_provider_key', args: { api: 'anthropic', action: 'remove' } },
   ]);

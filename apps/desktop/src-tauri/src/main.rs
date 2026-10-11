@@ -52,6 +52,7 @@ fn main() {
             memory::memory_call,
             memory::memory_pick,
             provider::memory_provider_setup,
+            provider::memory_provider_reload,
             provider::memory_provider_key,
             shell::shell_status,
             shell::shell_show,
@@ -68,7 +69,7 @@ fn main() {
             // Native Provider sending stays off without the owner's
             // settings file (ADR-032).
             let path = provider::settings_path(app.handle());
-            provider::apply(&app.state::<MemoryHost>(), path.as_deref());
+            let _ = provider::apply(&app.state::<MemoryHost>(), path.as_deref());
             shell::install(app)?;
             Ok(())
         })

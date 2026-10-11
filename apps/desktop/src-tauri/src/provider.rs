@@ -25,6 +25,7 @@ use enouia_memory_provider::windows::CredentialStore;
 use enouia_memory_workspace::{NativeDestination, NativeProvider};
 use serde::Deserialize;
 use serde_json::{Value, json};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tauri::{Manager, State, WebviewWindow};
@@ -157,7 +158,13 @@ impl Setup {
 
 /// Read the settings file, if any.
 pub fn load(path: &Path) -> Result<Option<NativeProvider>, &'static str> {
-    match std::fs::read(path) {
+    let bytes = (|| {
+        let file = std::fs::File::open(path)?;
+        let mut bytes = Vec::new();
+        file.take(64 * 1024 + 1).read_to_end(&mut bytes)?;
+        Ok::<_, std::io::Error>(bytes)
+    })();
+    match bytes {
         Ok(bytes) if bytes.len() > 64 * 1024 => Err("provider_setup.too_large"),
         Ok(bytes) => parse(&bytes).map(Some),
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
@@ -174,27 +181,25 @@ pub fn settings_path(app: &tauri::AppHandle) -> Option<PathBuf> {
 
 /// Load the owner's settings and hand them to the Core. Called at start
 /// and before a key change; a missing or invalid file leaves sending off.
-pub fn apply(host: &MemoryHost, path: Option<&Path>) -> Setup {
+pub fn apply(host: &MemoryHost, path: Option<&Path>) -> Result<Setup, &'static str> {
+    let _update = host.provider_update()?;
+    apply_locked(host, path)
+}
+
+fn apply_locked(host: &MemoryHost, path: Option<&Path>) -> Result<Setup, &'static str> {
     let loaded = match path {
         None => Err("provider_setup.unreadable"),
         Some(path) => load(path),
     };
-    let setup = match loaded {
-        Ok(None) => {
-            let _ = host.set_native_provider(None);
-            Setup::Absent
-        }
-        Ok(Some(provider)) => match host.set_native_provider(Some(provider)) {
-            Ok(()) => Setup::Ready,
-            Err(rule) => Setup::Invalid(rule),
-        },
-        Err(rule) => {
-            let _ = host.set_native_provider(None);
-            Setup::Invalid(rule)
-        }
+    let (provider, setup) = match loaded {
+        Ok(None) => (None, Setup::Absent),
+        Ok(Some(provider)) => (Some(provider), Setup::Ready),
+        Err(rule) => (None, Setup::Invalid(rule)),
     };
-    host.set_provider_setup(setup.clone());
-    setup
+    // A busy Core keeps its previous setup. Never claim sending is off if
+    // taking the setup away was refused by a running call.
+    host.replace_provider_setup(provider, setup.clone())?;
+    Ok(setup)
 }
 
 fn credential_name(api: &str) -> Option<&'static str> {
@@ -215,6 +220,27 @@ pub async fn memory_provider_setup(
         return Err("permission_denied".into());
     }
     Ok(host.provider_setup().describe())
+}
+
+/// Explicitly reload the same host-owned file. This neither prompts for a
+/// key nor dispatches a request; the page cannot supply a path or file text.
+#[tauri::command]
+pub async fn memory_provider_reload(
+    window: WebviewWindow,
+    host: State<'_, MemoryHost>,
+) -> Result<Value, String> {
+    if window.label() != "main" {
+        return Err("permission_denied".into());
+    }
+    let host = host.inner().clone();
+    let path = settings_path(window.app_handle());
+    tauri::async_runtime::spawn_blocking(move || {
+        apply(&host, path.as_deref())
+            .map(|setup| setup.describe())
+            .map_err(str::to_owned)
+    })
+    .await
+    .map_err(|_| "worker_failed".to_owned())?
 }
 
 /// Set or remove one API key natively. `set` opens the Windows credential
@@ -241,17 +267,21 @@ pub async fn memory_provider_key(
     let parent = window.hwnd().map(|h| h.0 as isize).unwrap_or(0);
     #[cfg(not(windows))]
     let parent = 0isize;
-    tauri::async_runtime::spawn_blocking(move || match action.as_str() {
-        "set" => set_key(name, &api, parent),
-        "remove" => {
-            host.set_native_provider(None)
-                .map_err(|_| "provider_busy".to_owned())?;
-            let removed = CredentialStore.delete(name);
-            apply(&host, path.as_deref());
-            removed.map_err(|_| "credential_failed".to_owned())?;
-            Ok(json!({"removed": true}))
+    tauri::async_runtime::spawn_blocking(move || {
+        let _update = host.provider_update().map_err(str::to_owned)?;
+        match action.as_str() {
+            "set" => set_key(name, &api, parent),
+            "remove" => {
+                host.replace_provider_setup(None, Setup::Absent)
+                    .map_err(|_| "provider_busy".to_owned())?;
+                let removed = CredentialStore.delete(name);
+                let applied = apply_locked(&host, path.as_deref());
+                removed.map_err(|_| "credential_failed".to_owned())?;
+                applied.map_err(str::to_owned)?;
+                Ok(json!({"removed": true}))
+            }
+            _ => Err("invalid_request".into()),
         }
-        _ => Err("invalid_request".into()),
     })
     .await
     .map_err(|_| "worker_failed".to_owned())?
@@ -486,14 +516,14 @@ mod tests {
         let path = dir.join(SETTINGS_FILE);
         let _ = std::fs::remove_file(&path);
         let host = MemoryHost::new();
-        assert_eq!(apply(&host, Some(&path)), Setup::Absent);
+        assert_eq!(apply(&host, Some(&path)), Ok(Setup::Absent));
         std::fs::write(&path, settings(json!([openai()]))).unwrap();
-        assert_eq!(apply(&host, Some(&path)), Setup::Ready);
+        assert_eq!(apply(&host, Some(&path)), Ok(Setup::Ready));
         assert_eq!(host.provider_setup().describe()["state"], "ready");
         std::fs::write(&path, b"{").unwrap();
         assert_eq!(
             apply(&host, Some(&path)),
-            Setup::Invalid("provider_setup.malformed")
+            Ok(Setup::Invalid("provider_setup.malformed"))
         );
         let status = host
             .forward(
@@ -502,8 +532,178 @@ mod tests {
             )
             .unwrap();
         assert_eq!(status["result"]["configured"], false);
+        std::fs::write(&path, settings(json!([openai()]))).unwrap();
+        assert_eq!(apply(&host, Some(&path)), Ok(Setup::Ready));
+        let before = std::fs::read(&path).unwrap();
+        {
+            let _update = host.provider_update().unwrap();
+            assert_eq!(apply(&host, Some(&path)), Err("provider_setup.busy"));
+            assert_eq!(host.provider_setup(), Setup::Ready);
+        }
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        std::fs::remove_file(&path).unwrap();
+        assert_eq!(apply(&host, Some(&path)), Ok(Setup::Absent));
+        host.begin_close();
+        assert_eq!(apply(&host, Some(&path)), Err("runtime_closing"));
         host.shutdown();
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn core_refusal_does_not_replace_the_observed_setup() {
+        let host = MemoryHost::new();
+        host.replace_provider_setup(
+            Some(parse(&settings(json!([openai()]))).unwrap()),
+            Setup::Ready,
+        )
+        .unwrap();
+        let mut refused = parse(&settings(json!([openai()]))).unwrap();
+        refused.destinations[0].capabilities.context_window_tokens = Some(0);
+        assert_eq!(
+            host.replace_provider_setup(Some(refused), Setup::Ready),
+            Err("provider_setup.refused")
+        );
+        assert_eq!(host.provider_setup(), Setup::Ready);
+        host.shutdown();
+    }
+
+    #[test]
+    fn oversized_settings_are_refused_before_parsing() {
+        let path =
+            std::env::temp_dir().join(format!("enouia-provider-large-{}.json", std::process::id()));
+        std::fs::write(&path, vec![b' '; 64 * 1024 + 1]).unwrap();
+        assert_eq!(load(&path).err(), Some("provider_setup.too_large"));
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn a_running_synthetic_send_preserves_setup_until_reload_can_disable_it() {
+        use enouia_memory_contract::foundation::{Cancellation, ComponentId};
+        use enouia_memory_contract::ports::{SecretBytes, SecretStore};
+        use enouia_memory_contract::{MemoryError, MemoryErrorCode};
+        use enouia_memory_provider::codec::WireRequest;
+        use enouia_memory_workspace::PickKind;
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::time::{Duration, Instant};
+
+        struct Secrets;
+        impl SecretStore for Secrets {
+            fn read(&self, _: &str) -> Result<SecretBytes, MemoryError> {
+                Ok(SecretBytes::new(b"synthetic-secret".to_vec()))
+            }
+        }
+        struct Held(AtomicBool);
+        impl Transport for Held {
+            fn exchange(
+                &self,
+                _: &WireRequest,
+                _: &SecretBytes,
+                cancel: &dyn Cancellation,
+                _: Duration,
+                _: &mut dyn FnMut(&[u8]) -> Result<(), MemoryError>,
+            ) -> Result<(), MemoryError> {
+                self.0.store(true, Ordering::SeqCst);
+                let deadline = Instant::now() + Duration::from_secs(10);
+                while !cancel.is_cancelled() && Instant::now() < deadline {
+                    std::thread::sleep(Duration::from_millis(5));
+                }
+                Err(MemoryError::new(
+                    MemoryErrorCode::Cancelled,
+                    ComponentId::Provider,
+                ))
+            }
+        }
+        struct Fixture {
+            host: MemoryHost,
+            dir: PathBuf,
+        }
+        impl Drop for Fixture {
+            fn drop(&mut self) {
+                self.host.shutdown();
+                let _ = std::fs::remove_dir_all(&self.dir);
+            }
+        }
+        let dir = std::env::temp_dir().join(format!("enouia-provider-held-{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("vault")).unwrap();
+        let dir = std::fs::canonicalize(dir).unwrap();
+        let dir = PathBuf::from(dir.to_string_lossy().trim_start_matches(r"\\?\"));
+        let fixture = Fixture {
+            host: MemoryHost::new(),
+            dir,
+        };
+        let host = &fixture.host;
+        let mut n = 0;
+        let mut call = |command: &str, arguments: Value| {
+            n += 1;
+            let response = host
+                .forward(&json!({"schemaVersion": 1,
+                "requestId": format!("req_00000000-0000-4000-8000-{n:012}"),
+                "command": command, "idempotencyKey": if enouia_memory_contract::workspace::is_write(command) { json!(format!("synthetic-provider-test-{n:04}")) } else { Value::Null },
+                "arguments": arguments}))
+                .unwrap();
+            assert_eq!(response["error"], Value::Null, "{response}");
+            response["result"].clone()
+        };
+        let token = host.register_pick(PickKind::VaultRoot, &fixture.dir.join("vault"));
+        call(
+            "vault_create",
+            json!({"rootToken": token["token"], "confirmPhrase": "create new vault"}),
+        );
+        let http = Arc::new(Held(AtomicBool::new(false)));
+        let mut provider = parse(&settings(json!([openai()]))).unwrap();
+        provider.transport = http.clone();
+        provider.secrets = Arc::new(Secrets);
+        host.replace_provider_setup(Some(provider), Setup::Ready)
+            .unwrap();
+        let plan = call(
+            "egress_grant_plan",
+            json!({"apis": ["openai"], "maxSensitivity": "private", "extraction": false}),
+        );
+        let policy = call(
+            "provider_confirm",
+            json!({"planId": plan["planId"], "diffHash": plan["diffHash"]}),
+        );
+        let session = call("session_new", json!({}));
+        let prepared = call(
+            "external_prepare",
+            json!({"sessionId": session["sessionId"], "branchId": session["branchId"],
+            "text": "Synthetic question only", "api": "openai", "policyId": policy["policyId"], "streaming": false, "outputTokens": 128}),
+        );
+        let started = call(
+            "external_send",
+            json!({"callId": prepared["callId"], "wireHash": prepared["wireHash"]}),
+        );
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while !http.0.load(Ordering::SeqCst) {
+            assert!(
+                Instant::now() < deadline,
+                "synthetic transport did not start"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        let path = fixture.dir.join(SETTINGS_FILE);
+        std::fs::write(&path, b"{").unwrap();
+        assert_eq!(apply(host, Some(&path)), Err("provider.call_running"));
+        assert_eq!(host.provider_setup(), Setup::Ready);
+        assert_eq!(call("provider_status", json!({}))["configured"], true);
+        std::fs::remove_file(&path).unwrap();
+        assert_eq!(apply(host, Some(&path)), Err("provider.call_running"));
+        assert_eq!(host.provider_setup(), Setup::Ready);
+        call(
+            "operation_cancel",
+            json!({"operationId": started["operationId"]}),
+        );
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            match apply(host, Some(&path)) {
+                Ok(Setup::Absent) => break,
+                Err("provider.call_running") if Instant::now() < deadline => {
+                    std::thread::sleep(Duration::from_millis(5))
+                }
+                other => panic!("reload did not recover: {other:?}"),
+            }
+        }
+        assert_eq!(call("provider_status", json!({}))["configured"], false);
     }
 
     #[test]

@@ -130,6 +130,18 @@ const HOST: Record<string, string> = {
   startup_different_installation: "Another Enouia Runtime installation owns login startup. Turn it off there first",
   startup_write_failed: "Login startup could not be changed",
   provider_busy: "A provider call is still running. Cancel it and wait for it to stop first",
+  "provider_setup.busy": "A settings reload or key change is already in progress. Wait for it to finish",
+  "provider.call_running": "A provider call is still running. Wait for it to stop before reloading settings",
+  "provider_setup.refused": "Memory refused the new settings. The previously loaded setup remains active",
+  "provider_setup.malformed": "Check the JSON fields and values. API keys do not belong in this file",
+  "provider_setup.schema_version": "Use schemaVersion 1 in the settings file",
+  "provider_setup.destinations": "Configure one or two destinations: OpenAI and/or Anthropic",
+  "provider_setup.duplicate_api": "Configure each provider only once",
+  "provider_setup.model": "Use the exact model ID you verified, without spaces",
+  "provider_setup.limits": "The output limit must be positive and smaller than the context window",
+  "provider_setup.quota": "Use 1–1000 attempts per session and a positive session token budget",
+  "provider_setup.too_large": "The settings file must be no larger than 64 KiB",
+  "provider_setup.unreadable": "Runtime could not read its settings file. Check file access and reload",
   credential_malformed: "That key has spaces or characters an API key cannot contain. Nothing was saved",
   credential_failed: "Windows Credential Manager could not save or remove the key",
   credential_prompt_failed: "The Windows credential prompt could not be shown",
@@ -153,6 +165,9 @@ export const retryable = (error: unknown): boolean => error instanceof CallError
 
 /** Native Provider setup state; never a key or a path (ADR-032). */
 export const providerSetup = () => transport("memory_provider_setup", {}) as Promise<J>;
+
+/** Reload the host-owned settings file; carries no path, key or request body. */
+export const providerReload = () => transport("memory_provider_reload", {}) as Promise<J>;
 
 /** Set a key in the native Windows credential prompt, or remove it (ADR-032). */
 export const providerKey = (api: string, action: "set" | "remove") =>

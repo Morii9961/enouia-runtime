@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-memory-provider-reload"
+description = "Enables the memory_provider_reload command without any pre-configured scope."
+commands.allow = ["memory_provider_reload"]
+
+[[permission]]
+identifier = "deny-memory-provider-reload"
+description = "Denies the memory_provider_reload command without any pre-configured scope."
+commands.deny = ["memory_provider_reload"]
