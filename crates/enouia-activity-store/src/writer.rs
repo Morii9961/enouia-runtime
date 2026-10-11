@@ -141,6 +141,11 @@ fn wide(value: &OsStr) -> Vec<u16> {
     value.encode_wide().chain(std::iter::once(0)).collect()
 }
 
+/// Write-through rename inside one root that never replaces an existing entry.
+pub(crate) fn move_without_replace(from: &Path, to: &Path) -> bool {
+    switch_current(from, to, false).is_ok()
+}
+
 fn switch_current(staged: &Path, current: &Path, replace: bool) -> Result<(), CommitError> {
     let from = wide(staged.as_os_str());
     let to = wide(current.as_os_str());

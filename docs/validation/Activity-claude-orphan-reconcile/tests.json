@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "scope": "isolated_activity_orphan_reconciliation_tests",
+  "runs": [
+    {
+      "id": "store",
+      "command": "cargo test --offline --locked -p enouia-activity-store --test orphan_reconcile -- --test-threads=1",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 4 tests",
+        "test inspection_lists_the_blocking_orphan_and_changes_nothing ... ok",
+        "test refusals_leave_the_root_unchanged ... ok",
+        "test retraction_of_an_unrecorded_receipt_allows_the_acknowledgment_again ... ok",
+        "test retraction_restores_writing_and_keeps_every_byte ... ok",
+        "",
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "runner_cli",
+      "command": "cargo test --offline --locked -p enouia-activity-runner --test cli -- --test-threads=1 copied_executable_inspects_and_retracts_one_confirmed_orphan help_lists_the_recovery_commands",
+      "exitCode": 0,
+      "output": [
+        "",
+        "running 2 tests",
+        "test copied_executable_inspects_and_retracts_one_confirmed_orphan ... ok",
+        "test help_lists_the_recovery_commands ... ok",
+        "",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out",
+        "",
+        ""
+      ]
+    }
+  ]
+}

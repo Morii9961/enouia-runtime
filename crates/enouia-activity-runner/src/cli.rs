@@ -8,6 +8,11 @@ use enouia_activity_store::legacy_import::{ImportError, ImportOptions, import_le
 use enouia_activity_store::legacy_inspect::{compare_archives, inspect_legacy_trio};
 use enouia_activity_store::overview::{read_activity_status, read_delivery_overview_locked};
 use enouia_activity_store::pause::set_paused_locked;
+use enouia_activity_store::reconcile::{
+    GenerationEvidence, RetractError, inspect_recovery_locked, retract_unselected_locked,
+    standing_name, valid_manifest_sha256,
+};
+use enouia_activity_store::recovery::RecoveryError;
 use enouia_activity_store::{ActivityLockGuard, WindowsActivityLock};
 use enouia_common::{Cancellation, Clock, ComponentId, ErrorCode, LockProvider};
 use enouia_windows_process::WindowsProcessRunner;
@@ -28,9 +33,14 @@ struct Parsed {
 fn parse(args: &[OsString]) -> Option<Parsed> {
     let name = args.first()?.to_str()?.to_owned();
     let allowed: &[&str] = match name.as_str() {
-        "diagnostics" | "sync" | "retry-pending" | "set-paused" | "overview" | "preview" => {
-            &["--config"]
-        }
+        "diagnostics" | "sync" | "retry-pending" | "set-paused" | "overview" | "preview"
+        | "recovery-inspect" => &["--config"],
+        "recovery-retract" => &[
+            "--config",
+            "--generation",
+            "--manifest-sha256",
+            "--confirm-never-selected",
+        ],
         "migration-inspect" => &["--input", "--output", "--against"],
         "migration-import" => &["--bundle", "--config", "--high-water", "--verified-unused"],
         "migration-export-legacy" => &["--config", "--output"],
@@ -63,6 +73,13 @@ fn parse(args: &[OsString]) -> Option<Parsed> {
 }
 
 impl Parsed {
+    fn text(&self, key: &str) -> Result<&str, (u8, Value)> {
+        self.options
+            .get(key)
+            .and_then(|value| value.to_str())
+            .ok_or_else(|| failure(5, "invalid_arguments"))
+    }
+
     fn path(&self, key: &str) -> Result<PathBuf, (u8, Value)> {
         self.options
             .get(key)
@@ -201,8 +218,59 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
     } else {
         None
     };
+    // The operator names one generation, its exact manifest hash and the
+    // never-selected confirmation before anything is locked or read.
+    let retraction = if args.name == "recovery-retract" {
+        let generation = args.text("--generation")?;
+        let manifest = args.text("--manifest-sha256")?;
+        if args.text("--confirm-never-selected")? != "true" || !valid_manifest_sha256(manifest) {
+            return Err(failure(5, "invalid_arguments"));
+        }
+        Some((generation, manifest))
+    } else {
+        None
+    };
     let guard = lock(&config)?;
     match args.name.as_str() {
+        "recovery-inspect" => {
+            let inspection = inspect_recovery_locked(&guard, &clock)
+                .map_err(|error| recovery_failure(&error))?;
+            let current = &inspection.current;
+            Ok((
+                0,
+                json!({"schemaVersion":1,"state":"recovery_inspected","exitCode":0,
+                "writable":inspection.blocking.is_empty(),
+                "current":{"id":current.id,"manifestSha256":current.manifest_sha256,
+                    "highestReserved":current.highest_reserved,"pendingSequence":current.pending_sequence},
+                "olderGenerations":inspection.older_generations,
+                "stagingDirectories":inspection.staging_directories,
+                "blocking":inspection.blocking.iter().map(generation_json).collect::<Vec<_>>()}),
+            ))
+        }
+        "recovery-retract" => {
+            let (generation, manifest) =
+                retraction.ok_or_else(|| failure(5, "invalid_arguments"))?;
+            match retract_unselected_locked(&guard, &clock, generation, manifest) {
+                Ok(retracted) => Ok((
+                    0,
+                    json!({"schemaVersion":1,"state":"generation_retracted","exitCode":0,
+                    "writable":retracted.writable,"remainingBlocking":retracted.remaining_blocking,
+                    "record":retracted.record}),
+                )),
+                Err(RetractError::RecordFailed(retracted)) => Err((
+                    6,
+                    json!({"schemaVersion":1,"state":"retracted_record_failed","exitCode":6,
+                    "writable":retracted.writable,"remainingBlocking":retracted.remaining_blocking,
+                    "record":retracted.record}),
+                )),
+                Err(RetractError::Recovery(error)) => Err(recovery_failure(&error)),
+                Err(RetractError::InvalidGenerationId) => Err(failure(5, "invalid_arguments")),
+                Err(RetractError::NotRetractable) => Err(failure(6, "not_retractable")),
+                Err(RetractError::ManifestMismatch) => Err(failure(6, "manifest_mismatch")),
+                Err(RetractError::StagingOccupied) => Err(failure(6, "staging_occupied")),
+                Err(RetractError::Io) => Err(failure(6, "storage_failed")),
+            }
+        }
         "diagnostics" => {
             let overview = read_delivery_overview_locked(&guard, &clock)
                 .map_err(|_| failure(6, "storage_failed"))?;
@@ -320,7 +388,7 @@ pub fn invoke(args: &[OsString]) -> (u8, Value) {
     if args.len() == 1 && args[0] == "--help" {
         return (
             0,
-            json!({"schemaVersion":1,"state":"help","commands":["diagnostics","overview","preview","sync","retry-pending","set-paused","migration-inspect","migration-import","migration-export-legacy"]}),
+            json!({"schemaVersion":1,"state":"help","commands":["diagnostics","overview","preview","sync","retry-pending","set-paused","migration-inspect","migration-import","migration-export-legacy","recovery-inspect","recovery-retract"]}),
         );
     }
     let Some(args) = parse(args) else {
@@ -338,4 +406,24 @@ fn source_inventory(snapshot: &Option<enouia_activity_contract::Snapshot>) -> Va
             "total":s.days.iter().map(|d| d.value).sum::<u64>(),
             "firstDate":s.days.first().map(|d| &d.date),"lastDate":s.days.last().map(|d| &d.date)}),
     }
+}
+
+/// Recovery failures name the blocking class but never a path.
+fn recovery_failure(error: &RecoveryError) -> (u8, Value) {
+    let reason = match error {
+        RecoveryError::Current(_) => "current_unreadable",
+        RecoveryError::InvalidEntry => "invalid_entry",
+        _ => "storage_failed",
+    };
+    (
+        6,
+        json!({"schemaVersion":1,"state":"recovery_unavailable","exitCode":6,"reason":reason}),
+    )
+}
+
+fn generation_json(generation: &GenerationEvidence) -> Value {
+    json!({"id":generation.id,"standing":standing_name(&generation.standing),
+        "manifestSha256":generation.manifest_sha256,"highestReserved":generation.highest_reserved,
+        "pendingSequence":generation.pending_sequence,"pendingSha256":generation.pending_sha256,
+        "preparedPointer":generation.prepared_pointer.as_str()})
 }
