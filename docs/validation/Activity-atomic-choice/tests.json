@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "cargo test --offline --locked",
+  "hostTests": 40,
+  "coreTests": 3,
+  "childEntryPoint": "saved_choice_writer_child (included in host count)",
+  "results": [
+    {
+      "id": "T.saved_choice_partial_write_failure_preserves_old_bytes_and_retries",
+      "passed": true
+    },
+    {
+      "id": "T.saved_choice_process_death_keeps_prior_choice_and_ignores_staging",
+      "passed": true
+    },
+    {
+      "id": "T.saved_choice_replacement_sharing_refusal_preserves_bytes_and_retries",
+      "passed": true
+    },
+    {
+      "id": "T.saved_choice_shared_reader_retains_complete_old_snapshot",
+      "passed": true
+    }
+  ]
+}

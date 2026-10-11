@@ -1,0 +1,98 @@
+{
+  "checks": [
+    {
+      "id": "AR.owned_prior_choice_is_written",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.startup_connects_prior_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.owned_finite_holder_is_ready",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.actual_write_open_remains_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.settings_remain_readable_during_hold",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.actual_picker_save_reports_saved_false",
+      "ok": true,
+      "detail": "{\"configured\":true,\"folder\":\"package\",\"mode\":\"sandbox\",\"saved\":false,\"taskName\":\"Enouia-Activity-UI-Sandbox\"}"
+    },
+    {
+      "id": "AR.refused_save_keeps_exact_prior_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.refused_replacement_removes_only_own_staging_file",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.refused_save_keeps_three_exact_histories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.status_stays_configured_during_hold",
+      "ok": true,
+      "detail": "{\"configured\":true,\"folder\":\"package\",\"mode\":\"sandbox\",\"saved\":true,\"taskName\":\"Enouia-Activity-UI-Sandbox\"}"
+    },
+    {
+      "id": "AR.refused_save_preserves_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.release_keeps_exact_prior_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.released_picker_saves_verified_choice",
+      "ok": true,
+      "detail": "{\"configured\":true,\"folder\":\"package\",\"mode\":\"sandbox\",\"saved\":true,\"taskName\":\"Enouia-Activity-UI-Sandbox\"}"
+    },
+    {
+      "id": "AR.released_save_replaces_prior_with_canonical_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.successful_replacement_leaves_no_staging_file",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.restart_reconnects_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.all_write_faults_leave_complete_store_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "AR.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-choice-write-recovered.png"
+  ],
+  "summary": "18/18"
+}

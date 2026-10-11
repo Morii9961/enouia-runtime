@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "id": "CW.owned_prior_choice_is_written",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.startup_connects_prior_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.owned_finite_holder_is_ready",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.actual_settings_write_is_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.settings_remain_readable_during_hold",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.actual_picker_save_reports_saved_false",
+      "ok": true,
+      "detail": "{\"configured\":true,\"folder\":\"package\",\"mode\":\"sandbox\",\"saved\":false,\"taskName\":\"Enouia-Activity-UI-Sandbox\"}"
+    },
+    {
+      "id": "CW.refused_save_keeps_exact_prior_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.refused_save_keeps_three_exact_histories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.status_stays_configured_during_hold",
+      "ok": true,
+      "detail": "{\"configured\":true,\"folder\":\"package\",\"mode\":\"sandbox\",\"saved\":true,\"taskName\":\"Enouia-Activity-UI-Sandbox\"}"
+    },
+    {
+      "id": "CW.refused_save_preserves_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.release_keeps_exact_prior_bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.released_picker_saves_verified_choice",
+      "ok": true,
+      "detail": "{\"configured\":true,\"folder\":\"package\",\"mode\":\"sandbox\",\"saved\":true,\"taskName\":\"Enouia-Activity-UI-Sandbox\"}"
+    },
+    {
+      "id": "CW.released_save_replaces_prior_with_canonical_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.restart_reconnects_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.all_write_faults_leave_complete_store_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "CW.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-choice-write-recovered.png"
+  ],
+  "summary": "16/16"
+}

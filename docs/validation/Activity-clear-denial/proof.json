@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_saved_choice_clear_denial",
+  "baseline": "9f1441dcbd929bf6eea0d8ce86488a43ca0a2554",
+  "checks": [
+    "CD.actual_selection_saves_owned_choice",
+    "CD.real_acl_denial_hides_choice_existence",
+    "CD.native_clear_reports_saved_false",
+    "CD.refusal_explains_reconnect_and_retry",
+    "CD.native_status_retains_failed_clear",
+    "CD.denial_never_changes_activity_store",
+    "CD.exact_owned_descriptors_and_bytes_restored",
+    "CD.failed_clear_preserves_exact_choice_bytes",
+    "CD.package_manifest_and_store_remain_exact",
+    "CD.remount_keeps_failed_clear_feedback",
+    "CD.restart_reconnects_retained_choice",
+    "CD.restart_verifies_retained_choice_saved",
+    "CD.recovery_clear_reports_saved_true",
+    "CD.recovery_clear_removes_owned_file",
+    "CD.recovery_status_retains_success",
+    "CD.successful_clear_stays_forgotten_after_restart",
+    "CD.complete_store_and_manifest_remain_exact",
+    "T.clear_denial_is_not_success",
+    "T.clear_accepts_absence_and_removes_existing"
+  ],
+  "productSourceChanged": true,
+  "modeledReplies": false,
+  "tasksCreated": false,
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "actualAclDenial": true,
+  "existenceHiddenDuringDenial": true,
+  "clearRequiresSuccessOrNotFound": true,
+  "failedClearDisconnectsCurrentWindow": true,
+  "retainedChoiceReconnectsAfterRestart": true,
+  "exactDescriptorsAndBytesRestored": true,
+  "absentFileRemainsSuccess": true,
+  "beforeReport": "docs/validation/Activity-clear-denial/before.json",
+  "beforeReportSha256": "dbdaeb966d2d953b5f305f5f959b631b7950d811088c8eacd03e79032c63e3cd",
+  "beforeDesktopSha256": "03d325b30f454d03dfcdc750a48e20d3f56d691e8b5e3051515da298d193aac0",
+  "testReport": "docs/validation/Activity-clear-denial/tests.json",
+  "testReportSha256": "90514dd37ae743683687ea445e34987f49043099bae4db5db117f8e8ab927414",
+  "nativeReports": [
+    {
+      "id": "denial",
+      "path": "docs/validation/Activity-clear-denial/denial.json",
+      "sha256": "6bd11ce08786d84f4ffa867d5cee02941cdebb57b83f1c02b20d40674ff03fe7",
+      "summary": "17/17",
+      "exitCode": 0
+    },
+    {
+      "id": "sharing",
+      "path": "docs/validation/Activity-clear-denial/sharing.json",
+      "sha256": "ae2fc0bce6a35af4910c0f92b11d676e4b2f6bf77fe07ca8f79354da1e0d0b6f",
+      "summary": "19/19",
+      "exitCode": 0
+    },
+    {
+      "id": "actions",
+      "path": "docs/validation/Activity-clear-denial/actions.json",
+      "sha256": "a3fe5373858b8e43d9e2f46441e302627704c3773c57a0b2d253ae9955a0e893",
+      "summary": "35/35",
+      "exitCode": 0
+    }
+  ],
+  "frontendEvidence": "docs/validation/Activity-future-age/tests.json",
+  "frontendEvidenceSha256": "a2f2cb0e478901af7ffafed21949b8a0253d921547b2dd9be7f5aaa320a6e999",
+  "frontendSourceSha256": "ed4f5c85a3ac545fcfe13cb32533e5e433db949259ac0593de9e539c32a2239f",
+  "desktopSha256": "d78d16d2b2839323cad4f49377a70b580174b5d9979ce8555e2f861c77910e55",
+  "installerSha256": "6855eee4f2b4ce18274beb43fb1f90344b1755eaf52b690a126ae45e79a47ccf",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "productSourceSha256": "846dc7474410ef9586ad97d9ec4bf57ffcfbdf129a764f51078c33a9237b5d43",
+  "harnessSha256": "bacfb82b5d912dd2f9dd24e8407bf63b33e39fe24bf1a5e3b4b6e77e6236c838",
+  "drillSha256": "14e39031f0eb0b738bcb2ca9eaf137e2640fdef2742aa5669504414f44c5fa70",
+  "denialHelperSha256": "c931d2e9fbe59873d7262c026ee70dc16add7de18016b8912170e20b3bbf24a4",
+  "frozenDesktopStable": true,
+  "limitations": [
+    "All denial rights target new owned fixtures. Full original file/directory descriptors and file bytes restore before recovery.",
+    "The current window still disconnects after failed clear; the retained saved file can reconnect after restart, and the UI reports that outcome.",
+    "Fresh Windows host tests replace the older host evidence for this changed Rust source; unchanged frontend evidence is reused at its exact model-source digest.",
+    "No personal data, accounts, scheduled task, live delivery, installation, signing or deployment."
+  ]
+}

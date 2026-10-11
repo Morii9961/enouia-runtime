@@ -1,0 +1,114 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.session_creation_wait_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.session_acknowledgement_respects_moved_focus",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.first_session_answer_observed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.session_answer_wait_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.new_question_clears_previous_answer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_question_stays_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.failed_delivery_keeps_submitted_draft",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.failed_delivery_does_not_show_old_answer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.failed_delivery_has_no_pending_status",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.session_retry_reuses_receipt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.session_retry_reuses_payload_and_key",
+      "ok": true,
+      "detail": "observed requests: 2"
+    },
+    {
+      "id": "W02.session_retry_wait_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.acknowledgement_preserves_edited_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.retry_does_not_duplicate_turn",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.replayed_answer_uses_submitted_question",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.checkpoint_wait_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.checkpoint_draft_waits_for_receipt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.checkpoint_does_not_clear_question_draft",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.session_writes_do_not_approve_memories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.session_write_host_exits",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "25-session-write-pending.png",
+    "26-session-write-recovered.png"
+  ],
+  "summary": "21/21"
+}

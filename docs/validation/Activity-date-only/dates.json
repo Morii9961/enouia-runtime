@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "id": "DO.actual_package_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.date_only_reply_is_proved_before_display",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.date_only_keeps_source_cards",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.updated_header_keeps_date_precision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.next_trigger_keeps_date_precision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.next_retry_keeps_date_precision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.last_transport_keeps_date_precision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.publication_keeps_date_precision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.source_observations_do_not_invent_clock_times",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.source_date_only_ages_remain_unknown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.pending_date_only_age_remains_unknown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.explicit_offset_observations_keep_clock_display",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.explicit_offset_source_cards_stay_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.no_producer_mutation_was_attempted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.saved_choice_store_and_manifest_remain_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "DO.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-date-only-precision.png"
+  ],
+  "summary": "16/16"
+}

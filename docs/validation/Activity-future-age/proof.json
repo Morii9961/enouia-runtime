@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_future_observation_age",
+  "baseline": "b75d827d6912fea4c74c0bc3a1ebea8c7bec97df",
+  "checks": [
+    "FA.actual_package_starts_healthy",
+    "FA.future_reply_is_proved",
+    "FA.future_keeps_three_source_cards",
+    "FA.future_clock_labels_are_retained",
+    "FA.future_source_ages_remain_unknown",
+    "FA.future_pending_age_remains_unknown",
+    "FA.past_reply_is_proved",
+    "FA.past_source_ages_are_preserved",
+    "FA.past_pending_age_is_preserved",
+    "FA.date_only_source_ages_stay_unknown",
+    "FA.date_only_pending_age_stays_unknown",
+    "FA.no_producer_mutation_was_attempted",
+    "FA.saved_choice_store_and_manifest_remain_exact",
+    "FA.final_clear_removes_only_owned_choice",
+    "T.future_observations_have_unknown_age"
+  ],
+  "productSourceChanged": true,
+  "modeledReplies": true,
+  "modelScope": "overview lastSuccessAt and pending.createdAt with future, past and date-only observations; healthy setup/reads use actual native IPC",
+  "tasksCreated": false,
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "futureAgeUnknown": true,
+  "pastAgePreserved": true,
+  "dateOnlyAgeUnknown": true,
+  "zeroElapsedPreserved": true,
+  "beforeReport": "docs/validation/Activity-future-age/before.json",
+  "beforeReportSha256": "62bc6b8b4406dee47edce8cd40f015cd534bd4c8acbe6a2380d42186ee3a354b",
+  "beforeDesktopSha256": "8af3a06d1a6c38091215b96928c1883f855f3d3f18cd1c00d2d336518df604b5",
+  "testReport": "docs/validation/Activity-future-age/tests.json",
+  "testReportSha256": "a2f2cb0e478901af7ffafed21949b8a0253d921547b2dd9be7f5aaa320a6e999",
+  "nativeReports": [
+    {
+      "id": "future",
+      "path": "docs/validation/Activity-future-age/future.json",
+      "sha256": "2f1fd623ab2d9207c37e86f37aba6137fe74ce42efcf88fbfbcb4dfbecef8aa8",
+      "summary": "14/14",
+      "exitCode": 0,
+      "manifestPreserved": true
+    },
+    {
+      "id": "dates",
+      "path": "docs/validation/Activity-future-age/dates.json",
+      "sha256": "17119ef3992109cdfb8b9e249276157eda0a9322c56a77ce69b947533d6b2ea0",
+      "summary": "16/16",
+      "exitCode": 0,
+      "manifestPreserved": true
+    },
+    {
+      "id": "actions",
+      "path": "docs/validation/Activity-future-age/actions.json",
+      "sha256": "a3fe5373858b8e43d9e2f46441e302627704c3773c57a0b2d253ae9955a0e893",
+      "summary": "35/35",
+      "exitCode": 0,
+      "manifestPreserved": true
+    }
+  ],
+  "intermediates": [
+    {
+      "path": "docs/validation/Activity-future-age/before-observer.json",
+      "sha256": "4742b610b30efd80058bc86ac286e5f08159d0ea70bd6a67408a8c1e97d91c45",
+      "summary": "8/14",
+      "excludedFromAcceptance": true,
+      "reason": "The observer used a fixed delay before the overview/preview pair committed. It was corrected to wait for the modeled timestamp label; only the two future-age checks fail in the final old-build baseline."
+    }
+  ],
+  "desktopSha256": "03d325b30f454d03dfcdc750a48e20d3f56d691e8b5e3051515da298d193aac0",
+  "installerSha256": "3fd4aa44b439dfe4055a3fcf3d8d1f1d77f82be246af373632541be27cd1f5fe",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "productSourceSha256": "ed4f5c85a3ac545fcfe13cb32533e5e433db949259ac0593de9e539c32a2239f",
+  "harnessSha256": "957478004d80546ddb15fa6ef6d41d6e4438af6d9e5b38561fbc4aa161b4c834",
+  "drillSha256": "6c4d1fc2841871c01ab3fc45bd936a65279905eed276be5133ac55cbeda31d37",
+  "hostEvidence": "docs/validation/Activity-runner-pipe/tests.json",
+  "hostEvidenceSha256": "6bb4fbb4cd84358071aae708c6708b6a6f048cd870e8cded3b178cc7dd824e83",
+  "hostSourceSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+  "frozenDesktopStable": true,
+  "limitations": [
+    "Modeled future timestamps prove display behavior, not an actual OS clock change or producer clock-regression decision.",
+    "No producer mutation is attempted in the future/date drills; the separate action regression uses the actual producer.",
+    "No personal data, accounts, scheduled task, live delivery, installation, signing or deployment."
+  ]
+}

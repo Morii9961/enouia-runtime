@@ -201,6 +201,31 @@ test('Activity overview date ranges and the public source set stay canonical', a
   await assert.rejects(activity.preview(), e => e.error.code === 'contract_invalid');
 });
 
+test('pending sequences refuse zero, negative, fractional, unsafe and nonnumeric values', async () => {
+  const pending = { sequence: 1, createdAt: null, ageSeconds: 0, exactSha256: 'b'.repeat(64), failureCount: 0, nextEligibleAt: null, lastErrorCode: null };
+  for (const value of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, '1']) {
+    for (const field of ['delivery', 'pending']) {
+      const o = overview();
+      if (field === 'delivery') o.delivery.pendingSequence = value;
+      else { o.delivery.pendingSequence = 1; o.pending = { ...pending, sequence: value }; }
+      recorder(() => o);
+      await assert.rejects(activity.overview(), error => error instanceof ActivityError && error.error.code === 'contract_invalid', `${field}: ${value}`);
+    }
+  }
+});
+
+test('pending sequences keep exact positive limits and legitimate empty state', async () => {
+  const empty = overview(); empty.producer.highestReserved = 0;
+  recorder(() => empty); assert.deepEqual(await activity.overview(), empty);
+  for (const sequence of [1, Number.MAX_SAFE_INTEGER]) {
+    const o = overview();
+    o.delivery.pendingSequence = sequence;
+    o.pending = { sequence, createdAt: null, ageSeconds: 0, exactSha256: 'b'.repeat(64), failureCount: 0, nextEligibleAt: null, lastErrorCode: null };
+    o.producer.highestReserved = sequence;
+    recorder(() => o); assert.deepEqual(await activity.overview(), o);
+  }
+});
+
 test('diagnostic and payload replies reject extra fields at every exported boundary', async () => {
   const marker = 'SYNTHETIC_PRIVATE_MARKER';
   const overviewCases = [

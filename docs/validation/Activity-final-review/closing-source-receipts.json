@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "closing_activity_committed_source_and_report_receipts",
+  "baseline": "588d5922e49a6fee3416e028761c6b6dc90c2b71",
+  "priorAudits": [
+    {
+      "path": "docs/validation/Activity-final-review/source-receipts.json",
+      "sha256": "6da7233ddfee44b1d71e73fad540d604a53ef1df93ea31f49a269fb1bf220aac",
+      "receipts": 28
+    },
+    {
+      "path": "docs/validation/Activity-final-review/followup-source-receipts.json",
+      "sha256": "bcc57a617646ae74547061152b6d41c0cd9fd8ee5a5b0d0bb984970f57b3516f",
+      "receipts": 18
+    }
+  ],
+  "receipts": [
+    {
+      "proofPath": "docs/validation/Activity-days-metadata/proof.json",
+      "proofSha256": "2ca6af9fac5b9e67ea65c669832059ebf7c2dc5b6f6e7052503165a272dd276f",
+      "commit": "588d5922e49a6fee3416e028761c6b6dc90c2b71",
+      "field": "productSourceSha256",
+      "path": "apps/desktop/src-tauri/src/activity.rs",
+      "sha256": "150d76614e1943571090cd1091c0d5f0920c68cdca197297c2aed1322f851c7c",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-metadata/proof.json",
+      "proofSha256": "2ca6af9fac5b9e67ea65c669832059ebf7c2dc5b6f6e7052503165a272dd276f",
+      "commit": "588d5922e49a6fee3416e028761c6b6dc90c2b71",
+      "field": "harnessSha256",
+      "path": "apps/desktop/e2e/activity-smoke.mjs",
+      "sha256": "d2cd276ccda58800f0e9d56216853f4f24dc67a3e0241211e73682894743763f",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-metadata/proof.json",
+      "proofSha256": "2ca6af9fac5b9e67ea65c669832059ebf7c2dc5b6f6e7052503165a272dd276f",
+      "commit": "588d5922e49a6fee3416e028761c6b6dc90c2b71",
+      "field": "drillSha256",
+      "path": "apps/desktop/e2e/activity-days-metadata.mjs",
+      "sha256": "6925344d4263cd4b3aea9c0a6b45bea61c1a0da9e2fdda138fb718606df8c1dd",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-metadata/proof.json",
+      "proofSha256": "2ca6af9fac5b9e67ea65c669832059ebf7c2dc5b6f6e7052503165a272dd276f",
+      "commit": "588d5922e49a6fee3416e028761c6b6dc90c2b71",
+      "field": "replyRunnerSha256",
+      "path": "apps/desktop/src-tauri/tests/fixtures/reply-runner.rs",
+      "sha256": "3f587574a49d0358c25a3d510e52b865f80304295428ffe39838f9d67714edb8",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-metadata/proof.json",
+      "proofSha256": "2ca6af9fac5b9e67ea65c669832059ebf7c2dc5b6f6e7052503165a272dd276f",
+      "commit": "588d5922e49a6fee3416e028761c6b6dc90c2b71",
+      "field": "frontendSourceSha256",
+      "path": "apps/desktop/src/activity/model.ts",
+      "sha256": "ed4f5c85a3ac545fcfe13cb32533e5e433db949259ac0593de9e539c32a2239f",
+      "matched": true
+    },
+    {
+      "proofPath": "docs/validation/Activity-days-metadata/proof.json",
+      "proofSha256": "2ca6af9fac5b9e67ea65c669832059ebf7c2dc5b6f6e7052503165a272dd276f",
+      "commit": "588d5922e49a6fee3416e028761c6b6dc90c2b71",
+      "field": "clientSourceSha256",
+      "path": "apps/desktop/src/activity/client.ts",
+      "sha256": "2fb09ede8cf1c2d880776100dd367a12155c2feb396eda861632a80d4c23c838",
+      "matched": true
+    }
+  ],
+  "totalSourceReceipts": 52,
+  "indexedReports": 72,
+  "newB4Selectors": 0,
+  "currentDesktopSha256": "fc243915ec135ff24477addc0bbcfd41a7bcefd00175106749cc3b0176352312",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "limitations": [
+    "Source receipt identity is checked against exact Git blobs; this does not rerun historical behavior or independently reproduce old builds.",
+    "Current behavior belongs to the latest metadata/day/action reports and 54 host plus 3 Core tests.",
+    "The historical 83-check review retains its original eight-fix desktop scope."
+  ]
+}

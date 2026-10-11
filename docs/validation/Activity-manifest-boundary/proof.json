@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_same_handle_manifest_read",
+  "baseline": "74c7e8fb5dcc2b9ca0d00e79c8e54fafc7688af6",
+  "checks": [
+    "MB.probe_byte_startup_refuses_package",
+    "MB.probe_byte_startup_retains_settings",
+    "MB.probe_byte_real_picker_refuses_manifest",
+    "MB.probe_byte_refusal_keeps_exact_manifest",
+    "MB.probe_byte_refusal_keeps_exact_settings_and_store",
+    "MB.large_startup_refuses_package",
+    "MB.large_startup_retains_settings",
+    "MB.large_real_picker_refuses_manifest",
+    "MB.large_refusal_keeps_exact_manifest",
+    "MB.large_refusal_keeps_exact_settings_and_store",
+    "MB.malformed_startup_refuses_package",
+    "MB.malformed_startup_retains_settings",
+    "MB.malformed_real_picker_refuses_manifest",
+    "MB.malformed_refusal_keeps_exact_manifest",
+    "MB.malformed_refusal_keeps_exact_settings_and_store",
+    "MB.exact_limit_startup_connects",
+    "MB.exact_limit_real_picker_accepts",
+    "MB.exact_limit_keeps_manifest_and_histories",
+    "MB.restored_manifest_restarts_verified",
+    "MB.all_refusals_preserve_complete_store",
+    "MB.clear_removes_only_owned_choice",
+    "T.package_json_reads_stop_after_the_limit_probe_byte",
+    "T.package_json_growth_after_open_cannot_bypass_the_read_limit",
+    "T.installed_package_manifest_keeps_exact_limit_and_refusal_boundaries"
+  ],
+  "productSourceChanged": true,
+  "modeledReplies": false,
+  "tasksCreated": false,
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "readLimit": 65536,
+  "probeBytes": 65537,
+  "growthScope": "actual open file followed by a deterministic append in a Rust test; not concurrent desktop mutation",
+  "nativeReports": [
+    {
+      "id": "manifest",
+      "path": "docs/validation/Activity-manifest-boundary/manifest.json",
+      "sha256": "3ae0b6ebc36234a239ffbcb3d9434ae9e9a756d47115b32c2a6e67f660c74e68",
+      "summary": "21/21",
+      "exitCode": 0,
+      "manifestRestored": true
+    },
+    {
+      "id": "settings",
+      "path": "docs/validation/Activity-manifest-boundary/settings.json",
+      "sha256": "39a4c18bd80ddf23da63865f75481092f9cc9e57f2b31bd84e63968cdeb6e092",
+      "summary": "20/20",
+      "exitCode": 0,
+      "manifestRestored": true
+    },
+    {
+      "id": "atomic",
+      "path": "docs/validation/Activity-manifest-boundary/atomic.json",
+      "sha256": "bda3cd407747c0a92bf5428b0b4fd7dc3e7135927ab683d33c6bef1b6fe4ef8f",
+      "summary": "18/18",
+      "exitCode": 0,
+      "manifestRestored": true
+    },
+    {
+      "id": "actions",
+      "path": "docs/validation/Activity-manifest-boundary/actions.json",
+      "sha256": "a3fe5373858b8e43d9e2f46441e302627704c3773c57a0b2d253ae9955a0e893",
+      "summary": "35/35",
+      "exitCode": 0,
+      "manifestRestored": true
+    }
+  ],
+  "testReport": "docs/validation/Activity-manifest-boundary/tests.json",
+  "testReportSha256": "6fedf3ba694a9005a51499f328462bc12232afb64b5d0c2d491db48a9e4926c8",
+  "desktopSha256": "10a669f4c2483979925e0b313063bdf0273e2aaf45fa3db155f8f6bdd00ff6bb",
+  "installerSha256": "881409ec118ec12b9e1402fd0b3b015d9877b2a5a02ef8eb8ae0d4651a4eeb62",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "productSourceSha256": "a66ac81fbe5fba2335d8ff0e171db1c52aed662dbd01e55639be5108deb97364",
+  "harnessSha256": "a86249ea2d5371db57927fb7509c3d5025bfa35a068b2d1745e1116807cc84be",
+  "drillSha256": "3997404e67fa2b73dbbb19d9988d8bea33b24c34a86885d1f4663c80b689969b",
+  "frozenDesktopStable": true,
+  "limitations": [
+    "No sustained or third-party file mutation race during desktop loading.",
+    "No power-loss, disk-full, personal data, real accounts, scheduler activation, signing, installation or production publication."
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "checks": [
+    {
+      "id": "EO.actual_package_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.modeled_start_is_proved_before_page_mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_failure_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_recovery_clears_its_own_error",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_recovery_keeps_one_start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.failed_refresh_retains_retry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.equal_error_text_is_not_duplicated",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.status_recovery_preserves_same_text_read_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "EO.failed_refresh_keeps_mutations_disabled",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.first_collision_keeps_one_start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.actual_read_retry_clears_read_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "EO.repeated_status_failures_cannot_erase_read_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "EO.repeated_status_failure_keeps_one_start",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.healthy_refresh_preserves_unrecovered_status_failure",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "EO.healthy_refresh_keeps_three_sources",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.final_status_recovery_clears_only_its_error",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.distinct_errors_remain_independently_visible",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "EO.nonretryable_read_error_has_no_retry",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.distinct_read_failure_survives_status_recovery",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.all_scenarios_preserve_exact_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.recovered_histories_match_real_producer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.entire_store_and_manifest_remain_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "EO.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-error-ownership-recovered.png"
+  ],
+  "summary": "18/23"
+}

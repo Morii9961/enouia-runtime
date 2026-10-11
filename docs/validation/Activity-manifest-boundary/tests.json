@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "cargo test --offline --locked",
+  "hostTests": 43,
+  "coreTests": 3,
+  "results": [
+    {
+      "id": "T.package_json_reads_stop_after_the_limit_probe_byte",
+      "passed": true
+    },
+    {
+      "id": "T.package_json_growth_after_open_cannot_bypass_the_read_limit",
+      "passed": true
+    },
+    {
+      "id": "T.installed_package_manifest_keeps_exact_limit_and_refusal_boundaries",
+      "passed": true
+    }
+  ]
+}

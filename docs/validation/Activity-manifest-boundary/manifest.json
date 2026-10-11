@@ -1,0 +1,113 @@
+{
+  "checks": [
+    {
+      "id": "MB.probe_byte_startup_refuses_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.probe_byte_startup_retains_settings",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.probe_byte_real_picker_refuses_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.probe_byte_refusal_keeps_exact_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.probe_byte_refusal_keeps_exact_settings_and_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.large_startup_refuses_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.large_startup_retains_settings",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.large_real_picker_refuses_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.large_refusal_keeps_exact_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.large_refusal_keeps_exact_settings_and_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.malformed_startup_refuses_package",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.malformed_startup_retains_settings",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.malformed_real_picker_refuses_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.malformed_refusal_keeps_exact_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.malformed_refusal_keeps_exact_settings_and_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.exact_limit_startup_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.exact_limit_real_picker_accepts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.exact_limit_keeps_manifest_and_histories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.restored_manifest_restarts_verified",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.all_refusals_preserve_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "MB.clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-manifest-boundary.png"
+  ],
+  "summary": "21/21"
+}

@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "id": "PP.initial_real_producer_is_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.owned_helper_matches_selected_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.actual_picker_selects_only_sandbox_helper",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.both_owned_inherited_pipe_holders_are_ready",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.actual_read_deadlines_return_busy",
+      "ok": false,
+      "detail": "[]"
+    },
+    {
+      "id": "PP.elapsed_read_window_is_bounded",
+      "ok": false,
+      "detail": "declared_ms=20000; elapsed_ms=65250"
+    },
+    {
+      "id": "PP.actual_timeout_feedback_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.failure_replies_keep_helper_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.timeout_retains_exact_saved_choice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.timeout_preserves_complete_activity_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.owned_holders_finish_after_release",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.original_runner_and_manifest_are_restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.actual_picker_reconnects_healthy_producer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.recovery_keeps_exact_three_source_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.recovery_keeps_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "PP.final_clear_removes_only_owned_choice",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-pipe-deadline-recovered.png"
+  ],
+  "summary": "14/16"
+}

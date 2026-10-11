@@ -1,0 +1,143 @@
+{
+  "checks": [
+    {
+      "id": "SC.actual_producer_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.owned_reply_runner_matches_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.actual_picker_selects_sandbox_helper",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.string_schedule_returns_contract_invalid",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "SC.string_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.client_displays_contract_refusal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.contract_failure_disables_mutations",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.boolean_schedule_returns_contract_invalid",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "SC.boolean_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.number_schedule_returns_contract_invalid",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "SC.number_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.array_schedule_returns_contract_invalid",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "SC.array_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.null_schedule_returns_contract_invalid",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "SC.null_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.missing_schedule_returns_contract_invalid",
+      "ok": true,
+      "detail": "{\"error\":{\"code\":\"contract_invalid\",\"component\":\"activity_archive\",\"retryable\":false},\"kind\":\"activity_error\",\"schemaVersion\":1}"
+    },
+    {
+      "id": "SC.missing_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.valid_object_keeps_source_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.valid_object_retains_schedule_mode",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.valid_object_adds_one_scheduler_health",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.runner_error_passes_through",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.controlled_reads_preserve_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.original_runner_and_manifest_restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.actual_picker_recovers_original_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.recovery_retains_exact_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.choice_remains_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.complete_store_remains_exact",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-schedule-container-recovered.png"
+  ],
+  "summary": "27/27"
+}

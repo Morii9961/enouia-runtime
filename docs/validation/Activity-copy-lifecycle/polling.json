@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "id": "L.mutations_are_intercepted_before_native_ipc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.actual_synthetic_package_connects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.retry_delays_reach_thirty_second_ceiling",
+      "ok": true,
+      "detail": "{\"gapsMs\":[1004.8000000119209,2014.800000011921,4015.199999988079,8015,16005.100000023842,30012]}"
+    },
+    {
+      "id": "L.retry_queries_keep_the_same_run_id",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.recovery_keeps_one_start_request",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.terminal_status_reenables_operation_controls",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.late_read_is_pending",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.late_reply_does_not_populate_remounted_page",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.unmount_stops_status_queries",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.lifecycle_preserves_complete_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "L.choice_is_cleared",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [],
+  "summary": "11/11"
+}

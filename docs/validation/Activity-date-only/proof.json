@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "scope": "isolated_activity_date_only_display_precision",
+  "baseline": "b8c9e8f7d919b30023d91ba9b30a5170c7b5866f",
+  "checks": [
+    "DO.actual_package_starts_healthy",
+    "DO.date_only_reply_is_proved_before_display",
+    "DO.date_only_keeps_source_cards",
+    "DO.updated_header_keeps_date_precision",
+    "DO.next_trigger_keeps_date_precision",
+    "DO.next_retry_keeps_date_precision",
+    "DO.last_transport_keeps_date_precision",
+    "DO.publication_keeps_date_precision",
+    "DO.source_observations_do_not_invent_clock_times",
+    "DO.source_date_only_ages_remain_unknown",
+    "DO.pending_date_only_age_remains_unknown",
+    "DO.explicit_offset_observations_keep_clock_display",
+    "DO.explicit_offset_source_cards_stay_healthy",
+    "DO.no_producer_mutation_was_attempted",
+    "DO.saved_choice_store_and_manifest_remain_exact",
+    "DO.final_clear_removes_only_owned_choice",
+    "T.date_only_observations_preserve_precision",
+    "T.date_only_ages_remain_unknown"
+  ],
+  "productSourceChanged": true,
+  "modeledReplies": true,
+  "modelScope": "overview date-only and explicit-offset display replies; healthy reads and setup use actual native IPC",
+  "tasksCreated": false,
+  "memoryRevision": "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84",
+  "dateOnlyPreserved": true,
+  "dateOnlyAgeUnknown": true,
+  "explicitOffsetClockDisplayPreserved": true,
+  "beforeReport": "docs/validation/Activity-date-only/before.json",
+  "beforeReportSha256": "87ec3c5ba0a73de9b20fd6bfbbe4de535c25f397ea45c28eb039b2bf933092ef",
+  "beforeDesktopSha256": "d5ae6fbba37647ac33c090f4f1924d67dfb55dfccf3e622f839eaf060c568558",
+  "testReport": "docs/validation/Activity-date-only/tests.json",
+  "testReportSha256": "8f8568a030b42f958a55989ee4e1cee152ba96c22fa01d667f10efa97f550d01",
+  "nativeReports": [
+    {
+      "id": "dates",
+      "path": "docs/validation/Activity-date-only/dates.json",
+      "sha256": "17119ef3992109cdfb8b9e249276157eda0a9322c56a77ce69b947533d6b2ea0",
+      "summary": "16/16",
+      "exitCode": 0,
+      "manifestRestored": true
+    },
+    {
+      "id": "sequence",
+      "path": "docs/validation/Activity-date-only/sequence.json",
+      "sha256": "71cf9abb34ae85451561d83d2cb92f649e68cffac4499f13960ee6dc648b2825",
+      "summary": "18/18",
+      "exitCode": 0,
+      "manifestRestored": true
+    },
+    {
+      "id": "actions",
+      "path": "docs/validation/Activity-date-only/actions.json",
+      "sha256": "a3fe5373858b8e43d9e2f46441e302627704c3773c57a0b2d253ae9955a0e893",
+      "summary": "35/35",
+      "exitCode": 0,
+      "manifestRestored": true
+    }
+  ],
+  "desktopSha256": "8af3a06d1a6c38091215b96928c1883f855f3d3f18cd1c00d2d336518df604b5",
+  "installerSha256": "ccc699f46aea9f0c1bde36bfcbfd86c605ba75573bdfdf62c9807eb4d5acb020",
+  "runnerSha256": "e5b40014bbd73ee6750a3a029569cb38b271c5ff11bb075718a513442ef5ade1",
+  "productSourceSha256": "b57df62731ad89c05e8ba6f7c0297c46ac2179976ff28cec7287c9b9effbd22b",
+  "modelSourceSha256": "d73e795367cc415c9f3718713f7e34eb5759d7b4bb7b7492389c7116c595cf01",
+  "schemaSha256": "3a7456accba5e9e71b1bb4e79d907cdc227d7e278eaec333204d614c92dc8d70",
+  "harnessSha256": "c25335508ad7990be019e9ce23d2da72a7798cc312d5f1ef4df78bea2a10fde3",
+  "drillSha256": "54c9505570e259f500811b8f58a25b370c05a4b96e8f74e56216df71c1d615d4",
+  "frozenDesktopStable": true,
+  "hostEvidence": "docs/validation/Activity-runner-pipe/tests.json",
+  "hostEvidenceSha256": "6bb4fbb4cd84358071aae708c6708b6a6f048cd870e8cded3b178cc7dd824e83",
+  "hostSourceSha256": "b7b90aefc9bcccfa8b0ee77e1a8c1f86cd5b178145f7000f0ccfe43181c33784",
+  "limitations": [
+    "The overview time cases are modeled; they prove rendering precision, not actual scheduling or delivery timing.",
+    "No actual run/retry/pause is attempted in the date drill; separate action/Core regression uses the real producer.",
+    "No personal data, accounts, scheduler activation, publication, installation or signing."
+  ],
+  "intermediates": [
+    {
+      "path": "docs/validation/Activity-date-only/first-baseline.json",
+      "sha256": "d2e01e812474395688660ef21acfe1a5ca5de870111da8c1e41b57a65c565123",
+      "summary": "8/14",
+      "excludedFromAcceptance": true
+    },
+    {
+      "path": "docs/validation/Activity-date-only/time-only-intermediate.json",
+      "sha256": "980bf5cb29346adb1a1c5f06428006c3544152881e0a99bf9a8905b504458103",
+      "summary": "14/14",
+      "excludedFromAcceptance": true,
+      "desktopSha256": "c2923175976339fc0af3052594b582526af0cad3e1abdb3cdc1b430c437562ac",
+      "reason": "Clock display fixed, but the screenshot exposed invented date-only elapsed age; final scope includes both."
+    },
+    {
+      "path": "docs/validation/Activity-date-only/age-observer-intermediate.json",
+      "sha256": "b63dbaa1b087015c506f3108033d7132a7ae31eb197e58ff93879c7df1899eaf",
+      "summary": "15/16",
+      "excludedFromAcceptance": true,
+      "reason": "The observer expected an unknown-age separator that SourceCard intentionally omits; corrected to the existing exact date-only display before rerunning."
+    }
+  ]
+}

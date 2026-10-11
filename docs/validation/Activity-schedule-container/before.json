@@ -1,0 +1,143 @@
+{
+  "checks": [
+    {
+      "id": "SC.actual_producer_starts_healthy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.owned_reply_runner_matches_manifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.actual_picker_selects_sandbox_helper",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.string_schedule_returns_contract_invalid",
+      "ok": false,
+      "detail": "{\"transportError\":\"worker_failed\"}"
+    },
+    {
+      "id": "SC.string_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.client_displays_contract_refusal",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "id": "SC.contract_failure_disables_mutations",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.boolean_schedule_returns_contract_invalid",
+      "ok": false,
+      "detail": "{\"transportError\":\"worker_failed\"}"
+    },
+    {
+      "id": "SC.boolean_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.number_schedule_returns_contract_invalid",
+      "ok": false,
+      "detail": "{\"transportError\":\"worker_failed\"}"
+    },
+    {
+      "id": "SC.number_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.array_schedule_returns_contract_invalid",
+      "ok": false,
+      "detail": "{\"transportError\":\"worker_failed\"}"
+    },
+    {
+      "id": "SC.array_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.null_schedule_returns_contract_invalid",
+      "ok": false,
+      "detail": "{\"delivery\":{\"lastTransportAt\":null,\"pendingSequence\":null,\"publicHash\":\"ccd764aeb8117e844919a794778af38fca9e8544bcc12c280c90e1823030eead\",\"publicationObservedAt\":\"2026-10-10T15:06:52.584Z\",\"state\":\"observed\"},\"generatedAt\":\"2026-10-10T15:07:01.609Z\",\"health\":[{\"ageSeconds\":1210,\"id\":\"activity_collector_github\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":1210,\"id\":\"activity_collector_codex\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":1210,\"id\":\"activity_collector_claude\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":null,\"id\":\"activity_archive\",\"lastSuccessAt\":null,\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":9,\"id\":\"activity_delivery\",\"lastSuccessAt\":\"2026-10-10T15:06:52.584Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":null,\"id\":\"activity_scheduler\",\"lastSuccessAt\":null,\"mode\":null,\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"unavailable\"}],\"kind\":\"activity_overview\",\"pending\":null,\"producer\":{\"deliveryEnabled\":true,\"highestReserved\":87,\"mode\":\"sandbox\",\"paused\":false},\"schedule\":{\"nextTriggerAt\":null,\"task\":null},\"schemaVersion\":1,\"sources\":{\"claude\":{\"firstDate\":\"2026-01-20\",\"freshness\":\"fresh\",\"lastAttemptAt\":\"2026-10-10T14:46:51.000Z\",\"lastDate\":\"2026-10-06\",\"lastResult\":\"success\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"metric\":\"tokens\",\"recordedDays\":250,\"timezone\":\"Asia/Shanghai\",\"total\":\"422783625\"},\"codex\":{\"firstDate\":\"2026-03-01\",\"freshness\":\"fresh\",\"lastAttemptAt\":\"2026-10-10T14:46:51.000Z\",\"lastDate\":\"2026-10-06\",\"lastResult\":\"success\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"metric\":\"tokens\",\"recordedDays\":220,\"timezone\":\"Codex\",\"total\":\"107374386\"},\"github\":{\"firstDate\":\"2025-09-02\",\"freshness\":\"fresh\",\"lastAttemptAt\":\"2026-10-10T14:46:51.000Z\",\"lastDate\":\"2026-10-06\",\"lastResult\":\"success\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"metric\":\"contributions\",\"recordedDays\":400,\"timezone\":\"GitHub\",\"total\":\"1015\"}}}"
+    },
+    {
+      "id": "SC.null_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.missing_schedule_returns_contract_invalid",
+      "ok": false,
+      "detail": "{\"delivery\":{\"lastTransportAt\":null,\"pendingSequence\":null,\"publicHash\":\"ccd764aeb8117e844919a794778af38fca9e8544bcc12c280c90e1823030eead\",\"publicationObservedAt\":\"2026-10-10T15:06:52.584Z\",\"state\":\"observed\"},\"generatedAt\":\"2026-10-10T15:07:01.609Z\",\"health\":[{\"ageSeconds\":1210,\"id\":\"activity_collector_github\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":1210,\"id\":\"activity_collector_codex\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":1210,\"id\":\"activity_collector_claude\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":null,\"id\":\"activity_archive\",\"lastSuccessAt\":null,\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":9,\"id\":\"activity_delivery\",\"lastSuccessAt\":\"2026-10-10T15:06:52.584Z\",\"mode\":\"idle\",\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"healthy\"},{\"ageSeconds\":null,\"id\":\"activity_scheduler\",\"lastSuccessAt\":null,\"mode\":null,\"observedAt\":\"2026-10-10T15:07:01.609Z\",\"state\":\"unavailable\"}],\"kind\":\"activity_overview\",\"pending\":null,\"producer\":{\"deliveryEnabled\":true,\"highestReserved\":87,\"mode\":\"sandbox\",\"paused\":false},\"schedule\":{\"nextTriggerAt\":null,\"task\":null},\"schemaVersion\":1,\"sources\":{\"claude\":{\"firstDate\":\"2026-01-20\",\"freshness\":\"fresh\",\"lastAttemptAt\":\"2026-10-10T14:46:51.000Z\",\"lastDate\":\"2026-10-06\",\"lastResult\":\"success\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"metric\":\"tokens\",\"recordedDays\":250,\"timezone\":\"Asia/Shanghai\",\"total\":\"422783625\"},\"codex\":{\"firstDate\":\"2026-03-01\",\"freshness\":\"fresh\",\"lastAttemptAt\":\"2026-10-10T14:46:51.000Z\",\"lastDate\":\"2026-10-06\",\"lastResult\":\"success\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"metric\":\"tokens\",\"recordedDays\":220,\"timezone\":\"Codex\",\"total\":\"107374386\"},\"github\":{\"firstDate\":\"2025-09-02\",\"freshness\":\"fresh\",\"lastAttemptAt\":\"2026-10-10T14:46:51.000Z\",\"lastDate\":\"2026-10-06\",\"lastResult\":\"success\",\"lastSuccessAt\":\"2026-10-10T14:46:51.000Z\",\"metric\":\"contributions\",\"recordedDays\":400,\"timezone\":\"GitHub\",\"total\":\"1015\"}}}"
+    },
+    {
+      "id": "SC.missing_refusal_keeps_paths_private",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.valid_object_keeps_source_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.valid_object_retains_schedule_mode",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.valid_object_adds_one_scheduler_health",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.runner_error_passes_through",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.controlled_reads_preserve_store",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.original_runner_and_manifest_restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.actual_picker_recovers_original_runner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.recovery_retains_exact_history",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.choice_remains_exact",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "SC.complete_store_remains_exact",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "01-schedule-container-recovered.png"
+  ],
+  "summary": "20/27"
+}

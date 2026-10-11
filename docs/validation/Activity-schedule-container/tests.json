@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "state": "passed",
+  "command": "cargo test --offline --locked -- --nocapture",
+  "hostTests": 51,
+  "coreTests": 3,
+  "results": [
+    {
+      "id": "T.schedule_container_refuses_without_panicking",
+      "name": "schedule_decoration_refuses_non_object_schedule_without_panicking",
+      "passed": true
+    }
+  ],
+  "baseline": {
+    "scope": "focused schedule decoration regression",
+    "passed": 0,
+    "failed": 1,
+    "panic": "cannot access key task in JSON string"
+  },
+  "cases": [
+    "string",
+    "boolean",
+    "number",
+    "array",
+    "null",
+    "missing"
+  ],
+  "runningAndIdleBranches": true
+}

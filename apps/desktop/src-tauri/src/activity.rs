@@ -19,7 +19,7 @@
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 use std::collections::VecDeque;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -132,13 +132,7 @@ fn read_saved_root(path: &Path) -> Option<PathBuf> {
     // This file records a canonical native picker choice, never a path
     // relative to the process's current directory. Bound reads on the same
     // open handle so a damaged/growing settings file cannot allocate freely.
-    let file = std::fs::File::open(path).ok()?;
-    let mut bytes = Vec::new();
-    file.take(MAX_MANIFEST + 1).read_to_end(&mut bytes).ok()?;
-    if bytes.len() as u64 > MAX_MANIFEST {
-        return None;
-    }
-    let value: Value = serde_json::from_slice(&bytes).ok()?;
+    let value = read_bounded_json(path)?;
     let root = value
         .get("installRoot")
         .and_then(Value::as_str)
@@ -146,20 +140,83 @@ fn read_saved_root(path: &Path) -> Option<PathBuf> {
     root.is_absolute().then_some(root)
 }
 
+fn read_bounded_json(path: &Path) -> Option<Value> {
+    bounded_json(std::fs::File::open(path).ok()?)
+}
+
+/// Count bytes from the open reader instead of trusting an earlier size query.
+/// The extra byte distinguishes an exact-limit document from a growing file.
+fn bounded_json(reader: impl Read) -> Option<Value> {
+    let mut bytes = Vec::new();
+    reader.take(MAX_MANIFEST + 1).read_to_end(&mut bytes).ok()?;
+    if bytes.len() as u64 > MAX_MANIFEST {
+        return None;
+    }
+    serde_json::from_slice(&bytes).ok()
+}
+
 fn save_root(app: &AppHandle, root: Option<&Path>) -> bool {
     let Some(path) = settings_path(app) else {
         return false;
     };
+    save_root_at(&path, root)
+}
+
+fn save_root_at(path: &Path, root: Option<&Path>) -> bool {
     match root {
-        None => std::fs::remove_file(&path).is_ok() || !path.exists(),
+        // An existence query can also return false when access is denied.
+        // Only deletion or an explicit missing-file error proves this clear.
+        None => match std::fs::remove_file(path) {
+            Ok(()) => true,
+            Err(error) => error.kind() == std::io::ErrorKind::NotFound,
+        },
         Some(root) => {
             let Some(parent) = path.parent() else {
                 return false;
             };
-            std::fs::create_dir_all(parent).is_ok()
-                && std::fs::write(&path, format!("{}\n", json!({"installRoot": root}))).is_ok()
+            let bytes = format!("{}\n", json!({"installRoot": root}));
+            root.is_absolute()
+                && bytes.len() as u64 <= MAX_MANIFEST
+                && std::fs::create_dir_all(parent).is_ok()
+                && replace_saved_choice(path, |file| file.write_all(bytes.as_bytes())).is_ok()
         }
     }
+}
+
+/// Never truncate the selected choice. A failed write/flush/replacement leaves
+/// the old file intact; ordinary failures remove only this attempt's staging
+/// file. A killed process can leave an ignored staging file, never a startup
+/// choice. This is a local filesystem replacement, not a power-loss guarantee.
+fn replace_saved_choice(
+    path: &Path,
+    write: impl FnOnce(&mut std::fs::File) -> std::io::Result<()>,
+) -> std::io::Result<()> {
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let name = path.file_name().ok_or(std::io::ErrorKind::InvalidInput)?;
+    let mut staged_name = std::ffi::OsString::from(".");
+    staged_name.push(name);
+    staged_name.push(format!(
+        ".{}-{}-{}.tmp",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(std::io::Error::other)?
+            .as_nanos(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    let staged = path.with_file_name(staged_name);
+    // create_new refuses collisions; it never opens another attempt's file.
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&staged)?;
+    let result = write(&mut file).and_then(|()| file.sync_all());
+    drop(file);
+    let result = result.and_then(|()| std::fs::rename(&staged, path));
+    if result.is_err() {
+        let _ = std::fs::remove_file(&staged);
+    }
+    result
 }
 
 fn is_hex(text: &str, length: usize) -> bool {
@@ -220,16 +277,7 @@ fn file_sha256(path: &Path) -> Option<String> {
 pub fn load_install(root: &Path) -> Result<Install, &'static str> {
     let root = std::fs::canonicalize(root).map_err(|_| "not_found")?;
     let manifest = root.join("install.json");
-    let size = std::fs::metadata(&manifest)
-        .map_err(|_| "not_a_package")?
-        .len();
-    if size > MAX_MANIFEST {
-        return Err("not_a_package");
-    }
-    let value: Value = std::fs::read(&manifest)
-        .ok()
-        .and_then(|bytes| serde_json::from_slice(&bytes).ok())
-        .ok_or("not_a_package")?;
+    let value = read_bounded_json(&manifest).ok_or("not_a_package")?;
     let text = |key: &str| value.get(key).and_then(Value::as_str);
     let binary = root.join("enouia-activity.exe");
     let config = root.join("activity-config.json");
@@ -298,33 +346,123 @@ fn bounded_output(mut process: Command, timeout: Duration) -> Result<(i32, Vec<u
         process.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
     }
     let mut child = process.spawn().map_err(|_| "unconfigured")?;
-    let mut stdout = child.stdout.take().ok_or("storage_failed")?;
-    let reader = std::thread::spawn(move || {
-        let mut bytes = Vec::new();
-        let complete = (&mut stdout)
-            .take(MAX_OUTPUT as u64 + 1)
-            .read_to_end(&mut bytes)
-            .is_ok()
-            && bytes.len() <= MAX_OUTPUT;
-        complete.then_some(bytes)
-    });
-    let deadline = Instant::now() + timeout;
-    let status = loop {
-        match child.try_wait() {
-            Ok(Some(status)) => break status,
-            Ok(None) if Instant::now() < deadline => {
-                std::thread::sleep(Duration::from_millis(25));
+    let stdout = child.stdout.take().ok_or("storage_failed")?;
+    #[cfg(windows)]
+    {
+        bounded_windows_pipe(child, stdout, timeout)
+    }
+    #[cfg(not(windows))]
+    {
+        let mut stdout = stdout;
+        let reader = std::thread::spawn(move || {
+            let mut bytes = Vec::new();
+            let complete = (&mut stdout)
+                .take(MAX_OUTPUT as u64 + 1)
+                .read_to_end(&mut bytes)
+                .is_ok()
+                && bytes.len() <= MAX_OUTPUT;
+            complete.then_some(bytes)
+        });
+        let deadline = Instant::now() + timeout;
+        let status = loop {
+            match child.try_wait() {
+                Ok(Some(status)) => break status,
+                Ok(None) if Instant::now() < deadline => {
+                    std::thread::sleep(Duration::from_millis(25));
+                }
+                _ => {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    let _ = reader.join();
+                    return Err("busy");
+                }
             }
-            _ => {
-                let _ = child.kill();
-                let _ = child.wait();
-                let _ = reader.join();
+        };
+        let bytes = reader.join().ok().flatten().ok_or("contract_invalid")?;
+        Ok((status.code().unwrap_or(-1), bytes))
+    }
+}
+
+#[cfg(windows)]
+fn bounded_windows_pipe(
+    mut child: std::process::Child,
+    mut stdout: std::process::ChildStdout,
+    timeout: Duration,
+) -> Result<(i32, Vec<u8>), &'static str> {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Foundation::ERROR_BROKEN_PIPE;
+    use windows_sys::Win32::System::Pipes::PeekNamedPipe;
+    let result = (|| {
+        let deadline = Instant::now() + timeout;
+        let mut bytes = Vec::new();
+        let mut buffer = [0_u8; 64 * 1024];
+        let mut status = None;
+        let mut eof = false;
+        let mut idle_delay = Duration::from_millis(1);
+        loop {
+            let mut available = 0;
+            if !eof {
+                // This thread exclusively owns the anonymous pipe's read
+                // handle, with no outstanding read or cloned reader. Probe
+                // before each read; never block awaiting a descendant's EOF.
+                // https://learn.microsoft.com/windows/win32/api/namedpipeapi/nf-namedpipeapi-peeknamedpipe
+                // SAFETY: stdout owns a live read handle; available is a live
+                // local DWORD. All other optional output pointers are null.
+                let success = unsafe {
+                    PeekNamedPipe(
+                        stdout.as_raw_handle(),
+                        std::ptr::null_mut(),
+                        0,
+                        std::ptr::null_mut(),
+                        &mut available,
+                        std::ptr::null_mut(),
+                    )
+                };
+                if success == 0 {
+                    if std::io::Error::last_os_error().raw_os_error()
+                        == Some(ERROR_BROKEN_PIPE as i32)
+                    {
+                        eof = true;
+                    } else {
+                        return Err("contract_invalid");
+                    }
+                } else if available > 0 {
+                    idle_delay = Duration::from_millis(1);
+                    let limit = (available as usize)
+                        .min(buffer.len())
+                        .min(MAX_OUTPUT + 1 - bytes.len());
+                    let count = stdout
+                        .read(&mut buffer[..limit])
+                        .map_err(|_| "contract_invalid")?;
+                    eof = count == 0;
+                    bytes.extend_from_slice(&buffer[..count]);
+                    if bytes.len() > MAX_OUTPUT {
+                        return Err("contract_invalid");
+                    }
+                }
+            }
+            if status.is_none() {
+                status = child.try_wait().map_err(|_| "busy")?;
+            }
+            if let Some(status) = status.filter(|_| eof) {
+                return Ok((status.code().unwrap_or(-1), bytes));
+            }
+            let Some(remaining) = deadline.checked_duration_since(Instant::now()) else {
                 return Err("busy");
+            };
+            if available == 0 {
+                std::thread::sleep(remaining.min(idle_delay));
+                idle_delay = (idle_delay * 2).min(Duration::from_millis(25));
             }
         }
-    };
-    let bytes = reader.join().ok().flatten().ok_or("contract_invalid")?;
-    Ok((status.code().unwrap_or(-1), bytes))
+    })();
+    if result.is_err() {
+        // Only this explicitly owned direct child is terminated. No Job with
+        // kill-on-host-exit is introduced; a started run still survives UI exit.
+        let _ = child.kill();
+        let _ = child.wait();
+    }
+    result
 }
 
 /// Map a runner exit to the structured code the page shows.
@@ -566,25 +704,95 @@ fn days(preview: &Value, source: &str, from: &str, to: &str) -> Value {
     if preview.get("kind").and_then(Value::as_str) != Some("activity_public_preview") {
         return preview.clone();
     }
-    let days: Vec<Value> = preview["data"]["sources"][source]["days"]
-        .as_array()
-        .map(|days| {
-            days.iter()
-                .filter(|day| {
-                    day["date"]
-                        .as_str()
-                        .is_some_and(|date| date >= from && date <= to)
-                })
-                .cloned()
-                .collect()
+    let invalid = || error("contract_invalid", "activity_archive", false);
+    if preview["schemaVersion"].as_f64() != Some(1.0)
+        || preview["data"]["version"].as_f64() != Some(1.0)
+    {
+        return invalid();
+    }
+    let Some(snapshot) = preview["data"]["sources"]
+        .as_object()
+        .and_then(|sources| sources.get(source))
+    else {
+        return invalid();
+    };
+    // An explicit null source means no history. Missing or malformed data
+    // must never become an apparently valid empty day list.
+    let entries: &[Value] = if snapshot.is_null() {
+        &[]
+    } else {
+        let (timezone, metric) = match source {
+            "github" => ("GitHub", "contributions"),
+            "codex" => ("Codex", "tokens"),
+            "claude" => ("Asia/Shanghai", "tokens"),
+            _ => return invalid(),
+        };
+        // The derived DTO carries only the source ID. Refuse conflicting
+        // units/boundaries before their metadata would be discarded.
+        if snapshot["timezone"].as_str() != Some(timezone)
+            || snapshot["metric"].as_str() != Some(metric)
+        {
+            return invalid();
+        }
+        let Some(entries) = snapshot
+            .as_object()
+            .and_then(|snapshot| snapshot.get("days"))
+            .and_then(Value::as_array)
+        else {
+            return invalid();
+        };
+        entries
+    };
+    let mut previous = "";
+    let mut total = 0_u64;
+    const MAX_SAFE_INTEGER: u64 = 9_007_199_254_740_991;
+    // Validate the entire requested source before filtering. Otherwise an
+    // invalid entry outside the range disappears before the client sees it.
+    for day in entries {
+        let Some(object) = day.as_object() else {
+            return invalid();
+        };
+        let Some(date) = day["date"].as_str() else {
+            return invalid();
+        };
+        let Some(value) = day["value"].as_f64() else {
+            return invalid();
+        };
+        if !exact_keys(object, &["date", "value"])
+            || !real_date(date)
+            || date <= previous
+            || !(0.0..=MAX_SAFE_INTEGER as f64).contains(&value)
+            || value.fract() != 0.0
+        {
+            return invalid();
+        }
+        total += value as u64;
+        if total > MAX_SAFE_INTEGER {
+            return invalid();
+        }
+        previous = date;
+    }
+    let days: Vec<Value> = entries
+        .iter()
+        .filter(|day| {
+            day["date"]
+                .as_str()
+                .is_some_and(|date| date >= from && date <= to)
         })
-        .unwrap_or_default();
+        .cloned()
+        .collect();
     json!({"schemaVersion": 1, "kind": "activity_days", "source": source, "days": days})
 }
 
 fn add_schedule(mut overview: Value, task: Value, next: Value, running: bool) -> Value {
     if overview.get("kind").and_then(Value::as_str) != Some("activity_overview") {
         return overview;
+    }
+    // The client validates the complete DTO. Before decorating it here,
+    // require the container that mutable JSON indexing would otherwise
+    // create from null or panic on for a primitive/array.
+    if !overview["schedule"].is_object() {
+        return error("contract_invalid", "activity_archive", false);
     }
     let state = match (task["registered"].as_bool(), task["enabled"].as_bool()) {
         (Some(true), Some(true)) => "healthy",
@@ -905,6 +1113,461 @@ pub async fn activity_setup(
 mod tests {
     use super::*;
 
+    #[cfg(windows)]
+    fn pipe_fixture_command(mode: &str) -> Command {
+        static EXECUTABLE: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
+        let executable = EXECUTABLE.get_or_init(|| {
+            let directory = choice_fixture();
+            let executable = directory.join("pipe-child.exe");
+            let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pipe-child.rs");
+            let compiler = std::env::var_os("RUSTC").unwrap_or_else(|| "rustc".into());
+            let output = Command::new(compiler)
+                .arg("--edition=2024")
+                .arg(source)
+                .arg("-o")
+                .arg(&executable)
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "{}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            executable
+        });
+        let mut command = Command::new(executable);
+        command.arg(mode);
+        command
+    }
+
+    #[cfg(windows)]
+    fn spawn_pipe_fixture(
+        mut command: Command,
+    ) -> (std::process::Child, std::process::ChildStdout) {
+        use std::os::windows::process::CommandExt;
+        command
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .creation_flags(0x0800_0000);
+        let mut child = command.spawn().unwrap();
+        let stdout = child.stdout.take().unwrap();
+        (child, stdout)
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_preserves_complete_output_and_nonzero_exit() {
+        for (mode, code) in [("small", 0), ("failure", 5)] {
+            let output =
+                bounded_output(pipe_fixture_command(mode), Duration::from_secs(5)).unwrap();
+            assert_eq!(output, (code, b"{\"synthetic\":true}".to_vec()));
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_accepts_exact_limit_and_refuses_the_probe_byte() {
+        let exact = bounded_output(pipe_fixture_command("exact"), Duration::from_secs(15)).unwrap();
+        assert_eq!(exact.0, 0);
+        assert_eq!(exact.1, vec![b'x'; MAX_OUTPUT]);
+        assert_eq!(
+            bounded_output(pipe_fixture_command("oversize"), Duration::from_secs(15)),
+            Err("contract_invalid")
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_deadline_covers_exited_and_live_parents_with_inherited_stdout() {
+        for mode in ["leaked", "leaked-hanging"] {
+            let directory = choice_fixture();
+            let mut command = pipe_fixture_command(mode);
+            command.arg(&directory);
+            let (child, stdout) = spawn_pipe_fixture(command);
+            let ready_deadline = Instant::now() + Duration::from_secs(3);
+            while !directory.join("ready").exists() && Instant::now() < ready_deadline {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            let start = Instant::now();
+            let result = bounded_windows_pipe(child, stdout, Duration::from_millis(200));
+            let elapsed = start.elapsed();
+            println!(
+                "PIPE_DEADLINE mode={mode} timeout_ms=200 elapsed_ms={}",
+                elapsed.as_millis()
+            );
+            // Release only the explicitly owned finite helper, even if the
+            // regression fails. It has an independent five-second ceiling.
+            std::fs::write(directory.join("release"), b"release").unwrap();
+            let deadline = Instant::now() + Duration::from_secs(3);
+            while !directory.join("done").exists() && Instant::now() < deadline {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            assert!(directory.join("ready").exists(), "holder never started");
+            assert!(
+                directory.join("done").exists(),
+                "owned holder did not finish"
+            );
+            assert_eq!(result, Err("busy"), "{mode}");
+            assert!(elapsed < Duration::from_secs(1), "{mode}: {elapsed:?}");
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runner_pipe_deadline_terminates_only_the_owned_hanging_parent() {
+        let (child, stdout) = spawn_pipe_fixture(pipe_fixture_command("hang"));
+        let start = Instant::now();
+        assert_eq!(
+            bounded_windows_pipe(child, stdout, Duration::from_millis(200)),
+            Err("busy")
+        );
+        let elapsed = start.elapsed();
+        println!(
+            "PIPE_DEADLINE mode=hang timeout_ms=200 elapsed_ms={}",
+            elapsed.as_millis()
+        );
+        assert!(elapsed < Duration::from_secs(1));
+    }
+
+    #[test]
+    fn package_json_reads_stop_after_the_limit_probe_byte() {
+        struct CountingReader {
+            bytes: std::io::Cursor<Vec<u8>>,
+            count: usize,
+        }
+        impl Read for CountingReader {
+            fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+                let read = self.bytes.read(buffer)?;
+                self.count += read;
+                Ok(read)
+            }
+        }
+        let mut bytes = b"{\"schemaVersion\":1}".to_vec();
+        bytes.resize(MAX_MANIFEST as usize, b' ');
+        assert_eq!(
+            bounded_json(std::io::Cursor::new(&bytes)),
+            Some(json!({"schemaVersion":1}))
+        );
+        bytes.resize(4 * MAX_MANIFEST as usize, b' ');
+        let mut reader = CountingReader {
+            bytes: std::io::Cursor::new(bytes),
+            count: 0,
+        };
+        assert_eq!(bounded_json(&mut reader), None);
+        assert_eq!(reader.count, MAX_MANIFEST as usize + 1);
+        assert_eq!(bounded_json(std::io::Cursor::new(b"{invalid")), None);
+    }
+
+    #[test]
+    fn package_json_growth_after_open_cannot_bypass_the_read_limit() {
+        let directory = choice_fixture();
+        let path = directory.join("install.json");
+        std::fs::write(&path, b"{\"schemaVersion\":1}").unwrap();
+        let reader = std::fs::File::open(&path).unwrap();
+        let earlier_size = reader.metadata().unwrap().len();
+        assert!(earlier_size <= MAX_MANIFEST);
+        let padding = vec![b' '; 2 * MAX_MANIFEST as usize];
+        std::fs::OpenOptions::new()
+            .append(true)
+            .open(&path)
+            .unwrap()
+            .write_all(&padding)
+            .unwrap();
+        // Negative control: the old size-check + unbounded-read sequence
+        // consumes and accepts the grown JSON document, including its padding.
+        let legacy_bytes = std::fs::read(&path).unwrap();
+        assert!(legacy_bytes.len() as u64 > MAX_MANIFEST);
+        assert_eq!(
+            serde_json::from_slice::<Value>(&legacy_bytes).unwrap(),
+            json!({"schemaVersion":1})
+        );
+        assert_eq!(bounded_json(reader), None);
+        assert_eq!(read_bounded_json(&path), None);
+    }
+
+    #[test]
+    fn installed_package_manifest_keeps_exact_limit_and_refusal_boundaries() {
+        let root = package("bounded-manifest");
+        let path = root.join("install.json");
+        let mut bytes = std::fs::read(&path).unwrap();
+        bytes.resize(MAX_MANIFEST as usize, b' ');
+        std::fs::write(&path, &bytes).unwrap();
+        assert!(load_install(&root).is_ok());
+        bytes.push(b' ');
+        std::fs::write(&path, &bytes).unwrap();
+        assert_eq!(load_install(&root), Err("not_a_package"));
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+    }
+
+    fn choice_fixture() -> PathBuf {
+        let directory = std::env::temp_dir().join(format!(
+            "enouia-atomic-choice-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&directory).unwrap();
+        directory
+    }
+
+    #[test]
+    fn saved_choice_clear_accepts_absence_and_removes_existing_choice() {
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        assert!(save_root_at(&path, None));
+        assert!(save_root_at(&path, Some(&directory.join("old-package"))));
+        assert!(save_root_at(&path, None));
+        assert!(!path.exists());
+        assert!(save_root_at(&path, None));
+    }
+
+    #[test]
+    fn schedule_decoration_refuses_non_object_schedule_without_panicking() {
+        let refused = error("contract_invalid", "activity_archive", false);
+        for schedule in [
+            json!("private path"),
+            json!(false),
+            json!(2),
+            json!([]),
+            Value::Null,
+        ] {
+            for running in [false, true] {
+                let reply = json!({"schemaVersion": 1, "kind": "activity_overview", "schedule": schedule, "health": []});
+                let outcome = std::panic::catch_unwind(|| {
+                    add_schedule(reply, Value::Null, Value::Null, running)
+                });
+                assert_eq!(outcome.expect("invalid schedule must not panic"), refused);
+            }
+        }
+        assert_eq!(
+            add_schedule(
+                json!({"schemaVersion": 1, "kind": "activity_overview", "health": []}),
+                Value::Null,
+                Value::Null,
+                false
+            ),
+            refused
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_clear_denial_child() {
+        let Some(directory) = std::env::var_os("ENOUIA_CLEAR_DENIAL_ROOT") else {
+            return;
+        };
+        let path = PathBuf::from(directory).join(SETTINGS_FILE);
+        assert!(!path.exists(), "owned denial must hide existence");
+        let error = std::fs::remove_file(&path).unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::PermissionDenied);
+        // Negative control: existence returns false for this access error,
+        // so the old `is_ok() || !exists()` expression reports success.
+        assert!(!path.exists());
+        println!("delete_permission_denied_and_legacy_false_success=true");
+        assert!(!save_root_at(&path, None));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_clear_permission_denial_is_not_success() {
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        assert!(save_root_at(&path, Some(&directory.join("old-package"))));
+        let bytes = std::fs::read(&path).unwrap();
+        let script =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/choice-clear-denial.ps1");
+        let output = Command::new("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe")
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+            ])
+            .arg(script)
+            .arg("-Directory")
+            .arg(&directory)
+            .arg("-ProbeExecutable")
+            .arg(std::env::current_exe().unwrap())
+            .env("ENOUIA_CLEAR_DENIAL_ROOT", &directory)
+            .output()
+            .unwrap();
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(stdout.contains("delete_permission_denied_and_legacy_false_success=true"));
+        assert!(stdout.contains("exact_owned_descriptors_and_bytes_restored=true"));
+        assert!(
+            output.status.success(),
+            "{stdout}\n{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(save_root_at(&path, None));
+    }
+
+    #[test]
+    fn saved_choice_partial_write_failure_preserves_old_bytes_and_retries() {
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        let old = directory.join("old-package");
+        assert!(save_root_at(&path, Some(&old)));
+        let bytes = std::fs::read(&path).unwrap();
+        let error = replace_saved_choice(&path, |file| {
+            file.write_all(b"{\"installRoot\":")?;
+            Err(std::io::ErrorKind::WriteZero.into())
+        })
+        .unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::WriteZero);
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        assert_eq!(read_saved_root(&path), Some(old));
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 1);
+        assert!(!save_root_at(&path, Some(Path::new("relative"))));
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        let new = directory.join("new-package");
+        assert!(save_root_at(&path, Some(&new)));
+        assert_eq!(read_saved_root(&path), Some(new));
+        assert!(save_root_at(&path, None));
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 0);
+    }
+
+    // Runs only as an owned subprocess of the test below. No release-mode
+    // hook, page request or real settings path can enter this boundary.
+    #[test]
+    fn saved_choice_writer_child() {
+        let Some(directory) = std::env::var_os("ENOUIA_CHOICE_TEST_ROOT") else {
+            return;
+        };
+        let directory = PathBuf::from(directory);
+        let phase = std::env::var("ENOUIA_CHOICE_TEST_PHASE").unwrap();
+        let path = directory.join(SETTINGS_FILE);
+        let hold = |file: &mut std::fs::File| -> std::io::Result<()> {
+            if phase == "staged-complete" {
+                file.write_all(
+                    format!("{}\n", json!({"installRoot":directory.join("new-package")}))
+                        .as_bytes(),
+                )?;
+            } else {
+                file.write_all(b"{")?;
+            }
+            file.sync_all()?;
+            std::fs::write(directory.join("ready"), b"ready")?;
+            loop {
+                std::thread::park();
+            }
+        };
+        if phase == "legacy-partial" {
+            // File::create is the same truncate-before-write step used by
+            // the previous std::fs::write implementation.
+            hold(&mut std::fs::File::create(path).unwrap()).unwrap();
+        } else {
+            replace_saved_choice(&path, hold).unwrap();
+        }
+    }
+
+    #[test]
+    fn saved_choice_process_death_keeps_prior_choice_and_ignores_staging() {
+        for phase in ["legacy-partial", "staged-partial", "staged-complete"] {
+            let directory = choice_fixture();
+            let path = directory.join(SETTINGS_FILE);
+            let old = directory.join("old-package");
+            assert!(save_root_at(&path, Some(&old)));
+            let bytes = std::fs::read(&path).unwrap();
+            let mut child = Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "activity::tests::saved_choice_writer_child",
+                    "--nocapture",
+                ])
+                .env("ENOUIA_CHOICE_TEST_ROOT", &directory)
+                .env("ENOUIA_CHOICE_TEST_PHASE", phase)
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap();
+            let deadline = Instant::now() + Duration::from_secs(10);
+            while !directory.join("ready").exists() && Instant::now() < deadline {
+                if child.try_wait().unwrap().is_some() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            let ready = directory.join("ready").exists();
+            let _ = child.kill();
+            child.wait().unwrap();
+            assert!(ready, "owned child never reached {phase}");
+            if phase == "legacy-partial" {
+                assert_eq!(std::fs::read(&path).unwrap(), b"{");
+                assert_eq!(read_saved_root(&path), None);
+            } else {
+                assert_eq!(std::fs::read(&path).unwrap(), bytes);
+                assert_eq!(read_saved_root(&path), Some(old));
+                let staged = std::fs::read_dir(&directory)
+                    .unwrap()
+                    .map(|item| item.unwrap().path())
+                    .find(|item| item.extension().is_some_and(|ext| ext == "tmp"))
+                    .unwrap();
+                let staged_bytes = std::fs::read(&staged).unwrap();
+                let new = directory.join("recovered-package");
+                assert!(save_root_at(&path, Some(&new)));
+                assert_eq!(read_saved_root(&path), Some(new));
+                assert_eq!(std::fs::read(staged).unwrap(), staged_bytes);
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_replacement_sharing_refusal_preserves_bytes_and_retries() {
+        use std::os::windows::fs::OpenOptionsExt;
+        use windows_sys::Win32::Storage::FileSystem::{FILE_SHARE_READ, FILE_SHARE_WRITE};
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        let old = directory.join("old-package");
+        let new = directory.join("new-package");
+        assert!(save_root_at(&path, Some(&old)));
+        let bytes = std::fs::read(&path).unwrap();
+        let holder = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
+            .open(&path)
+            .unwrap();
+        // Writing is shared, deletion/replacement is not. The new code must
+        // refuse instead of falling back to the old truncating writer.
+        assert!(!save_root_at(&path, Some(&new)));
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        assert_eq!(read_saved_root(&path), Some(old));
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 1);
+        drop(holder);
+        assert!(save_root_at(&path, Some(&new)));
+        assert_eq!(read_saved_root(&path), Some(new));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn saved_choice_shared_reader_retains_complete_old_snapshot() {
+        use std::os::windows::fs::OpenOptionsExt;
+        use windows_sys::Win32::Storage::FileSystem::{
+            FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
+        };
+        let directory = choice_fixture();
+        let path = directory.join(SETTINGS_FILE);
+        assert!(save_root_at(&path, Some(&directory.join("old-package"))));
+        let bytes = std::fs::read(&path).unwrap();
+        let mut reader = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+            .open(&path)
+            .unwrap();
+        let new = directory.join("new-package");
+        assert!(save_root_at(&path, Some(&new)));
+        let mut snapshot = Vec::new();
+        reader.read_to_end(&mut snapshot).unwrap();
+        assert_eq!(snapshot, bytes);
+        assert_eq!(read_saved_root(&path), Some(new));
+    }
+
     #[test]
     fn saved_choices_are_bounded_absolute_and_leave_invalid_bytes_intact() {
         let directory = std::env::temp_dir().join(format!(
@@ -1011,7 +1674,7 @@ mod tests {
     #[test]
     fn days_filter_one_preview_without_inventing_dates() {
         let preview = json!({"schemaVersion": 1, "kind": "activity_public_preview", "sha256": "0",
-            "data": {"version": 1, "sources": {"github": null, "codex": {"days": [
+            "data": {"version": 1, "sources": {"github": null, "codex": {"timezone":"Codex","metric":"tokens","days": [
                 {"date": "2026-09-23", "value": 0}, {"date": "2026-09-24", "value": 5}]}, "claude": null}}});
         let days = days(&preview, "codex", "2026-09-24", "2026-12-31");
         assert_eq!(days["days"], json!([{"date": "2026-09-24", "value": 5}]));
@@ -1024,6 +1687,120 @@ mod tests {
             super::days(&failure, "codex", "2026-01-01", "2026-12-31"),
             failure
         );
+    }
+
+    #[test]
+    fn days_refuses_missing_or_malformed_history_before_filtering() {
+        let base = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{"github":null,"codex":{"timezone":"Codex","metric":"tokens","days":[]},"claude":null}}});
+        let mut cases = Vec::new();
+        let mut wrong_version = base.clone();
+        wrong_version["schemaVersion"] = json!(2);
+        cases.push(wrong_version);
+        let mut wrong_data_version = base.clone();
+        wrong_data_version["data"]["version"] = json!(2);
+        cases.push(wrong_data_version);
+        let mut missing_sources = base.clone();
+        missing_sources["data"] = json!({"version":1});
+        cases.push(missing_sources);
+        let mut missing = base.clone();
+        missing["data"]["sources"]
+            .as_object_mut()
+            .unwrap()
+            .remove("codex");
+        cases.push(missing);
+        for snapshot in [
+            json!(false),
+            json!({}),
+            json!({"days":null}),
+            json!({"days":"private-synthetic-path"}),
+        ] {
+            let mut preview = base.clone();
+            preview["data"]["sources"]["codex"] = snapshot;
+            cases.push(preview);
+        }
+        for entries in [
+            json!([{"date":null,"value":1}]),
+            json!([{"date":"2026-02-30","value":1}]),
+            json!([{"date":"2026-01-01","value":-1}]),
+            json!([{"date":"2026-01-01","value":1.5}]),
+            json!([{"date":"2026-01-01","value":9007199254740992_u64}]),
+            json!([{"date":"2026-01-01","value":1,"privatePath":"private-synthetic-path"}]),
+            json!([{"date":"2026-01-01","value":1},{"date":"2026-01-01","value":2}]),
+            json!([{"date":"2026-01-02","value":1},{"date":"2026-01-01","value":2}]),
+            json!([{"date":"2026-01-01","value":9007199254740991_u64},{"date":"2026-01-02","value":1}]),
+        ] {
+            let mut preview = base.clone();
+            preview["data"]["sources"]["codex"]["days"] = entries;
+            cases.push(preview);
+        }
+        for preview in cases {
+            // Bad entries are deliberately outside this range. Filtering
+            // must not erase their invalidity and fabricate a valid empty list.
+            assert_eq!(
+                days(&preview, "codex", "2026-10-01", "2026-10-31"),
+                error("contract_invalid", "activity_archive", false)
+            );
+        }
+    }
+
+    #[test]
+    fn days_preserves_explicit_empty_and_exact_inclusive_values() {
+        let mut preview = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{"codex":null}}});
+        let range = ("2026-10-01", "2026-10-31");
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], json!([]));
+        preview["data"]["sources"]["codex"] =
+            json!({"timezone":"Codex","metric":"tokens","days":[]});
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], json!([]));
+        let entries = json!([{"date":"2026-09-30","value":4},{"date":"2026-10-01","value":0},{"date":"2026-10-31","value":2.0},{"date":"2026-11-01","value":8}]);
+        preview["data"]["sources"]["codex"]["days"] = entries.clone();
+        assert_eq!(
+            days(&preview, "codex", range.0, range.1)["days"],
+            json!([entries[1], entries[2]])
+        );
+        let maximum = json!([{"date":"2026-10-01","value":9007199254740991_u64}]);
+        preview["data"]["sources"]["codex"]["days"] = maximum.clone();
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], maximum);
+        preview["schemaVersion"] = json!(1.0);
+        preview["data"]["version"] = json!(1.0);
+        assert_eq!(days(&preview, "codex", range.0, range.1)["days"], maximum);
+    }
+
+    #[test]
+    fn days_refuses_conflicting_source_units_and_boundaries() {
+        for (source, timezone, metric) in [
+            ("github", "GitHub", "contributions"),
+            ("codex", "Codex", "tokens"),
+            ("claude", "Asia/Shanghai", "tokens"),
+        ] {
+            let entries = json!([{"date":"2026-10-01","value":2}]);
+            let mut preview = json!({"schemaVersion":1,"kind":"activity_public_preview","data":{"version":1,"sources":{source:{"timezone":timezone,"metric":metric,"days":entries}}}});
+            for field in ["timezone", "metric"] {
+                let expected = preview["data"]["sources"][source][field].clone();
+                preview["data"]["sources"][source][field] = json!("conflicting-private-value");
+                assert_eq!(
+                    days(&preview, source, "2026-10-01", "2026-10-01"),
+                    error("contract_invalid", "activity_archive", false)
+                );
+                preview["data"]["sources"][source]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove(field);
+                assert_eq!(
+                    days(&preview, source, "2026-10-01", "2026-10-01"),
+                    error("contract_invalid", "activity_archive", false)
+                );
+                preview["data"]["sources"][source][field] = expected;
+            }
+            assert_eq!(
+                days(&preview, source, "2026-10-01", "2026-10-01")["days"],
+                entries
+            );
+            preview["data"]["sources"][source] = Value::Null;
+            assert_eq!(
+                days(&preview, source, "2026-10-01", "2026-10-01")["days"],
+                json!([])
+            );
+        }
     }
 
     #[test]
@@ -1084,10 +1861,15 @@ mod tests {
     }
 
     fn package(name: &str) -> PathBuf {
-        let root =
-            std::env::temp_dir().join(format!("enouia-activity-pkg-{name}-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&root);
-        std::fs::create_dir_all(&root).unwrap();
+        let root = std::env::temp_dir().join(format!(
+            "enouia-activity-pkg-{name}-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
         std::fs::write(root.join("enouia-activity.exe"), b"synthetic runner").unwrap();
         std::fs::write(root.join("activity-config.json"), b"{}").unwrap();
         let hash = file_sha256(&root.join("enouia-activity.exe"))
