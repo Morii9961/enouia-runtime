@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 75);
+  assert.equal(reports.size, 76);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1191,6 +1191,22 @@ function validate(index) {
   assert(contention.observations.syncOutcomes['3:busy'] > 0 && contention.observations.publishedObservations > 0);
   assert.equal(contentionDrill.runtimeBinarySha256, contention.runnerSha256);
   assert.deepEqual(contention.checks, contentionDrill.checks.map(id => 'S.' + id));
+  const chaos = reports.get('random_kill_chaos').report;
+  assert.equal(chaos.scope, 'isolated_activity_random_kill_chaos');
+  assert.equal(chaos.productSourceChanged, false);
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(chaos[flag], false);
+  const chaosBytes = readFileSync(contained(chaos.drillReport));
+  assert.equal(hash(chaosBytes), chaos.drillReportSha256, 'kill-chaos drill changed');
+  const chaosDrill = JSON.parse(chaosBytes);
+  assert.equal(chaosDrill.scope, 'development_reference_random_kill_chaos');
+  assert(chaosDrill.seconds === chaos.drillSeconds && chaos.drillSeconds >= 300 && chaosDrill.elapsedMs >= 300000, 'kill chaos must run for at least five minutes');
+  assert(chaosDrill.observations.kills === chaos.observations.kills && chaos.observations.kills >= 100, 'kill chaos must terminate runs');
+  assert(chaos.observations.sequencesSent === chaos.observations.finalReservation - chaos.observations.firstSequence + 1, 'sent sequences must be contiguous');
+  assert(chaos.observations.retractions === chaos.observations.orphans, 'every orphan must be retracted');
+  assert.deepEqual(chaosDrill.server, chaos.server);
+  assert.equal(chaos.server.abandonedPublishLocks, 0);
+  assert.equal(chaosDrill.runtimeBinarySha256, chaos.runnerSha256);
+  assert.deepEqual(chaos.checks, chaosDrill.checks.map(id => 'K.' + id));
   for (const field of ['runnerSha256', 'desktopSha256', 'installerSha256', 'sandboxToolsSha256', 'harnessSha256', 'fixturePreparerSha256']) assert.match(lateSwitch[field], /^[a-f0-9]{64}$/);
 
   const choiceWrite = reports.get('saved_choice_write_sharing').report;
@@ -1774,6 +1790,7 @@ function validate(index) {
   assert(abandonment.checks.every(id => linkedTo(index.cases.find(c => c.id === 'C15'), 'pending_abandonment').includes(id)), 'C15 must retain the refused-pending abandonment procedure and its limit');
   assert(abandonment.checks.filter(id => id.startsWith('D.remote-ahead')).every(id => linkedTo(index.cases.find(c => c.id === 'C14'), 'pending_abandonment').includes(id)), 'C14 must retain the remote-ahead reservation and observed recovery');
   assert(contention.checks.every(id => linkedTo(c17, 'sustained_contention').includes(id)), 'C17 must retain sustained concurrent collection, delivery and lock-free read evidence');
+  assert(chaos.checks.every(id => linkedTo(c12, 'random_kill_chaos').includes(id)), 'C12 must retain random process-kill chaos evidence');
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
@@ -1868,6 +1885,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C15').evidence = x.cases.find(c => c.id === 'C15').evidence.filter(e => e.report !== 'pending_abandonment'));
   reject(x => x.cases.find(c => c.id === 'C14').evidence = x.cases.find(c => c.id === 'C14').evidence.filter(e => e.report !== 'pending_abandonment'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'sustained_contention'));
+  reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'random_kill_chaos'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));

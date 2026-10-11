@@ -1,5 +1,7 @@
 # Activity 并行续作：Codex → Claude 交接
 
+> **Superseded current state (2026-10-11):** see [ACTIVITY_HANDOFF_2026-10-11.md](ACTIVITY_HANDOFF_2026-10-11.md) for merged PRs #29/#30, the open stack #31–#35 and its merge order.
+
 更新日期：2026-10-10。仓库：`E:\Enouia Runtime`。这份文件补充已有的 `ACTIVITY_USAGE_CLAUDE_HANDOFF.md`，不覆盖它或原启动提示词。用户现在希望 Claude 与下一次 Codex 在不同工作树并行；配套 [下一次 Codex 交接](ACTIVITY_CODEX_NEXT_SESSION_2026-10-10.md) 规定分工与汇合规则。
 
 

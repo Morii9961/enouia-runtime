@@ -1,0 +1,60 @@
+{
+ "schemaVersion": 1,
+ "state": "passed",
+ "scope": "isolated_activity_random_kill_chaos",
+ "baseline": "4e032d40b20db872515419b66f60aa7fa93787bd",
+ "productSourceChanged": false,
+ "modeledReplies": false,
+ "tasksCreated": false,
+ "drillReport": "docs/validation/Activity-claude-kill-chaos/drill.json",
+ "drillReportSha256": "f8a528e927beddba606a4ce99586ecf6ed02048b31eabaf6f1e1be3f6de4af94",
+ "drillSeconds": 300,
+ "drillChecks": 26,
+ "runnerSha256": "c762ccaa39f29fca9137909e0b6a5874df98fc27655486711d5b65353dd4c735",
+ "referenceHead": "fd48f88c8b480480fd48a8efe36ef400b3be99b8",
+ "server": {
+  "publishes": 281,
+  "publishFailures": 98,
+  "publishFailureSamples": {
+   "Error: EPERM: operation not permitted, rename '<base>\\publisher\\public\\current.json.<tmp>' -> '<base>\\publisher\\public\\current.json'": 98
+  },
+  "abandonedReceiveLocksRemoved": 1,
+  "abandonedPublishLocks": 0
+ },
+ "observations": {
+  "kills": 142,
+  "sequencesSent": 101,
+  "firstSequence": 51,
+  "finalReservation": 151,
+  "orphans": 0,
+  "retractions": 0
+ },
+ "checks": [
+  "K.baseline import succeeds",
+  "K.baseline resume succeeds",
+  "K.baseline 51 is published and observed",
+  "K.chaos ran for the requested duration",
+  "K.the server publisher was never left locked",
+  "K.runs were really terminated mid-flight",
+  "K.every surviving invocation printed one JSON result",
+  "K.no invocation wrote stderr or a private path",
+  "K.no surviving invocation ended in an unexpected state",
+  "K.lock-free reads never saw a reservation go back or a pending batch above it",
+  "K.every blocking generation was provably unsent and retracted safely",
+  "K.surviving runs still published new sequences",
+  "K.the last pending batch drains to an observed publication",
+  "K.the final root is writable with no orphan",
+  "K.every sequence was sent with exactly one byte sequence",
+  "K.sent sequences are contiguous from the baseline to the reservation",
+  "K.the publisher holds the final reservation",
+  "K.published history keeps every baseline date",
+  "K.the final state exports with the same reservation and no pending",
+  "K.all HTTP observations stayed on isolated status paths",
+  "K.reference remained unchanged: scripts/status-receive.mjs",
+  "K.reference remained unchanged: scripts/status-publish.mjs",
+  "K.reference remained unchanged: scripts/lib/status-store.mjs",
+  "K.reference remained unchanged: scripts/lib/status-batch.mjs",
+  "K.reference remained unchanged: src/lib/activity.ts",
+  "K.reference remained unchanged: src/lib/status.ts"
+ ]
+}
