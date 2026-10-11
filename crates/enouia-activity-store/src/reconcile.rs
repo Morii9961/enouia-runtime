@@ -6,6 +6,9 @@
 //! only on one named generation whose manifest hash the operator supplies and
 //! whose never-selected state the operator confirms. It renames the directory
 //! back to its staging name and records the decision. Nothing is deleted.
+//!
+//! Abandonment (ADR-033) ends one refused pending batch at its sequence after
+//! the operator's confirmation, and keeps a copy of its exact bytes.
 
 use crate::ActivityLockGuard;
 use crate::generation::valid_generation_id;
@@ -14,7 +17,7 @@ use crate::reader::{
     read_file,
 };
 use crate::recovery::{PublishedGeneration, RecoveryError, Standing, inventory_generations};
-use crate::writer::move_without_replace;
+use crate::writer::{AbandonEvidence, CommitError, commit_pending_abandoned, move_without_replace};
 use enouia_activity_contract::sha256_hex;
 use enouia_common::Clock;
 use serde_json::{Value, json};
@@ -249,7 +252,69 @@ pub fn retract_unselected_locked<C: Clock>(
     Ok(retracted)
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum AbandonError {
+    Commit(CommitError),
+    /// The generation was committed but its record or byte copy failed.
+    RecordFailed(Box<Value>),
+}
+
+/// Abandon one refused pending batch (ADR-033) and record it. The commit
+/// comes first; `reconciliations/abandon-<N>.json` and a copy of the exact
+/// pending bytes follow. Both use new names and replace nothing.
+pub fn abandon_pending_locked<C: Clock>(
+    guard: &ActivityLockGuard,
+    clock: &C,
+    next_id: &str,
+    evidence: &AbandonEvidence,
+) -> Result<Value, AbandonError> {
+    let root = guard.root();
+    let before = crate::recovery::audit_generations(root, clock)
+        .map_err(|error| AbandonError::Commit(CommitError::Recovery(error)))?
+        .current;
+    commit_pending_abandoned(guard, &before.id, next_id, evidence, clock)
+        .map_err(AbandonError::Commit)?;
+    let after = crate::reader::read_current(root, clock)
+        .map_err(|error| AbandonError::Commit(CommitError::PostSwitchValidation(error)))?;
+    let record = json!({
+        "schemaVersion": 1,
+        "action": "abandon_refused_pending",
+        "operatorConfirmed": "refused_or_remote_ahead",
+        "pendingAbandoned": serde_json::from_slice::<Value>(&after.image.delivery)
+            .ok()
+            .and_then(|delivery| delivery.get("pendingAbandoned").cloned()),
+        "fromGeneration": before.id,
+        "toGeneration": after.id,
+        "previousHighestReserved": before.validated.highest_reserved,
+        "highestReserved": after.validated.highest_reserved,
+        "nextSequence": after.validated.highest_reserved + 1,
+        "pendingCopy": format!("reconciliations/abandon-{}-pending.json", evidence.sequence),
+    });
+    let pending = before.image.pending.unwrap_or_default();
+    let written = write_named(
+        root,
+        &format!("abandon-{}-pending.json", evidence.sequence),
+        &pending,
+    )
+    .and_then(|()| {
+        let mut bytes = serde_json::to_vec_pretty(&record).map_err(|_| ())?;
+        bytes.push(b'\n');
+        write_named(root, &format!("abandon-{}.json", evidence.sequence), &bytes)
+    });
+    match written {
+        Ok(()) => Ok(record),
+        Err(()) => Err(AbandonError::RecordFailed(Box::new(record))),
+    }
+}
+
 fn write_record(root: &Path, id: &str, record: &Value) -> Result<(), ()> {
+    let mut bytes = serde_json::to_vec_pretty(record).map_err(|_| ())?;
+    bytes.push(b'\n');
+    write_named(root, &format!("retract-{id}.json"), &bytes)
+}
+
+/// Create one new file under `reconciliations/`; an existing name is refused.
+fn write_named(root: &Path, name: &str, bytes: &[u8]) -> Result<(), ()> {
     let directory = root.join("reconciliations");
     match fs::create_dir(&directory) {
         Ok(()) => {}
@@ -257,14 +322,12 @@ fn write_record(root: &Path, id: &str, record: &Value) -> Result<(), ()> {
         Err(_) => return Err(()),
     }
     checked_directory(&directory, ReadError::Io).map_err(|_| ())?;
-    let mut bytes = serde_json::to_vec_pretty(record).map_err(|_| ())?;
-    bytes.push(b'\n');
     let mut file = OpenOptions::new()
         .write(true)
         .create_new(true)
-        .open(directory.join(format!("retract-{id}.json")))
+        .open(directory.join(name))
         .map_err(|_| ())?;
-    file.write_all(&bytes)
+    file.write_all(bytes)
         .and_then(|_| file.sync_all())
         .map_err(|_| ())
 }

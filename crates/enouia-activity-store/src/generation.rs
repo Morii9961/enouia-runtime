@@ -162,6 +162,43 @@ pub(crate) fn publication_from_delivery(bytes: &[u8]) -> Option<PublicationRecor
     })
 }
 
+/// Reason recorded when an operator abandons a refused pending batch (ADR-033).
+pub const ABANDON_REASON: &str = "operator_confirmed_refused";
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AbandonedRecord {
+    pub sequence: u64,
+    pub exact_pending_sha256: String,
+    pub activity_sha256: String,
+    pub reserved_through: u64,
+    pub abandoned_at_ms: i64,
+    pub reason: String,
+}
+
+pub(crate) fn abandoned_from_delivery(bytes: &[u8]) -> Option<AbandonedRecord> {
+    let value: Value = serde_json::from_slice(bytes).ok()?;
+    serde_json::from_value(value.get("pendingAbandoned")?.clone()).ok()
+}
+
+/// A later pending batch must use a sequence above everything the
+/// abandonment reserved.
+fn valid_abandoned(value: &Value, high_water: u64, pending: &Option<Batch>) -> bool {
+    let Ok(record) = serde_json::from_value::<AbandonedRecord>(value.clone()) else {
+        return false;
+    };
+    record.sequence > 0
+        && record.sequence <= record.reserved_through
+        && record.reserved_through <= high_water
+        && valid_hash(&record.exact_pending_sha256)
+        && valid_hash(&record.activity_sha256)
+        && record.abandoned_at_ms >= 0
+        && record.reason == ABANDON_REASON
+        && pending
+            .as_ref()
+            .is_none_or(|batch| batch.sequence > record.reserved_through)
+}
+
 pub(crate) fn retry_from_delivery(bytes: &[u8]) -> Option<RetryState> {
     let value: Value = serde_json::from_slice(bytes).ok()?;
     serde_json::from_value(value.get("retry")?.clone()).ok()
@@ -319,6 +356,9 @@ impl GenerationImage {
                 && value
                     .get("lastOutcomes")
                     .is_none_or(|last| valid_last_outcomes(last, sequence))
+                && value
+                    .get("pendingAbandoned")
+                    .is_none_or(|record| valid_abandoned(record, sequence, &pending))
         }) {
             return Err(GenerationError::InvalidDelivery);
         }

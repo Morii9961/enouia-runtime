@@ -865,3 +865,84 @@ fn unavailable_transport_is_a_configuration_failure_with_pending_retained() {
         fixture.pending
     );
 }
+
+#[test]
+fn abandoned_pending_is_never_reported_as_observed_publication() {
+    use enouia_activity_runner::ipc::overview;
+    use enouia_activity_store::overview::read_activity_status;
+    use enouia_activity_store::writer::{AbandonEvidence, commit_pending_abandoned};
+
+    let fixture = Fixture::new(false);
+    let guard = WindowsActivityLock
+        .try_acquire(&fixture.root.join("sync.lock"))
+        .unwrap();
+    let collector = FakeCollector::new(&fixture);
+    let published = Cell::new(false);
+    let fetcher = Fetcher {
+        root: &fixture.root,
+        published: &published,
+        calls: Cell::new(0),
+        mismatch: false,
+    };
+    let sync = |accept: bool| {
+        let transport = Transport {
+            root: &fixture.root,
+            published: &published,
+            calls: RefCell::new(vec![]),
+            accept,
+            exit: 0,
+        };
+        run_locked(
+            &guard,
+            &fixture.config(true),
+            Command::Sync,
+            &Ports {
+                clock: &clock(),
+                collector: &collector,
+                process: &transport,
+                fetcher: &fetcher,
+                cancellation: &CancelFlag(Cell::new(false)),
+            },
+        )
+    };
+    let state = || {
+        let status = read_activity_status(&fixture.root, &clock()).unwrap();
+        overview(&status, &fixture.config(true), clock().now_unix_ms())["delivery"].clone()
+    };
+    assert_eq!(sync(true).sequence, Some(43));
+    assert_eq!(state()["state"], "observed");
+    let observed = state();
+
+    published.set(false);
+    let refused = sync(false);
+    assert_eq!((refused.exit_code, refused.sequence), (4, Some(44)));
+    set_paused_locked(&guard, &clock(), "g-44-paused", true).unwrap();
+    let bytes = read_current(&fixture.root, &clock())
+        .unwrap()
+        .image
+        .pending
+        .unwrap();
+    commit_pending_abandoned(
+        &guard,
+        "g-44-paused",
+        "g-44-abandoned",
+        &AbandonEvidence {
+            sequence: 44,
+            exact_pending_sha256: sha256_hex(&bytes),
+            reserved_through: None,
+        },
+        &clock(),
+    )
+    .unwrap();
+    set_paused_locked(&guard, &clock(), "g-44-resumed", false).unwrap();
+    let after = state();
+    // The receipt for 43 stays visible, but it no longer reads as covering
+    // the latest reservation, so the production enable gate cannot pass.
+    assert_eq!(after["state"], "idle");
+    assert_eq!(after["pendingSequence"], Value::Null);
+    assert_eq!(after["publicHash"], observed["publicHash"]);
+    assert_eq!(
+        after["publicationObservedAt"],
+        observed["publicationObservedAt"]
+    );
+}

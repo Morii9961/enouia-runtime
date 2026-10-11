@@ -9,10 +9,11 @@ use enouia_activity_store::legacy_inspect::{compare_archives, inspect_legacy_tri
 use enouia_activity_store::overview::{read_activity_status, read_delivery_overview_locked};
 use enouia_activity_store::pause::set_paused_locked;
 use enouia_activity_store::reconcile::{
-    GenerationEvidence, RetractError, inspect_recovery_locked, retract_unselected_locked,
-    standing_name, valid_manifest_sha256,
+    AbandonError, GenerationEvidence, RetractError, abandon_pending_locked,
+    inspect_recovery_locked, retract_unselected_locked, standing_name, valid_manifest_sha256,
 };
 use enouia_activity_store::recovery::RecoveryError;
+use enouia_activity_store::writer::{AbandonEvidence, CommitError};
 use enouia_activity_store::{ActivityLockGuard, WindowsActivityLock};
 use enouia_common::{Cancellation, Clock, ComponentId, ErrorCode, LockProvider};
 use enouia_windows_process::WindowsProcessRunner;
@@ -35,6 +36,13 @@ fn parse(args: &[OsString]) -> Option<Parsed> {
     let allowed: &[&str] = match name.as_str() {
         "diagnostics" | "sync" | "retry-pending" | "set-paused" | "overview" | "preview"
         | "recovery-inspect" => &["--config"],
+        "pending-abandon" => &[
+            "--config",
+            "--sequence",
+            "--pending-sha256",
+            "--confirm-refused",
+            "--reserve-through",
+        ],
         "recovery-retract" => &[
             "--config",
             "--generation",
@@ -230,8 +238,70 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
     } else {
         None
     };
+    // Abandonment names the exact pending batch and an explicit confirmation
+    // before anything is locked or read (ADR-033).
+    let abandonment = if args.name == "pending-abandon" {
+        let number = |key: &str| {
+            args.text(key).and_then(|value| {
+                value
+                    .parse::<u64>()
+                    .ok()
+                    .filter(|n| *n > 0 && *n <= enouia_activity_contract::MAX_SAFE_INTEGER)
+                    .ok_or_else(|| failure(5, "invalid_arguments"))
+            })
+        };
+        let sequence = number("--sequence")?;
+        let reserved_through = if args.options.contains_key("--reserve-through") {
+            Some(number("--reserve-through")?)
+        } else {
+            None
+        };
+        let hash = args.text("--pending-sha256")?;
+        if args.text("--confirm-refused")? != "true"
+            || !valid_manifest_sha256(hash)
+            || reserved_through.is_some_and(|through| through < sequence)
+        {
+            return Err(failure(5, "invalid_arguments"));
+        }
+        Some(AbandonEvidence {
+            sequence,
+            exact_pending_sha256: hash.to_owned(),
+            reserved_through,
+        })
+    } else {
+        None
+    };
     let guard = lock(&config)?;
     match args.name.as_str() {
+        "pending-abandon" => {
+            let evidence = abandonment
+                .as_ref()
+                .ok_or_else(|| failure(5, "invalid_arguments"))?;
+            match abandon_pending_locked(&guard, &clock, &generation_id(), evidence) {
+                Ok(record) => Ok((
+                    0,
+                    json!({"schemaVersion":1,"state":"pending_abandoned","exitCode":0,
+                    "sequence":evidence.sequence,"highestReserved":record["highestReserved"],
+                    "nextSequence":record["nextSequence"],"record":record}),
+                )),
+                Err(AbandonError::RecordFailed(record)) => Err((
+                    6,
+                    json!({"schemaVersion":1,"state":"abandoned_record_failed","exitCode":6,
+                    "sequence":evidence.sequence,"record":record}),
+                )),
+                Err(AbandonError::Commit(CommitError::NotPaused)) => Err(failure(6, "not_paused")),
+                Err(AbandonError::Commit(CommitError::InvalidEvidence)) => {
+                    Err(failure(6, "pending_mismatch"))
+                }
+                Err(AbandonError::Commit(CommitError::Recovery(error))) => {
+                    Err(recovery_failure(&error))
+                }
+                Err(AbandonError::Commit(CommitError::Current(error))) => {
+                    Err(recovery_failure(&RecoveryError::Current(error)))
+                }
+                Err(AbandonError::Commit(_)) => Err(failure(6, "storage_failed")),
+            }
+        }
         "recovery-inspect" => {
             let inspection = inspect_recovery_locked(&guard, &clock)
                 .map_err(|error| recovery_failure(&error))?;
@@ -275,10 +345,14 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
             let overview = read_delivery_overview_locked(&guard, &clock)
                 .map_err(|_| failure(6, "storage_failed"))?;
             let pending = overview.pending.map(|p| json!({"sequence":p.sequence,"exactPendingSha256":p.exact_pending_sha256,"ageMs":p.age_ms,"retry":p.retry}));
+            let abandoned = overview.abandoned.map(|a| {
+                json!({"sequence":a.sequence,"exactPendingSha256":a.exact_pending_sha256,
+                "reservedThrough":a.reserved_through,"abandonedAtMs":a.abandoned_at_ms})
+            });
             Ok((
                 0,
                 json!({"schemaVersion":1,"state":"diagnostics","exitCode":0,"paused":overview.paused,
-                "deliveryEnabled":config.delivery_enabled,"pending":pending,
+                "deliveryEnabled":config.delivery_enabled,"pending":pending,"pendingAbandoned":abandoned,
                 "toolsPresent":{"github":config.github.as_ref().is_some_and(|c| c.executable.is_file()),
                     "codex":config.codex.as_ref().is_some_and(|c| c.executable.is_file()),
                     "claude":config.claude.as_ref().is_some_and(|c| c.node_executable.is_file() && c.ccusage_cli.is_file()),
@@ -388,7 +462,7 @@ pub fn invoke(args: &[OsString]) -> (u8, Value) {
     if args.len() == 1 && args[0] == "--help" {
         return (
             0,
-            json!({"schemaVersion":1,"state":"help","commands":["diagnostics","overview","preview","sync","retry-pending","set-paused","migration-inspect","migration-import","migration-export-legacy","recovery-inspect","recovery-retract"]}),
+            json!({"schemaVersion":1,"state":"help","commands":["diagnostics","overview","preview","sync","retry-pending","set-paused","migration-inspect","migration-import","migration-export-legacy","recovery-inspect","recovery-retract","pending-abandon"]}),
         );
     }
     let Some(args) = parse(args) else {

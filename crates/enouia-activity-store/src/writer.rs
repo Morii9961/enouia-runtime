@@ -1,7 +1,9 @@
 //! One locked generation commit with an immutable directory and pointer switch.
 
 use crate::ActivityLockGuard;
-use crate::generation::{GenerationError, GenerationImage, ValidatedGeneration};
+use crate::generation::{
+    ABANDON_REASON, GenerationError, GenerationImage, ValidatedGeneration, paused_from_delivery,
+};
 use crate::reader::{MAX_CURRENT_BYTES, ReadError, read_current, read_file};
 use crate::recovery::{RecoveryError, audit_generations};
 use enouia_activity_contract::{
@@ -39,6 +41,7 @@ pub enum CommitError {
     SwitchFailed,
     InterruptedBeforeSwitch,
     InterruptedAfterSwitch,
+    NotPaused,
 }
 
 /// Evidence supplied by the trusted origin-bound public observer. The store
@@ -52,6 +55,24 @@ pub struct PublicationEvidence {
     pub generated_at_ms: i64,
     pub published_at_ms: i64,
     pub received_at_ms: i64,
+}
+
+/// An operator's confirmation that the publisher refused one pending batch,
+/// or that the receiver already holds an equal or higher sequence (ADR-033).
+pub struct AbandonEvidence {
+    pub sequence: u64,
+    pub exact_pending_sha256: String,
+    /// A new highest reserved sequence, at least the current one. `None`
+    /// keeps the current reservation, which an import may have set above
+    /// the pending sequence.
+    pub reserved_through: Option<u64>,
+}
+
+/// What may clear a pending batch: observed publication or abandonment.
+#[derive(Clone, Copy)]
+enum PendingClear<'a> {
+    Published(&'a PublicationEvidence),
+    Abandoned(&'a AbandonEvidence),
 }
 
 fn history_retained(old: &Option<Snapshot>, next: &Option<Snapshot>) -> bool {
@@ -84,6 +105,17 @@ fn publication_receipt_retained(old: &GenerationImage, next: &GenerationImage) -
     };
     old_delivery.get("publicationObserved") == next_delivery.get("publicationObserved")
         && old_delivery.get("lastOutcomes") == next_delivery.get("lastOutcomes")
+        && old_delivery.get("pendingAbandoned") == next_delivery.get("pendingAbandoned")
+}
+
+fn abandonment_recorded(next: &GenerationImage, evidence: &AbandonEvidence, reserved: u64) -> bool {
+    serde_json::from_slice::<Value>(&next.delivery).is_ok_and(|delivery| {
+        let record = &delivery["pendingAbandoned"];
+        delivery.get("retry").is_none()
+            && record["sequence"].as_u64() == Some(evidence.sequence)
+            && record["exactPendingSha256"].as_str() == Some(evidence.exact_pending_sha256.as_str())
+            && record["reservedThrough"].as_u64() == Some(reserved)
+    })
 }
 
 fn valid_transition(
@@ -91,7 +123,7 @@ fn valid_transition(
     old_image: &GenerationImage,
     next: &ValidatedGeneration,
     next_image: &GenerationImage,
-    publication: Option<&PublicationEvidence>,
+    clear: Option<PendingClear<'_>>,
 ) -> bool {
     if !archive_retained(&old.archive, &next.archive) {
         return false;
@@ -102,16 +134,31 @@ fn valid_transition(
                 && next.highest_reserved == old.highest_reserved
                 && next.archive == old.archive
         }
-        (Some(previous_bytes), None) => publication.is_some_and(|evidence| {
-            old.pending.as_ref().map(|batch| batch.sequence) == Some(evidence.sequence)
-                && sha256_hex(previous_bytes) == evidence.exact_pending_sha256
-                && old.pending.as_ref().is_some_and(|batch| {
-                    public_data_bytes(&batch.data)
-                        .is_ok_and(|bytes| sha256_hex(&bytes) == evidence.activity_sha256)
-                })
-                && next.highest_reserved == old.highest_reserved
-                && next.archive == old.archive
-        }),
+        (Some(previous_bytes), None) => match clear {
+            None => false,
+            Some(PendingClear::Published(evidence)) => {
+                old.pending.as_ref().map(|batch| batch.sequence) == Some(evidence.sequence)
+                    && sha256_hex(previous_bytes) == evidence.exact_pending_sha256
+                    && old.pending.as_ref().is_some_and(|batch| {
+                        public_data_bytes(&batch.data)
+                            .is_ok_and(|bytes| sha256_hex(&bytes) == evidence.activity_sha256)
+                    })
+                    && next.highest_reserved == old.highest_reserved
+                    && next.archive == old.archive
+            }
+            Some(PendingClear::Abandoned(evidence)) => {
+                old.pending.as_ref().map(|batch| batch.sequence) == Some(evidence.sequence)
+                    && sha256_hex(previous_bytes) == evidence.exact_pending_sha256
+                    && match evidence.reserved_through {
+                        None => next.highest_reserved == old.highest_reserved,
+                        Some(through) => {
+                            next.highest_reserved == through && through >= old.highest_reserved
+                        }
+                    }
+                    && next.archive == old.archive
+                    && abandonment_recorded(next_image, evidence, next.highest_reserved)
+            }
+        },
         (None, None) => {
             next.highest_reserved == old.highest_reserved
                 && next.archive == old.archive
@@ -308,7 +355,101 @@ pub fn commit_publication_observed_with_hook<C: Clock, F: FnMut(CommitPhase) -> 
         next_id,
         &image,
         clock,
-        Some(evidence),
+        Some(PendingClear::Published(evidence)),
+        hook,
+    )
+}
+
+/// End one pending batch without publication (ADR-033). The store must be
+/// paused, the batch must match the operator's sequence and exact hash, and the
+/// archive is kept. The sequence stays consumed; `reserved_through` may move
+/// the reservation above a known remote high-water, and otherwise it stays.
+pub fn commit_pending_abandoned<C: Clock>(
+    guard: &ActivityLockGuard,
+    expected_id: &str,
+    next_id: &str,
+    evidence: &AbandonEvidence,
+    clock: &C,
+) -> Result<(), CommitError> {
+    commit_pending_abandoned_with_hook(guard, expected_id, next_id, evidence, clock, |_| Ok(()))
+}
+
+/// Fault hook for the abandonment pointer-switch boundary.
+pub fn commit_pending_abandoned_with_hook<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
+    guard: &ActivityLockGuard,
+    expected_id: &str,
+    next_id: &str,
+    evidence: &AbandonEvidence,
+    clock: &C,
+    hook: F,
+) -> Result<(), CommitError> {
+    let current = audit_generations(guard.root(), clock)
+        .map_err(CommitError::Recovery)?
+        .current;
+    if current.id != expected_id {
+        return Err(CommitError::StaleGeneration);
+    }
+    if !paused_from_delivery(&current.image.delivery).ok_or(CommitError::InvalidEvidence)? {
+        return Err(CommitError::NotPaused);
+    }
+    let (Some(pending), Some(batch)) = (&current.image.pending, &current.validated.pending) else {
+        return Err(CommitError::InvalidEvidence);
+    };
+    if batch.sequence != evidence.sequence
+        || sha256_hex(pending) != evidence.exact_pending_sha256
+        || evidence
+            .reserved_through
+            .is_some_and(|through| through < current.validated.highest_reserved)
+        || evidence
+            .reserved_through
+            .is_some_and(|through| through > MAX_SAFE_INTEGER)
+    {
+        return Err(CommitError::InvalidEvidence);
+    }
+    let reserved_through = evidence
+        .reserved_through
+        .unwrap_or(current.validated.highest_reserved);
+    let abandoned_at_ms = clock.now_unix_ms();
+    if abandoned_at_ms < 0 {
+        return Err(CommitError::InvalidEvidence);
+    }
+    let activity_sha256 =
+        sha256_hex(&public_data_bytes(&batch.data).map_err(|_| CommitError::InvalidEvidence)?);
+    let mut delivery: Value = serde_json::from_slice(&current.image.delivery)
+        .map_err(|_| CommitError::InvalidEvidence)?;
+    let object = delivery
+        .as_object_mut()
+        .ok_or(CommitError::InvalidEvidence)?;
+    object.remove("retry");
+    object.insert(
+        "pendingAbandoned".to_owned(),
+        json!({
+            "sequence": evidence.sequence,
+            "exactPendingSha256": evidence.exact_pending_sha256,
+            "activitySha256": activity_sha256,
+            "reservedThrough": reserved_through,
+            "abandonedAtMs": abandoned_at_ms,
+            "reason": ABANDON_REASON,
+        }),
+    );
+    let mut delivery = serde_json::to_vec(&delivery).map_err(|_| CommitError::InvalidEvidence)?;
+    delivery.push(b'\n');
+    if delivery.len() > 1024 * 1024 {
+        return Err(CommitError::InvalidEvidence);
+    }
+    let image = GenerationImage {
+        activity: current.image.activity,
+        sequence: format!("{{\"sequence\":{reserved_through}}}\n").into_bytes(),
+        pending: None,
+        delivery,
+    };
+    commit_inner(
+        guard,
+        expected_id,
+        next_id,
+        &image,
+        clock,
+        Some(PendingClear::Abandoned(evidence)),
         hook,
     )
 }
@@ -332,7 +473,7 @@ fn commit_inner<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
     next_id: &str,
     next_image: &GenerationImage,
     clock: &C,
-    publication: Option<&PublicationEvidence>,
+    clear: Option<PendingClear<'_>>,
     mut hook: F,
 ) -> Result<(), CommitError> {
     let root = guard.root();
@@ -351,7 +492,7 @@ fn commit_inner<C: Clock, F: FnMut(CommitPhase) -> Result<(), ()>>(
     let next = next_image
         .validate(&manifest, next_id, clock)
         .map_err(CommitError::InvalidNext)?;
-    if !valid_transition(&old.validated, &old.image, &next, next_image, publication) {
+    if !valid_transition(&old.validated, &old.image, &next, next_image, clear) {
         return Err(CommitError::InvalidTransition);
     }
 

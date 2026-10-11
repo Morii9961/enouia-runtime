@@ -184,7 +184,14 @@ pub fn overview(status: &ActivityStatus, config: &Config, now_ms: i64) -> Value 
         } else {
             "pending"
         }
-    } else if status.publication.is_some() {
+    } else if status.publication.as_ref().is_some_and(|receipt| {
+        // A receipt older than an operator abandonment (ADR-033) does not
+        // describe the latest batch.
+        status
+            .abandoned
+            .as_ref()
+            .is_none_or(|abandoned| abandoned.sequence < receipt.sequence)
+    }) {
         "observed"
     } else {
         "idle"

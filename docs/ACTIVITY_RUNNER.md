@@ -35,6 +35,7 @@ enouia-activity migration-import --bundle COPIED_TRIO --config PATH --high-water
 enouia-activity migration-export-legacy --config PATH --output NEW_DIRECTORY
 enouia-activity recovery-inspect --config PATH
 enouia-activity recovery-retract --config PATH --generation ID --manifest-sha256 HEX --confirm-never-selected true
+enouia-activity pending-abandon --config PATH --sequence N --pending-sha256 HEX --confirm-refused true [--reserve-through M]
 ```
 
 `diagnostics` reports pause, pending sequence/hash/age/retry state, delivery configuration, and tool-file presence. Presence is not a capability or authentication claim. Diagnostics never collects, sends, or probes authenticated tools. It acquires the same lock for a consistent view; a busy store returns code 3.
@@ -72,6 +73,22 @@ Before retracting, the operator confirms that the generation was never selected 
 On success it renames `generations/<id>` to `generations/.staging-<id>`, where the audit ignores it. It deletes nothing and leaves `CURRENT` and the prepared pointer file untouched. It writes `reconciliations/retract-<id>.json` with the evidence it acted on and reports whether writing is allowed again (`writable`). Writing stays blocked while another blocking generation remains. The next commit reserves from `CURRENT` again, so the retracted sequence may be reused with different bytes. That is why the confirmation matters.
 
 If the record cannot be written after the rename, the state is `retracted_record_failed` (code 6) and stdout carries the record. Corrupt generations and interrupted first imports still need manual handling.
+
+### Abandoning a refused pending batch
+
+A pending batch blocks collection until its exact data is observed published ([ADR-014](adr/README.md#adr-014--single-writer-generation-transaction-and-one-pending-batch-adopted), [ADR-015](adr/README.md#adr-015--existing-restricted-ssh-with-observed-publication-adopted)). It is never observed in two cases. The publisher can refuse it as a history regression and report `degraded`. Or the receiver may already hold an equal or higher sequence, which it ignores while exiting 0. [ADR-033](adr/033-operator-pending-abandonment.md) adds the operator's way out:
+
+1. Confirm from server evidence, through Moriium operations, which case applies. For the second case, note the receiver's high-water.
+2. Run `set-paused true`.
+3. Run `diagnostics` and copy the pending `sequence` and `exactPendingSha256`.
+4. Run `pending-abandon` with them and `--confirm-refused true`. If the receiver is ahead, add `--reserve-through` with its high-water.
+5. Run `set-paused false`.
+
+The command refuses to run unless the store is paused (`not_paused`). It also refuses a sequence or hash that differs from the current pending batch (`pending_mismatch`), a missing confirmation, and a reservation below the pending sequence (code 5).
+
+On success the archive is kept, the pending batch is cleared and its sequence stays consumed. Without `--reserve-through`, the current reservation is kept, even when a migration import set it above the pending sequence. The next collection uses `highestReserved + 1`, which is `M + 1` with `--reserve-through M`. `delivery.json` records `pendingAbandoned`, and `diagnostics` shows it. The command also writes `reconciliations/abandon-<N>.json` and a copy of the exact bytes as `abandon-<N>-pending.json`. Until a later batch is observed, the overview reports `idle` rather than `observed`, so an earlier publication cannot satisfy the production enable gate.
+
+Abandonment does not repair data. If the archive itself is what the publisher refuses, the next batch is refused as well, and the archive must be reconciled first.
 
 ## Results and exit categories
 

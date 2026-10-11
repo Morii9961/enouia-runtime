@@ -218,3 +218,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-032 — Native setup for Memory's text Provider path (Adopted implementation; real use pending)
 
 [ADR-032](032-memory-native-provider-setup.md) supplies the native half of Enouia Memory ADR-MEM-48. Sending stays off unless the owner writes `memory-providers.json` with explicit models and limits. Keys are entered only in the native Windows credential prompt and stored in Credential Manager. The page sees setup state and rules only. This amends ADR-025's "no Provider call": Runtime hosts Memory's Provider path and implements no protocol of its own.
+
+## ADR-033 — Operator abandonment of a refused pending batch (Adopted; implemented)
+
+[ADR-033](033-operator-pending-abandonment.md) implements ADR-015's operator reconciliation. `pending-abandon` ends one paused, exactly identified pending batch without publication. Its sequence stays consumed and the archive is kept. An optional `--reserve-through` moves the next sequence above a known remote high-water. `delivery.json` records `pendingAbandoned`, and `reconciliations/` keeps the record and the exact bytes. The overview no longer reports `observed` for a receipt older than an abandonment. Running it on a real store remains an operator decision.
