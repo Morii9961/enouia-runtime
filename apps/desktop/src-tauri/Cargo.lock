@@ -722,6 +722,7 @@ dependencies = [
  "enouia-memory-provider",
  "enouia-memory-workspace",
  "rfd",
+ "serde",
  "serde_json",
  "sha2",
  "tauri",

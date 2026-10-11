@@ -177,5 +177,5 @@ Memory's reference shell stays Memory's acceptance harness. Use Runtime as the c
 ## Boundaries
 
 - **Activity & Usage.** It stays independent: its own data root, runner, scheduler and delivery. Nothing from Activity enters `memory_call`. Memory never reads Activity.
-- **Cloud stages.** Runtime implements no Provider call, MCP endpoint, gateway, replica or sync. When Memory ships them they arrive through a pin bump, or through a Host client after MV-8.
+- **Cloud stages.** Runtime implements no Provider protocol, MCP endpoint, gateway, replica or sync. When Memory ships them they arrive through a pin bump, or through a Host client after MV-8. Memory's native text Provider path (MV-7, ADR-MEM-48) is hosted under [ADR-032](adr/032-memory-native-provider-setup.md): off without the owner's `memory-providers.json`, keys only through the native credential prompt.
 - **Runtime-local Core crates.** `enouia-memory`, `enouia-session`, `enouia-context`, `enouia-provider` and `enouia-core-contract` are frozen history (ADR-025). Do not extend them, and do not mix their DTOs with Memory's.

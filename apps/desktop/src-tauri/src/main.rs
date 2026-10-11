@@ -6,14 +6,17 @@
 //! Exit is explicit and shuts the Memory Core down first, as does the end of
 //! the Windows session or an installer's request to close (ADR-027). The
 //! Activity surface reaches the independently installed producer only through
-//! that package's runner (ADR-028). The shell registers no filesystem, shell,
-//! network or provider command, never changes a scheduled task, and closing
-//! or exiting it never pauses Activity.
+//! that package's runner (ADR-028). The shell registers no filesystem, shell
+//! or network command, never changes a scheduled task, and closing or exiting
+//! it never pauses Activity. Memory's native Provider path is enabled only by
+//! the owner's settings file, and keys are entered only in the native Windows
+//! credential prompt (ADR-032).
 
 mod activity;
 mod companion;
 mod hotkey;
 mod memory;
+mod provider;
 mod root_lease;
 mod shell;
 mod startup;
@@ -48,6 +51,8 @@ fn main() {
             activity::activity_setup,
             memory::memory_call,
             memory::memory_pick,
+            provider::memory_provider_setup,
+            provider::memory_provider_key,
             shell::shell_status,
             shell::shell_show,
             shell::shell_search,
@@ -60,6 +65,10 @@ fn main() {
             companion::startup_set
         ])
         .setup(|app| {
+            // Native Provider sending stays off without the owner's
+            // settings file (ADR-032).
+            let path = provider::settings_path(app.handle());
+            provider::apply(&app.state::<MemoryHost>(), path.as_deref());
             shell::install(app)?;
             Ok(())
         })
