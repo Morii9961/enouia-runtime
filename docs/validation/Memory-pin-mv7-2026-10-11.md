@@ -32,3 +32,17 @@ The smoke covers the existing Memory surfaces only. The Memory-side rows between
 | `npm run desktop:build` + default smoke | First run 99/101: two quick-search hotkey checks failed (the intermittent foreground-focus observation already recorded for this mode), unrelated to Sessions. The rerun on a fresh synthetic Vault passed 101/101. Its Sessions screenshot shows the panel's off-state text. |
 
 Not exercised: a configured setup in the built app, the Windows credential prompt, Credential Manager writes, HTTPS and any provider. No settings file existed in the owner's Runtime configuration folder during the smoke.
+
+## Follow-up: pin `8186aed` and source suggestions (extraction, MV-7.4)
+
+The pin moves to Memory `8186aed861af08cf7a2c5d8c912a24eae51b4d66` (surface `5eb04c2b…`, 47 commands). Grant plans now send `extraction`. The External provider panel has an explicit "also allow extraction" choice, off by default. The source viewer offers "Suggest memories from this part…" for the shown excerpt. It reads the provider setup, prepares the exact request for that range, sends it once, previews each suggestion with its quote and complete selected text, and on request adds them to the review queue one apply call at a time. Nothing becomes a memory without ordinary review.
+
+| Check | Result |
+|---|---|
+| src-tauri tests and clippy | Passed: 39 + 3 tests; the lifecycle gate covers the three new writes. |
+| `npm run check`, `npm test` | Passed 62/62, including the extraction panel's initial read state. |
+| `check-memory-integration.mjs --self-test --memory-checkout` | Passed: surface matches the pinned revision. |
+| Default smoke | Not passed in this window: three runs stopped at the first OS key injection because the harness's own guard found another window in the foreground (`test process is not foreground`; the owner was using the desktop). These steps only test the global hotkey and quick search, which this change does not touch. The same steps passed 101/101 at `7963150` and `7ba612b` earlier today. |
+| Focused smoke without OS key injection | Passed: `--sessions-only` 19/19, `--source-paging-only` 16/16, `--session-writes-only` 21/21 on fresh synthetic Vaults. |
+
+Not exercised: a configured setup in the built app, extraction against any provider, the credential prompt, Credential Manager and HTTPS.

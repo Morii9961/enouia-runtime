@@ -21,6 +21,7 @@ const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
 const { Explorer, Inbox } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
 const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx');
 const { ExternalPanel } = await server.ssrLoadModule('/src/memory/ExternalPanel.tsx');
+const { ExtractionPanel } = await server.ssrLoadModule('/src/memory/ExtractionPanel.tsx');
 const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
@@ -298,6 +299,14 @@ test('the external provider panel reads its setup before offering any action', (
   const html = renderToStaticMarkup(createElement(ExternalPanel, {
     branch: { sessionId: 'ses_00000000-0000-4000-8000-000000000001', branchId: 'br_00000000-0000-4000-8000-000000000002' },
     text: 'Synthetic question', invocations: [], onChanged: async () => {}, consumeText() {},
+  }));
+  assert.match(html, /Reading provider setup/);
+  assert.doesNotMatch(html, /<button/);
+});
+
+test('source suggestions read the provider setup before offering any request', () => {
+  const html = renderToStaticMarkup(createElement(ExtractionPanel, {
+    range: { sourceId: 'src_00000000-0000-4000-8000-000000000007', revision: 1, start: 0, end: 120 }, onClose() {},
   }));
   assert.match(html, /Reading provider setup/);
   assert.doesNotMatch(html, /<button/);

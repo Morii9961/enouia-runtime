@@ -27,6 +27,7 @@ const WRITES = new Set([
   "review_confirm", "forget_plan", "remember", "correction_propose", "import_start",
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
   "provider_confirm", "external_prepare", "external_send",
+  "extraction_prepare", "extraction_apply", "extraction_pause",
 ]);
 
 export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;
@@ -114,6 +115,7 @@ const RULES: Record<string, string> = {
   "provider.call_expired": "That prepared request expired. Prepare it again",
   "provider.plan_unknown": "That plan is no longer available. Create it again",
   "review.stale_plan": "The content changed since you reviewed it. Review it again",
+  "workspace.extraction_range": "Choose a shorter part of the source (at most 32 KB)",
 };
 
 const HOST: Record<string, string> = {

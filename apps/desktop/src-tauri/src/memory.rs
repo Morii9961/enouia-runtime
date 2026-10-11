@@ -699,7 +699,10 @@ mod tests {
                 "backup_export",
                 "provider_confirm",
                 "external_prepare",
-                "external_send"
+                "external_send",
+                "extraction_prepare",
+                "extraction_apply",
+                "extraction_pause"
             ]
         );
         for read in [

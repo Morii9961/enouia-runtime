@@ -40,6 +40,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   const [prepared, setPrepared] = useState<J>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [extraction, setExtraction] = useState(false);
   const action = useAction();
   const read = useLatestRead();
   const refresh = useCallback(() => read.run(
@@ -100,9 +101,11 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
             <button type="button" className="mem-link" disabled={busy} onClick={() => holdPlan("egress_revoke_plan", { policyId: grant.policyId })}>Revoke…</button></p>
         : <div className="mem-stack">
             <p className="mem-muted">No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.</p>
+            <label className="mem-muted"><input type="checkbox" checked={extraction} disabled={busy} onChange={(e) => setExtraction(e.target.checked)} />{" "}
+              Also allow suggesting memories from sources you select (extraction)</label>
             <div className="mem-actions">
               <button type="button" className="mem-button" disabled={busy}
-                onClick={() => holdPlan("egress_grant_plan", { apis: [api], maxSensitivity: "private" })}>Review a grant…</button>
+                onClick={() => holdPlan("egress_grant_plan", { apis: [api], maxSensitivity: "private", extraction })}>Review a grant…</button>
             </div>
           </div>}
 
