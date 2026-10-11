@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "destinations": [
+    {
+      "api": "anthropic",
+      "model": "replace-with-the-exact-model-you-verified",
+      "contextWindowTokens": 200000,
+      "maxOutputTokens": 4096,
+      "streaming": true,
+      "verifiedAt": "2026-10-11T00:00:00.000Z"
+    }
+  ],
+  "maxAttemptsPerSession": 10,
+  "maxReservedTokensPerSession": 100000
+}

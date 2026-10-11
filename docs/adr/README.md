@@ -214,3 +214,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-031 — Strict Activity validation in comparisons (Adopted clarification; behavior unchanged)
 
 [ADR-031](031-strict-activity-validation-compatibility.md) classifies two existing GitHub unique-date/safe-aggregate refusals and twelve existing nonpublishable timestamp refusals as explicit safety differences. Fresh comparisons prove failed-source history retention and rejection by the copied public manifest validator. No parser, public contract, seed or production behavior changes; unexpected differences, real-seed reconciliation and full B4/B5 acceptance stay gated.
+
+## ADR-032 — Native setup for Memory's text Provider path (Adopted implementation; real use pending)
+
+[ADR-032](032-memory-native-provider-setup.md) supplies the native half of Enouia Memory ADR-MEM-48. Sending stays off unless the owner writes `memory-providers.json` with explicit models and limits. Keys are entered only in the native Windows credential prompt and stored in Credential Manager. The page sees setup state and rules only. This amends ADR-025's "no Provider call": Runtime hosts Memory's Provider path and implements no protocol of its own.

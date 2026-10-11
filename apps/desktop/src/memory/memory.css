@@ -73,3 +73,4 @@
 .mem-quick .qr22{margin:0}
 .mem-quick-results{list-style:none;margin:0;padding:0;flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px}
 .mem-quick-results li{padding:8px 6px;border-top:1px solid var(--hairline);display:flex;gap:8px;align-items:baseline}
+.mem-pre{max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0;padding:8px;border:1px solid var(--line, #2A3540);border-radius:6px;font-family:'Cascadia Code','Cascadia Mono',Consolas,monospace;font-size:12px}
