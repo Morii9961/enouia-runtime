@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 74);
+  assert.equal(reports.size, 75);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1177,6 +1177,20 @@ function validate(index) {
   assert(abandonDrill.checks.length === abandonment.drillChecks && abandonment.drillChecks === 27);
   assert.equal(abandonDrill.runtimeBinarySha256, abandonment.runnerSha256);
   assert.deepEqual(abandonment.checks, [...abandonTestIds, ...abandonDrill.checks.map(id => 'D.' + id)]);
+  const contention = reports.get('sustained_contention').report;
+  assert.equal(contention.scope, 'isolated_activity_sustained_contention');
+  assert.equal(contention.productSourceChanged, false);
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(contention[flag], false);
+  const contentionBytes = readFileSync(contained(contention.drillReport));
+  assert.equal(hash(contentionBytes), contention.drillReportSha256, 'contention drill changed');
+  const contentionDrill = JSON.parse(contentionBytes);
+  assert.equal(contentionDrill.scope, 'development_reference_sustained_contention');
+  assert(contentionDrill.seconds === contention.drillSeconds && contention.drillSeconds >= 300 && contentionDrill.elapsedMs >= 300000, 'contention must be sustained for at least five minutes');
+  assert.deepEqual(contentionDrill.observations, contention.observations);
+  assert(contention.observations.sequencesSent === contention.observations.finalReservation - contention.observations.firstSequence + 1, 'sent sequences must be contiguous');
+  assert(contention.observations.syncOutcomes['3:busy'] > 0 && contention.observations.publishedObservations > 0);
+  assert.equal(contentionDrill.runtimeBinarySha256, contention.runnerSha256);
+  assert.deepEqual(contention.checks, contentionDrill.checks.map(id => 'S.' + id));
   for (const field of ['runnerSha256', 'desktopSha256', 'installerSha256', 'sandboxToolsSha256', 'harnessSha256', 'fixturePreparerSha256']) assert.match(lateSwitch[field], /^[a-f0-9]{64}$/);
 
   const choiceWrite = reports.get('saved_choice_write_sharing').report;
@@ -1759,6 +1773,7 @@ function validate(index) {
   assert(orphan.checks.every(id => linkedTo(c12, 'store_orphan_reconcile').includes(id)), 'C12 must retain actual process-death orphan inspection, refusal and confirmed retraction');
   assert(abandonment.checks.every(id => linkedTo(index.cases.find(c => c.id === 'C15'), 'pending_abandonment').includes(id)), 'C15 must retain the refused-pending abandonment procedure and its limit');
   assert(abandonment.checks.filter(id => id.startsWith('D.remote-ahead')).every(id => linkedTo(index.cases.find(c => c.id === 'C14'), 'pending_abandonment').includes(id)), 'C14 must retain the remote-ahead reservation and observed recovery');
+  assert(contention.checks.every(id => linkedTo(c17, 'sustained_contention').includes(id)), 'C17 must retain sustained concurrent collection, delivery and lock-free read evidence');
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
@@ -1852,6 +1867,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'store_orphan_reconcile'));
   reject(x => x.cases.find(c => c.id === 'C15').evidence = x.cases.find(c => c.id === 'C15').evidence.filter(e => e.report !== 'pending_abandonment'));
   reject(x => x.cases.find(c => c.id === 'C14').evidence = x.cases.find(c => c.id === 'C14').evidence.filter(e => e.report !== 'pending_abandonment'));
+  reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'sustained_contention'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));

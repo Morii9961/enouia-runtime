@@ -521,6 +521,13 @@
       "sha256": "49228c3f433bd2a7f51a9346b73c1774e3704bdd32734e3b18ab9cf6a0f35b65",
       "state": "passed",
       "selectorCount": 34
+    },
+    {
+      "id": "sustained_contention",
+      "path": "docs/validation/Activity-claude-contention/proof.json",
+      "sha256": "bc62726268965360a5ad8574a13f036c37e91c425a53b2d09e9a96c2d04bf53b",
+      "state": "passed",
+      "selectorCount": 26
     }
   ],
   "cases": [
@@ -2543,6 +2550,37 @@
             "DM.choice_remains_exact",
             "DM.complete_store_remains_exact",
             "T.days_rejects_conflicting_units_and_boundaries"
+          ]
+        },
+        {
+          "report": "sustained_contention",
+          "selectors": [
+            "S.baseline import succeeds",
+            "S.baseline resume succeeds",
+            "S.baseline 51 is published and observed",
+            "S.contention ran for the requested duration",
+            "S.every invocation printed one JSON result",
+            "S.no invocation wrote stderr or a private path",
+            "S.no invocation ended in an unexpected state",
+            "S.writers contended for the lock",
+            "S.writers committed and published new sequences",
+            "S.pause toggles took effect under contention",
+            "S.lock-free reads never saw a reservation go back or a pending batch above it",
+            "S.recovery inspection always found the root writable",
+            "S.the last pending batch drains to an observed publication",
+            "S.the final root is writable with no orphan",
+            "S.every sequence was sent with exactly one byte sequence",
+            "S.sent sequences are contiguous from the baseline to the reservation",
+            "S.the publisher holds the final reservation",
+            "S.published history keeps every baseline date",
+            "S.the final state exports with the same reservation and no pending",
+            "S.all HTTP observations stayed on isolated status paths",
+            "S.reference remained unchanged: scripts/status-receive.mjs",
+            "S.reference remained unchanged: scripts/status-publish.mjs",
+            "S.reference remained unchanged: scripts/lib/status-store.mjs",
+            "S.reference remained unchanged: scripts/lib/status-batch.mjs",
+            "S.reference remained unchanged: src/lib/activity.ts",
+            "S.reference remained unchanged: src/lib/status.ts"
           ]
         }
       ],

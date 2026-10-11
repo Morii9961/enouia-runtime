@@ -1,0 +1,66 @@
+{
+ "schemaVersion": 1,
+ "state": "passed",
+ "scope": "isolated_activity_sustained_contention",
+ "baseline": "553d2fafb03197b5d3d9cc62bdfb3add4535fdee",
+ "productSourceChanged": false,
+ "modeledReplies": false,
+ "tasksCreated": false,
+ "drillReport": "docs/validation/Activity-claude-contention/drill.json",
+ "drillReportSha256": "24d84bca535938100628129631a2a0bda39773e44223cac71ce54769bd81432c",
+ "drillSeconds": 300,
+ "drillChecks": 26,
+ "runnerSha256": "c762ccaa39f29fca9137909e0b6a5874df98fc27655486711d5b65353dd4c735",
+ "referenceHead": "fd48f88c8b480480fd48a8efe36ef400b3be99b8",
+ "observations": {
+  "syncOutcomes": {
+   "3:busy": 2520,
+   "2:publication_observed": 102,
+   "3:paused": 354
+  },
+  "overviewReads": 2505,
+  "previewReads": 1431,
+  "pauseOutcomes": {
+   "3:busy": 489,
+   "0:pause_updated": 19
+  },
+  "inspectOutcomes": {
+   "3:busy:": 326,
+   "0:recovery_inspected:true": 52
+  },
+  "sequencesSent": 103,
+  "firstSequence": 51,
+  "finalReservation": 153,
+  "publishedObservations": 102,
+  "generationDirectories": 227,
+  "httpRequests": 207
+ },
+ "checks": [
+  "S.baseline import succeeds",
+  "S.baseline resume succeeds",
+  "S.baseline 51 is published and observed",
+  "S.contention ran for the requested duration",
+  "S.every invocation printed one JSON result",
+  "S.no invocation wrote stderr or a private path",
+  "S.no invocation ended in an unexpected state",
+  "S.writers contended for the lock",
+  "S.writers committed and published new sequences",
+  "S.pause toggles took effect under contention",
+  "S.lock-free reads never saw a reservation go back or a pending batch above it",
+  "S.recovery inspection always found the root writable",
+  "S.the last pending batch drains to an observed publication",
+  "S.the final root is writable with no orphan",
+  "S.every sequence was sent with exactly one byte sequence",
+  "S.sent sequences are contiguous from the baseline to the reservation",
+  "S.the publisher holds the final reservation",
+  "S.published history keeps every baseline date",
+  "S.the final state exports with the same reservation and no pending",
+  "S.all HTTP observations stayed on isolated status paths",
+  "S.reference remained unchanged: scripts/status-receive.mjs",
+  "S.reference remained unchanged: scripts/status-publish.mjs",
+  "S.reference remained unchanged: scripts/lib/status-store.mjs",
+  "S.reference remained unchanged: scripts/lib/status-batch.mjs",
+  "S.reference remained unchanged: src/lib/activity.ts",
+  "S.reference remained unchanged: src/lib/status.ts"
+ ]
+}
