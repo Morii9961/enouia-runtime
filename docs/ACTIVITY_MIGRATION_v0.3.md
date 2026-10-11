@@ -100,7 +100,7 @@ Gate: old producer quiescent; final state and server evidence archived; exact pe
 
 ### Stage 3 — import and resolve outstanding delivery
 
-Run migration import offline under Runtime's writer lock with scheduling/upload disabled. Verify per-source dates/values/success times, high-water, pending-byte hash, and legacy export. Replay an old pending batch only at its original sequence through the restricted receiver when this production action is authorized. Observe its published data/source outcomes or perform operator reconciliation. Re-read remote state if ambiguity remains.
+Run migration import offline under Runtime's writer lock with scheduling/upload disabled. Verify per-source dates/values/success times, high-water, pending-byte hash, and legacy export. Replay an old pending batch only at its original sequence through the restricted receiver when this production action is authorized. Observe its published data/source outcomes or perform operator reconciliation. Re-read remote state if ambiguity remains. Operator reconciliation of a pending batch that the publisher refused, or that the receiver ignored behind its own higher sequence, is [`pending-abandon`](ACTIVITY_RUNNER.md#abandoning-a-refused-pending-batch) (ADR-033). Run it only after recording that server evidence. Pass `--reserve-through` with the remote high-water when the receiver is ahead.
 
 Gate: imported history is at least as complete as all selected authoritative sources; no unhandled old pending; reserved sequence is not below known local/remote high-water. No automatic collection yet.
 
@@ -110,7 +110,9 @@ Enable configured delivery for one manual run, with the scheduled task still dis
 
 Validate zh/ja/en About pages: no JavaScript still displays their static build snapshot (which need not equal the latest dynamic batch); JavaScript fetches only the existing static manifest/JSON and renders the new data. Stopping the author Node service must not break static reads. Prefer performing disruptive server-process checks on a matching staging deployment; coordinate any live stop through Moriium operations. No request should route activity through `/api/status/` or the author database.
 
-Gate: real collection, restricted transfer, observed publication, and three-language consumer checks all have distinct evidence. If publication cannot be proven, keep pending and stop; do not enable hourly delivery based on SSH success alone.
+If the manual cycle is interrupted (process killed, machine shut down) and every later run reports `storage_failed`, run [`recovery-inspect`](ACTIVITY_RUNNER.md#reconciling-a-generation-left-by-process-death). Retract a blocking generation only after confirming that it was never selected and that its batch never reached the receiver.
+
+Gate: real collection, restricted transfer, observed publication, and three-language consumer checks all have distinct evidence. If publication cannot be proven, keep pending and stop; do not enable hourly delivery based on SSH success alone. An abandoned batch never counts as publication. The overview stays `idle` until a later batch is observed, so the enable gate stays closed.
 
 ### Stage 5 — enable Runtime scheduling and observe
 
@@ -124,13 +126,13 @@ Triggers include lost/changed historical values without explanation, invalid sou
 
 1. Pause/disable Runtime scheduling and uploads. Quiesce its process under the shared lock. Confirm the old task remains stopped. Preserve current files and diagnostic evidence; never restore an older generation in place to “undo” an upload.
 2. Export the latest valid Runtime archive/highest reserved sequence/exact pending bytes into a new private legacy-compatible directory. Preserve all successful corrections and newly collected dates from Runtime, even if rolling back its binary.
-3. Reconcile pending and remote accepted/published high-water. A pending batch may be safely retried by the old producer at its original sequence if it still satisfies the existing protocol; if the server is ahead or publisher rejects history/time, resolve the conflict first. Do not unilaterally renumber pending. Preserve any skipped reserved sequences in the exported high-water.
+3. Reconcile pending and remote accepted/published high-water. A pending batch may be safely retried by the old producer at its original sequence if it still satisfies the existing protocol; if the server is ahead or publisher rejects history/time, resolve the conflict first. Do not unilaterally renumber pending. In Runtime, `pending-abandon` (with `--reserve-through` when the server is ahead) resolves it before the export. The exported high-water then carries the skipped sequences. Preserve any skipped reserved sequences in the exported high-water.
 4. Validate the exported ActivityData and batch with the old Moriium validators in a development/operations context. Compare every date/value/time with current Runtime state. Rehearse the next old sequence under an isolated endpoint when format/tool compatibility is uncertain.
 5. Seed a distinct old automatic work directory from this **current** export, preserving its original directory backup. Restore only its nonsecret config paths and existing local authentication references; do not copy credentials from Runtime.
 6. With Runtime disabled, perform one old manual sync, verify receiver/publisher/static About behavior, then re-enable only the old task. Keep Runtime state read-only for investigation and eventual forward migration.
 7. Record operator, reason, state hashes, high-water, pending disposition, source comparisons, and observed successful scheduled handback.
 
-If the active generation is corrupt or no authoritative high-water is available, keep both writers off. Recover archive history from verified snapshots/remote published data with explicit conflict review, obtain server high-water evidence, and only then resume. The last valid static public files remain the serving fallback. A paused producer may become stale publicly; that is preferable to claiming fresh data or reusing an old sequence.
+A generation that was published but never selected, left behind by process death, is not corruption. `recovery-inspect` and `recovery-retract` handle it without deleting anything. If the active generation is corrupt or no authoritative high-water is available, keep both writers off. Recover archive history from verified snapshots/remote published data with explicit conflict review, obtain server high-water evidence, and only then resume. The last valid static public files remain the serving fallback. A paused producer may become stale publicly; that is preferable to claiming fresh data or reusing an old sequence.
 
 Rollback does not require changing producer ID, public JSON schema, About markup, VPS ownership, Memory Vault, or author database. Database/Memory restore operations must never implicitly reset Activity delivery state.
 
