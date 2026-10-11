@@ -1,0 +1,89 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.source_wait_is_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.first_excerpt_is_bounded",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.source_markup_stays_literal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.next_part_clears_previous_excerpt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.next_part_uses_exact_byte_boundary",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.failed_source_does_not_claim_excerpt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.source_retry_keeps_page_and_revision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.all_source_bytes_are_contiguous",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.multibyte_source_reassembles_exactly",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.last_part_has_no_next_button",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.older_page_error_cannot_replace_newer_read",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.selection_does_not_carry_old_excerpt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.older_selection_reply_cannot_replace_source",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.source_reads_leave_two_approved_memories",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.source_host_exits",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "33-source-last-part.png",
+    "34-source-new-selection.png"
+  ],
+  "summary": "16/16"
+}

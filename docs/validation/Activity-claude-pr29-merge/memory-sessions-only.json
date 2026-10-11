@@ -1,0 +1,104 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.new_session_has_own_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_selection_keeps_observed_branch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_detail_preserves_current_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_detail_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.older_detail_cannot_replace_selection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.older_detail_cannot_replace_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_answer_blocks_branch_switch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_answer_keeps_branch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_answer_preserves_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_answer_blocks_composers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.answer_clears_only_submitted_field",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.actual_local_mock_answer_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.answer_is_saved_in_requested_branch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.checkpoint_stays_provisional",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.return_restores_branch_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.return_clears_other_branch_answer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.unsent_branch_remains_unwritten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.session_timing_host_exits",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "23-session-answer-pending.png",
+    "24-session-restored-drafts.png"
+  ],
+  "summary": "19/19"
+}

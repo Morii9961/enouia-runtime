@@ -1,0 +1,16 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "timeout: session timing fixture open | Skip to current surface Enouia Runtime Presence Memory · No Vault open · Inspector demo Home Memory Context Sessions Activity Runtime Settings Runtime could not reserve the requested Vault folder. Check folder access and choose it again. Enouia Runtime I'm here. No Vault open · Local Mock responses · Activity shows fictional examples Memory Vault Open or create a Vault to begin none Sessions Continue a conversation with approved memories local mock Context Preview what a question would carry, and why inspect Activity Fictional event examples · the producer runs on its own schedule demo"
+    }
+  ],
+  "screenshots": [],
+  "summary": "1/2"
+}
