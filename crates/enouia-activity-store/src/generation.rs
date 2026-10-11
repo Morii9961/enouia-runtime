@@ -282,6 +282,72 @@ fn contains_pending_history(archive: &Option<Snapshot>, pending: &Option<Snapsho
         .all(|day| dates.contains(day.date.as_str()))
 }
 
+/// The exact canonical `sequence.json` form; anything else is invalid.
+fn parse_sequence(bytes: &[u8]) -> Result<u64, GenerationError> {
+    let sequence: Value =
+        serde_json::from_slice(bytes).map_err(|_| GenerationError::InvalidSequence)?;
+    let sequence = sequence
+        .as_object()
+        .filter(|object| object.len() == 1)
+        .and_then(|object| object.get("sequence"))
+        .and_then(Value::as_u64)
+        .filter(|value| *value <= MAX_SAFE_INTEGER)
+        .ok_or(GenerationError::InvalidSequence)?;
+    if bytes != format!("{{\"sequence\":{sequence}}}\n").as_bytes() {
+        return Err(GenerationError::InvalidSequence);
+    }
+    Ok(sequence)
+}
+
+fn parse_manifest(bytes: &[u8], expected_generation_id: &str) -> Result<Manifest, GenerationError> {
+    let manifest: Manifest =
+        serde_json::from_slice(bytes).map_err(|_| GenerationError::InvalidManifest)?;
+    if manifest.schema_version != 1
+        || !valid_generation_id(expected_generation_id)
+        || manifest.generation_id != expected_generation_id
+    {
+        return Err(GenerationError::InvalidManifest);
+    }
+    Ok(manifest)
+}
+
+/// Hash-only view of an unselected generation (ADR-034): its verified
+/// reservation and the recorded hashes of its archive and pending bytes.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct GenerationSummary {
+    pub highest_reserved: u64,
+    pub activity_sha256: String,
+    pub pending_sha256: Option<String>,
+}
+
+/// Verify the manifest and `sequence.json` without reading the archive.
+pub(crate) fn summarize_generation(
+    manifest_bytes: &[u8],
+    expected_generation_id: &str,
+    sequence_bytes: &[u8],
+) -> Result<GenerationSummary, GenerationError> {
+    let manifest = parse_manifest(manifest_bytes, expected_generation_id)?;
+    let files = &manifest.files;
+    if !valid_hash(&files.activity)
+        || !valid_hash(&files.sequence)
+        || !valid_hash(&files.delivery)
+        || files
+            .pending
+            .as_deref()
+            .is_some_and(|hash| !valid_hash(hash))
+    {
+        return Err(GenerationError::InvalidManifest);
+    }
+    if files.sequence != sha256_hex(sequence_bytes) {
+        return Err(GenerationError::HashMismatch);
+    }
+    Ok(GenerationSummary {
+        highest_reserved: parse_sequence(sequence_bytes)?,
+        activity_sha256: manifest.files.activity,
+        pending_sha256: manifest.files.pending,
+    })
+}
+
 impl GenerationImage {
     fn validate_content<C: Clock>(
         &self,
@@ -296,18 +362,7 @@ impl GenerationImage {
             return Err(GenerationError::InvalidArchive);
         }
 
-        let sequence: Value =
-            serde_json::from_slice(&self.sequence).map_err(|_| GenerationError::InvalidSequence)?;
-        let sequence = sequence
-            .as_object()
-            .filter(|object| object.len() == 1)
-            .and_then(|object| object.get("sequence"))
-            .and_then(Value::as_u64)
-            .filter(|value| *value <= MAX_SAFE_INTEGER)
-            .ok_or(GenerationError::InvalidSequence)?;
-        if self.sequence != format!("{{\"sequence\":{sequence}}}\n").as_bytes() {
-            return Err(GenerationError::InvalidSequence);
-        }
+        let sequence = parse_sequence(&self.sequence)?;
         if sequence == 0
             && (archive.sources.github.is_some()
                 || archive.sources.codex.is_some()
@@ -403,14 +458,7 @@ impl GenerationImage {
         expected_generation_id: &str,
         clock: &C,
     ) -> Result<ValidatedGeneration, GenerationError> {
-        let manifest: Manifest =
-            serde_json::from_slice(manifest_bytes).map_err(|_| GenerationError::InvalidManifest)?;
-        if manifest.schema_version != 1
-            || !valid_generation_id(expected_generation_id)
-            || manifest.generation_id != expected_generation_id
-        {
-            return Err(GenerationError::InvalidManifest);
-        }
+        let manifest = parse_manifest(manifest_bytes, expected_generation_id)?;
         if manifest.files.activity != sha256_hex(&self.activity)
             || manifest.files.sequence != sha256_hex(&self.sequence)
             || manifest.files.pending != self.pending.as_ref().map(|bytes| sha256_hex(bytes))

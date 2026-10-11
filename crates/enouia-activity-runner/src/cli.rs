@@ -314,6 +314,7 @@ fn execute(args: &Parsed) -> Result<(u8, Value), (u8, Value)> {
                     "highestReserved":current.highest_reserved,"pendingSequence":current.pending_sequence},
                 "olderGenerations":inspection.older_generations,
                 "stagingDirectories":inspection.staging_directories,
+                "damagedOlderGenerations":inspection.damaged_older,
                 "blocking":inspection.blocking.iter().map(generation_json).collect::<Vec<_>>()}),
             ))
         }

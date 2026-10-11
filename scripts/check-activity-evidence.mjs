@@ -44,7 +44,7 @@ function validate(index) {
     assert.equal(selectors.length, entry.selectorCount, `evidence count changed: ${entry.id}`);
     reports.set(entry.id, { report, selectors });
   }
-  assert.equal(reports.size, 76);
+  assert.equal(reports.size, 77);
   const frozen2 = reports.get('frozen2').report;
   assert.deepEqual(frozen2.unresolvedCaseIds, ['C06-duplicate-github-date', 'C06-unsafe-github-sum']);
   assert.equal(frozen2.results.find(r => r.id === 'C03-claude-down').result, 'equal', 'ADR-029 keeps the higher Claude day like legacy');
@@ -1207,6 +1207,29 @@ function validate(index) {
   assert.equal(chaos.server.abandonedPublishLocks, 0);
   assert.equal(chaosDrill.runtimeBinarySha256, chaos.runnerSha256);
   assert.deepEqual(chaos.checks, chaosDrill.checks.map(id => 'K.' + id));
+  const summaryAudit = reports.get('summary_audit').report;
+  assert.equal(summaryAudit.scope, 'isolated_activity_summary_audit');
+  assert.equal(summaryAudit.decision, 'ADR-034');
+  for (const flag of ['modeledReplies', 'tasksCreated']) assert.equal(summaryAudit[flag], false);
+  const summaryTestsBytes = readFileSync(contained(summaryAudit.testsReport));
+  assert.equal(hash(summaryTestsBytes), summaryAudit.testsReportSha256, 'summary-audit test record changed');
+  const summaryTests = JSON.parse(summaryTestsBytes);
+  assert(summaryTests.runs.every(r => r.exitCode === 0) && summaryTests.control.exitCode !== 0);
+  const summaryTestIds = summaryTests.runs.flatMap(r => r.output.map(l => /^test (\S+) \.\.\. ok$/.exec(l)?.[1]).filter(Boolean)).map(n => 'T.' + n);
+  assert.equal(summaryTestIds.length, 4);
+  assert.equal(summaryTests.control.output.filter(l => /\.\.\. FAILED$/.test(l)).length, 4, 'the previous audit must fail all four behavior tests');
+  const scaleBytes = readFileSync(contained(summaryAudit.scaleReport));
+  assert.equal(hash(scaleBytes), summaryAudit.scaleReportSha256, 'audit-scale measurement changed');
+  const scale = JSON.parse(scaleBytes);
+  assert.deepEqual(scale.points, summaryAudit.scalePoints);
+  const year = scale.points.find(point => point.generations === 8760);
+  assert(year && year.afterMs * 5 < year.beforeMs, 'one year of generations must audit at least five times faster');
+  assert.equal(scale.runners.find(r => r.name === 'after').sha256, summaryAudit.runnerSha256);
+  const regressionBytes = readFileSync(contained(summaryAudit.orphanRegressionReport));
+  assert.equal(hash(regressionBytes), summaryAudit.orphanRegressionReportSha256, 'orphan regression changed');
+  const orphanRegression = JSON.parse(regressionBytes);
+  assert(orphanRegression.state === 'passed' && orphanRegression.runnerSha256 === summaryAudit.runnerSha256 && orphanRegression.checks.length === summaryAudit.orphanRegressionChecks);
+  assert.deepEqual(summaryAudit.checks, [...summaryTestIds, ...orphanRegression.checks.map(id => 'R.' + id)]);
   for (const field of ['runnerSha256', 'desktopSha256', 'installerSha256', 'sandboxToolsSha256', 'harnessSha256', 'fixturePreparerSha256']) assert.match(lateSwitch[field], /^[a-f0-9]{64}$/);
 
   const choiceWrite = reports.get('saved_choice_write_sharing').report;
@@ -1791,6 +1814,7 @@ function validate(index) {
   assert(abandonment.checks.filter(id => id.startsWith('D.remote-ahead')).every(id => linkedTo(index.cases.find(c => c.id === 'C14'), 'pending_abandonment').includes(id)), 'C14 must retain the remote-ahead reservation and observed recovery');
   assert(contention.checks.every(id => linkedTo(c17, 'sustained_contention').includes(id)), 'C17 must retain sustained concurrent collection, delivery and lock-free read evidence');
   assert(chaos.checks.every(id => linkedTo(c12, 'random_kill_chaos').includes(id)), 'C12 must retain random process-kill chaos evidence');
+  assert(summaryAudit.checks.every(id => linkedTo(c12, 'summary_audit').includes(id)), 'C12 must retain the ADR-034 summary audit evidence');
   assert(lateSwitch.checks.filter(id => /^(L|PC)\./.test(id)).every(id => linkedTo(c17, 'store_late_switch').includes(id)), 'C17 must retain staging-named pause remnants on the integrated runner');
   assert(choiceWrite.checks.every(id => linkedTo(c17, 'saved_choice_write_sharing').includes(id)), 'C17 must retain actual saved-choice write refusal and exact prior bytes');
   assert(atomicChoice.checks.every(id => linkedTo(c17, 'saved_choice_atomic').includes(id)), 'C17 must retain staged settings, controlled process deaths and actual replacement recovery');
@@ -1886,6 +1910,7 @@ if (process.argv.includes('--self-test')) {
   reject(x => x.cases.find(c => c.id === 'C14').evidence = x.cases.find(c => c.id === 'C14').evidence.filter(e => e.report !== 'pending_abandonment'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'sustained_contention'));
   reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'random_kill_chaos'));
+  reject(x => x.cases.find(c => c.id === 'C12').evidence = x.cases.find(c => c.id === 'C12').evidence.filter(e => e.report !== 'summary_audit'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_write_sharing'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'saved_choice_atomic'));
   reject(x => x.cases.find(c => c.id === 'C17').evidence = x.cases.find(c => c.id === 'C17').evidence.filter(e => e.report !== 'manifest_bounded_read'));

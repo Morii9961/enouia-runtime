@@ -1,7 +1,9 @@
 //! Read-only audit before any new generation is reserved under the writer lock.
 
 use crate::generation::{ABANDON_REASON, valid_generation_id};
-use crate::reader::{LoadedGeneration, ReadError, read_current, read_named_generation};
+use crate::reader::{
+    LoadedGeneration, ReadError, read_current, read_generation_summary, read_named_generation,
+};
 use enouia_activity_contract::{public_data_bytes, sha256_hex};
 use enouia_common::Clock;
 use serde_json::Value;
@@ -39,7 +41,8 @@ pub enum Standing {
 pub struct PublishedGeneration {
     pub id: String,
     pub standing: Standing,
-    /// Present only when the generation validated.
+    /// Present only when the generation had to be read and validated in
+    /// full: a same-reservation generation whose pending bytes differ.
     pub loaded: Option<LoadedGeneration>,
 }
 
@@ -91,11 +94,19 @@ fn recorded_pending_clear(current: &LoadedGeneration, older: &LoadedGeneration) 
 
 /// Read-only classification of every published directory. Unknown, reparse
 /// or non-directory entries still fail the whole inventory.
+///
+/// An unselected generation is judged from its manifest and its hash-checked
+/// `sequence.json` (ADR-034), so the cost no longer grows with archive size.
+/// Its archive is read only when its reservation equals CURRENT's and its
+/// pending bytes differ. `inspect_recovery_locked` still validates every
+/// generation in full.
 pub fn inventory_generations<C: Clock>(
     root: &Path,
     clock: &C,
 ) -> Result<GenerationInventory, RecoveryError> {
     let current = read_current(root, clock).map_err(RecoveryError::Current)?;
+    let current_activity = sha256_hex(&current.image.activity);
+    let current_pending = current.image.pending.as_deref().map(sha256_hex);
     let mut published = Vec::new();
     let mut staging_directories = 0;
     let entries = fs::read_dir(root.join("generations")).map_err(|_| RecoveryError::Io)?;
@@ -122,9 +133,27 @@ pub fn inventory_generations<C: Clock>(
         if name == current.id {
             continue;
         }
-        let (standing, loaded) = match read_named_generation(root, &name, clock) {
+        let (standing, loaded) = match read_generation_summary(root, &name) {
             Err(error) => (Standing::Corrupt(error), None),
-            Ok(other) => (standing(&current, &other), Some(other)),
+            Ok(summary) => {
+                let reserved = current.validated.highest_reserved;
+                if summary.highest_reserved > reserved {
+                    (Standing::HigherReservedSequence, None)
+                } else if summary.highest_reserved < reserved {
+                    (Standing::Older, None)
+                } else if summary.activity_sha256 != current_activity {
+                    // Valid archives are canonical bytes, so a different
+                    // hash is a different archive.
+                    (Standing::ConflictingGeneration, None)
+                } else if summary.pending_sha256 == current_pending {
+                    (Standing::Older, None)
+                } else {
+                    match read_named_generation(root, &name, clock) {
+                        Err(error) => (Standing::Corrupt(error), None),
+                        Ok(other) => (standing(&current, &other), Some(other)),
+                    }
+                }
+            }
         };
         published.push(PublishedGeneration {
             id: name,

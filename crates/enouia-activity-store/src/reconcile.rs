@@ -14,7 +14,7 @@ use crate::ActivityLockGuard;
 use crate::generation::valid_generation_id;
 use crate::reader::{
     LoadedGeneration, MAX_CURRENT_BYTES, MAX_MANIFEST_BYTES, ReadError, checked_directory,
-    read_file,
+    read_file, read_named_generation,
 };
 use crate::recovery::{PublishedGeneration, RecoveryError, Standing, inventory_generations};
 use crate::writer::{AbandonEvidence, CommitError, commit_pending_abandoned, move_without_replace};
@@ -70,6 +70,9 @@ pub struct RecoveryInspection {
     pub staging_directories: usize,
     /// Published generations that stop the next commit, in directory order.
     pub blocking: Vec<GenerationEvidence>,
+    /// Older generations whose full validation fails. Since ADR-034 they no
+    /// longer block writing, so inspection is where they surface.
+    pub damaged_older: Vec<String>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -115,8 +118,20 @@ fn prepared_pointer(root: &Path, id: &str) -> PreparedPointer {
     }
 }
 
-fn evidence(root: &Path, generation: &PublishedGeneration) -> GenerationEvidence {
-    let loaded: Option<&LoadedGeneration> = generation.loaded.as_ref();
+fn evidence<C: Clock>(
+    root: &Path,
+    generation: &PublishedGeneration,
+    clock: &C,
+) -> GenerationEvidence {
+    // The write-path audit reads only summaries; evidence needs full validation.
+    let read;
+    let loaded: Option<&LoadedGeneration> = match &generation.loaded {
+        Some(loaded) => Some(loaded),
+        None => {
+            read = read_named_generation(root, &generation.id, clock).ok();
+            read.as_ref()
+        }
+    };
     GenerationEvidence {
         id: generation.id.clone(),
         standing: generation.standing.clone(),
@@ -145,11 +160,17 @@ pub fn inspect_recovery_locked<C: Clock>(
     };
     let mut older_generations = 0;
     let mut blocking = Vec::new();
+    let mut damaged_older = Vec::new();
     for generation in &inventory.published {
         if generation.standing == Standing::Older {
             older_generations += 1;
+            if generation.loaded.is_none()
+                && read_named_generation(root, &generation.id, clock).is_err()
+            {
+                damaged_older.push(generation.id.clone());
+            }
         } else {
-            blocking.push(evidence(root, generation));
+            blocking.push(evidence(root, generation, clock));
         }
     }
     Ok(RecoveryInspection {
@@ -157,6 +178,7 @@ pub fn inspect_recovery_locked<C: Clock>(
         older_generations,
         staging_directories: inventory.staging_directories,
         blocking,
+        damaged_older,
     })
 }
 
@@ -201,7 +223,7 @@ pub fn retract_unselected_locked<C: Clock>(
             matches!(
                 generation.standing,
                 Standing::HigherReservedSequence | Standing::ConflictingGeneration
-            )
+            ) && generation.highest_reserved.is_some()
         })
         .ok_or(RetractError::NotRetractable)?;
     if target.manifest_sha256.as_deref() != Some(expected_manifest_sha256) {

@@ -56,10 +56,12 @@ SSH exit zero means only `transportCompleted`. When publication is observed and 
 
 If the process dies after a new generation directory is published but before `CURRENT` names it, `sync` and the other writers fail with `storage_failed`. The [recovery audit](validation/B2.1-recovery-audit.md) cannot tell that directory from a rolled-back pointer, so it blocks every later commit rather than risk reusing a sequence. A live writer that sees its own pointer write fail already retracts the directory itself. Process death skips that step, so an operator has to decide.
 
-`recovery-inspect` holds the writer lock, changes nothing and prints:
+`recovery-inspect` holds the writer lock, changes nothing, validates every generation in full and prints:
 
 - `CURRENT`'s id, manifest hash, highest reserved sequence and pending sequence.
 - For each blocking generation: its id and standing (`higher_reserved_sequence`, `conflicting_generation` or `corrupt`), raw manifest hash, highest reserved sequence, pending sequence and hash, and `preparedPointer`.
+
+It also lists `damagedOlderGenerations`: older generations whose full validation fails. Since [ADR-034](adr/034-summary-audit-of-older-generations.md) they no longer block writing, so inspection is where they show up.
 
 `preparedPointer` is `exact` when `CURRENT.<id>.tmp` still holds that generation's pointer. A completed switch consumes this file, so `exact` shows that this prepared pointer never replaced `CURRENT`. `absent` means the process died before preparing it, or the pointer was consumed or removed. Neither value rules out an external restore of `CURRENT`, and neither shows what the receiver accepted.
 

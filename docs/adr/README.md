@@ -222,3 +222,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-033 — Operator abandonment of a refused pending batch (Adopted; implemented)
 
 [ADR-033](033-operator-pending-abandonment.md) implements ADR-015's operator reconciliation. `pending-abandon` ends one paused, exactly identified pending batch without publication. Its sequence stays consumed and the archive is kept. An optional `--reserve-through` moves the next sequence above a known remote high-water. `delivery.json` records `pendingAbandoned`, and `reconciliations/` keeps the record and the exact bytes. The overview no longer reports `observed` for a receipt older than an abandonment. Running it on a real store remains an operator decision.
+
+## ADR-034 — Audit unselected generations from their manifest and sequence (Proposed; adopted on merge)
+
+[ADR-034](034-summary-audit-of-older-generations.md) cuts the write-path audit to the manifest and hash-checked `sequence.json` of each unselected generation. A full read happens only for a same-reservation pending difference. Damage confined to an older generation's archive, pending or delivery file no longer blocks writing. `recovery-inspect` reports it, and retraction still requires full validation. Measured audit cost on a one-year synthetic archive falls about eightfold.

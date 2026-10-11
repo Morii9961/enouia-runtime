@@ -18,8 +18,9 @@ Each PR is based on the one before it. Merge them in this order, retargeting eac
 | [#33](https://github.com/Morii9961/enouia-runtime/pull/33) | `claude/activity-runbook-recovery` | Migration runbook uses both commands (docs only) |
 | [#34](https://github.com/Morii9961/enouia-runtime/pull/34) | `claude/activity-contention-stress` | 300-second contention drill, 26/26; C17 |
 | [#35](https://github.com/Morii9961/enouia-runtime/pull/35) | `claude/activity-kill-chaos` | 300-second random-kill drill, 26/26; C12; this handoff |
+| #36 | `claude/activity-audit-scale` | **Proposed ADR-034**: summary audit of unselected generations (one year: 10.4 s to 1.2 s per audit); damaged older archives reported by inspection instead of blocking writes. This is a policy decision for the owner. |
 
-After the stack, the evidence index stands at **76 reports / 1,457 selectors / 84 negative checks**. All 18 rows are partial, B4 is not signed off and B5 is inactive. The workspace runs 243 tests. Producer IPC v1 fields, the desktop and the Memory pin are unchanged by the stack.
+After the stack, the evidence index stands at **77 reports / 1,543 selectors / 85 negative checks**. All 18 rows are partial, B4 is not signed off and B5 is inactive. The workspace runs 247 tests. Producer IPC v1 fields, the desktop and the Memory pin are unchanged by the stack.
 
 ## Findings to pass on
 
