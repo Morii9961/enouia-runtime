@@ -1,6 +1,6 @@
 {
   "identifier": "main-window",
-  "description": "The main window: window controls, the Memory adapter, the Activity adapter over the installed runner (ADR-028), explicit exit and its own login-startup setting. No fs, shell, http, dialog, opener or provider permission exists.",
+  "description": "The main window: window controls, the Memory adapter, the Activity adapter over the installed runner (ADR-028), explicit exit, its own login-startup setting and the native Provider setup state and key prompt (ADR-032). No fs, shell, http, dialog or opener permission exists.",
   "windows": [
     "main"
   ],
@@ -14,6 +14,8 @@
     "allow-activity-setup",
     "allow-memory-call",
     "allow-memory-pick",
+    "allow-memory-provider-setup",
+    "allow-memory-provider-key",
     "allow-shell-status",
     "allow-shell-show",
     "allow-shell-search",

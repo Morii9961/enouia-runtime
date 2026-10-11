@@ -26,6 +26,8 @@ export class CallError extends Error {
 const WRITES = new Set([
   "review_confirm", "forget_plan", "remember", "correction_propose", "import_start",
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
+  "provider_confirm", "external_prepare", "external_send",
+  "extraction_prepare", "extraction_apply", "extraction_pause",
 ]);
 
 export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;
@@ -99,6 +101,21 @@ const RULES: Record<string, string> = {
   "root.missing": "That folder does not exist",
   "root.not_a_directory": "That is not a folder",
   "root.unreadable": "That folder's properties could not be read",
+  "workspace.key_reuse": "This request key was already used for different content. Start the action again",
+  "workspace.token_busy": "That choice is already being used by another action. Wait for it to finish",
+  "workspace.excerpt_budget": "The excerpt budget is too small for this text",
+  "import.input_not_regular_file": "The chosen item is not a regular file. Choose the file again",
+  "import.input_changed": "The file changed after it was chosen. Choose it again",
+  "import.input_too_large": "The file is too large to import",
+  "mock.recompile_required": "The saved context is out of date. Ask again",
+  "provider.not_configured": "External providers are not set up on this computer",
+  "provider.api_not_configured": "That provider is not set up on this computer",
+  "provider.call_running": "A provider call is still running. Cancel it and wait for it to stop first",
+  "provider.call_unknown": "That prepared request is no longer available. Prepare it again",
+  "provider.call_expired": "That prepared request expired. Prepare it again",
+  "provider.plan_unknown": "That plan is no longer available. Create it again",
+  "review.stale_plan": "The content changed since you reviewed it. Review it again",
+  "workspace.extraction_range": "Choose a shorter part of the source (at most 32 KB)",
 };
 
 const HOST: Record<string, string> = {
@@ -112,6 +129,11 @@ const HOST: Record<string, string> = {
   startup_unavailable: "Login startup is not available",
   startup_different_installation: "Another Enouia Runtime installation owns login startup. Turn it off there first",
   startup_write_failed: "Login startup could not be changed",
+  provider_busy: "A provider call is still running. Cancel it and wait for it to stop first",
+  credential_malformed: "That key has spaces or characters an API key cannot contain. Nothing was saved",
+  credential_failed: "Windows Credential Manager could not save or remove the key",
+  credential_prompt_failed: "The Windows credential prompt could not be shown",
+  invalid_request: "The request does not match the contract",
 };
 
 /** Human text for an error: the code, its rule identifiers, nothing else. */
@@ -128,6 +150,13 @@ export function describe(error: unknown): string {
 }
 
 export const retryable = (error: unknown): boolean => error instanceof CallError && error.error.retryable;
+
+/** Native Provider setup state; never a key or a path (ADR-032). */
+export const providerSetup = () => transport("memory_provider_setup", {}) as Promise<J>;
+
+/** Set a key in the native Windows credential prompt, or remove it (ADR-032). */
+export const providerKey = (api: string, action: "set" | "remove") =>
+  transport("memory_provider_key", { api, action }) as Promise<J>;
 
 /** The shell's own window and startup commands (ADR-026). */
 export const shell = {

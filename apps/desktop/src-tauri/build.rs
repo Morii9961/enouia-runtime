@@ -7,6 +7,8 @@ fn main() {
             "activity_setup",
             "memory_call",
             "memory_pick",
+            "memory_provider_setup",
+            "memory_provider_key",
             "shell_status",
             "shell_show",
             "shell_exit",

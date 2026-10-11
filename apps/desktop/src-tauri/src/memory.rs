@@ -37,6 +37,8 @@ pub struct MemoryHost {
     roots: Arc<Mutex<VecDeque<(String, PathBuf)>>>,
     admission_error: Arc<Mutex<Option<&'static str>>>,
     companion: Arc<Mutex<Value>>,
+    /// Native Provider setup state (ADR-032); the Core holds the setup.
+    provider_setup: Arc<Mutex<crate::provider::Setup>>,
 }
 
 impl MemoryHost {
@@ -52,7 +54,37 @@ impl MemoryHost {
             companion: Arc::new(Mutex::new(
                 json!({"tray": "absent", "hotkey": {"state": "absent"}, "overlay": "absent"}),
             )),
+            provider_setup: Arc::new(Mutex::new(crate::provider::Setup::Absent)),
         }
+    }
+
+    /// Hand the Core a native Provider setup, or take it away (ADR-032).
+    /// The Core refuses while a send is running.
+    pub fn set_native_provider(
+        &self,
+        provider: Option<enouia_memory_workspace::NativeProvider>,
+    ) -> Result<(), &'static str> {
+        self.core.set_native_provider(provider).map_err(|e| {
+            if e.rules.iter().any(|r| r == "provider.call_running") {
+                "provider.call_running"
+            } else {
+                "provider_setup.refused"
+            }
+        })
+    }
+
+    pub fn set_provider_setup(&self, setup: crate::provider::Setup) {
+        *self
+            .provider_setup
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = setup;
+    }
+
+    pub fn provider_setup(&self) -> crate::provider::Setup {
+        self.provider_setup
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone()
     }
 
     /// True for the first close request only, so one shutdown runs. From
@@ -664,7 +696,13 @@ mod tests {
                 "context_preview",
                 "index_rebuild",
                 "vault_verify",
-                "backup_export"
+                "backup_export",
+                "provider_confirm",
+                "external_prepare",
+                "external_send",
+                "extraction_prepare",
+                "extraction_apply",
+                "extraction_pause"
             ]
         );
         for read in [

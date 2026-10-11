@@ -8,8 +8,8 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 |---|---|
 | Repository | `https://github.com/Morii9961/enouia-memory.git` (public) |
 | Revision | recorded in [docs/integration/memory-pin.json](integration/memory-pin.json), in `apps/desktop/src-tauri/Cargo.toml` and in its `Cargo.lock` |
-| Consumed crates | `enouia-memory-workspace`, and `enouia-memory-contract` for its command catalog (long-running and write commands) |
-| Contract | workspace IPC v1 (`schemaVersion: 1`, 36 commands) |
+| Consumed crates | `enouia-memory-workspace`, `enouia-memory-contract` for its command catalog (long-running and write commands), and `enouia-memory-provider` for native text Provider setup (Memory ADR-MEM-48) |
+| Contract | workspace IPC v1 (`schemaVersion: 1`, 47 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
@@ -177,5 +177,5 @@ Memory's reference shell stays Memory's acceptance harness. Use Runtime as the c
 ## Boundaries
 
 - **Activity & Usage.** It stays independent: its own data root, runner, scheduler and delivery. Nothing from Activity enters `memory_call`. Memory never reads Activity.
-- **Cloud stages.** Runtime implements no Provider call, MCP endpoint, gateway, replica or sync. When Memory ships them they arrive through a pin bump, or through a Host client after MV-8.
+- **Cloud stages.** Runtime implements no Provider protocol, MCP endpoint, gateway, replica or sync. When Memory ships them they arrive through a pin bump, or through a Host client after MV-8. Memory's native text Provider path (MV-7, ADR-MEM-48) is hosted under [ADR-032](adr/032-memory-native-provider-setup.md): off without the owner's `memory-providers.json`, keys only through the native credential prompt.
 - **Runtime-local Core crates.** `enouia-memory`, `enouia-session`, `enouia-context`, `enouia-provider` and `enouia-core-contract` are frozen history (ADR-025). Do not extend them, and do not mix their DTOs with Memory's.

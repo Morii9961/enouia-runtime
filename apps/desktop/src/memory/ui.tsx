@@ -3,6 +3,7 @@
 // shown comes from the Core. Memory and source text render as plain text
 // nodes, never as HTML or Markdown.
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ExtractionPanel } from "./ExtractionPanel";
 import { CallError, call, describe, newKey, type J } from "./client";
 import { useAction, useLatestRead, type Failure } from "./hooks";
 
@@ -189,6 +190,7 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
 /** One evidence entry with a byte-range excerpt bound to its source revision. */
 export function Source({ evidence, readPage = call }: { evidence: J; readPage?: typeof call }) {
   const [loaded, setLoaded] = useState<{ sourceId: string; revision: number; page: J } | null>(null);
+  const [suggest, setSuggest] = useState(false);
   const action = useLatestRead();
   const excerpt = evidence.available && loaded && loaded.sourceId === evidence.sourceId && loaded.revision === evidence.sourceRevision ? loaded.page : null;
   useEffect(() => {
@@ -220,7 +222,10 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
             {excerpt.sourceKind} · {excerpt.speakerRole} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions
           </figcaption>
           <pre className="mem-source">{excerpt.excerpt}</pre>
-          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" onClick={() => load(excerpt.byteEnd)}>Next part</button>}
+          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" onClick={() => { setSuggest(false); load(excerpt.byteEnd); }}>Next part</button>}
+          {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button type="button" className="mem-link" onClick={() => setSuggest(true)}>Suggest memories from this part…</button></>}
+          {suggest && <ExtractionPanel request={readPage} onClose={() => setSuggest(false)}
+            range={{ sourceId: evidence.sourceId, revision: evidence.sourceRevision, start: excerpt.byteStart, end: excerpt.byteEnd }} />}
         </figure>
       )}
     </li>

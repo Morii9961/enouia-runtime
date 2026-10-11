@@ -19,12 +19,16 @@ tauri = { version = "=2.12.0", features = ["tray-icon"] }
 # Enouia Memory's embedded workspace Core at a pinned revision (ADR-025,
 # ADR-MEM-45). Change `rev` only together with Cargo.lock and
 # docs/integration/memory-pin.json; never a branch, path or [patch].
-enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84" }
+enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "8186aed861af08cf7a2c5d8c912a24eae51b4d66" }
 # The pinned contract's command catalog (long-running and write commands).
-enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "ff692ccb6fbc1c387254d5ffbef41b105eeb2a84" }
+enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "8186aed861af08cf7a2c5d8c912a24eae51b4d66" }
+# Native text Provider dispatch the Core hosts (Enouia Memory ADR-MEM-48):
+# HTTPS transport, Windows credential store and capability types.
+enouia-memory-provider = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "8186aed861af08cf7a2c5d8c912a24eae51b4d66" }
 # Native dialogs for the Memory picker; pinned to the reference shell's version.
 rfd = { version = "=0.17.2", default-features = false }
-# Must equal Enouia Memory's exact workspace pin.
+# Must equal Enouia Memory's exact workspace pins.
+serde = { version = "=1.0.229", features = ["derive"] }
 serde_json = "=1.0.151"
 # Checks the installed Activity runner against its package manifest (ADR-028);
 # already in the lockfile through the Memory Core.
@@ -35,6 +39,9 @@ sha2 = "=0.10.9"
 windows-sys = { version = "=0.61.2", features = [
     "Win32_Foundation",
     "Win32_Security",
+    "Win32_Security_Credentials",
+    "Win32_Graphics_Gdi",
+    "Win32_System_Com",
     "Win32_Storage_FileSystem",
     "Win32_System_Threading",
     "Win32_System_Pipes",
