@@ -1,5 +1,7 @@
 # Activity：下一次 Codex 会话交接
 
+> **Superseded current state (2026-10-11):** see [ACTIVITY_HANDOFF_2026-10-11.md](ACTIVITY_HANDOFF_2026-10-11.md) for merged PRs #29/#30, the open stack #31–#35 and its merge order.
+
 更新日期：2026-10-10。此文件与 [Claude 交接](ACTIVITY_CODEX_TO_CLAUDE_2026-10-10.md) 一起定义并行续作。两份文件内的启动指令供用户启动会话；下文保留首次交接快照；顶部续作状态记录本会话实际工作。
 
 
