@@ -75,13 +75,14 @@ function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status:
     onCancel={() => void cancel.run(() => request("operation_cancel", { operationId: id }))} />;
 }
 
-/** Cancellation is cooperative, and only import/index workers observe it. */
+/** Cancellation is cooperative; external calls stop locally, not remotely. */
 export function OperationFeedback({ status, cancelling = false, error = null, onCancel }: {
   status: J; cancelling?: boolean; error?: Failure; onCancel: () => void;
 }) {
   const { done, total } = status.progress;
   const active = status.state === "queued" || status.state === "running";
-  const cancellable = ["import", "import_resume", "index_rebuild"].includes(status.kind);
+  const external = status.kind === "external_send";
+  const cancellable = external || ["import", "import_resume", "index_rebuild"].includes(status.kind);
   return (
     <div className="mem-operation" role="status" aria-live="polite" aria-atomic="true">
       <span className="mem-mono">{status.kind}</span>
@@ -90,11 +91,17 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
       {active && cancellable && (
         <button type="button" className="mem-button" disabled={status.cancelRequested || cancelling}
           onClick={onCancel}>
-          {status.cancelRequested ? "Cancellation requested" : "Cancel"}
+          {external ? (status.cancelRequested ? "Local stop requested" : "Stop locally") : (status.cancelRequested ? "Cancellation requested" : "Cancel")}
         </button>
       )}
-      {active && cancellable && status.cancelRequested && <span className="mem-muted">Waiting for the next safe point.</span>}
+      {active && external && <span className="mem-muted">The service may have received the request. Stopping locally does not confirm remote cancellation.</span>}
+      {active && cancellable && status.cancelRequested && <span className="mem-muted">{external ? "Waiting for the local call to stop." : "Waiting for the next safe point."}</span>}
       {active && !cancellable && <span className="mem-muted">Finishes before locking or exiting.</span>}
+      {!active && external && <span className="mem-muted">
+        {status.state === "succeeded" && ["completed", "length"].includes(status.result?.finish)
+          ? `Reply saved in the session${status.result.finish === "length" ? "; stopped at the output limit" : ""}.`
+          : "Read the recorded outcome in the session before preparing another request. The service may have received this request."}
+      </span>}
       {status.state === "succeeded" && status.kind === "vault_verify" && typeof status.result?.clean === "boolean" && (
         <span className={status.result.clean ? "mem-muted" : "mem-warn"}>
           {status.result.clean ? "Verification passed" : "Verification found integrity problems"}: {status.result.recordsChecked} records · {status.result.objectsChecked} objects.

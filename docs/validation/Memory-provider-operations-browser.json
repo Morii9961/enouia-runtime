@@ -1,0 +1,20 @@
+{
+  "scope": "Actual React Provider panels and operation watcher with synthetic IPC only",
+  "fixture": "apps/desktop/e2e/provider-operations.html",
+  "checks": [
+    {"id":"queued_send_can_stop_locally","ok":true},
+    {"id":"stop_ack_waits_for_terminal","ok":true},
+    {"id":"cancelled_outcome_retained","ok":true},
+    {"id":"terminal_refresh_once","ok":true},
+    {"id":"cancel_targets_owned_operation","ok":true},
+    {"id":"no_automatic_send_retry","ok":true},
+    {"id":"output_limit_result_retained","ok":true},
+    {"id":"failed_extraction_has_outcome_and_close","ok":true},
+    {"id":"failed_preview_keeps_local_recovery","ok":true},
+    {"id":"preview_recovery_only_reads","ok":true},
+    {"id":"failed_workflow_can_close","ok":true},
+    {"id":"no_automatic_apply","ok":true}
+  ],
+  "passed":true,
+  "calls":["provider_status","external_prepare","external_send","operation_get","operation_cancel","operation_get","operation_get","provider_status","external_prepare","external_send","operation_get","provider_status","extraction_prepare","external_send","operation_get","extraction_preview","extraction_preview"]
+}

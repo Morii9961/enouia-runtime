@@ -208,6 +208,30 @@ test('operation feedback offers cancellation only for active cooperative workers
   assert.match(view('import', 'running'), /mem-state-running/);
 });
 
+test('external sending exposes local cancellation without promising remote cancellation', () => {
+  const view = (state, cancelRequested = false, result = null) => renderToStaticMarkup(
+    OperationFeedback({ status: { kind: 'external_send', state, cancelRequested, progress: { done: 0, total: null }, result }, onCancel() {} }),
+  );
+  for (const state of ['queued', 'running']) {
+    assert.match(view(state), />Stop locally<\/button>/);
+    assert.doesNotMatch(view(state), /Finishes before locking/);
+    assert.match(view(state), /may have received/);
+    const requested = view(state, true);
+    assert.match(requested, /disabled=""/);
+    assert.match(requested, /Local stop requested/);
+    assert.doesNotMatch(requested, /mem-state-cancelled/);
+  }
+  assert.match(view('succeeded', false, {finish:'completed'}), /Reply saved/);
+  assert.match(view('succeeded', false, {finish:'length'}), /output limit/);
+  for (const state of ['failed', 'cancelled']) {
+    assert.doesNotMatch(view(state), /<button|Reply saved/);
+    assert.match(view(state), /recorded outcome/);
+  }
+  for (const finish of ['failed','cancelled','future', undefined]) {
+    assert.doesNotMatch(view('succeeded', false, {finish}), /Reply saved/);
+  }
+});
+
 test('pending Vault release explains host waiting and retains real uncancellable progress', () => {
   const detached = { vault: { state: 'locked' }, companion: { exiting: false } };
   assert.equal(vaultLabel(detached, true), 'Finishing Vault change');

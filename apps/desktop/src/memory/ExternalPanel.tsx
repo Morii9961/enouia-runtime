@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { call, describe, providerSetup, providerReload, providerKey, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { ErrorBox, Operation, Tag, shortId } from "./ui";
+import { ErrorBox, Operation, OperationFeedback, Tag, shortId } from "./ui";
 
 type Branch = { sessionId: string; branchId: string };
 type Native = { setup: typeof providerSetup; reload: typeof providerReload; key: typeof providerKey };
@@ -40,6 +40,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   const [plan, setPlan] = useState<J>(null);
   const [prepared, setPrepared] = useState<J>(null);
   const [operation, setOperation] = useState<string | null>(null);
+  const [completion, setCompletion] = useState<J>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [extraction, setExtraction] = useState(false);
   const action = useAction();
@@ -55,7 +56,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   ), [read.run, request, native]);
   useEffect(() => { void refresh(); }, [refresh]);
   // A prepared call and a held plan belong to the branch they came from.
-  useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); }, [branch.sessionId, branch.branchId]);
+  useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); setCompletion(null); }, [branch.sessionId, branch.branchId]);
 
   const busy = action.busy || read.busy || operation != null;
   const reload = () => void action.run(async () => {
@@ -160,7 +161,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
             title={grant ? undefined : "A grant is needed first"}
             onClick={() => void action.run(async (key) => {
               const submitted = text;
-              setNotice(null);
+              setNotice(null); setCompletion(null);
               const result = await request("external_prepare", {
                 ...branch, text: submitted, api, policyId: grant.policyId,
                 streaming: destination?.streaming === "supported",
@@ -190,7 +191,8 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
         </div>
       )}
 
-      {operation && <Operation id={operation} request={request} onDone={() => { setOperation(null); void onChanged(); }} />}
+      {operation && <Operation id={operation} request={request} onDone={(s) => { setCompletion(s); setOperation(null); void onChanged(); }} />}
+      {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
 
       {invocations.length > 0 && (
         <div className="mem-stack">

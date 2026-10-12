@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { ErrorBox, Operation, Tag } from "./ui";
+import { ErrorBox, Operation, OperationFeedback, Tag } from "./ui";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
@@ -15,6 +15,7 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
   const [api, setApi] = useState("");
   const [prepared, setPrepared] = useState<J>(null);
   const [operation, setOperation] = useState<string | null>(null);
+  const [completion, setCompletion] = useState<J>(null);
   const [job, setJob] = useState<{ sessionId: string; runId: string } | null>(null);
   const [preview, setPreview] = useState<J>(null);
   const action = useAction();
@@ -26,7 +27,7 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
     });
   }, [read.run, request]);
 
-  if (read.error) return <ErrorBox error={read.error} />;
+  if (read.error) return <div className="mem-stack"><ErrorBox error={read.error} /><button type="button" className="mem-button" onClick={onClose}>Close</button></div>;
   if (!status) return <p role="status" className="mem-muted">Reading provider setup…</p>;
   const destination = status.destinations.find((d: J) => d.api === api);
   const grant = (status.grants ?? []).find((g: J) => g.active && g.purposes.includes("extraction")
@@ -78,9 +79,15 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
         </>
       )}
       {operation && <Operation id={operation} request={request} onDone={(s) => {
+        setCompletion(s);
         setOperation(null);
         if (s.state === "succeeded" && job) void showPreview(job);
       }} />}
+      {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
+      {job && !operation && !preview && <div className="mem-actions">
+        <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Read saved suggestions</button>
+        {close}
+      </div>}
       {preview && job && (
         <>
           <p className="mem-muted">{preview.items.length} suggestion{preview.items.length === 1 ? "" : "s"}. Each quote is checked against the source; that does not make the suggestion true.</p>
