@@ -33,15 +33,21 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const [answer, setAnswer] = useState<J>(null);
   const [summary, setSummary] = useState("");
   const [externalBusy, setExternalBusy] = useState(false);
+  const [suggestionBusy, setSuggestionBusy] = useState(false);
   const [externalOperation, setExternalOperation] = useState<string | null>(null);
   const action = useAction();
   const listRead = useLatestRead();
   const detailRead = useLatestRead();
   const writing = useRef(false);
   const externalWriting = useRef(false);
+  const suggestionWriting = useRef(false);
   const reportExternalBusy = useCallback((value: boolean) => {
     externalWriting.current = value;
     setExternalBusy(value);
+  }, []);
+  const reportSuggestionBusy = useCallback((value: boolean) => {
+    suggestionWriting.current = value;
+    setSuggestionBusy(value);
   }, []);
   const questionInput = useRef<HTMLTextAreaElement>(null);
   const checkpointInput = useRef<HTMLInputElement>(null);
@@ -74,7 +80,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
     if (current && drafts.current.get(branchKey(current))?.[field] === submitted) editDraft(field, "");
   };
   const write = (target: "question" | "checkpoint", commit: (key: string) => Promise<void>) => {
-    if (writing.current || externalWriting.current || detailRead.pending.current || detailRead.error) return;
+    if (writing.current || externalWriting.current || suggestionWriting.current || detailRead.pending.current || detailRead.error) return;
     const trigger = document.activeElement;
     void action.run(async (key) => {
       writing.current = true;
@@ -84,7 +90,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
       } finally { writing.current = false; }
     });
   };
-  const busy = action.busy || detailRead.busy || externalBusy;
+  const busy = action.busy || detailRead.busy || externalBusy || suggestionBusy;
   const writesBlocked = busy || !!detailRead.error;
   useEffect(() => {
     if (busy || !focusAfterWrite.current) return;
@@ -122,7 +128,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 aria-label={`Session ${shortId(s.sessionId)} · branch ${shortId(b.branchId)} · ${when(s.updatedAt)} · ${b.lastEventSeq} ${b.lastEventSeq === 1 ? "event" : "events"}`}
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
-                onClick={() => { if (!writing.current && !externalWriting.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
+                onClick={() => { if (!writing.current && !externalWriting.current && !suggestionWriting.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
                 <span className="qr24">{when(s.updatedAt)}</span>
                 <span className="qr25">{b.lastEventSeq} {b.lastEventSeq === 1 ? "event" : "events"}</span>
               </button>
@@ -198,11 +204,12 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           {detail && current && (
             <>
               <ExternalPanel key={branchKey(current)} branch={current} text={text} invocations={detail.invocations ?? []}
-                request={request} disabled={action.busy || detailRead.busy || !!detailRead.error} onBusyChange={reportExternalBusy} onOperationChange={setExternalOperation}
+                request={request} disabled={action.busy || detailRead.busy || suggestionBusy || !!detailRead.error} onBusyChange={reportExternalBusy} onOperationChange={setExternalOperation}
                 consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
                 onChanged={async () => { await open(current); await list(); }} />
               <SavedExtractionJobs key={`jobs-${branchKey(current)}`} sessionId={current.sessionId}
-                jobs={detail.extractionJobs} disabled={writesBlocked} request={request} />
+                jobs={detail.extractionJobs} disabled={writesBlocked} request={request} onBusyChange={reportSuggestionBusy}
+                onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">
                 <h3 className="mem-h3">Checkpoints</h3>
                 <p className="mem-muted">Provisional session artifacts. They become memories only after review.</p>

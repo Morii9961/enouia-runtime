@@ -313,6 +313,10 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
     assert!(candidate["revision"].is_number());
     assert_eq!(candidate["status"], "pending");
     assert_eq!(partial["items"][1]["candidate"], Value::Null);
+    // Remaining application consumes the saved response locally, even when
+    // native sending is disabled. It does not need a new model request.
+    page.ws.set_native_provider(None).unwrap();
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
     for _ in 0..3 {
         if page.ok("extraction_apply", job.clone())["job"]["state"] == "completed" {
             break;

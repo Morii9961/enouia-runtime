@@ -4,10 +4,11 @@
 // Adding suggestions only queues pending candidates for ordinary review;
 // none becomes a memory here.
 import { useEffect, useId, useState } from "react";
-import { CallError, call, type J } from "./client";
+import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, OperationFeedback } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
+import { applySavedSuggestions } from "./applySavedSuggestions";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
@@ -122,21 +123,8 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                 onClick={() => {
                   void action.run(async () => {
                     setPreviewCurrent(false);
-                    try {
-                      // Core advances the saved cursor, not a page-keyed
-                      // receipt. After ambiguity, read it before another batch.
-                      for (let n = 0; n <= preview.items.length; n += 1) {
-                        const applied = await request("extraction_apply", job);
-                        if (applied.job.state === "completed") break;
-                      }
-                      setPreview(await request("extraction_preview", job));
-                      setPreviewCurrent(true);
-                    } catch (err) {
-                      // Keep the Core's explanation, but do not offer a blind
-                      // replay of a loop whose previous step may have committed.
-                      if (err instanceof CallError) throw new CallError({ ...err.error, retryable: false });
-                      throw err;
-                    }
+                    setPreview(await applySavedSuggestions(request, job, preview.items.length));
+                    setPreviewCurrent(true);
                   });
                 }}>Add to the review queue</button>
             )}
