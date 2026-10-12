@@ -114,6 +114,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
         <>
           {!previewCurrent && <p role="status" className="mem-muted">Previous suggestion observation. Read saved suggestions again to check which items reached the review queue before starting another write.</p>}
           <p className="mem-muted">{preview.items.length} suggestion{preview.items.length === 1 ? "" : "s"}. Each quote is checked against the source; that does not make the suggestion true.</p>
+          <p className="mem-muted">This preview shows suggestions and candidate records. Read approved memories in Memory Vault for their current content, including edits made during review.</p>
           <ul className="mem-list">
             {preview.items.map((i: J) => (
               <li key={i.responseIndex} className="mem-stack">
