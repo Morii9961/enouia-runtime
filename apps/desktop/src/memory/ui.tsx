@@ -2,7 +2,7 @@
 // workspace (apps/workspace/src/App.tsx at the pinned revision). Every value
 // shown comes from the Core. Memory and source text render as plain text
 // nodes, never as HTML or Markdown.
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ExtractionPanel } from "./ExtractionPanel";
 import { CallError, call, describe, newKey, type J } from "./client";
 import { useAction, useLatestRead, type Failure } from "./hooks";
@@ -48,31 +48,69 @@ function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status:
   const [status, setStatus] = useState<J>(null);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
+  const [cancelAcknowledged, setCancelAcknowledged] = useState(false);
+  const terminal = useRef(false);
+  const observation = useRef(0);
+  const mounted = useRef(false);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
   const cancel = useAction();
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const publish = useCallback((next: J) => {
+    if (terminal.current) return;
+    setStatus(next);
+    setError(null);
+    if (["succeeded", "failed", "cancelled"].includes(next.state)) {
+      terminal.current = true;
+      onDoneRef.current?.(next);
+    }
+  }, []);
   useEffect(() => {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout>;
     setError(null);
     const poll = async () => {
+      if (terminal.current) return;
+      const started = observation.current;
       try {
         const s = await request("operation_get", { operationId: id });
         if (stopped) return;
-        setStatus(s);
-        if (!["queued", "running"].includes(s.state)) onDoneRef.current?.(s);
-        else timer = setTimeout(poll, 400);
+        // A cancellation reply is a newer observation than a read already
+        // in flight. That older read must not reopen a terminal operation.
+        if (started === observation.current) publish(s);
       } catch (err) {
-        if (!stopped) setError(describe(err));
+        if (stopped) return;
+        if (started === observation.current && !terminal.current) {
+          setError(describe(err));
+          return;
+        }
       }
+      if (!stopped && !terminal.current) timer = setTimeout(poll, 400);
     };
     void poll();
     return () => { stopped = true; clearTimeout(timer); };
-  }, [id, retry, request]);
-  if (error) return <ErrorBox error={{ text: `Could not read the operation: ${error}`, retry: () => setRetry((n) => n + 1) }} />;
-  if (!status) return <p role="status" className="mem-muted">Operation queued…</p>;
-  return <OperationFeedback status={status} cancelling={cancel.busy} error={cancel.error}
-    onCancel={() => void cancel.run(() => request("operation_cancel", { operationId: id }))} />;
+  }, [id, retry, request, publish]);
+  const stop = () => void cancel.run(async () => {
+    const next = await request("operation_cancel", { operationId: id });
+    if (!mounted.current || terminal.current) return;
+    if (next?.operationId !== id || next.kind !== status.kind ||
+      !["queued", "running", "succeeded", "failed", "cancelled"].includes(next.state) ||
+      typeof next.cancelRequested !== "boolean" || !next.progress) {
+      throw new CallError({ code: "invalid_request", retryable: false, rules: [] });
+    }
+    observation.current += 1;
+    if (next.cancelRequested) setCancelAcknowledged(true);
+    publish(next);
+    // A previous failed or held read must not leave an acknowledged stop
+    // without a watcher. Restart observation only; never replay the stop.
+    if (!terminal.current) setRetry((n) => n + 1);
+  });
+  return <>
+    {status ? <OperationFeedback status={{ ...status, cancelRequested: status.cancelRequested || cancelAcknowledged }}
+      cancelling={cancel.busy} error={cancel.error} onCancel={stop} />
+      : !error && <p role="status" className="mem-muted">Operation queued…</p>}
+    {error && <ErrorBox error={{ text: `Could not read the operation: ${error}`, retry: () => setRetry((n) => n + 1) }} />}
+  </>;
 }
 
 /** Cancellation is cooperative; external calls stop locally, not remotely. */

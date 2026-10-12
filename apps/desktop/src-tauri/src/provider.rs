@@ -706,10 +706,14 @@ mod tests {
         std::fs::remove_file(&path).unwrap();
         assert_eq!(apply(host, Some(&path)), Err("provider.call_running"));
         assert_eq!(host.provider_setup(), Setup::Ready);
-        call(
+        let cancellation = call(
             "operation_cancel",
             json!({"operationId": started["operationId"]}),
         );
+        assert_eq!(cancellation["operationId"], started["operationId"]);
+        assert_eq!(cancellation["kind"], "external_send");
+        assert_eq!(cancellation["cancelRequested"], true);
+        assert!(cancellation["progress"].is_object());
         let deadline = Instant::now() + Duration::from_secs(5);
         loop {
             match apply(host, Some(&path)) {
