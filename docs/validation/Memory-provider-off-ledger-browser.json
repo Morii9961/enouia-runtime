@@ -1,0 +1,19 @@
+{
+  "scope":"ExternalPanel with setup absent and a saved unknown invocation; synthetic IPC only",
+  "fixture":"apps/desktop/e2e/provider-off-ledger.html",
+  "checks":[
+    {"id":"off_setup_keeps_saved_ledger","ok":true},
+    {"id":"off_setup_has_local_close","ok":true},
+    {"id":"plan_targets_recorded_ids","ok":true},
+    {"id":"exact_local_plan_is_visible","ok":true},
+    {"id":"lost_receipt_does_not_claim_local_close","ok":true},
+    {"id":"retry_keeps_confirmation_payload_and_key","ok":true},
+    {"id":"receipt_replay_does_not_double_commit","ok":true},
+    {"id":"off_setup_stays_off","ok":true},
+    {"id":"off_setup_offers_no_egress","ok":true},
+    {"id":"only_local_read_plan_confirm_commands","ok":true}
+  ],
+  "passed":true,
+  "commands":["provider_status","external_interrupt_plan","provider_confirm","provider_confirm","provider_status"],
+  "simulated_commits":1
+}

@@ -721,6 +721,54 @@ mod tests {
             }
         }
         assert_eq!(call("provider_status", json!({}))["configured"], false);
+
+        // A lifecycle interruption leaves an unknown saved outcome. Local
+        // closure must remain possible after native setup is removed.
+        let mut provider = parse(&settings(json!([openai()]))).unwrap();
+        provider.transport = http.clone();
+        provider.secrets = Arc::new(Secrets);
+        host.replace_provider_setup(Some(provider), Setup::Ready)
+            .unwrap();
+        let session = call("session_new", json!({}));
+        let prepared = call(
+            "external_prepare",
+            json!({"sessionId":session["sessionId"],"branchId":session["branchId"],
+            "text":"Second synthetic question", "api":"openai", "policyId":policy["policyId"],"streaming":false,"outputTokens":128}),
+        );
+        http.0.store(false, Ordering::SeqCst);
+        call(
+            "external_send",
+            json!({"callId":prepared["callId"],"wireHash":prepared["wireHash"]}),
+        );
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while !http.0.load(Ordering::SeqCst) {
+            assert!(
+                Instant::now() < deadline,
+                "second synthetic transport did not start"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        call("vault_lock", json!({}));
+        call("vault_unlock", json!({}));
+        host.replace_provider_setup(None, Setup::Absent).unwrap();
+        let branch = json!({"sessionId":session["sessionId"],"branchId":session["branchId"]});
+        let saved = call("session_detail", branch.clone());
+        let invocation = &saved["invocations"][0];
+        assert_eq!(invocation["state"], "outcome_unknown");
+        let plan = call(
+            "external_interrupt_plan",
+            json!({"inputEventId":invocation["input_event_id"],"dispatchId":invocation["dispatch_id"]}),
+        );
+        assert_eq!(plan["kind"], "interrupt");
+        call(
+            "provider_confirm",
+            json!({"planId":plan["planId"],"diffHash":plan["diffHash"]}),
+        );
+        assert_eq!(
+            call("session_detail", branch)["invocations"][0]["state"],
+            "cancelled"
+        );
+        assert_eq!(call("provider_status", json!({}))["configured"], false);
     }
 
     #[test]

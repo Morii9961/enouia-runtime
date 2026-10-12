@@ -70,7 +70,48 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   // A prepared call and a held plan belong to the branch they came from.
   useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); setCompletion(null); }, [branch.sessionId, branch.branchId]);
 
-  const busy = disabled || owningWork || read.busy;
+  const busy = disabled || owningWork || read.busy || (!status && !read.error);
+  const holdPlan = (command: string, args: Record<string, unknown>) =>
+    void action.run(async () => { setNotice(null); setPlan(await request(command, args)); });
+  const confirmation = plan && (
+    <div className="mem-stack" role="group" aria-label="Plan to confirm">
+      <p><Tag tone="warn">{plan.kind}</Tag> Confirm exactly this content:</p>
+      <pre className="mem-pre" tabIndex={0}>{plan.inspection}</pre>
+      <div className="mem-actions">
+        <button type="button" className="mem-button mem-primary" disabled={busy}
+          onClick={() => void action.run(async (key) => {
+            await request("provider_confirm", { planId: plan.planId, diffHash: plan.diffHash }, key);
+            setPlan(null);
+            await refresh();
+            await onChanged();
+          })}>Confirm</button>
+        <button type="button" className="mem-button" disabled={busy} onClick={() => setPlan(null)}>Cancel</button>
+      </div>
+    </div>
+  );
+  const callHistory = invocations.length > 0 && (
+    <div className="mem-stack">
+      <h4 className="mem-label">Provider calls in this session</h4>
+      <p className="mem-muted">Closing an unknown call locally records a local outcome. It does not undo processing at the service.</p>
+      <ul className="mem-list">
+        {invocations.map((i: J) => (
+          <li key={i.dispatch_id}>
+            <Tag tone={i.state === "completed" ? "ok" : "warn"}>{STATE_TEXT[i.state] ?? i.state}</Tag>{" "}
+            {shortId(i.dispatch_id)} · reserved {i.reserved_tokens} tokens
+            {i.input_tokens != null && ` · reported ${i.input_tokens} in / ${i.output_tokens ?? "?"} out`}
+            {i.state === "outcome_unknown" && !operation && (
+              <>{" "}<button type="button" className="mem-link" disabled={busy}
+                onClick={() => holdPlan("external_interrupt_plan", { inputEventId: i.input_event_id, dispatchId: i.dispatch_id })}>Close locally…</button></>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+  const operationView = <>
+    {operation && <Operation id={operation} request={request} onDone={(s) => { setCompletion(s); setOperation(null); void onChanged(); }} />}
+    {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
+  </>;
   const reload = () => void action.run(async () => {
     setNotice(null); setPrepared(null); setPlan(null);
     read.clear();
@@ -92,10 +133,12 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
 
   if (read.error) return <div className="mem-stack">
     <ErrorBox error={read.error} />
+    <ErrorBox error={action.error} />
     <button type="button" className="mem-button" disabled={busy} onClick={() => void refresh()}>Read status again</button>
     {setupControls}
+    {operationView}{callHistory}{confirmation}
   </div>;
-  if (!status) return <p role="status" className="mem-muted">Reading provider setup…</p>;
+  if (!status) return <div className="mem-stack"><p role="status" className="mem-muted">Reading provider setup…</p>{operationView}{callHistory}</div>;
   if (!status.configured) {
     const why = setup?.state === "invalid" ? `${SETUP_TEXT.invalid} ${describe(setup.rule)}` : SETUP_TEXT.absent;
     return (
@@ -104,13 +147,12 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
         <p className="mem-muted">{why}</p>
         <ErrorBox error={action.error} />
         {setupControls}
+        {operationView}{callHistory}{confirmation}
       </div>
     );
   }
   const destination = status.destinations.find((d: J) => d.api === api);
   const grant = (status.grants ?? []).find((g: J) => g.active && g.destinations.some((d: J) => d.provider === api && d.model === destination?.model));
-  const holdPlan = (command: string, args: Record<string, unknown>) =>
-    void action.run(async () => { setNotice(null); setPlan(await request(command, args)); });
 
   return (
     <div className="mem-stack" aria-label="External provider">
@@ -150,22 +192,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
             </div>
           </div>}
 
-      {plan && (
-        <div className="mem-stack" role="group" aria-label="Plan to confirm">
-          <p><Tag tone="warn">{plan.kind}</Tag> Confirm exactly this content:</p>
-          <pre className="mem-pre" tabIndex={0}>{plan.inspection}</pre>
-          <div className="mem-actions">
-            <button type="button" className="mem-button mem-primary" disabled={busy}
-              onClick={() => void action.run(async (key) => {
-                await request("provider_confirm", { planId: plan.planId, diffHash: plan.diffHash }, key);
-                setPlan(null);
-                await refresh();
-                await onChanged();
-              })}>Confirm</button>
-            <button type="button" className="mem-button" disabled={busy} onClick={() => setPlan(null)}>Cancel</button>
-          </div>
-        </div>
-      )}
+      {confirmation}
 
       {!prepared && !operation && (
         <div className="mem-actions">
@@ -203,27 +230,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
         </div>
       )}
 
-      {operation && <Operation id={operation} request={request} onDone={(s) => { setCompletion(s); setOperation(null); void onChanged(); }} />}
-      {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
-
-      {invocations.length > 0 && (
-        <div className="mem-stack">
-          <h4 className="mem-label">Provider calls in this session</h4>
-          <ul className="mem-list">
-            {invocations.map((i: J) => (
-              <li key={i.dispatch_id}>
-                <Tag tone={i.state === "completed" ? "ok" : "warn"}>{STATE_TEXT[i.state] ?? i.state}</Tag>{" "}
-                {shortId(i.dispatch_id)} · reserved {i.reserved_tokens} tokens
-                {i.input_tokens != null && ` · reported ${i.input_tokens} in / ${i.output_tokens ?? "?"} out`}
-                {i.state === "outcome_unknown" && !operation && (
-                  <>{" "}<button type="button" className="mem-link" disabled={busy}
-                    onClick={() => holdPlan("external_interrupt_plan", { inputEventId: i.input_event_id, dispatchId: i.dispatch_id })}>Close locally…</button></>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {operationView}{callHistory}
     </div>
   );
 }
