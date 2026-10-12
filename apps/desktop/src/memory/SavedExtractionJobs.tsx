@@ -5,7 +5,7 @@ import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
-import { applySavedSuggestions } from "./applySavedSuggestions";
+import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
 
 export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyChange, onChanged, request = call }: {
   sessionId: string; jobs: J[] | undefined; disabled?: boolean; request?: typeof call;
@@ -13,6 +13,7 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
 }) {
   const [requested, setRequested] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<{ runId: string; preview: J; current: boolean } | null>(null);
+  const [mutation, setMutation] = useState<"apply" | "resume">("apply");
   const read = useLatestRead();
   const action = useAction();
   const writing = useRef(false);
@@ -30,17 +31,22 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
       (preview) => setLoaded({ runId, preview, current: true }));
   };
   const close = () => { if (writing.current) return; read.clear(); action.clear(); setRequested(null); setLoaded(null); };
-  const apply = () => {
+  const changeQueue = (kind: "apply" | "resume") => {
     if (disabled || writing.current || read.pending.current || !loaded?.current || loaded.runId !== requested) return;
+    const state = loaded.preview.job.state;
+    if (state === "completed" || (kind === "resume" ? state !== "paused" : state === "paused")) return;
     const job = { sessionId, runId: loaded.runId };
     const items = loaded.preview.items.length;
     writing.current = true;
     onBusyChange?.(true);
     read.clear();
+    setMutation(kind);
     setLoaded({ ...loaded, current: false });
     void action.run(async () => {
       try {
-        const preview = await applySavedSuggestions(request, job, items, () => mounted.current);
+        const preview = kind === "resume"
+          ? await resumeSavedSuggestions(request, job, () => mounted.current)
+          : await applySavedSuggestions(request, job, items, () => mounted.current);
         if (preview != null && mounted.current) {
           setLoaded({ runId: job.runId, preview, current: true });
           await onChanged?.();
@@ -67,14 +73,18 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
     {requested && <div className="mem-stack">
       <p className="mem-muted" title={requested}>Suggestion run {shortId(requested)} · session {shortId(sessionId)}.</p>
       {read.busy && <p className="mem-muted" role="status">Reading saved suggestions…</p>}
-      {action.busy && <p className="mem-muted" role="status">Adding remaining suggestions locally. Waiting for the saved result…</p>}
+      {action.busy && <p className="mem-muted" role="status">{mutation === "resume" ? "Resuming the local queue." : "Adding remaining suggestions locally."} Waiting for the saved result…</p>}
       {read.error && <p className="mem-muted">The current saved suggestions could not be read. Read again to observe their saved state.</p>}
       {loaded?.runId === requested && !loaded.current && <p className="mem-muted" role="status">Previous suggestion observation. Read saved suggestions again before starting another write.</p>}
       {loaded?.runId === requested && <SuggestionPreview preview={loaded.preview} />}
       <div className="mem-actions">
         <button type="button" className="mem-button" disabled={disabled || read.busy || action.busy} onClick={() => observe(requested)}>Read saved suggestions again</button>
         {loaded?.runId === requested && loaded.preview.job.state !== "completed" && loaded.preview.job.state !== "paused" && loaded.preview.items.length > 0 &&
-          <button type="button" className="mem-button mem-primary" disabled={disabled || read.busy || action.busy || !loaded.current} onClick={apply}>Add remaining suggestions to the review queue</button>}
+          <button type="button" className="mem-button mem-primary" disabled={disabled || read.busy || action.busy || !loaded.current} onClick={() => changeQueue("apply")}>Add remaining suggestions to the review queue</button>}
+        {loaded?.runId === requested && loaded.preview.job.state === "paused" && <>
+          <p className="mem-muted">This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.</p>
+          <button type="button" className="mem-button" disabled={disabled || read.busy || action.busy || !loaded.current} onClick={() => changeQueue("resume")}>Resume local queue</button>
+        </>}
         <button type="button" className="mem-button" disabled={action.busy} onClick={close}>Close saved suggestions</button>
       </div>
     </div>}
