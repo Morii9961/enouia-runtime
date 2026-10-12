@@ -12,6 +12,7 @@ import { ErrorBox, Tag, shortId, when } from "./ui";
 import { SessionEventBody } from "./SessionEventBody";
 import { ExternalPanel } from "./ExternalPanel";
 import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
+import { SavedExtractionJobs } from "./SavedExtractionJobs";
 
 type Branch = { sessionId: string; branchId: string };
 
@@ -200,6 +201,8 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 request={request} disabled={action.busy || detailRead.busy || !!detailRead.error} onBusyChange={reportExternalBusy} onOperationChange={setExternalOperation}
                 consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
                 onChanged={async () => { await open(current); await list(); }} />
+              <SavedExtractionJobs key={`jobs-${branchKey(current)}`} sessionId={current.sessionId}
+                jobs={detail.extractionJobs} disabled={writesBlocked} request={request} />
               <div className="mem-stack">
                 <h3 className="mem-h3">Checkpoints</h3>
                 <p className="mem-muted">Provisional session artifacts. They become memories only after review.</p>

@@ -378,6 +378,13 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
     assert_eq!(restored["state"], "completed");
     assert_eq!(restored["cursor"], 2);
     assert!(restored["candidates"].is_array());
+    page.ws.set_native_provider(None).unwrap();
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
+    let offline = page.ok(
+        "extraction_preview",
+        json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]}),
+    );
+    assert_eq!(offline["items"], after["items"]);
     assert_eq!(
         transport.0.load(Ordering::SeqCst),
         1,

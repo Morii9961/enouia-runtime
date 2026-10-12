@@ -44,3 +44,5 @@ Sessions 的 External provider 面板提供 **Model setup steps** 和 **Reload s
 来源建议的 **Model for suggestions** 可选择已加载的 Provider 与模型。选定模型需有允许 extraction 的授权；单纯的对话授权不够。选择本身不发送内容。请求准备后，这次流程的模型会固定；如需换模型，先关闭已结束的流程，再重新准备。
 
 建议预览里的原提案、候选记录和审核状态，不等于正式记忆当前内容。审核时可以编辑内容；已批准记忆的实际内容请在 **Memory Vault** 查看。
+
+离开来源页后，可在 **Sessions → Saved source suggestions** 找到会话中保存的建议任务，选择 **Read saved suggestions** 查看原建议和候选状态。关闭 Provider 后仍可读取。该入口只读已有记录，不重新调用模型、加入审核队列或批准记忆；失败时用 **Read saved suggestions again** 恢复读取。
