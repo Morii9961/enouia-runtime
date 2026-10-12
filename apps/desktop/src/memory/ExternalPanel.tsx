@@ -25,13 +25,14 @@ const STATE_TEXT: Record<string, string> = {
   outcome_unknown: "outcome unknown: the request may have reached the provider",
 };
 
-export function ExternalPanel({ branch, text, invocations, onChanged, consumeText, onBusyChange, disabled = false, request = call, native = NATIVE }: {
+export function ExternalPanel({ branch, text, invocations, onChanged, consumeText, onBusyChange, onOperationChange, disabled = false, request = call, native = NATIVE }: {
   branch: Branch;
   text: string;
   invocations: J[];
   onChanged: () => Promise<void>;
   consumeText: (submitted: string) => void;
   onBusyChange?: (busy: boolean) => void;
+  onOperationChange?: (operationId: string | null) => void;
   disabled?: boolean;
   request?: typeof call;
   native?: Native;
@@ -62,6 +63,10 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
     onBusyChange?.(owningWork);
     return () => onBusyChange?.(false);
   }, [owningWork, onBusyChange]);
+  useEffect(() => {
+    onOperationChange?.(operation);
+    return () => onOperationChange?.(null);
+  }, [operation, onOperationChange]);
   // A prepared call and a held plan belong to the branch they came from.
   useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); setCompletion(null); }, [branch.sessionId, branch.branchId]);
 

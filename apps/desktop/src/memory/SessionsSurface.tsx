@@ -11,6 +11,7 @@ import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { SessionEventBody } from "./SessionEventBody";
 import { ExternalPanel } from "./ExternalPanel";
+import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
 
 type Branch = { sessionId: string; branchId: string };
 
@@ -31,6 +32,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const [answer, setAnswer] = useState<J>(null);
   const [summary, setSummary] = useState("");
   const [externalBusy, setExternalBusy] = useState(false);
+  const [externalOperation, setExternalOperation] = useState<string | null>(null);
   const action = useAction();
   const listRead = useLatestRead();
   const detailRead = useLatestRead();
@@ -126,6 +128,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
             );
           }))}
         </div>
+        <div className="mem-pad"><WorkspaceProviderCalls request={request} excludeOperationId={externalOperation} /></div>
       </aside>
       <div className="qr45" aria-label="Session transcript" aria-busy={busy}>
         <div className="qr31">
@@ -194,7 +197,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           {detail && current && (
             <>
               <ExternalPanel key={branchKey(current)} branch={current} text={text} invocations={detail.invocations ?? []}
-                request={request} disabled={action.busy || detailRead.busy || !!detailRead.error} onBusyChange={reportExternalBusy}
+                request={request} disabled={action.busy || detailRead.busy || !!detailRead.error} onBusyChange={reportExternalBusy} onOperationChange={setExternalOperation}
                 consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
                 onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">

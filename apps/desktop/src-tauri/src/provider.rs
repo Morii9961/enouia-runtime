@@ -681,6 +681,23 @@ mod tests {
             );
             std::thread::sleep(Duration::from_millis(5));
         }
+        let operations = call("operation_list", json!({}));
+        let observed = operations["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|op| op["operationId"] == started["operationId"])
+            .unwrap();
+        assert_eq!(observed["kind"], "external_send");
+        assert!(matches!(
+            observed["state"].as_str(),
+            Some("queued" | "running")
+        ));
+        assert!(observed["progress"]["done"].is_u64());
+        assert!(observed["cancelRequested"].is_boolean());
+        for private in ["body", "secret", "path", "text"] {
+            assert!(observed.get(private).is_none());
+        }
         let path = fixture.dir.join(SETTINGS_FILE);
         std::fs::write(&path, b"{").unwrap();
         assert_eq!(apply(host, Some(&path)), Err("provider.call_running"));

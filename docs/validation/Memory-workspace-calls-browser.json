@@ -1,0 +1,22 @@
+{
+  "scope":"WorkspaceProviderCalls with synthetic Core operation state",
+  "fixture":"apps/desktop/e2e/workspace-calls.html",
+  "checks":[
+    {"id":"pending_list_is_not_empty","ok":true},
+    {"id":"core_list_restores_existing_call","ok":true},
+    {"id":"other_operation_kinds_are_filtered","ok":true},
+    {"id":"unmount_stops_page_polling","ok":true},
+    {"id":"return_reobserves_existing_id","ok":true},
+    {"id":"local_watcher_is_not_duplicated","ok":true},
+    {"id":"cancel_failure_does_not_claim_stop","ok":true},
+    {"id":"cancel_ack_waits_for_completion","ok":true},
+    {"id":"returned_call_terminal_is_observed","ok":true},
+    {"id":"cancel_uses_listed_core_id","ok":true},
+    {"id":"list_failure_retains_observation","ok":true},
+    {"id":"empty_requires_successful_list","ok":true},
+    {"id":"no_request_or_body_replay","ok":true}
+  ],
+  "passed":true,
+  "calls":["operation_list","operation_get","operation_list","operation_get","operation_get","operation_cancel","operation_cancel","operation_get","operation_get","operation_list","operation_list","operation_list"],
+  "session_fixture":{"path":"apps/desktop/e2e/provider-session.html","passed":true,"checks":18,"additional_check":"workspace_list_does_not_duplicate_local_watcher"}
+}

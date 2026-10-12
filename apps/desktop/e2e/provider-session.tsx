@@ -12,6 +12,7 @@ const checks: {id: string; ok: boolean}[] = [];
 let releasePrepare: () => void = () => {};
 let releaseSend: () => void = () => {};
 let finished = false;
+let admitted = false;
 let submitted = "";
 let failDetail = false;
 const setup = {configured: true, destinations: [{api: "openai", model: "synthetic-model", streaming: "unsupported", maxOutputTokens: 4096}],
@@ -24,6 +25,7 @@ setTransport(async (command, args) => {
   if (r.command === "session_detail" && failDetail) return {kind: "memory_error", error: {code: "storage_failed", retryable: false, rules: []}};
   let result: unknown;
   switch (r.command) {
+    case "operation_list": result = {items: admitted ? [{operationId:"synthetic-operation",kind:"external_send",state:finished ? "succeeded" : "running",progress:{done:0,total:null},result:finished ? {finish:"completed"} : null}] : []}; break;
     case "session_list": result = {items: ["one", "two"].map(n => ({sessionId: `session-${n}`, updatedAt: "2026-10-12T00:00:00.000Z", branches: [{branchId: `branch-${n}`, lastEventSeq: 1}]}))}; break;
     case "session_detail": result = {transcript: submitted && r.arguments.sessionId === "session-one" ? [{eventId: "synthetic-input", kind: "input", deliveryState: "saved", text: submitted}, ...(finished ? [{eventId:"synthetic-reply", kind:"response", deliveryState:"saved", text:"Saved synthetic reply"}] : [])] : [], checkpoints: [], turns: [], invocations: [], lastSavedEventId: null}; break;
     case "provider_status": result = setup; break;
@@ -33,6 +35,7 @@ setTransport(async (command, args) => {
       result = {callId: "synthetic-call", wireHash: "synthetic-wire", endpoint: "synthetic endpoint", model: "synthetic-model", body: submitted, estimatedInputTokens: 10, outputTokens: 128}; break;
     case "external_send":
       await new Promise<void>(resolve => {releaseSend = resolve;});
+      admitted = true;
       result = {operationId: "synthetic-operation"}; break;
     case "operation_get": result = {kind: "external_send", state: finished ? "succeeded" : "running", progress: {done: 0, total: null}, result: finished ? {finish: "completed"} : null}; break;
     default: throw new Error(`Unexpected Core command: ${r.command}`);
@@ -51,6 +54,8 @@ const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement
 function click(label: string) {const b = button(label); if (!b || b.disabled) throw new Error(`Unavailable: ${label}`); b.click();}
 function check(id: string, ok: boolean) {checks.push({id, ok}); if (!ok) throw new Error(id);}
 function question() {return fixture.querySelector<HTMLTextAreaElement>("#mem-ask")!;}
+function transcriptTitle() {return fixture.querySelector('[aria-label="Session transcript"] h2')?.textContent;}
+function inspectorText() {return fixture.querySelector('[aria-label="Session inspector"]')?.textContent ?? "";}
 function edit(text: string) {
   Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!.call(question(), text);
   question().dispatchEvent(new Event("input", {bubbles: true}));
@@ -76,8 +81,11 @@ try {
   await wait(() => !!button("Stop locally"));
   check("running_send_keeps_owner_selected", rows()[0].getAttribute("aria-pressed") === "true" && rows().every(b => b.disabled));
   check("running_send_preserves_cancel", !button("Stop locally")!.disabled);
+  click("Refresh workspace calls");
+  await wait(() => fixture.textContent!.includes("shown in its inspector"));
+  check("workspace_list_does_not_duplicate_local_watcher", [...fixture.querySelectorAll("button")].filter(b => b.textContent === "Stop locally").length === 1);
   failDetail = true; finished = true;
-  await wait(() => fixture.textContent!.includes("Reply saved") && rows().every(b => !b.disabled));
+  await wait(() => inspectorText().includes("Reply saved") && rows().every(b => !b.disabled));
   await wait(() => fixture.querySelector('[role="alert"]') != null);
   check("failed_completion_refresh_has_manual_read", !!button("Read session again"));
   check("unobserved_detail_blocks_new_writes", button("New session")!.disabled && button("Send")!.disabled && button("Prepare the question for openai…")!.disabled);
@@ -91,18 +99,18 @@ try {
   check("completion_refreshes_original_branch", calls.filter(c => c.command === "session_detail").every(c => c.args.sessionId === "session-one"));
   check("completion_preserves_later_draft", question().value === "Next unsent question");
   rows()[1].click();
-  await wait(() => fixture.querySelector("h2")?.textContent === "Session session-two");
-  check("new_branch_does_not_inherit_outcome_or_preview", !fixture.textContent!.includes("Reply saved") && !button("Send once"));
+  await wait(() => transcriptTitle() === "Session session-two");
+  check("new_branch_does_not_inherit_outcome_or_preview", !inspectorText().includes("Reply saved") && !button("Send once"));
   rows()[0].click();
-  await wait(() => fixture.querySelector("h2")?.textContent === "Session session-one" && !question().disabled);
+  await wait(() => transcriptTitle() === "Session session-one" && !question().disabled);
   check("original_draft_restored", question().value === "Next unsent question");
   failDetail = true;
   rows()[1].click();
   await wait(() => !!button("Read session again"));
-  check("failed_switch_keeps_observed_branch", fixture.querySelector("h2")?.textContent === "Session session-one");
+  check("failed_switch_keeps_observed_branch", transcriptTitle() === "Session session-one");
   failDetail = false;
   click("Read session again");
-  await wait(() => fixture.querySelector("h2")?.textContent === "Session session-two" && !question().disabled);
+  await wait(() => transcriptTitle() === "Session session-two" && !question().disabled);
   check("recovery_reuses_requested_branch", calls.filter(c => c.command === "session_detail").at(-1)!.args.sessionId === "session-two");
   check("one_explicit_external_send", calls.filter(c => c.command === "external_send").length === 1);
 } catch (error) {checks.push({id: String(error), ok: false});}
