@@ -236,14 +236,16 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
 export function Source({ evidence, readPage = call }: { evidence: J; readPage?: typeof call }) {
   const [loaded, setLoaded] = useState<{ sourceId: string; revision: number; page: J } | null>(null);
   const [suggest, setSuggest] = useState(false);
+  const [extractionBusy, setExtractionBusy] = useState(false);
   const action = useLatestRead();
   const excerpt = evidence.available && loaded && loaded.sourceId === evidence.sourceId && loaded.revision === evidence.sourceRevision ? loaded.page : null;
   useEffect(() => {
     action.clear();
     setLoaded(null);
+    setSuggest(false);
   }, [evidence.sourceId, evidence.sourceRevision, evidence.available, action.clear]);
   const load = (start: number | null) => {
-    if (!evidence.available) return;
+    if (!evidence.available || extractionBusy) return;
     const sourceId = evidence.sourceId;
     const revision = evidence.sourceRevision;
     setLoaded(null);
@@ -267,9 +269,10 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
             {excerpt.sourceKind} · {excerpt.speakerRole} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions
           </figcaption>
           <pre className="mem-source">{excerpt.excerpt}</pre>
-          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" onClick={() => { setSuggest(false); load(excerpt.byteEnd); }}>Next part</button>}
+          {extractionBusy && <p role="status" className="mem-muted">Waiting for the current suggestion action before showing another part.</p>}
+          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={extractionBusy} onClick={() => { if (!extractionBusy) { setSuggest(false); load(excerpt.byteEnd); } }}>Next part</button>}
           {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button type="button" className="mem-link" onClick={() => setSuggest(true)}>Suggest memories from this part…</button></>}
-          {suggest && <ExtractionPanel request={readPage} onClose={() => setSuggest(false)}
+          {suggest && <ExtractionPanel request={readPage} onBusyChange={setExtractionBusy} onClose={() => setSuggest(false)}
             range={{ sourceId: evidence.sourceId, revision: evidence.sourceRevision, start: excerpt.byteStart, end: excerpt.byteEnd }} />}
         </figure>
       )}

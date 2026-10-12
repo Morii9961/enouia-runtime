@@ -6,11 +6,11 @@
 import { useEffect, useState } from "react";
 import { CallError, call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { ErrorBox, Operation, OperationFeedback, Tag } from "./ui";
+import { ErrorBox, Operation, OperationFeedback, Tag, shortId } from "./ui";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
-export function ExtractionPanel({ range, onClose, request = call }: { range: Range; onClose: () => void; request?: typeof call }) {
+export function ExtractionPanel({ range, onClose, onBusyChange, request = call }: { range: Range; onClose: () => void; onBusyChange?: (busy: boolean) => void; request?: typeof call }) {
   const [status, setStatus] = useState<J>(null);
   const [api, setApi] = useState("");
   const [prepared, setPrepared] = useState<J>(null);
@@ -21,6 +21,11 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
   const [previewCurrent, setPreviewCurrent] = useState(false);
   const action = useAction();
   const read = useLatestRead();
+  const owningWork = action.busy || operation != null;
+  useEffect(() => {
+    onBusyChange?.(owningWork);
+    return () => onBusyChange?.(false);
+  }, [owningWork, onBusyChange]);
   useEffect(() => {
     void read.run(() => request("provider_status"), (s) => {
       setStatus(s);
@@ -103,7 +108,11 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
                 <span><Tag>{i.proposedType}</Tag> {i.content}</span>
                 <span className="mem-muted">Quote: “{i.quote}”</span>
                 <span className="mem-muted">In: {i.selectedText}</span>
-                {i.candidate && <span><Tag tone="ok">{i.candidate.status}</Tag> in the review queue</span>}
+                {i.candidate && <div className="mem-stack">
+                  <span><Tag tone={i.candidate.status === "pending" ? "warn" : "muted"}>{i.candidate.status}</Tag> candidate · {shortId(i.candidate.candidateId)} · r{i.candidate.revision}</span>
+                  {i.candidate.content !== i.content && <span className="mem-muted">Current candidate: {i.candidate.content}</span>}
+                </div>}
+                {!i.candidate && i.application === "suppressed" && <span className="mem-muted">No candidate recorded for this suggestion.</span>}
               </li>
             ))}
           </ul>

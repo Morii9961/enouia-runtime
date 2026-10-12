@@ -16,7 +16,7 @@ let failPreview=false;
 let releaseApply:(()=>void)|null=null;
 const releasePendingApply=()=>releaseApply?.();
 const job=()=>({state:cursor===2?"completed":"running"});
-const preview=()=>({job:job(),items:[0,1].map(n=>({responseIndex:n,proposedType:"preference",content:`Synthetic suggestion ${n}`,quote:"Synthetic quote",selectedText:"Synthetic source",candidate:n<cursor?{status:"pending"}:null}))});
+const preview=()=>({job:job(),items:[0,1].map(n=>({responseIndex:n,proposedType:"preference",content:`Synthetic suggestion ${n}`,quote:"Synthetic quote",selectedText:"Synthetic source",candidate:n<cursor?{candidateId:`synthetic-candidate-${n}`,revision:1,status:"pending",content:`Synthetic suggestion ${n}`}:null}))});
 const reply=(result:unknown)=>({kind:"memory_page",result,error:null});
 setTransport(async(native,args)=>{
   if(native!=="memory_call")throw new Error("Unexpected native command");
@@ -56,11 +56,11 @@ try{
   check("pending_apply_keeps_close_disabled",!!button("Close")&&button("Close")!.disabled);
   button("Close")!.click();check("pending_apply_does_not_dismiss",closed===0);
   releasePendingApply();await wait(()=>!!fixture.querySelector('[role="alert"]'));
-  check("lost_receipt_does_not_claim_queue_write",!text().includes("pending in the review queue"));
+  check("lost_receipt_does_not_claim_queue_write",!text().includes("pending candidate"));
   check("retryable_apply_error_requires_saved_read",!button("Retry")&&button("Add to the review queue")?.disabled===true&&!!button("Refresh saved suggestions"));
   const beforeRefresh=calls.filter(c=>c.command==="extraction_apply").length;
   click("Refresh saved suggestions");await wait(()=>button("Add to the review queue")?.disabled===false);
-  check("read_observes_first_commit_without_replay",text().includes("pending in the review queue")&&calls.filter(c=>c.command==="extraction_apply").length===beforeRefresh);
+  check("read_observes_first_commit_without_replay",text().includes("pending candidate")&&calls.filter(c=>c.command==="extraction_apply").length===beforeRefresh);
   click("Add to the review queue");await wait(()=>!button("Add to the review queue"));
   const applied=calls.filter(c=>c.command==="extraction_apply");
   check("remaining_suggestion_uses_original_job",JSON.stringify(applied[0].args)===JSON.stringify(applied[1].args));
@@ -74,7 +74,7 @@ try{
   const beforeApply=calls.filter(c=>c.command==="extraction_apply").length;
   failPreview=true;click("Refresh saved suggestions");await sleep(50);
   check("failed_refresh_keeps_recovery_and_previous_items",!!button("Refresh saved suggestions")&&text().includes("Synthetic suggestion 0")&&button("Add to the review queue")?.disabled===true);
-  failPreview=false;click("Refresh saved suggestions");await wait(()=>text().includes("pending in the review queue"));
+  failPreview=false;click("Refresh saved suggestions");await wait(()=>text().includes("pending candidate"));
   check("refresh_reads_saved_completion",!button("Add to the review queue")&&calls.filter(c=>c.command==="extraction_apply").length===beforeApply);
   check("recovery_does_not_resend_model",calls.filter(c=>c.command==="external_send").length===2);
   click("Close");check("settled_workflow_can_close",closed===1);
