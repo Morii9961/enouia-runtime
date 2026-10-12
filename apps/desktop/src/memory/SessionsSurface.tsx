@@ -25,6 +25,7 @@ export default function SessionsSurface({ inspect }: { inspect: (capsuleId: stri
 export function Sessions({ inspect, request = call }: { inspect: (capsuleId: string) => void; request?: typeof call }) {
   const [sessions, setSessions] = useState<J[] | null>(null);
   const [current, setCurrent] = useState<Branch | null>(null);
+  const [requested, setRequested] = useState<Branch | null>(null);
   const [detail, setDetail] = useState<J>(null);
   const [text, setText] = useState("");
   const [answer, setAnswer] = useState<J>(null);
@@ -47,8 +48,9 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const branchKey = (b: Branch) => `${b.sessionId}:${b.branchId}`;
   const list = useCallback(() => listRead.run(() => request("session_list"), (page) => setSessions(page.items)), [listRead.run, request]);
   useEffect(() => { void list(); }, [list]);
-  const open = (b: Branch) =>
-    detailRead.run(() => request("session_detail", b), (saved) => {
+  const open = (b: Branch) => {
+    setRequested(b);
+    return detailRead.run(() => request("session_detail", b), (saved) => {
       const key = branchKey(b);
       if (selectedBranch.current !== key) { setAnswer(null); action.clear(); }
       selectedBranch.current = key;
@@ -58,6 +60,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
       setCurrent(b);
       setDetail(saved);
     });
+  };
   const editDraft = (field: "text" | "summary", value: string) => {
     if (!current) return;
     const key = branchKey(current);
@@ -68,7 +71,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
     if (current && drafts.current.get(branchKey(current))?.[field] === submitted) editDraft(field, "");
   };
   const write = (target: "question" | "checkpoint", commit: (key: string) => Promise<void>) => {
-    if (writing.current || externalWriting.current || detailRead.pending.current) return;
+    if (writing.current || externalWriting.current || detailRead.pending.current || detailRead.error) return;
     const trigger = document.activeElement;
     void action.run(async (key) => {
       writing.current = true;
@@ -79,6 +82,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
     });
   };
   const busy = action.busy || detailRead.busy || externalBusy;
+  const writesBlocked = busy || !!detailRead.error;
   useEffect(() => {
     if (busy || !focusAfterWrite.current) return;
     const { target, trigger } = focusAfterWrite.current;
@@ -97,7 +101,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           <div className="qr19">Conversations kept as they happened.</div>
         </div>
         <div className="qr20">
-          <button type="button" className="mem-button mem-primary" disabled={busy || listRead.busy}
+          <button type="button" className="mem-button mem-primary" disabled={writesBlocked || listRead.busy}
             onClick={() => write("question", async (key) => {
               const s = await request("session_new", {}, key);
               await list();
@@ -128,9 +132,16 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           <h2 className="qr29" tabIndex={-1}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
           {detail && <div className="qr19">last saved event {detail.lastSavedEventId ? shortId(detail.lastSavedEventId) : "none"}</div>}
           <div className="qr30" />
+          {(requested || current) && <button type="button" className="mem-button" disabled={busy}
+            onClick={() => { const target = detailRead.error ? requested : current; if (target) void open(target); }}>
+            {detailRead.error ? "Read session again" : "Refresh saved session"}
+          </button>}
         </div>
         <div className="qr44">
           <ErrorBox error={detailRead.error} />
+          {detailRead.error && requested && <p className="mem-muted mem-pad" role="status">
+            Session {shortId(requested.sessionId)} has not been read. {detail ? "The displayed transcript is from the previous successful read." : "Its transcript is still unknown."} Read it again before starting another session write. Unsent drafts are kept.
+          </p>}
           {detailRead.busy && <p role="status" className="mem-muted mem-pad">Reading the session…</p>}
           {externalBusy && <p role="status" className="mem-muted mem-pad">Waiting for the external provider action to finish. A running call can be stopped locally in the inspector.</p>}
           {detail && current && (
@@ -159,7 +170,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 <label className="mem-label" htmlFor="mem-ask">Ask (Send uses the local Mock, which cites approved memories only; an external provider is in the inspector)</label>
                 <textarea ref={questionInput} id="mem-ask" className="mem-textarea" value={text} disabled={busy} onChange={(e) => editDraft("text", e.target.value)} />
                 <div className="mem-actions">
-                  <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || busy}>Send</button>
+                  <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || writesBlocked}>Send</button>
                 </div>
               </form>
             </div>
@@ -183,7 +194,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           {detail && current && (
             <>
               <ExternalPanel key={branchKey(current)} branch={current} text={text} invocations={detail.invocations ?? []}
-                request={request} disabled={action.busy || detailRead.busy} onBusyChange={reportExternalBusy}
+                request={request} disabled={action.busy || detailRead.busy || !!detailRead.error} onBusyChange={reportExternalBusy}
                 consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
                 onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">
@@ -208,7 +219,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 <label className="mem-label" htmlFor="mem-cp">Checkpoint summary</label>
                 <input ref={checkpointInput} id="mem-cp" className="mem-input" value={summary} disabled={busy} onChange={(e) => editDraft("summary", e.target.value)} autoComplete="off" />
                 <div className="mem-actions">
-                  <button type="submit" className="mem-button" disabled={!summary.trim() || busy}>Save checkpoint</button>
+                  <button type="submit" className="mem-button" disabled={!summary.trim() || writesBlocked}>Save checkpoint</button>
                 </div>
               </form>
             </>

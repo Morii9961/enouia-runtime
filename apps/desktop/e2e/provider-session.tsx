@@ -13,6 +13,7 @@ let releasePrepare: () => void = () => {};
 let releaseSend: () => void = () => {};
 let finished = false;
 let submitted = "";
+let failDetail = false;
 const setup = {configured: true, destinations: [{api: "openai", model: "synthetic-model", streaming: "unsupported", maxOutputTokens: 4096}],
   grants: [{active: true, policyId: "synthetic-policy", maxSensitivity: "private", destinations: [{provider: "openai", model: "synthetic-model"}]}]};
 setTransport(async (command, args) => {
@@ -20,10 +21,11 @@ setTransport(async (command, args) => {
   if (command !== "memory_call") throw new Error(`Unexpected native command: ${command}`);
   const r = args.request as {command: string; arguments: Record<string, unknown>};
   calls.push({command: r.command, args: r.arguments});
+  if (r.command === "session_detail" && failDetail) return {kind: "memory_error", error: {code: "storage_failed", retryable: false, rules: []}};
   let result: unknown;
   switch (r.command) {
     case "session_list": result = {items: ["one", "two"].map(n => ({sessionId: `session-${n}`, updatedAt: "2026-10-12T00:00:00.000Z", branches: [{branchId: `branch-${n}`, lastEventSeq: 1}]}))}; break;
-    case "session_detail": result = {transcript: submitted && r.arguments.sessionId === "session-one" ? [{eventId: "synthetic-input", kind: "input", deliveryState: "saved", text: submitted}] : [], checkpoints: [], turns: [], invocations: [], lastSavedEventId: null}; break;
+    case "session_detail": result = {transcript: submitted && r.arguments.sessionId === "session-one" ? [{eventId: "synthetic-input", kind: "input", deliveryState: "saved", text: submitted}, ...(finished ? [{eventId:"synthetic-reply", kind:"response", deliveryState:"saved", text:"Saved synthetic reply"}] : [])] : [], checkpoints: [], turns: [], invocations: [], lastSavedEventId: null}; break;
     case "provider_status": result = setup; break;
     case "external_prepare":
       submitted = r.arguments.text as string;
@@ -74,8 +76,18 @@ try {
   await wait(() => !!button("Stop locally"));
   check("running_send_keeps_owner_selected", rows()[0].getAttribute("aria-pressed") === "true" && rows().every(b => b.disabled));
   check("running_send_preserves_cancel", !button("Stop locally")!.disabled);
-  finished = true;
+  failDetail = true; finished = true;
   await wait(() => fixture.textContent!.includes("Reply saved") && rows().every(b => !b.disabled));
+  await wait(() => fixture.querySelector('[role="alert"]') != null);
+  check("failed_completion_refresh_has_manual_read", !!button("Read session again"));
+  check("unobserved_detail_blocks_new_writes", button("New session")!.disabled && button("Send")!.disabled && button("Prepare the question for openai…")!.disabled);
+  check("failed_refresh_does_not_invent_transcript", !fixture.textContent!.includes("Saved synthetic reply"));
+  const sendsBeforeRecovery = calls.filter(c => c.command === "external_send").length;
+  failDetail = false;
+  click("Read session again");
+  await wait(() => fixture.textContent!.includes("Saved synthetic reply") && !question().disabled);
+  check("recovery_reads_saved_reply", fixture.querySelector('[role="alert"]') == null);
+  check("recovery_never_resends", calls.filter(c => c.command === "external_send").length === sendsBeforeRecovery);
   check("completion_refreshes_original_branch", calls.filter(c => c.command === "session_detail").every(c => c.args.sessionId === "session-one"));
   check("completion_preserves_later_draft", question().value === "Next unsent question");
   rows()[1].click();
@@ -84,6 +96,14 @@ try {
   rows()[0].click();
   await wait(() => fixture.querySelector("h2")?.textContent === "Session session-one" && !question().disabled);
   check("original_draft_restored", question().value === "Next unsent question");
+  failDetail = true;
+  rows()[1].click();
+  await wait(() => !!button("Read session again"));
+  check("failed_switch_keeps_observed_branch", fixture.querySelector("h2")?.textContent === "Session session-one");
+  failDetail = false;
+  click("Read session again");
+  await wait(() => fixture.querySelector("h2")?.textContent === "Session session-two" && !question().disabled);
+  check("recovery_reuses_requested_branch", calls.filter(c => c.command === "session_detail").at(-1)!.args.sessionId === "session-two");
   check("one_explicit_external_send", calls.filter(c => c.command === "external_send").length === 1);
 } catch (error) {checks.push({id: String(error), ok: false});}
 finally {
