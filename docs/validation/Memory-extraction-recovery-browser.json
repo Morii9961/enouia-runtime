@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-12",
+  "baseline": "1af6d43",
+  "fixture": "apps/desktop/e2e/extraction-recovery.html",
+  "scope": "synthetic browser IPC, saved extraction cursor and receipt delivery",
+  "before_fix": {"failed": "pending_apply_keeps_close_disabled"},
+  "passed": true,
+  "checks": [
+    {"id": "pending_apply_keeps_close_disabled", "ok": true},
+    {"id": "pending_apply_does_not_dismiss", "ok": true},
+    {"id": "lost_receipt_does_not_claim_queue_write", "ok": true},
+    {"id": "retryable_apply_error_requires_saved_read", "ok": true},
+    {"id": "read_observes_first_commit_without_replay", "ok": true},
+    {"id": "remaining_suggestion_uses_original_job", "ok": true},
+    {"id": "two_explicit_steps_only", "ok": true},
+    {"id": "completed_queue_observed", "ok": true},
+    {"id": "partial_write_requires_reobservation", "ok": true},
+    {"id": "saved_suggestions_have_explicit_refresh", "ok": true},
+    {"id": "failed_refresh_keeps_recovery_and_previous_items", "ok": true},
+    {"id": "refresh_reads_saved_completion", "ok": true},
+    {"id": "recovery_does_not_resend_model", "ok": true},
+    {"id": "settled_workflow_can_close", "ok": true}
+  ],
+  "calls": ["provider_status", "extraction_prepare", "external_send", "operation_get", "extraction_preview", "extraction_apply", "extraction_preview", "extraction_apply", "extraction_preview", "provider_status", "extraction_prepare", "external_send", "operation_get", "extraction_preview", "extraction_apply", "extraction_apply", "extraction_preview", "extraction_preview"],
+  "limits": ["Saved cursor and receipt loss are simulated", "No personal Vault or credentials", "No HTTP or auto approval"]
+}

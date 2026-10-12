@@ -4,7 +4,7 @@
 // Adding suggestions only queues pending candidates for ordinary review;
 // none becomes a memory here.
 import { useEffect, useState } from "react";
-import { call, type J } from "./client";
+import { CallError, call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, OperationFeedback, Tag } from "./ui";
 
@@ -18,6 +18,7 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
   const [completion, setCompletion] = useState<J>(null);
   const [job, setJob] = useState<{ sessionId: string; runId: string } | null>(null);
   const [preview, setPreview] = useState<J>(null);
+  const [previewCurrent, setPreviewCurrent] = useState(false);
   const action = useAction();
   const read = useLatestRead();
   useEffect(() => {
@@ -33,8 +34,12 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
   const grant = (status.grants ?? []).find((g: J) => g.active && g.purposes.includes("extraction")
     && g.destinations.some((d: J) => d.provider === api && d.model === destination?.model));
   const showPreview = (j: { sessionId: string; runId: string }) =>
-    action.run(async () => setPreview(await request("extraction_preview", j)));
-  const close = <button type="button" className="mem-button" onClick={onClose}>Close</button>;
+    action.run(async () => {
+      setPreviewCurrent(false);
+      setPreview(await request("extraction_preview", j));
+      setPreviewCurrent(true);
+    });
+  const close = <button type="button" className="mem-button" disabled={action.busy || operation != null} onClick={onClose}>Close</button>;
 
   if (!status.configured || !grant) {
     return (
@@ -90,6 +95,7 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
       </div>}
       {preview && job && (
         <>
+          {!previewCurrent && <p role="status" className="mem-muted">Previous suggestion observation. Read saved suggestions again to check which items reached the review queue before starting another write.</p>}
           <p className="mem-muted">{preview.items.length} suggestion{preview.items.length === 1 ? "" : "s"}. Each quote is checked against the source; that does not make the suggestion true.</p>
           <ul className="mem-list">
             {preview.items.map((i: J) => (
@@ -102,16 +108,29 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
             ))}
           </ul>
           <div className="mem-actions">
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Refresh saved suggestions</button>
             {preview.job.state !== "completed" && preview.items.length > 0 && (
-              <button type="button" className="mem-button mem-primary" disabled={action.busy}
-                onClick={() => void action.run(async () => {
-                  // One suggestion per call; each call is a separate keyed write.
-                  for (let n = 0; n <= preview.items.length; n += 1) {
-                    const applied = await request("extraction_apply", job);
-                    if (applied.job.state === "completed") break;
-                  }
-                  setPreview(await request("extraction_preview", job));
-                })}>Add to the review queue</button>
+              <button type="button" className="mem-button mem-primary" disabled={action.busy || !previewCurrent}
+                onClick={() => {
+                  void action.run(async () => {
+                    setPreviewCurrent(false);
+                    try {
+                      // Core advances the saved cursor, not a page-keyed
+                      // receipt. After ambiguity, read it before another batch.
+                      for (let n = 0; n <= preview.items.length; n += 1) {
+                        const applied = await request("extraction_apply", job);
+                        if (applied.job.state === "completed") break;
+                      }
+                      setPreview(await request("extraction_preview", job));
+                      setPreviewCurrent(true);
+                    } catch (err) {
+                      // Keep the Core's explanation, but do not offer a blind
+                      // replay of a loop whose previous step may have committed.
+                      if (err instanceof CallError) throw new CallError({ ...err.error, retryable: false });
+                      throw err;
+                    }
+                  });
+                }}>Add to the review queue</button>
             )}
             {close}
           </div>
