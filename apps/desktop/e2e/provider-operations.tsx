@@ -33,7 +33,7 @@ const prepared = {
 setTransport(async (command, args) => {
   if (command === "memory_provider_setup") return {state: "ready"};
   if (command !== "memory_call") throw new Error(`Unexpected native command ${command}`);
-  const r = args.request;
+  const r = args.request as {command: string; arguments: Record<string, unknown>};
   calls.push({command: r.command, args: r.arguments});
   const reply = (result: unknown) => ({kind: "memory_page", result, error: null});
   switch (r.command) {

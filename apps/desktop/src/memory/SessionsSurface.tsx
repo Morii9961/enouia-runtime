@@ -29,10 +29,16 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const [text, setText] = useState("");
   const [answer, setAnswer] = useState<J>(null);
   const [summary, setSummary] = useState("");
+  const [externalBusy, setExternalBusy] = useState(false);
   const action = useAction();
   const listRead = useLatestRead();
   const detailRead = useLatestRead();
   const writing = useRef(false);
+  const externalWriting = useRef(false);
+  const reportExternalBusy = useCallback((value: boolean) => {
+    externalWriting.current = value;
+    setExternalBusy(value);
+  }, []);
   const questionInput = useRef<HTMLTextAreaElement>(null);
   const checkpointInput = useRef<HTMLInputElement>(null);
   const focusAfterWrite = useRef<{ target: "question" | "checkpoint"; trigger: Element | null } | null>(null);
@@ -62,7 +68,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
     if (current && drafts.current.get(branchKey(current))?.[field] === submitted) editDraft(field, "");
   };
   const write = (target: "question" | "checkpoint", commit: (key: string) => Promise<void>) => {
-    if (writing.current || detailRead.pending.current) return;
+    if (writing.current || externalWriting.current || detailRead.pending.current) return;
     const trigger = document.activeElement;
     void action.run(async (key) => {
       writing.current = true;
@@ -72,7 +78,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
       } finally { writing.current = false; }
     });
   };
-  const busy = action.busy || detailRead.busy;
+  const busy = action.busy || detailRead.busy || externalBusy;
   useEffect(() => {
     if (busy || !focusAfterWrite.current) return;
     const { target, trigger } = focusAfterWrite.current;
@@ -105,11 +111,11 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           {sessions?.map((s) => s.branches.map((b: J) => {
             const active = current?.branchId === b.branchId;
             return (
-              <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={action.busy} aria-pressed={active}
+              <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={busy} aria-pressed={active}
                 aria-label={`Session ${shortId(s.sessionId)} · branch ${shortId(b.branchId)} · ${when(s.updatedAt)} · ${b.lastEventSeq} ${b.lastEventSeq === 1 ? "event" : "events"}`}
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
-                onClick={() => { if (!writing.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
+                onClick={() => { if (!writing.current && !externalWriting.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
                 <span className="qr24">{when(s.updatedAt)}</span>
                 <span className="qr25">{b.lastEventSeq} {b.lastEventSeq === 1 ? "event" : "events"}</span>
               </button>
@@ -126,6 +132,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
         <div className="qr44">
           <ErrorBox error={detailRead.error} />
           {detailRead.busy && <p role="status" className="mem-muted mem-pad">Reading the session…</p>}
+          {externalBusy && <p role="status" className="mem-muted mem-pad">Waiting for the external provider action to finish. A running call can be stopped locally in the inspector.</p>}
           {detail && current && (
             <div className="mem-pad mem-stack">
               <ol className="mem-transcript">
@@ -175,7 +182,8 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           )}
           {detail && current && (
             <>
-              <ExternalPanel branch={current} text={text} invocations={detail.invocations ?? []}
+              <ExternalPanel key={branchKey(current)} branch={current} text={text} invocations={detail.invocations ?? []}
+                request={request} disabled={action.busy || detailRead.busy} onBusyChange={reportExternalBusy}
                 consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
                 onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">

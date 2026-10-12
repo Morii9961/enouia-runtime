@@ -25,12 +25,14 @@ const STATE_TEXT: Record<string, string> = {
   outcome_unknown: "outcome unknown: the request may have reached the provider",
 };
 
-export function ExternalPanel({ branch, text, invocations, onChanged, consumeText, request = call, native = NATIVE }: {
+export function ExternalPanel({ branch, text, invocations, onChanged, consumeText, onBusyChange, disabled = false, request = call, native = NATIVE }: {
   branch: Branch;
   text: string;
   invocations: J[];
   onChanged: () => Promise<void>;
   consumeText: (submitted: string) => void;
+  onBusyChange?: (busy: boolean) => void;
+  disabled?: boolean;
   request?: typeof call;
   native?: Native;
 }) {
@@ -55,10 +57,15 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
     () => { setStatus(null); setSetup(null); setPrepared(null); setPlan(null); },
   ), [read.run, request, native]);
   useEffect(() => { void refresh(); }, [refresh]);
+  const owningWork = action.busy || operation != null;
+  useEffect(() => {
+    onBusyChange?.(owningWork);
+    return () => onBusyChange?.(false);
+  }, [owningWork, onBusyChange]);
   // A prepared call and a held plan belong to the branch they came from.
   useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); setCompletion(null); }, [branch.sessionId, branch.branchId]);
 
-  const busy = action.busy || read.busy || operation != null;
+  const busy = disabled || owningWork || read.busy;
   const reload = () => void action.run(async () => {
     setNotice(null); setPrepared(null); setPlan(null);
     read.clear();
@@ -143,14 +150,14 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
           <p><Tag tone="warn">{plan.kind}</Tag> Confirm exactly this content:</p>
           <pre className="mem-pre" tabIndex={0}>{plan.inspection}</pre>
           <div className="mem-actions">
-            <button type="button" className="mem-button mem-primary" disabled={action.busy}
+            <button type="button" className="mem-button mem-primary" disabled={busy}
               onClick={() => void action.run(async (key) => {
                 await request("provider_confirm", { planId: plan.planId, diffHash: plan.diffHash }, key);
                 setPlan(null);
                 await refresh();
                 await onChanged();
               })}>Confirm</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => setPlan(null)}>Cancel</button>
+            <button type="button" className="mem-button" disabled={busy} onClick={() => setPlan(null)}>Cancel</button>
           </div>
         </div>
       )}
@@ -179,13 +186,13 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
           <p>This exact request goes to <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens and at most {prepared.outputTokens} output tokens. It is sent once and never retried.</p>
           <pre className="mem-pre" tabIndex={0}>{prepared.body}</pre>
           <div className="mem-actions">
-            <button type="button" className="mem-button mem-primary" disabled={action.busy}
+            <button type="button" className="mem-button mem-primary" disabled={busy}
               onClick={() => void action.run(async (key) => {
                 const started = await request("external_send", { callId: prepared.callId, wireHash: prepared.wireHash }, key);
                 setPrepared(null);
                 setOperation(started.operationId);
               })}>Send once</button>
-            <button type="button" className="mem-button" disabled={action.busy}
+            <button type="button" className="mem-button" disabled={busy}
               onClick={() => { setPrepared(null); setNotice("Not sent. The question stays saved in this session."); }}>Don't send</button>
           </div>
         </div>
