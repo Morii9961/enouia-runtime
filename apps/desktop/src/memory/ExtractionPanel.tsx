@@ -3,7 +3,7 @@
 // once, then each suggestion with its quote and complete selected text.
 // Adding suggestions only queues pending candidates for ordinary review;
 // none becomes a memory here.
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { CallError, call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, OperationFeedback, Tag, shortId } from "./ui";
@@ -13,6 +13,7 @@ type Range = { sourceId: string; revision: number; start: number; end: number };
 export function ExtractionPanel({ range, onClose, onBusyChange, request = call }: { range: Range; onClose: () => void; onBusyChange?: (busy: boolean) => void; request?: typeof call }) {
   const [status, setStatus] = useState<J>(null);
   const [api, setApi] = useState("");
+  const providerId = useId();
   const [prepared, setPrepared] = useState<J>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [completion, setCompletion] = useState<J>(null);
@@ -45,10 +46,20 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
       setPreviewCurrent(true);
     });
   const close = <button type="button" className="mem-button" disabled={action.busy || operation != null} onClick={onClose}>Close</button>;
+  const choiceHeld = owningWork || prepared != null || job != null;
+  const providerChoice = status.configured && status.destinations.length > 0 && <>
+    <label className="mem-label" htmlFor={providerId}>Model for suggestions</label>
+    <select id={providerId} className="mem-input" value={api} disabled={choiceHeld}
+      onChange={(e) => { if (!choiceHeld) setApi(e.target.value); }}>
+      {status.destinations.map((d: J) => <option key={d.api} value={d.api}>{d.api} · {d.model}</option>)}
+    </select>
+    {choiceHeld && <p className="mem-muted">This suggestion flow keeps its selected model. Close it after work finishes to choose another model.</p>}
+  </>;
 
   if (!status.configured || !grant) {
     return (
       <div className="mem-stack" role="group" aria-label="Suggest memories">
+        {providerChoice}
         <p className="mem-muted">{!status.configured
           ? "External providers are off on this computer."
           : "No grant allows extraction for this provider. Review a grant with extraction allowed in a session's External provider panel first."}</p>
@@ -59,6 +70,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   return (
     <div className="mem-stack" role="group" aria-label="Suggest memories">
       <ErrorBox error={action.error} />
+      {providerChoice}
       {!prepared && !operation && !job && (
         <>
           <p className="mem-muted">Ask {api} ({destination.model}) to suggest facts from bytes {range.start}–{range.end} of this source. You see the exact request first; suggestions only enter the review queue.</p>
