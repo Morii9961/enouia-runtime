@@ -40,8 +40,8 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
     setLoaded({ ...loaded, current: false });
     void action.run(async () => {
       try {
-        const preview = await applySavedSuggestions(request, job, items);
-        if (mounted.current) {
+        const preview = await applySavedSuggestions(request, job, items, () => mounted.current);
+        if (preview != null && mounted.current) {
           setLoaded({ runId: job.runId, preview, current: true });
           await onChanged?.();
         }

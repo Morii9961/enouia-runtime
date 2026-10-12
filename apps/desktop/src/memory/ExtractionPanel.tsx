@@ -3,7 +3,7 @@
 // once, then each suggestion with its quote and complete selected text.
 // Adding suggestions only queues pending candidates for ordinary review;
 // none becomes a memory here.
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, OperationFeedback } from "./ui";
@@ -24,6 +24,8 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   const [previewCurrent, setPreviewCurrent] = useState(false);
   const action = useAction();
   const read = useLatestRead();
+  const mounted = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const owningWork = action.busy || operation != null;
   useEffect(() => {
     onBusyChange?.(owningWork);
@@ -123,8 +125,8 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                 onClick={() => {
                   void action.run(async () => {
                     setPreviewCurrent(false);
-                    setPreview(await applySavedSuggestions(request, job, preview.items.length));
-                    setPreviewCurrent(true);
+                    const next = await applySavedSuggestions(request, job, preview.items.length, () => mounted.current);
+                    if (next != null) { setPreview(next); setPreviewCurrent(true); }
                   });
                 }}>Add to the review queue</button>
             )}

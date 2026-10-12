@@ -48,3 +48,5 @@ Sessions 的 External provider 面板提供 **Model setup steps** 和 **Reload s
 离开来源页后，可在 **Sessions → Saved source suggestions** 找到会话中保存的建议任务，选择 **Read saved suggestions** 查看原建议和候选状态。关闭 Provider 后仍可读取。读取本身不会重新调用模型、加入审核队列或批准记忆；失败时用 **Read saved suggestions again** 恢复读取。
 
 成功读取后，尚未完成且未暂停的任务可选择 **Add remaining suggestions to the review queue**，继续本地入队，无需重新配置模型或输入密钥。写入期间不能切换会话、建议任务或关闭预览；若回执丢失，先重新读取保存进度，再决定是否继续。候选仍需在 **Memory Vault** 普通审核后才成为记忆。
+
+若切换页面或离开来源详情，后续入队步骤会停止提交，已经提交的一步仍可能完成。返回后先从会话读取保存进度，再决定是否继续；这不会撤回已创建的候选，也不代表远端模型取消。关闭窗口到托盘不会结束页面，已有工作仍会运行。

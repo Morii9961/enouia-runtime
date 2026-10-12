@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-12",
+  "baseline": "ea2c884",
+  "fixture": "apps/desktop/e2e/suggestion-lifetime.html",
+  "scope": "synthetic browser IPC and mounted source/Session batch lifetime",
+  "before_fix": {"failed": "unmounted_source_starts_no_following_step"},
+  "passed": true,
+  "checks": [
+    {"id": "unmounted_source_starts_no_following_step", "ok": true},
+    {"id": "already_admitted_step_can_finish", "ok": true},
+    {"id": "return_reads_the_saved_partial_cursor", "ok": true},
+    {"id": "unmounted_saved_flow_starts_no_result_read", "ok": true},
+    {"id": "unmounted_saved_flow_does_not_refresh_parent", "ok": true},
+    {"id": "new_reader_observes_saved_completion", "ok": true},
+    {"id": "no_model_resend_or_memory_approval", "ok": true}
+  ],
+  "calls": ["provider_status", "extraction_prepare", "external_send", "operation_get", "extraction_preview", "extraction_apply", "extraction_preview", "extraction_apply", "extraction_preview"],
+  "limits": ["Already admitted work can finish", "Unmount and cursor persistence are simulated", "No rollback, real Vault-switch or power-loss proof"]
+}
