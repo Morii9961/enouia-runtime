@@ -8,7 +8,7 @@ import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, OperationFeedback } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
-import { applySavedSuggestions } from "./applySavedSuggestions";
+import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
@@ -120,7 +120,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
           <SuggestionPreview preview={preview} />
           <div className="mem-actions">
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Refresh saved suggestions</button>
-            {preview.job.state !== "completed" && preview.items.length > 0 && (
+            {preview.job.state !== "completed" && preview.job.state !== "paused" && preview.items.length > 0 && (
               <button type="button" className="mem-button mem-primary" disabled={action.busy || !previewCurrent}
                 onClick={() => {
                   void action.run(async () => {
@@ -130,6 +130,18 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                   });
                 }}>Add to the review queue</button>
             )}
+            {preview.job.state === "paused" && <>
+              <p className="mem-muted">This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.</p>
+              <button type="button" className="mem-button" disabled={action.busy || !previewCurrent}
+                onClick={() => {
+                  if (action.busy || !previewCurrent) return;
+                  void action.run(async () => {
+                    setPreviewCurrent(false);
+                    const next = await resumeSavedSuggestions(request, job, () => mounted.current);
+                    if (next != null) { setPreview(next); setPreviewCurrent(true); }
+                  });
+                }}>Resume local queue</button>
+            </>}
             {close}
           </div>
         </>
