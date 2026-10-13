@@ -1,0 +1,116 @@
+{
+  "baseline": "34bcab2",
+  "passed": true,
+  "fixtures": [
+    {
+      "fixture": "e2e/candidate-source.html",
+      "checks": [
+        {
+          "id": "candidate_offers_explicit_evidence_source_read",
+          "ok": true
+        },
+        {
+          "id": "source_availability_stays_unknown_before_read",
+          "ok": true
+        },
+        {
+          "id": "candidate_keeps_precise_original_locator",
+          "ok": true
+        },
+        {
+          "id": "nonretryable_missing_source_has_explicit_recovery",
+          "ok": true
+        },
+        {
+          "id": "source_text_is_literal_and_labelled_as_data",
+          "ok": true
+        },
+        {
+          "id": "evidence_reader_offers_no_model_action",
+          "ok": true
+        },
+        {
+          "id": "pending_source_page_does_not_show_previous_part",
+          "ok": true
+        },
+        {
+          "id": "new_candidate_revision_discards_late_old_source",
+          "ok": true
+        },
+        {
+          "id": "read_targets_exact_current_evidence_revision",
+          "ok": true
+        },
+        {
+          "id": "last_bounded_part_has_no_more_control",
+          "ok": true
+        },
+        {
+          "id": "hidden_source_is_cleared_with_explicit_reread",
+          "ok": true
+        },
+        {
+          "id": "evidence_reads_never_mutate_send_or_approve",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "fixture": "e2e/candidate-paging.html",
+      "checks": [
+        {
+          "id": "first_page_offers_remaining_candidates",
+          "ok": true
+        },
+        {
+          "id": "pending_page_preserves_rows_and_blocks_writes",
+          "ok": true
+        },
+        {
+          "id": "stale_cursor_retains_observation_without_empty_claim",
+          "ok": true
+        },
+        {
+          "id": "stale_cursor_requires_refresh_before_writes",
+          "ok": true
+        },
+        {
+          "id": "failed_first_page_refresh_keeps_drafts",
+          "ok": true
+        },
+        {
+          "id": "refresh_restarts_without_appending_old_rows",
+          "ok": true
+        },
+        {
+          "id": "successful_refresh_preserves_both_unsent_drafts",
+          "ok": true
+        },
+        {
+          "id": "last_page_appends_without_duplicate_candidates",
+          "ok": true
+        },
+        {
+          "id": "last_page_keeps_keyboard_focus_in_inbox",
+          "ok": true
+        },
+        {
+          "id": "settled_read_respects_focus_moved_to_draft",
+          "ok": true
+        },
+        {
+          "id": "pagination_starts_no_review_or_remember",
+          "ok": true
+        },
+        {
+          "id": "initial_nonretryable_read_has_explicit_recovery",
+          "ok": true
+        },
+        {
+          "id": "explicit_read_recovers_initial_failure",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

@@ -66,6 +66,10 @@ try {
   check("last_page_appends_without_duplicate_candidates", new Set([...rows()].map(r => r.getAttribute("aria-label"))).size === 51 && !button("Load more candidates") && text().includes("51 shown"));
   await wait(() => document.activeElement === fixture.querySelector("#mem-center-title"));
   check("last_page_keeps_keyboard_focus_in_inbox", document.activeElement === fixture.querySelector("#mem-center-title"));
+  click("Refresh candidates"); await wait(() => rows().length === 50 && !button("Refresh candidates")!.disabled);
+  releasePage = null; click("Load more candidates"); await wait(() => releasePage != null);
+  fixture.querySelector<HTMLTextAreaElement>("#mem-remember")!.focus(); releasePending(); await wait(() => rows().length === 51); await sleep(30);
+  check("settled_read_respects_focus_moved_to_draft", document.activeElement === fixture.querySelector("#mem-remember"));
   check("pagination_starts_no_review_or_remember", calls.every(c => ["candidate_list", "workspace_status"].includes(c.command)));
 
   root.unmount(); root = createRoot(fixture); initialFailure = true; render(); await wait(() => !!fixture.querySelector('[role="alert"]'));

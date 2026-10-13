@@ -9,6 +9,7 @@ import { call, pick, type J, type Picked } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ComponentList, StatusPending, VaultConnect, useStatus } from "./status";
 import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./ui";
+import { CandidateSource } from "./CandidateSource";
 
 type Collection = "inbox" | "current" | "history" | "import" | "vault";
 
@@ -305,7 +306,9 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   }, [readPage, reads.run]);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
-    if (reads.busy) return;
+    // A preceding render's effect may run after another read has started.
+    // Keep its pending focus target until that actual read settles.
+    if (reads.busy || reads.pending.current) return;
     const trigger = focusAfterRefresh.current;
     const restoreReadFocus = trigger && (document.activeElement === document.body || document.activeElement === trigger);
     if (focusAfterCommit.current || (restoreReadFocus && !trigger.isConnected)) {
@@ -353,9 +356,11 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
               <textarea id={`mem-e-${c.candidateId}`} className="mem-textarea" value={draft}
                 onChange={(e) => setEdits({ ...edits, [c.candidateId]: e.target.value })} />
               <p className="mem-muted">
-                Evidence: {c.evidence.map((e: J) => `${shortId(e.sourceId)} r${e.sourceRevision}`).join(", ")}
+                {c.evidence.length} evidence reference{c.evidence.length === 1 ? "" : "s"}
                 {c.conflicts.length > 0 && <span className="mem-warn"> · {c.conflicts.length} conflict{c.conflicts.length === 1 ? "" : "s"}</span>}
               </p>
+              <ul className="mem-list">{c.evidence.map((e: J, i: number) => <CandidateSource
+                key={`${c.revision}:${e.sourceId}:${e.sourceRevision}:${i}`} evidence={e} readPage={readPage} />)}</ul>
               <div className="mem-actions">
                 <button type="button" className="mem-button mem-primary" disabled={action.busy || reads.busy || !!reads.error}
                   onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? "Accept with edits…" : "Accept…"}</button>
