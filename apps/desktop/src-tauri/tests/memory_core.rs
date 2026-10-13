@@ -620,6 +620,30 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
     let record = &detail["record"];
     strings(record, &["memory_id", "content", "approved_at"], "record");
     assert!(record["revision"].is_number() && record["supersedes"].is_array());
+    let conflicting = page.ok(
+        "remember",
+        json!({"text": "Synthetic owner prefers digital tablets for sketching.", "claimKey": "preference.sketching"}),
+    );
+    let pending_conflicts = page.ok("candidate_list", json!({"cursor": null, "limit": 50}));
+    let conflict_candidate = pending_conflicts["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["candidateId"] == conflicting["candidateId"])
+        .unwrap();
+    let references = conflict_candidate["conflicts"].as_array().unwrap();
+    assert_eq!(references.len(), 1);
+    let reference = &references[0];
+    assert_eq!(reference["memory_id"], memory_id);
+    assert_eq!(reference["revision"], record["revision"]);
+    assert!(reference.get("conflict_group_id").is_some());
+    let conflict_observation = page.ok("memory_read", json!({"memoryId": reference["memory_id"]}));
+    assert_eq!(conflict_observation["record"]["content"], record["content"]);
+    assert_eq!(
+        conflict_observation["record"]["revision"],
+        reference["revision"]
+    );
+    page.decide(conflict_candidate, "reject", None);
     strings(&detail["summary"], &["type", "status"], "summary");
     assert!(detail["supersededBy"].is_array());
     let evidence = &detail["evidence"][0];

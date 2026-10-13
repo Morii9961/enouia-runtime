@@ -10,6 +10,7 @@ import { useAction, useLatestRead } from "./hooks";
 import { ComponentList, StatusPending, VaultConnect, useStatus } from "./status";
 import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./ui";
 import { CandidateSource } from "./CandidateSource";
+import { CandidateConflict } from "./CandidateConflict";
 
 type Collection = "inbox" | "current" | "history" | "import" | "vault";
 
@@ -362,6 +363,12 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
               </p>
               <ul className="mem-list">{c.evidence.map((e: J, i: number) => <CandidateSource
                 key={`${c.revision}:${e.sourceId}:${e.sourceRevision}:${i}`} evidence={e} readPage={readPage} />)}</ul>
+              {c.conflicts.length > 0 && <div className="mem-stack">
+                <h3 className="mem-h3">Reported conflicts</h3>
+                <p className="mem-muted">Read the current saved records before deciding. Reading does not merge, approve or resolve a conflict.</p>
+                <ul className="mem-list">{c.conflicts.map((conflict: J, i: number) => <CandidateConflict
+                  key={`${c.revision}:${conflict.memory_id}:${conflict.revision}:${i}`} conflict={conflict} readPage={readPage} />)}</ul>
+              </div>}
               <div className="mem-actions">
                 <button type="button" className="mem-button mem-primary" disabled={action.busy || reads.busy || !!reads.error}
                   onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? "Accept with edits…" : "Accept…"}</button>

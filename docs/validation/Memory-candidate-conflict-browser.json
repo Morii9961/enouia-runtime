@@ -1,0 +1,43 @@
+{
+  "baseline": "9e815b3",
+  "fixture": "e2e/candidate-conflict.html",
+  "passed": true,
+  "checks": [
+    {
+      "id": "conflict_ref_is_shown_without_inventing_current_record",
+      "ok": true
+    },
+    {
+      "id": "failed_read_keeps_reported_conflict_and_recovery",
+      "ok": true
+    },
+    {
+      "id": "current_revision_is_distinct_from_reported_revision",
+      "ok": true
+    },
+    {
+      "id": "current_status_and_text_stay_literal",
+      "ok": true
+    },
+    {
+      "id": "pending_read_clears_previous_current_observation",
+      "ok": true
+    },
+    {
+      "id": "hidden_reader_rejects_late_reply",
+      "ok": true
+    },
+    {
+      "id": "revised_candidate_discards_old_conflict_read",
+      "ok": true
+    },
+    {
+      "id": "conflict_reads_target_only_referenced_memory",
+      "ok": true
+    },
+    {
+      "id": "comparison_does_not_merge_approve_or_send",
+      "ok": true
+    }
+  ]
+}
