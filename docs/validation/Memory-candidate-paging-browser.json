@@ -1,0 +1,55 @@
+{
+  "fixture": "e2e/candidate-paging.html",
+  "baseline": "6e14fd7",
+  "passed": true,
+  "checks": [
+    {
+      "id": "first_page_offers_remaining_candidates",
+      "ok": true
+    },
+    {
+      "id": "pending_page_preserves_rows_and_blocks_writes",
+      "ok": true
+    },
+    {
+      "id": "stale_cursor_retains_observation_without_empty_claim",
+      "ok": true
+    },
+    {
+      "id": "stale_cursor_requires_refresh_before_writes",
+      "ok": true
+    },
+    {
+      "id": "failed_first_page_refresh_keeps_drafts",
+      "ok": true
+    },
+    {
+      "id": "refresh_restarts_without_appending_old_rows",
+      "ok": true
+    },
+    {
+      "id": "successful_refresh_preserves_both_unsent_drafts",
+      "ok": true
+    },
+    {
+      "id": "last_page_appends_without_duplicate_candidates",
+      "ok": true
+    },
+    {
+      "id": "last_page_keeps_keyboard_focus_in_inbox",
+      "ok": true
+    },
+    {
+      "id": "pagination_starts_no_review_or_remember",
+      "ok": true
+    },
+    {
+      "id": "initial_nonretryable_read_has_explicit_recovery",
+      "ok": true
+    },
+    {
+      "id": "explicit_read_recovers_initial_failure",
+      "ok": true
+    }
+  ]
+}

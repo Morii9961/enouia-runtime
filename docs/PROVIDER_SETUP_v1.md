@@ -43,7 +43,7 @@ Sessions 的 External provider 面板提供 **Model setup steps** 和 **Reload s
 
 来源建议的 **Model for suggestions** 可选择已加载的 Provider 与模型。选定模型需有允许 extraction 的授权；单纯的对话授权不够。选择本身不发送内容。请求准备后，这次流程的模型会固定；如需换模型，先关闭已结束的流程，再重新准备。
 
-建议预览里的原提案、候选记录和审核状态，不等于正式记忆当前内容。审核时可以编辑内容；已批准记忆的实际内容请在 **Memory Vault** 查看。来源页面的队列如果暂停，先选择 **Resume local queue** 并读取保存结果，再单独选择入队；恢复本身不会发送模型请求或添加建议。
+建议预览里的原提案、候选记录和审核状态，不等于正式记忆当前内容。审核时可以编辑内容；已批准记忆的实际内容请在 **Memory Vault** 查看。候选收件箱先显示 50 条，选择 **Load more candidates** 继续读取；读取失败或列表已变化时，用 **Refresh candidates** 重新读取后再审核，未提交的编辑会保留。来源页面的队列如果暂停，先选择 **Resume local queue** 并读取保存结果，再单独选择入队；恢复本身不会发送模型请求或添加建议。
 
 离开来源页后，可在 **Sessions → Saved source suggestions** 找到会话中保存的建议任务，选择 **Read saved suggestions** 查看原建议和候选状态。关闭 Provider 后仍可读取。读取本身不会重新调用模型、加入审核队列或批准记忆；失败时用 **Read saved suggestions again** 恢复读取。
 

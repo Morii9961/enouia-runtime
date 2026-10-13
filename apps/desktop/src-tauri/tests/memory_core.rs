@@ -472,6 +472,64 @@ fn status_and_vault_lifecycle_fields_the_surfaces_render() {
 }
 
 #[test]
+fn candidate_pages_are_bounded_and_require_a_fresh_cursor_after_a_commit() {
+    let page = Page::new("candidate-pages");
+    for n in 0..3 {
+        page.ok(
+            "remember",
+            json!({"text": format!("Synthetic candidate paging statement {n}."), "claimKey": format!("fixture.paging.{n}")}),
+        );
+    }
+    let first = page.ok("candidate_list", json!({"cursor": null, "limit": 2}));
+    assert_eq!(first["items"].as_array().unwrap().len(), 2);
+    assert_eq!(first["total"], 3);
+    assert!(first["nextCursor"].is_string());
+    let last = page.ok(
+        "candidate_list",
+        json!({"cursor": first["nextCursor"], "limit": 2}),
+    );
+    assert_eq!(last["items"].as_array().unwrap().len(), 1);
+    assert_eq!(last["nextCursor"], Value::Null);
+    let mut ids: Vec<&str> = first["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .chain(last["items"].as_array().unwrap())
+        .map(|c| c["candidateId"].as_str().unwrap())
+        .collect();
+    ids.sort_unstable();
+    ids.dedup();
+    assert_eq!(ids.len(), 3);
+
+    page.ok(
+        "remember",
+        json!({"text": "Synthetic newer candidate changes the canonical head.", "claimKey": "fixture.paging.newer"}),
+    );
+    let stale = page.err(
+        "candidate_list",
+        json!({"cursor": first["nextCursor"], "limit": 2}),
+    );
+    assert_eq!(stale["code"], "revision_conflict");
+    assert!(
+        stale["rules"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|rule| rule == "workspace.cursor_stale")
+    );
+    let fresh = page.ok("candidate_list", json!({"cursor": null, "limit": 2}));
+    assert_eq!(fresh["total"], 4);
+    assert_ne!(fresh["nextCursor"], first["nextCursor"]);
+    assert_eq!(
+        page.ok(
+            "memory_list",
+            json!({"includeInactive": false, "cursor": null, "limit": 25})
+        )["total"],
+        0,
+    );
+}
+
+#[test]
 fn review_explorer_and_source_fields_the_memory_surface_renders() {
     let page = Page::new("memory");
     let proposed = page.ok(

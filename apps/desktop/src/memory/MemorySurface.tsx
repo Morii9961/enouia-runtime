@@ -284,6 +284,8 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const { refresh } = useStatus();
   const [items, setItems] = useState<J[]>([]);
   const [total, setTotal] = useState<number | null>(null);
+  const [next, setNext] = useState<string | null>(null);
+  const [readingMore, setReadingMore] = useState(false);
   const [plan, setPlan] = useState<J>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
@@ -293,21 +295,32 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const planTrigger = useRef<HTMLElement | null>(null);
   const action = useAction();
   const reads = useLatestRead();
-  const load = useCallback(() => reads.run(() => readPage("candidate_list", { cursor: null, limit: 50 }), (page) => {
-    setItems(page.items);
-    setTotal(page.total);
-  }), [readPage, reads.run]);
+  const load = useCallback((cursor: string | null = null) => {
+    setReadingMore(cursor != null);
+    return reads.run(() => readPage("candidate_list", { cursor, limit: 50 }), (page) => {
+      setItems(previous => cursor ? [...previous, ...page.items] : page.items);
+      setNext(page.nextCursor);
+      setTotal(page.total);
+    });
+  }, [readPage, reads.run]);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
     if (reads.busy) return;
-    if (focusAfterCommit.current || (focusAfterRefresh.current && !focusAfterRefresh.current.isConnected)) {
+    const trigger = focusAfterRefresh.current;
+    const restoreReadFocus = trigger && (document.activeElement === document.body || document.activeElement === trigger);
+    if (focusAfterCommit.current || (restoreReadFocus && !trigger.isConnected)) {
       document.getElementById("mem-center-title")?.focus();
-    } else focusAfterRefresh.current?.focus();
+    } else if (restoreReadFocus) trigger.focus();
     focusAfterCommit.current = false;
     focusAfterRefresh.current = null;
   }, [items, reads.busy]);
+  const observe = (cursor: string | null) => {
+    if (action.busy || plan || reads.pending.current || (cursor && reads.error)) return;
+    focusAfterRefresh.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    void load(cursor);
+  };
   const decide = (c: J, act: string) => {
-    if (action.busy || reads.pending.current) return;
+    if (action.busy || reads.pending.current || reads.error) return;
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async () =>
       setPlan(await readPage("review_plan", { decisions: [{
@@ -318,11 +331,14 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   };
   return (
     <>
-      <Center title={TITLES.inbox} count={reads.error ? "Candidates unavailable" : total == null ? "Waiting for candidates" : `${total} waiting`}
+      <Center title={TITLES.inbox} count={reads.error ? "Candidates unavailable" : total == null ? "Waiting for candidates" : `${total} waiting · ${items.length} shown`}
         busy={action.busy || reads.busy || (total == null && !reads.error)}>
+        <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan}
+          onClick={() => observe(null)}>Refresh candidates</button></div>
         <ErrorBox error={action.error} />
         <ErrorBox error={reads.error} />
-        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : "Refreshing candidates…"}</p>}
+        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : readingMore ? "Reading more candidates…" : "Refreshing candidates…"}</p>}
+        {reads.error && items.length > 0 && <p role="status" className="mem-muted mem-pad">Previous candidate observation. Refresh candidates before reviewing or saving another candidate. Unsent edits are kept.</p>}
         {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
         {items.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
@@ -341,18 +357,20 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 {c.conflicts.length > 0 && <span className="mem-warn"> · {c.conflicts.length} conflict{c.conflicts.length === 1 ? "" : "s"}</span>}
               </p>
               <div className="mem-actions">
-                <button type="button" className="mem-button mem-primary" disabled={action.busy || reads.busy}
+                <button type="button" className="mem-button mem-primary" disabled={action.busy || reads.busy || !!reads.error}
                   onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? "Accept with edits…" : "Accept…"}</button>
-                <button type="button" className="mem-button" disabled={action.busy || reads.busy} onClick={() => decide(c, "reject")}>Reject…</button>
+                <button type="button" className="mem-button" disabled={action.busy || reads.busy || !!reads.error} onClick={() => decide(c, "reject")}>Reject…</button>
               </div>
             </article>
           );
         })}
+        {next && <div className="mem-pad"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan || !!reads.error}
+          onClick={() => observe(next)}>Load more candidates</button></div>}
       </Center>
       <Inspector>
         <form className="mem-stack" onSubmit={(e) => {
           e.preventDefault();
-          if (action.busy || reads.pending.current || !text.trim() || !claim.trim()) return;
+          if (action.busy || reads.pending.current || reads.error || !text.trim() || !claim.trim()) return;
           void action.run(async (key) => {
             await readPage("remember", { text, claimKey: claim }, key);
             setText((current) => current === text ? "" : current);
@@ -368,7 +386,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
           <label className="mem-label" htmlFor="mem-claim">Topic key</label>
           <input id="mem-claim" className="mem-input" value={claim} onChange={(e) => setClaim(e.target.value)} placeholder="for example preference.reading" autoComplete="off" />
           <div className="mem-actions">
-            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || action.busy || reads.busy}>Save as candidate</button>
+            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || action.busy || reads.busy || !!reads.error}>Save as candidate</button>
           </div>
         </form>
       </Inspector>
