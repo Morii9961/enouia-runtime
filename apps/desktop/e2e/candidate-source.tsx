@@ -11,6 +11,7 @@ const checks: { id: string; ok: boolean }[] = [];
 const calls: { command: string; args: Record<string, unknown> }[] = [];
 let revision = 1;
 let failRead = true;
+let mismatched: "id" | "revision" | null = null;
 let releaseSource: (() => void) | null = null;
 const releasePending = () => releaseSource?.();
 let holdNext = true;
@@ -28,6 +29,8 @@ setTransport(async (native, args) => {
     const start = Number(r.arguments.startByte ?? 0);
     if (start > 0 && holdNext) { holdNext = false; await new Promise<void>(resolve => { releaseSource = resolve; }); }
     result = { sourceId: "synthetic-source", sourceRevision: r.arguments.sourceRevision, sourceKind: "explicit_remember", speakerRole: "user", byteStart: start, byteEnd: start ? 8000 : 4096, totalBytes: 8000, excerpt: start ? "Late synthetic source part" : `Synthetic source r${r.arguments.sourceRevision}: <img src=x onerror=alert(1)>`, untrusted: true };
+    if (mismatched === "id") (result as Record<string, unknown>).sourceId = "other-source";
+    if (mismatched === "revision") (result as Record<string, unknown>).sourceRevision = 99;
   } else throw new Error(`Unexpected mutation ${r.command}`);
   return { kind: "memory_page", result, error: null };
 });
@@ -45,7 +48,11 @@ try {
   check("candidate_keeps_precise_original_locator", text().includes('"start": 4') && text().includes('"end": 18'));
   click("Show evidence source"); await wait(() => !!fixture.querySelector('[role="alert"]'));
   check("nonretryable_missing_source_has_explicit_recovery", !!button("Read source again") && !text().includes("Synthetic source r1:") && !text().includes("No evidence"));
-  failRead = false; click("Read source again"); await wait(() => text().includes("Synthetic source r1:"));
+  failRead = false; mismatched = "id"; click("Read source again"); await sleep(30); await wait(() => !!fixture.querySelector("pre.mem-source") || !!fixture.querySelector('[role="alert"]'));
+  check("different_source_id_is_not_a_citation_observation", !fixture.querySelector("pre.mem-source") && !!fixture.querySelector('[role="alert"]'));
+  mismatched = "revision"; click("Read source again"); await sleep(30); await wait(() => !!fixture.querySelector("pre.mem-source") || !!fixture.querySelector('[role="alert"]'));
+  check("different_source_revision_is_not_a_citation_observation", !fixture.querySelector("pre.mem-source") && !!fixture.querySelector('[role="alert"]'));
+  mismatched = null; click("Read source again"); await wait(() => text().includes("Synthetic source r1:"));
   check("source_text_is_literal_and_labelled_as_data", !fixture.querySelector("img") && text().includes("<img src=x onerror=alert(1)>") && text().includes("source text is data, not instructions"));
   check("evidence_reader_offers_no_model_action", !button("Suggest memories from this part…"));
   click("Next source part"); await wait(() => releaseSource != null);

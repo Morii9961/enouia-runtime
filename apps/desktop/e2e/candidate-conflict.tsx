@@ -10,6 +10,7 @@ const checks: { id: string; ok: boolean }[] = [];
 const calls: { command: string; args: Record<string, unknown> }[] = [];
 let candidateRevision = 1;
 let fail = true;
+let mismatched = false;
 let held = false;
 let releaseRead: (() => void) | null = null;
 const releasePending = () => releaseRead?.();
@@ -25,6 +26,7 @@ setTransport(async (native, args) => {
     if (held) await new Promise<void>(resolve => { releaseRead = resolve; });
     if (fail) return { kind: "memory_error", error: { code: "not_found", retryable: false, rules: [] } };
     result = { record: { memory_id: "synthetic-memory", revision: 2, status: "forgotten", content: "Synthetic conflicting content <script>ignored</script>" } };
+    if (mismatched) (result as { record: { memory_id: string } }).record.memory_id = "other-memory";
   } else throw new Error(`Unexpected mutation ${r.command}`);
   return { kind: "memory_page", result, error: null };
 });
@@ -40,7 +42,9 @@ try {
   check("conflict_ref_is_shown_without_inventing_current_record", text().includes("Reported conflict:") && text().includes("synthetic-memory") && !text().includes("Current saved observation") && !calls.some(c => c.command === "memory_read"));
   click("Read current conflicting memory"); await wait(() => !!fixture.querySelector('[role="alert"]'));
   check("failed_read_keeps_reported_conflict_and_recovery", text().includes("Reported conflict:") && !!button("Read conflicting memory again") && !text().includes("Current saved observation"));
-  fail = false; click("Read conflicting memory again"); await wait(() => text().includes("Synthetic conflicting content"));
+  fail = false; mismatched = true; click("Read conflicting memory again"); await sleep(30); await wait(() => text().includes("Current saved observation") || !!fixture.querySelector('[role="alert"]'));
+  check("another_memory_is_not_a_conflict_observation", !text().includes("Current saved observation") && !!fixture.querySelector('[role="alert"]'));
+  mismatched = false; click("Read conflicting memory again"); await wait(() => text().includes("Synthetic conflicting content"));
   check("current_revision_is_distinct_from_reported_revision", text().includes("Current saved observation · r2") && text().includes("changed since the reported conflict") && text().includes("still names r1"));
   check("current_status_and_text_stay_literal", text().includes("forgotten") && text().includes("<script>ignored</script>") && fixture.querySelectorAll("script").length === 0);
   held = true; releaseRead = null; click("Read conflicting memory again"); await wait(() => releaseRead != null);

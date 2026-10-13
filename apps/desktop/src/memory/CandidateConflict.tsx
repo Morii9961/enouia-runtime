@@ -11,7 +11,12 @@ export function CandidateConflict({ conflict, readPage = call }: { conflict: J; 
   const read = useLatestRead();
   const observe = () => {
     setRequested(true); setRecord(null);
-    void read.run(() => readPage("memory_read", { memoryId: conflict.memory_id }), result => setRecord(result.record));
+    void read.run(async () => {
+      const result = await readPage("memory_read", { memoryId: conflict.memory_id });
+      // Current revision may differ, but this must still be the cited memory.
+      if (result?.record?.memory_id !== conflict.memory_id) throw new Error("conflict observation identity mismatch");
+      return result.record;
+    }, setRecord);
   };
   const hide = () => { read.clear(); setRequested(false); setRecord(null); };
   return <li className="mem-evidence" aria-busy={read.busy}>

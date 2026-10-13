@@ -12,9 +12,14 @@ export function CandidateSource({ evidence, readPage = call }: { evidence: J; re
   const load = (start: number | null) => {
     setRequested(true);
     setExcerpt(null);
-    void read.run(() => readPage("source_excerpt", {
-      sourceId: evidence.sourceId, sourceRevision: evidence.sourceRevision, startByte: start, maxBytes: 4096,
-    }), setExcerpt);
+    void read.run(async () => {
+      const result = await readPage("source_excerpt", {
+        sourceId: evidence.sourceId, sourceRevision: evidence.sourceRevision, startByte: start, maxBytes: 4096,
+      });
+      // An excerpt must observe the exact cited source revision.
+      if (result?.sourceId !== evidence.sourceId || result?.sourceRevision !== evidence.sourceRevision) throw new Error("source observation identity mismatch");
+      return result;
+    }, setExcerpt);
   };
   const hide = () => { read.clear(); setRequested(false); setExcerpt(null); };
   return <li className="mem-evidence" aria-busy={read.busy}>
