@@ -1,0 +1,63 @@
+{
+  "baseline": "eb80874",
+  "fixture": "e2e/context-observation.html",
+  "passed": true,
+  "checks": [
+    {
+      "id": "another_capsule_is_not_the_selected_observation",
+      "ok": true
+    },
+    {
+      "id": "another_inspection_is_not_the_selected_observation",
+      "ok": true
+    },
+    {
+      "id": "valid_saved_capsule_recovers_without_compiling",
+      "ok": true
+    },
+    {
+      "id": "wrong_request_dispatch_is_not_shown_as_verified",
+      "ok": true
+    },
+    {
+      "id": "wrong_request_capsule_is_not_shown_as_verified",
+      "ok": true
+    },
+    {
+      "id": "wrong_request_hash_is_not_shown_as_verified",
+      "ok": true
+    },
+    {
+      "id": "wrong_request_flag_is_not_shown_as_verified",
+      "ok": true
+    },
+    {
+      "id": "actual_hash_mismatch_is_reported_without_verification",
+      "ok": true
+    },
+    {
+      "id": "valid_request_recovers_with_saved_identity",
+      "ok": true
+    },
+    {
+      "id": "late_request_cannot_replace_selected_dispatch",
+      "ok": true
+    },
+    {
+      "id": "failed_capsule_refresh_drops_old_request_and_keeps_draft",
+      "ok": true
+    },
+    {
+      "id": "capsule_reread_requires_new_request_selection",
+      "ok": true
+    },
+    {
+      "id": "unknown_delivery_never_uses_inherited_labels",
+      "ok": true
+    },
+    {
+      "id": "all_recovery_is_read_only",
+      "ok": true
+    }
+  ]
+}

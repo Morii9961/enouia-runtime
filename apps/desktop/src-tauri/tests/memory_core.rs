@@ -864,6 +864,8 @@ fn session_and_context_fields_the_surfaces_render() {
     assert!(branches[0]["lastEventSeq"].is_number());
 
     let inspected = page.ok("context_inspect", json!({"capsuleId": answer["capsuleId"]}));
+    assert_eq!(inspected["capsule"]["capsule_id"], answer["capsuleId"]);
+    assert_eq!(inspected["inspection"]["capsule_id"], answer["capsuleId"]);
     assert!(["preview_not_sent", "dispatched"].contains(&inspected["delivery"].as_str().unwrap()));
     assert!(inspected["capsule"]["destination"]["kind"].is_string());
     assert!(inspected["capsule"]["budget"].is_object());
@@ -891,6 +893,9 @@ fn session_and_context_fields_the_surfaces_render() {
         json!({"dispatchId": dispatches[0]["dispatchId"]}),
     );
     assert!(request["verified"].is_boolean() && request["tools"].is_number());
+    assert_eq!(request["dispatchId"], dispatches[0]["dispatchId"]);
+    assert_eq!(request["capsuleId"], answer["capsuleId"]);
+    assert_eq!(request["requestHash"], dispatches[0]["requestHash"]);
     assert!(request["destination"]["kind"].is_string());
     for m in request["messages"].as_array().unwrap() {
         strings(m, &["role", "text"], "message");
