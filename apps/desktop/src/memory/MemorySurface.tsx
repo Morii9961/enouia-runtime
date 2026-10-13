@@ -353,6 +353,11 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
                 <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
               </div>
+              {typeof c.reason === "string" && c.reason.length > 0 && <details className="mem-stack mem-reason">
+                <summary>Saved proposal reason</summary>
+                <p className="mem-muted">A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.</p>
+                <p className="mem-content">{c.reason}</p>
+              </details>}
               {c.target && <p className="mem-old">Current fact (r{c.target.revision}): {c.target.content}</p>}
               <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">Candidate content</label>
               <textarea id={`mem-e-${c.candidateId}`} className="mem-textarea" value={draft}

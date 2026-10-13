@@ -623,6 +623,7 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
             "content",
             "proposalKind",
             "proposedType",
+            "reason",
             "sensitivity",
             "originKind",
             "createdAt",

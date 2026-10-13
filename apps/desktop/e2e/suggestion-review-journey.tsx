@@ -16,7 +16,7 @@ let releaseConfirm: (() => void) | null = null;
 const releasePending = () => releaseConfirm?.();
 const original = "Synthetic source proposal";
 const citation = { sourceId: "synthetic-source", sourceRevision: 1, supports: "content", locator: { kind: "manual_input" } };
-const candidate = () => ({ candidateId: "synthetic-candidate", revision: accepted ? 2 : 1, status: accepted ? "accepted" : "pending", content: original, proposalKind: "create", proposedType: "fact", sensitivity: "normal", originKind: "extraction", createdAt: "2026-10-13T00:00:00Z", evidence: [citation], conflicts: [], target: null });
+const candidate = () => ({ candidateId: "synthetic-candidate", revision: accepted ? 2 : 1, status: accepted ? "accepted" : "pending", content: original, reason: "Synthetic saved explanation <img src=x onerror=alert(1)>", proposalKind: "create", proposedType: "fact", sensitivity: "normal", originKind: "extraction", createdAt: "2026-10-13T00:00:00Z", evidence: [citation], conflicts: [], target: null });
 const job = { run_id: "synthetic-run", input_event_id: "synthetic-input", state: "completed", cursor: 1, candidates: ["synthetic-candidate"] };
 setTransport(async (native, args) => {
   if (native === "shell_status") return { vaultChanging: false };
@@ -73,6 +73,10 @@ try {
   check("route_opens_actual_candidate_inbox_without_write", fixture.querySelector('button[aria-label="Memory"]')?.getAttribute("aria-current") === "page" && calls.slice(beforeRoute).every(c => ["candidate_list", "workspace_status", "operation_list"].includes(c.command)));
   check("inbox_identifies_candidate_and_revision", fixture.querySelector('article code[title="synthetic-candidate"]')?.textContent === "synthetic-candidate" && fixture.querySelector("article .mem-row-meta")!.textContent!.includes("r1"));
   await wait(() => document.activeElement === fixture.querySelector("#mem-center-title")); check("review_route_focuses_inbox_title", true);
+  const beforeReason = calls.length;
+  fixture.querySelector<HTMLElement>("details.mem-reason summary")!.click();
+  await wait(() => fixture.querySelector<HTMLDetailsElement>("details.mem-reason")!.open);
+  check("saved_reason_is_literal_and_opens_without_mutation", fixture.querySelector("details.mem-reason .mem-content")!.textContent === "Synthetic saved explanation <img src=x onerror=alert(1)>" && !fixture.querySelector("img") && calls.slice(beforeReason).every(c => c.command === "workspace_status"));
   click("Show evidence source"); await wait(() => !!fixture.querySelector("pre.mem-source"));
   check("candidate_source_can_be_read_before_review", fixture.querySelector("pre.mem-source")!.textContent === "Synthetic source supplied by owner" && !accepted);
   const input = fixture.querySelector<HTMLTextAreaElement>("article textarea")!;
