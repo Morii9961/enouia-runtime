@@ -16,15 +16,15 @@ import { SavedExtractionJobs } from "./SavedExtractionJobs";
 
 type Branch = { sessionId: string; branchId: string };
 
-export default function SessionsSurface({ inspect }: { inspect: (capsuleId: string) => void }) {
+export default function SessionsSurface({ inspect, reviewCandidates }: { inspect: (capsuleId: string) => void; reviewCandidates?: () => void }) {
   return (
     <VaultGate>
-      <Sessions inspect={inspect} />
+      <Sessions inspect={inspect} reviewCandidates={reviewCandidates} />
     </VaultGate>
   );
 }
 
-export function Sessions({ inspect, request = call }: { inspect: (capsuleId: string) => void; request?: typeof call }) {
+export function Sessions({ inspect, reviewCandidates, request = call }: { inspect: (capsuleId: string) => void; reviewCandidates?: () => void; request?: typeof call }) {
   const [sessions, setSessions] = useState<J[] | null>(null);
   const [current, setCurrent] = useState<Branch | null>(null);
   const [requested, setRequested] = useState<Branch | null>(null);
@@ -208,7 +208,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
                 onChanged={async () => { await open(current); await list(); }} />
               <SavedExtractionJobs key={`jobs-${branchKey(current)}`} sessionId={current.sessionId}
-                jobs={detail.extractionJobs} disabled={writesBlocked} request={request} onBusyChange={reportSuggestionBusy}
+                jobs={detail.extractionJobs} disabled={writesBlocked} request={request} onBusyChange={reportSuggestionBusy} onReview={reviewCandidates}
                 onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">
                 <h3 className="mem-h3">Checkpoints</h3>

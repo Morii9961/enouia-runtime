@@ -1,0 +1,69 @@
+{
+  "baseline": "81be992",
+  "fixture": "e2e/suggestion-review-journey.html",
+  "passed": true,
+  "checks": [
+    {
+      "id": "no_review_route_before_saved_observation",
+      "ok": true
+    },
+    {
+      "id": "observed_pending_suggestion_offers_review_route",
+      "ok": true
+    },
+    {
+      "id": "route_opens_actual_candidate_inbox_without_write",
+      "ok": true
+    },
+    {
+      "id": "inbox_identifies_candidate_and_revision",
+      "ok": true
+    },
+    {
+      "id": "review_route_focuses_inbox_title",
+      "ok": true
+    },
+    {
+      "id": "candidate_source_can_be_read_before_review",
+      "ok": true
+    },
+    {
+      "id": "edited_review_requires_separate_confirmation",
+      "ok": true
+    },
+    {
+      "id": "confirmation_holds_modal_dismissal",
+      "ok": true
+    },
+    {
+      "id": "lost_confirmation_receipt_keeps_plan",
+      "ok": true
+    },
+    {
+      "id": "confirmation_retry_keeps_identical_payload_and_key",
+      "ok": true
+    },
+    {
+      "id": "approved_content_read_is_separate_from_proposal",
+      "ok": true
+    },
+    {
+      "id": "return_discards_old_suggestion_preview",
+      "ok": true
+    },
+    {
+      "id": "saved_read_observes_updated_review_status",
+      "ok": true
+    },
+    {
+      "id": "journey_never_sends_reextracts_or_auto_applies",
+      "ok": true
+    }
+  ],
+  "related": {
+    "fixture": "e2e/saved-suggestion-apply.html",
+    "passed": 17,
+    "total": 17,
+    "savedReads": 10
+  }
+}

@@ -7,9 +7,9 @@ import { ErrorBox, Tag, shortId } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
 import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
 
-export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyChange, onChanged, request = call }: {
+export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyChange, onChanged, onReview, request = call }: {
   sessionId: string; jobs: J[] | undefined; disabled?: boolean; request?: typeof call;
-  onBusyChange?: (busy: boolean) => void; onChanged?: () => Promise<void>;
+  onBusyChange?: (busy: boolean) => void; onChanged?: () => Promise<void>; onReview?: () => void;
 }) {
   const [requested, setRequested] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<{ runId: string; preview: J; current: boolean } | null>(null);
@@ -85,6 +85,10 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
           <p className="mem-muted">This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.</p>
           <button type="button" className="mem-button" disabled={disabled || read.busy || action.busy || !loaded.current} onClick={() => changeQueue("resume")}>Resume local queue</button>
         </>}
+        {onReview && loaded?.runId === requested && loaded.preview.items.some((item: J) => item.candidate?.status === "pending") && <>
+          <p className="mem-muted">The inbox contains all pending candidates, including other suggestion runs. Match the candidate ID shown above, then read its source before reviewing.</p>
+          <button type="button" className="mem-button" disabled={disabled || read.busy || action.busy || !loaded.current}
+            onClick={() => { if (!disabled && !writing.current && !read.pending.current && loaded.current) onReview(); }}>Open candidate inbox</button></>}
         <button type="button" className="mem-button" disabled={action.busy} onClick={close}>Close saved suggestions</button>
       </div>
     </div>}

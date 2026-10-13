@@ -27,9 +27,9 @@ function dayOf(iso: string): string {
   return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function MemorySurface() {
+export default function MemorySurface({ initialCollection = "current" }: { initialCollection?: "current" | "inbox" }) {
   const { status } = useStatus();
-  const [collection, setCollection] = useState<Collection>("current");
+  const [collection, setCollection] = useState<Collection>(initialCollection);
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState({ text: "", seq: 0 });
   const open = status?.vault?.state === "open";
@@ -348,6 +348,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
           return (
             <article key={c.candidateId} className="mem-candidate" aria-label={`Candidate ${c.candidateId}`}>
               <div className="mem-row-meta">
+                <code title={c.candidateId}>{shortId(c.candidateId)}</code><span>r{c.revision}</span>
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
                 <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
               </div>

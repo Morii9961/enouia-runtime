@@ -14,6 +14,7 @@ const releasePending=()=>releaseApply?.();
 let held=new Set<string>();
 let lostReceipt=false;
 let failDetail=false;
+let reviewRoutes=0;
 const job=(run_id:string)=>({run_id,input_event_id:`input-${run_id}`,state:cursors.get(run_id)===2?"completed":"running",cursor:cursors.get(run_id),candidates:[]});
 const preview=(run:string)=>({job:job(run),items:[0,1].map(n=>({responseIndex:n,proposedType:"fact",content:`Saved ${run} suggestion ${n}`,quote:"Synthetic quote",selectedText:"Synthetic source",application:n<(cursors.get(run)??0)?"candidate_recorded":"awaiting_cursor",candidate:n<(cursors.get(run)??0)?{candidateId:`candidate-${run}-${n}`,revision:1,status:"pending",content:`Saved ${run} suggestion ${n}`}:null}))});
 setTransport(async(native,args)=>{
@@ -44,7 +45,7 @@ setTransport(async(native,args)=>{
   }
   return {kind:"memory_page",result,error:null};
 });
-const root=createRoot(fixture);root.render(<Sessions inspect={()=>{}}/>);
+const root=createRoot(fixture);root.render(<Sessions inspect={()=>{}} reviewCandidates={()=>{reviewRoutes++;}}/>);
 const pane=()=>fixture.querySelector<HTMLElement>('[aria-label="Saved source suggestions"]');
 const text=()=>pane()?.textContent??"";
 const session=(id:string)=>fixture.querySelector<HTMLButtonElement>(`button[title="${id} · branch-${id==="session-one"?0:1}"]`);
@@ -61,20 +62,24 @@ try{
   click("Add remaining suggestions to the review queue",pane()!);await wait(()=>releaseApply!=null);await sleep(50);
   check("admitted_application_keeps_session_owner",session("session-two")!.disabled&&button("New session")!.disabled&&fixture.querySelector<HTMLTextAreaElement>("textarea")!.disabled);
   check("admitted_application_keeps_job_and_close",readJob("job-two")!.disabled&&button("Close saved suggestions",pane()!)!.disabled);
+  check("admitted_application_blocks_review_route",button("Open candidate inbox",pane()!)?.disabled===true&&reviewRoutes===0);
   session("session-two")!.click();fixture.querySelector("form")!.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true}));
   check("blocked_controls_start_no_other_write",!calls.some(c=>c.command==="session_ask"||c.command==="session_new"||c.command==="session_detail"&&c.args.sessionId==="session-two"));
   releasePending();await wait(()=>!!pane()!.querySelector('[role="alert"]'));
   check("lost_receipt_requires_saved_read",!button("Retry",pane()!)&&text().includes("Previous suggestion observation")&&button("Add remaining suggestions to the review queue",pane()!)?.disabled===true);
   check("lost_receipt_does_not_claim_second_candidate",[...pane()!.querySelectorAll(".mem-tag")].filter(t=>t.textContent==="pending").length===1);
+  check("ambiguous_queue_requires_read_before_review_route",button("Open candidate inbox",pane()!)?.disabled===true);
   const written=calls.filter(c=>c.command==="extraction_apply").length;
   click("Read saved suggestions again",pane()!);await wait(()=>!button("Add remaining suggestions to the review queue",pane()!));
   check("reobservation_reads_completion_without_replay",calls.filter(c=>c.command==="extraction_apply").length===written&&[...pane()!.querySelectorAll(".mem-tag")].filter(t=>t.textContent==="pending").length===2);
+  click("Open candidate inbox",pane()!);check("observed_queue_allows_only_explicit_review_navigation",reviewRoutes===1&&calls.filter(c=>c.command==="extraction_apply").length===written);
 
   readJob("job-two")!.click();await wait(()=>text().includes("Saved job-two suggestion 0"));
   releaseApply=null;click("Add remaining suggestions to the review queue",pane()!);await wait(()=>releaseApply!=null);failDetail=true;releasePending();
   await wait(()=>!!button("Read session again"));
   check("successful_batch_observes_original_session",calls.filter(c=>c.command==="session_detail").every(c=>c.args.sessionId==="session-one"));
   check("parent_read_failure_blocks_new_writes",button("New session")!.disabled&&button("Send")!.disabled);
+  check("unobserved_parent_blocks_review_route",button("Open candidate inbox",pane()!)?.disabled===true);
   check("saved_batch_completes_with_one_call_per_remaining_step",calls.filter(c=>c.command==="extraction_apply"&&c.args.runId==="job-two").length===2&&[...pane()!.querySelectorAll(".mem-tag")].filter(t=>t.textContent==="pending").length===2);
   failDetail=false;click("Read session again");await wait(()=>!session("session-two")!.disabled&&!button("New session")!.disabled);
   check("parent_read_recovery_keeps_saved_result",text().includes("Saved job-two suggestion 1")&&!button("Add remaining suggestions to the review queue",pane()!));
