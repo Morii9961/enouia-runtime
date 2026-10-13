@@ -337,8 +337,41 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
         page.err("extraction_apply", job.clone())["code"],
         "cancelled"
     );
-    let resume =
-        json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"], "paused":false});
+    page.reopen();
+    let paused_sessions = page.ok("session_list", json!({}));
+    let paused_session = paused_sessions["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["sessionId"] == prepared["sessionId"])
+        .unwrap();
+    let paused_detail = page.ok(
+        "session_detail",
+        json!({"sessionId":paused_session["sessionId"], "branchId":paused_session["branches"][0]["branchId"]}),
+    );
+    let paused_job = &paused_detail["extractionJobs"][0];
+    assert_eq!(paused_job["run_id"], prepared["runId"]);
+    assert_eq!(paused_job["state"], "paused");
+    assert_eq!(paused_job["cursor"], 1);
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
+    let paused_preview = page.ok(
+        "extraction_preview",
+        json!({"sessionId":paused_session["sessionId"], "runId":paused_job["run_id"]}),
+    );
+    assert_eq!(paused_preview["items"], partial["items"]);
+    assert_eq!(paused_preview["job"]["state"], "paused");
+    assert_eq!(paused_preview["job"]["cursor"], 1);
+    let recovered_partial_job =
+        json!({"sessionId":paused_session["sessionId"], "runId":paused_job["run_id"]});
+    assert_eq!(
+        page.err("extraction_apply", recovered_partial_job.clone())["code"],
+        "cancelled"
+    );
+    assert_eq!(
+        page.ok("extraction_preview", recovered_partial_job)["job"]["cursor"],
+        1
+    );
+    let resume = json!({"sessionId":paused_session["sessionId"], "runId":paused_job["run_id"], "paused":false});
     assert_eq!(page.ok("extraction_pause", resume)["job"]["state"], "ready");
     assert_eq!(
         page.ok("extraction_preview", job.clone())["job"]["cursor"],
