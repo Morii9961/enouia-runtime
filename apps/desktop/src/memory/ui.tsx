@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { ExtractionPanel } from "./ExtractionPanel";
 import { CallError, call, describe, newKey, type J } from "./client";
 import { useAction, useLatestRead, type Failure } from "./hooks";
+import { sourceObservation } from "./observationIdentity";
 
 /** A short local timestamp for a Core ISO time; the raw value on failure. */
 export function when(iso: string | null | undefined): string {
@@ -249,7 +250,7 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
     const sourceId = evidence.sourceId;
     const revision = evidence.sourceRevision;
     setLoaded(null);
-    void action.run(() => readPage("source_excerpt", { sourceId, sourceRevision: revision, startByte: start, maxBytes: 4096 }),
+    void action.run(async () => sourceObservation(await readPage("source_excerpt", { sourceId, sourceRevision: revision, startByte: start, maxBytes: 4096 }), sourceId, revision),
       (page) => setLoaded({ sourceId, revision, page }));
   };
   return (

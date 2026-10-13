@@ -4,6 +4,7 @@ import { useState } from "react";
 import { call, type J } from "./client";
 import { useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
+import { memoryObservation } from "./observationIdentity";
 
 export function CandidateConflict({ conflict, readPage = call }: { conflict: J; readPage?: typeof call }) {
   const [requested, setRequested] = useState(false);
@@ -14,8 +15,7 @@ export function CandidateConflict({ conflict, readPage = call }: { conflict: J; 
     void read.run(async () => {
       const result = await readPage("memory_read", { memoryId: conflict.memory_id });
       // Current revision may differ, but this must still be the cited memory.
-      if (result?.record?.memory_id !== conflict.memory_id) throw new Error("conflict observation identity mismatch");
-      return result.record;
+      return memoryObservation(result, conflict.memory_id).record;
     }, setRecord);
   };
   const hide = () => { read.clear(); setRequested(false); setRecord(null); };

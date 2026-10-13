@@ -4,6 +4,7 @@ import { useState } from "react";
 import { call, type J } from "./client";
 import { useLatestRead } from "./hooks";
 import { ErrorBox, shortId } from "./ui";
+import { sourceObservation } from "./observationIdentity";
 
 export function CandidateSource({ evidence, readPage = call }: { evidence: J; readPage?: typeof call }) {
   const [requested, setRequested] = useState(false);
@@ -17,8 +18,7 @@ export function CandidateSource({ evidence, readPage = call }: { evidence: J; re
         sourceId: evidence.sourceId, sourceRevision: evidence.sourceRevision, startByte: start, maxBytes: 4096,
       });
       // An excerpt must observe the exact cited source revision.
-      if (result?.sourceId !== evidence.sourceId || result?.sourceRevision !== evidence.sourceRevision) throw new Error("source observation identity mismatch");
-      return result;
+      return sourceObservation(result, evidence.sourceId, evidence.sourceRevision);
     }, setExcerpt);
   };
   const hide = () => { read.clear(); setRequested(false); setExcerpt(null); };

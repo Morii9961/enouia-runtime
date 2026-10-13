@@ -19,7 +19,7 @@ setTransport(async(native,args)=>{
   calls.push({command:r.command,args:r.arguments});
   let result:unknown;
   switch(r.command){
-    case "source_excerpt":{const start=Number(r.arguments.startByte??0);result={sourceKind:"message",speakerRole:"user",byteStart:start,byteEnd:start+20,totalBytes:60,excerpt:`Synthetic source ${start}`};break;}
+    case "source_excerpt":{const start=Number(r.arguments.startByte??0);result={sourceId:r.arguments.sourceId,sourceRevision:r.arguments.sourceRevision,sourceKind:"message",speakerRole:"user",byteStart:start,byteEnd:start+20,totalBytes:60,excerpt:`Synthetic source ${start}`};break;}
     case "provider_status":result={configured:true,destinations:[{api:"openai",model:"synthetic-model"}],grants:[{active:true,policyId:"synthetic-policy",purposes:["extraction"],destinations:[{provider:"openai",model:"synthetic-model"}]}]};break;
     case "extraction_prepare":
       if(heldPrepare)await new Promise<void>(resolve=>{releasePrepare=resolve;});

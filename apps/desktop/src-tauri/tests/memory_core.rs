@@ -694,6 +694,8 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
     let detail = page.ok("memory_read", json!({"memoryId": memory_id}));
     let record = &detail["record"];
     strings(record, &["memory_id", "content", "approved_at"], "record");
+    assert_eq!(detail["summary"]["memoryId"], memory_id);
+    assert_eq!(record["memory_id"], memory_id);
     assert!(record["revision"].is_number() && record["supersedes"].is_array());
     let conflicting = page.ok(
         "remember",

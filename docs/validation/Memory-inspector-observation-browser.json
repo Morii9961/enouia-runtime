@@ -1,0 +1,49 @@
+{
+  "baseline": "7d7b31c",
+  "fixture": "e2e/memory-inspector-identity.html",
+  "passed": true,
+  "checks": [
+    {
+      "id": "wrong_memory_record_is_not_shown_or_writable",
+      "ok": true
+    },
+    {
+      "id": "wrong_memory_summary_is_not_shown_or_writable",
+      "ok": true
+    },
+    {
+      "id": "valid_memory_can_be_reobserved",
+      "ok": true
+    },
+    {
+      "id": "failed_reread_withholds_unobserved_write_controls",
+      "ok": true
+    },
+    {
+      "id": "successful_reread_preserves_unsent_correction",
+      "ok": true
+    },
+    {
+      "id": "wrong_source_id_is_not_shown_or_extractable",
+      "ok": true
+    },
+    {
+      "id": "wrong_source_revision_is_not_shown_or_extractable",
+      "ok": true
+    },
+    {
+      "id": "correct_source_read_recovers_existing_workflow",
+      "ok": true
+    },
+    {
+      "id": "observation_recovery_starts_no_mutation",
+      "ok": true
+    }
+  ],
+  "related": {
+    "candidateSource": 14,
+    "candidateConflict": 10,
+    "sourceSuggestions": 12,
+    "reviewJourney": 15
+  }
+}

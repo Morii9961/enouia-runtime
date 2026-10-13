@@ -11,6 +11,7 @@ import { ComponentList, StatusPending, VaultConnect, useStatus } from "./status"
 import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./ui";
 import { CandidateSource } from "./CandidateSource";
 import { CandidateConflict } from "./CandidateConflict";
+import { memoryObservation } from "./observationIdentity";
 
 type Collection = "inbox" | "current" | "history" | "import" | "vault";
 
@@ -208,9 +209,14 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
   const [note, setNote] = useState("");
   const planTrigger = useRef<HTMLElement | null>(null);
   const action = useAction();
-  const load = useCallback(() => void action.run(async () => setDetail(await readPage("memory_read", { memoryId: id }))), [id, readPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  const reads = useLatestRead();
+  const load = useCallback(() => {
+    setDetail(null); setImpact(null);
+    void reads.run(async () => memoryObservation(await readPage("memory_read", { memoryId: id }), id), setDetail);
+  }, [id, readPage, reads.run]);
   useEffect(load, [load]);
   const forget = (mode: "forget" | "purge") => {
+    if (action.busy || reads.pending.current || reads.error || !detail) return;
     setNote("");
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async (key) => setPlan(await readPage("forget_plan", { memoryId: id, mode, withDependents: false }, key)));
@@ -219,11 +225,18 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
     try { await navigator.clipboard.writeText(id); setNote("ID copied."); }
     catch { setNote("Could not copy. Select the ID and copy it manually."); }
   };
-  if (!detail) return <Inspector><ErrorBox error={action.error} />{action.busy && <p role="status" className="mem-muted">Reading the memory…</p>}</Inspector>;
+  const observation = <div className="mem-stack">
+    <button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) load(); }}>Read memory again</button>
+    <ErrorBox error={reads.error} />
+    {reads.busy && <p role="status" className="mem-muted">Reading the memory…</p>}
+    {reads.error && <p className="mem-muted">This saved memory could not be read. Read it again before starting another correction or deletion. Unsent correction text is kept.</p>}
+  </div>;
+  if (!detail) return <Inspector>{observation}</Inspector>;
   const r = detail.record;
   const s = detail.summary;
   return (
     <Inspector>
+      {observation}
       <div className="mem-stack">
         <div className="mem-row-meta">
           <Tag tone={s.status === "active" ? "ok" : "muted"}>{s.status}</Tag>
@@ -253,12 +266,13 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           placeholder="Write the correct content. It becomes a candidate for review; the memory itself is not rewritten." />
         <div className="mem-actions">
           <button type="button" className="mem-button" disabled={!correction.trim() || action.busy} onClick={() => void action.run(async (key) => {
+            if (reads.pending.current || reads.error) return;
             await readPage("correction_propose", { memoryId: id, revision: r.revision, text: correction }, key);
             setCorrection((current) => current === correction ? "" : current);
             setNote("Correction proposed. Review it in the candidate inbox.");
           })}>Propose correction</button>
           <button type="button" className="mem-button" disabled={action.busy}
-            onClick={() => void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false })))}>Delete impact</button>
+            onClick={() => { if (!reads.pending.current && !reads.error) void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); }}>Delete impact</button>
           <button type="button" className="mem-button" disabled={action.busy} onClick={() => forget("forget")}>Forget…</button>
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>Purge…</button>
         </div>

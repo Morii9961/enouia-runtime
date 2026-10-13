@@ -25,7 +25,7 @@ setTransport(async (native, args) => {
     if (r.arguments.memoryId !== "synthetic-memory") throw new Error("Wrong conflict owner");
     if (held) await new Promise<void>(resolve => { releaseRead = resolve; });
     if (fail) return { kind: "memory_error", error: { code: "not_found", retryable: false, rules: [] } };
-    result = { record: { memory_id: "synthetic-memory", revision: 2, status: "forgotten", content: "Synthetic conflicting content <script>ignored</script>" } };
+    result = { record: { memory_id: "synthetic-memory", revision: 2, status: "forgotten", content: "Synthetic conflicting content <script>ignored</script>" }, summary: { memoryId: "synthetic-memory" } };
     if (mismatched) (result as { record: { memory_id: string } }).record.memory_id = "other-memory";
   } else throw new Error(`Unexpected mutation ${r.command}`);
   return { kind: "memory_page", result, error: null };
