@@ -54,6 +54,7 @@ async function prepare() {
 }
 try {
   await prepare();
+  check("source_flow_exposes_saved_recovery_ids", !!fixture.querySelector('p[title="synthetic-session · synthetic-run"]') && text().includes("read this saved run from Sessions"));
   check("paused_source_job_offers_resume_without_apply", !!button("Resume local queue") && !button("Add to the review queue"));
   click("Resume local queue"); await wait(() => releaseResume != null); await sleep(50);
   check("resume_holds_source_choice_and_close", busy && button("Close")!.disabled && fixture.querySelector<HTMLSelectElement>("select")!.disabled);

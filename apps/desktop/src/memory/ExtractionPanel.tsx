@@ -6,7 +6,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { ErrorBox, Operation, OperationFeedback } from "./ui";
+import { ErrorBox, Operation, OperationFeedback, shortId } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
 import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
 
@@ -104,6 +104,9 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
           </div>
         </>
       )}
+      {job && <p className="mem-muted" title={`${job.sessionId} · ${job.runId}`}>
+        Suggestion session {shortId(job.sessionId)} · run {shortId(job.runId)}. After leaving this page, read this saved run from Sessions.
+      </p>}
       {operation && <Operation id={operation} request={request} onDone={(s) => {
         setCompletion(s);
         setOperation(null);

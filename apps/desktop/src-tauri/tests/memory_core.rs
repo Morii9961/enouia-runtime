@@ -65,6 +65,15 @@ impl Page {
         picked.token
     }
 
+    /// Release the embedded Core and reopen only this test's existing Vault.
+    fn reopen(&mut self) {
+        self.ws.shutdown();
+        self.ws = Workspace::new(Config::default());
+        let token = self.pick(PickKind::VaultRoot, "vault");
+        let status = self.ok("vault_open", json!({"rootToken": token}));
+        assert_eq!(status["vault"]["state"], "open");
+    }
+
     /// One request exactly as the page client builds it.
     fn send(&self, command: &str, arguments: Value) -> Value {
         let n = self.n.fetch_add(1, Ordering::SeqCst);
@@ -199,7 +208,7 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
         }
     }
 
-    let page = Page::new("provider-suggestion-fields");
+    let mut page = Page::new("provider-suggestion-fields");
     let verified_at: Timestamp = serde_json::from_value(
         page.ok("workspace_status", json!({}))["vault"]["lastCommitAt"].clone(),
     )
@@ -408,6 +417,38 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
         json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]}),
     );
     assert_eq!(offline["items"], after["items"]);
+    // A new Core has no in-memory external operation/setup. Session headers,
+    // job cursor and reviewed candidate records must recover from the Vault.
+    page.reopen();
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
+    assert_eq!(page.ok("operation_list", json!({}))["items"], json!([]));
+    let recovered_sessions = page.ok("session_list", json!({}));
+    let recovered_session = recovered_sessions["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["sessionId"] == prepared["sessionId"])
+        .unwrap();
+    let recovered = page.ok(
+        "session_detail",
+        json!({"sessionId":recovered_session["sessionId"], "branchId":recovered_session["branches"][0]["branchId"]}),
+    );
+    assert_eq!(recovered["extractionJobs"], saved["extractionJobs"]);
+    let recovered_preview = page.ok(
+        "extraction_preview",
+        json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]}),
+    );
+    assert_eq!(recovered_preview["items"], after["items"]);
+    assert_eq!(recovered_preview["job"]["cursor"], 2);
+    let recovered_memories = page.ok(
+        "memory_list",
+        json!({"includeInactive":false, "cursor":null, "limit":25}),
+    );
+    assert_eq!(recovered_memories["total"], 1);
+    assert_eq!(
+        recovered_memories["items"][0]["snippet"],
+        "Edited synthetic Monday meeting."
+    );
     assert_eq!(
         transport.0.load(Ordering::SeqCst),
         1,
