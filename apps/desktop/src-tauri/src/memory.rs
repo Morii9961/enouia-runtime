@@ -23,7 +23,7 @@ use serde_json::{Value, json};
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex, PoisonError, RwLock};
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError, RwLock};
 use tauri::{State, WebviewWindow};
 
 /// The embedded Core, the lifecycle gate and the closing latch.
@@ -39,6 +39,7 @@ pub struct MemoryHost {
     companion: Arc<Mutex<Value>>,
     /// Native Provider setup state (ADR-032); the Core holds the setup.
     provider_setup: Arc<Mutex<crate::provider::Setup>>,
+    provider_update: Arc<Mutex<()>>,
 }
 
 impl MemoryHost {
@@ -55,29 +56,43 @@ impl MemoryHost {
                 json!({"tray": "absent", "hotkey": {"state": "absent"}, "overlay": "absent"}),
             )),
             provider_setup: Arc::new(Mutex::new(crate::provider::Setup::Absent)),
+            provider_update: Arc::new(Mutex::new(())),
         }
     }
 
     /// Hand the Core a native Provider setup, or take it away (ADR-032).
     /// The Core refuses while a send is running.
-    pub fn set_native_provider(
+    pub fn replace_provider_setup(
         &self,
         provider: Option<enouia_memory_workspace::NativeProvider>,
+        setup: crate::provider::Setup,
     ) -> Result<(), &'static str> {
+        let mut current = self
+            .provider_setup
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
         self.core.set_native_provider(provider).map_err(|e| {
             if e.rules.iter().any(|r| r == "provider.call_running") {
                 "provider.call_running"
             } else {
                 "provider_setup.refused"
             }
-        })
+        })?;
+        *current = setup;
+        Ok(())
     }
 
-    pub fn set_provider_setup(&self, setup: crate::provider::Setup) {
-        *self
-            .provider_setup
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner) = setup;
+    /// Serialize configuration reloads and key changes without queuing a
+    /// second native prompt. Core still owns admission against active sends.
+    pub fn provider_update(&self) -> Result<MutexGuard<'_, ()>, &'static str> {
+        let guard = self
+            .provider_update
+            .try_lock()
+            .map_err(|_| "provider_setup.busy")?;
+        if self.is_closing() {
+            return Err("runtime_closing");
+        }
+        Ok(guard)
     }
 
     pub fn provider_setup(&self) -> crate::provider::Setup {

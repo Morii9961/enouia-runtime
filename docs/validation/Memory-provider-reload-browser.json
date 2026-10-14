@@ -1,0 +1,19 @@
+{
+  "scope": "browser-mounted ExternalPanel with synthetic IPC only",
+  "fixture": "apps/desktop/e2e/provider-setup.html",
+  "checks": [
+    { "id": "initial_status_read_once", "ok": true },
+    { "id": "initial_native_read_once", "ok": true },
+    { "id": "reload_ready", "ok": true },
+    { "id": "ready_is_not_key_or_permission", "ok": true },
+    { "id": "busy_preserves_ready", "ok": true },
+    { "id": "invalid_removes_actions", "ok": true },
+    { "id": "removed_file_disables", "ok": true },
+    { "id": "read_failure_has_recovery", "ok": true },
+    { "id": "read_recovery", "ok": true },
+    { "id": "lost_reload_reply_reobserves_core", "ok": true },
+    { "id": "no_key_egress_or_vault_calls", "ok": true }
+  ],
+  "passed": true,
+  "calls": 24
+}

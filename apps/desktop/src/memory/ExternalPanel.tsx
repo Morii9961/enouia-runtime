@@ -4,12 +4,13 @@
 // is sent once, and closes an unknown call locally. Keys never reach this
 // page; they are set in the native Windows credential prompt.
 import { useCallback, useEffect, useState } from "react";
-import { call, providerSetup, providerKey, type J } from "./client";
+import { call, describe, providerSetup, providerReload, providerKey, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, Tag, shortId } from "./ui";
 
 type Branch = { sessionId: string; branchId: string };
-type Native = { setup: typeof providerSetup; key: typeof providerKey };
+type Native = { setup: typeof providerSetup; reload: typeof providerReload; key: typeof providerKey };
+const NATIVE: Native = { setup: providerSetup, reload: providerReload, key: providerKey };
 
 const SETUP_TEXT: Record<string, string> = {
   absent: "External providers are off. To turn them on, the owner writes memory-providers.json in Runtime's settings folder with the exact models and limits they verified.",
@@ -24,7 +25,7 @@ const STATE_TEXT: Record<string, string> = {
   outcome_unknown: "outcome unknown: the request may have reached the provider",
 };
 
-export function ExternalPanel({ branch, text, invocations, onChanged, consumeText, request = call, native = { setup: providerSetup, key: providerKey } }: {
+export function ExternalPanel({ branch, text, invocations, onChanged, consumeText, request = call, native = NATIVE }: {
   branch: Branch;
   text: string;
   invocations: J[];
@@ -50,25 +51,51 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       setSetup(n);
       setApi((current) => s.destinations.some((d: J) => d.api === current) ? current : s.destinations[0]?.api ?? "");
     },
+    () => { setStatus(null); setSetup(null); setPrepared(null); setPlan(null); },
   ), [read.run, request, native]);
   useEffect(() => { void refresh(); }, [refresh]);
   // A prepared call and a held plan belong to the branch they came from.
   useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); }, [branch.sessionId, branch.branchId]);
 
-  if (read.error) return <ErrorBox error={read.error} />;
+  const busy = action.busy || read.busy || operation != null;
+  const reload = () => void action.run(async () => {
+    setNotice(null); setPrepared(null); setPlan(null);
+    read.clear();
+    // Delivery failure may follow a successful native update. Observe the
+    // Core again even on refusal instead of keeping an assumed old status.
+    try { await native.reload(); }
+    finally { await refresh(); }
+  });
+  const setupControls = <>
+    <details className="mem-stack">
+      <summary className="mem-label">Model setup steps</summary>
+      <p className="mem-muted">Create or edit <span className="mem-mono">%APPDATA%\com.enouia.runtime\memory-providers.json</span> with the exact model and limits you verified. Set schemaVersion to 1; each destination needs api (openai or anthropic), model, contextWindowTokens, maxOutputTokens, streaming and verifiedAt (an ISO timestamp). Also set maxAttemptsPerSession and maxReservedTokensPerSession. No values are inferred.</p>
+      <p className="mem-muted">Reload settings after editing. Remove the file and reload to turn external providers off. Keys belong only in the native Set key prompt. A loaded configuration still needs a key and a reviewed grant; you inspect each request before Send once. Session token limits are estimates, not a spending cap.</p>
+    </details>
+    <div className="mem-actions"><button type="button" className="mem-button" disabled={busy || !!plan || !!prepared} onClick={reload}>{action.busy ? "Working…" : "Reload settings"}</button></div>
+    {operation && <p className="mem-muted">Wait for the current call to finish before reloading settings.</p>}
+    {(plan || prepared) && <p className="mem-muted">Finish or cancel the current review before reloading settings.</p>}
+  </>;
+
+  if (read.error) return <div className="mem-stack">
+    <ErrorBox error={read.error} />
+    <button type="button" className="mem-button" disabled={busy} onClick={() => void refresh()}>Read status again</button>
+    {setupControls}
+  </div>;
   if (!status) return <p role="status" className="mem-muted">Reading provider setup…</p>;
   if (!status.configured) {
-    const why = setup?.state === "invalid" ? `${SETUP_TEXT.invalid} (${setup.rule})` : SETUP_TEXT.absent;
+    const why = setup?.state === "invalid" ? `${SETUP_TEXT.invalid} ${describe(setup.rule)}` : SETUP_TEXT.absent;
     return (
       <div className="mem-stack">
         <h3 className="mem-h3">External provider</h3>
         <p className="mem-muted">{why}</p>
+        <ErrorBox error={action.error} />
+        {setupControls}
       </div>
     );
   }
   const destination = status.destinations.find((d: J) => d.api === api);
   const grant = (status.grants ?? []).find((g: J) => g.active && g.destinations.some((d: J) => d.provider === api && d.model === destination?.model));
-  const busy = action.busy || operation != null;
   const holdPlan = (command: string, args: Record<string, unknown>) =>
     void action.run(async () => { setNotice(null); setPlan(await request(command, args)); });
 
@@ -77,6 +104,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       <h3 className="mem-h3">External provider</h3>
       <ErrorBox error={action.error} />
       {notice && <p className="mem-muted" role="status">{notice}</p>}
+      {setupControls}
 
       <label className="mem-label" htmlFor="mem-ext-api">Provider</label>
       <select id="mem-ext-api" className="mem-input" value={api} disabled={busy} onChange={(e) => { setApi(e.target.value); setPrepared(null); }}>

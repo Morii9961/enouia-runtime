@@ -15,6 +15,7 @@
     "allow-memory-call",
     "allow-memory-pick",
     "allow-memory-provider-setup",
+    "allow-memory-provider-reload",
     "allow-memory-provider-key",
     "allow-shell-status",
     "allow-shell-show",
