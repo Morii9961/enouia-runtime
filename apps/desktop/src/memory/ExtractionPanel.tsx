@@ -3,7 +3,7 @@
 // once, then each suggestion with its quote and complete selected text.
 // Adding suggestions only queues pending candidates for ordinary review;
 // none becomes a memory here.
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, OperationFeedback, shortId } from "./ui";
@@ -32,14 +32,20 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
     onBusyChange?.(owningWork);
     return () => onBusyChange?.(false);
   }, [owningWork, onBusyChange]);
-  useEffect(() => {
-    void read.run(() => request("provider_status"), (s) => {
+  const readSetup = useCallback(() => {
+    setStatus(null);
+    return read.run(() => request("provider_status"), (s) => {
       setStatus(s);
-      setApi(s.destinations[0]?.api ?? "");
+      setApi(current => s.destinations.some((d: J) => d.api === current) ? current : s.destinations[0]?.api ?? "");
     });
   }, [read.run, request]);
+  useEffect(() => { void readSetup(); }, [readSetup]);
+  const setupRecovery = !prepared && !operation && !job && <button type="button" className="mem-button" disabled={read.busy || action.busy}
+    onClick={() => { if (!read.pending.current && !action.busy) void readSetup(); }}>Read provider status again</button>;
 
-  if (read.error) return <div className="mem-stack"><ErrorBox error={read.error} /><button type="button" className="mem-button" onClick={onClose}>Close</button></div>;
+  if (read.error) return <div className="mem-stack"><ErrorBox error={read.error} />
+    <p className="mem-muted">Provider status could not be read. Read it again before preparing a request. This does not reload settings, change a grant or send to a model.</p>
+    <div className="mem-actions">{setupRecovery}<button type="button" className="mem-button" onClick={onClose}>Close</button></div></div>;
   if (!status) return <p role="status" className="mem-muted">Reading provider setup…</p>;
   const destination = status.destinations.find((d: J) => d.api === api);
   const grant = (status.grants ?? []).find((g: J) => g.active && g.purposes.includes("extraction")
@@ -68,7 +74,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
         <p className="mem-muted">{!status.configured
           ? "External providers are off on this computer."
           : "No grant allows extraction for this provider. Review a grant with extraction allowed in a session's External provider panel first."}</p>
-        <div className="mem-actions">{close}</div>
+        <div className="mem-actions">{setupRecovery}{close}</div>
       </div>
     );
   }
