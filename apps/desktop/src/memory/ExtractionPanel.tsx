@@ -11,6 +11,7 @@ import { SuggestionPreview } from "./SuggestionPreview";
 import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
 import { suggestionObservation } from "./observationIdentity";
 import { holdProviderSend } from "./providerSend";
+import { holdProviderPreparation } from "./providerPreparation";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
@@ -19,6 +20,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   const [api, setApi] = useState("");
   const providerId = useId();
   const [heldSend, setPrepared] = useState<ReturnType<typeof holdProviderSend> | null>(null);
+  const [preparation, setPreparation] = useState<ReturnType<typeof holdProviderPreparation> | null>(null);
   const prepared = heldSend?.prepared;
   const submitted = heldSend?.submitted() ?? false;
   const [operation, setOperation] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   const read = useLatestRead();
   const mounted = useRef(false);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const owningWork = action.busy || operation != null || submitted;
+  const owningWork = action.busy || operation != null || submitted || !!preparation;
   useEffect(() => {
     onBusyChange?.(owningWork);
     return () => onBusyChange?.(false);
@@ -43,7 +45,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
     });
   }, [read.run, request]);
   useEffect(() => { void readSetup(); }, [readSetup]);
-  const setupRecovery = !prepared && !operation && !job && <button type="button" className="mem-button" disabled={read.busy || action.busy}
+  const setupRecovery = !prepared && !operation && !job && !preparation && <button type="button" className="mem-button" disabled={read.busy || action.busy}
     onClick={() => { if (!read.pending.current && !action.busy) void readSetup(); }}>Read provider status again</button>;
 
   if (read.error) return <div className="mem-stack"><ErrorBox error={read.error} />
@@ -88,12 +90,20 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
       {!prepared && !operation && !job && (
         <>
           <p className="mem-muted">Ask {api} ({destination.model}) to suggest facts from bytes {range.start}–{range.end} of this source. You see the exact request first; suggestions only enter the review queue.</p>
+          {preparation && <p role="status" className="mem-muted">Preparation was submitted. Its saved result is not confirmed here. Recover the original preparation, or close and read saved suggestion jobs from Sessions before preparing again. Preparing does not send to a model.</p>}
           <div className="mem-actions">
-            <button type="button" className="mem-button mem-primary" disabled={action.busy}
-              onClick={() => void action.run(async (key) => setPrepared(holdProviderSend(await request("extraction_prepare", {
-                sourceId: range.sourceId, sourceRevision: range.revision, startByte: range.start, endByte: range.end,
-                api, policyId: grant.policyId, maxCandidates: 8,
-              }, key), request)))}>Prepare the request…</button>
+            <button type="button" className="mem-button mem-primary" disabled={action.busy || (!!preparation && !!action.error && !action.error.retry)}
+              onClick={() => {
+                const held = preparation ?? holdProviderPreparation("extraction_prepare", {
+                  sourceId: range.sourceId, sourceRevision: range.revision, startByte: range.start, endByte: range.end,
+                  api, policyId: grant.policyId, maxCandidates: 8,
+                }, request);
+                setPreparation(held);
+                void action.run(async () => {
+                  setPrepared(holdProviderSend(await held.prepare(), request));
+                  setPreparation(null);
+                });
+              }}>{preparation ? "Recover preparation" : "Prepare the request…"}</button>
             {close}
           </div>
         </>
