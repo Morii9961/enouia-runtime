@@ -13,6 +13,7 @@ let releaseSend:(()=>void)|null=null;
 const releasePending=()=>{releasePrepare?.();releaseSend?.();};
 let heldPrepare=true;
 let finished=false;
+let wrongPreview=true;
 setTransport(async(native,args)=>{
   if(native!=="memory_call")throw new Error("Unexpected native command");
   const r=args.request as {command:string;arguments:Record<string,unknown>};
@@ -26,7 +27,7 @@ setTransport(async(native,args)=>{
       result={callId:"synthetic-call",wireHash:"synthetic-hash",sessionId:"synthetic-session",runId:"synthetic-run",model:"synthetic-model",endpoint:"Synthetic unused endpoint",body:`Synthetic range ${r.arguments.startByte}`};break;
     case "external_send":await new Promise<void>(resolve=>{releaseSend=resolve;});result={operationId:"synthetic-operation"};break;
     case "operation_get":result={operationId:"synthetic-operation",kind:"external_send",state:finished?"succeeded":"running",cancelRequested:false,progress:{done:0,total:null},result:finished?{finish:"completed"}:null};break;
-    case "extraction_preview":result={job:{state:"completed"},items:[
+    case "extraction_preview":result={job:{run_id:wrongPreview?"another-run":r.arguments.runId,state:"completed"},items:[
       {responseIndex:0,proposedType:"preference",content:"Original synthetic suggestion",quote:"Synthetic quote",selectedText:"Synthetic source 20",application:"candidate_recorded",candidate:{candidateId:"synthetic-candidate",revision:2,status:"accepted",content:"Edited synthetic candidate"}},
       {responseIndex:1,proposedType:"fact",content:"Suppressed synthetic suggestion",quote:"Synthetic quote",selectedText:"Synthetic source 20",application:"suppressed",candidate:null},
     ]};break;
@@ -57,7 +58,10 @@ try{
   check("send_admission_keeps_excerpt_selected",button("Next part")!.disabled);
   releaseSend!();await wait(()=>!!button("Stop locally"));
   check("running_call_keeps_excerpt_selected",button("Next part")!.disabled&&text().includes("Synthetic source 20"));
-  finished=true;await wait(()=>text().includes("Original synthetic suggestion"));
+  finished=true;await wait(()=>!!fixture.querySelector('[role="alert"]'));
+  check("wrong_source_job_observation_is_not_published",!text().includes("Original synthetic suggestion")&&!!button("Read saved suggestions")&&!button("Add to the review queue"));
+  wrongPreview=false;click("Read saved suggestions");await wait(()=>text().includes("Original synthetic suggestion"));
+  check("source_job_recovers_from_exact_saved_run",calls.filter(c=>c.command==="extraction_preview").every(c=>c.args.runId==="synthetic-run"&&c.args.sessionId==="synthetic-session")&&calls.filter(c=>c.command==="external_send").length===1);
   check("original_suggestion_remains_literal",text().includes("Original synthetic suggestion"));
   check("current_candidate_is_distinct",text().includes("Current candidate: Edited synthetic candidate")&&text().includes("r2"));
   check("accepted_candidate_is_not_claimed_pending",text().includes("accepted")&&!text().includes("in the review queue"));

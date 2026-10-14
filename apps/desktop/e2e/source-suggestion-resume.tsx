@@ -16,7 +16,7 @@ const releasePending = () => releaseResume?.();
 let closed = 0;
 let busy = false;
 const reportBusy = (value: boolean) => { busy = value; };
-const job = () => ({ state: completed ? "completed" : paused ? "paused" : "ready", cursor: completed ? 1 : 0 });
+const job = () => ({ run_id: "synthetic-run", state: completed ? "completed" : paused ? "paused" : "ready", cursor: completed ? 1 : 0 });
 setTransport(async (native, args) => {
   if (native !== "memory_call") throw new Error(`Unexpected native command ${native}`);
   const r = args.request as { command: string; arguments: Record<string, unknown> };

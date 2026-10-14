@@ -27,3 +27,8 @@ export function sessionObservation(result: J, sessionId: string, branchId: strin
   if (result?.sessionId !== sessionId || result?.branchId !== branchId) throw new Error("session observation identity mismatch");
   return result;
 }
+
+export function suggestionObservation(result: J, runId: string): J {
+  if (result?.job?.run_id !== runId) throw new Error("suggestion observation identity mismatch");
+  return result;
+}

@@ -51,7 +51,7 @@ setTransport(async (command, args) => {
     }
     case "extraction_preview":
       if (failPreview) return {kind: "memory_error", error: {code: "storage_failed", retryable: false, rules: []}};
-      return reply({job: {state: "completed"}, items: [{responseIndex: 0, proposedType: "preference", content: "Synthetic suggestion", quote: "Synthetic quote", selectedText: "Synthetic source"}]});
+      return reply({job: {run_id: r.arguments.runId, state: "completed"}, items: [{responseIndex: 0, proposedType: "preference", content: "Synthetic suggestion", quote: "Synthetic quote", selectedText: "Synthetic source"}]});
     default: throw new Error(`Unexpected synthetic command ${r.command}`);
   }
 });

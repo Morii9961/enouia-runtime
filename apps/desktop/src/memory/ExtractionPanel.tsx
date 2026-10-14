@@ -9,6 +9,7 @@ import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Operation, OperationFeedback, shortId } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
 import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
+import { suggestionObservation } from "./observationIdentity";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
@@ -46,7 +47,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   const showPreview = (j: { sessionId: string; runId: string }) =>
     action.run(async () => {
       setPreviewCurrent(false);
-      setPreview(await request("extraction_preview", j));
+      setPreview(suggestionObservation(await request("extraction_preview", j), j.runId));
       setPreviewCurrent(true);
     });
   const close = <button type="button" className="mem-button" disabled={action.busy || operation != null} onClick={onClose}>Close</button>;

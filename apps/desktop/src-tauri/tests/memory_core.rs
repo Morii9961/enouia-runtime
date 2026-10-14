@@ -291,6 +291,7 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
     assert_eq!(page.finish(&started)["state"], "succeeded");
     let job = json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]});
     let shown = page.ok("extraction_preview", job.clone());
+    assert_eq!(shown["job"]["run_id"], job["runId"]);
     assert_eq!(shown["items"].as_array().unwrap().len(), 2);
     for item in shown["items"].as_array().unwrap() {
         strings(
@@ -310,8 +311,10 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
     }
 
     // One acknowledged step, then a fresh read of the real saved cursor.
-    page.ok("extraction_apply", job.clone());
+    let applied = page.ok("extraction_apply", job.clone());
+    assert_eq!(applied["job"]["run_id"], job["runId"]);
     let partial = page.ok("extraction_preview", job.clone());
+    assert_eq!(partial["job"]["run_id"], job["runId"]);
     assert_eq!(partial["job"]["cursor"], 1);
     let candidate = &partial["items"][0]["candidate"];
     strings(
@@ -328,7 +331,9 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
     assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
     let pause =
         json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"], "paused":true});
-    assert_eq!(page.ok("extraction_pause", pause)["job"]["state"], "paused");
+    let paused = page.ok("extraction_pause", pause);
+    assert_eq!(paused["job"]["state"], "paused");
+    assert_eq!(paused["job"]["run_id"], job["runId"]);
     assert_eq!(
         page.ok("extraction_preview", job.clone())["job"]["cursor"],
         1
@@ -372,7 +377,9 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
         1
     );
     let resume = json!({"sessionId":paused_session["sessionId"], "runId":paused_job["run_id"], "paused":false});
-    assert_eq!(page.ok("extraction_pause", resume)["job"]["state"], "ready");
+    let resumed = page.ok("extraction_pause", resume);
+    assert_eq!(resumed["job"]["state"], "ready");
+    assert_eq!(resumed["job"]["run_id"], job["runId"]);
     assert_eq!(
         page.ok("extraction_preview", job.clone())["job"]["cursor"],
         1

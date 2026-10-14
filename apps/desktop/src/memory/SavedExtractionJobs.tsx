@@ -6,6 +6,7 @@ import { useAction, useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
 import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
+import { suggestionObservation } from "./observationIdentity";
 
 export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyChange, onChanged, onReview, request = call }: {
   sessionId: string; jobs: J[] | undefined; disabled?: boolean; request?: typeof call;
@@ -27,7 +28,7 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
     action.clear();
     setRequested(runId);
     setLoaded(previous => previous?.runId === runId ? { ...previous, current: false } : null);
-    void read.run(() => request("extraction_preview", { sessionId, runId }),
+    void read.run(async () => suggestionObservation(await request("extraction_preview", { sessionId, runId }), runId),
       (preview) => setLoaded({ runId, preview, current: true }));
   };
   const close = () => { if (writing.current) return; read.clear(); action.clear(); setRequested(null); setLoaded(null); };

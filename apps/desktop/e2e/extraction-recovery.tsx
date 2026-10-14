@@ -15,7 +15,7 @@ let failedReceipt=false;
 let failPreview=false;
 let releaseApply:(()=>void)|null=null;
 const releasePendingApply=()=>releaseApply?.();
-const job=()=>({state:cursor===2?"completed":"running"});
+const job=()=>({run_id:"synthetic-run",state:cursor===2?"completed":"running"});
 const preview=()=>({job:job(),items:[0,1].map(n=>({responseIndex:n,proposedType:"preference",content:`Synthetic suggestion ${n}`,quote:"Synthetic quote",selectedText:"Synthetic source",candidate:n<cursor?{candidateId:`synthetic-candidate-${n}`,revision:1,status:"pending",content:`Synthetic suggestion ${n}`}:null}))});
 const reply=(result:unknown)=>({kind:"memory_page",result,error:null});
 setTransport(async(native,args)=>{

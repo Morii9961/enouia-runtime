@@ -1,0 +1,13 @@
+# Saved suggestion run identity
+
+Date: 2026-10-14 (Asia/Shanghai). Baseline `aa7f1b6` (full SHA in Git); Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+Suggestion views and local queue helpers previously used an opaque reply's job state without matching its run identity. A controlled wrong-run preview failed `wrong_run_preview_is_not_published_or_actionable` against the baseline. This is a frontend guard reproduction, not evidence that the pinned Core returns wrong records.
+
+Both source and saved-Session views now require `job.run_id` to match the requested run before publishing. Shared local application checks each acknowledged step before submitting another, and checks the final saved preview. Resume checks its receipt before reading the saved result. Missing/wrong identities preserve the earlier labeled observation, withhold further actions and require an explicit saved read; they never retry a cursor loop automatically. Unmounted owners still start no later step/read. Session identity comes from the selected header/request; the existing result exposes a run ID, not a separate Session identity claim.
+
+The actual [saved-job browser fixture](../../apps/desktop/e2e/saved-suggestion-identity.html) passed 13/13: wrong/missing read identities, read-only recovery, wrong application receipt stopping after one committed step, withheld controls, observed partial cursor, wrong final preview, completed recovery, explicit review navigation, wrong resume receipt and exact request ownership. Source suggestions passed 14/14, including a wrong run followed by an explicit saved reread with no second send. Other affected browser checks passed: source resume 10/10, queue recovery 14/14, model choice 11/11, Provider operations 12/12, saved application 17/17, saved reads 10/10, saved resume 9/9, unmount lifetime 7/7 and ordinary review journey 15/15.
+
+All 69 frontend tests, TypeScript/strict affected-fixture checks, 61 native-host tests, 5 fixed-Core consumer tests, formatting/strict Clippy, frontend/ordinary no-bundle desktop release build and pin/dependency guards (8 + 7 negatives) passed. The Core consumer checks actual preview/application/pause/resume run IDs using an owned temporary Vault and fake transport. The native host source remained unchanged after its full run; only consumer assertions were subsequently expanded and rerun with formatting/Clippy.
+
+All wrong replies and local commits in browser tests are synthetic. No real Provider HTTP, personal Vault, credentials, Activity activation, installer, physical Windows/Narrator or Morii acceptance occurred. Memory domain/protocol/pin and existing reports/manual status snapshots remain unchanged. Merge authorization is distinct from those product acceptance gates.
