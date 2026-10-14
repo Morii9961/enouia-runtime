@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { call, describe, providerSetup, providerReload, providerKey, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { holdProviderConfirmation } from "./providerConfirmation";
+import { holdProviderSend } from "./providerSend";
 import { ErrorBox, Operation, OperationFeedback, Tag, shortId } from "./ui";
 
 type Branch = { sessionId: string; branchId: string };
@@ -43,7 +44,9 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   const [api, setApi] = useState("");
   const [confirmationPlan, setPlan] = useState<ReturnType<typeof holdProviderConfirmation> | null>(null);
   const plan = confirmationPlan?.plan;
-  const [prepared, setPrepared] = useState<J>(null);
+  const [heldSend, setPrepared] = useState<ReturnType<typeof holdProviderSend> | null>(null);
+  const prepared = heldSend?.prepared;
+  const submitted = heldSend?.submitted() ?? false;
   const [operation, setOperation] = useState<string | null>(null);
   const [completion, setCompletion] = useState<J>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -61,7 +64,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   ), [read.run, request, native]);
   useEffect(() => { void refresh(); }, [refresh]);
   const owningWork = action.busy || operation != null;
-  const owningReview = owningWork || !!plan;
+  const owningReview = owningWork || !!plan || submitted;
   useEffect(() => {
     onBusyChange?.(owningReview);
     return () => onBusyChange?.(false);
@@ -74,7 +77,8 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); setCompletion(null); action.clear(); }, [branch.sessionId, branch.branchId, action.clear]);
 
   const busy = disabled || owningWork || read.busy || (!status && !read.error);
-  const reviewBusy = busy || !!plan;
+  const reviewBusy = busy || !!plan || submitted;
+  const setupBusy = reviewBusy || !!prepared;
   const confirmationBlocked = !!action.error && !action.error.retry;
   const holdPlan = (command: string, args: Record<string, unknown>) =>
     void action.run(async () => { setNotice(null); setPlan(holdProviderConfirmation(await request(command, args), request)); });
@@ -110,7 +114,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
             {shortId(i.dispatch_id)} · reserved {i.reserved_tokens} tokens
             {i.input_tokens != null && ` · reported ${i.input_tokens} in / ${i.output_tokens ?? "?"} out`}
             {i.state === "outcome_unknown" && !operation && (
-              <>{" "}<button type="button" className="mem-link" disabled={reviewBusy}
+              <>{" "}<button type="button" className="mem-link" disabled={setupBusy}
                 onClick={() => holdPlan("external_interrupt_plan", { inputEventId: i.input_event_id, dispatchId: i.dispatch_id })}>Close locally…</button></>
             )}
           </li>
@@ -172,16 +176,16 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       {setupControls}
 
       <label className="mem-label" htmlFor="mem-ext-api">Provider</label>
-      <select id="mem-ext-api" className="mem-input" value={api} disabled={reviewBusy} onChange={(e) => { setApi(e.target.value); setPrepared(null); }}>
+      <select id="mem-ext-api" className="mem-input" value={api} disabled={setupBusy} onChange={(e) => { setApi(e.target.value); setPrepared(null); }}>
         {status.destinations.map((d: J) => <option key={d.api} value={d.api}>{d.api} · {d.model}</option>)}
       </select>
       <div className="mem-actions">
-        <button type="button" className="mem-button" disabled={reviewBusy}
+        <button type="button" className="mem-button" disabled={setupBusy}
           onClick={() => void action.run(async () => {
             const r = await native.key(api, "set");
             setNotice(r.cancelled ? "Key entry cancelled." : "Key saved in Windows Credential Manager.");
           })}>Set key…</button>
-        <button type="button" className="mem-button" disabled={reviewBusy}
+        <button type="button" className="mem-button" disabled={setupBusy}
           onClick={() => void action.run(async () => {
             await native.key(api, "remove");
             setNotice("Key removed from this computer. This does not revoke it at the provider.");
@@ -191,13 +195,13 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
 
       {grant
         ? <p className="mem-muted">Allowed by grant {shortId(grant.policyId)} (up to {grant.maxSensitivity}).{" "}
-            <button type="button" className="mem-link" disabled={reviewBusy} onClick={() => holdPlan("egress_revoke_plan", { policyId: grant.policyId })}>Revoke…</button></p>
+            <button type="button" className="mem-link" disabled={setupBusy} onClick={() => holdPlan("egress_revoke_plan", { policyId: grant.policyId })}>Revoke…</button></p>
         : <div className="mem-stack">
             <p className="mem-muted">No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.</p>
-            <label className="mem-muted"><input type="checkbox" checked={extraction} disabled={reviewBusy} onChange={(e) => setExtraction(e.target.checked)} />{" "}
+            <label className="mem-muted"><input type="checkbox" checked={extraction} disabled={setupBusy} onChange={(e) => setExtraction(e.target.checked)} />{" "}
               Also allow suggesting memories from sources you select (extraction)</label>
             <div className="mem-actions">
-              <button type="button" className="mem-button" disabled={reviewBusy}
+              <button type="button" className="mem-button" disabled={setupBusy}
                 onClick={() => holdPlan("egress_grant_plan", { apis: [api], maxSensitivity: "private", extraction })}>Review a grant…</button>
             </div>
           </div>}
@@ -217,7 +221,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
                 outputTokens: Math.min(1024, destination?.maxOutputTokens ?? 1024),
               }, key);
               consumeText(submitted);
-              setPrepared(result);
+              setPrepared(holdProviderSend(result, request));
               await onChanged();
             })}>Prepare the question for {api}…</button>
         </div>
@@ -225,17 +229,25 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
 
       {prepared && (
         <div className="mem-stack" role="group" aria-label="Request to send">
-          <p>This exact request goes to <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens and at most {prepared.outputTokens} output tokens. It is sent once and never retried.</p>
+          <p>This exact request goes to <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens and at most {prepared.outputTokens} output tokens. It is sent once. Retry recovers this same call without sending again to the service.</p>
           <pre className="mem-pre" tabIndex={0}>{prepared.body}</pre>
+          {submitted && <p role="status" className="mem-muted">Send was submitted. The service may have received it. Recover this call, or leave this request and read the saved session and workspace calls.</p>}
           <div className="mem-actions">
-            <button type="button" className="mem-button mem-primary" disabled={reviewBusy}
-              onClick={() => void action.run(async (key) => {
-                const started = await request("external_send", { callId: prepared.callId, wireHash: prepared.wireHash }, key);
+            <button type="button" className="mem-button mem-primary" disabled={busy || !!plan || (submitted && confirmationBlocked)}
+              onClick={() => void action.run(async () => {
+                const started = await heldSend!.send();
                 setPrepared(null);
                 setOperation(started.operationId);
-              })}>Send once</button>
-            <button type="button" className="mem-button" disabled={reviewBusy}
-              onClick={() => { setPrepared(null); setNotice("Not sent. The question stays saved in this session."); }}>Don't send</button>
+              })}>{submitted ? "Recover this call" : "Send once"}</button>
+            <button type="button" className="mem-button" disabled={busy || !!plan}
+              onClick={() => {
+                if (!submitted) { action.clear(); setPrepared(null); setNotice("Not sent. The question stays saved in this session."); }
+                else void action.run(async () => {
+                  setPrepared(null);
+                  setNotice("The send outcome is not confirmed here. Read the saved session and workspace calls; the service may have received it.");
+                  await refresh(); await onChanged();
+                });
+              }}>{submitted ? "Leave and read saved state" : "Don't send"}</button>
           </div>
         </div>
       )}

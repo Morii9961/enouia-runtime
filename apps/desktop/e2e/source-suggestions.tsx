@@ -25,7 +25,7 @@ setTransport(async(native,args)=>{
     case "extraction_prepare":
       if(heldPrepare)await new Promise<void>(resolve=>{releasePrepare=resolve;});
       result={callId:"synthetic-call",wireHash:"synthetic-hash",sessionId:"synthetic-session",runId:"synthetic-run",model:"synthetic-model",endpoint:"Synthetic unused endpoint",body:`Synthetic range ${r.arguments.startByte}`};break;
-    case "external_send":await new Promise<void>(resolve=>{releaseSend=resolve;});result={operationId:"synthetic-operation"};break;
+    case "external_send":await new Promise<void>(resolve=>{releaseSend=resolve;});result={operationId:"synthetic-operation",kind:"external_send"};break;
     case "operation_get":result={operationId:"synthetic-operation",kind:"external_send",state:finished?"succeeded":"running",cancelRequested:false,progress:{done:0,total:null},result:finished?{finish:"completed"}:null};break;
     case "extraction_preview":result={job:{run_id:wrongPreview?"another-run":r.arguments.runId,state:"completed"},items:[
       {responseIndex:0,proposedType:"preference",content:"Original synthetic suggestion",quote:"Synthetic quote",selectedText:"Synthetic source 20",application:"candidate_recorded",candidate:{candidateId:"synthetic-candidate",revision:2,status:"accepted",content:"Edited synthetic candidate"}},

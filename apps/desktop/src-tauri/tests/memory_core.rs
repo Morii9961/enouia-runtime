@@ -76,12 +76,16 @@ impl Page {
 
     /// One request exactly as the page client builds it.
     fn send(&self, command: &str, arguments: Value) -> Value {
+        self.send_keyed(command, arguments, None)
+    }
+
+    fn send_keyed(&self, command: &str, arguments: Value, key: Option<&str>) -> Value {
         let n = self.n.fetch_add(1, Ordering::SeqCst);
         let request = json!({
             "schemaVersion": 1,
             "requestId": format!("req_00000000-0000-4000-8000-{n:012x}"),
             "command": command,
-            "idempotencyKey": is_write(command).then(|| format!("ui-runtime-test-{n:016}")),
+            "idempotencyKey": is_write(command).then(|| key.map(str::to_owned).unwrap_or_else(|| format!("ui-runtime-test-{n:016}"))),
             "arguments": arguments,
         });
         let response = self.ws.call(&request);
@@ -289,11 +293,34 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
     );
     assert!(prepared["body"].as_str().unwrap().contains(statement));
     assert_eq!(transport.0.load(Ordering::SeqCst), 0);
-    let started = page.ok(
+    let send_args = json!({"callId":prepared["callId"], "wireHash":prepared["wireHash"]});
+    let start_reply = page.send_keyed(
         "external_send",
-        json!({"callId":prepared["callId"], "wireHash":prepared["wireHash"]}),
+        send_args.clone(),
+        Some("ui-runtime-synthetic-send-recovery"),
     );
+    assert_eq!(start_reply["error"], Value::Null);
+    let started = start_reply["result"].clone();
+    assert_eq!(started["kind"], "external_send");
+    let replay = page.send_keyed(
+        "external_send",
+        send_args.clone(),
+        Some("ui-runtime-synthetic-send-recovery"),
+    );
+    assert_eq!(replay["error"], Value::Null);
+    assert_eq!(replay["result"], started);
     assert_eq!(page.finish(&started)["state"], "succeeded");
+    let terminal_replay = page.send_keyed(
+        "external_send",
+        send_args.clone(),
+        Some("ui-runtime-synthetic-send-recovery"),
+    );
+    assert_eq!(terminal_replay["error"], Value::Null);
+    assert_eq!(terminal_replay["result"], started);
+    // A new UI key cannot recover the consumed prepared call. This was the
+    // old fresh-button path after an admitted reply failed to reach the UI.
+    assert_eq!(page.err("external_send", send_args)["code"], "not_found");
+    assert_eq!(transport.0.load(Ordering::SeqCst), 1);
     let job = json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]});
     let shown = page.ok("extraction_preview", job.clone());
     assert_eq!(shown["job"]["run_id"], job["runId"]);

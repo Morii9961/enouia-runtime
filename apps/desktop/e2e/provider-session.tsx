@@ -36,7 +36,7 @@ setTransport(async (command, args) => {
     case "external_send":
       await new Promise<void>(resolve => {releaseSend = resolve;});
       admitted = true;
-      result = {operationId: "synthetic-operation"}; break;
+      result = {operationId: "synthetic-operation",kind:"external_send"}; break;
     case "operation_get": result = {operationId:r.arguments.operationId,kind: "external_send", state: finished ? "succeeded" : "running", progress: {done: 0, total: null}, result: finished ? {finish: "completed"} : null}; break;
     default: throw new Error(`Unexpected Core command: ${r.command}`);
   }
