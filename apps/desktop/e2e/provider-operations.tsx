@@ -45,7 +45,7 @@ setTransport(async (command, args) => {
       if (scenario === "cancel" && cancelled && ++cancellationReads >= 2) operationState = "cancelled";
       if (scenario === "failed") operationState = "failed";
       if (scenario === "completed") operationState = "succeeded";
-      return reply({kind: "external_send", state: operationState, cancelRequested: cancelled, progress: {done: 0, total: null},
+      return reply({operationId:r.arguments.operationId,kind: "external_send", state: operationState, cancelRequested: cancelled, progress: {done: 0, total: null},
         result: scenario === "completed" ? {finish: "length"} : null,
         error: scenario === "failed" ? {code: "storage_failed", retryable: false, rules: []} : null});
     }

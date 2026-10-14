@@ -1,6 +1,6 @@
 // Result fields are opaque in IPC v1. Before publishing a record, keep its
 // returned identity attached to the reference that initiated this read.
-import { type J } from "./client";
+import type { J } from "./client";
 
 export function sourceObservation(result: J, sourceId: string, sourceRevision: number): J {
   if (result?.sourceId !== sourceId || result?.sourceRevision !== sourceRevision) throw new Error("source observation identity mismatch");
@@ -30,5 +30,10 @@ export function sessionObservation(result: J, sessionId: string, branchId: strin
 
 export function suggestionObservation(result: J, runId: string): J {
   if (result?.job?.run_id !== runId) throw new Error("suggestion observation identity mismatch");
+  return result;
+}
+
+export function operationObservation(result: J, operationId: string, kind?: string | null): J {
+  if (result?.operationId !== operationId || typeof result?.kind !== "string" || !result.kind || (kind != null && result.kind !== kind)) throw new Error("operation observation identity mismatch");
   return result;
 }

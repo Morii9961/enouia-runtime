@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { ExtractionPanel } from "./ExtractionPanel";
 import { CallError, call, describe, newKey, type J } from "./client";
 import { useAction, useLatestRead, type Failure } from "./hooks";
-import { sourceObservation } from "./observationIdentity";
+import { operationObservation, sourceObservation } from "./observationIdentity";
 
 /** A short local timestamp for a Core ISO time; the raw value on failure. */
 export function when(iso: string | null | undefined): string {
@@ -39,13 +39,13 @@ export function Tag({ children, tone }: { children: ReactNode; tone?: "warn" | "
 }
 
 /** Poll a long operation until it ends; progress is not completion. */
-export function Operation({ id, onDone, request = call }: { id: string; onDone?: (status: J) => void; request?: typeof call }) {
+export function Operation({ id, kind, onDone, request = call }: { id: string; kind?: string; onDone?: (status: J) => void; request?: typeof call }) {
   // A new operation starts with fresh observations, retry and cancellation
   // state; it must never inherit the previous operation's terminal result.
-  return <OperationWatch key={id} id={id} onDone={onDone} request={request} />;
+  return <OperationWatch key={`${id}:${kind ?? ""}`} id={id} kind={kind} onDone={onDone} request={request} />;
 }
 
-function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status: J) => void; request: typeof call }) {
+function OperationWatch({ id, kind, onDone, request }: { id: string; kind?: string; onDone?: (status: J) => void; request: typeof call }) {
   const [status, setStatus] = useState<J>(null);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
@@ -53,12 +53,14 @@ function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status:
   const terminal = useRef(false);
   const observation = useRef(0);
   const mounted = useRef(false);
+  const observedKind = useRef<string | null>(kind ?? null);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
   const cancel = useAction();
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const publish = useCallback((next: J) => {
     if (terminal.current) return;
+    observedKind.current = next.kind;
     setStatus(next);
     setError(null);
     if (["succeeded", "failed", "cancelled"].includes(next.state)) {
@@ -78,7 +80,7 @@ function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status:
         if (stopped) return;
         // A cancellation reply is a newer observation than a read already
         // in flight. That older read must not reopen a terminal operation.
-        if (started === observation.current) publish(s);
+        if (started === observation.current) publish(operationObservation(s, id, observedKind.current));
       } catch (err) {
         if (stopped) return;
         if (started === observation.current && !terminal.current) {

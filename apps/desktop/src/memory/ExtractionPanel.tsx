@@ -114,7 +114,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
       {job && <p className="mem-muted" title={`${job.sessionId} · ${job.runId}`}>
         Suggestion session {shortId(job.sessionId)} · run {shortId(job.runId)}. After leaving this page, read this saved run from Sessions.
       </p>}
-      {operation && <Operation id={operation} request={request} onDone={(s) => {
+      {operation && <Operation id={operation} kind="external_send" request={request} onDone={(s) => {
         setCompletion(s);
         setOperation(null);
         if (s.state === "succeeded" && job) void showPreview(job);

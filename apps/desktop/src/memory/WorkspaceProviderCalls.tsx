@@ -37,7 +37,7 @@ export function WorkspaceProviderCalls({ excludeOperationId = null, request = ca
     {visible?.map(op => <div key={op.operationId} className="mem-stack">
       <span className="mem-mono">Operation {shortId(op.operationId)}</span>
       {["queued", "running"].includes(op.state)
-        ? <Operation id={op.operationId} request={request} onDone={() => void refresh()} />
+        ? <Operation id={op.operationId} kind="external_send" request={request} onDone={() => void refresh()} />
         : <OperationFeedback status={op} onCancel={() => {}} />}
     </div>)}
   </section>;

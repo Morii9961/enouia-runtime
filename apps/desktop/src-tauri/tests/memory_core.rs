@@ -116,6 +116,11 @@ impl Page {
             for field in ["operationId", "kind", "state", "cancelRequested"] {
                 assert!(status.get(field).is_some(), "operation_get.{field}");
             }
+            assert_eq!(status["operationId"], id);
+            assert!(status["kind"].as_str().is_some_and(|kind| !kind.is_empty()));
+            if let Some(kind) = started["kind"].as_str() {
+                assert_eq!(status["kind"], kind);
+            }
             assert!(status["progress"]["done"].is_number());
             let state = status["state"].as_str().unwrap();
             if state != "queued" && state != "running" {

@@ -162,7 +162,7 @@ export function VaultLifecycleWait() {
   }, []);
   return <VaultLifecycleFeedback>
     <ErrorBox error={error} />
-    {operations.map(op => <Operation key={op.operationId} id={op.operationId} />)}
+    {operations.map(op => <Operation key={op.operationId} id={op.operationId} kind={op.kind} />)}
   </VaultLifecycleFeedback>;
 }
 

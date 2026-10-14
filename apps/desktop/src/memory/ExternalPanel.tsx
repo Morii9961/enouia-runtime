@@ -109,7 +109,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
     </div>
   );
   const operationView = <>
-    {operation && <Operation id={operation} request={request} onDone={(s) => { setCompletion(s); setOperation(null); void onChanged(); }} />}
+    {operation && <Operation id={operation} kind="external_send" request={request} onDone={(s) => { setCompletion(s); setOperation(null); void onChanged(); }} />}
     {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
   </>;
   const reload = () => void action.run(async () => {
