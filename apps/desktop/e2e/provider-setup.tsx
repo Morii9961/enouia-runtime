@@ -14,7 +14,8 @@ let failRead = false;
 const status = () => ({ configured: mode === "ready", destinations: mode === "ready"
   ? [{ api: "openai", model: "synthetic-model", streaming: "supported", maxOutputTokens: 4096 }] : [], grants: [] });
 setTransport(async (command, args) => {
-  sent.push(command === "memory_call" ? args.request.command : command);
+  const request = args.request as { command: string } | undefined;
+  sent.push(command === "memory_call" ? request!.command : command);
   if (command === "memory_provider_setup") return { state: mode, rule: mode === "invalid" ? "provider_setup.limits" : undefined };
   if (command === "memory_provider_reload") {
     if (next === "busy") throw "provider.call_running";
@@ -22,7 +23,7 @@ setTransport(async (command, args) => {
     mode = next;
     return { state: mode };
   }
-  if (command === "memory_call" && args.request.command === "provider_status") {
+  if (command === "memory_call" && request?.command === "provider_status") {
     if (failRead) throw "worker_failed";
     return { kind: "memory_page", result: status(), error: null };
   }
