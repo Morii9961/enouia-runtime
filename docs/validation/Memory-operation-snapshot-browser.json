@@ -1,0 +1,43 @@
+{
+  "baseline": "ce9bd7f224528e7a47941661c214910f81b408f0",
+  "capture": "Selected actual #results fields; synthetic replies and receipt timing",
+  "before": {
+    "checks": [
+      {"id":"missing_progress_is_read_error_without_render_crash","ok":false},
+      {"id":"Error: missing_progress_is_read_error_without_render_crash","ok":false}
+    ],
+    "passed": false,
+    "callbacks": 0,
+    "cancelCalls": 0,
+    "consoleError": "TypeError: Cannot destructure property 'done' of 'status.progress' as it is null."
+  },
+  "after": {
+    "checks": [
+      {"id":"missing_progress_is_read_error_without_render_crash","ok":true},
+      {"id":"unknown_state_cannot_publish_or_finish","ok":true},
+      {"id":"malformed_cancel_flag_cannot_claim_stop","ok":true},
+      {"id":"valid_read_recovers_running_controls","ok":true},
+      {"id":"malformed_stop_reply_retains_running_observation","ok":true},
+      {"id":"invalid_stop_reply_is_not_automatically_replayed","ok":true},
+      {"id":"malformed_list_is_read_error_without_watcher_or_crash","ok":true},
+      {"id":"valid_list_recovers_after_explicit_read","ok":true},
+      {"id":"bad_list_replacement_retains_prior_valid_observation","ok":true}
+    ],
+    "passed": true,
+    "callbacks": 0,
+    "cancelCalls": 1
+  },
+  "regressions": [
+    {"fixture":"operation-observation","checks":11,"passed":true},
+    {"fixture":"operation-cancel","checks":13,"passed":true},
+    {"fixture":"workspace-calls","checks":13,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"provider-operations","checks":12,"passed":true},
+    {"fixture":"provider-send-recovery","checks":20,"passed":true},
+    {"fixture":"source-suggestions","checks":14,"passed":true},
+    {"fixture":"source-suggestion-resume","checks":10,"passed":true},
+    {"fixture":"suggestion-lifetime","checks":7,"passed":true},
+    {"fixture":"extraction-recovery","checks":14,"passed":true},
+    {"fixture":"extraction-provider-choice","checks":11,"passed":true}
+  ]
+}

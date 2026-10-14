@@ -34,6 +34,22 @@ export function suggestionObservation(result: J, runId: string): J {
 }
 
 export function operationObservation(result: J, operationId: string, kind?: string | null): J {
-  if (result?.operationId !== operationId || typeof result?.kind !== "string" || !result.kind || (kind != null && result.kind !== kind)) throw new Error("operation observation identity mismatch");
+  if (typeof operationId !== "string" || !operationId || result?.operationId !== operationId || typeof result?.kind !== "string" || !result.kind || (kind != null && result.kind !== kind)) throw new Error("operation observation identity mismatch");
+  const progress = result.progress;
+  const count = (value: unknown) => typeof value === "number" && Number.isInteger(value) && value >= 0;
+  if (!["queued", "running", "succeeded", "failed", "cancelled"].includes(result.state) ||
+    typeof result.cancelRequested !== "boolean" || !progress || Array.isArray(progress) ||
+    !count(progress.done) || !(progress.total === null || count(progress.total))) throw new Error("operation observation fields mismatch");
+  return result;
+}
+
+export function operationListObservation(result: J): J {
+  if (!Array.isArray(result?.items)) throw new Error("operation list fields mismatch");
+  const ids = new Set<string>();
+  for (const item of result.items) {
+    operationObservation(item, item?.operationId);
+    if (ids.has(item.operationId)) throw new Error("operation list identity mismatch");
+    ids.add(item.operationId);
+  }
   return result;
 }

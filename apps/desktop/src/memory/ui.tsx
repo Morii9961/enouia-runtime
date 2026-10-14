@@ -94,13 +94,11 @@ function OperationWatch({ id, kind, onDone, request }: { id: string; kind?: stri
     return () => { stopped = true; clearTimeout(timer); };
   }, [id, retry, request, publish]);
   const stop = () => void cancel.run(async () => {
-    const next = await request("operation_cancel", { operationId: id });
+    const reply = await request("operation_cancel", { operationId: id });
     if (!mounted.current || terminal.current) return;
-    if (next?.operationId !== id || next.kind !== status.kind ||
-      !["queued", "running", "succeeded", "failed", "cancelled"].includes(next.state) ||
-      typeof next.cancelRequested !== "boolean" || !next.progress) {
-      throw new CallError({ code: "invalid_request", retryable: false, rules: [] });
-    }
+    let next: J;
+    try { next = operationObservation(reply, id, status.kind); }
+    catch { throw new CallError({ code: "invalid_request", retryable: false, rules: [] }); }
     observation.current += 1;
     if (next.cancelRequested) setCancelAcknowledged(true);
     publish(next);

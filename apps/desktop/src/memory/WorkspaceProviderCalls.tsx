@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { call, type J } from "./client";
 import { useLatestRead } from "./hooks";
+import { operationListObservation } from "./observationIdentity";
 import { ErrorBox, Operation, OperationFeedback, shortId } from "./ui";
 
 export function WorkspaceProviderCalls({ excludeOperationId = null, request = call }: {
@@ -10,7 +11,7 @@ export function WorkspaceProviderCalls({ excludeOperationId = null, request = ca
 }) {
   const [items, setItems] = useState<J[] | null>(null);
   const read = useLatestRead();
-  const refresh = useCallback(() => read.run(() => request("operation_list"), (page) => {
+  const refresh = useCallback(() => read.run(async () => operationListObservation(await request("operation_list")), (page) => {
     setItems(page.items.filter((op: J) => op.kind === "external_send"));
   }), [read.run, request]);
   useEffect(() => {

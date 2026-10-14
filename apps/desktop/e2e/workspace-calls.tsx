@@ -26,7 +26,7 @@ setTransport(async (native, args) => {
   if (r.command === "operation_list") {
     if (holdList) {holdList = false; await new Promise<void>(resolve => {releaseList = resolve;});}
     if (failList) return {kind: "memory_error", error: {code:"storage_failed", retryable:false, rules:[]}};
-    result = {items: empty ? [] : [operation(), {operationId:"synthetic-backup", kind:"backup_export", state:"running", progress:{done:0,total:null}}]};
+    result = {items: empty ? [] : [operation(), {operationId:"synthetic-backup", kind:"backup_export", state:"running", cancelRequested:false, progress:{done:0,total:null}}]};
   } else if (r.command === "operation_get") {
     if (r.arguments.operationId !== "synthetic-workspace-operation") throw new Error("Wrong operation read");
     if (cancelRequested && ++cancelReads >= 2) state = "cancelled";

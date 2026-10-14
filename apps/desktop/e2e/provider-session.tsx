@@ -25,7 +25,7 @@ setTransport(async (command, args) => {
   if (r.command === "session_detail" && failDetail) return {kind: "memory_error", error: {code: "storage_failed", retryable: false, rules: []}};
   let result: unknown;
   switch (r.command) {
-    case "operation_list": result = {items: admitted ? [{operationId:"synthetic-operation",kind:"external_send",state:finished ? "succeeded" : "running",progress:{done:0,total:null},result:finished ? {finish:"completed"} : null}] : []}; break;
+    case "operation_list": result = {items: admitted ? [{operationId:"synthetic-operation",kind:"external_send",state:finished ? "succeeded" : "running",cancelRequested:false,progress:{done:0,total:null},result:finished ? {finish:"completed"} : null}] : []}; break;
     case "session_list": result = {items: ["one", "two"].map(n => ({sessionId: `session-${n}`, updatedAt: "2026-10-12T00:00:00.000Z", branches: [{branchId: `branch-${n}`, lastEventSeq: 1}]}))}; break;
     case "session_detail": result = {sessionId:r.arguments.sessionId,branchId:r.arguments.branchId,transcript: submitted && r.arguments.sessionId === "session-one" ? [{eventId: "synthetic-input", kind: "input", deliveryState: "saved", text: submitted}, ...(finished ? [{eventId:"synthetic-reply", kind:"response", deliveryState:"saved", text:"Saved synthetic reply"}] : [])] : [], checkpoints: [], turns: [], invocations: [], lastSavedEventId: null}; break;
     case "provider_status": result = setup; break;
@@ -37,7 +37,7 @@ setTransport(async (command, args) => {
       await new Promise<void>(resolve => {releaseSend = resolve;});
       admitted = true;
       result = {operationId: "synthetic-operation",kind:"external_send"}; break;
-    case "operation_get": result = {operationId:r.arguments.operationId,kind: "external_send", state: finished ? "succeeded" : "running", progress: {done: 0, total: null}, result: finished ? {finish: "completed"} : null}; break;
+    case "operation_get": result = {operationId:r.arguments.operationId,kind: "external_send", state: finished ? "succeeded" : "running", cancelRequested:false, progress: {done: 0, total: null}, result: finished ? {finish: "completed"} : null}; break;
     default: throw new Error(`Unexpected Core command: ${r.command}`);
   }
   return {kind: "memory_page", result, error: null};

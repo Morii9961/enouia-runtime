@@ -125,8 +125,14 @@ impl Page {
             if let Some(kind) = started["kind"].as_str() {
                 assert_eq!(status["kind"], kind);
             }
-            assert!(status["progress"]["done"].is_number());
+            assert!(status["cancelRequested"].is_boolean());
+            assert!(status["progress"]["done"].as_u64().is_some());
+            assert!(
+                status["progress"]["total"].is_null()
+                    || status["progress"]["total"].as_u64().is_some()
+            );
             let state = status["state"].as_str().unwrap();
+            assert!(["queued", "running", "succeeded", "failed", "cancelled"].contains(&state));
             if state != "queued" && state != "running" {
                 return status;
             }
