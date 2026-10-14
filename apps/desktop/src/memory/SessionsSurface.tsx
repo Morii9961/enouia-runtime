@@ -111,6 +111,10 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
           <div className="qr19">Conversations kept as they happened.</div>
         </div>
         <div className="qr20">
+          <button type="button" className="mem-button" disabled={busy || listRead.busy}
+            onClick={() => {
+              if (!writing.current && !externalWriting.current && !suggestionWriting.current && !listRead.pending.current && !detailRead.pending.current) void list();
+            }}>{listRead.error ? "Read session list again" : "Refresh session list"}</button>
           <button type="button" className="mem-button mem-primary" disabled={writesBlocked || listRead.busy}
             onClick={() => write("question", async (key) => {
               const s = await request("session_new", {}, key);
@@ -119,6 +123,9 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
             })}>New session</button>
         </div>
         <ErrorBox error={listRead.error} />
+        {listRead.error && <p className="mem-muted qr20" role="status">
+          The session list could not be read. {sessions == null ? "Its contents are still unknown." : "These rows are from the previous successful list read."} Read it again to refresh the list. This does not create a session or send a question.
+        </p>}
         {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">Reading sessions…</p>}
         {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
         <div className="qr27">
