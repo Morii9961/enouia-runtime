@@ -1,0 +1,13 @@
+# Provider plan confirmation ownership
+
+Date: 2026-10-14 (Asia/Shanghai). Baseline `3f0aacdb00511bacf56ee030d09bdf8c073aba9d`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+Source inspection found that the Provider panel's Retry retained the submission key, but pressing Confirm again after a delivery failure started a new keyed submission. A nonretryable refusal also left Confirm available. This is a client recovery gap, not evidence of duplicate canonical commits: the pinned Core already caches successful confirmations by plan ID and hash.
+
+Each held plan now copies its displayed content and identity and owns one immutable confirmation payload/key. Explicit reconfirmation and Retry use that same closure. Nonretryable failure withholds Confirm and offers cancellation followed by a read of the saved Provider/session state. Cancel also clears the old action's retry. Holding the plan prevents changing models, extraction permission or keys, preparing/sending a different request, replacing the plan or switching session branches through the parent ownership guard. Core policy and confirmation behavior remain unchanged.
+
+Fresh validation: all 76 frontend tests, including three new regressions for actual synthetic IPC envelopes after lost delivery, immutable displayed content/identity and separate plan keys; frontend TypeScript; strict checking of the new fixture and affected Provider fixtures; all 61 native host tests and five pinned-Core consumers; Rust formatting and strict Clippy; ordinary frontend/no-bundle desktop builds; Memory pin and dependency guards (8 + 7 negative cases). The pre-existing Provider setup fixture's opaque request access was typed for strict checking. A sandbox dependency-resolution failure in the first frontend run was resolved by running the unchanged suite with the allowed dependency access.
+
+`e2e/provider-confirmation.html` mounts the actual panel against synthetic IPC to exercise held-review guards, explicit reconfirmation plus Retry, nonretryable refusal and cancellation readback without another confirmation. It and the affected browser fixtures are saved/type-checked but **not executed in this turn**: the available browser inventory was empty. Prior browser reports remain historical. Pure request tests, source inspection and builds do not establish browser, Narrator, physical interaction or Morii acceptance.
+
+No personal Vault, credentials, real Provider HTTP, Activity activation, installer, Memory domain change or pin bump occurred. Owner changes and manual status snapshots are outside this slice.
