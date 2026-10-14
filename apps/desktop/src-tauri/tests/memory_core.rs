@@ -282,8 +282,60 @@ fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
         "remember",
         json!({"text":statement, "claimKey":"synthetic.schedule"}),
     );
-    let prepared = page.ok("extraction_prepare", json!({"sourceId":source["sourceId"], "sourceRevision":1,
-        "startByte":0, "endByte":statement.len(), "api":"anthropic", "policyId":confirmed["policyId"], "maxCandidates":2}));
+    let prepare_args = json!({"sourceId":source["sourceId"], "sourceRevision":1,
+        "startByte":0, "endByte":statement.len(), "api":"anthropic", "policyId":confirmed["policyId"], "maxCandidates":2});
+    let prepare_reply = page.send_keyed(
+        "extraction_prepare",
+        prepare_args.clone(),
+        Some("ui-runtime-synthetic-preparation-recovery"),
+    );
+    assert_eq!(prepare_reply["error"], Value::Null);
+    let prepared = prepare_reply["result"].clone();
+    let prepare_replay = page.send_keyed(
+        "extraction_prepare",
+        prepare_args,
+        Some("ui-runtime-synthetic-preparation-recovery"),
+    );
+    assert_eq!(prepare_replay["error"], Value::Null);
+    for field in ["sessionId", "runId", "inputEventId"] {
+        assert_eq!(prepare_replay["result"][field], prepared[field]);
+    }
+    let conversation = page.ok("session_new", json!({}));
+    let question = "Synthetic preparation recovery question";
+    let external_args = json!({"sessionId":conversation["sessionId"], "branchId":conversation["branchId"],
+        "text":question, "api":"anthropic", "policyId":confirmed["policyId"], "streaming":false, "outputTokens":128});
+    let external_first = page.send_keyed(
+        "external_prepare",
+        external_args.clone(),
+        Some("ui-runtime-synthetic-question-preparation"),
+    );
+    assert_eq!(external_first["error"], Value::Null);
+    let external_replay = page.send_keyed(
+        "external_prepare",
+        external_args,
+        Some("ui-runtime-synthetic-question-preparation"),
+    );
+    assert_eq!(external_replay["error"], Value::Null);
+    assert_eq!(
+        external_replay["result"]["inputEventId"],
+        external_first["result"]["inputEventId"]
+    );
+    let conversation_detail = page.ok(
+        "session_detail",
+        json!({"sessionId":conversation["sessionId"], "branchId":conversation["branchId"]}),
+    );
+    let inputs: Vec<_> = conversation_detail["transcript"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|event| event["text"] == question)
+        .collect();
+    assert_eq!(inputs.len(), 1);
+    assert_eq!(
+        inputs[0]["eventId"],
+        external_first["result"]["inputEventId"]
+    );
+    assert_eq!(transport.0.load(Ordering::SeqCst), 0);
     strings(
         &prepared,
         &[

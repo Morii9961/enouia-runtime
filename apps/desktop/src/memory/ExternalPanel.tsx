@@ -8,6 +8,7 @@ import { call, describe, providerSetup, providerReload, providerKey, type J } fr
 import { useAction, useLatestRead } from "./hooks";
 import { holdProviderConfirmation } from "./providerConfirmation";
 import { holdProviderSend } from "./providerSend";
+import { holdProviderPreparation } from "./providerPreparation";
 import { ErrorBox, Operation, OperationFeedback, Tag, shortId } from "./ui";
 
 type Branch = { sessionId: string; branchId: string };
@@ -45,6 +46,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
   const [confirmationPlan, setPlan] = useState<ReturnType<typeof holdProviderConfirmation> | null>(null);
   const plan = confirmationPlan?.plan;
   const [heldSend, setPrepared] = useState<ReturnType<typeof holdProviderSend> | null>(null);
+  const [preparation, setPreparation] = useState<ReturnType<typeof holdProviderPreparation> | null>(null);
   const prepared = heldSend?.prepared;
   const submitted = heldSend?.submitted() ?? false;
   const [operation, setOperation] = useState<string | null>(null);
@@ -60,11 +62,11 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       setSetup(n);
       setApi((current) => s.destinations.some((d: J) => d.api === current) ? current : s.destinations[0]?.api ?? "");
     },
-    () => { setStatus(null); setSetup(null); setPrepared(null); setPlan(null); },
+    () => { setStatus(null); setSetup(null); setPrepared(null); setPreparation(null); setPlan(null); },
   ), [read.run, request, native]);
   useEffect(() => { void refresh(); }, [refresh]);
   const owningWork = action.busy || operation != null;
-  const owningReview = owningWork || !!plan || submitted;
+  const owningReview = owningWork || !!plan || submitted || !!preparation;
   useEffect(() => {
     onBusyChange?.(owningReview);
     return () => onBusyChange?.(false);
@@ -74,10 +76,10 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
     return () => onOperationChange?.(null);
   }, [operation, onOperationChange]);
   // A prepared call and a held plan belong to the branch they came from.
-  useEffect(() => { setPrepared(null); setPlan(null); setNotice(null); setCompletion(null); action.clear(); }, [branch.sessionId, branch.branchId, action.clear]);
+  useEffect(() => { setPrepared(null); setPreparation(null); setPlan(null); setNotice(null); setCompletion(null); action.clear(); }, [branch.sessionId, branch.branchId, action.clear]);
 
   const busy = disabled || owningWork || read.busy || (!status && !read.error);
-  const reviewBusy = busy || !!plan || submitted;
+  const reviewBusy = busy || !!plan || submitted || !!preparation;
   const setupBusy = reviewBusy || !!prepared;
   const confirmationBlocked = !!action.error && !action.error.retry;
   const holdPlan = (command: string, args: Record<string, unknown>) =>
@@ -140,9 +142,9 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       <p className="mem-muted">Create or edit <span className="mem-mono">%APPDATA%\com.enouia.runtime\memory-providers.json</span> with the exact model and limits you verified. Set schemaVersion to 1; each destination needs api (openai or anthropic), model, contextWindowTokens, maxOutputTokens, streaming and verifiedAt (an ISO timestamp). Also set maxAttemptsPerSession and maxReservedTokensPerSession. No values are inferred.</p>
       <p className="mem-muted">Reload settings after editing. Remove the file and reload to turn external providers off. Keys belong only in the native Set key prompt. A loaded configuration still needs a key and a reviewed grant; you inspect each request before Send once. Session token limits are estimates, not a spending cap.</p>
     </details>
-    <div className="mem-actions"><button type="button" className="mem-button" disabled={busy || !!plan || !!prepared} onClick={reload}>{action.busy ? "Working…" : "Reload settings"}</button></div>
+    <div className="mem-actions"><button type="button" className="mem-button" disabled={busy || !!plan || !!prepared || !!preparation} onClick={reload}>{action.busy ? "Working…" : "Reload settings"}</button></div>
     {operation && <p className="mem-muted">Wait for the current call to finish before reloading settings.</p>}
-    {(plan || prepared) && <p className="mem-muted">Finish or cancel the current review before reloading settings.</p>}
+    {(plan || prepared || preparation) && <p className="mem-muted">Finish or cancel the current review before reloading settings.</p>}
   </>;
 
   if (read.error) return <div className="mem-stack">
@@ -209,21 +211,33 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       {confirmation}
 
       {!prepared && !operation && (
-        <div className="mem-actions">
-          <button type="button" className="mem-button" disabled={reviewBusy || !grant || !text.trim()}
-            title={grant ? undefined : "A grant is needed first"}
-            onClick={() => void action.run(async (key) => {
-              const submitted = text;
-              setNotice(null); setCompletion(null);
-              const result = await request("external_prepare", {
-                ...branch, text: submitted, api, policyId: grant.policyId,
-                streaming: destination?.streaming === "supported",
-                outputTokens: Math.min(1024, destination?.maxOutputTokens ?? 1024),
-              }, key);
-              consumeText(submitted);
-              setPrepared(holdProviderSend(result, request));
-              await onChanged();
-            })}>Prepare the question for {api}…</button>
+        <div className="mem-stack">
+          {preparation && <p role="status" className="mem-muted">Preparation was submitted. Its saved result is not confirmed here. Recover the original preparation or leave and read the saved session. Preparing does not send to a model.</p>}
+          <div className="mem-actions">
+            <button type="button" className="mem-button" disabled={busy || !!plan || submitted || (!preparation && (!grant || !text.trim())) || (!!preparation && confirmationBlocked)}
+              title={grant ? undefined : "A grant is needed first"}
+              onClick={() => {
+                const held = preparation ?? holdProviderPreparation("external_prepare", {
+                  ...branch, text, api, policyId: grant.policyId,
+                  streaming: destination?.streaming === "supported",
+                  outputTokens: Math.min(1024, destination?.maxOutputTokens ?? 1024),
+                }, request);
+                setPreparation(held);
+                void action.run(async () => {
+                  setNotice(null); setCompletion(null);
+                  const result = await held.prepare();
+                  consumeText(held.arguments.text as string);
+                  setPrepared(holdProviderSend(result, request));
+                  setPreparation(null);
+                  await onChanged();
+                });
+              }}>{preparation ? "Recover preparation" : `Prepare the question for ${api}…`}</button>
+            {preparation && <button type="button" className="mem-button" disabled={busy} onClick={() => void action.run(async () => {
+              setPreparation(null);
+              setNotice("Preparation has not sent a model request. Read the saved session before preparing another question.");
+              await refresh(); await onChanged();
+            })}>Leave preparation and read saved state</button>}
+          </div>
         </div>
       )}
 
