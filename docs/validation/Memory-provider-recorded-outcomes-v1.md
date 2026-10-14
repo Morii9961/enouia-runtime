@@ -1,0 +1,11 @@
+# Saved Provider failure reasons
+
+Date: 2026-10-14 (Asia/Shanghai). Baseline `d934b0a26e1ec3ad938fcc0a73e5539bf38fbd4e`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The Session's invocation ledger already carries optional `error_code`, but the Runtime history showed only the outcome and token counts. A reopened failed call therefore lost its saved reason in the presentation. The panel now labels that recorded structured code using existing owner error text, including with native providers off. Full dispatch identity is available in the row's title. No present configuration/model is inferred as the destination or cause of an older call.
+
+Only the pinned Core's 23 structured error-code names are eligible for display; non-enum/private values receive a fixed fallback. Outcome labels likewise use own entries from the five-state ledger map, with a fixed unavailable-state fallback rather than rendering unknown/inherited values. History is read-only except for its already established explicit unknown-call local-close workflow. No error adds a Retry, prepare or send action, and success/length records do not acquire a failure reason when none was saved.
+
+Fresh verification passed: all 88 frontend tests, including actual SSR privacy/error rendering; frontend TypeScript and strict affected fixtures; frontend/no-bundle desktop build; Memory pin/dependency guards (8 + 7 negatives). The unchanged five pinned-Core consumers, formatting/Clippy and 61 host tests retain the immediately preceding applicable runs: this slice changes only frontend presentation, fixtures and reports.
+
+The new read-only browser fixture passed 8/8, with exactly one Core status read and one synthetic native setup read. Six affected Provider fixtures passed 88 further checks. The saved-suggestion/source/ordinary-review/readback journey and ten related candidate/Context/Session recovery fixtures passed 137 additional checks (233 total in this slice). [Captured browser summary](Memory-provider-recorded-outcomes-browser.json) stores selected actual result fields. This is synthetic browser/SSR evidence, not live Provider, personal Vault, credentials, Activity, installer, physical Windows/Narrator or Morii acceptance. Owner changes and manual status snapshots remain untouched.

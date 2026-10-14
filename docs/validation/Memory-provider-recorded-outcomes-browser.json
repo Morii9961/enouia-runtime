@@ -1,0 +1,40 @@
+{
+  "baseline": "d934b0a26e1ec3ad938fcc0a73e5539bf38fbd4e",
+  "capture": "Selected actual #results fields; synthetic stored invocations and setup only",
+  "newFixture": {
+    "fixture": "provider-recorded-outcomes",
+    "checks": [
+      {"id":"saved_failure_is_readable_with_providers_off","ok":true},
+      {"id":"known_saved_provider_code_is_retained","ok":true},
+      {"id":"success_and_limit_do_not_inherit_failure_reason","ok":true},
+      {"id":"unknown_or_private_codes_use_safe_fallback","ok":true},
+      {"id":"unknown_state_does_not_impersonate_a_terminal_outcome","ok":true},
+      {"id":"dispatch_identity_remains_available_in_full","ok":true},
+      {"id":"no_model_retry_or_prepare_is_offered","ok":true},
+      {"id":"history_rendering_only_reads_setup","ok":true}
+    ],
+    "passed": true,
+    "calls": ["memory_call", "memory_provider_setup"]
+  },
+  "regressions": [
+    {"fixture":"provider-off-ledger","checks":10,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"provider-operations","checks":12,"passed":true},
+    {"fixture":"provider-confirmation","checks":9,"passed":true},
+    {"fixture":"provider-send-recovery","checks":20,"passed":true},
+    {"fixture":"provider-preparation-recovery","checks":19,"passed":true}
+  ],
+  "savedReviewJourney": [
+    {"fixture":"suggestion-review-journey","checks":15,"passed":true},
+    {"fixture":"saved-suggestion-apply","checks":17,"passed":true},
+    {"fixture":"saved-suggestion-identity","checks":13,"passed":true},
+    {"fixture":"saved-suggestions","checks":10,"passed":true},
+    {"fixture":"candidate-source","checks":14,"passed":true},
+    {"fixture":"candidate-conflict","checks":10,"passed":true},
+    {"fixture":"candidate-paging","checks":13,"passed":true},
+    {"fixture":"context-observation","checks":14,"passed":true},
+    {"fixture":"memory-inspector-identity","checks":9,"passed":true},
+    {"fixture":"session-observation","checks":11,"passed":true},
+    {"fixture":"session-list-recovery","checks":11,"passed":true}
+  ]
+}

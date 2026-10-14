@@ -9,6 +9,7 @@ import { useAction, useLatestRead } from "./hooks";
 import { holdProviderConfirmation } from "./providerConfirmation";
 import { holdProviderSend } from "./providerSend";
 import { holdProviderPreparation } from "./providerPreparation";
+import { recordedInvocationOutcome } from "./recordedInvocation";
 import { ErrorBox, Operation, OperationFeedback, Tag, shortId } from "./ui";
 
 type Branch = { sessionId: string; branchId: string };
@@ -18,14 +19,6 @@ const NATIVE: Native = { setup: providerSetup, reload: providerReload, key: prov
 const SETUP_TEXT: Record<string, string> = {
   absent: "External providers are off. To turn them on, the owner writes memory-providers.json in Runtime's settings folder with the exact models and limits they verified.",
   invalid: "memory-providers.json was refused, so external providers stay off.",
-};
-
-const STATE_TEXT: Record<string, string> = {
-  completed: "completed",
-  length: "stopped at the output limit",
-  failed: "failed",
-  cancelled: "closed locally",
-  outcome_unknown: "outcome unknown: the request may have reached the provider",
 };
 
 export function ExternalPanel({ branch, text, invocations, onChanged, consumeText, onBusyChange, onOperationChange, disabled = false, request = call, native = NATIVE }: {
@@ -110,17 +103,21 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       <h4 className="mem-label">Provider calls in this session</h4>
       <p className="mem-muted">Closing an unknown call locally records a local outcome. It does not undo processing at the service.</p>
       <ul className="mem-list">
-        {invocations.map((i: J) => (
+        {invocations.map((i: J) => {
+          const saved = recordedInvocationOutcome(i.state, i.error_code);
+          return (
           <li key={i.dispatch_id}>
-            <Tag tone={i.state === "completed" ? "ok" : "warn"}>{STATE_TEXT[i.state] ?? i.state}</Tag>{" "}
-            {shortId(i.dispatch_id)} · reserved {i.reserved_tokens} tokens
+            <Tag tone={i.state === "completed" ? "ok" : "warn"}>{saved.outcome}</Tag>{" "}
+            <span title={i.dispatch_id}>{shortId(i.dispatch_id)}</span> · reserved {i.reserved_tokens} tokens
             {i.input_tokens != null && ` · reported ${i.input_tokens} in / ${i.output_tokens ?? "?"} out`}
+            {saved.error && <p className="mem-muted">Recorded error: {saved.error}</p>}
             {i.state === "outcome_unknown" && !operation && (
               <>{" "}<button type="button" className="mem-link" disabled={setupBusy}
                 onClick={() => holdPlan("external_interrupt_plan", { inputEventId: i.input_event_id, dispatchId: i.dispatch_id })}>Close locally…</button></>
             )}
           </li>
-        ))}
+          );
+        })}
       </ul>
     </div>
   );
