@@ -22,3 +22,8 @@ export function dispatchObservation(result: J, dispatchId: string, capsuleId: st
   if (result.verified && result.requestHash !== requestHash) throw new Error("dispatch observation hash mismatch");
   return result;
 }
+
+export function sessionObservation(result: J, sessionId: string, branchId: string): J {
+  if (result?.sessionId !== sessionId || result?.branchId !== branchId) throw new Error("session observation identity mismatch");
+  return result;
+}

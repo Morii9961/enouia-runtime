@@ -13,6 +13,7 @@ import { SessionEventBody } from "./SessionEventBody";
 import { ExternalPanel } from "./ExternalPanel";
 import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
 import { SavedExtractionJobs } from "./SavedExtractionJobs";
+import { sessionObservation } from "./observationIdentity";
 
 type Branch = { sessionId: string; branchId: string };
 
@@ -59,7 +60,7 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
   useEffect(() => { void list(); }, [list]);
   const open = (b: Branch) => {
     setRequested(b);
-    return detailRead.run(() => request("session_detail", b), (saved) => {
+    return detailRead.run(async () => sessionObservation(await request("session_detail", b), b.sessionId, b.branchId), (saved) => {
       const key = branchKey(b);
       if (selectedBranch.current !== key) { setAnswer(null); action.clear(); }
       selectedBranch.current = key;

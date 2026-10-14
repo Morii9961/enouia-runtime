@@ -820,6 +820,8 @@ fn session_and_context_fields_the_surfaces_render() {
     }
 
     let detail = page.ok("session_detail", branch.clone());
+    assert_eq!(detail["sessionId"], branch["sessionId"]);
+    assert_eq!(detail["branchId"], branch["branchId"]);
     assert!(detail.get("lastSavedEventId").is_some());
     let transcript = detail["transcript"].as_array().unwrap();
     assert!(!transcript.is_empty());
@@ -851,7 +853,9 @@ fn session_and_context_fields_the_surfaces_render() {
         json!({"sessionId": created["sessionId"], "branchId": created["branchId"], "summary": "Asked about the Lantern release."}),
     );
     assert!(checkpoint["checkpointId"].is_string());
-    let after = page.ok("session_detail", branch);
+    let after = page.ok("session_detail", branch.clone());
+    assert_eq!(after["sessionId"], branch["sessionId"]);
+    assert_eq!(after["branchId"], branch["branchId"]);
     for c in after["checkpoints"].as_array().unwrap() {
         strings(c, &["checkpoint_id", "status"], "checkpoint");
     }

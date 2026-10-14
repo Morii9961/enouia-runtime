@@ -20,7 +20,7 @@ setTransport(async(native,args)=>{
   switch(r.command){
     case "operation_list":result={items:[]};break;
     case "session_list":result={items:["session-one","session-two"].map((sessionId,n)=>({sessionId,updatedAt:"2026-10-12T00:00:00Z",branches:[{branchId:`branch-${n}`,lastEventSeq:2}]}))};break;
-    case "session_detail":result={transcript:[],turns:[],checkpoints:[],invocations:[],lastSavedEventId:null,extractionJobs:r.arguments.sessionId==="session-one"?[job("job-one"),job("job-two")]:[job("job-other")]};break;
+    case "session_detail":result={sessionId:r.arguments.sessionId,branchId:r.arguments.branchId,transcript:[],turns:[],checkpoints:[],invocations:[],lastSavedEventId:null,extractionJobs:r.arguments.sessionId==="session-one"?[job("job-one"),job("job-two")]:[job("job-other")]};break;
     case "provider_status":result={configured:false,destinations:[],grants:[]};break;
     case "extraction_preview":{
       const run=String(r.arguments.runId);

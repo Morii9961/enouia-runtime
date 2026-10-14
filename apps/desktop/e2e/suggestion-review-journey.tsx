@@ -30,7 +30,7 @@ setTransport(async (native, args) => {
     case "operation_list": result = { items: [] }; break;
     case "provider_status": result = { configured: false, destinations: [], grants: [] }; break;
     case "session_list": result = { items: [{ sessionId: "synthetic-session", updatedAt: "2026-10-13T00:00:00Z", branches: [{ branchId: "synthetic-branch", lastEventSeq: 2 }] }] }; break;
-    case "session_detail": result = { transcript: [], turns: [], checkpoints: [], invocations: [], lastSavedEventId: "synthetic-input", extractionJobs: [job] }; break;
+    case "session_detail": result = { sessionId:r.arguments.sessionId,branchId:r.arguments.branchId,transcript: [], turns: [], checkpoints: [], invocations: [], lastSavedEventId: "synthetic-input", extractionJobs: [job] }; break;
     case "extraction_preview":
       if (r.arguments.sessionId !== "synthetic-session" || r.arguments.runId !== "synthetic-run") throw new Error("Wrong saved job");
       result = { job, items: [{ responseIndex: 0, proposedType: "fact", content: original, quote: "Synthetic source", selectedText: "Synthetic source supplied by owner", application: "candidate_recorded", candidate: candidate() }] }; break;
