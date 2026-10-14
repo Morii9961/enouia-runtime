@@ -2,10 +2,11 @@
 // workspace (apps/workspace/src/App.tsx at the pinned revision). Every value
 // shown comes from the Core. Memory and source text render as plain text
 // nodes, never as HTML or Markdown.
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ExtractionPanel } from "./ExtractionPanel";
 import { CallError, call, describe, newKey, type J } from "./client";
 import { useAction, useLatestRead, type Failure } from "./hooks";
+import { sourceObservation } from "./observationIdentity";
 
 /** A short local timestamp for a Core ISO time; the raw value on failure. */
 export function when(iso: string | null | undefined): string {
@@ -48,40 +49,79 @@ function OperationWatch({ id, onDone, request }: { id: string; onDone?: (status:
   const [status, setStatus] = useState<J>(null);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
+  const [cancelAcknowledged, setCancelAcknowledged] = useState(false);
+  const terminal = useRef(false);
+  const observation = useRef(0);
+  const mounted = useRef(false);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
   const cancel = useAction();
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const publish = useCallback((next: J) => {
+    if (terminal.current) return;
+    setStatus(next);
+    setError(null);
+    if (["succeeded", "failed", "cancelled"].includes(next.state)) {
+      terminal.current = true;
+      onDoneRef.current?.(next);
+    }
+  }, []);
   useEffect(() => {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout>;
     setError(null);
     const poll = async () => {
+      if (terminal.current) return;
+      const started = observation.current;
       try {
         const s = await request("operation_get", { operationId: id });
         if (stopped) return;
-        setStatus(s);
-        if (!["queued", "running"].includes(s.state)) onDoneRef.current?.(s);
-        else timer = setTimeout(poll, 400);
+        // A cancellation reply is a newer observation than a read already
+        // in flight. That older read must not reopen a terminal operation.
+        if (started === observation.current) publish(s);
       } catch (err) {
-        if (!stopped) setError(describe(err));
+        if (stopped) return;
+        if (started === observation.current && !terminal.current) {
+          setError(describe(err));
+          return;
+        }
       }
+      if (!stopped && !terminal.current) timer = setTimeout(poll, 400);
     };
     void poll();
     return () => { stopped = true; clearTimeout(timer); };
-  }, [id, retry, request]);
-  if (error) return <ErrorBox error={{ text: `Could not read the operation: ${error}`, retry: () => setRetry((n) => n + 1) }} />;
-  if (!status) return <p role="status" className="mem-muted">Operation queued…</p>;
-  return <OperationFeedback status={status} cancelling={cancel.busy} error={cancel.error}
-    onCancel={() => void cancel.run(() => request("operation_cancel", { operationId: id }))} />;
+  }, [id, retry, request, publish]);
+  const stop = () => void cancel.run(async () => {
+    const next = await request("operation_cancel", { operationId: id });
+    if (!mounted.current || terminal.current) return;
+    if (next?.operationId !== id || next.kind !== status.kind ||
+      !["queued", "running", "succeeded", "failed", "cancelled"].includes(next.state) ||
+      typeof next.cancelRequested !== "boolean" || !next.progress) {
+      throw new CallError({ code: "invalid_request", retryable: false, rules: [] });
+    }
+    observation.current += 1;
+    if (next.cancelRequested) setCancelAcknowledged(true);
+    publish(next);
+    // A previous failed or held read must not leave an acknowledged stop
+    // without a watcher. Restart observation only; never replay the stop.
+    if (!terminal.current) setRetry((n) => n + 1);
+  });
+  return <>
+    {status ? <OperationFeedback status={{ ...status, cancelRequested: status.cancelRequested || cancelAcknowledged }}
+      cancelling={cancel.busy} error={cancel.error} onCancel={stop} />
+      : !error && <p role="status" className="mem-muted">Operation queued…</p>}
+    {error && <ErrorBox error={{ text: `Could not read the operation: ${error}`, retry: () => setRetry((n) => n + 1) }} />}
+  </>;
 }
 
-/** Cancellation is cooperative, and only import/index workers observe it. */
+/** Cancellation is cooperative; external calls stop locally, not remotely. */
 export function OperationFeedback({ status, cancelling = false, error = null, onCancel }: {
   status: J; cancelling?: boolean; error?: Failure; onCancel: () => void;
 }) {
   const { done, total } = status.progress;
   const active = status.state === "queued" || status.state === "running";
-  const cancellable = ["import", "import_resume", "index_rebuild"].includes(status.kind);
+  const external = status.kind === "external_send";
+  const cancellable = external || ["import", "import_resume", "index_rebuild"].includes(status.kind);
   return (
     <div className="mem-operation" role="status" aria-live="polite" aria-atomic="true">
       <span className="mem-mono">{status.kind}</span>
@@ -90,11 +130,17 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
       {active && cancellable && (
         <button type="button" className="mem-button" disabled={status.cancelRequested || cancelling}
           onClick={onCancel}>
-          {status.cancelRequested ? "Cancellation requested" : "Cancel"}
+          {external ? (status.cancelRequested ? "Local stop requested" : "Stop locally") : (status.cancelRequested ? "Cancellation requested" : "Cancel")}
         </button>
       )}
-      {active && cancellable && status.cancelRequested && <span className="mem-muted">Waiting for the next safe point.</span>}
+      {active && external && <span className="mem-muted">The service may have received the request. Stopping locally does not confirm remote cancellation.</span>}
+      {active && cancellable && status.cancelRequested && <span className="mem-muted">{external ? "Waiting for the local call to stop." : "Waiting for the next safe point."}</span>}
       {active && !cancellable && <span className="mem-muted">Finishes before locking or exiting.</span>}
+      {!active && external && <span className="mem-muted">
+        {status.state === "succeeded" && ["completed", "length"].includes(status.result?.finish)
+          ? `Reply saved in the session${status.result.finish === "length" ? "; stopped at the output limit" : ""}.`
+          : "Read the recorded outcome in the session before preparing another request. The service may have received this request."}
+      </span>}
       {status.state === "succeeded" && status.kind === "vault_verify" && typeof status.result?.clean === "boolean" && (
         <span className={status.result.clean ? "mem-muted" : "mem-warn"}>
           {status.result.clean ? "Verification passed" : "Verification found integrity problems"}: {status.result.recordsChecked} records · {status.result.objectsChecked} objects.
@@ -191,18 +237,20 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
 export function Source({ evidence, readPage = call }: { evidence: J; readPage?: typeof call }) {
   const [loaded, setLoaded] = useState<{ sourceId: string; revision: number; page: J } | null>(null);
   const [suggest, setSuggest] = useState(false);
+  const [extractionBusy, setExtractionBusy] = useState(false);
   const action = useLatestRead();
   const excerpt = evidence.available && loaded && loaded.sourceId === evidence.sourceId && loaded.revision === evidence.sourceRevision ? loaded.page : null;
   useEffect(() => {
     action.clear();
     setLoaded(null);
+    setSuggest(false);
   }, [evidence.sourceId, evidence.sourceRevision, evidence.available, action.clear]);
   const load = (start: number | null) => {
-    if (!evidence.available) return;
+    if (!evidence.available || extractionBusy) return;
     const sourceId = evidence.sourceId;
     const revision = evidence.sourceRevision;
     setLoaded(null);
-    void action.run(() => readPage("source_excerpt", { sourceId, sourceRevision: revision, startByte: start, maxBytes: 4096 }),
+    void action.run(async () => sourceObservation(await readPage("source_excerpt", { sourceId, sourceRevision: revision, startByte: start, maxBytes: 4096 }), sourceId, revision),
       (page) => setLoaded({ sourceId, revision, page }));
   };
   return (
@@ -222,9 +270,10 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
             {excerpt.sourceKind} · {excerpt.speakerRole} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions
           </figcaption>
           <pre className="mem-source">{excerpt.excerpt}</pre>
-          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" onClick={() => { setSuggest(false); load(excerpt.byteEnd); }}>Next part</button>}
+          {extractionBusy && <p role="status" className="mem-muted">Waiting for the current suggestion action before showing another part.</p>}
+          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={extractionBusy} onClick={() => { if (!extractionBusy) { setSuggest(false); load(excerpt.byteEnd); } }}>Next part</button>}
           {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button type="button" className="mem-link" onClick={() => setSuggest(true)}>Suggest memories from this part…</button></>}
-          {suggest && <ExtractionPanel request={readPage} onClose={() => setSuggest(false)}
+          {suggest && <ExtractionPanel request={readPage} onBusyChange={setExtractionBusy} onClose={() => setSuggest(false)}
             range={{ sourceId: evidence.sourceId, revision: evidence.sourceRevision, start: excerpt.byteStart, end: excerpt.byteEnd }} />}
         </figure>
       )}

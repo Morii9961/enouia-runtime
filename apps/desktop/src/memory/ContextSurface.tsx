@@ -3,11 +3,12 @@
 // was sent, and the verified actual request of each dispatch. Ported from
 // Memory's reference workspace. A new preview clears the old view and
 // invalidates pending reads, and a dispatch view cannot outlive its capsule.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
+import { capsuleObservation, dispatchObservation } from "./observationIdentity";
 
 /** The capsule budget in words when it has the usual fields; otherwise as recorded. */
 function budget(b: J): string {
@@ -43,14 +44,21 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
   const pending = action.busy ? "Preparing preview…"
     : reads.busy || (id && !view && !reads.error) ? "Reading the saved capsule…"
     : dispatchReads.busy ? "Reading the actual request…" : null;
-  useEffect(() => {
+  const observeCapsule = useCallback((target: string) => {
     setView(null);
     setRequest(null);
     setDispatchId(null);
     dispatchReads.clear();
-    if (!id) return;
-    void reads.run(() => readPage("context_inspect", { capsuleId: id }), setView);
-  }, [id, readPage, reads.run, dispatchReads.clear]);
+    void reads.run(async () => capsuleObservation(await readPage("context_inspect", { capsuleId: target }), target), setView);
+  }, [readPage, reads.run, dispatchReads.clear]);
+  useEffect(() => { if (id) observeCapsule(id); }, [id, observeCapsule]);
+  const observeDispatch = (dispatch: J) => {
+    if (!id || !view || action.busy || reads.pending.current) return;
+    const capsule = id;
+    setRequest(null); setDispatchId(dispatch.dispatchId);
+    void dispatchReads.run(async () => dispatchObservation(await readPage("dispatch_inspect", { dispatchId: dispatch.dispatchId }), dispatch.dispatchId, capsule, dispatch.requestHash), setRequest);
+  };
+  const selectedDispatch = view?.dispatches.find((d: J) => d.dispatchId === dispatchId);
   const decisions: J[] = view?.inspection?.decisions ?? [];
   const included = decisions.filter((d) => d.decision === "included");
   const excluded = decisions.filter((d) => d.decision !== "included");
@@ -90,12 +98,15 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
         <ErrorBox error={action.error} />
         <ErrorBox error={reads.error} />
         <ErrorBox error={dispatchReads.error} />
+        {id && <button type="button" className="mem-button" disabled={action.busy || reads.busy}
+          onClick={() => { if (!action.busy) observeCapsule(id); }}>Read saved capsule again</button>}
+        {reads.error && <p className="mem-muted">This saved capsule could not be read. Read it again; this does not prepare a preview or send a request.</p>}
         {pending && <p role="status" className="mem-muted">{pending}</p>}
         {!id && !action.busy && <p className="mem-muted">Preview a question here, or open the context behind an answer from Sessions.</p>}
         {view && (
           <div className="mem-stack">
             <p className="mem-state-line">
-              <strong>{DELIVERY[view.delivery] ?? view.delivery}</strong>
+              <strong>{Object.hasOwn(DELIVERY, view.delivery) ? DELIVERY[view.delivery] : "Unknown saved delivery state"}</strong>
               <span className="mem-muted"> · capsule <code title={id ?? ""}>{shortId(id)}</code> · destination {view.capsule.destination.kind} · {budget(view.capsule.budget)}</span>
             </p>
             <h3 className="mem-h3">Saved question</h3>
@@ -111,7 +122,7 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
         <div className="qr79">
           <h3 className="mem-h3">Dispatches</h3>
           {view && view.dispatches.length === 0 && <p className="mem-muted">This capsule was never sent.</p>}
-          {!view && <p className="mem-muted">{action.busy ? "Preparing preview…" : !id ? "No capsule selected." : reads.error ? "Capsule unavailable. Retry the read to inspect it." : "Reading capsule…"}</p>}
+          {!view && <p className="mem-muted">{action.busy ? "Preparing preview…" : !id ? "No capsule selected." : reads.error ? "Capsule unavailable. Read saved capsule again to inspect it." : "Reading capsule…"}</p>}
           {view?.dispatches.map((d: J) => (
             <div key={d.dispatchId} className="mem-stack">
               <p>
@@ -119,14 +130,12 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
                 <span className="mem-muted"> · prepared {when(d.preparedAt)}{d.sentAt ? ` · sent ${when(d.sentAt)}` : " · not sent"}{d.completedAt ? ` · completed ${when(d.completedAt)}` : ""}</span>
               </p>
               <div className="mem-actions">
-                <button type="button" className="mem-button" onClick={() => {
-                  setRequest(null);
-                  setDispatchId(d.dispatchId);
-                  void dispatchReads.run(() => readPage("dispatch_inspect", { dispatchId: d.dispatchId }), setRequest);
-                }}>Show the actual request</button>
+                <button type="button" className="mem-button" disabled={action.busy || reads.busy} onClick={() => observeDispatch(d)}>Show the actual request</button>
               </div>
             </div>
           ))}
+          {selectedDispatch && <button type="button" className="mem-button" disabled={action.busy || reads.busy || dispatchReads.busy}
+            onClick={() => observeDispatch(selectedDispatch)}>Read actual request again</button>}
           {request && (
             <div className="mem-stack">
               <p>

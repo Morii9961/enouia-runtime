@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-12",
+  "baseline": "ba7ded5",
+  "fixture": "apps/desktop/e2e/extraction-provider-choice.html",
+  "scope": "synthetic browser IPC against ExtractionPanel with two destinations",
+  "before_fix": {"failed": "configured_destinations_can_be_chosen"},
+  "passed": true,
+  "checks": [
+    {"id": "configured_destinations_can_be_chosen", "ok": true},
+    {"id": "conversation_grant_does_not_allow_extraction", "ok": true},
+    {"id": "chosen_provider_and_model_are_named", "ok": true},
+    {"id": "selection_does_not_send_or_grant", "ok": true},
+    {"id": "selection_is_held_during_prepare", "ok": true},
+    {"id": "prepare_uses_selected_destination_and_grant", "ok": true},
+    {"id": "prepared_body_keeps_its_destination", "ok": true},
+    {"id": "running_call_keeps_its_destination", "ok": true},
+    {"id": "observed_job_keeps_its_destination", "ok": true},
+    {"id": "one_send_and_no_grant_or_key_commands", "ok": true},
+    {"id": "settled_choice_flow_can_close", "ok": true}
+  ],
+  "calls": ["provider_status", "extraction_prepare", "external_send", "operation_get", "operation_get", "extraction_preview"],
+  "prepared_target": {"api": "anthropic", "policyId": "extraction-grant", "sourceId": "synthetic-source", "sourceRevision": 3, "startByte": 20, "endByte": 40},
+  "limits": ["Providers and grants are synthetic", "No credentials or personal source", "No HTTP or account entitlement proof"]
+}

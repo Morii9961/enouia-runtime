@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-12",
+  "baseline": "6183e17",
+  "fixture": "apps/desktop/e2e/operation-cancel.html",
+  "scope": "synthetic browser IPC against the shared Operation component",
+  "before_fix": {"failed": "acknowledgement_is_immediately_visible"},
+  "passed": true,
+  "checks": [
+    {"id": "acknowledgement_is_immediately_visible", "ok": true},
+    {"id": "old_read_cannot_clear_acknowledgement", "ok": true},
+    {"id": "acknowledgement_is_not_terminal", "ok": true},
+    {"id": "real_terminal_observation_finishes_once", "ok": true},
+    {"id": "already_finished_cancel_reply_is_observed", "ok": true},
+    {"id": "old_read_cannot_reopen_terminal", "ok": true},
+    {"id": "terminal_callback_is_not_repeated", "ok": true},
+    {"id": "foreign_acknowledgement_rejected", "ok": true},
+    {"id": "fresh_stop_can_recover_invalid_reply", "ok": true},
+    {"id": "read_failure_retains_stop_control", "ok": true},
+    {"id": "stop_ack_restarts_failed_observation", "ok": true},
+    {"id": "restarted_observation_reaches_terminal", "ok": true},
+    {"id": "only_local_get_and_cancel", "ok": true}
+  ],
+  "calls": ["operation_get", "operation_get", "operation_cancel", "operation_get", "operation_get", "operation_get", "operation_get", "operation_cancel", "operation_get", "operation_get", "operation_cancel", "operation_cancel", "operation_get", "operation_get", "operation_get", "operation_cancel", "operation_get", "operation_get"],
+  "limits": ["No HTTP", "No personal Vault or credentials", "No remote cancellation proof"]
+}

@@ -1,0 +1,26 @@
+{
+  "scope":"Actual Sessions/ExternalPanel, controlled nonretryable detail-read failures, synthetic IPC only",
+  "fixture":"apps/desktop/e2e/provider-session.html",
+  "checks":[
+    {"id":"prepare_blocks_branch_new_and_composer","ok":true},
+    {"id":"disabled_branch_does_not_request_other_detail","ok":true},
+    {"id":"send_admission_blocks_session_writes","ok":true},
+    {"id":"running_send_keeps_owner_selected","ok":true},
+    {"id":"running_send_preserves_cancel","ok":true},
+    {"id":"failed_completion_refresh_has_manual_read","ok":true},
+    {"id":"unobserved_detail_blocks_new_writes","ok":true},
+    {"id":"failed_refresh_does_not_invent_transcript","ok":true},
+    {"id":"recovery_reads_saved_reply","ok":true},
+    {"id":"recovery_never_resends","ok":true},
+    {"id":"completion_refreshes_original_branch","ok":true},
+    {"id":"completion_preserves_later_draft","ok":true},
+    {"id":"new_branch_does_not_inherit_outcome_or_preview","ok":true},
+    {"id":"original_draft_restored","ok":true},
+    {"id":"failed_switch_keeps_observed_branch","ok":true},
+    {"id":"recovery_reuses_requested_branch","ok":true},
+    {"id":"one_explicit_external_send","ok":true}
+  ],
+  "passed":true,
+  "external_sends":1,
+  "detail_recovery_commands":"session_detail only; no write replay"
+}

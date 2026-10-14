@@ -1,0 +1,43 @@
+{
+  "fixture": "e2e/source-suggestion-resume.html",
+  "baseline": "f7b4036",
+  "passed": true,
+  "checks": [
+    {
+      "id": "paused_source_job_offers_resume_without_apply",
+      "ok": true
+    },
+    {
+      "id": "resume_holds_source_choice_and_close",
+      "ok": true
+    },
+    {
+      "id": "ambiguous_resume_requires_observation",
+      "ok": true
+    },
+    {
+      "id": "read_recovers_resume_without_replay",
+      "ok": true
+    },
+    {
+      "id": "resume_does_not_apply_automatically",
+      "ok": true
+    },
+    {
+      "id": "separate_gesture_applies_local_queue",
+      "ok": true
+    },
+    {
+      "id": "settled_flow_can_close",
+      "ok": true
+    },
+    {
+      "id": "unmounted_resume_starts_no_result_read",
+      "ok": true
+    },
+    {
+      "id": "no_model_replay_or_review_approval",
+      "ok": true
+    }
+  ]
+}

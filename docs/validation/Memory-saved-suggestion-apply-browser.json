@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-12",
+  "baseline": "9a761df",
+  "fixture": "apps/desktop/e2e/saved-suggestion-apply.html",
+  "scope": "synthetic browser IPC against Sessions, saved jobs and local cursor application",
+  "before_fix": {"failed": "observed_saved_job_can_apply_remaining"},
+  "passed": true,
+  "checks": [
+    {"id": "observed_saved_job_can_apply_remaining", "ok": true},
+    {"id": "admitted_application_keeps_session_owner", "ok": true},
+    {"id": "admitted_application_keeps_job_and_close", "ok": true},
+    {"id": "blocked_controls_start_no_other_write", "ok": true},
+    {"id": "lost_receipt_requires_saved_read", "ok": true},
+    {"id": "lost_receipt_does_not_claim_second_candidate", "ok": true},
+    {"id": "reobservation_reads_completion_without_replay", "ok": true},
+    {"id": "successful_batch_observes_original_session", "ok": true},
+    {"id": "parent_read_failure_blocks_new_writes", "ok": true},
+    {"id": "saved_batch_completes_with_one_call_per_remaining_step", "ok": true},
+    {"id": "parent_read_recovery_keeps_saved_result", "ok": true},
+    {"id": "local_application_never_sends_or_approves", "ok": true},
+    {"id": "settled_application_can_close", "ok": true}
+  ],
+  "calls": ["operation_list", "session_list", "session_detail", "provider_status", "extraction_preview", "extraction_apply", "extraction_preview", "extraction_preview", "extraction_apply", "extraction_apply", "extraction_preview", "session_detail", "session_list", "session_detail"],
+  "limits": ["Lost receipt and parent read failure are simulated", "No model send or automatic approval", "No personal data, credentials or HTTP"]
+}

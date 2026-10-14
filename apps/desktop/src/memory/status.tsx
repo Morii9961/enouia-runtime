@@ -33,7 +33,7 @@ export function vaultLabel(status: J, vaultChanging = false): string {
 /** The shell reports an Exit in progress (tray or Settings, ADR-026). */
 export const exiting = (status: J): boolean => status?.companion?.exiting === true;
 
-const EXITING = "Enouia Runtime is exiting. Memory is cancelling imports and index work, letting a running verify or backup finish, and releasing the Vault.";
+const EXITING = "Enouia Runtime is exiting. Memory is stopping model calls locally, cancelling imports and index work, letting a running verify or backup finish, and releasing the Vault. A local stop does not confirm remote cancellation. Reopen the Vault and read saved session outcomes before sending again.";
 
 /** Waiting for, or unable to read, the Memory status. */
 export function StatusPending() {
@@ -133,6 +133,7 @@ export function VaultLifecycleFeedback({ children }: { children?: ReactNode }) {
   return <div className="mem-card mem-stack" aria-busy="true">
     <h2 className="mem-h2">Finishing Vault change</h2>
     <p role="status" className="mem-muted">Runtime is finishing Memory operations before releasing the Vault. Verify and backup cannot be cancelled. Wait for this to finish before unlocking or opening a Vault.</p>
+    <p className="mem-muted">Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.</p>
     {children}
   </div>;
 }
@@ -211,8 +212,8 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
           </button>
           <button onClick={nav.sessions.go} className="qr12" type="button">
             <span className="qr9">Sessions</span>
-            <span className="qr10">Continue a conversation with approved memories</span>
-            <span className="qr11">local mock</span>
+            <span className="qr10">Use the local Mock, or inspect and authorize an external model request</span>
+            <span className="qr11">open</span>
           </button>
           <button onClick={nav.context.go} className="qr12" type="button">
             <span className="qr9">Context</span>
@@ -221,8 +222,8 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
           </button>
           <button onClick={nav.activity.go} className="qr12" type="button">
             <span className="qr9">Activity</span>
-            <span className="qr10">Fictional event examples · the producer runs on its own schedule</span>
-            <span className="qr11">demo</span>
+            <span className="qr10">Connect to the Activity producer, which runs on its own schedule</span>
+            <span className="qr11">producer</span>
           </button>
         </div>
         {open && (
@@ -321,7 +322,7 @@ function CompanionSettings({ status }: { status: J }) {
         <span>
           <button type="button" className="mem-button mem-danger" disabled={leaving}
             onClick={() => void leave.run(async () => { await shell.exit(); await refresh(); })}>Exit Enouia Runtime</button>
-          <span className="mem-muted"> Releases the Vault first. The Activity producer keeps its own schedule.</span>
+          <span className="mem-muted"> Stops model calls locally and releases the Vault first. Read saved session outcomes before sending again. The Activity producer keeps its own schedule.</span>
         </span>
       </div>
       {leaving && <p role="status" className="mem-note">{EXITING}</p>}

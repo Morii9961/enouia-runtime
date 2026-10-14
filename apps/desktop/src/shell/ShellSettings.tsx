@@ -48,9 +48,9 @@ export default function ShellSettings() {
       <div className="qr216"><span className="qr35">Search</span><button className="mem-button" type="button" disabled={status?.closing || status?.locking || status?.vaultChanging} onClick={() => {
         void invoke('shell_search').catch(() => setError('Quick Search could not open. Try again.'));
       }}>Open Quick Search</button></div>
-      {status?.locking && <div role="status" className="qr108">Finishing Memory operations before locking…</div>}
+      {status?.locking && <div role="status" className="qr108">Finishing Memory operations before locking. Model calls stop locally; read saved session outcomes after unlocking before sending again.</div>}
       {status?.vaultChanging && !status.locking && !status.closing && <div role="status" className="qr108">Finishing Vault change…</div>}
-      {status?.closing && <div role="status" className="qr108">Finishing Memory operations before exiting…</div>}
+      {status?.closing && <div role="status" className="qr108">Finishing Memory operations before exiting. Model calls stop locally; this does not confirm remote cancellation.</div>}
       {status?.vaultAdmissionError && <div role="alert" className="mem-error">{admissionErrors[status.vaultAdmissionError] ?? 'Runtime could not open the requested Vault.'}</div>}
       {(error || status?.error) && <div role="alert" className="qr108">{error || errors[status?.error ?? ''] || 'A window action failed. Try again.'}</div>}
       <div className="qr216"><span className="qr35">Exit</span><button className="mem-button" type="button" disabled={busy || status?.closing} onClick={() => void exit()}>Exit Runtime</button></div>

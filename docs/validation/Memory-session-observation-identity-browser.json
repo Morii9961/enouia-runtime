@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-14",
+  "baseline": "4f33be46fcf83e405f3ecceb5297f98b98839c95",
+  "fixture": "apps/desktop/e2e/session-observation.html",
+  "environment": "local Vite and Codex in-app browser; controlled synthetic IPC",
+  "baseline_failure": "wrong_session_cannot_publish_or_enable_writes",
+  "passed": true,
+  "checks": [
+    { "id": "wrong_session_cannot_publish_or_enable_writes", "ok": true },
+    { "id": "wrong_branch_cannot_publish_or_enable_writes", "ok": true },
+    { "id": "wrong_missing_cannot_publish_or_enable_writes", "ok": true },
+    { "id": "valid_identity_recovers_requested_branch", "ok": true },
+    { "id": "failed_replacement_retains_only_labeled_prior_transcript", "ok": true },
+    { "id": "failed_replacement_preserves_drafts_and_blocks_writes", "ok": true },
+    { "id": "refresh_recovers_both_drafts_without_replay", "ok": true },
+    { "id": "wrong_switch_keeps_previous_branch_and_drafts", "ok": true },
+    { "id": "switch_recovery_reads_requested_owner_with_separate_drafts", "ok": true },
+    { "id": "original_branch_restores_both_drafts", "ok": true },
+    { "id": "all_recovery_is_read_only", "ok": true }
+  ],
+  "affected_fixtures": [
+    { "fixture": "provider-session", "passed": 18, "total": 18 },
+    { "fixture": "saved-suggestions", "passed": 10, "total": 10 },
+    { "fixture": "saved-suggestion-apply", "passed": 17, "total": 17 },
+    { "fixture": "suggestion-review-journey", "passed": 15, "total": 15 }
+  ],
+  "limits": "Synthetic replies only; no real Provider, personal Vault, installed-artifact, physical input, Narrator or human acceptance."
+}

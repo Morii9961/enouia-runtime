@@ -3,22 +3,35 @@
 // once, then each suggestion with its quote and complete selected text.
 // Adding suggestions only queues pending candidates for ordinary review;
 // none becomes a memory here.
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { ErrorBox, Operation, Tag } from "./ui";
+import { ErrorBox, Operation, OperationFeedback, shortId } from "./ui";
+import { SuggestionPreview } from "./SuggestionPreview";
+import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
+import { suggestionObservation } from "./observationIdentity";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
-export function ExtractionPanel({ range, onClose, request = call }: { range: Range; onClose: () => void; request?: typeof call }) {
+export function ExtractionPanel({ range, onClose, onBusyChange, request = call }: { range: Range; onClose: () => void; onBusyChange?: (busy: boolean) => void; request?: typeof call }) {
   const [status, setStatus] = useState<J>(null);
   const [api, setApi] = useState("");
+  const providerId = useId();
   const [prepared, setPrepared] = useState<J>(null);
   const [operation, setOperation] = useState<string | null>(null);
+  const [completion, setCompletion] = useState<J>(null);
   const [job, setJob] = useState<{ sessionId: string; runId: string } | null>(null);
   const [preview, setPreview] = useState<J>(null);
+  const [previewCurrent, setPreviewCurrent] = useState(false);
   const action = useAction();
   const read = useLatestRead();
+  const mounted = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const owningWork = action.busy || operation != null;
+  useEffect(() => {
+    onBusyChange?.(owningWork);
+    return () => onBusyChange?.(false);
+  }, [owningWork, onBusyChange]);
   useEffect(() => {
     void read.run(() => request("provider_status"), (s) => {
       setStatus(s);
@@ -26,18 +39,32 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
     });
   }, [read.run, request]);
 
-  if (read.error) return <ErrorBox error={read.error} />;
+  if (read.error) return <div className="mem-stack"><ErrorBox error={read.error} /><button type="button" className="mem-button" onClick={onClose}>Close</button></div>;
   if (!status) return <p role="status" className="mem-muted">Reading provider setup…</p>;
   const destination = status.destinations.find((d: J) => d.api === api);
   const grant = (status.grants ?? []).find((g: J) => g.active && g.purposes.includes("extraction")
     && g.destinations.some((d: J) => d.provider === api && d.model === destination?.model));
   const showPreview = (j: { sessionId: string; runId: string }) =>
-    action.run(async () => setPreview(await request("extraction_preview", j)));
-  const close = <button type="button" className="mem-button" onClick={onClose}>Close</button>;
+    action.run(async () => {
+      setPreviewCurrent(false);
+      setPreview(suggestionObservation(await request("extraction_preview", j), j.runId));
+      setPreviewCurrent(true);
+    });
+  const close = <button type="button" className="mem-button" disabled={action.busy || operation != null} onClick={onClose}>Close</button>;
+  const choiceHeld = owningWork || prepared != null || job != null;
+  const providerChoice = status.configured && status.destinations.length > 0 && <>
+    <label className="mem-label" htmlFor={providerId}>Model for suggestions</label>
+    <select id={providerId} className="mem-input" value={api} disabled={choiceHeld}
+      onChange={(e) => { if (!choiceHeld) setApi(e.target.value); }}>
+      {status.destinations.map((d: J) => <option key={d.api} value={d.api}>{d.api} · {d.model}</option>)}
+    </select>
+    {choiceHeld && <p className="mem-muted">This suggestion flow keeps its selected model. Close it after work finishes to choose another model.</p>}
+  </>;
 
   if (!status.configured || !grant) {
     return (
       <div className="mem-stack" role="group" aria-label="Suggest memories">
+        {providerChoice}
         <p className="mem-muted">{!status.configured
           ? "External providers are off on this computer."
           : "No grant allows extraction for this provider. Review a grant with extraction allowed in a session's External provider panel first."}</p>
@@ -48,6 +75,7 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
   return (
     <div className="mem-stack" role="group" aria-label="Suggest memories">
       <ErrorBox error={action.error} />
+      {providerChoice}
       {!prepared && !operation && !job && (
         <>
           <p className="mem-muted">Ask {api} ({destination.model}) to suggest facts from bytes {range.start}–{range.end} of this source. You see the exact request first; suggestions only enter the review queue.</p>
@@ -77,35 +105,47 @@ export function ExtractionPanel({ range, onClose, request = call }: { range: Ran
           </div>
         </>
       )}
+      {job && <p className="mem-muted" title={`${job.sessionId} · ${job.runId}`}>
+        Suggestion session {shortId(job.sessionId)} · run {shortId(job.runId)}. After leaving this page, read this saved run from Sessions.
+      </p>}
       {operation && <Operation id={operation} request={request} onDone={(s) => {
+        setCompletion(s);
         setOperation(null);
         if (s.state === "succeeded" && job) void showPreview(job);
       }} />}
+      {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
+      {job && !operation && !preview && <div className="mem-actions">
+        <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Read saved suggestions</button>
+        {close}
+      </div>}
       {preview && job && (
         <>
-          <p className="mem-muted">{preview.items.length} suggestion{preview.items.length === 1 ? "" : "s"}. Each quote is checked against the source; that does not make the suggestion true.</p>
-          <ul className="mem-list">
-            {preview.items.map((i: J) => (
-              <li key={i.responseIndex} className="mem-stack">
-                <span><Tag>{i.proposedType}</Tag> {i.content}</span>
-                <span className="mem-muted">Quote: “{i.quote}”</span>
-                <span className="mem-muted">In: {i.selectedText}</span>
-                {i.candidate && <span><Tag tone="ok">{i.candidate.status}</Tag> in the review queue</span>}
-              </li>
-            ))}
-          </ul>
+          {!previewCurrent && <p role="status" className="mem-muted">Previous suggestion observation. Read saved suggestions again to check which items reached the review queue before starting another write.</p>}
+          <SuggestionPreview preview={preview} />
           <div className="mem-actions">
-            {preview.job.state !== "completed" && preview.items.length > 0 && (
-              <button type="button" className="mem-button mem-primary" disabled={action.busy}
-                onClick={() => void action.run(async () => {
-                  // One suggestion per call; each call is a separate keyed write.
-                  for (let n = 0; n <= preview.items.length; n += 1) {
-                    const applied = await request("extraction_apply", job);
-                    if (applied.job.state === "completed") break;
-                  }
-                  setPreview(await request("extraction_preview", job));
-                })}>Add to the review queue</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Refresh saved suggestions</button>
+            {preview.job.state !== "completed" && preview.job.state !== "paused" && preview.items.length > 0 && (
+              <button type="button" className="mem-button mem-primary" disabled={action.busy || !previewCurrent}
+                onClick={() => {
+                  void action.run(async () => {
+                    setPreviewCurrent(false);
+                    const next = await applySavedSuggestions(request, job, preview.items.length, () => mounted.current);
+                    if (next != null) { setPreview(next); setPreviewCurrent(true); }
+                  });
+                }}>Add to the review queue</button>
             )}
+            {preview.job.state === "paused" && <>
+              <p className="mem-muted">This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.</p>
+              <button type="button" className="mem-button" disabled={action.busy || !previewCurrent}
+                onClick={() => {
+                  if (action.busy || !previewCurrent) return;
+                  void action.run(async () => {
+                    setPreviewCurrent(false);
+                    const next = await resumeSavedSuggestions(request, job, () => mounted.current);
+                    if (next != null) { setPreview(next); setPreviewCurrent(true); }
+                  });
+                }}>Resume local queue</button>
+            </>}
             {close}
           </div>
         </>

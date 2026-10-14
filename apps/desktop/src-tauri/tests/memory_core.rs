@@ -65,6 +65,15 @@ impl Page {
         picked.token
     }
 
+    /// Release the embedded Core and reopen only this test's existing Vault.
+    fn reopen(&mut self) {
+        self.ws.shutdown();
+        self.ws = Workspace::new(Config::default());
+        let token = self.pick(PickKind::VaultRoot, "vault");
+        let status = self.ok("vault_open", json!({"rootToken": token}));
+        assert_eq!(status["vault"]["state"], "open");
+    }
+
     /// One request exactly as the page client builds it.
     fn send(&self, command: &str, arguments: Value) -> Value {
         let n = self.n.fetch_add(1, Ordering::SeqCst);
@@ -153,6 +162,341 @@ fn strings(value: &Value, fields: &[&str], what: &str) {
 }
 
 #[test]
+fn provider_suggestion_fields_follow_saved_cursor_and_current_review() {
+    use enouia_memory_contract::MemoryError;
+    use enouia_memory_contract::foundation::Cancellation;
+    use enouia_memory_contract::json::SchemaVersion;
+    use enouia_memory_contract::ports::{SecretBytes, SecretStore};
+    use enouia_memory_contract::provider::{Capability, ProviderCapabilities, TokenCounting};
+    use enouia_memory_contract::time::Timestamp;
+    use enouia_memory_provider::client::Limits;
+    use enouia_memory_provider::codec::{Api, WireRequest};
+    use enouia_memory_provider::transport::Transport;
+    use enouia_memory_provider::vault::Quota;
+    use enouia_memory_workspace::{NativeDestination, NativeProvider};
+    use std::sync::Arc;
+
+    struct Secrets;
+    impl SecretStore for Secrets {
+        fn read(&self, _: &str) -> Result<SecretBytes, MemoryError> {
+            Ok(SecretBytes::new(b"synthetic-secret".to_vec()))
+        }
+    }
+    struct Reply(AtomicU64);
+    impl Transport for Reply {
+        fn exchange(
+            &self,
+            request: &WireRequest,
+            _: &SecretBytes,
+            _: &dyn Cancellation,
+            _: Duration,
+            sink: &mut dyn FnMut(&[u8]) -> Result<(), MemoryError>,
+        ) -> Result<(), MemoryError> {
+            self.0.fetch_add(1, Ordering::SeqCst);
+            assert_eq!(request.binding().provider.as_str(), "anthropic");
+            let text = json!({"candidates": [
+                {"kind":"fact", "content":"Synthetic Monday meeting", "quote":"Monday meeting", "source_index":0, "claim_key":"synthetic_monday"},
+                {"kind":"fact", "content":"Synthetic Friday review", "quote":"Friday review", "source_index":0, "claim_key":"synthetic_friday"}
+            ]}).to_string();
+            let response = json!({"type":"message", "role":"assistant",
+                "content":[{"type":"text", "text":text}], "stop_reason":"end_turn",
+                "usage":{"input_tokens":90, "output_tokens":6}});
+            for chunk in serde_json::to_vec(&response).unwrap().chunks(19) {
+                sink(chunk)?;
+            }
+            Ok(())
+        }
+    }
+
+    let mut page = Page::new("provider-suggestion-fields");
+    let verified_at: Timestamp = serde_json::from_value(
+        page.ok("workspace_status", json!({}))["vault"]["lastCommitAt"].clone(),
+    )
+    .unwrap();
+    let destination = |api: Api| NativeDestination {
+        api,
+        capabilities: ProviderCapabilities {
+            schema_version: SchemaVersion,
+            binding: api.binding("synthetic-model").unwrap(),
+            text_input: Capability::Supported,
+            image_input: Capability::Unsupported,
+            streaming: Capability::Unsupported,
+            tool_calling: Capability::Unsupported,
+            cancellation: Capability::Supported,
+            token_counting: TokenCounting::Estimated,
+            context_window_tokens: Some(128_000),
+            max_output_tokens: Some(4096),
+            verified_at: Some(verified_at.clone()),
+        },
+    };
+    let transport = Arc::new(Reply(AtomicU64::new(0)));
+    page.ws
+        .set_native_provider(Some(NativeProvider {
+            transport: transport.clone(),
+            secrets: Arc::new(Secrets),
+            destinations: vec![
+                destination(Api::OpenAiResponses),
+                destination(Api::AnthropicMessages),
+            ],
+            quota: Quota::default(),
+            limits: Limits::default(),
+        }))
+        .unwrap();
+    let plan = page.ok(
+        "egress_grant_plan",
+        json!({"apis":["anthropic"], "maxSensitivity":"private", "extraction":true}),
+    );
+    strings(&plan, &["planId", "diffHash", "inspection"], "egress_plan");
+    let confirmed = page.ok(
+        "provider_confirm",
+        json!({"planId":plan["planId"], "diffHash":plan["diffHash"]}),
+    );
+    let status = page.ok("provider_status", json!({}));
+    assert_eq!(status["configured"], true);
+    assert_eq!(status["destinations"].as_array().unwrap().len(), 2);
+    assert!(
+        status["grants"][0]["purposes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|p| p == "extraction")
+    );
+
+    let statement = "Synthetic schedule: Monday meeting, Friday review.";
+    let source = page.ok(
+        "remember",
+        json!({"text":statement, "claimKey":"synthetic.schedule"}),
+    );
+    let prepared = page.ok("extraction_prepare", json!({"sourceId":source["sourceId"], "sourceRevision":1,
+        "startByte":0, "endByte":statement.len(), "api":"anthropic", "policyId":confirmed["policyId"], "maxCandidates":2}));
+    strings(
+        &prepared,
+        &[
+            "callId",
+            "wireHash",
+            "body",
+            "model",
+            "endpoint",
+            "sessionId",
+            "runId",
+        ],
+        "extraction_prepare",
+    );
+    assert!(prepared["body"].as_str().unwrap().contains(statement));
+    assert_eq!(transport.0.load(Ordering::SeqCst), 0);
+    let started = page.ok(
+        "external_send",
+        json!({"callId":prepared["callId"], "wireHash":prepared["wireHash"]}),
+    );
+    assert_eq!(page.finish(&started)["state"], "succeeded");
+    let job = json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]});
+    let shown = page.ok("extraction_preview", job.clone());
+    assert_eq!(shown["job"]["run_id"], job["runId"]);
+    assert_eq!(shown["items"].as_array().unwrap().len(), 2);
+    for item in shown["items"].as_array().unwrap() {
+        strings(
+            item,
+            &[
+                "proposedType",
+                "content",
+                "quote",
+                "selectedText",
+                "application",
+            ],
+            "suggestion",
+        );
+        assert_eq!(item["selectedText"], statement);
+        assert_eq!(item["application"], "awaiting_cursor");
+        assert_eq!(item["candidate"], Value::Null);
+    }
+
+    // One acknowledged step, then a fresh read of the real saved cursor.
+    let applied = page.ok("extraction_apply", job.clone());
+    assert_eq!(applied["job"]["run_id"], job["runId"]);
+    let partial = page.ok("extraction_preview", job.clone());
+    assert_eq!(partial["job"]["run_id"], job["runId"]);
+    assert_eq!(partial["job"]["cursor"], 1);
+    let candidate = &partial["items"][0]["candidate"];
+    strings(
+        candidate,
+        &["candidateId", "status", "content"],
+        "current_candidate",
+    );
+    assert!(candidate["revision"].is_number());
+    assert_eq!(candidate["status"], "pending");
+    assert_eq!(partial["items"][1]["candidate"], Value::Null);
+    // Remaining application consumes the saved response locally, even when
+    // native sending is disabled. It does not need a new model request.
+    page.ws.set_native_provider(None).unwrap();
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
+    let pause =
+        json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"], "paused":true});
+    let paused = page.ok("extraction_pause", pause);
+    assert_eq!(paused["job"]["state"], "paused");
+    assert_eq!(paused["job"]["run_id"], job["runId"]);
+    assert_eq!(
+        page.ok("extraction_preview", job.clone())["job"]["cursor"],
+        1
+    );
+    assert_eq!(
+        page.err("extraction_apply", job.clone())["code"],
+        "cancelled"
+    );
+    page.reopen();
+    let paused_sessions = page.ok("session_list", json!({}));
+    let paused_session = paused_sessions["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["sessionId"] == prepared["sessionId"])
+        .unwrap();
+    let paused_detail = page.ok(
+        "session_detail",
+        json!({"sessionId":paused_session["sessionId"], "branchId":paused_session["branches"][0]["branchId"]}),
+    );
+    let paused_job = &paused_detail["extractionJobs"][0];
+    assert_eq!(paused_job["run_id"], prepared["runId"]);
+    assert_eq!(paused_job["state"], "paused");
+    assert_eq!(paused_job["cursor"], 1);
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
+    let paused_preview = page.ok(
+        "extraction_preview",
+        json!({"sessionId":paused_session["sessionId"], "runId":paused_job["run_id"]}),
+    );
+    assert_eq!(paused_preview["items"], partial["items"]);
+    assert_eq!(paused_preview["job"]["state"], "paused");
+    assert_eq!(paused_preview["job"]["cursor"], 1);
+    let recovered_partial_job =
+        json!({"sessionId":paused_session["sessionId"], "runId":paused_job["run_id"]});
+    assert_eq!(
+        page.err("extraction_apply", recovered_partial_job.clone())["code"],
+        "cancelled"
+    );
+    assert_eq!(
+        page.ok("extraction_preview", recovered_partial_job)["job"]["cursor"],
+        1
+    );
+    let resume = json!({"sessionId":paused_session["sessionId"], "runId":paused_job["run_id"], "paused":false});
+    let resumed = page.ok("extraction_pause", resume);
+    assert_eq!(resumed["job"]["state"], "ready");
+    assert_eq!(resumed["job"]["run_id"], job["runId"]);
+    assert_eq!(
+        page.ok("extraction_preview", job.clone())["job"]["cursor"],
+        1
+    );
+    assert_eq!(transport.0.load(Ordering::SeqCst), 1);
+    for _ in 0..3 {
+        if page.ok("extraction_apply", job.clone())["job"]["state"] == "completed" {
+            break;
+        }
+    }
+    let complete = page.ok("extraction_preview", job.clone());
+    assert_eq!(complete["job"]["state"], "completed");
+    assert_eq!(
+        page.ok(
+            "memory_list",
+            json!({"includeInactive":false, "cursor":null, "limit":25})
+        )["total"],
+        0
+    );
+    let pending = page.ok("candidate_list", json!({"cursor":null, "limit":50}));
+    let target = pending["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["candidateId"] == candidate["candidateId"])
+        .unwrap();
+    page.decide(
+        target,
+        "edit_accept",
+        Some("Edited synthetic Monday meeting."),
+    );
+    let after = page.ok("extraction_preview", job);
+    let current = &after["items"][0]["candidate"];
+    assert_eq!(current["status"], "accepted");
+    assert_eq!(current["candidateId"], candidate["candidateId"]);
+    assert!(current["revision"].as_u64().unwrap() > candidate["revision"].as_u64().unwrap());
+    assert_eq!(after["items"][0]["content"], shown["items"][0]["content"]);
+    assert_eq!(current["content"], shown["items"][0]["content"]);
+    assert_eq!(after["items"][0]["selectedText"], statement);
+    let memories = page.ok(
+        "memory_list",
+        json!({"includeInactive":false, "cursor":null, "limit":25}),
+    );
+    assert_eq!(memories["total"], 1);
+    assert_eq!(
+        memories["items"][0]["snippet"],
+        "Edited synthetic Monday meeting."
+    );
+    // The saved session carries recovery IDs; no page-local job cache is needed.
+    let sessions = page.ok("session_list", json!({}));
+    let session = sessions["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["sessionId"] == prepared["sessionId"])
+        .unwrap();
+    let saved = page.ok(
+        "session_detail",
+        json!({"sessionId":prepared["sessionId"], "branchId":session["branches"][0]["branchId"]}),
+    );
+    let restored = &saved["extractionJobs"][0];
+    strings(
+        restored,
+        &["run_id", "input_event_id", "state"],
+        "extraction_job",
+    );
+    assert_eq!(restored["run_id"], prepared["runId"]);
+    assert_eq!(restored["state"], "completed");
+    assert_eq!(restored["cursor"], 2);
+    assert!(restored["candidates"].is_array());
+    page.ws.set_native_provider(None).unwrap();
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
+    let offline = page.ok(
+        "extraction_preview",
+        json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]}),
+    );
+    assert_eq!(offline["items"], after["items"]);
+    // A new Core has no in-memory external operation/setup. Session headers,
+    // job cursor and reviewed candidate records must recover from the Vault.
+    page.reopen();
+    assert_eq!(page.ok("provider_status", json!({}))["configured"], false);
+    assert_eq!(page.ok("operation_list", json!({}))["items"], json!([]));
+    let recovered_sessions = page.ok("session_list", json!({}));
+    let recovered_session = recovered_sessions["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|s| s["sessionId"] == prepared["sessionId"])
+        .unwrap();
+    let recovered = page.ok(
+        "session_detail",
+        json!({"sessionId":recovered_session["sessionId"], "branchId":recovered_session["branches"][0]["branchId"]}),
+    );
+    assert_eq!(recovered["extractionJobs"], saved["extractionJobs"]);
+    let recovered_preview = page.ok(
+        "extraction_preview",
+        json!({"sessionId":prepared["sessionId"], "runId":prepared["runId"]}),
+    );
+    assert_eq!(recovered_preview["items"], after["items"]);
+    assert_eq!(recovered_preview["job"]["cursor"], 2);
+    let recovered_memories = page.ok(
+        "memory_list",
+        json!({"includeInactive":false, "cursor":null, "limit":25}),
+    );
+    assert_eq!(recovered_memories["total"], 1);
+    assert_eq!(
+        recovered_memories["items"][0]["snippet"],
+        "Edited synthetic Monday meeting."
+    );
+    assert_eq!(
+        transport.0.load(Ordering::SeqCst),
+        1,
+        "reads/application/review never resend"
+    );
+}
+
+#[test]
 fn status_and_vault_lifecycle_fields_the_surfaces_render() {
     let page = Page::new("status");
     let status = page.ok("workspace_status", json!({}));
@@ -209,6 +553,64 @@ fn status_and_vault_lifecycle_fields_the_surfaces_render() {
 }
 
 #[test]
+fn candidate_pages_are_bounded_and_require_a_fresh_cursor_after_a_commit() {
+    let page = Page::new("candidate-pages");
+    for n in 0..3 {
+        page.ok(
+            "remember",
+            json!({"text": format!("Synthetic candidate paging statement {n}."), "claimKey": format!("fixture.paging.{n}")}),
+        );
+    }
+    let first = page.ok("candidate_list", json!({"cursor": null, "limit": 2}));
+    assert_eq!(first["items"].as_array().unwrap().len(), 2);
+    assert_eq!(first["total"], 3);
+    assert!(first["nextCursor"].is_string());
+    let last = page.ok(
+        "candidate_list",
+        json!({"cursor": first["nextCursor"], "limit": 2}),
+    );
+    assert_eq!(last["items"].as_array().unwrap().len(), 1);
+    assert_eq!(last["nextCursor"], Value::Null);
+    let mut ids: Vec<&str> = first["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .chain(last["items"].as_array().unwrap())
+        .map(|c| c["candidateId"].as_str().unwrap())
+        .collect();
+    ids.sort_unstable();
+    ids.dedup();
+    assert_eq!(ids.len(), 3);
+
+    page.ok(
+        "remember",
+        json!({"text": "Synthetic newer candidate changes the canonical head.", "claimKey": "fixture.paging.newer"}),
+    );
+    let stale = page.err(
+        "candidate_list",
+        json!({"cursor": first["nextCursor"], "limit": 2}),
+    );
+    assert_eq!(stale["code"], "revision_conflict");
+    assert!(
+        stale["rules"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|rule| rule == "workspace.cursor_stale")
+    );
+    let fresh = page.ok("candidate_list", json!({"cursor": null, "limit": 2}));
+    assert_eq!(fresh["total"], 4);
+    assert_ne!(fresh["nextCursor"], first["nextCursor"]);
+    assert_eq!(
+        page.ok(
+            "memory_list",
+            json!({"includeInactive": false, "cursor": null, "limit": 25})
+        )["total"],
+        0,
+    );
+}
+
+#[test]
 fn review_explorer_and_source_fields_the_memory_surface_renders() {
     let page = Page::new("memory");
     let proposed = page.ok(
@@ -228,6 +630,7 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
             "content",
             "proposalKind",
             "proposedType",
+            "reason",
             "sensitivity",
             "originKind",
             "createdAt",
@@ -237,11 +640,32 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
     assert!(candidate["revision"].is_number());
     strings(
         &candidate["evidence"][0],
-        &["sourceId"],
+        &["sourceId", "supports"],
         "candidate.evidence",
     );
     assert!(candidate["evidence"][0]["sourceRevision"].is_number());
+    assert!(candidate["evidence"][0]["locator"].is_object());
     assert!(candidate["conflicts"].is_array() && candidate["target"].is_null());
+    // Review can observe cited source bytes while the candidate is still
+    // pending, without approving it or preparing a model request.
+    let citation = &candidate["evidence"][0];
+    let pending_source = page.ok(
+        "source_excerpt",
+        json!({"sourceId": citation["sourceId"], "sourceRevision": citation["sourceRevision"], "startByte": null, "maxBytes": 4096}),
+    );
+    assert_eq!(pending_source["sourceId"], citation["sourceId"]);
+    assert_eq!(pending_source["sourceRevision"], citation["sourceRevision"]);
+    assert!(
+        pending_source["excerpt"]
+            .as_str()
+            .unwrap()
+            .contains("paper notebooks")
+    );
+    assert_eq!(pending_source["untrusted"], true);
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["pendingCandidates"],
+        1
+    );
 
     page.decide(
         candidate,
@@ -277,7 +701,33 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
     let detail = page.ok("memory_read", json!({"memoryId": memory_id}));
     let record = &detail["record"];
     strings(record, &["memory_id", "content", "approved_at"], "record");
+    assert_eq!(detail["summary"]["memoryId"], memory_id);
+    assert_eq!(record["memory_id"], memory_id);
     assert!(record["revision"].is_number() && record["supersedes"].is_array());
+    let conflicting = page.ok(
+        "remember",
+        json!({"text": "Synthetic owner prefers digital tablets for sketching.", "claimKey": "preference.sketching"}),
+    );
+    let pending_conflicts = page.ok("candidate_list", json!({"cursor": null, "limit": 50}));
+    let conflict_candidate = pending_conflicts["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["candidateId"] == conflicting["candidateId"])
+        .unwrap();
+    let references = conflict_candidate["conflicts"].as_array().unwrap();
+    assert_eq!(references.len(), 1);
+    let reference = &references[0];
+    assert_eq!(reference["memory_id"], memory_id);
+    assert_eq!(reference["revision"], record["revision"]);
+    assert!(reference.get("conflict_group_id").is_some());
+    let conflict_observation = page.ok("memory_read", json!({"memoryId": reference["memory_id"]}));
+    assert_eq!(conflict_observation["record"]["content"], record["content"]);
+    assert_eq!(
+        conflict_observation["record"]["revision"],
+        reference["revision"]
+    );
+    page.decide(conflict_candidate, "reject", None);
     strings(&detail["summary"], &["type", "status"], "summary");
     assert!(detail["supersededBy"].is_array());
     let evidence = &detail["evidence"][0];
@@ -377,6 +827,8 @@ fn session_and_context_fields_the_surfaces_render() {
     }
 
     let detail = page.ok("session_detail", branch.clone());
+    assert_eq!(detail["sessionId"], branch["sessionId"]);
+    assert_eq!(detail["branchId"], branch["branchId"]);
     assert!(detail.get("lastSavedEventId").is_some());
     let transcript = detail["transcript"].as_array().unwrap();
     assert!(!transcript.is_empty());
@@ -408,7 +860,9 @@ fn session_and_context_fields_the_surfaces_render() {
         json!({"sessionId": created["sessionId"], "branchId": created["branchId"], "summary": "Asked about the Lantern release."}),
     );
     assert!(checkpoint["checkpointId"].is_string());
-    let after = page.ok("session_detail", branch);
+    let after = page.ok("session_detail", branch.clone());
+    assert_eq!(after["sessionId"], branch["sessionId"]);
+    assert_eq!(after["branchId"], branch["branchId"]);
     for c in after["checkpoints"].as_array().unwrap() {
         strings(c, &["checkpoint_id", "status"], "checkpoint");
     }
@@ -421,6 +875,8 @@ fn session_and_context_fields_the_surfaces_render() {
     assert!(branches[0]["lastEventSeq"].is_number());
 
     let inspected = page.ok("context_inspect", json!({"capsuleId": answer["capsuleId"]}));
+    assert_eq!(inspected["capsule"]["capsule_id"], answer["capsuleId"]);
+    assert_eq!(inspected["inspection"]["capsule_id"], answer["capsuleId"]);
     assert!(["preview_not_sent", "dispatched"].contains(&inspected["delivery"].as_str().unwrap()));
     assert!(inspected["capsule"]["destination"]["kind"].is_string());
     assert!(inspected["capsule"]["budget"].is_object());
@@ -448,6 +904,9 @@ fn session_and_context_fields_the_surfaces_render() {
         json!({"dispatchId": dispatches[0]["dispatchId"]}),
     );
     assert!(request["verified"].is_boolean() && request["tools"].is_number());
+    assert_eq!(request["dispatchId"], dispatches[0]["dispatchId"]);
+    assert_eq!(request["capsuleId"], answer["capsuleId"]);
+    assert_eq!(request["requestHash"], dispatches[0]["requestHash"]);
     assert!(request["destination"]["kind"].is_string());
     for m in request["messages"].as_array().unwrap() {
         strings(m, &["role", "text"], "message");

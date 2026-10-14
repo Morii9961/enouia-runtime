@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-12",
+  "baseline": "b0dea64",
+  "fixture": "apps/desktop/e2e/saved-suggestions.html",
+  "scope": "synthetic browser IPC against Sessions and Core-owned saved job IDs",
+  "before_fix": {"failed": "saved_jobs_survive_session_read"},
+  "passed": true,
+  "checks": [
+    {"id": "saved_jobs_survive_session_read", "ok": true},
+    {"id": "unobserved_job_is_not_empty", "ok": true},
+    {"id": "older_job_read_cannot_replace_selection", "ok": true},
+    {"id": "off_provider_keeps_recorded_candidate_visible", "ok": true},
+    {"id": "failed_read_has_manual_recovery", "ok": true},
+    {"id": "recovery_uses_saved_session_and_job", "ok": true},
+    {"id": "session_switch_drops_previous_job_observation", "ok": true},
+    {"id": "other_session_reads_its_own_job", "ok": true},
+    {"id": "close_keeps_saved_job_list", "ok": true},
+    {"id": "recovery_never_sends_applies_or_grants", "ok": true}
+  ],
+  "calls": ["operation_list", "session_list", "session_detail", "provider_status", "extraction_preview", "extraction_preview", "extraction_preview", "extraction_preview", "extraction_preview", "session_detail", "provider_status", "extraction_preview"],
+  "limits": ["No request reconstruction or private recovery cache", "No application, approval or HTTP", "No real restart or personal Vault proof"]
+}

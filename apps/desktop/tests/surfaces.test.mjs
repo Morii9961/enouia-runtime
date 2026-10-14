@@ -21,6 +21,7 @@ const { OperationFeedback } = await server.ssrLoadModule('/src/memory/ui.tsx');
 const { Explorer, Inbox } = await server.ssrLoadModule('/src/memory/MemorySurface.tsx');
 const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx');
 const { ExternalPanel } = await server.ssrLoadModule('/src/memory/ExternalPanel.tsx');
+const { WorkspaceProviderCalls } = await server.ssrLoadModule('/src/memory/WorkspaceProviderCalls.tsx');
 const { ExtractionPanel } = await server.ssrLoadModule('/src/memory/ExtractionPanel.tsx');
 const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
@@ -208,6 +209,30 @@ test('operation feedback offers cancellation only for active cooperative workers
   assert.match(view('import', 'running'), /mem-state-running/);
 });
 
+test('external sending exposes local cancellation without promising remote cancellation', () => {
+  const view = (state, cancelRequested = false, result = null) => renderToStaticMarkup(
+    OperationFeedback({ status: { kind: 'external_send', state, cancelRequested, progress: { done: 0, total: null }, result }, onCancel() {} }),
+  );
+  for (const state of ['queued', 'running']) {
+    assert.match(view(state), />Stop locally<\/button>/);
+    assert.doesNotMatch(view(state), /Finishes before locking/);
+    assert.match(view(state), /may have received/);
+    const requested = view(state, true);
+    assert.match(requested, /disabled=""/);
+    assert.match(requested, /Local stop requested/);
+    assert.doesNotMatch(requested, /mem-state-cancelled/);
+  }
+  assert.match(view('succeeded', false, {finish:'completed'}), /Reply saved/);
+  assert.match(view('succeeded', false, {finish:'length'}), /output limit/);
+  for (const state of ['failed', 'cancelled']) {
+    assert.doesNotMatch(view(state), /<button|Reply saved/);
+    assert.match(view(state), /recorded outcome/);
+  }
+  for (const finish of ['failed','cancelled','future', undefined]) {
+    assert.doesNotMatch(view('succeeded', false, {finish}), /Reply saved/);
+  }
+});
+
 test('pending Vault release explains host waiting and retains real uncancellable progress', () => {
   const detached = { vault: { state: 'locked' }, companion: { exiting: false } };
   assert.equal(vaultLabel(detached, true), 'Finishing Vault change');
@@ -320,6 +345,13 @@ test('the external provider panel reads its setup before offering any action', (
   }));
   assert.match(html, /Reading provider setup/);
   assert.doesNotMatch(html, /<button/);
+});
+
+test('workspace calls stay unknown until a Core list has been read', () => {
+  const html = renderToStaticMarkup(createElement(WorkspaceProviderCalls));
+  assert.match(html, /Workspace model calls/);
+  assert.match(html, /have not been read yet/);
+  assert.doesNotMatch(html, /No model calls|Stop locally|Reply saved/);
 });
 
 test('source suggestions read the provider setup before offering any request', () => {

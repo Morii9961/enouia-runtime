@@ -11,28 +11,45 @@ import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { SessionEventBody } from "./SessionEventBody";
 import { ExternalPanel } from "./ExternalPanel";
+import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
+import { SavedExtractionJobs } from "./SavedExtractionJobs";
+import { sessionObservation } from "./observationIdentity";
 
 type Branch = { sessionId: string; branchId: string };
 
-export default function SessionsSurface({ inspect }: { inspect: (capsuleId: string) => void }) {
+export default function SessionsSurface({ inspect, reviewCandidates }: { inspect: (capsuleId: string) => void; reviewCandidates?: () => void }) {
   return (
     <VaultGate>
-      <Sessions inspect={inspect} />
+      <Sessions inspect={inspect} reviewCandidates={reviewCandidates} />
     </VaultGate>
   );
 }
 
-export function Sessions({ inspect, request = call }: { inspect: (capsuleId: string) => void; request?: typeof call }) {
+export function Sessions({ inspect, reviewCandidates, request = call }: { inspect: (capsuleId: string) => void; reviewCandidates?: () => void; request?: typeof call }) {
   const [sessions, setSessions] = useState<J[] | null>(null);
   const [current, setCurrent] = useState<Branch | null>(null);
+  const [requested, setRequested] = useState<Branch | null>(null);
   const [detail, setDetail] = useState<J>(null);
   const [text, setText] = useState("");
   const [answer, setAnswer] = useState<J>(null);
   const [summary, setSummary] = useState("");
+  const [externalBusy, setExternalBusy] = useState(false);
+  const [suggestionBusy, setSuggestionBusy] = useState(false);
+  const [externalOperation, setExternalOperation] = useState<string | null>(null);
   const action = useAction();
   const listRead = useLatestRead();
   const detailRead = useLatestRead();
   const writing = useRef(false);
+  const externalWriting = useRef(false);
+  const suggestionWriting = useRef(false);
+  const reportExternalBusy = useCallback((value: boolean) => {
+    externalWriting.current = value;
+    setExternalBusy(value);
+  }, []);
+  const reportSuggestionBusy = useCallback((value: boolean) => {
+    suggestionWriting.current = value;
+    setSuggestionBusy(value);
+  }, []);
   const questionInput = useRef<HTMLTextAreaElement>(null);
   const checkpointInput = useRef<HTMLInputElement>(null);
   const focusAfterWrite = useRef<{ target: "question" | "checkpoint"; trigger: Element | null } | null>(null);
@@ -41,8 +58,9 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
   const branchKey = (b: Branch) => `${b.sessionId}:${b.branchId}`;
   const list = useCallback(() => listRead.run(() => request("session_list"), (page) => setSessions(page.items)), [listRead.run, request]);
   useEffect(() => { void list(); }, [list]);
-  const open = (b: Branch) =>
-    detailRead.run(() => request("session_detail", b), (saved) => {
+  const open = (b: Branch) => {
+    setRequested(b);
+    return detailRead.run(async () => sessionObservation(await request("session_detail", b), b.sessionId, b.branchId), (saved) => {
       const key = branchKey(b);
       if (selectedBranch.current !== key) { setAnswer(null); action.clear(); }
       selectedBranch.current = key;
@@ -52,6 +70,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
       setCurrent(b);
       setDetail(saved);
     });
+  };
   const editDraft = (field: "text" | "summary", value: string) => {
     if (!current) return;
     const key = branchKey(current);
@@ -62,7 +81,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
     if (current && drafts.current.get(branchKey(current))?.[field] === submitted) editDraft(field, "");
   };
   const write = (target: "question" | "checkpoint", commit: (key: string) => Promise<void>) => {
-    if (writing.current || detailRead.pending.current) return;
+    if (writing.current || externalWriting.current || suggestionWriting.current || detailRead.pending.current || detailRead.error) return;
     const trigger = document.activeElement;
     void action.run(async (key) => {
       writing.current = true;
@@ -72,7 +91,8 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
       } finally { writing.current = false; }
     });
   };
-  const busy = action.busy || detailRead.busy;
+  const busy = action.busy || detailRead.busy || externalBusy || suggestionBusy;
+  const writesBlocked = busy || !!detailRead.error;
   useEffect(() => {
     if (busy || !focusAfterWrite.current) return;
     const { target, trigger } = focusAfterWrite.current;
@@ -91,7 +111,11 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           <div className="qr19">Conversations kept as they happened.</div>
         </div>
         <div className="qr20">
-          <button type="button" className="mem-button mem-primary" disabled={busy || listRead.busy}
+          <button type="button" className="mem-button" disabled={busy || listRead.busy}
+            onClick={() => {
+              if (!writing.current && !externalWriting.current && !suggestionWriting.current && !listRead.pending.current && !detailRead.pending.current) void list();
+            }}>{listRead.error ? "Read session list again" : "Refresh session list"}</button>
+          <button type="button" className="mem-button mem-primary" disabled={writesBlocked || listRead.busy}
             onClick={() => write("question", async (key) => {
               const s = await request("session_new", {}, key);
               await list();
@@ -99,33 +123,45 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
             })}>New session</button>
         </div>
         <ErrorBox error={listRead.error} />
+        {listRead.error && <p className="mem-muted qr20" role="status">
+          The session list could not be read. {sessions == null ? "Its contents are still unknown." : "These rows are from the previous successful list read."} Read it again to refresh the list. This does not create a session or send a question.
+        </p>}
         {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">Reading sessions…</p>}
         {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
         <div className="qr27">
           {sessions?.map((s) => s.branches.map((b: J) => {
             const active = current?.branchId === b.branchId;
             return (
-              <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={action.busy} aria-pressed={active}
+              <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={busy} aria-pressed={active}
                 aria-label={`Session ${shortId(s.sessionId)} · branch ${shortId(b.branchId)} · ${when(s.updatedAt)} · ${b.lastEventSeq} ${b.lastEventSeq === 1 ? "event" : "events"}`}
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
-                onClick={() => { if (!writing.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
+                onClick={() => { if (!writing.current && !externalWriting.current && !suggestionWriting.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
                 <span className="qr24">{when(s.updatedAt)}</span>
                 <span className="qr25">{b.lastEventSeq} {b.lastEventSeq === 1 ? "event" : "events"}</span>
               </button>
             );
           }))}
         </div>
+        <div className="mem-pad"><WorkspaceProviderCalls request={request} excludeOperationId={externalOperation} /></div>
       </aside>
       <div className="qr45" aria-label="Session transcript" aria-busy={busy}>
         <div className="qr31">
           <h2 className="qr29" tabIndex={-1}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
           {detail && <div className="qr19">last saved event {detail.lastSavedEventId ? shortId(detail.lastSavedEventId) : "none"}</div>}
           <div className="qr30" />
+          {(requested || current) && <button type="button" className="mem-button" disabled={busy}
+            onClick={() => { const target = detailRead.error ? requested : current; if (target) void open(target); }}>
+            {detailRead.error ? "Read session again" : "Refresh saved session"}
+          </button>}
         </div>
         <div className="qr44">
           <ErrorBox error={detailRead.error} />
+          {detailRead.error && requested && <p className="mem-muted mem-pad" role="status">
+            Session {shortId(requested.sessionId)} has not been read. {detail ? "The displayed transcript is from the previous successful read." : "Its transcript is still unknown."} Read it again before starting another session write. Unsent drafts are kept.
+          </p>}
           {detailRead.busy && <p role="status" className="mem-muted mem-pad">Reading the session…</p>}
+          {externalBusy && <p role="status" className="mem-muted mem-pad">Waiting for the external provider action to finish. A running call can be stopped locally in the inspector.</p>}
           {detail && current && (
             <div className="mem-pad mem-stack">
               <ol className="mem-transcript">
@@ -152,7 +188,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 <label className="mem-label" htmlFor="mem-ask">Ask (Send uses the local Mock, which cites approved memories only; an external provider is in the inspector)</label>
                 <textarea ref={questionInput} id="mem-ask" className="mem-textarea" value={text} disabled={busy} onChange={(e) => editDraft("text", e.target.value)} />
                 <div className="mem-actions">
-                  <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || busy}>Send</button>
+                  <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || writesBlocked}>Send</button>
                 </div>
               </form>
             </div>
@@ -175,8 +211,12 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
           )}
           {detail && current && (
             <>
-              <ExternalPanel branch={current} text={text} invocations={detail.invocations ?? []}
+              <ExternalPanel key={branchKey(current)} branch={current} text={text} invocations={detail.invocations ?? []}
+                request={request} disabled={action.busy || detailRead.busy || suggestionBusy || !!detailRead.error} onBusyChange={reportExternalBusy} onOperationChange={setExternalOperation}
                 consumeText={(submitted) => clearSubmittedDraft("text", submitted)}
+                onChanged={async () => { await open(current); await list(); }} />
+              <SavedExtractionJobs key={`jobs-${branchKey(current)}`} sessionId={current.sessionId}
+                jobs={detail.extractionJobs} disabled={writesBlocked} request={request} onBusyChange={reportSuggestionBusy} onReview={reviewCandidates}
                 onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">
                 <h3 className="mem-h3">Checkpoints</h3>
@@ -200,7 +240,7 @@ export function Sessions({ inspect, request = call }: { inspect: (capsuleId: str
                 <label className="mem-label" htmlFor="mem-cp">Checkpoint summary</label>
                 <input ref={checkpointInput} id="mem-cp" className="mem-input" value={summary} disabled={busy} onChange={(e) => editDraft("summary", e.target.value)} autoComplete="off" />
                 <div className="mem-actions">
-                  <button type="submit" className="mem-button" disabled={!summary.trim() || busy}>Save checkpoint</button>
+                  <button type="submit" className="mem-button" disabled={!summary.trim() || writesBlocked}>Save checkpoint</button>
                 </div>
               </form>
             </>

@@ -9,6 +9,9 @@ import { call, pick, type J, type Picked } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ComponentList, StatusPending, VaultConnect, useStatus } from "./status";
 import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./ui";
+import { CandidateSource } from "./CandidateSource";
+import { CandidateConflict } from "./CandidateConflict";
+import { memoryObservation } from "./observationIdentity";
 
 type Collection = "inbox" | "current" | "history" | "import" | "vault";
 
@@ -26,9 +29,9 @@ function dayOf(iso: string): string {
   return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function MemorySurface() {
+export default function MemorySurface({ initialCollection = "current" }: { initialCollection?: "current" | "inbox" }) {
   const { status } = useStatus();
-  const [collection, setCollection] = useState<Collection>("current");
+  const [collection, setCollection] = useState<Collection>(initialCollection);
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState({ text: "", seq: 0 });
   const open = status?.vault?.state === "open";
@@ -206,9 +209,14 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
   const [note, setNote] = useState("");
   const planTrigger = useRef<HTMLElement | null>(null);
   const action = useAction();
-  const load = useCallback(() => void action.run(async () => setDetail(await readPage("memory_read", { memoryId: id }))), [id, readPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  const reads = useLatestRead();
+  const load = useCallback(() => {
+    setDetail(null); setImpact(null);
+    void reads.run(async () => memoryObservation(await readPage("memory_read", { memoryId: id }), id), setDetail);
+  }, [id, readPage, reads.run]);
   useEffect(load, [load]);
   const forget = (mode: "forget" | "purge") => {
+    if (action.busy || reads.pending.current || reads.error || !detail) return;
     setNote("");
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async (key) => setPlan(await readPage("forget_plan", { memoryId: id, mode, withDependents: false }, key)));
@@ -217,11 +225,18 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
     try { await navigator.clipboard.writeText(id); setNote("ID copied."); }
     catch { setNote("Could not copy. Select the ID and copy it manually."); }
   };
-  if (!detail) return <Inspector><ErrorBox error={action.error} />{action.busy && <p role="status" className="mem-muted">Reading the memory…</p>}</Inspector>;
+  const observation = <div className="mem-stack">
+    <button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) load(); }}>Read memory again</button>
+    <ErrorBox error={reads.error} />
+    {reads.busy && <p role="status" className="mem-muted">Reading the memory…</p>}
+    {reads.error && <p className="mem-muted">This saved memory could not be read. Read it again before starting another correction or deletion. Unsent correction text is kept.</p>}
+  </div>;
+  if (!detail) return <Inspector>{observation}</Inspector>;
   const r = detail.record;
   const s = detail.summary;
   return (
     <Inspector>
+      {observation}
       <div className="mem-stack">
         <div className="mem-row-meta">
           <Tag tone={s.status === "active" ? "ok" : "muted"}>{s.status}</Tag>
@@ -251,12 +266,13 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           placeholder="Write the correct content. It becomes a candidate for review; the memory itself is not rewritten." />
         <div className="mem-actions">
           <button type="button" className="mem-button" disabled={!correction.trim() || action.busy} onClick={() => void action.run(async (key) => {
+            if (reads.pending.current || reads.error) return;
             await readPage("correction_propose", { memoryId: id, revision: r.revision, text: correction }, key);
             setCorrection((current) => current === correction ? "" : current);
             setNote("Correction proposed. Review it in the candidate inbox.");
           })}>Propose correction</button>
           <button type="button" className="mem-button" disabled={action.busy}
-            onClick={() => void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false })))}>Delete impact</button>
+            onClick={() => { if (!reads.pending.current && !reads.error) void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); }}>Delete impact</button>
           <button type="button" className="mem-button" disabled={action.busy} onClick={() => forget("forget")}>Forget…</button>
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>Purge…</button>
         </div>
@@ -284,6 +300,8 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const { refresh } = useStatus();
   const [items, setItems] = useState<J[]>([]);
   const [total, setTotal] = useState<number | null>(null);
+  const [next, setNext] = useState<string | null>(null);
+  const [readingMore, setReadingMore] = useState(false);
   const [plan, setPlan] = useState<J>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
@@ -293,21 +311,34 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const planTrigger = useRef<HTMLElement | null>(null);
   const action = useAction();
   const reads = useLatestRead();
-  const load = useCallback(() => reads.run(() => readPage("candidate_list", { cursor: null, limit: 50 }), (page) => {
-    setItems(page.items);
-    setTotal(page.total);
-  }), [readPage, reads.run]);
+  const load = useCallback((cursor: string | null = null) => {
+    setReadingMore(cursor != null);
+    return reads.run(() => readPage("candidate_list", { cursor, limit: 50 }), (page) => {
+      setItems(previous => cursor ? [...previous, ...page.items] : page.items);
+      setNext(page.nextCursor);
+      setTotal(page.total);
+    });
+  }, [readPage, reads.run]);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
-    if (reads.busy) return;
-    if (focusAfterCommit.current || (focusAfterRefresh.current && !focusAfterRefresh.current.isConnected)) {
+    // A preceding render's effect may run after another read has started.
+    // Keep its pending focus target until that actual read settles.
+    if (reads.busy || reads.pending.current) return;
+    const trigger = focusAfterRefresh.current;
+    const restoreReadFocus = trigger && (document.activeElement === document.body || document.activeElement === trigger);
+    if (focusAfterCommit.current || (restoreReadFocus && !trigger.isConnected)) {
       document.getElementById("mem-center-title")?.focus();
-    } else focusAfterRefresh.current?.focus();
+    } else if (restoreReadFocus) trigger.focus();
     focusAfterCommit.current = false;
     focusAfterRefresh.current = null;
   }, [items, reads.busy]);
+  const observe = (cursor: string | null) => {
+    if (action.busy || plan || reads.pending.current || (cursor && reads.error)) return;
+    focusAfterRefresh.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    void load(cursor);
+  };
   const decide = (c: J, act: string) => {
-    if (action.busy || reads.pending.current) return;
+    if (action.busy || reads.pending.current || reads.error) return;
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async () =>
       setPlan(await readPage("review_plan", { decisions: [{
@@ -318,41 +349,60 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   };
   return (
     <>
-      <Center title={TITLES.inbox} count={reads.error ? "Candidates unavailable" : total == null ? "Waiting for candidates" : `${total} waiting`}
+      <Center title={TITLES.inbox} count={reads.error ? "Candidates unavailable" : total == null ? "Waiting for candidates" : `${total} waiting · ${items.length} shown`}
         busy={action.busy || reads.busy || (total == null && !reads.error)}>
+        <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan}
+          onClick={() => observe(null)}>Refresh candidates</button></div>
         <ErrorBox error={action.error} />
         <ErrorBox error={reads.error} />
-        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : "Refreshing candidates…"}</p>}
+        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : readingMore ? "Reading more candidates…" : "Refreshing candidates…"}</p>}
+        {reads.error && items.length > 0 && <p role="status" className="mem-muted mem-pad">Previous candidate observation. Refresh candidates before reviewing or saving another candidate. Unsent edits are kept.</p>}
         {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
         {items.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
           return (
             <article key={c.candidateId} className="mem-candidate" aria-label={`Candidate ${c.candidateId}`}>
               <div className="mem-row-meta">
+                <code title={c.candidateId}>{shortId(c.candidateId)}</code><span>r{c.revision}</span>
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
                 <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
               </div>
+              {typeof c.reason === "string" && c.reason.length > 0 && <details className="mem-stack mem-reason">
+                <summary>Saved proposal reason</summary>
+                <p className="mem-muted">A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.</p>
+                <p className="mem-content">{c.reason}</p>
+              </details>}
               {c.target && <p className="mem-old">Current fact (r{c.target.revision}): {c.target.content}</p>}
               <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">Candidate content</label>
               <textarea id={`mem-e-${c.candidateId}`} className="mem-textarea" value={draft}
                 onChange={(e) => setEdits({ ...edits, [c.candidateId]: e.target.value })} />
               <p className="mem-muted">
-                Evidence: {c.evidence.map((e: J) => `${shortId(e.sourceId)} r${e.sourceRevision}`).join(", ")}
+                {c.evidence.length} evidence reference{c.evidence.length === 1 ? "" : "s"}
                 {c.conflicts.length > 0 && <span className="mem-warn"> · {c.conflicts.length} conflict{c.conflicts.length === 1 ? "" : "s"}</span>}
               </p>
+              <ul className="mem-list">{c.evidence.map((e: J, i: number) => <CandidateSource
+                key={`${c.revision}:${e.sourceId}:${e.sourceRevision}:${i}`} evidence={e} readPage={readPage} />)}</ul>
+              {c.conflicts.length > 0 && <div className="mem-stack">
+                <h3 className="mem-h3">Reported conflicts</h3>
+                <p className="mem-muted">Read the current saved records before deciding. Reading does not merge, approve or resolve a conflict.</p>
+                <ul className="mem-list">{c.conflicts.map((conflict: J, i: number) => <CandidateConflict
+                  key={`${c.revision}:${conflict.memory_id}:${conflict.revision}:${i}`} conflict={conflict} readPage={readPage} />)}</ul>
+              </div>}
               <div className="mem-actions">
-                <button type="button" className="mem-button mem-primary" disabled={action.busy || reads.busy}
+                <button type="button" className="mem-button mem-primary" disabled={action.busy || reads.busy || !!reads.error}
                   onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? "Accept with edits…" : "Accept…"}</button>
-                <button type="button" className="mem-button" disabled={action.busy || reads.busy} onClick={() => decide(c, "reject")}>Reject…</button>
+                <button type="button" className="mem-button" disabled={action.busy || reads.busy || !!reads.error} onClick={() => decide(c, "reject")}>Reject…</button>
               </div>
             </article>
           );
         })}
+        {next && <div className="mem-pad"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan || !!reads.error}
+          onClick={() => observe(next)}>Load more candidates</button></div>}
       </Center>
       <Inspector>
         <form className="mem-stack" onSubmit={(e) => {
           e.preventDefault();
-          if (action.busy || reads.pending.current || !text.trim() || !claim.trim()) return;
+          if (action.busy || reads.pending.current || reads.error || !text.trim() || !claim.trim()) return;
           void action.run(async (key) => {
             await readPage("remember", { text, claimKey: claim }, key);
             setText((current) => current === text ? "" : current);
@@ -368,7 +418,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
           <label className="mem-label" htmlFor="mem-claim">Topic key</label>
           <input id="mem-claim" className="mem-input" value={claim} onChange={(e) => setClaim(e.target.value)} placeholder="for example preference.reading" autoComplete="off" />
           <div className="mem-actions">
-            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || action.busy || reads.busy}>Save as candidate</button>
+            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || action.busy || reads.busy || !!reads.error}>Save as candidate</button>
           </div>
         </form>
       </Inspector>
@@ -508,7 +558,7 @@ function VaultPanel() {
           </div>
           {status.operationsRunning > 0 && (
             <p className="mem-muted" role="status">
-              {status.operationsRunning} operation{status.operationsRunning === 1 ? " is" : "s are"} running. Locking cancels import and index work at the next safe point and waits for verify and backup to finish; progress stays visible meanwhile.
+              {status.operationsRunning} operation{status.operationsRunning === 1 ? " is" : "s are"} running. Locking stops model calls locally, cancels import and index work at the next safe point, and waits for verify and backup to finish; progress stays visible meanwhile. The service may have received a model request. After unlocking, read saved session outcomes before sending again.
             </p>
           )}
           <ErrorBox error={action.error} />
@@ -525,7 +575,7 @@ function VaultPanel() {
         <ComponentList status={status} />
         <h3 className="mem-h3">Four different stops</h3>
         <ul className="mem-list mem-muted">
-          <li><strong>Lock Vault</strong> cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Everything is refused until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
+          <li><strong>Lock Vault</strong> stops model calls locally, cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Local stopping does not confirm remote cancellation. After unlocking, read saved session outcomes before sending again. Vault work is unavailable until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
           <li><strong>Closing the window</strong> only hides it to the tray. Memory keeps running, and so does any operation.</li>
           <li><strong>Exit</strong> (tray or Settings) does the same release, then ends Runtime. The Activity producer keeps its own schedule.</li>
           <li><strong>Pausing sync</strong> does not exist yet: Memory has no sync before its gateway stage.</li>

@@ -1,0 +1,34 @@
+{
+  "scope":"Actual Sessions and ExternalPanel, synthetic IPC only",
+  "fixture":"apps/desktop/e2e/provider-session.html",
+  "checks":[
+    {"id":"prepare_blocks_branch_new_and_composer","ok":true},
+    {"id":"disabled_branch_does_not_request_other_detail","ok":true},
+    {"id":"send_admission_blocks_session_writes","ok":true},
+    {"id":"running_send_keeps_owner_selected","ok":true},
+    {"id":"running_send_preserves_cancel","ok":true},
+    {"id":"completion_refreshes_original_branch","ok":true},
+    {"id":"completion_preserves_later_draft","ok":true},
+    {"id":"new_branch_does_not_inherit_outcome_or_preview","ok":true},
+    {"id":"original_draft_restored","ok":true},
+    {"id":"one_explicit_external_send","ok":true}
+  ],
+  "passed":true,
+  "calls":[
+    {"command":"session_list","sessionId":null},
+    {"command":"session_detail","sessionId":"session-one"},
+    {"command":"provider_status","sessionId":null},
+    {"command":"external_prepare","sessionId":"session-one"},
+    {"command":"session_detail","sessionId":"session-one"},
+    {"command":"session_list","sessionId":null},
+    {"command":"external_send","sessionId":null},
+    {"command":"operation_get","sessionId":null},
+    {"command":"operation_get","sessionId":null},
+    {"command":"session_detail","sessionId":"session-one"},
+    {"command":"session_list","sessionId":null},
+    {"command":"session_detail","sessionId":"session-two"},
+    {"command":"provider_status","sessionId":null},
+    {"command":"session_detail","sessionId":"session-one"},
+    {"command":"provider_status","sessionId":null}
+  ]
+}

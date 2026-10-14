@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-12",
+  "baseline": "d21c9a7",
+  "fixture": "apps/desktop/e2e/suggestion-resume.html",
+  "scope": "synthetic browser IPC against an observed paused saved job",
+  "before_fix": {"failed": "observed_paused_job_has_explicit_resume"},
+  "passed": true,
+  "checks": [
+    {"id": "observed_paused_job_has_explicit_resume", "ok": true},
+    {"id": "resume_holds_job_and_dismissal", "ok": true},
+    {"id": "lost_resume_receipt_requires_observation", "ok": true},
+    {"id": "saved_read_observes_resume_without_replay", "ok": true},
+    {"id": "resume_never_applies_automatically", "ok": true},
+    {"id": "successful_resume_refreshes_parent_once", "ok": true},
+    {"id": "resume_targets_exact_saved_job", "ok": true},
+    {"id": "only_local_resume_and_preview_commands", "ok": true},
+    {"id": "resumed_flow_can_close", "ok": true}
+  ],
+  "calls": ["extraction_preview", "extraction_pause", "extraction_preview", "extraction_preview", "extraction_pause", "extraction_preview"],
+  "limits": ["Receipt loss is simulated", "No automatic application or model send", "No personal data, credentials or HTTP"]
+}

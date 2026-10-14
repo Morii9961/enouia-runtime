@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-12",
+  "baseline": "6adb85e",
+  "fixture": "apps/desktop/e2e/source-suggestions.html",
+  "scope": "synthetic browser IPC against Source and ExtractionPanel",
+  "before_fix": {"failed": "held_prepare_keeps_excerpt_selected"},
+  "passed": true,
+  "checks": [
+    {"id": "held_prepare_keeps_excerpt_selected", "ok": true},
+    {"id": "held_prepare_cannot_read_next_range", "ok": true},
+    {"id": "settled_review_can_change_excerpt", "ok": true},
+    {"id": "new_request_uses_shown_range", "ok": true},
+    {"id": "send_admission_keeps_excerpt_selected", "ok": true},
+    {"id": "running_call_keeps_excerpt_selected", "ok": true},
+    {"id": "original_suggestion_remains_literal", "ok": true},
+    {"id": "current_candidate_is_distinct", "ok": true},
+    {"id": "accepted_candidate_is_not_claimed_pending", "ok": true},
+    {"id": "suppressed_suggestion_reports_no_candidate", "ok": true},
+    {"id": "terminal_read_releases_excerpt", "ok": true},
+    {"id": "nothing_applies_or_resends_automatically", "ok": true}
+  ],
+  "calls": ["source_excerpt", "provider_status", "extraction_prepare", "source_excerpt", "provider_status", "extraction_prepare", "external_send", "operation_get", "operation_get", "extraction_preview"],
+  "limits": ["Only local excerpt paging is guarded", "No personal source or Vault", "No HTTP, auto application or approval"]
+}

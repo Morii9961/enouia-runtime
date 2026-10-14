@@ -19,7 +19,7 @@ import type { Page, WindowAction, DetailRow, SessionEvent, CollectionDefinition,
 
 type AppProps = { startPage?: Page; memoryConnected?: boolean; breathing?: boolean; showIds?: boolean };
 type AppState = {
-  page: Page | null; memCapsule: string | null; collection: string; sel: string; q: string;
+  page: Page | null; memCapsule: string | null; memInitialCollection?: "current" | "inbox"; collection: string; sel: string; q: string;
   editing: boolean; draft: string; notice: string; mems: DemoMemory[] | null;
   ctxOpen: string | null; sessionKey: string; actFilter: string; actOpen: string | null;
   rtKey: string; paused: boolean; motionPref: string; copied: boolean; windowError?: string; windowMaximized: boolean | null;
@@ -96,6 +96,10 @@ export default class App extends React.Component<AppProps, AppState> {
     this.setState({ memCapsule: id, page: 'context', editing: false, copied: false, notice: '' },
       () => requestAnimationFrame(() => document.getElementById('mem-context-title')?.focus()));
   }
+  reviewCandidates = () => {
+    this.setState({ page: 'memory', memInitialCollection: 'inbox', editing: false, copied: false, notice: '' },
+      () => requestAnimationFrame(() => document.getElementById('mem-center-title')?.focus()));
+  };
   mems() { return this.state.mems || App.D.MEM; }
   byKey(k: string | undefined) { return this.mems().find((m) => m.key === k); }
   requireMemory(k: string, memories = this.mems()) {
@@ -108,7 +112,7 @@ export default class App extends React.Component<AppProps, AppState> {
     if (memory.kind !== 'session_checkpoint' || !memory.covered || !memory.lastState || !memory.openLoops) throw new Error('Invalid demo checkpoint.');
     return { ...memory, covered: memory.covered, lastState: memory.lastState, openLoops: memory.openLoops };
   }
-  go(p: Page) { if (this.PAGES.includes(p)) this.setState({ page: p, editing: false, copied: false, notice: '' }); }
+  go(p: Page) { if (this.PAGES.includes(p)) this.setState({ page: p, memInitialCollection: 'current', editing: false, copied: false, notice: '' }); }
   select(k: string) { this.setState({ sel: k, editing: false, notice: '', copied: false }); }
   openMemory(k: string) {
     const m = this.byKey(k); if (!m) return;
@@ -547,13 +551,13 @@ Settings
 {connected ? <ConnectedHome nav={view.nav} ring={view.ring} /> : <Home view={view} />}
 </> : null}
 {isMemory ? <>
-{connected ? <MemorySurface /> : <Memory view={view} />}
+{connected ? <MemorySurface initialCollection={this.state.memInitialCollection} /> : <Memory view={view} />}
 </> : null}
 {isContext ? <>
 {connected ? <ContextSurface capsuleId={this.state.memCapsule} /> : <Context view={view} />}
 </> : null}
 {isSessions ? <>
-{connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} /> : <Sessions view={view} />}
+{connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} reviewCandidates={this.reviewCandidates} /> : <Sessions view={view} />}
 </> : null}
 {isActivity ? <>
 {connected ? <ActivitySurface /> : <Activity view={view} />}
