@@ -10,6 +10,7 @@ import { ErrorBox, Operation, OperationFeedback, shortId } from "./ui";
 import { SuggestionPreview } from "./SuggestionPreview";
 import { applySavedSuggestions, resumeSavedSuggestions } from "./applySavedSuggestions";
 import { suggestionObservation } from "./observationIdentity";
+import { holdProviderSend } from "./providerSend";
 
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
@@ -17,7 +18,9 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   const [status, setStatus] = useState<J>(null);
   const [api, setApi] = useState("");
   const providerId = useId();
-  const [prepared, setPrepared] = useState<J>(null);
+  const [heldSend, setPrepared] = useState<ReturnType<typeof holdProviderSend> | null>(null);
+  const prepared = heldSend?.prepared;
+  const submitted = heldSend?.submitted() ?? false;
   const [operation, setOperation] = useState<string | null>(null);
   const [completion, setCompletion] = useState<J>(null);
   const [job, setJob] = useState<{ sessionId: string; runId: string } | null>(null);
@@ -27,7 +30,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   const read = useLatestRead();
   const mounted = useRef(false);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const owningWork = action.busy || operation != null;
+  const owningWork = action.busy || operation != null || submitted;
   useEffect(() => {
     onBusyChange?.(owningWork);
     return () => onBusyChange?.(false);
@@ -87,27 +90,28 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
           <p className="mem-muted">Ask {api} ({destination.model}) to suggest facts from bytes {range.start}–{range.end} of this source. You see the exact request first; suggestions only enter the review queue.</p>
           <div className="mem-actions">
             <button type="button" className="mem-button mem-primary" disabled={action.busy}
-              onClick={() => void action.run(async (key) => setPrepared(await request("extraction_prepare", {
+              onClick={() => void action.run(async (key) => setPrepared(holdProviderSend(await request("extraction_prepare", {
                 sourceId: range.sourceId, sourceRevision: range.revision, startByte: range.start, endByte: range.end,
                 api, policyId: grant.policyId, maxCandidates: 8,
-              }, key)))}>Prepare the request…</button>
+              }, key), request)))}>Prepare the request…</button>
             {close}
           </div>
         </>
       )}
       {prepared && (
         <>
-          <p>This exact request goes to <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens. It is sent once and never retried.</p>
+          <p>This exact request goes to <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens. It is sent once. Retry recovers this same call without sending again to the service.</p>
           <pre className="mem-pre" tabIndex={0}>{prepared.body}</pre>
+          {submitted && <p role="status" className="mem-muted">Send was submitted. The service may have received it. Recover this call, or leave and read this saved run from Sessions.</p>}
           <div className="mem-actions">
-            <button type="button" className="mem-button mem-primary" disabled={action.busy}
-              onClick={() => void action.run(async (key) => {
-                const started = await request("external_send", { callId: prepared.callId, wireHash: prepared.wireHash }, key);
+            <button type="button" className="mem-button mem-primary" disabled={action.busy || (submitted && !!action.error && !action.error.retry)}
+              onClick={() => void action.run(async () => {
                 setJob({ sessionId: prepared.sessionId, runId: prepared.runId });
+                const started = await heldSend!.send();
                 setPrepared(null);
                 setOperation(started.operationId);
-              })}>Send once</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={onClose}>Don't send</button>
+              })}>{submitted ? "Recover this call" : "Send once"}</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={onClose}>{submitted ? "Leave this request" : "Don't send"}</button>
           </div>
         </>
       )}
@@ -120,11 +124,11 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
         if (s.state === "succeeded" && job) void showPreview(job);
       }} />}
       {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
-      {job && !operation && !preview && <div className="mem-actions">
+      {job && !prepared && !operation && !preview && <div className="mem-actions">
         <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Read saved suggestions</button>
         {close}
       </div>}
-      {preview && job && (
+      {preview && job && !prepared && (
         <>
           {!previewCurrent && <p role="status" className="mem-muted">Previous suggestion observation. Read saved suggestions again to check which items reached the review queue before starting another write.</p>}
           <SuggestionPreview preview={preview} />

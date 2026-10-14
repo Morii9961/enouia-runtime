@@ -25,7 +25,7 @@ setTransport(async(native,args)=>{
   switch(r.command){
     case "provider_status":return reply({configured:true,destinations:[{api:"openai",model:"synthetic-model"}],grants:[{active:true,policyId:"synthetic-policy",purposes:["extraction"],destinations:[{provider:"openai",model:"synthetic-model"}]}]});
     case "extraction_prepare":return reply({callId:"synthetic-call",wireHash:"synthetic-hash",sessionId:"synthetic-session",runId:"synthetic-run",model:"synthetic-model",endpoint:"Synthetic unused endpoint",body:"Synthetic request"});
-    case "external_send":return reply({operationId:"synthetic-operation"});
+    case "external_send":return reply({operationId:"synthetic-operation",kind:"external_send"});
     case "operation_get":return reply({operationId:"synthetic-operation",kind:"external_send",state:"succeeded",progress:{done:1,total:1},result:{finish:"completed"},cancelRequested:false});
     case "extraction_preview":
       if(failPreview)return {kind:"memory_error",error:{code:"storage_failed",retryable:false,rules:[]}};

@@ -21,7 +21,7 @@ setTransport(async(native,args)=>{
       {active:true,policyId:"extraction-grant",purposes:["extraction"],destinations:[{provider:"anthropic",model:"synthetic-anthropic"}]},
     ]};break;
     case "extraction_prepare":await new Promise<void>(resolve=>{releasePrepare=resolve;});result={callId:"synthetic-call",wireHash:"synthetic-hash",sessionId:"synthetic-session",runId:"synthetic-run",model:"synthetic-anthropic",endpoint:"Synthetic Anthropic endpoint (unused)",body:"Synthetic Anthropic body"};break;
-    case "external_send":result={operationId:"synthetic-operation"};break;
+    case "external_send":result={operationId:"synthetic-operation",kind:"external_send"};break;
     case "operation_get":result={operationId:"synthetic-operation",kind:"external_send",state:finished?"succeeded":"running",progress:{done:0,total:null},cancelRequested:false,result:finished?{finish:"completed"}:null};break;
     case "extraction_preview":result={job:{run_id:r.arguments.runId,state:"completed"},items:[]};break;
     default:throw new Error(`Unexpected command ${r.command}`);

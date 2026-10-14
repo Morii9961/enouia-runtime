@@ -39,7 +39,7 @@ setTransport(async (command, args) => {
   switch (r.command) {
     case "provider_status": return reply(setup);
     case "external_prepare": case "extraction_prepare": return reply(prepared);
-    case "external_send": operationState = "queued"; return reply({operationId: "synthetic-operation"});
+    case "external_send": operationState = "queued"; return reply({operationId: "synthetic-operation",kind:"external_send"});
     case "operation_cancel": cancelled = true; return reply({operationId:"synthetic-operation",kind:"external_send",state:"running",cancelRequested:true,progress:{done:0,total:null}});
     case "operation_get": {
       if (scenario === "cancel" && cancelled && ++cancellationReads >= 2) operationState = "cancelled";

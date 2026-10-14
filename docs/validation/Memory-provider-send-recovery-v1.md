@@ -1,0 +1,13 @@
+# Provider start-receipt recovery
+
+Date: 2026-10-14 (Asia/Shanghai). Baseline `b035eb9aed7a42eaea976676a42e7ea986730302`; Memory pin unchanged at `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+Source inspection found that both Session and source panels retained a prepared body after start-delivery failure, but another Send once gesture allocated a fresh write key. The pinned Core consumes the prepared call when admitting it; only the original key recovers its recorded operation. A fresh-key lookup returns `not_found`, as reproduced against the actual pinned Core with synthetic data. Core still sends once; this was a lost client recovery path, not a duplicate model-send defect.
+
+Each prepared request now owns an immutable displayed body/identity and one send key. After submission, Recover this call and Retry use the same envelope arguments/key. A successful start must identify a nonempty operation of kind `external_send`. Held recovery protects the Session/source selection and model/setup choices. A nonretryable refusal withholds recovery. Leaving the Session request rereads saved status/detail without claiming it was not sent; a source request exposes its saved Session/run IDs and can close for manual recovery from Sessions. No request/key/body is persisted by Runtime. Source preview/application controls stay withheld while the start remains unresolved.
+
+Fresh verification: all 80 frontend tests including four new send-envelope/identity regressions; frontend TypeScript and strict affected-fixture checking; all 61 native host tests and five pinned-Core consumers; formatting/strict Clippy; frontend and no-bundle desktop release build; pin/dependency guards (8 + 7 negatives). The Core consumer replays the original key before and after completion, receives the same operation, rejects a fresh key, and observes one fake transport exchange. No real HTTP occurs.
+
+The new browser fixture passed 20/20; seven affected fixtures passed 12/12, 18/18, 14/14, 10/10, 7/7, 14/14 and 11/11 (106 checks total including the new fixture). At the unchanged baseline, the previously unavailable confirmation and operation-identity fixtures additionally passed 9/9 and 11/11; related off-ledger/setup/status regressions also passed. Captured counts and failures are selected from the actual `#results` DOM in [browser summary](Memory-provider-recovery-browser-2026-10-14.json). Receipt timing and responses are synthetic, not physical Windows/Narrator or Morii acceptance.
+
+No personal Vault, actual credentials, live Provider, Activity activation, installer, Memory-domain change or pin bump occurred. Owner changes and manual status snapshots remain excluded.

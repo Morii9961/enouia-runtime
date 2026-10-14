@@ -22,7 +22,7 @@ setTransport(async(native,args)=>{
   switch(r.command){
     case "provider_status":result={configured:true,destinations:[{api:"openai",model:"synthetic-model"}],grants:[{active:true,policyId:"synthetic-policy",purposes:["extraction"],destinations:[{provider:"openai",model:"synthetic-model"}]}]};break;
     case "extraction_prepare":result={callId:"synthetic-call",wireHash:"synthetic-hash",sessionId:"synthetic-session",runId:"synthetic-run",model:"synthetic-model",endpoint:"Synthetic endpoint (unused)",body:"Synthetic exact request"};break;
-    case "external_send":result={operationId:"synthetic-operation"};break;
+    case "external_send":result={operationId:"synthetic-operation",kind:"external_send"};break;
     case "operation_get":result={operationId:"synthetic-operation",kind:"external_send",state:"succeeded",cancelRequested:false,progress:{done:1,total:1},result:{finish:"completed"}};break;
     case "extraction_preview":result=preview();break;
     case "extraction_apply":

@@ -1,0 +1,23 @@
+{
+  "baseline": "b035eb9aed7a42eaea976676a42e7ea986730302",
+  "capture": "Selected #results fields; synthetic browser IPC only",
+  "beforeEdits": [
+    {"fixture":"provider-confirmation","checks":9,"passed":true,"failed":[]},
+    {"fixture":"operation-observation","checks":11,"passed":true,"failed":[]},
+    {"fixture":"provider-off-ledger","checks":10,"passed":true,"failed":[]},
+    {"fixture":"provider-operations","checks":12,"passed":true,"failed":[]},
+    {"fixture":"provider-session","checks":18,"passed":true,"failed":[]},
+    {"fixture":"provider-setup","checks":11,"passed":true,"failed":[]},
+    {"fixture":"extraction-status-recovery","checks":9,"passed":true,"failed":[]}
+  ],
+  "final": [
+    {"fixture":"provider-send-recovery","checks":20,"passed":true,"failed":[]},
+    {"fixture":"provider-operations","checks":12,"passed":true,"failed":[]},
+    {"fixture":"provider-session","checks":18,"passed":true,"failed":[]},
+    {"fixture":"source-suggestions","checks":14,"passed":true,"failed":[]},
+    {"fixture":"source-suggestion-resume","checks":10,"passed":true,"failed":[]},
+    {"fixture":"suggestion-lifetime","checks":7,"passed":true,"failed":[]},
+    {"fixture":"extraction-recovery","checks":14,"passed":true,"failed":[]},
+    {"fixture":"extraction-provider-choice","checks":11,"passed":true,"failed":[]}
+  ]
+}
