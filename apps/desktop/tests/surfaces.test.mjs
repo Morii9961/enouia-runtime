@@ -354,6 +354,20 @@ test('workspace calls stay unknown until a Core list has been read', () => {
   assert.doesNotMatch(html, /No model calls|Stop locally|Reply saved/);
 });
 
+test('saved Provider failure reasons render from structured codes while unknown data stays private', () => {
+  const html = renderToStaticMarkup(createElement(ExternalPanel, {
+    branch: { sessionId: 'synthetic-session', branchId: 'synthetic-branch' }, text: '',
+    invocations: [{ dispatch_id: 'synthetic-failed', state: 'failed', error_code: 'storage_failed', reserved_tokens: 128 },
+      { dispatch_id: 'synthetic-unknown', state: 'constructor', error_code: 'private unstructured failure', reserved_tokens: 128 }],
+    onChanged: async () => {}, consumeText() {},
+  }));
+  assert.match(html, /Recorded error: .*Storage failed/);
+  assert.match(html, /Saved outcome unavailable/);
+  assert.match(html, /Saved error unavailable/);
+  assert.match(html, /title="synthetic-failed"/);
+  assert.doesNotMatch(html, /private unstructured failure|function Object|Retry|Send once/);
+});
+
 test('source suggestions read the provider setup before offering any request', () => {
   const html = renderToStaticMarkup(createElement(ExtractionPanel, {
     range: { sourceId: 'src_00000000-0000-4000-8000-000000000007', revision: 1, start: 0, end: 120 }, onClose() {},
