@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { operationObservation } from '../src/memory/observationIdentity.ts';
+import { operationObservation, operationListObservation } from '../src/memory/observationIdentity.ts';
 
 const id = 'op_synthetic_selected';
 const status = (state = 'running') => ({ operationId: id, kind: 'external_send', state,
@@ -37,5 +37,43 @@ test('a generic watcher can bind a first Core kind and then accept only that kin
   assert.equal(operationObservation(finished, id, first.kind), finished);
   for (const kind of ['', null, undefined, {}]) {
     assert.throws(() => operationObservation({ ...first, kind }, id), /identity mismatch/);
+  }
+});
+
+test('missing or malformed progress is refused before rendering, including terminal reads', () => {
+  for (const progress of [null, undefined, [], {}, { done: 0 }, { done: -1, total: null },
+    { done: 0.5, total: null }, { done: Infinity, total: null }, { done: '0', total: null },
+    { done: 0, total: -1 }, { done: 0, total: 1.5 }, { done: 0, total: {} }]) {
+    assert.throws(() => operationObservation({ ...status('succeeded'), progress }, id), /fields mismatch/);
+  }
+  for (const progress of [{ done: 0, total: null }, { done: 2, total: 3 }, { done: 3, total: 2 }]) {
+    const saved = { ...status(), progress };
+    assert.equal(operationObservation(saved, id), saved);
+  }
+});
+
+test('operation state and cancellation acknowledgement keep the fixed Core field types', () => {
+  for (const state of [null, undefined, 'unknown', 'constructor', {}]) {
+    assert.throws(() => operationObservation({ ...status(), state }, id), /fields mismatch/);
+  }
+  for (const cancelRequested of [null, undefined, 0, 1, 'false', {}]) {
+    assert.throws(() => operationObservation({ ...status(), cancelRequested }, id), /fields mismatch/);
+  }
+  const acknowledged = { ...status(), cancelRequested: true };
+  assert.equal(operationObservation(acknowledged, id), acknowledged);
+});
+
+test('operation lists retain exact valid rows and the actual empty list', () => {
+  for (const items of [[], [status()], [status(), { ...status(), operationId: 'op_backup', kind: 'backup_export' }]]) {
+    const page = { items };
+    assert.equal(operationListObservation(page), page);
+  }
+});
+
+test('bad pages, invalid rows and duplicate IDs cannot replace a valid operation list', () => {
+  for (const page of [null, {}, { items: null }, { items: {} }, { items: [null] },
+    { items: [{ ...status(), operationId: '' }] }, { items: [{ ...status(), progress: null }] },
+    { items: [status(), status('succeeded')] }]) {
+    assert.throws(() => operationListObservation(page), /mismatch/);
   }
 });
