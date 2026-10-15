@@ -332,13 +332,21 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
     focusAfterCommit.current = false;
     focusAfterRefresh.current = null;
   }, [items, reads.busy]);
+  const actionsBlocked = action.busy || reads.busy || !!reads.error || !!plan;
+  const cannotAct = () => action.busy || reads.pending.current || !!reads.error || !!plan;
+  // A held retry keeps its original arguments/key, but admission depends on
+  // the current list observation and dialog owner, just like a fresh action.
+  const actionError = action.error && {
+    ...action.error,
+    retry: action.error.retry && !actionsBlocked ? () => { if (!cannotAct()) action.error?.retry?.(); } : undefined,
+  };
   const observe = (cursor: string | null) => {
     if (action.busy || plan || reads.pending.current || (cursor && reads.error)) return;
     focusAfterRefresh.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void load(cursor);
   };
   const decide = (c: J, act: string) => {
-    if (action.busy || reads.pending.current || reads.error) return;
+    if (cannotAct()) return;
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async () =>
       setPlan(await readPage("review_plan", { decisions: [{
@@ -353,7 +361,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
         busy={action.busy || reads.busy || (total == null && !reads.error)}>
         <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan}
           onClick={() => observe(null)}>Refresh candidates</button></div>
-        <ErrorBox error={action.error} />
+        <ErrorBox error={actionError} />
         <ErrorBox error={reads.error} />
         {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : readingMore ? "Reading more candidates…" : "Refreshing candidates…"}</p>}
         {reads.error && items.length > 0 && <p role="status" className="mem-muted mem-pad">Previous candidate observation. Refresh candidates before reviewing or saving another candidate. Unsent edits are kept.</p>}
@@ -389,9 +397,9 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                   key={`${c.revision}:${conflict.memory_id}:${conflict.revision}:${i}`} conflict={conflict} readPage={readPage} />)}</ul>
               </div>}
               <div className="mem-actions">
-                <button type="button" className="mem-button mem-primary" disabled={action.busy || reads.busy || !!reads.error}
+                <button type="button" className="mem-button mem-primary" disabled={actionsBlocked}
                   onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? "Accept with edits…" : "Accept…"}</button>
-                <button type="button" className="mem-button" disabled={action.busy || reads.busy || !!reads.error} onClick={() => decide(c, "reject")}>Reject…</button>
+                <button type="button" className="mem-button" disabled={actionsBlocked} onClick={() => decide(c, "reject")}>Reject…</button>
               </div>
             </article>
           );
@@ -402,7 +410,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
       <Inspector>
         <form className="mem-stack" onSubmit={(e) => {
           e.preventDefault();
-          if (action.busy || reads.pending.current || reads.error || !text.trim() || !claim.trim()) return;
+          if (cannotAct() || !text.trim() || !claim.trim()) return;
           void action.run(async (key) => {
             await readPage("remember", { text, claimKey: claim }, key);
             setText((current) => current === text ? "" : current);
@@ -418,7 +426,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
           <label className="mem-label" htmlFor="mem-claim">Topic key</label>
           <input id="mem-claim" className="mem-input" value={claim} onChange={(e) => setClaim(e.target.value)} placeholder="for example preference.reading" autoComplete="off" />
           <div className="mem-actions">
-            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || action.busy || reads.busy || !!reads.error}>Save as candidate</button>
+            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || actionsBlocked}>Save as candidate</button>
           </div>
         </form>
       </Inspector>
