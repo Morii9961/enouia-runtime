@@ -154,8 +154,11 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
                 onClick={() => { if (!writing.current && !externalWriting.current && !suggestionWriting.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
-                <span className="qr24">{when(s.updatedAt)}</span>
-                <span className="qr25">{b.lastEventSeq} {b.lastEventSeq === 1 ? "event" : "events"}</span>
+                <span className="mem-session-identity mem-mono">Session {shortId(s.sessionId)} · Branch {shortId(b.branchId)}</span>
+                <span className="mem-session-row-meta">
+                  <span className="qr24">{when(s.updatedAt)}</span>
+                  <span className="qr25">{b.lastEventSeq} {b.lastEventSeq === 1 ? "event" : "events"}</span>
+                </span>
               </button>
             );
           }))}
@@ -164,7 +167,10 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
       </aside>
       <div className="qr45" aria-label="Session transcript" aria-busy={busy}>
         <div className="qr31">
-          <h2 className="qr29" tabIndex={-1}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
+          <div className="mem-session-heading">
+            <h2 className="qr29" tabIndex={-1} title={current?.sessionId}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
+            {current && <div className="mem-muted mem-mono" title={current.branchId}>Branch {shortId(current.branchId)}</div>}
+          </div>
           {detail && <div className="qr19">last saved event {detail.lastSavedEventId ? shortId(detail.lastSavedEventId) : "none"}</div>}
           <div className="qr30" />
           {(requested || current) && <button type="button" className="mem-button" disabled={busy}

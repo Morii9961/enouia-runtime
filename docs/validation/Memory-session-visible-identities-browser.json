@@ -1,0 +1,27 @@
+{
+  "baseline": "6c8029ba87870cccf07bb346884c6d4bd5dffd8d",
+  "capture": "Selected actual Chrome #results fields; synthetic Session identities",
+  "expandedFixture": {
+    "fixture": "session-id-filter",
+    "checks": 18,
+    "passed": true,
+    "addedChecks": [
+      {"id":"same_session_branches_have_visible_distinct_identities","ok":true},
+      {"id":"selected_heading_identifies_the_observed_branch","ok":true},
+      {"id":"pending_selection_keeps_previous_observed_identity","ok":true},
+      {"id":"successful_branch_read_updates_visible_identity","ok":true},
+      {"id":"short_labels_retain_exact_full_ids_in_titles","ok":true},
+      {"id":"visible_identities_fit_920px_content_width","ok":true},
+      {"id":"visible_identities_fit_1420px_content_width","ok":true}
+    ]
+  },
+  "regressions": [
+    {"fixture":"session-event-metadata","checks":9,"passed":true},
+    {"fixture":"session-history-boundary","checks":7,"passed":true},
+    {"fixture":"session-observation","checks":11,"passed":true},
+    {"fixture":"session-list-recovery","checks":11,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"provider-send-recovery","checks":20,"passed":true},
+    {"fixture":"suggestion-review-journey","checks":15,"passed":true}
+  ]
+}

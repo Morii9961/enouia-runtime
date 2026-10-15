@@ -10,7 +10,8 @@ const checks: { id: string; ok: boolean }[] = [];
 const calls: { command: string; args: Record<string, unknown> }[] = [];
 let releaseList: (() => void) | null = null, releaseDetail: (() => void) | null = null;
 const releasePending = () => { releaseList?.(); releaseDetail?.(); };
-let initial = true, failList = false, hideSource = false, holdDetail = false;
+let initial = true, failList = false, hideSource = false, holdDetail = false, longIds = false;
+const longSessionId = 'ses_0123456789abcdef0123456789abcdef', longBranchId = 'br_abcdef0123456789abcdef0123456789';
 const job = { run_id: "synthetic-run", input_event_id: "synthetic-input", state: "completed", cursor: 0, candidates: [] };
 setTransport(async (native, args) => {
   if (native === "memory_provider_setup") return { state: "absent" };
@@ -24,10 +25,11 @@ setTransport(async (native, args) => {
     if (failList) return { kind: "memory_error", error: { code: "storage_failed", retryable: false, rules: [] } };
     result = { items: [...(hideSource ? [] : [{ sessionId: "ses_source", updatedAt: "2026-10-15T00:00:00Z", branches: ["br_source", "br_sibling"].map(branchId => ({ branchId, lastEventSeq: 1 })) }]),
       { sessionId: "ses_other", updatedAt: "2026-10-14T00:00:00Z", branches: [{ branchId: "br_other", lastEventSeq: 1 }] }] };
+    if (longIds) result = { items: [{ sessionId: longSessionId, updatedAt: '2026-10-15T00:00:00Z', branches: [{ branchId: longBranchId, lastEventSeq: 1 }] }] };
   } else if (r.command === "session_detail") {
     if (holdDetail) { holdDetail = false; await new Promise<void>(resolve => { releaseDetail = resolve; }); }
     result = { ...r.arguments, transcript: [{ eventId: "synthetic-event", kind: "user_message", deliveryState: "not_applicable", text: `Saved ${r.arguments.sessionId}` }],
-      turns: [], checkpoints: [], invocations: [], extractionJobs: r.arguments.sessionId === "ses_source" ? [job] : [], lastSavedEventId: "synthetic-event" };
+      turns: [], checkpoints: [], invocations: [], extractionJobs: r.arguments.sessionId === "ses_source" ? [job] : [], lastSavedEventId: longIds ? 'evt_0123456789abcdef0123456789abcdef' : "synthetic-event" };
   } else if (r.command === "extraction_preview") result = { job, items: [] };
   else throw new Error(`Unexpected mutation ${r.command}`);
   return { kind: "memory_page", result };
@@ -50,12 +52,14 @@ try {
   await wait(() => releaseList != null);
   check('unobserved_list_keeps_filter_disabled_and_unknown', input().disabled && text().includes('Reading sessions') && !text().includes('No sessions yet'));
   releaseList!(); await wait(() => rows().length === 3 && !input().disabled);
+  check('same_session_branches_have_visible_distinct_identities', ['br_source', 'br_sibling'].every(branch => row(`ses_source · ${branch}`).textContent!.includes(`Session ses_source · Branch ${branch}`)));
   const readsBeforeFilter = calls.length;
   edit(input(), '  SES_SOURCE  '); await wait(() => rows().length === 2);
   check('session_id_matches_all_its_branches_case_insensitively', rows().every(b => b.title.startsWith('ses_source')) && text().includes('2 matching branches'));
   edit(input(), 'BR_SOURCE'); await wait(() => rows().length === 1);
   check('branch_id_filters_without_ipc_or_selection', row('ses_source · br_source') != null && calls.length === readsBeforeFilter && !fixture.querySelector('#mem-ask'));
   row('ses_source · br_source').click(); await wait(() => !!fixture.querySelector('[aria-label="Read saved suggestions for job synthetic-run"]') && !input().disabled);
+  check('selected_heading_identifies_the_observed_branch', fixture.querySelector('.mem-session-heading')!.textContent === 'Session ses_sourceBranch br_source');
   fixture.querySelector<HTMLButtonElement>('[aria-label="Read saved suggestions for job synthetic-run"]')!.click();
   await wait(() => !!button('Read saved suggestions again'));
   check('located_source_session_reads_its_saved_run', calls.some(c => c.command === 'extraction_preview' && c.args.sessionId === 'ses_source' && c.args.runId === 'synthetic-run'));
@@ -73,10 +77,21 @@ try {
   button('Clear ID filter')!.click(); await wait(() => rows().length === 1);
   holdDetail = true; row('ses_other · br_other').click(); await wait(() => releaseDetail != null);
   check('pending_branch_read_disables_filter_and_rows', input().disabled && rows().every(b => b.disabled));
+  check('pending_selection_keeps_previous_observed_identity', fixture.querySelector('.mem-session-heading')!.textContent === 'Session ses_sourceBranch br_source');
   releaseDetail!(); await wait(() => !input().disabled && draft().value === '');
+  check('successful_branch_read_updates_visible_identity', fixture.querySelector('.mem-session-heading')!.textContent === 'Session ses_otherBranch br_other');
   hideSource = false; button('Refresh session list')!.click(); await wait(() => rows().length === 3);
   row('ses_source · br_source').click(); await wait(() => draft().value === 'Unsent original draft' && !input().disabled);
   check('returning_to_filtered_source_restores_its_own_draft', row('ses_source · br_source').getAttribute('aria-pressed') === 'true');
+  longIds = true; button('Refresh session list')!.click(); await wait(() => rows().length === 1 && !input().disabled);
+  row(`${longSessionId} · ${longBranchId}`).click(); await wait(() => fixture.querySelector('.mem-session-heading h2')?.getAttribute('title') === longSessionId && !input().disabled);
+  check('short_labels_retain_exact_full_ids_in_titles', fixture.querySelector('.mem-session-heading .mem-muted')!.getAttribute('title') === longBranchId && rows()[0].textContent!.includes('…') && rows()[0].title === `${longSessionId} · ${longBranchId}`);
+  for (const width of [920, 1420]) {
+    fixture.style.width = `${width}px`; fixture.style.height = '620px';
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    const header = fixture.querySelector<HTMLElement>('.qr45 > .qr31')!;
+    check(`visible_identities_fit_${width}px_content_width`, header.scrollWidth <= header.clientWidth + 1 && rows().every(b => b.scrollWidth <= b.clientWidth + 1));
+  }
   check('id_filter_flow_uses_existing_read_commands_only', calls.every(c => ['operation_list', 'provider_status', 'session_list', 'session_detail', 'extraction_preview'].includes(c.command)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePending(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), calls }, null, 2); }
