@@ -192,7 +192,7 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
                 {detail.transcript.map((e: J) => (
                   <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
                     <span className="mem-muted mem-mono"><SessionEventMetadata kind={e.kind} deliveryState={e.deliveryState} occurredAt={e.occurredAt} /></span>
-                    {e.text != null && <SessionEventBody kind={e.kind} text={e.text} />}
+                    {e.text != null && <SessionEventBody kind={e.kind} text={e.text} context={{ ...current, disabled: writesBlocked, inspect, request }} />}
                   </li>
                 ))}
               </ol>
