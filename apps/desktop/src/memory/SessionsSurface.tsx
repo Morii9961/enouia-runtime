@@ -82,8 +82,9 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
   const clearSubmittedDraft = (field: "text" | "summary", submitted: string) => {
     if (current && drafts.current.get(branchKey(current))?.[field] === submitted) editDraft(field, "");
   };
+  const cannotWrite = () => writing.current || externalWriting.current || suggestionWriting.current || detailRead.pending.current || !!detailRead.error;
   const write = (target: "question" | "checkpoint", commit: (key: string) => Promise<void>) => {
-    if (writing.current || externalWriting.current || suggestionWriting.current || detailRead.pending.current || detailRead.error) return;
+    if (cannotWrite()) return;
     const trigger = document.activeElement;
     void action.run(async (key) => {
       writing.current = true;
@@ -95,6 +96,13 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
   };
   const busy = action.busy || detailRead.busy || externalBusy || suggestionBusy;
   const writesBlocked = busy || !!detailRead.error;
+  // Retry keeps the original closure and key, but must recheck the current
+  // Session owner just like a new write. Keep its error until recovery or a
+  // successful branch switch; never expose a second write during a read.
+  const writeError = action.error && {
+    ...action.error,
+    retry: action.error.retry && !writesBlocked ? () => { if (!cannotWrite()) action.error?.retry?.(); } : undefined,
+  };
   const needle = idFilter.trim().toLowerCase();
   const visibleSessions = useMemo(() => !needle ? sessions : sessions?.map(s => ({ ...s, branches: s.branches.filter((b: J) =>
     s.sessionId.toLowerCase().includes(needle) || b.branchId.toLowerCase().includes(needle)) })).filter(s => s.branches.length > 0), [sessions, needle]);
@@ -221,7 +229,7 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
       </div>
       <aside aria-label="Session inspector" className="qr88">
         <div className="qr79">
-          <ErrorBox error={action.error} />
+          <ErrorBox error={writeError} />
           {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the session result…</p>}
           {answer && (
             <div className="mem-stack" aria-live="polite">

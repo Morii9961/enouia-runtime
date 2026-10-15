@@ -1,0 +1,13 @@
+# Session write retries respect current ownership
+
+Date: 2026-10-15 (Asia/Shanghai). Baseline `1f29481513653295f285b2c46d9541a6cab250ac`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+After a failed local Mock send, checkpoint save or new Session request, the generic Retry button called the saved action closure directly. It bypassed the ordinary Session write guard and stayed available during a pending branch read, after a failed detail observation and while the Provider panel owned the Session. The baseline Chrome fixture passed 16/25, failing the same three ownership checks for each write command.
+
+Session retries now use the ordinary write admission checks again at invocation. The error remains visible while Retry is withheld during read/write ownership or a detail-read error. A successful reread of the original branch restores the held retry without issuing a write; successful selection of another branch clears the old retry. Recovery still uses the original arguments and idempotency key. Acknowledgement preserves question/checkpoint drafts edited after the failure. This changes Runtime's controls only, with no new Core policy or command.
+
+Fresh verification passed: all 95 frontend tests, TypeScript and strict new/affected fixtures, frontend/no-bundle desktop release build, and Memory pin/dependency guards (8 + 7 negative cases). The first build attempt lacked Cargo on PATH; the existing toolchain path was supplied and the complete build then passed. Native host/Core sources, dependencies and pin are unchanged: same-day 61 host + five Core consumer tests and formatting/Clippy evidence recorded in the [history-boundary](Memory-session-history-boundary-v1.md) and [saved-Context](Memory-saved-mock-context-v1.md) slices remain applicable.
+
+The final Chrome fixture passed 25/25. Seven related fixtures passed 97 further checks (122 total), covering branch/list recovery, Provider ownership, suggestion review, ID filtering, saved Context and focus. [Browser summary](Memory-session-retry-ownership-browser.json) records actual result fields and the nine baseline failures. Fixture setup waits were corrected before capturing the complete baseline; an early browser locator deadline was followed by reading the completed result, not interpreted as success itself.
+
+Receipts, writes and Provider preparation are synthetic; no Provider send or canonical Vault write is exercised by this browser fixture. This is not physical Windows keyboard/Narrator or Morii acceptance. No personal Vault, credentials, Provider HTTP, Activity activation, installer or Memory pin/domain change occurred. Owner files and manual status snapshots remain untouched.

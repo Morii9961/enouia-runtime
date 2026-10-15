@@ -1,0 +1,29 @@
+{
+  "baseline": "1f29481513653295f285b2c46d9541a6cab250ac",
+  "capture": "Selected actual Chrome #results fields; synthetic Session receipts and Provider preparation",
+  "baselineFixture": {
+    "checks": 25,
+    "passed": false,
+    "failedChecks": [
+      "session_ask_retry_waits_for_pending_branch_read",
+      "session_ask_retry_waits_for_successful_session_observation",
+      "session_ask_retry_waits_for_provider_ownership",
+      "session_checkpoint_retry_waits_for_pending_branch_read",
+      "session_checkpoint_retry_waits_for_successful_session_observation",
+      "session_checkpoint_retry_waits_for_provider_ownership",
+      "session_new_retry_waits_for_pending_branch_read",
+      "session_new_retry_waits_for_successful_session_observation",
+      "session_new_retry_waits_for_provider_ownership"
+    ]
+  },
+  "finalFixture": { "checks": 25, "passed": true },
+  "regressions": [
+    { "fixture": "session-observation", "checks": 11, "passed": true },
+    { "fixture": "provider-session", "checks": 18, "passed": true },
+    { "fixture": "suggestion-review-journey", "checks": 15, "passed": true },
+    { "fixture": "session-list-recovery", "checks": 11, "passed": true },
+    { "fixture": "session-id-filter", "checks": 18, "passed": true },
+    { "fixture": "saved-mock-context", "checks": 15, "passed": true },
+    { "fixture": "saved-context-focus", "checks": 9, "passed": true }
+  ]
+}
