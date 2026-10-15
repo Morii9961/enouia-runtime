@@ -164,7 +164,8 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
           {externalBusy && <p role="status" className="mem-muted mem-pad">Waiting for the external provider action to finish. A running call can be stopped locally in the inspector.</p>}
           {detail && current && (
             <div className="mem-pad mem-stack">
-              <ol className="mem-transcript">
+              {detail.transcript.length >= 200 && <p id="mem-transcript-bound" className="mem-muted" role="note">Showing up to 200 most recent saved events from the latest successful read. Older events may be outside this view.</p>}
+              <ol className="mem-transcript" aria-describedby={detail.transcript.length >= 200 ? "mem-transcript-bound" : undefined}>
                 {detail.transcript.map((e: J) => (
                   <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
                     <span className="mem-muted mem-mono">{e.kind} · {e.deliveryState}</span>

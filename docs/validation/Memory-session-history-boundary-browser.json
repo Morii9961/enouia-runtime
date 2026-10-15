@@ -1,0 +1,25 @@
+{
+  "baseline": "760ac5356855000d25b9fc74e556ece965058eda",
+  "capture": "Selected actual Chrome #results fields; synthetic Session observations only",
+  "newFixture": {
+    "checks": [
+      {"id":"full_bounded_page_names_limit_without_claiming_deleted_history","ok":true},
+      {"id":"visible_events_remain_literal_and_ordered","ok":true},
+      {"id":"list_is_described_by_its_read_boundary","ok":true},
+      {"id":"failed_replacement_keeps_bound_and_marks_previous_observation","ok":true},
+      {"id":"short_fresh_page_does_not_claim_older_omission","ok":true},
+      {"id":"empty_observation_keeps_boundary_absent","ok":true},
+      {"id":"boundary_display_only_reads_existing_commands","ok":true}
+    ],
+    "passed": true,
+    "calls": ["operation_list","session_list","session_detail","session_detail","provider_status","session_detail","session_detail"]
+  },
+  "regressions": [
+    {"fixture":"session-observation","checks":11,"passed":true},
+    {"fixture":"session-list-recovery","checks":11,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"saved-suggestions","checks":10,"passed":true},
+    {"fixture":"saved-suggestion-apply","checks":17,"passed":true},
+    {"fixture":"suggestion-review-journey","checks":15,"passed":true}
+  ]
+}
