@@ -4,7 +4,7 @@
 // - Drafts are kept per session branch across switches and retries.
 // - An acknowledgement clears a draft only if it is unchanged.
 // - A write blocks branch switching until it settles.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate } from "./status";
@@ -27,6 +27,7 @@ export default function SessionsSurface({ inspect, reviewCandidates }: { inspect
 
 export function Sessions({ inspect, reviewCandidates, request = call }: { inspect: (capsuleId: string) => void; reviewCandidates?: () => void; request?: typeof call }) {
   const [sessions, setSessions] = useState<J[] | null>(null);
+  const [idFilter, setIdFilter] = useState("");
   const [current, setCurrent] = useState<Branch | null>(null);
   const [requested, setRequested] = useState<Branch | null>(null);
   const [detail, setDetail] = useState<J>(null);
@@ -51,6 +52,7 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
     setSuggestionBusy(value);
   }, []);
   const questionInput = useRef<HTMLTextAreaElement>(null);
+  const idFilterInput = useRef<HTMLInputElement>(null);
   const checkpointInput = useRef<HTMLInputElement>(null);
   const focusAfterWrite = useRef<{ target: "question" | "checkpoint"; trigger: Element | null } | null>(null);
   const selectedBranch = useRef<string | null>(null);
@@ -93,6 +95,11 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
   };
   const busy = action.busy || detailRead.busy || externalBusy || suggestionBusy;
   const writesBlocked = busy || !!detailRead.error;
+  const needle = idFilter.trim().toLowerCase();
+  const visibleSessions = useMemo(() => !needle ? sessions : sessions?.map(s => ({ ...s, branches: s.branches.filter((b: J) =>
+    s.sessionId.toLowerCase().includes(needle) || b.branchId.toLowerCase().includes(needle)) })).filter(s => s.branches.length > 0), [sessions, needle]);
+  const visibleBranches = visibleSessions?.reduce((n, s) => n + s.branches.length, 0);
+  const selectionHidden = current && needle && !visibleSessions?.some(s => s.sessionId === current.sessionId && s.branches.some((b: J) => b.branchId === current.branchId));
   useEffect(() => {
     if (busy || !focusAfterWrite.current) return;
     const { target, trigger } = focusAfterWrite.current;
@@ -122,6 +129,16 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
               await open({ sessionId: s.sessionId, branchId: s.branchId });
             })}>New session</button>
         </div>
+        <div className="qr20 mem-stack">
+          <label className="mem-label" htmlFor="mem-session-filter">Find by Session or branch ID</label>
+          <input ref={idFilterInput} id="mem-session-filter" className="mem-input" type="search" value={idFilter} autoComplete="off" spellCheck={false}
+            disabled={busy || listRead.busy || sessions == null} onChange={e => setIdFilter(e.target.value)} />
+          {idFilter && <button type="button" className="mem-button" disabled={busy} onClick={() => { setIdFilter(""); idFilterInput.current?.focus(); }}>Clear ID filter</button>}
+          {needle && sessions != null && sessions.length > 0 && <p className="mem-muted" role="status">
+            {visibleBranches === 0 ? "No Session or branch IDs match in the observed list." : `${visibleBranches} matching ${visibleBranches === 1 ? "branch" : "branches"} in the observed list.`}
+          </p>}
+          {selectionHidden && <p className="mem-muted">The selected session stays open outside these results.</p>}
+        </div>
         <ErrorBox error={listRead.error} />
         {listRead.error && <p className="mem-muted qr20" role="status">
           The session list could not be read. {sessions == null ? "Its contents are still unknown." : "These rows are from the previous successful list read."} Read it again to refresh the list. This does not create a session or send a question.
@@ -129,7 +146,7 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
         {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">Reading sessions…</p>}
         {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
         <div className="qr27">
-          {sessions?.map((s) => s.branches.map((b: J) => {
+          {visibleSessions?.map((s) => s.branches.map((b: J) => {
             const active = current?.branchId === b.branchId;
             return (
               <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={busy} aria-pressed={active}
