@@ -16,10 +16,20 @@ export default function QuickSearch() {
   const [searched, setSearched] = useState(false);
   const [hostError, setHostError] = useState('');
   const input = useRef<HTMLInputElement>(null);
+  const focusAfterSearch = useRef<{ trigger: Element | null } | null>(null);
   const reads = useLatestRead();
   const clear = useCallback(() => {
+    focusAfterSearch.current = null;
     reads.clear(); setItems([]); setQuery(''); setSearched(false); setHostError('');
   }, [reads.clear]);
+  useEffect(() => {
+    if (reads.busy || reads.pending.current || !focusAfterSearch.current) return;
+    const { trigger } = focusAfterSearch.current;
+    focusAfterSearch.current = null;
+    // A disabled Search or removed Retry can leave focus on the document.
+    // Resume typing only if the reader has not moved to another control.
+    if (document.activeElement === document.body || document.activeElement === trigger) input.current?.focus();
+  }, [items, reads.busy, reads.error]);
   useEffect(() => {
     let stopped = false;
     let unlisten: (() => void) | undefined;
@@ -56,11 +66,20 @@ export default function QuickSearch() {
   const search = (event: FormEvent) => {
     event.preventDefault();
     if (!query.trim()) { clear(); return; }
+    focusAfterSearch.current = { trigger: document.activeElement };
     setItems([]); setSearched(false);
     void reads.run(
       () => call('memory_search', { query, includeHistorical: false, cursor: null, limit: 8 }) as Promise<SearchPage>,
       (page) => { setItems(page.items); setSearched(true); },
     );
+  };
+  const searchError = reads.error && {
+    ...reads.error,
+    retry: reads.error.retry ? () => {
+      if (reads.pending.current) return;
+      focusAfterSearch.current = { trigger: document.activeElement };
+      reads.error?.retry?.();
+    } : undefined,
   };
 
   return (
@@ -71,12 +90,13 @@ export default function QuickSearch() {
         <input id="quick-query" className="mem-input" ref={input} value={query} autoComplete="off" spellCheck={false}
           placeholder="Search approved memories…" onChange={(event) => {
             // Editing invalidates any previous response, including delayed errors.
+            focusAfterSearch.current = null;
             reads.clear(); setItems([]); setSearched(false); setQuery(event.target.value);
           }} />
         <button className="mem-button mem-primary" type="submit" disabled={!query.trim() || reads.busy}>Search</button>
       </form>
       <div className="quick-results">
-        <ErrorBox error={reads.error} />
+        <ErrorBox error={searchError} />
         {hostError && <p role="alert" className="mem-error">{hostError}</p>}
         {reads.busy && <p role="status" className="mem-muted">Searching…</p>}
         {searched && !items.length && <p role="status" className="mem-muted">No approved memories match.</p>}
