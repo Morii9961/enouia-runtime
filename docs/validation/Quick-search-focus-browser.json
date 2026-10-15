@@ -1,0 +1,31 @@
+{
+  "baseline": "943676ec16695d8fba68630605508c07cee6f408",
+  "component": "apps/desktop/src/shell/QuickSearch.tsx",
+  "capture": "Selected actual Chrome #results fields; DOM focus, synthetic memory reads and SDK mock host events",
+  "baselineFixture": {
+    "checks": 24,
+    "passed": false,
+    "failedChecks": [
+      "search_button_completion_returns_focus_to_input",
+      "repeated_same_query_completion_restores_input_focus",
+      "failed_button_search_returns_focus_to_input",
+      "retry_completion_returns_focus_to_input"
+    ]
+  },
+  "finalFixture": {
+    "checks": 24,
+    "passed": true,
+    "searches": 14,
+    "failedChecks": []
+  },
+  "scope": {
+    "queryEditAndLateReplyIsolation": true,
+    "successFailureAndRetryFocus": true,
+    "repeatedQueryFocus": true,
+    "movedFocusRespected": true,
+    "queryBlurHostClearAndUnmountInvalidation": true,
+    "existingSearchLimitAndReadOnlyCommands": true,
+    "hostActions": "SDK mocks only",
+    "physicalWindowsOrNarratorAcceptance": false
+  }
+}

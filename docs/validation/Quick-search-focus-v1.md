@@ -1,0 +1,13 @@
+# Quick Search typing focus after a read
+
+Date: 2026-10-15 (Asia/Shanghai). Baseline `943676ec16695d8fba68630605508c07cee6f408`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The fixture imports `src/shell/QuickSearch.tsx`, the actual overlay component selected by `src/main.tsx`. Its existing query-edit handling already invalidates old results, errors and retries. The baseline passed 20/24 checks: clicking Search disabled the focused button and left focus on the document after success or failure; Retry removal also lost focus. Repeated searches of the same query had the same gap.
+
+Each search or explicit Retry now records its initiating focused element. Once the current read settles, typing focus returns to the input only if it remains on that trigger or has fallen back to the document. Focus deliberately moved to another control stays there. Query edits, blur, Escape, the existing host clear event and unmount invalidate pending handoffs. No extra search, window command, permission or native lifecycle change is added.
+
+The final Chrome fixture passed 24/24 with 14 synthetic search calls. [Selected browser results](Quick-search-focus-browser.json) preserve the four baseline failures, final counts and scope. Coverage includes existing pending/empty/error query observations, delayed results, success/failure/Retry focus, repeated queries, moved focus, editing, blur, host clear, Escape and unmount. A launch race with initial focus/clear issued no queries; the final fixture uses an explicit start gate after mounting, and that incomplete launch is not counted as passing evidence.
+
+The fixture uses the installed `@tauri-apps/api` 2.12.0 SDK's `mockIPC` with `shouldMockEvents` and `clearMocks`, checked against its local types/source and [Tauri's official mock API documentation](https://v2.tauri.app/reference/javascript/api/namespacemocks/). SDK mocks are confined to the fixture and absent from production build assets. All host events, hide actions, records and receipt timing are synthetic DOM checks in Chrome; they do not prove physical hotkey, native window focus, Narrator or Morii acceptance.
+
+Fresh verification passed: 95 frontend tests, TypeScript/strict fixture checking, frontend/no-bundle desktop release build, Memory pin/dependency guards (8 + 7 negatives), JSON/diff checks and the production-asset mock exclusion check. Unchanged host/Core sources, dependencies and pin retain the same-day 61 host + five Core consumer and formatting/Clippy evidence referenced by [the prior slice](Memory-session-retry-ownership-v1.md). No personal Vault, credentials, Provider HTTP, Activity activation, installer or Memory-domain/pin change occurred. Owner files and manual status snapshots remain untouched.
