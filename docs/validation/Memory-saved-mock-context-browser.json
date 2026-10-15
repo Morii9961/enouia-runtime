@@ -1,0 +1,36 @@
+{
+  "baseline": "093a4855c5c68564c509dd2a27d0ea9eb5301487",
+  "capture": "Selected actual Chrome #results fields; synthetic saved local Mock records",
+  "newFixture": {
+    "fixture": "saved-mock-context",
+    "checks": [
+      {"id":"saved_answer_offers_explicit_context_read_without_auto_lookup","ok":true},
+      {"id":"unverified_cannot_offer_context_navigation","ok":true},
+      {"id":"hash_cannot_offer_context_navigation","ok":true},
+      {"id":"external_cannot_offer_context_navigation","ok":true},
+      {"id":"session_cannot_offer_context_navigation","ok":true},
+      {"id":"branch_cannot_offer_context_navigation","ok":true},
+      {"id":"read-failed_cannot_offer_context_navigation","ok":true},
+      {"id":"matching_saved_records_offer_separate_navigation_without_rewriting_answer_or_draft","ok":true},
+      {"id":"unobserved_parent_session_withholds_context_actions","ok":true},
+      {"id":"reread_clears_prior_navigation_and_shows_waiting","ok":true},
+      {"id":"late_context_read_cannot_follow_or_publish_in_another_branch","ok":true},
+      {"id":"returning_branch_requires_fresh_context_observation_and_keeps_its_draft","ok":true},
+      {"id":"explicit_navigation_opens_observed_capsule_through_real_context_surface","ok":true},
+      {"id":"actual_request_still_requires_its_own_read_and_hash_check","ok":true},
+      {"id":"recovery_journey_uses_only_existing_saved_read_commands","ok":true}
+    ],
+    "passed": true
+  },
+  "regressions": [
+    {"fixture":"context-observation","checks":14,"passed":true},
+    {"fixture":"session-event-metadata","checks":9,"passed":true},
+    {"fixture":"session-id-filter","checks":18,"passed":true},
+    {"fixture":"session-history-boundary","checks":7,"passed":true},
+    {"fixture":"session-observation","checks":11,"passed":true},
+    {"fixture":"session-list-recovery","checks":11,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"provider-send-recovery","checks":20,"passed":true},
+    {"fixture":"suggestion-review-journey","checks":15,"passed":true}
+  ]
+}

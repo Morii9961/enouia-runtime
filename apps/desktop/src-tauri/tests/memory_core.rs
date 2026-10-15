@@ -970,6 +970,9 @@ fn session_and_context_fields_the_surfaces_render() {
 
     let inspected = page.ok("context_inspect", json!({"capsuleId": answer["capsuleId"]}));
     assert_eq!(inspected["capsule"]["capsule_id"], answer["capsuleId"]);
+    assert_eq!(inspected["capsule"]["session_id"], branch["sessionId"]);
+    assert_eq!(inspected["capsule"]["branch_id"], branch["branchId"]);
+    assert_eq!(inspected["capsule"]["destination"]["kind"], "local_mock");
     assert_eq!(inspected["inspection"]["capsule_id"], answer["capsuleId"]);
     assert!(["preview_not_sent", "dispatched"].contains(&inspected["delivery"].as_str().unwrap()));
     assert!(inspected["capsule"]["destination"]["kind"].is_string());
@@ -1000,6 +1003,10 @@ fn session_and_context_fields_the_surfaces_render() {
     assert!(request["verified"].is_boolean() && request["tools"].is_number());
     assert_eq!(request["dispatchId"], dispatches[0]["dispatchId"]);
     assert_eq!(request["capsuleId"], answer["capsuleId"]);
+    assert_eq!(request["verified"], true);
+    assert_eq!(request["destination"]["kind"], "local_mock");
+    assert_eq!(request["dispatchId"], answer["dispatchId"]);
+    assert_eq!(request["requestHash"], answer["requestHash"]);
     assert_eq!(request["requestHash"], dispatches[0]["requestHash"]);
     assert!(request["destination"]["kind"].is_string());
     for m in request["messages"].as_array().unwrap() {

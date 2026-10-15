@@ -1,0 +1,13 @@
+# Recover Context from a saved local Mock answer
+
+Date: 2026-10-15 (Asia/Shanghai). Baseline `093a4855c5c68564c509dd2a27d0ea9eb5301487`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The immediate local Mock answer inspector could open its Context, but a later Session observation only exposed the saved response text. Recognized saved Mock answers now offer **Read saved answer context**, followed by a separate **Inspect saved answer context** gesture. Lookup only reads `dispatch_inspect` and `context_inspect`. It requires the recorded dispatch ID/hash, actual verified flag, local Mock destination, capsule/inspection IDs, matching saved dispatch and current Session/branch identity to agree. Unknown response formats and user messages gain no lookup action.
+
+Read failure clears the navigation result and retains an explicit read-again path, including nonretryable failures. The answer and unsent question remain unchanged. Parent Session busy/error state withholds the actions. Each branch/response identity owns its lookup; switching branches invalidates late publications and returning requires a new lookup. Navigating opens the existing Context surface, which rereads the capsule through its ordinary policy/identity gates; showing the actual request still needs its own gesture.
+
+Fresh verification passed: all 95 frontend tests, TypeScript/strict affected fixtures, five fixed-Core consumer tests, formatting/strict Clippy, frontend and no-bundle desktop build, and Memory pin/dependency guards (8 + 7 negatives). Consumer assertions confirm that the actual local Mock capsule retains the selected Session/branch and that saved/inspected dispatch IDs and hashes agree. The unchanged native host retains the 61-test evidence freshly run earlier on this date.
+
+The new Chrome journey passed 15/15; nine related fixtures passed 123 further checks (138 total). [Browser summary](Memory-saved-mock-context-browser.json) records selected actual DOM results. Coverage includes mismatches, failed parent observations, explicit navigation, draft retention, late reads and actual-request readback through the real React surfaces. Initial test-loader and fixture-wait issues were corrected before these passing results; no test failure was treated as a pass.
+
+All interaction data/timing is synthetic; Core tests use an owned temporary Vault and local Mock. This is not fresh native process-restart, physical keyboard/Narrator, personal-data or Morii acceptance evidence. There is no Provider HTTP, credential access, Activity activation, new command, Memory domain/pin change, private recovery cache or installer operation. Owner changes and manual status snapshots remain untouched.

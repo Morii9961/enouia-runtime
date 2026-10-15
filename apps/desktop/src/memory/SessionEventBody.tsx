@@ -1,6 +1,10 @@
 // Presentation of saved local Mock output at the pinned Memory revision.
 // Unknown formats stay literal; the original recorded text is never changed.
-import { shortId, when } from "./ui";
+import { ErrorBox, shortId, when } from "./ui";
+import { call } from "./client";
+import { useLatestRead } from "./hooks";
+import { useState } from "react";
+import { readSavedMockContext, type SavedMockReference } from "./savedMockContext";
 
 const EVENT: Record<string, string> = {
   user_message: "User message", assistant_chunk: "Assistant response part", assistant_completed: "Assistant response",
@@ -27,7 +31,7 @@ const STATUS: Record<string, string> = {
   needs_reverification: "This evidence needs to be verified again.",
 };
 type SourceRef = { source_id: string; source_revision: number };
-type MockResponse = { status: string; statements: string[]; sources: SourceRef[] };
+type MockResponse = { status: string; statements: string[]; sources: SourceRef[]; dispatch_id: string; request_hash: string };
 const object = (value: unknown): value is Record<string, unknown> => value != null && typeof value === "object" && !Array.isArray(value);
 const revision = (value: unknown) => typeof value === "number" && Number.isInteger(value) && value > 0;
 
@@ -44,7 +48,28 @@ function recordedMock(text: string): MockResponse | null {
   } catch { return null; }
 }
 
-export function SessionEventBody({ kind, text }: { kind: string; text: string }) {
+type ContextAccess = { sessionId: string; branchId: string; disabled: boolean; inspect: (capsuleId: string) => void; request: typeof call };
+
+function SavedMockContext({ reference, disabled, inspect, request }: { reference: SavedMockReference } & Pick<ContextAccess, "disabled" | "inspect" | "request">) {
+  const reads = useLatestRead();
+  const [capsuleId, setCapsuleId] = useState<string | null>(null);
+  const read = () => {
+    if (disabled || reads.pending.current) return;
+    setCapsuleId(null);
+    void reads.run(() => readSavedMockContext(reference, request), setCapsuleId);
+  };
+  return <div className="mem-stack" aria-label="Saved answer context" aria-busy={reads.busy}>
+    <div className="mem-actions">
+      <button type="button" className="mem-button" disabled={disabled || reads.busy} onClick={read}>{reads.error || capsuleId ? "Read saved answer context again" : "Read saved answer context"}</button>
+      {capsuleId && <button type="button" className="mem-button" disabled={disabled || reads.busy} onClick={() => { if (!disabled && !reads.pending.current) inspect(capsuleId); }}>Inspect saved answer context</button>}
+    </div>
+    {reads.busy && <p role="status" className="mem-muted">Reading this answer's saved context…</p>}
+    <ErrorBox error={reads.error && { ...reads.error, retry: disabled ? undefined : reads.error.retry }} />
+    {reads.error && <p className="mem-muted">This answer's saved context could not be verified. Read it again; this does not generate another answer.</p>}
+  </div>;
+}
+
+export function SessionEventBody({ kind, text, context }: { kind: string; text: string; context?: ContextAccess }) {
   const response = kind === "assistant_completed" ? recordedMock(text) : null;
   if (!response) return kind.startsWith("assistant") ? <pre className="mem-source">{text}</pre> : <p className="mem-content">{text}</p>;
   return (
@@ -60,6 +85,9 @@ export function SessionEventBody({ kind, text }: { kind: string; text: string })
         <summary className="mem-muted">Recorded response</summary>
         <pre className="mem-source" tabIndex={0}>{text}</pre>
       </details>
+      {context && <SavedMockContext key={`${context.sessionId}:${context.branchId}:${response.dispatch_id}:${response.request_hash}`}
+        reference={{ sessionId: context.sessionId, branchId: context.branchId, dispatchId: response.dispatch_id, requestHash: response.request_hash }}
+        disabled={context.disabled} inspect={context.inspect} request={context.request} />}
     </div>
   );
 }

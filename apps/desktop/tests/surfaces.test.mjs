@@ -325,17 +325,27 @@ test('saved Mock statements stay literal and retain the exact response for inspe
 
 test('unknown, malformed and user-authored response formats are never reduced to statements', () => {
   const base = {dispatch_id:'dsp_00000000-0000-4000-8000-000000000002',status:'supported_evidence',statements:['fixture'],memories:[],sources:[],request_hash:'a'.repeat(64)};
+  const context = { sessionId: 'ses_synthetic', branchId: 'br_synthetic', disabled: false, inspect() {}, request: async () => { throw new Error('Unexpected render read'); } };
   const inputs = ['ordinary assistant text','{broken','null','[]',JSON.stringify({...base,status:'constructor'}),
     JSON.stringify({...base,status:'future_provider_status'}),JSON.stringify({...base,statements:[{}]}),
     JSON.stringify({...base,sources:[{source_id:'source',source_revision:null}]}),JSON.stringify({...base,request_hash:'bad'})];
   for (const text of inputs) {
-    const html = renderToStaticMarkup(createElement(SessionEventBody,{kind:'assistant_completed',text}));
+    const html = renderToStaticMarkup(createElement(SessionEventBody,{kind:'assistant_completed',text,context}));
     assert.match(html,/<pre class="mem-source">/);
-    assert.doesNotMatch(html,/mem-response-status|<details/);
+    assert.doesNotMatch(html,/mem-response-status|<details|Read saved answer context/);
   }
-  const user = renderToStaticMarkup(createElement(SessionEventBody,{kind:'user_message',text:JSON.stringify(base)}));
+  const user = renderToStaticMarkup(createElement(SessionEventBody,{kind:'user_message',text:JSON.stringify(base),context}));
   assert.match(user,/<p class="mem-content">/);
-  assert.doesNotMatch(user,/mem-response-status|<details/);
+  assert.doesNotMatch(user,/mem-response-status|<details|Read saved answer context/);
+});
+
+test('recognized saved Mock context lookup waits for an explicit gesture and parent ownership', () => {
+  const text = JSON.stringify({ dispatch_id: 'dsp_synthetic', status: 'no_supported_evidence', statements: ['Saved answer'], memories: [], sources: [], request_hash: 'a'.repeat(64) });
+  const context = { sessionId: 'ses_synthetic', branchId: 'br_synthetic', disabled: true, inspect() { throw new Error('Unexpected render navigation'); }, request: async () => { throw new Error('Unexpected render read'); } };
+  const html = renderToStaticMarkup(createElement(SessionEventBody, { kind: 'assistant_completed', text, context }));
+  assert.match(html, /disabled=""[^>]*>Read saved answer context/);
+  assert.doesNotMatch(html, /Inspect saved answer context|Reading this answer/);
+  assert.match(html, /Saved answer/);
 });
 
 test('the external provider panel reads its setup before offering any action', () => {
