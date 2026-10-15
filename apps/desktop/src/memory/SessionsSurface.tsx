@@ -9,7 +9,7 @@ import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
-import { SessionEventBody } from "./SessionEventBody";
+import { SessionEventBody, SessionEventMetadata } from "./SessionEventBody";
 import { ExternalPanel } from "./ExternalPanel";
 import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
 import { SavedExtractionJobs } from "./SavedExtractionJobs";
@@ -185,7 +185,7 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
               <ol className="mem-transcript" aria-describedby={detail.transcript.length >= 200 ? "mem-transcript-bound" : undefined}>
                 {detail.transcript.map((e: J) => (
                   <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
-                    <span className="mem-muted mem-mono">{e.kind} · {e.deliveryState}</span>
+                    <span className="mem-muted mem-mono"><SessionEventMetadata kind={e.kind} deliveryState={e.deliveryState} occurredAt={e.occurredAt} /></span>
                     {e.text != null && <SessionEventBody kind={e.kind} text={e.text} />}
                   </li>
                 ))}

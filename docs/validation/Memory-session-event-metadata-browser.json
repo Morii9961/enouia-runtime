@@ -1,0 +1,31 @@
+{
+  "baseline": "fdfd29a14b6e7133e285eb9012d9200903cf9b1c",
+  "capture": "Selected actual Chrome #results fields; synthetic saved Session data",
+  "newFixture": {
+    "checks": [
+      {"id":"all_known_event_kinds_have_readable_labels","ok":true},
+      {"id":"saved_times_keep_exact_iso_offset_in_semantic_time_elements","ok":true},
+      {"id":"delivery_labels_keep_partial_complete_interrupted_and_failed_distinct","ok":true},
+      {"id":"message_bytes_stay_literal_without_html_interpretation","ok":true},
+      {"id":"unknown_metadata_uses_fixed_fallback_without_raw_private_fields","ok":true},
+      {"id":"missing_time_does_not_invent_a_current_timestamp","ok":true},
+      {"id":"failed_refresh_keeps_previous_saved_metadata_and_draft","ok":true},
+      {"id":"fresh_observation_updates_time_without_rewriting_message_or_draft","ok":true},
+      {"id":"event_presentation_uses_existing_reads_only","ok":true}
+    ],
+    "passed": true
+  },
+  "regressions": [
+    {"fixture":"session-id-filter","checks":11,"passed":true},
+    {"fixture":"session-history-boundary","checks":7,"passed":true},
+    {"fixture":"session-observation","checks":11,"passed":true},
+    {"fixture":"session-list-recovery","checks":11,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"saved-suggestions","checks":10,"passed":true},
+    {"fixture":"saved-suggestion-apply","checks":17,"passed":true},
+    {"fixture":"saved-suggestion-identity","checks":13,"passed":true},
+    {"fixture":"suggestion-review-journey","checks":15,"passed":true},
+    {"fixture":"provider-send-recovery","checks":20,"passed":true},
+    {"fixture":"provider-preparation-recovery","checks":19,"passed":true}
+  ]
+}

@@ -928,7 +928,11 @@ fn session_and_context_fields_the_surfaces_render() {
             .any(|event| event["kind"] == "assistant_completed")
     );
     for event in transcript {
-        strings(event, &["eventId", "kind", "deliveryState"], "transcript");
+        strings(
+            event,
+            &["eventId", "kind", "deliveryState", "occurredAt"],
+            "transcript",
+        );
         assert!(event.get("text").is_some());
         if event["kind"] == "assistant_completed" {
             let saved: Value = serde_json::from_str(event["text"].as_str().unwrap()).unwrap();
