@@ -1,0 +1,21 @@
+{
+  "baseline": "4e9cf8bd89978072634785eefe2e59b6b40c2109",
+  "capture": "Selected actual Codex in-app-browser #results fields; synthetic candidate lists, receipts and ordinary review dialog",
+  "baselineFixture": {
+    "checks": 14,
+    "passed": false,
+    "failedChecks": [
+      "remember_retry_waits_for_pending_candidate_read",
+      "remember_retry_waits_after_failed_candidate_observation",
+      "review_plan_retry_waits_for_pending_candidate_read",
+      "review_plan_retry_waits_after_failed_candidate_observation"
+    ]
+  },
+  "finalFixture": { "checks": 14, "passed": true },
+  "regressions": [
+    { "fixture": "candidate-paging", "checks": 13, "passed": true },
+    { "fixture": "candidate-source", "checks": 14, "passed": true },
+    { "fixture": "candidate-conflict", "checks": 10, "passed": true },
+    { "fixture": "suggestion-review-journey", "checks": 15, "passed": true }
+  ]
+}
