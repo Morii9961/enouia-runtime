@@ -23,7 +23,7 @@ const { Sessions } = await server.ssrLoadModule('/src/memory/SessionsSurface.tsx
 const { ExternalPanel } = await server.ssrLoadModule('/src/memory/ExternalPanel.tsx');
 const { WorkspaceProviderCalls } = await server.ssrLoadModule('/src/memory/WorkspaceProviderCalls.tsx');
 const { ExtractionPanel } = await server.ssrLoadModule('/src/memory/ExtractionPanel.tsx');
-const { SessionEventBody } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
+const { SessionEventBody, SessionEventMetadata } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
 const { default: ActivitySurface, Gate: ActivityGate, StatusCards, RecordedDays, RunStatusCard } = await server.ssrLoadModule('/src/activity/ActivitySurface.tsx');
@@ -374,4 +374,22 @@ test('source suggestions read the provider setup before offering any request', (
   }));
   assert.match(html, /Reading provider setup/);
   assert.doesNotMatch(html, /<button/);
+});
+
+test('saved event metadata labels the record and preserves its exact timestamp independently from its body', () => {
+  const html = renderToStaticMarkup(createElement(SessionEventMetadata, { kind: 'assistant_completed', deliveryState: 'completed', occurredAt: '2026-10-15T00:00:01+08:00' }));
+  assert.match(html, /Assistant response/);
+  assert.match(html, /complete/);
+  assert.match(html, /<time dateTime="2026-10-15T00:00:01\+08:00" title="2026-10-15T00:00:01\+08:00">/);
+  assert.doesNotMatch(html, /assistant_completed|not_applicable|time unavailable/);
+});
+
+test('unknown event metadata uses fixed labels without rendering private or inherited values', () => {
+  for (const occurredAt of [undefined, null, {}, 'private invalid timestamp', '2026-10-15 (private info)']) {
+    const html = renderToStaticMarkup(createElement(SessionEventMetadata, { kind: 'constructor', deliveryState: 'private delivery error', occurredAt }));
+    assert.match(html, /Recorded event/);
+    assert.match(html, /delivery unavailable/);
+    assert.match(html, /time unavailable/);
+    assert.doesNotMatch(html, /constructor|private|function Object|<time/);
+  }
 });

@@ -1,6 +1,23 @@
 // Presentation of saved local Mock output at the pinned Memory revision.
 // Unknown formats stay literal; the original recorded text is never changed.
-import { shortId } from "./ui";
+import { shortId, when } from "./ui";
+
+const EVENT: Record<string, string> = {
+  user_message: "User message", assistant_chunk: "Assistant response part", assistant_completed: "Assistant response",
+  tool_request: "Tool request", tool_result: "Tool result", turn_cancelled: "Turn cancelled", turn_failed: "Turn failed",
+  checkpoint_created: "Checkpoint", provider_switched: "Provider changed",
+};
+const DELIVERY: Record<string, string> = {
+  not_applicable: "recorded", partial: "partial", completed: "complete", interrupted: "interrupted", failed: "failed",
+};
+
+export function SessionEventMetadata({ kind, deliveryState, occurredAt }: { kind: unknown; deliveryState: unknown; occurredAt?: unknown }) {
+  const event = typeof kind === "string" && Object.hasOwn(EVENT, kind) ? EVENT[kind] : "Recorded event";
+  const delivery = typeof deliveryState === "string" && Object.hasOwn(DELIVERY, deliveryState) ? DELIVERY[deliveryState] : "delivery unavailable";
+  const time = typeof occurredAt === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(occurredAt)
+    && !Number.isNaN(Date.parse(occurredAt)) ? occurredAt : null;
+  return <>{event} · {delivery} · {time ? <time dateTime={time} title={time}>{when(time)}</time> : "time unavailable"}</>;
+}
 
 const STATUS: Record<string, string> = {
   no_supported_evidence: "No approved evidence was available for this answer.",
