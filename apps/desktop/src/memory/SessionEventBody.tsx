@@ -3,7 +3,7 @@
 import { ErrorBox, shortId, when } from "./ui";
 import { call } from "./client";
 import { useLatestRead } from "./hooks";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { readSavedMockContext, type SavedMockReference } from "./savedMockContext";
 
 const EVENT: Record<string, string> = {
@@ -52,19 +52,34 @@ type ContextAccess = { sessionId: string; branchId: string; disabled: boolean; i
 
 function SavedMockContext({ reference, disabled, inspect, request }: { reference: SavedMockReference } & Pick<ContextAccess, "disabled" | "inspect" | "request">) {
   const reads = useLatestRead();
-  const [capsuleId, setCapsuleId] = useState<string | null>(null);
+  const [observed, setObserved] = useState<{ capsuleId: string } | null>(null);
+  const capsuleId = observed?.capsuleId;
+  const readButton = useRef<HTMLButtonElement>(null);
+  const inspectButton = useRef<HTMLButtonElement>(null);
+  const focusAfterRead = useRef<{ trigger: Element | null } | null>(null);
+  useEffect(() => {
+    if (reads.busy || reads.pending.current || !focusAfterRead.current) return;
+    const { trigger } = focusAfterRead.current;
+    focusAfterRead.current = null;
+    // Restore the task path only if the reader did not move focus elsewhere.
+    // Discard this handoff while the parent owns the Session; never defer it.
+    if (!disabled && (document.activeElement === document.body || document.activeElement === trigger)) {
+      (capsuleId ? inspectButton.current : readButton.current)?.focus();
+    }
+  }, [reads.busy, reads.error, observed, disabled, capsuleId]);
   const read = () => {
     if (disabled || reads.pending.current) return;
-    setCapsuleId(null);
-    void reads.run(() => readSavedMockContext(reference, request), setCapsuleId);
+    focusAfterRead.current = { trigger: document.activeElement };
+    setObserved(null);
+    void reads.run(() => readSavedMockContext(reference, request), capsuleId => setObserved({ capsuleId }));
   };
   return <div className="mem-stack" aria-label="Saved answer context" aria-busy={reads.busy}>
     <div className="mem-actions">
-      <button type="button" className="mem-button" disabled={disabled || reads.busy} onClick={read}>{reads.error || capsuleId ? "Read saved answer context again" : "Read saved answer context"}</button>
-      {capsuleId && <button type="button" className="mem-button" disabled={disabled || reads.busy} onClick={() => { if (!disabled && !reads.pending.current) inspect(capsuleId); }}>Inspect saved answer context</button>}
+      <button ref={readButton} type="button" className="mem-button" disabled={disabled || reads.busy} onClick={read}>{reads.error || capsuleId ? "Read saved answer context again" : "Read saved answer context"}</button>
+      {capsuleId && <button ref={inspectButton} type="button" className="mem-button" disabled={disabled || reads.busy} onClick={() => { if (!disabled && !reads.pending.current) inspect(capsuleId); }}>Inspect saved answer context</button>}
     </div>
     {reads.busy && <p role="status" className="mem-muted">Reading this answer's saved context…</p>}
-    <ErrorBox error={reads.error && { ...reads.error, retry: disabled ? undefined : reads.error.retry }} />
+    <ErrorBox error={reads.error && { ...reads.error, retry: !disabled && reads.error.retry ? read : undefined }} />
     {reads.error && <p className="mem-muted">This answer's saved context could not be verified. Read it again; this does not generate another answer.</p>}
   </div>;
 }

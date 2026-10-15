@@ -1,0 +1,35 @@
+{
+  "baseline": "627147a2cbf24ee631764cab6e69ee8006f08b2f",
+  "capture": "Selected actual Chrome #results fields; synthetic saved reads and DOM focus",
+  "baselineFixture": {
+    "checks": 9,
+    "passed": false,
+    "failedChecks": [
+      "successful_lookup_hands_focus_to_explicit_context_navigation",
+      "failed_lookup_returns_focus_to_explicit_read_again",
+      "retry_acknowledgement_uses_the_same_focus_handoff"
+    ]
+  },
+  "finalFixture": {
+    "checks": [
+      {"id":"pending_lookup_disables_its_trigger_and_withholds_navigation","ok":true},
+      {"id":"successful_lookup_hands_focus_to_explicit_context_navigation","ok":true},
+      {"id":"successful_lookup_respects_focus_moved_to_unsent_draft","ok":true},
+      {"id":"failed_lookup_returns_focus_to_explicit_read_again","ok":true},
+      {"id":"retry_acknowledgement_uses_the_same_focus_handoff","ok":true},
+      {"id":"parent_ownership_does_not_focus_a_disabled_action","ok":true},
+      {"id":"releasing_parent_ownership_does_not_replay_old_focus","ok":true},
+      {"id":"unmounted_lookup_cannot_move_focus_or_navigate","ok":true},
+      {"id":"focus_recovery_uses_saved_reads_only","ok":true}
+    ],
+    "passed": true
+  },
+  "regressions": [
+    {"fixture":"saved-mock-context","checks":15,"passed":true},
+    {"fixture":"context-observation","checks":14,"passed":true},
+    {"fixture":"session-event-metadata","checks":9,"passed":true},
+    {"fixture":"session-observation","checks":11,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"suggestion-review-journey","checks":15,"passed":true}
+  ]
+}
