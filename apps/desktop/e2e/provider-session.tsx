@@ -68,7 +68,7 @@ try {
   await wait(() => button("Prepare the question for openai…")?.disabled === false);
   click("Prepare the question for openai…");
   await wait(() => rows().every(b => b.disabled));
-  check("prepare_blocks_branch_new_and_composer", button("New session")!.disabled && question().disabled);
+  check("prepare_blocks_branch_new_and_composer", button("New session")!.disabled && question().disabled && fixture.querySelector<HTMLInputElement>("#mem-session-filter")!.disabled);
   rows()[1].click();
   check("disabled_branch_does_not_request_other_detail", !calls.some(c => c.command === "session_detail" && c.args.sessionId === "session-two"));
   releasePrepare();
@@ -79,7 +79,7 @@ try {
   check("send_admission_blocks_session_writes", button("New session")!.disabled && button("Send")!.disabled && fixture.querySelector<HTMLInputElement>("#mem-cp")!.disabled);
   releaseSend();
   await wait(() => !!button("Stop locally"));
-  check("running_send_keeps_owner_selected", rows()[0].getAttribute("aria-pressed") === "true" && rows().every(b => b.disabled));
+  check("running_send_keeps_owner_selected", rows()[0].getAttribute("aria-pressed") === "true" && rows().every(b => b.disabled) && fixture.querySelector<HTMLInputElement>("#mem-session-filter")!.disabled);
   check("running_send_preserves_cancel", !button("Stop locally")!.disabled);
   click("Refresh workspace calls");
   await wait(() => fixture.textContent!.includes("shown in its inspector"));

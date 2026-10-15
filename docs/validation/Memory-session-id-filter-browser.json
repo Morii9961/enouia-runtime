@@ -1,0 +1,32 @@
+{
+  "baseline": "e0ca3b31a6c6e3677eefd68da52bb545991c41fe",
+  "capture": "Selected actual Chrome #results fields; synthetic Session/source job data",
+  "newFixture": {
+    "checks": [
+      {"id":"unobserved_list_keeps_filter_disabled_and_unknown","ok":true},
+      {"id":"session_id_matches_all_its_branches_case_insensitively","ok":true},
+      {"id":"branch_id_filters_without_ipc_or_selection","ok":true},
+      {"id":"located_source_session_reads_its_saved_run","ok":true},
+      {"id":"no_match_does_not_impersonate_empty_workspace_or_change_draft","ok":true},
+      {"id":"clear_restores_rows_selection_draft_and_filter_focus","ok":true},
+      {"id":"failed_list_refresh_retains_filter_and_observed_matches","ok":true},
+      {"id":"successful_replacement_reapplies_filter_without_discarding_selected_draft","ok":true},
+      {"id":"pending_branch_read_disables_filter_and_rows","ok":true},
+      {"id":"returning_to_filtered_source_restores_its_own_draft","ok":true},
+      {"id":"id_filter_flow_uses_existing_read_commands_only","ok":true}
+    ],
+    "passed": true
+  },
+  "regressions": [
+    {"fixture":"session-history-boundary","checks":7,"passed":true},
+    {"fixture":"session-observation","checks":11,"passed":true},
+    {"fixture":"session-list-recovery","checks":11,"passed":true},
+    {"fixture":"provider-session","checks":18,"passed":true},
+    {"fixture":"saved-suggestions","checks":10,"passed":true},
+    {"fixture":"saved-suggestion-apply","checks":17,"passed":true},
+    {"fixture":"saved-suggestion-identity","checks":13,"passed":true},
+    {"fixture":"suggestion-review-journey","checks":15,"passed":true},
+    {"fixture":"provider-send-recovery","checks":20,"passed":true},
+    {"fixture":"provider-preparation-recovery","checks":19,"passed":true}
+  ]
+}

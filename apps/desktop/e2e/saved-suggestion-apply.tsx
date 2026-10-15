@@ -60,7 +60,7 @@ try{
   readJob("job-one")!.click();await wait(()=>text().includes("Saved job-one suggestion 0"));
   check("observed_saved_job_can_apply_remaining",!!button("Add remaining suggestions to the review queue",pane()!));
   click("Add remaining suggestions to the review queue",pane()!);await wait(()=>releaseApply!=null);await sleep(50);
-  check("admitted_application_keeps_session_owner",session("session-two")!.disabled&&button("New session")!.disabled&&fixture.querySelector<HTMLTextAreaElement>("textarea")!.disabled);
+  check("admitted_application_keeps_session_owner",session("session-two")!.disabled&&button("New session")!.disabled&&fixture.querySelector<HTMLTextAreaElement>("textarea")!.disabled&&fixture.querySelector<HTMLInputElement>("#mem-session-filter")!.disabled);
   check("admitted_application_keeps_job_and_close",readJob("job-two")!.disabled&&button("Close saved suggestions",pane()!)!.disabled);
   check("admitted_application_blocks_review_route",button("Open candidate inbox",pane()!)?.disabled===true&&reviewRoutes===0);
   session("session-two")!.click();fixture.querySelector("form")!.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true}));
