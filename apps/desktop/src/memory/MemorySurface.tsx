@@ -351,12 +351,13 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
     void load(cursor);
   };
   const decide = (c: J, act: string) => {
-    if (cannotAct()) return;
+    const editedContent = act === "edit_accept" ? edits[c.candidateId] ?? c.content : null;
+    if (cannotAct() || editedContent === "") return;
     planTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     void action.run(async () =>
       setPlan(await readPage("review_plan", { decisions: [{
         candidateId: c.candidateId, revision: c.revision, action: act,
-        editedContent: act === "edit_accept" ? edits[c.candidateId] ?? c.content : null, mergeTarget: null,
+        editedContent, mergeTarget: null,
       }] })),
     );
   };
@@ -402,7 +403,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                   key={`${c.revision}:${conflict.memory_id}:${conflict.revision}:${i}`} conflict={conflict} readPage={readPage} />)}</ul>
               </div>}
               <div className="mem-actions">
-                <button type="button" className="mem-button mem-primary" disabled={actionsBlocked}
+                <button type="button" className="mem-button mem-primary" disabled={actionsBlocked || draft === ""}
                   onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? "Accept with edits…" : "Accept…"}</button>
                 <button type="button" className="mem-button" disabled={actionsBlocked} onClick={() => decide(c, "reject")}>Reject…</button>
               </div>

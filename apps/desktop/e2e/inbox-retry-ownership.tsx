@@ -49,6 +49,9 @@ try {
     });
     root.render(<div key={command} data-case={command}><MemoryStatusProvider><Inbox /></MemoryStatusProvider></div>);
     await wait(() => fixture.firstElementChild?.getAttribute('data-case') === command && !!fixture.querySelector('article textarea') && button('Refresh candidates')?.disabled === false);
+    edit('article textarea', ''); await sleep(30);
+    check(`${command}_empty_edit_withholds_acceptance`, button('Accept with edits…')?.disabled === true);
+    check(`${command}_empty_edit_keeps_rejection_available`, button('Reject…')?.disabled === false);
     edit('article textarea', 'Original candidate edit'); edit('#mem-remember', 'Original statement'); edit('#mem-claim', 'fixture.original'); await sleep(30);
     const before = calls.length;
     click(button(command === 'remember' ? 'Save as candidate' : 'Accept with edits…')); await wait(retryAvailable);
