@@ -1,0 +1,21 @@
+{
+  "baseline": "8c8c2551bf0cef9826af23c523a252d913577470",
+  "capture": "Selected actual Codex in-app-browser #results fields; actual Memory surface Import route with synthetic picks, records and receipts",
+  "baselineProbe": {
+    "checks": 5,
+    "passed": false,
+    "recoveryBranchesUnavailable": true,
+    "failedChecks": [
+      "initial_pending_list_is_unknown_instead_of_zero",
+      "initial_failed_list_has_unknown_count_and_explicit_read",
+      "preview_waits_for_current_list_before_start",
+      "failed_refresh_retains_rows_preview_and_alias_but_blocks_start"
+    ]
+  },
+  "finalFixture": { "checks": 21, "passed": true, "syntheticPicks": 7 },
+  "regressions": [
+    { "fixture": "inbox-retry-ownership", "checks": 14, "passed": true },
+    { "fixture": "memory-inspector-identity", "checks": 9, "passed": true },
+    { "fixture": "suggestion-review-journey", "checks": 15, "passed": true }
+  ]
+}

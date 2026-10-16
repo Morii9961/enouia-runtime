@@ -1,0 +1,15 @@
+# Import list observation and recovery
+
+Date: 2026-10-16 (Asia/Shanghai). Baseline `8c8c2551bf0cef9826af23c523a252d913577470`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The actual Memory surface's Import route initialized its list to an empty array, so an unread/failed list reported zero imports. It had no explicit list-only recovery control. A preview-triggered refresh also left Start available using the prior observation and could claim a duplicate outcome before the referenced import was observed. The five-check baseline probe reproduced four failures; recovery branches requiring the missing control were unavailable at that baseline.
+
+Import now distinguishes unobserved, reading, failed, observed-empty and observed-recorded lists. **Refresh import list** / **Read import list again** only issue `import_list`. Failed refreshes label retained rows and preserve the file preview and account alias. Start/Resume and their held write retries wait for a current successful list observation; picker/preview retries remain read-only and available. A duplicate reference absent from that observation withholds Start and explains the unknown record. Existing archived/parsing handling still requires Resume. Held Start/Resume retries preserve original arguments/key and later alias edits, without applying new-start duplicate restrictions to receipt recovery.
+
+The fixed Core's `import_list` reads all current manifest rows; `import_preview_at` supplies the duplicate reference. Its existing `start_once` holds the original operation fingerprint/key. These were checked in the exact pinned source; no Core policy, import semantics, adapter, command or pin changed.
+
+Fresh verification passed: 95 frontend tests, TypeScript and strict affected/new fixture checks, Rust formatting, frontend/no-bundle desktop release build, pin/dependency guards (8 + 7 negative cases), JSON/diff checks. Host/Core tests and strict Clippy were not rerun for this frontend-only change; the saved 2026-10-15 61 host + five Core consumer/Clippy evidence referenced in [the prior slice](Memory-inbox-retry-ownership-v1.md) remains applicable to unchanged native sources, dependencies and pin.
+
+The Codex in-app-browser fixture passed 21/21, including the recovery paths enabled by the new control. Three affected fixtures passed 38 further checks (59 total). [Browser summary](Memory-import-observation-browser.json) records selected actual results. Coverage includes unknown/failed counts, list-only recovery, prior rows, preview/alias retention, interrupted Resume, unknown duplicate references, picker read retry, held Start/Resume payload/key recovery, later alias edits and a successfully observed empty list.
+
+Pickers, files, manifests, import writes and receipts are all synthetic; no real file or Vault is opened/imported. This does not establish native picker interaction, real storage-error recovery, interrupted-process recovery, physical Windows/Narrator or Morii acceptance. No personal data, credentials, Provider HTTP, Activity activation, installer or manual status snapshot was used. Owner files remain untouched.
