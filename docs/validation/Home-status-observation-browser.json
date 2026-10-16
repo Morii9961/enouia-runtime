@@ -1,0 +1,11 @@
+{
+  "baseline": "438c28fad72211c98eea782c8f609a561911084c",
+  "capture": "Selected actual Codex in-app-browser #results fields; actual native Home with synthetic status and local navigation callbacks",
+  "baselineProbe": { "checks": 15, "failed": 3, "passed": false },
+  "finalFixture": { "checks": 15, "passed": true },
+  "regressions": [
+    { "fixture": "memory-lifecycle-gate", "checks": 24, "passed": true },
+    { "fixture": "context-observation", "checks": 14, "passed": true },
+    { "fixture": "saved-suggestions", "checks": 10, "passed": true }
+  ]
+}

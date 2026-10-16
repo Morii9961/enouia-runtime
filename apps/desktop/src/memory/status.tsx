@@ -170,11 +170,14 @@ export function VaultLifecycleWait() {
 export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
   const { status, vaultChanging } = useStatus();
   const v = status?.vault;
-  const open = v?.state === "open" && !vaultChanging;
+  const stopping = exiting(status);
+  const open = v?.state === "open" && !vaultChanging && !stopping;
   const pending: number | null = status?.pendingCandidates ?? null;
   const reviewLine = !status
     ? "Memory status unknown"
-    : vaultChanging
+    : stopping
+      ? "Runtime is exiting · waiting for Memory operations"
+      : vaultChanging
       ? "Finishing Memory operations before releasing the Vault"
       : v?.state === "locked"
       ? "Vault locked · unlock it in Memory Vault"
@@ -200,7 +203,7 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
               <span className="qr4">·</span>
               <span>Local Mock responses</span>
               <span className="qr4">·</span>
-              <span className="qr5">Activity shows fictional examples</span>
+              <span className="qr5">Activity uses a separate producer</span>
             </div>
           </div>
         </div>
@@ -208,7 +211,7 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
           <button onClick={nav.memory.go} className="qr12" type="button">
             <span className="qr9">Memory Vault</span>
             <span className="qr10">{reviewLine}</span>
-            <span className="qr11">{vaultChanging ? "waiting" : open ? `#${v.headSequence}` : v?.state ?? "—"}</span>
+            <span className="qr11">{stopping ? "exiting" : vaultChanging ? "waiting" : open ? `#${v.headSequence}` : v?.state ?? "—"}</span>
           </button>
           <button onClick={nav.sessions.go} className="qr12" type="button">
             <span className="qr9">Sessions</span>
