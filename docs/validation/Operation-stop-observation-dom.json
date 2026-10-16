@@ -1,0 +1,17 @@
+{
+  "baseline": "290248b6cb37fe4e905970963793042b097bc7b8",
+  "environment": "Happy DOM 21.0.3 on Node 24.15.0; no real browser or native IPC",
+  "capture": "Selected actual tests/dom-fixtures.mjs baseline and final results",
+  "baselineProbe": { "checks": 23, "failed": 6, "passed": false },
+  "finalFixtures": [
+    { "fixture": "settings-exit-ownership", "checks": 17, "passed": true },
+    { "fixture": "home-status-observation", "checks": 15, "passed": true },
+    { "fixture": "memory-lifecycle-gate", "checks": 24, "passed": true },
+    { "fixture": "operation-stop-observation", "checks": 23, "passed": true },
+    { "fixture": "operation-observation", "checks": 11, "passed": true },
+    { "fixture": "operation-cancel", "checks": 13, "passed": true }
+  ],
+  "frontendTests": { "checks": 96, "passed": true },
+  "realBrowserRun": false,
+  "nativeAcceptance": false
+}

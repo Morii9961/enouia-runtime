@@ -5,16 +5,20 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { setTimeout, clearTimeout, setInterval, clearInterval, setImmediate, clearImmediate } from 'node:timers';
 
-const baseline = process.argv.includes('--settings-baseline');
+const operationBaseline = process.argv.includes('--operation-baseline');
+assert.ok(!(operationBaseline && process.argv.includes('--settings-baseline')), 'Choose only one baseline');
+const baseline = process.argv.includes('--settings-baseline') || operationBaseline;
 const details = process.argv.includes('--details');
-const fixtures = ['settings-exit-ownership', 'home-status-observation', 'memory-lifecycle-gate'];
+const fixtures = ['settings-exit-ownership', 'home-status-observation', 'memory-lifecycle-gate',
+  'operation-stop-observation', 'operation-observation', 'operation-cancel'];
 const desktop = fileURLToPath(new URL('..', import.meta.url));
-const baselineSha = '6cb6920eab5ca5a84e23b7d9f55773cf3f61609d';
+const baselineSha = operationBaseline ? '290248b6cb37fe4e905970963793042b097bc7b8' : '6cb6920eab5ca5a84e23b7d9f55773cf3f61609d';
+const baselineFile = operationBaseline ? 'ui.tsx' : 'status.tsx';
 
 if (!process.argv.includes('--worker')) {
   const results = [];
-  for (const fixture of baseline ? fixtures.slice(0, 1) : fixtures) {
-    const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--worker', fixture, ...(baseline ? ['--settings-baseline'] : [])],
+  for (const fixture of operationBaseline ? ['operation-stop-observation'] : baseline ? fixtures.slice(0, 1) : fixtures) {
+    const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--worker', fixture, ...(baseline ? [operationBaseline ? '--operation-baseline' : '--settings-baseline'] : [])],
       { cwd: desktop, encoding: 'utf8', timeout: 30000 });
     if (child.error) throw child.error;
     assert.equal(child.status, 0, `${fixture}: ${child.stderr || child.stdout}`);
@@ -22,12 +26,14 @@ if (!process.argv.includes('--worker')) {
     assert.ok(Array.isArray(result.checks) && result.checks.length > 0, `${fixture}: missing assertions`);
     if (baseline) {
       const failed = result.checks.filter(check => !check.ok).map(check => check.id);
-      assert.deepEqual(failed.sort(), [
+      const expected = operationBaseline ? ['external_send', 'import'].flatMap(kind => ['acknowledged', 'completed', 'late_error']
+        .map(outcome => `${kind}_${outcome}_new_observation_retires_obsolete_stop_error`)) : [
         'observed_exit_closes_startup_switch', 'exit_badge_is_not_open_indicator',
         'settings_exit_withholds_current_open_details', 'host_change_withholds_open_details_and_indicator',
         'local_exit_submission_closes_startup_immediately', 'exit_reply_keeps_startup_blocked',
         'startup_read_failure_has_explicit_recovery_during_exit',
-      ].sort());
+      ];
+      assert.deepEqual(failed.sort(), expected.sort());
     } else assert.equal(result.passed, true, JSON.stringify(result.checks.filter(check => !check.ok)));
     results.push(result);
   }
@@ -47,12 +53,12 @@ if (!process.argv.includes('--worker')) {
   // DOM close does not claim to track these native timers.
   Object.assign(globalThis, { setTimeout, clearTimeout, setInterval, clearInterval, setImmediate, clearImmediate });
   const { createServer, normalizePath } = await import('vite');
-  const statusPath = normalizePath(fileURLToPath(new URL('../src/memory/status.tsx', import.meta.url)));
-  const original = baseline ? execFileSync('git', ['show', `${baselineSha}:apps/desktop/src/memory/status.tsx`], { cwd: desktop, encoding: 'utf8' }) : null;
+  const baselinePath = normalizePath(fileURLToPath(new URL(`../src/memory/${baselineFile}`, import.meta.url)));
+  const original = baseline ? execFileSync('git', ['show', `${baselineSha}:apps/desktop/src/memory/${baselineFile}`], { cwd: desktop, encoding: 'utf8' }) : null;
   const server = await createServer({ root: desktop, configFile: false, logLevel: 'silent',
     server: { middlewareMode: true, watch: null, hmr: false, ws: false }, appType: 'custom',
-    plugins: original == null ? [] : [{ name: 'read-only-settings-baseline', enforce: 'pre',
-      load(id) { if (normalizePath(id) === statusPath) return original; },
+    plugins: original == null ? [] : [{ name: 'read-only-component-baseline', enforce: 'pre',
+      load(id) { if (normalizePath(id) === baselinePath) return original; },
     }],
   });
   try {

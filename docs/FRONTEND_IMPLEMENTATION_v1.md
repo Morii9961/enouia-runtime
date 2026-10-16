@@ -24,7 +24,7 @@ Use Node 24.15.0 or later and npm. Direct dependencies and the complete lockfile
 cd apps/desktop
 npm ci
 npm run check     # strict tsc over all src files and vite.config.js
-npm test          # demo state, Memory client and actual React view rendering
+npm test          # state/client/rendering tests plus actual-component DOM journeys
 npm run build     # type check, then production assets
 npm run preview
 # Native development; requires Cargo on PATH

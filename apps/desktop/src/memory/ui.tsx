@@ -151,7 +151,9 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
         <span className="mem-muted">Backup saved: commit #{status.result.sequence} · {status.result.files} files · {status.result.destinationName}.</span>
       )}
       {status.error && <span className="mem-warn">{describe(new CallError(status.error))}</span>}
-      <ErrorBox error={error} />
+      {/* A later observed acknowledgement or terminal result supersedes a stop
+          error, including a stop reply that arrives after that observation. */}
+      <ErrorBox error={active && !status.cancelRequested ? error : null} />
     </div>
   );
 }
