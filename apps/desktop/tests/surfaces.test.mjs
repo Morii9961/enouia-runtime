@@ -209,6 +209,17 @@ test('operation feedback offers cancellation only for active cooperative workers
   assert.match(view('import', 'running'), /mem-state-running/);
 });
 
+test('terminal operation errors remain visible after obsolete cancellation feedback retires', () => {
+  const html = renderToStaticMarkup(OperationFeedback({
+    status: { kind: 'import', state: 'failed', cancelRequested: false, progress: { done: 1, total: 2 },
+      error: { code: 'storage_failed', retryable: false, rules: [] } },
+    error: { text: 'Obsolete stop failure', retry() {} }, onCancel() {},
+  }));
+  assert.match(html, /Storage failed/);
+  assert.match(html, /mem-state-failed/);
+  assert.doesNotMatch(html, /Obsolete stop failure|>Retry<\/button>/);
+});
+
 test('external sending exposes local cancellation without promising remote cancellation', () => {
   const view = (state, cancelRequested = false, result = null) => renderToStaticMarkup(
     OperationFeedback({ status: { kind: 'external_send', state, cancelRequested, progress: { done: 0, total: null }, result }, onCancel() {} }),
