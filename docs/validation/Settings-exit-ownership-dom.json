@@ -1,0 +1,28 @@
+{
+  "baseline": "6cb6920eab5ca5a84e23b7d9f55773cf3f61609d",
+  "environment": "Happy DOM 21.0.3 on Node 24.15.0; no real browser or native IPC",
+  "capture": "Selected actual tests/dom-fixtures.mjs results from baseline and final commands",
+  "baselineProbe": {
+    "checks": 13,
+    "failed": 7,
+    "passed": false,
+    "recoveryBranchesUnavailable": true,
+    "failedChecks": [
+      "observed_exit_closes_startup_switch",
+      "exit_badge_is_not_open_indicator",
+      "settings_exit_withholds_current_open_details",
+      "host_change_withholds_open_details_and_indicator",
+      "local_exit_submission_closes_startup_immediately",
+      "exit_reply_keeps_startup_blocked",
+      "startup_read_failure_has_explicit_recovery_during_exit"
+    ]
+  },
+  "finalFixtures": [
+    { "fixture": "settings-exit-ownership", "checks": 17, "passed": true },
+    { "fixture": "home-status-observation", "checks": 15, "passed": true },
+    { "fixture": "memory-lifecycle-gate", "checks": 24, "passed": true }
+  ],
+  "existingFrontendTests": { "checks": 95, "passed": true },
+  "realBrowserRun": false,
+  "nativeAcceptance": false
+}

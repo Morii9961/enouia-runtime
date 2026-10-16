@@ -1,9 +1,9 @@
 // Memory status shared by the connected surfaces: one serial poll of
 // `workspace_status`, the header badge, the Home and Settings panels, and the
 // gate that keeps Vault-dependent surfaces closed until a Vault is open.
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { call, pick, shell, type J } from "./client";
-import { useAction, useMemoryStatus, type Failure } from "./hooks";
+import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
@@ -48,7 +48,7 @@ export function StatusPending() {
 /** Header badge: what this window is connected to, stated plainly. */
 export function MemoryBadge() {
   const { status, error, vaultChanging } = useStatus();
-  const open = status?.vault?.state === "open" && !vaultChanging;
+  const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const text = status ? `Memory · ${vaultLabel(status, vaultChanging)}` : error ? "Memory status unavailable" : "Memory · checking…";
   return (
     <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. Activity reads the separately installed producer. The Runtime Inspector shows fictional examples.">
@@ -253,7 +253,7 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
       <div className="qr198">Memory Vault</div>
       <Row k="State">{vaultLabel(status, vaultChanging)}</Row>
       <Row k="Folder">{v.rootName ?? "—"}</Row>
-      {v.state === "open" && (
+      {v.state === "open" && !vaultChanging && !exiting(status) && (
         <>
           <Row k="Health">{v.health}</Row>
           <Row k="Last commit"><span className="qr217">#{v.headSequence} · {when(v.lastCommitAt)}</span></Row>
@@ -283,13 +283,15 @@ function CompanionSettings({ status }: { status: J }) {
   const { refresh } = useStatus();
   const [startup, setStartup] = useState<J>(null);
   const [note, setNote] = useState("");
+  const startupRead = useLatestRead();
   const action = useAction();
   const leave = useAction();
   const leaving = exiting(status) || leave.busy;
-  useEffect(() => { void action.run(async () => setStartup(await shell.startupStatus())); }, [action.run]);
+  const readStartup = useCallback(() => startupRead.run(() => shell.startupStatus(), setStartup), [startupRead.run]);
+  useEffect(() => { void readStartup(); }, [readStartup]);
   const hotkey = status?.companion?.hotkey;
   const enabled = startup?.enabled ?? false;
-  const locked = !startup?.supported || action.busy || startup?.state === "different_installation";
+  const locked = !startup?.supported || startupRead.busy || !!startupRead.error || action.busy || leaving || startup?.state === "different_installation";
   return (
     <>
       <div className="qr198 mem-section">Window and startup</div>
@@ -304,11 +306,14 @@ function CompanionSettings({ status }: { status: J }) {
           <button type="button" role="switch" aria-checked={enabled} aria-labelledby="mem-startup-label" aria-describedby="mem-startup-description"
             disabled={locked} className="qr215 mem-switch"
             style={{ border: "1px solid " + (enabled ? "#9FC2D2" : "#3A4958"), background: enabled ? "#9FC2D2" : "transparent" }}
-            onClick={() => void action.run(async () => {
-              const next = !enabled;
-              setStartup(await shell.startupSet(next));
-              setNote(next ? "Runtime will start in the tray when you sign in." : "Runtime will not start at sign-in.");
-            })}>
+            onClick={() => {
+              if (locked || startupRead.pending.current) return;
+              void action.run(async () => {
+                const next = !enabled;
+                setStartup(await shell.startupSet(next));
+                setNote(next ? "Runtime will start in the tray when you sign in." : "Runtime will not start at sign-in.");
+              });
+            }}>
             <span className="qr214" style={{ left: enabled ? "23px" : "3px", background: enabled ? "#0C1117" : "#9BA9B6" }} />
           </button>
           <span id="mem-startup-description" className="mem-muted">
@@ -318,6 +323,13 @@ function CompanionSettings({ status }: { status: J }) {
           </span>
         </span>
       </div>
+      <div className="mem-actions">
+        <button type="button" className="mem-button" disabled={startupRead.busy || action.busy}
+          onClick={() => { if (!startupRead.pending.current && !action.busy) void readStartup(); }}>Read startup setting again</button>
+      </div>
+      {startupRead.busy && <p role="status" className="mem-muted">Reading the startup setting…</p>}
+      {startupRead.error && <p role="status" className="mem-muted">{startup ? "Previous startup observation." : "The startup setting is still unknown."} Read the setting again before changing it. Reading does not change login startup.</p>}
+      <ErrorBox error={startupRead.error} />
       <p role="status" aria-atomic="true" className="mem-note">{note}</p>
       <ErrorBox error={action.error} />
       <div className="qr216">
