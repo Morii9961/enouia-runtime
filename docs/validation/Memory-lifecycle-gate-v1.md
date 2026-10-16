@@ -1,0 +1,11 @@
+# Memory surface lifecycle gate
+
+Date: 2026-10-16 (Asia/Shanghai). Baseline `30e8d0a9481cd9a569c3a79f80503779394e1fca`; Memory pin stays `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+MemorySurface checked only Core's Vault state, unlike Context and Sessions, which already use VaultGate. Runtime's `shell_status.vaultChanging` can still be true while Core reports open, detached or locked; the host has not finished releasing operations. `workspace_status.companion.exiting` also takes precedence over an open Vault. The synthetic baseline failed nine of 24 checks: four open/change cases, four exit cases and collection navigation during a change.
+
+All Memory collections now reuse VaultGate whenever an observed host change or Exit is in progress. The existing gate supplies waiting/progress and Exit precedence. The sidebar remains available; selecting a collection cannot open its actions during this interval. The old collection unmounts, so a late read cannot republish its view. After the lifecycle clears, the selected collection mounts and observes its lists afresh. Ordinary open, locked, no-Vault and unknown-status paths retain their existing behavior. This is frontend admission feedback; the native host remains responsible for blocking conflicting operations.
+
+Fresh verification passed: 24/24 lifecycle browser checks, 44 related synthetic browser checks (Import 21, Inbox 14, memory inspector nine), 95 frontend tests, TypeScript plus strict fixture typing, Rust formatting, desktop no-bundle release build, pin guard with eight negatives, dependency guard with seven negatives and diff checks. [Browser summary](Memory-lifecycle-gate-browser.json) records selected actual results. Native source/dependencies/pin are unchanged; host/Core/Clippy evidence from 2026-10-15 remains applicable as described in [the preceding slice](Memory-import-observation-v1.md), and was not rerun.
+
+The fixture renders the actual MemorySurface and existing status provider, using synthetic workspace/host states, empty lists and operation progress. It issues only list/status commands. It does not perform a real lock, Exit, folder picker, Vault operation, Provider call, Activity activation, installer or personal-data access. No actual Windows lifecycle or Morii acceptance is claimed. Owner files and manual project snapshots are untouched.

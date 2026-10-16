@@ -1,0 +1,11 @@
+{
+  "baseline": "30e8d0a9481cd9a569c3a79f80503779394e1fca",
+  "capture": "Selected actual Codex in-app-browser #results fields; actual MemorySurface with synthetic lifecycle status and lists",
+  "baselineProbe": { "checks": 24, "failed": 9, "passed": false },
+  "finalFixture": { "checks": 24, "passed": true },
+  "regressions": [
+    { "fixture": "import-observation", "checks": 21, "passed": true },
+    { "fixture": "inbox-retry-ownership", "checks": 14, "passed": true },
+    { "fixture": "memory-inspector-identity", "checks": 9, "passed": true }
+  ]
+}
