@@ -445,55 +445,86 @@ function Import() {
   const preview = selection?.preview;
   const [alias, setAlias] = useState("acct-main");
   const [op, setOp] = useState<string | null>(null);
-  const [imports, setImports] = useState<J[]>([]);
+  const [imports, setImports] = useState<J[] | null>(null);
+  const [writeAction, setWriteAction] = useState(false);
   const action = useAction();
   const list = useLatestRead();
   const refresh = useCallback(() => void list.run(() => call("import_list"), (r) => setImports(r.items)), [list.run]);
   useEffect(refresh, [refresh]);
+  const listReady = imports != null && !list.busy && !list.error;
+  const cannotWrite = () => action.busy || list.pending.current || !!list.error || imports == null;
+  const write = (commit: (key: string) => Promise<void>) => {
+    if (cannotWrite()) return;
+    setWriteAction(true);
+    void action.run(commit);
+  };
+  const actionError = action.error && {
+    ...action.error,
+    retry: action.error.retry && !action.busy && (!writeAction || listReady) ? () => {
+      if (!action.busy && (!writeAction || !cannotWrite())) action.error?.retry?.();
+    } : undefined,
+  };
   // The Core refuses to start a file again while its earlier import is
   // interrupted (`import.resume_existing`); that import resumes instead.
-  const earlier = preview?.duplicateOf ? imports.find((m) => m.importId === preview.duplicateOf) : undefined;
+  const earlier = preview?.duplicateOf ? imports?.find((m) => m.importId === preview.duplicateOf) : undefined;
   const interrupted = earlier?.status === "parsing" || earlier?.status === "archived";
+  const duplicateUnknown = !!preview?.duplicateOf && (!listReady || !earlier);
   return (
     <>
-      <Center title={TITLES.import} count={`${imports.length} recorded`} busy={action.busy}>
+      <Center title={TITLES.import} count={list.error ? "Imports unavailable" : imports == null ? "Waiting for imports" : `${imports.length} recorded`}
+        busy={action.busy || list.busy || (imports == null && !list.error)}>
         <div className="mem-pad mem-stack">
           <p className="mem-muted">Choose an export file. The Core archives the original bytes and parses them; this page sees only the file name and size.</p>
           <div className="mem-actions">
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
-              const p = await pick("import_file");
-              if (!p) return;
-              setSelection(null);
-              const next = await call("import_preview", { importToken: p.token });
-              setSelection({ picked: p, preview: next });
-              refresh();
-            })}>Choose file…</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => {
+              setWriteAction(false);
+              void action.run(async () => {
+                const p = await pick("import_file");
+                if (!p) return;
+                setSelection(null);
+                const next = await call("import_preview", { importToken: p.token });
+                setSelection({ picked: p, preview: next });
+                refresh();
+              });
+            }}>Choose file…</button>
+            <button type="button" className="mem-button" disabled={action.busy || list.busy} onClick={() => {
+              if (!action.busy && !list.pending.current) refresh();
+            }}>{list.error ? "Read import list again" : "Refresh import list"}</button>
           </div>
-          <ErrorBox error={action.error} />
+          <ErrorBox error={actionError} />
+          {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the import result…</p>}
+          <ErrorBox error={list.error} />
+          {(list.busy || (imports == null && !list.error)) && <p role="status" className="mem-muted">Reading imports…</p>}
+          {list.error && <p role="status" className="mem-muted">{imports == null ? "The import list could not be read. Its contents are still unknown." : "Previous import observation."} Read import list again before starting or resuming an import. The file preview and account alias are kept.</p>}
+          {listReady && imports?.length === 0 && <p className="mem-muted">No recorded imports yet.</p>}
           {selection && (
             <div className="mem-card">
               <p><strong>{preview.displayName}</strong> · {preview.bytes} bytes · {preview.inputKind} · {preview.recognized ? `recognized, ${preview.units} units` : "unsupported format (still archived as is)"}</p>
-              {preview.duplicateOf && (interrupted
+              {preview.duplicateOf && (duplicateUnknown
+                ? <p className="mem-warn">Identical content was reported, but the earlier import has not been observed in the current list. Read the import list before starting.</p>
+                : interrupted
                 ? <p className="mem-warn">Identical to import {preview.duplicateOf}, which was interrupted. Resume it from the list below instead of starting it again.</p>
                 : <p className="mem-warn">Identical to import {preview.duplicateOf}; it will be recorded as a duplicate.</p>)}
               {preview.warnings.length > 0 && <p className="mem-muted">Warnings: {preview.warnings.join(", ")}</p>}
               <label className="mem-label" htmlFor="mem-alias">Account alias</label>
               <div className="mem-actions">
                 <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} pattern="[a-z0-9][a-z0-9_-]*" autoComplete="off" />
-                <button type="button" className="mem-button mem-primary" disabled={action.busy || interrupted} onClick={() => void action.run(async (key) => {
-                  const started = await call("import_start", { importToken: selection.picked.token, accountAlias: alias }, key);
-                  setOp(started.operationId);
-                  setSelection(null);
-                })}>Start import</button>
+                <button type="button" className="mem-button mem-primary" disabled={action.busy || !listReady || interrupted || duplicateUnknown} onClick={() => {
+                  if (interrupted || duplicateUnknown) return;
+                  write(async (key) => {
+                    const started = await call("import_start", { importToken: selection.picked.token, accountAlias: alias }, key);
+                    setOp(started.operationId);
+                    setSelection(null);
+                  });
+                }}>Start import</button>
               </div>
             </div>
           )}
           {op && <Operation key={op} id={op} onDone={refresh} />}
-          <ErrorBox error={list.error} />
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
             <tbody>
-              {imports.map((m) => (
+              {imports?.map((m) => (
                 <tr key={m.importId}>
                   <td>{m.status}{m.duplicateOf ? " (duplicate)" : ""}</td>
                   <td>{m.inputKind}</td>
@@ -501,7 +532,7 @@ function Import() {
                   <td>{m.counts.attachments_missing}</td>
                   <td>{m.warnings.join(", ")}</td>
                   <td>{(m.status === "parsing" || m.status === "archived") && (
-                    <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async (key) => {
+                    <button type="button" className="mem-button" disabled={action.busy || !listReady} onClick={() => write(async (key) => {
                       setOp((await call("import_resume", { importId: m.importId, accountAlias: m.accountScope ?? alias }, key)).operationId);
                       setSelection(null);
                     })}>Resume</button>
