@@ -12,6 +12,7 @@ import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./u
 import { CandidateSource } from "./CandidateSource";
 import { CandidateConflict } from "./CandidateConflict";
 import { memoryObservation } from "./observationIdentity";
+import { validImportAlias } from "./importAlias";
 
 type Collection = "inbox" | "current" | "history" | "import" | "vault";
 
@@ -450,6 +451,7 @@ function Import() {
   const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
   const preview = selection?.preview;
   const [alias, setAlias] = useState("acct-main");
+  const aliasValid = validImportAlias(alias);
   const [op, setOp] = useState<string | null>(null);
   const [imports, setImports] = useState<J[] | null>(null);
   const [writeAction, setWriteAction] = useState(false);
@@ -514,9 +516,10 @@ function Import() {
               {preview.warnings.length > 0 && <p className="mem-muted">Warnings: {preview.warnings.join(", ")}</p>}
               <label className="mem-label" htmlFor="mem-alias">Account alias</label>
               <div className="mem-actions">
-                <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} pattern="[a-z0-9][a-z0-9_-]*" autoComplete="off" />
-                <button type="button" className="mem-button mem-primary" disabled={action.busy || !listReady || interrupted || duplicateUnknown} onClick={() => {
-                  if (interrupted || duplicateUnknown) return;
+                <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} maxLength={64}
+                  aria-invalid={!aliasValid} aria-describedby="mem-alias-help" autoComplete="off" />
+                <button type="button" className="mem-button mem-primary" disabled={action.busy || !listReady || interrupted || duplicateUnknown || !aliasValid} onClick={() => {
+                  if (interrupted || duplicateUnknown || !validImportAlias(alias)) return;
                   write(async (key) => {
                     const started = await call("import_start", { importToken: selection.picked.token, accountAlias: alias }, key);
                     setOp(started.operationId);
@@ -524,6 +527,7 @@ function Import() {
                   });
                 }}>Start import</button>
               </div>
+              <p id="mem-alias-help" className={aliasValid ? "mem-muted" : "mem-warn"}>Use 1–64 lowercase English letters, digits, _ or -. Start with a letter or digit.</p>
             </div>
           )}
           {op && <Operation key={op} id={op} onDone={refresh} />}
@@ -538,10 +542,14 @@ function Import() {
                   <td>{m.counts.attachments_missing}</td>
                   <td>{m.warnings.join(", ")}</td>
                   <td>{(m.status === "parsing" || m.status === "archived") && (
-                    <button type="button" className="mem-button" disabled={action.busy || !listReady} onClick={() => write(async (key) => {
-                      setOp((await call("import_resume", { importId: m.importId, accountAlias: m.accountScope ?? alias }, key)).operationId);
-                      setSelection(null);
-                    })}>Resume</button>
+                    <button type="button" className="mem-button" disabled={action.busy || !listReady || !validImportAlias(m.accountScope ?? alias)} onClick={() => {
+                      const accountAlias = m.accountScope ?? alias;
+                      if (!validImportAlias(accountAlias)) return;
+                      write(async (key) => {
+                        setOp((await call("import_resume", { importId: m.importId, accountAlias }, key)).operationId);
+                        setSelection(null);
+                      });
+                    }}>Resume</button>
                   )}</td>
                 </tr>
               ))}
