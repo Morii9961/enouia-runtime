@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { call, pick, type J, type Picked } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { ComponentList, StatusPending, VaultConnect, useStatus } from "./status";
+import { ComponentList, StatusPending, VaultConnect, VaultGate, exiting, useStatus } from "./status";
 import { ErrorBox, Operation, PlanDialog, Source, Tag, shortId, when } from "./ui";
 import { CandidateSource } from "./CandidateSource";
 import { CandidateConflict } from "./CandidateConflict";
@@ -30,7 +30,7 @@ function dayOf(iso: string): string {
 }
 
 export default function MemorySurface({ initialCollection = "current" }: { initialCollection?: "current" | "inbox" }) {
-  const { status } = useStatus();
+  const { status, vaultChanging } = useStatus();
   const [collection, setCollection] = useState<Collection>(initialCollection);
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState({ text: "", seq: 0 });
@@ -75,7 +75,12 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
           </div>
         ))}
       </aside>
-      {collection === "vault" ? (
+      {status && (vaultChanging || exiting(status)) ? (
+        <>
+          <div className="qr45"><VaultGate>{null}</VaultGate></div>
+          <Inspector><ComponentList status={status} /></Inspector>
+        </>
+      ) : collection === "vault" ? (
         <VaultPanel />
       ) : !open ? (
         <>
