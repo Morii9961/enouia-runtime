@@ -1,0 +1,13 @@
+# Settings startup observation and Exit admission
+
+Date: 2026-10-16 (Asia/Shanghai). Baseline `6cb6920eab5ca5a84e23b7d9f55773cf3f61609d`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+Source inspection found three inconsistent lifecycle views: MemoryBadge's open indicator ignored `companion.exiting`, MemorySettings rendered open details during host change/Exit, and CompanionSettings did not include local/observed Exit in startup-switch admission. The startup read also shared the write action and had no explicit recovery for native string failures. Native `startup.rs` reports supported/enabled plus `disabled`, `enabled` or `different_installation`; command errors are strings, not Memory CallError values. Generic keyed Memory Retry behavior must not be invented for these commands.
+
+The header and Settings now withhold current-open indicators/details during their observed lifecycle states. Local or observed Exit disables the startup switch. Startup reads use the existing latest-read hook and an explicit **Read startup setting again** control. Initial failed reads remain unknown; failed refreshes label and retain the prior setting, withholding changes until a fresh read succeeds. Reads remain available during Exit and issue only `startup_status`. A new switch gesture still submits only the existing boolean `startup_set` argument. Native commands, Registry handling, pin and dependencies are unchanged.
+
+Fresh verification: 95 existing frontend tests, TypeScript, strict new fixture typing, desktop no-bundle release build, pin guard (eight negatives), dependency guard (seven negatives), and diff checks passed. Unchanged native test/Clippy/format evidence is reused from [the prior verified slices](Home-status-observation-v1.md).
+
+**Interaction validation pending.** `apps/desktop/e2e/settings-exit-ownership.html` renders the actual MemoryBadge, MemorySettings and status provider with synthetic native string failures, startup observations and Exit. The browser tool currently reports no available browsers/apps. The fixture has been type-checked but not executed; neither baseline reproduction nor a passing browser result is claimed. Before merging, execute it against the baseline and final code, run the related Home/lifecycle fixtures, inspect results and update this record. No browser-results JSON is generated without observed results.
+
+No actual login setting, Registry entry, Exit, personal Vault, Provider, Activity producer, installer or manual status snapshot was accessed or changed. The branch remains a draft until interaction verification is complete. Owner files are preserved.
