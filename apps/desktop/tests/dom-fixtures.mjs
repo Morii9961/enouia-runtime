@@ -14,7 +14,7 @@ const fixtures = ['settings-exit-ownership', 'shell-navigation-focus', 'home-sta
   'import-alias-admission', 'import-observation', 'import-operations', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
   'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume',
   'candidate-paging', 'memory-inspector-identity', 'memory-forget-focus', 'explorer-paging-focus', 'vault-operations', 'context-observation', 'saved-mock-context', 'saved-context-focus',
-  'session-observation', 'session-list-recovery', 'session-id-filter', 'session-history-boundary', 'session-event-metadata',
+  'session-observation', 'session-selection-focus', 'session-list-recovery', 'session-id-filter', 'session-history-boundary', 'session-event-metadata',
   'session-retry-ownership', 'saved-suggestions', 'saved-suggestion-identity', 'saved-suggestion-apply',
   'suggestion-resume', 'suggestion-lifetime', 'suggestion-review-journey', 'workspace-calls',
   'operation-snapshot', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
