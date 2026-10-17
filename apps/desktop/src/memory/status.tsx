@@ -1,7 +1,7 @@
 // Memory status shared by the connected surfaces: one serial poll of
 // `workspace_status`, the header badge, the Home and Settings panels, and the
 // gate that keeps Vault-dependent surfaces closed until a Vault is open.
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { call, pick, shell, type J } from "./client";
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
@@ -81,13 +81,25 @@ export function VaultConnect() {
   const { status, refresh, vaultChanging } = useStatus();
   const [phrase, setPhrase] = useState("");
   const action = useAction();
+  const heading = useRef<HTMLHeadingElement>(null);
+  const region = useRef<HTMLElement | null>(null);
+  // Locking removes the control that held focus, and opening or unlocking
+  // removes this card. Continue at the new state only if focus was lost.
+  useEffect(() => {
+    if (vaultChanging) return;
+    region.current = heading.current?.closest("main") ?? null;
+    if (document.activeElement === document.body) heading.current?.focus();
+  }, [vaultChanging]);
+  useEffect(() => () => {
+    if (document.activeElement === document.body) region.current?.focus();
+  }, []);
   const v = status?.vault ?? {};
   const after = (f: () => Promise<unknown>) => void action.run(async () => { await f(); await refresh(); });
   if (vaultChanging) return <VaultLifecycleWait />;
   return (
     <div className="mem-card">
       <VaultAdmissionNotice />
-      <h2 className="mem-h2">{v.state === "locked" ? `Vault locked · ${v.rootName}` : "No Vault open"}</h2>
+      <h2 ref={heading} tabIndex={-1} className="mem-h2">{v.state === "locked" ? `Vault locked · ${v.rootName}` : "No Vault open"}</h2>
       <p className="mem-muted">
         Memory opens only a folder you choose here. Nothing is remembered between runs, and no default location is created.
       </p>
