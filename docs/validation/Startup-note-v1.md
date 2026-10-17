@@ -1,0 +1,11 @@
+# Login startup acknowledgement
+
+Date: 2026-10-17 (Asia/Shanghai). Baseline `6dd1852d0fb00bc0b81f191f4b0f9d3251850538`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+A successful Start at login change shows a status line such as "Runtime will start in the tray when you sign in." That line was never cleared. If the setting was later read again and found off, the switch showed the observed state while the line still said Runtime would start. A later change attempt also kept the previous acknowledgement while it was pending and after it failed. The [Settings/Exit journey](Settings-exit-ownership-v1.md) covers write admission and lifecycle locking, not this line.
+
+The new 6-assertion `startup-note` journey mounts the actual Settings rows with synthetic startup commands. On the unchanged component it passed **3/6**: the contradicted line survived a reread, stayed during a new attempt and stayed after that attempt failed. Now a new change attempt or an explicit reread clears the acknowledgement first, and only a successful change writes a new one. The switch, its admission rules, the read/write commands and error feedback are unchanged. The existing Settings/Exit journey and the preserved `--settings-baseline` diagnostic still give their recorded results.
+
+Fresh checks pass: 98 Node/frontend tests; 54 DOM fixtures with 721 assertions, including the 6 new ones; TypeScript and strict typing of the new fixture; runner syntax; `--settings-baseline` and `--operation-baseline` matching their historical failure lists; web build; desktop no-bundle release build (compile 26.26 seconds); domain/pin guards with seven/eight negative checks; diff checks. Native sources, dependencies and the pin are unchanged, so earlier native test, Clippy and format evidence is reused from the reports cited by [the conflict focus slice](Candidate-conflict-focus-v1.md).
+
+Startup state is synthetic in Happy DOM; the owner's login setting was neither read nor changed. This establishes no registry behavior, Narrator announcement or Morii acceptance. No personal Vault, Provider HTTP, credentials, Activity activation, installer or status snapshot was used. Owner changes remain preserved.

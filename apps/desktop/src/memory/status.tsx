@@ -320,6 +320,9 @@ function CompanionSettings({ status }: { status: J }) {
             style={{ border: "1px solid " + (enabled ? "#9FC2D2" : "#3A4958"), background: enabled ? "#9FC2D2" : "transparent" }}
             onClick={() => {
               if (locked || startupRead.pending.current) return;
+              // The acknowledgement describes one completed change; a new
+              // attempt or observation must not keep asserting it.
+              setNote("");
               void action.run(async () => {
                 const next = !enabled;
                 setStartup(await shell.startupSet(next));
@@ -337,7 +340,7 @@ function CompanionSettings({ status }: { status: J }) {
       </div>
       <div className="mem-actions">
         <button type="button" className="mem-button" disabled={startupRead.busy || action.busy}
-          onClick={() => { if (!startupRead.pending.current && !action.busy) void readStartup(); }}>Read startup setting again</button>
+          onClick={() => { if (!startupRead.pending.current && !action.busy) { setNote(""); void readStartup(); } }}>Read startup setting again</button>
       </div>
       {startupRead.busy && <p role="status" className="mem-muted">Reading the startup setting…</p>}
       {startupRead.error && <p role="status" className="mem-muted">{startup ? "Previous startup observation." : "The startup setting is still unknown."} Read the setting again before changing it. Reading does not change login startup.</p>}
