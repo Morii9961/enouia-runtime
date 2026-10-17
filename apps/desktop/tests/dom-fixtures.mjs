@@ -12,7 +12,14 @@ const details = process.argv.includes('--details');
 const fixtures = ['settings-exit-ownership', 'home-status-observation', 'memory-lifecycle-gate',
   'operation-stop-observation', 'operation-observation', 'operation-cancel', 'inbox-retry-ownership',
   'import-alias-admission', 'import-observation', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
-  'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume'];
+  'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume',
+  'candidate-paging', 'memory-inspector-identity', 'context-observation', 'saved-mock-context', 'saved-context-focus',
+  'session-observation', 'session-list-recovery', 'session-id-filter', 'session-history-boundary', 'session-event-metadata',
+  'session-retry-ownership', 'saved-suggestions', 'saved-suggestion-identity', 'saved-suggestion-apply',
+  'suggestion-resume', 'suggestion-lifetime', 'suggestion-review-journey', 'workspace-calls',
+  'operation-snapshot', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
+  'provider-preparation-recovery', 'provider-operations', 'provider-off-ledger', 'provider-confirmation',
+  'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation'];
 const desktop = fileURLToPath(new URL('..', import.meta.url));
 const baselineSha = operationBaseline ? '290248b6cb37fe4e905970963793042b097bc7b8' : '6cb6920eab5ca5a84e23b7d9f55773cf3f61609d';
 const baselineFile = operationBaseline ? 'ui.tsx' : 'status.tsx';
@@ -25,6 +32,7 @@ if (!process.argv.includes('--worker')) {
     if (child.error) throw child.error;
     assert.equal(child.status, 0, `${fixture}: ${child.stderr || child.stdout}`);
     const result = JSON.parse(child.stdout);
+    if (details) process.stderr.write(`${fixture}: ${result.checks?.length ?? 0} assertions; passed=${result.passed}\n`);
     assert.ok(Array.isArray(result.checks) && result.checks.length > 0, `${fixture}: missing assertions`);
     if (baseline) {
       const failed = result.checks.filter(check => !check.ok).map(check => check.id);
@@ -36,7 +44,7 @@ if (!process.argv.includes('--worker')) {
         'startup_read_failure_has_explicit_recovery_during_exit',
       ];
       assert.deepEqual(failed.sort(), expected.sort());
-    } else assert.equal(result.passed, true, JSON.stringify(result.checks.filter(check => !check.ok)));
+    } else assert.equal(result.passed, true, `${fixture}: ${JSON.stringify(result.checks.filter(check => !check.ok))}`);
     results.push(result);
   }
   process.stdout.write(`${JSON.stringify({ environment: 'Happy DOM 21.0.3; no real browser or native IPC', baseline: baseline ? baselineSha : null, expectedBaselineFailures: baseline,
@@ -65,7 +73,20 @@ if (!process.argv.includes('--worker')) {
   });
   try {
     document.body.innerHTML = '<div id="fixture"></div><pre id="results">Running…</pre>';
-    await server.ssrLoadModule(`/e2e/${fixture}.tsx`);
+    if (fixture === 'quick-search-observation') {
+      // Match this fixture's HTML-only launch/focus controls. Its SDK events
+      // and IPC remain mocked; this never launches or controls a browser.
+      document.body.insertAdjacentHTML('afterbegin', '<button id="start" type="button">Run synthetic checks</button><button id="outside" type="button">Outside synthetic focus</button>');
+      const loading = server.ssrLoadModule(`/e2e/${fixture}.tsx`);
+      let ready = false;
+      for (let n = 0; n < 250; n++) {
+        if (document.getElementById('quick-query')) { ready = true; break; }
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      assert.ok(ready, 'Quick Search did not mount its synthetic controls');
+      document.getElementById('start').click();
+      await loading;
+    } else await server.ssrLoadModule(`/e2e/${fixture}.tsx`);
     const result = JSON.parse(document.getElementById('results').textContent);
     process.stdout.write(JSON.stringify({ fixture, ...result }));
   } finally {

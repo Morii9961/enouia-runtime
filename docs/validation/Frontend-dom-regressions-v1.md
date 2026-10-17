@@ -1,0 +1,11 @@
+# Default frontend DOM regression gate
+
+Date: 2026-10-17 (Asia/Shanghai). Code baseline `a457d374538f4cb2c28836d6f908b53adf8ac86e`; unchanged Memory pin `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The default DOM gate previously registered 17 of the 48 existing synthetic TSX fixtures. It now explicitly registers the other 31, covering Session list/detail/retry/history/filter/metadata, Context and saved Mock lookup, Provider setup/receipt/confirmation/operation recovery, saved suggestion application and review routing, inspector identity, paging and Quick Search. Each fixture keeps its isolated process, synthetic transports and 30-second worker timeout. The Quick Search adapter supplies its HTML-only Start/Outside controls and waits for its input before releasing its existing manual start gate; Tauri SDK IPC/events stay mocked.
+
+Two old fixture timing assumptions failed under the DOM model: Quick Search checked Escape after one animation frame, and Saved Context tried clicking before parent ownership had released its disabled read control. They now wait for the actual bounded state conditions, preserving all original assertions. Product code is unchanged. Failure output now identifies the fixture; `--details` also emits progress without changing assertions.
+
+Fresh checks pass: all 48 DOM fixtures and 677 assertions, all 98 Node/frontend tests, strict typing of the two adjusted fixtures, runner syntax and diff checks. Both preserved baseline diagnostic modes still match their exact historical failure lists; those expected failures are not product passes. The [saved summary](Frontend-dom-regressions-v1.json) identifies every fixture and count. These two successful constituent test stages are the current `npm test` gate; the unchanged suite was not immediately repeated through its wrapper.
+
+No production sources/dependencies/native code changed. The immediately preceding release build (24.54 seconds), pin/domain guards and native evidence remain applicable and were not repeated for a test-only change. See [that release's evidence](Candidate-conflict-focus-v1.md). All replies remain synthetic: no browser automation, real native IPC, physical Windows/Narrator, personal Vault, credentials, Provider HTTP, Activity activation, installer or Morii acceptance occurred.
