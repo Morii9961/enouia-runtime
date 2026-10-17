@@ -1,0 +1,11 @@
+# Candidate evidence reader focus
+
+Date: 2026-10-17 (Asia/Shanghai). Baseline `e28d0a2b0cca8abb2583f93c146dce49fb51b3e6`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+CandidateSource cleared its current excerpt while paging, removing the focused Next source part control. A successful page, retry or nonretryable failure did not restore a useful focus target; hiding the reader also removed its focused Hide control. The actual-component DOM probe reproduced eight failed focus assertions among 17 checks. The baseline already respected focus moved elsewhere and retained exact read arguments.
+
+An explicit read/page/Retry now holds its trigger until the current read settles. Success focuses the literal excerpt, and failure focuses the persistent read-again control, only while focus remains on the trigger or document body. A live pending flag prevents an older passive effect from consuming a newer intent. Hide clears the intent, invalidates the read and focuses Show evidence source. Revision remount and unmount cannot restore old focus. The source text has a labelled programmatic focus target, without adding a Tab stop. No read arguments, locator semantics, source identity validation or model/write action changed.
+
+Fresh verification passed: 98 frontend tests and 197 DOM assertions across 11 named fixtures. The new focus journey passes 17/17; the existing evidence journey passes 14/14. Coverage includes initial mount, bounded pages, last page, permanent failure, Retry with exact source/revision/page, manual recovery, moved focus during success/failure/Retry, hide during a pending read, revision replacement and unmount. TypeScript, strict affected-fixture typing, desktop no-bundle release build, pin/dependency guards (eight + seven negatives), JSON/diff checks passed. Unchanged native test/Clippy/format evidence is reused from [the prior slice](Import-alias-admission-v1.md).
+
+All source text, reads and failures are synthetic. DOM focus checks do not establish real browser layout/event ordering, Narrator, physical Windows keyboard input or Morii acceptance. No personal source/Vault, Provider call, Activity activation, installer, startup change or manual project snapshot was used. Owner files are preserved.
