@@ -11,7 +11,7 @@ const baseline = process.argv.includes('--settings-baseline') || operationBaseli
 const details = process.argv.includes('--details');
 const fixtures = ['settings-exit-ownership', 'home-status-observation', 'memory-lifecycle-gate',
   'operation-stop-observation', 'operation-observation', 'operation-cancel', 'inbox-retry-ownership',
-  'import-alias-admission', 'import-observation', 'candidate-source-focus', 'candidate-source',
+  'import-alias-admission', 'import-observation', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
   'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume'];
 const desktop = fileURLToPath(new URL('..', import.meta.url));
 const baselineSha = operationBaseline ? '290248b6cb37fe4e905970963793042b097bc7b8' : '6cb6920eab5ca5a84e23b7d9f55773cf3f61609d';
