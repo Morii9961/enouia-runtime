@@ -125,6 +125,10 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
   const [total, setTotal] = useState<number | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [notice, setNotice] = useState("");
+  // A confirmed deletion removes the inspector holding the dialog's trigger,
+  // so focus waits for the reread results instead of falling to the page.
+  const focusAfterDeletion = useRef(false);
   const read = useLatestRead();
   const query = submitted.text.trim() ? submitted.text : "";
   const load = useCallback((cursor: string | null) =>
@@ -137,6 +141,12 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
       setLoaded(true);
     }), [query, history, readPage, read.run]);
   useEffect(() => { load(null); }, [load, submitted.seq]);
+  useEffect(() => {
+    if (read.busy || read.pending.current || !focusAfterDeletion.current) return;
+    focusAfterDeletion.current = false;
+    if (document.activeElement === document.body) document.getElementById("mem-center-title")?.focus();
+  }, [rows, read.busy, read.error]);
+  const choose = (id: string) => { if (id !== selected) setNotice(""); setSelected(id); };
   const ids = rows.map((r) => r.memoryId);
   const move = (e: KeyboardEvent) => {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
@@ -147,7 +157,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
     const i = from ? buttons.indexOf(from) : selected ? ids.indexOf(selected) : -1;
     const index = Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)));
     const n = ids[index];
-    if (n) { e.preventDefault(); setSelected(n); buttons[index]?.focus(); }
+    if (n) { e.preventDefault(); choose(n); buttons[index]?.focus(); }
   };
   // A list is sorted by update time, so it groups into days. Search results
   // are ranked by relevance and stay one flat group in rank order.
@@ -169,6 +179,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
     <>
       <Center title={title} count={count} busy={read.busy}>
         <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>Refresh results</button></div>
+        {notice && <p role="status" className="mem-note mem-pad">{notice}</p>}
         <ErrorBox error={read.error} />
         {read.busy && <p role="status" className="mem-muted mem-pad">Reading memories…</p>}
         {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? "Nothing matches this search." : "No approved memories here yet."}</div>}
@@ -178,7 +189,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
               <div className="qr33">{d.label}</div>
               {d.items.map((m) => (
                 <button key={m.memoryId} type="button" className="qr43" aria-pressed={selected === m.memoryId}
-                  style={{ background: selected === m.memoryId ? "#17212B" : "transparent" }} onClick={() => setSelected(m.memoryId)}>
+                  style={{ background: selected === m.memoryId ? "#17212B" : "transparent" }} onClick={() => choose(m.memoryId)}>
                   <span className="qr34">{!query && m.updatedAt ? when(m.updatedAt).slice(11) : ""}</span>
                   <span className="qr42">
                     <span className="qr38">
@@ -200,13 +211,17 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
         {next && <div className="mem-pad"><button type="button" className="mem-button" onClick={() => load(next)} disabled={read.busy}>Load more</button></div>}
       </Center>
       {selected
-        ? <MemoryDetail key={selected} id={selected} onChanged={() => { setSelected(null); load(null); }} />
+        ? <MemoryDetail key={selected} id={selected} onChanged={(purge) => {
+          setNotice(`${purge ? "Permanent purge" : "Forget"} confirmed by Memory.`);
+          focusAfterDeletion.current = true;
+          setSelected(null); load(null);
+        }} />
         : <aside aria-label="Memory Inspector" className="qr88"><div className="qr46">Select a memory to see where it came from.</div></aside>}
     </>
   );
 }
 
-export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; onChanged: () => void; readPage?: typeof call }) {
+export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; onChanged: (purge: boolean) => void; readPage?: typeof call }) {
   const { refresh } = useStatus();
   const [detail, setDetail] = useState<J>(null);
   const [correction, setCorrection] = useState("");
@@ -295,7 +310,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
         onClose={(done) => {
           setPlan(null);
           void refresh();
-          if (done) onChanged();
+          if (done) onChanged(plan.purge === true);
           else setNote("Confirmation cancelled. The deletion candidate remains in the candidate inbox.");
         }} />}
     </Inspector>

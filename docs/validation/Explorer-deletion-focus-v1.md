@@ -1,0 +1,11 @@
+# Explorer deletion confirmation feedback
+
+Date: 2026-10-17 (Asia/Shanghai). Baseline `8be4c86e2145311d0c3b304f2872f6ea3a5dcdee` (code baseline `3e6f1614fd101efa700ef0a0855c9ad9cd8cc783` plus documentation only); Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+A confirmed Forget or Purge in the Memory Explorer clears the selection, which removes the inspector holding the dialog's trigger. The dialog could not return focus, so focus fell to the document, and nothing reported the confirmed result: the inspector showed only its empty placeholder. Cancellation already returned focus to the trigger and explained the retained deletion candidate ([deletion feedback evidence](Forget-plan-feedback-v1.md)), and the Inbox already moved focus to its results after a commit.
+
+The new 11-assertion `memory-forget-focus` journey mounts the actual Explorer and inspector with synthetic IPC. On the unchanged component it passed **8/11**; the three failures were focus after the reread and both confirmation announcements. Now the Explorer states "Forget confirmed by Memory." or "Permanent purge confirmed by Memory." as a status, then focuses the results heading once the latest list read settles, but only while focus is still on the document. Selecting another memory retires the notice. The message claims only the confirmation receipt; the reread keeps its own waiting, error and empty states. Plans, confirmation keys, the reread command and cancellation behavior are unchanged.
+
+Fresh checks pass: 98 Node/frontend tests; 49 DOM fixtures with 688 assertions, including the 11 new ones; TypeScript and strict typing of the new fixture; web build; desktop no-bundle release build (compile 33.53 seconds); domain/pin guards with seven/eight negative checks; diff checks. Native sources, dependencies and the pin are unchanged, so earlier native test, Clippy and format evidence is reused from the reports cited by [the conflict focus slice](Candidate-conflict-focus-v1.md).
+
+All records, plans, receipts and timing are synthetic in Happy DOM. This establishes no browser or WebView2 focus behavior, Windows/Narrator announcement, real purge, storage-error durability or Morii acceptance. No personal Vault, Provider HTTP, credentials, Activity activation, startup, installer or status snapshot was used. Owner changes remain preserved.
