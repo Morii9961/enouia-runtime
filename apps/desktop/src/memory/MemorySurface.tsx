@@ -127,8 +127,12 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
   const [loaded, setLoaded] = useState(false);
   const [notice, setNotice] = useState("");
   // A confirmed deletion removes the inspector holding the dialog's trigger,
-  // so focus waits for the reread results instead of falling to the page.
-  const focusAfterDeletion = useRef(false);
+  // the last page removes Load more, and Refresh remounts this explorer.
+  // Focus waits for the latest read, then returns to its trigger if that
+  // still exists, or to a fallback, unless the reader has moved elsewhere.
+  const focusAfterRead = useRef<{ trigger: HTMLElement | null; fallback: () => HTMLElement | null } | null>(null);
+  const refreshControl = useRef<HTMLButtonElement>(null);
+  const resultsTitle = () => document.getElementById("mem-center-title");
   const read = useLatestRead();
   const query = submitted.text.trim() ? submitted.text : "";
   const load = useCallback((cursor: string | null) =>
@@ -142,9 +146,14 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
     }), [query, history, readPage, read.run]);
   useEffect(() => { load(null); }, [load, submitted.seq]);
   useEffect(() => {
-    if (read.busy || read.pending.current || !focusAfterDeletion.current) return;
-    focusAfterDeletion.current = false;
-    if (document.activeElement === document.body) document.getElementById("mem-center-title")?.focus();
+    if (document.activeElement === document.body) focusAfterRead.current = { trigger: null, fallback: () => refreshControl.current };
+  }, []);
+  useEffect(() => {
+    const intent = focusAfterRead.current;
+    if (read.busy || read.pending.current || !intent) return;
+    focusAfterRead.current = null;
+    if (document.activeElement !== document.body && document.activeElement !== intent.trigger) return;
+    if (intent.trigger?.isConnected) intent.trigger.focus(); else intent.fallback()?.focus();
   }, [rows, read.busy, read.error]);
   const choose = (id: string) => { if (id !== selected) setNotice(""); setSelected(id); };
   const ids = rows.map((r) => r.memoryId);
@@ -178,7 +187,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
   return (
     <>
       <Center title={title} count={count} busy={read.busy}>
-        <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>Refresh results</button></div>
+        <div className="mem-pad mem-actions"><button ref={refreshControl} type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>Refresh results</button></div>
         {notice && <p role="status" className="mem-note mem-pad">{notice}</p>}
         <ErrorBox error={read.error} />
         {read.busy && <p role="status" className="mem-muted mem-pad">Reading memories…</p>}
@@ -208,12 +217,15 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
             </div>
           ))}
         </div>
-        {next && <div className="mem-pad"><button type="button" className="mem-button" onClick={() => load(next)} disabled={read.busy}>Load more</button></div>}
+        {next && <div className="mem-pad"><button type="button" className="mem-button" disabled={read.busy} onClick={(e) => {
+          focusAfterRead.current = { trigger: e.currentTarget, fallback: resultsTitle };
+          load(next);
+        }}>Load more</button></div>}
       </Center>
       {selected
         ? <MemoryDetail key={selected} id={selected} onChanged={(purge) => {
           setNotice(`${purge ? "Permanent purge" : "Forget"} confirmed by Memory.`);
-          focusAfterDeletion.current = true;
+          focusAfterRead.current = { trigger: null, fallback: resultsTitle };
           setSelected(null); load(null);
         }} />
         : <aside aria-label="Memory Inspector" className="qr88"><div className="qr46">Select a memory to see where it came from.</div></aside>}

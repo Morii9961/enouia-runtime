@@ -1,0 +1,11 @@
+# Explorer paging and refresh focus
+
+Date: 2026-10-17 (Asia/Shanghai). Baseline `10e8fa3502bd03ee20bb27ea88477ff6bf444e58`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+Load more is removed once the Explorer reads its last page, and Refresh results restarts the Explorer at the first page by remounting it. Both removed the control that held focus, leaving a keyboard reader on the document. The candidate inbox already keeps focus in the inbox after its last page. The [Explorer feedback](Explorer-feedback-v1.md) and [keyboard](Explorer-keyboard-v1.md) evidence covers rows, cursors and arrow selection, but not focus after paging or refresh.
+
+The new 8-assertion `explorer-paging-focus` journey opens the actual Memory surface with 55 synthetic memories in pages of 25. On the unchanged Explorer it passed **6/8**: focus was lost after the last page and after Refresh. The Explorer now records a focus intent with each of these reads. Once the latest read settles, focus returns to the trigger if it still exists (Load more with pages remaining), the results heading after the last page, or the new Refresh results control after a refresh. This happens only if focus is still on the document or the trigger. The [confirmed-deletion focus](Explorer-deletion-focus-v1.md) path now uses the same intent and its journey still passes. Focus moved elsewhere and focus in the search field are kept. Cursors, page size, refresh semantics and read errors are unchanged.
+
+Fresh checks pass: 98 Node/frontend tests; 55 DOM fixtures with 729 assertions, including the 8 new ones; TypeScript and strict typing of the new fixture; runner syntax; web build; desktop no-bundle release build (compile 28.61 seconds); domain/pin guards with seven/eight negative checks; diff checks. Native sources, dependencies and the pin are unchanged, so earlier native test, Clippy and format evidence is reused from the reports cited by [the conflict focus slice](Candidate-conflict-focus-v1.md).
+
+Pages and timing are synthetic in Happy DOM. This establishes no WebView2 focus behavior, Narrator announcement or Morii acceptance. No personal Vault, Provider HTTP, credentials, Activity activation, startup, installer or status snapshot was used. A separate pending Memory pin worktree was left untouched. Owner changes remain preserved.
