@@ -1,0 +1,250 @@
+{
+  "recorded_at": "2026-10-17T16:30:01+08:00",
+  "source_commit": "a457d374538f4cb2c28836d6f908b53adf8ac86e",
+  "environment": "Happy DOM 21.0.3; no real browser or native IPC",
+  "node_tests": 98,
+  "dom_fixtures": 48,
+  "dom_assertions": 677,
+  "results": [
+    {
+      "fixture": "settings-exit-ownership",
+      "assertions": 17,
+      "passed": true
+    },
+    {
+      "fixture": "home-status-observation",
+      "assertions": 15,
+      "passed": true
+    },
+    {
+      "fixture": "memory-lifecycle-gate",
+      "assertions": 24,
+      "passed": true
+    },
+    {
+      "fixture": "operation-stop-observation",
+      "assertions": 23,
+      "passed": true
+    },
+    {
+      "fixture": "operation-observation",
+      "assertions": 11,
+      "passed": true
+    },
+    {
+      "fixture": "operation-cancel",
+      "assertions": 13,
+      "passed": true
+    },
+    {
+      "fixture": "inbox-retry-ownership",
+      "assertions": 18,
+      "passed": true
+    },
+    {
+      "fixture": "import-alias-admission",
+      "assertions": 24,
+      "passed": true
+    },
+    {
+      "fixture": "import-observation",
+      "assertions": 21,
+      "passed": true
+    },
+    {
+      "fixture": "candidate-conflict-focus",
+      "assertions": 15,
+      "passed": true
+    },
+    {
+      "fixture": "candidate-conflict",
+      "assertions": 10,
+      "passed": true
+    },
+    {
+      "fixture": "candidate-source-focus",
+      "assertions": 17,
+      "passed": true
+    },
+    {
+      "fixture": "candidate-source",
+      "assertions": 14,
+      "passed": true
+    },
+    {
+      "fixture": "memory-source-focus",
+      "assertions": 17,
+      "passed": true
+    },
+    {
+      "fixture": "source-suggestion-focus",
+      "assertions": 15,
+      "passed": true
+    },
+    {
+      "fixture": "source-suggestions",
+      "assertions": 14,
+      "passed": true
+    },
+    {
+      "fixture": "source-suggestion-resume",
+      "assertions": 10,
+      "passed": true
+    },
+    {
+      "fixture": "candidate-paging",
+      "assertions": 13,
+      "passed": true
+    },
+    {
+      "fixture": "memory-inspector-identity",
+      "assertions": 9,
+      "passed": true
+    },
+    {
+      "fixture": "context-observation",
+      "assertions": 14,
+      "passed": true
+    },
+    {
+      "fixture": "saved-mock-context",
+      "assertions": 15,
+      "passed": true
+    },
+    {
+      "fixture": "saved-context-focus",
+      "assertions": 9,
+      "passed": true
+    },
+    {
+      "fixture": "session-observation",
+      "assertions": 11,
+      "passed": true
+    },
+    {
+      "fixture": "session-list-recovery",
+      "assertions": 11,
+      "passed": true
+    },
+    {
+      "fixture": "session-id-filter",
+      "assertions": 18,
+      "passed": true
+    },
+    {
+      "fixture": "session-history-boundary",
+      "assertions": 7,
+      "passed": true
+    },
+    {
+      "fixture": "session-event-metadata",
+      "assertions": 9,
+      "passed": true
+    },
+    {
+      "fixture": "session-retry-ownership",
+      "assertions": 25,
+      "passed": true
+    },
+    {
+      "fixture": "saved-suggestions",
+      "assertions": 10,
+      "passed": true
+    },
+    {
+      "fixture": "saved-suggestion-identity",
+      "assertions": 13,
+      "passed": true
+    },
+    {
+      "fixture": "saved-suggestion-apply",
+      "assertions": 17,
+      "passed": true
+    },
+    {
+      "fixture": "suggestion-resume",
+      "assertions": 9,
+      "passed": true
+    },
+    {
+      "fixture": "suggestion-lifetime",
+      "assertions": 7,
+      "passed": true
+    },
+    {
+      "fixture": "suggestion-review-journey",
+      "assertions": 15,
+      "passed": true
+    },
+    {
+      "fixture": "workspace-calls",
+      "assertions": 13,
+      "passed": true
+    },
+    {
+      "fixture": "operation-snapshot",
+      "assertions": 9,
+      "passed": true
+    },
+    {
+      "fixture": "provider-setup",
+      "assertions": 11,
+      "passed": true
+    },
+    {
+      "fixture": "provider-session",
+      "assertions": 18,
+      "passed": true
+    },
+    {
+      "fixture": "provider-send-recovery",
+      "assertions": 20,
+      "passed": true
+    },
+    {
+      "fixture": "provider-recorded-outcomes",
+      "assertions": 8,
+      "passed": true
+    },
+    {
+      "fixture": "provider-preparation-recovery",
+      "assertions": 19,
+      "passed": true
+    },
+    {
+      "fixture": "provider-operations",
+      "assertions": 12,
+      "passed": true
+    },
+    {
+      "fixture": "provider-off-ledger",
+      "assertions": 10,
+      "passed": true
+    },
+    {
+      "fixture": "provider-confirmation",
+      "assertions": 9,
+      "passed": true
+    },
+    {
+      "fixture": "extraction-status-recovery",
+      "assertions": 9,
+      "passed": true
+    },
+    {
+      "fixture": "extraction-recovery",
+      "assertions": 14,
+      "passed": true
+    },
+    {
+      "fixture": "extraction-provider-choice",
+      "assertions": 11,
+      "passed": true
+    },
+    {
+      "fixture": "quick-search-observation",
+      "assertions": 24,
+      "passed": true
+    }
+  ]
+}

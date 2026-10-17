@@ -94,10 +94,11 @@ try {
   check('focus_reopens_with_an_empty_focused_input', input().value === '' && document.activeElement === input());
   await edit('Before clear event'); await start(button('Search')); await emit('overlay-clear'); await frame(); outside().focus(); releasePending(); await frame(); await frame();
   check('host_clear_event_invalidates_pending_focus_and_results', input().value === '' && document.activeElement === outside() && fixture.querySelectorAll('li').length === 0);
-  await edit('Before Escape'); window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await frame();
+  await edit('Before Escape'); window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  await wait(() => hidden === 1 && input().value === '' && fixture.querySelectorAll('li').length === 0);
   check('escape_clears_and_uses_existing_hide_command', hidden === 1 && input().value === '' && fixture.querySelectorAll('li').length === 0);
   await edit('Before unmount'); await start(button('Search')); root.unmount(); mounted = false; outside().focus(); releasePending(); await frame(); await frame();
   check('unmounted_search_cannot_return_focus_or_publish', document.activeElement === outside() && !fixture.querySelector('main'));
   check('search_keeps_existing_read_only_scope_and_limit', calls.every(c => c.command === 'memory_search' && c.key === null && c.args.includeHistorical === false && c.args.cursor === null && c.args.limit === 8));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
-finally { releasePending(); if (mounted) root.unmount(); await Promise.resolve(); clearMocks(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), searches: calls.length }, null, 2); }
+finally { releasePending(); if (mounted) root.unmount(); await Promise.resolve(); clearMocks(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), searches: calls.length, hidden }, null, 2); }

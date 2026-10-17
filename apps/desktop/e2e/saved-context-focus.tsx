@@ -33,7 +33,11 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 async function wait(test: () => boolean) { for (let n = 0; n < 250; n++) { if (test()) return; await sleep(20); } throw new Error('UI timeout'); }
 async function frame() { await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); }
 function check(id: string, ok: boolean) { checks.push({ id, ok }); }
-async function start(control: HTMLButtonElement | undefined) { if (!control || control.disabled) throw new Error('Unavailable control'); control.focus(); control.click(); await wait(() => pending != null); await frame(); }
+async function start(control: HTMLButtonElement | undefined) {
+  if (!control) throw new Error('Missing read control');
+  await wait(() => control.isConnected && !control.disabled);
+  control.focus(); control.click(); await wait(() => pending != null); await frame();
+}
 try {
   await wait(() => !!read()); await start(read());
   check('pending_lookup_disables_its_trigger_and_withholds_navigation', read()!.disabled && !inspect());
