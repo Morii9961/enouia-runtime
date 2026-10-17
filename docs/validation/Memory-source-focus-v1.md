@@ -1,0 +1,11 @@
+# Approved-memory source reader focus
+
+Date: 2026-10-17 (Asia/Shanghai). Baseline `cda15c7d3a63f22d91159bd6aa2842f90695523c`; Memory pin stays `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The approved-memory Source reader independently cleared its excerpt while paging, losing the focused Next part control. Its actual-component baseline reproduced six failed assertions among 17 for explicit reading, paging, last page, permanent-error recovery and Retry. Existing stale-read/availability protections and respect for focus moved elsewhere already passed.
+
+Explicit read/page/Retry now retain their trigger until the latest read settles. Success focuses labelled literal source text; failure focuses Show source, only while focus remains on the trigger or document. The text target adds no Tab stop. Source ID, revision or availability changes clear pending focus before invalidating the read; no remount is required. Unmount cannot restore old intent. Existing exact-source observation, 4096-byte paging, suggestion ownership and extractionBusy restrictions remain unchanged. No request, model policy or write behavior changed.
+
+Fresh checks pass: 98 frontend tests, 238 DOM assertions across 14 fixtures, TypeScript/strict new fixture typing, desktop no-bundle release build, pin/dependency guards (eight + seven negatives), diff checks. The source-focus journey passes 17/17; related synthetic suggestion and pause/resume journeys pass 14 + ten checks, including preserved excerpt ownership while preparation/send/application are held. It covers manual/Retry recovery, last-page focus, moved focus, availability withdrawal/recovery, revision/source replacement without remount and unmount. Native sources/dependencies/pin and native test/Clippy/format evidence are unchanged and reused from [the preceding slice](Candidate-source-focus-v1.md).
+
+All source, provider/preparation/send, suggestion, queue and operation replies in these fixtures are synthetic. DOM tests do not establish real browser layout/focus timing, Windows/Narrator, service receipt/cancellation, storage durability or Morii acceptance. No personal source/Vault, actual Provider HTTP, Activity activation, startup change, installer or manual project snapshot was used. Owner files are preserved.
