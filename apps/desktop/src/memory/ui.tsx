@@ -243,10 +243,13 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
   const action = useLatestRead();
   const readControl = useRef<HTMLButtonElement>(null);
   const sourceText = useRef<HTMLPreElement>(null);
+  const suggestControl = useRef<HTMLButtonElement>(null);
+  const focusAfterSuggest = useRef<{ trigger: Element | null } | null>(null);
   const focusAfterRead = useRef<{ trigger: Element | null } | null>(null);
   const excerpt = evidence.available && loaded && loaded.sourceId === evidence.sourceId && loaded.revision === evidence.sourceRevision ? loaded.page : null;
   useEffect(() => {
     focusAfterRead.current = null;
+    focusAfterSuggest.current = null;
     action.clear();
     setLoaded(null);
     setSuggest(false);
@@ -259,8 +262,17 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
       (action.error ? readControl.current : sourceText.current)?.focus();
     }
   }, [excerpt, action.busy, action.error]);
+  useEffect(() => {
+    if (suggest || !focusAfterSuggest.current) return;
+    const { trigger } = focusAfterSuggest.current;
+    focusAfterSuggest.current = null;
+    if (document.activeElement === document.body || document.activeElement === trigger) {
+      suggestControl.current?.focus();
+    }
+  }, [suggest]);
   const load = (start: number | null) => {
     if (!evidence.available || extractionBusy) return;
+    focusAfterSuggest.current = null;
     focusAfterRead.current = { trigger: document.activeElement };
     const sourceId = evidence.sourceId;
     const revision = evidence.sourceRevision;
@@ -295,8 +307,11 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
           <pre ref={sourceText} tabIndex={-1} aria-label="Source text" className="mem-source">{excerpt.excerpt}</pre>
           {extractionBusy && <p role="status" className="mem-muted">Waiting for the current suggestion action before showing another part.</p>}
           {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={extractionBusy} onClick={() => { if (!extractionBusy) { setSuggest(false); load(excerpt.byteEnd); } }}>Next part</button>}
-          {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button type="button" className="mem-link" onClick={() => setSuggest(true)}>Suggest memories from this part…</button></>}
-          {suggest && <ExtractionPanel request={readPage} onBusyChange={setExtractionBusy} onClose={() => setSuggest(false)}
+          {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button ref={suggestControl} type="button" className="mem-link" onClick={() => setSuggest(true)}>Suggest memories from this part…</button></>}
+          {suggest && <ExtractionPanel request={readPage} onBusyChange={setExtractionBusy} onClose={() => {
+            focusAfterSuggest.current = { trigger: document.activeElement };
+            setSuggest(false);
+          }}
             range={{ sourceId: evidence.sourceId, revision: evidence.sourceRevision, start: excerpt.byteStart, end: excerpt.byteEnd }} />}
         </figure>
       )}
