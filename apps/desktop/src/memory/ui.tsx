@@ -241,19 +241,40 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
   const [suggest, setSuggest] = useState(false);
   const [extractionBusy, setExtractionBusy] = useState(false);
   const action = useLatestRead();
+  const readControl = useRef<HTMLButtonElement>(null);
+  const sourceText = useRef<HTMLPreElement>(null);
+  const focusAfterRead = useRef<{ trigger: Element | null } | null>(null);
   const excerpt = evidence.available && loaded && loaded.sourceId === evidence.sourceId && loaded.revision === evidence.sourceRevision ? loaded.page : null;
   useEffect(() => {
+    focusAfterRead.current = null;
     action.clear();
     setLoaded(null);
     setSuggest(false);
   }, [evidence.sourceId, evidence.sourceRevision, evidence.available, action.clear]);
+  useEffect(() => {
+    if (action.busy || action.pending.current || !focusAfterRead.current) return;
+    const { trigger } = focusAfterRead.current;
+    focusAfterRead.current = null;
+    if (document.activeElement === document.body || document.activeElement === trigger) {
+      (action.error ? readControl.current : sourceText.current)?.focus();
+    }
+  }, [excerpt, action.busy, action.error]);
   const load = (start: number | null) => {
     if (!evidence.available || extractionBusy) return;
+    focusAfterRead.current = { trigger: document.activeElement };
     const sourceId = evidence.sourceId;
     const revision = evidence.sourceRevision;
     setLoaded(null);
     void action.run(async () => sourceObservation(await readPage("source_excerpt", { sourceId, sourceRevision: revision, startByte: start, maxBytes: 4096 }), sourceId, revision),
       (page) => setLoaded({ sourceId, revision, page }));
+  };
+  const sourceError = action.error && {
+    ...action.error,
+    retry: action.error.retry ? () => {
+      if (action.pending.current || extractionBusy || !evidence.available) return;
+      focusAfterRead.current = { trigger: document.activeElement };
+      action.error?.retry?.();
+    } : undefined,
   };
   return (
     <li className="mem-evidence" aria-busy={action.busy}>
@@ -262,16 +283,16 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
         <span>r{evidence.sourceRevision}</span>
         <span>supports {evidence.supports}</span>
         {evidence.available ? <span>source available</span> : <Tag tone="warn">source missing</Tag>}
-        {evidence.available && <button type="button" className="mem-link" onClick={() => load(null)}>Show source</button>}
+        {evidence.available && <button ref={readControl} type="button" className="mem-link" onClick={() => load(null)}>Show source</button>}
       </div>
-      <ErrorBox error={action.error} />
+      <ErrorBox error={sourceError} />
       {action.busy && <p role="status" className="mem-muted">Reading the source…</p>}
       {excerpt && (
         <figure className="mem-figure">
           <figcaption className="mem-muted">
             {excerpt.sourceKind} · {excerpt.speakerRole} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions
           </figcaption>
-          <pre className="mem-source">{excerpt.excerpt}</pre>
+          <pre ref={sourceText} tabIndex={-1} aria-label="Source text" className="mem-source">{excerpt.excerpt}</pre>
           {extractionBusy && <p role="status" className="mem-muted">Waiting for the current suggestion action before showing another part.</p>}
           {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={extractionBusy} onClick={() => { if (!extractionBusy) { setSuggest(false); load(excerpt.byteEnd); } }}>Next part</button>}
           {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button type="button" className="mem-link" onClick={() => setSuggest(true)}>Suggest memories from this part…</button></>}
