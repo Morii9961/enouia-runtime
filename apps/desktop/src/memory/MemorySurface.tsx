@@ -485,6 +485,26 @@ function useStartedOperations() {
   return { ops, start, finish };
 }
 
+// An action disables its own control, which can blur it to the document,
+// and may remove it. Once the panel is idle, return to that control if it
+// remains, otherwise to the panel heading, unless focus has moved elsewhere.
+function useReturnFocus(idle: boolean) {
+  const trigger = useRef<HTMLElement | null>(null);
+  const pending = useRef(false);
+  useEffect(() => {
+    if (!idle || !pending.current) return;
+    pending.current = false;
+    const target = trigger.current;
+    trigger.current = null;
+    if (document.activeElement !== document.body && document.activeElement !== target) return;
+    (target?.isConnected ? target : document.getElementById("mem-center-title"))?.focus();
+  });
+  return useCallback(() => {
+    pending.current = true;
+    trigger.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+  }, []);
+}
+
 function Import() {
   const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
   const preview = selection?.preview;
@@ -495,12 +515,14 @@ function Import() {
   const [writeAction, setWriteAction] = useState(false);
   const action = useAction();
   const list = useLatestRead();
+  const returnFocus = useReturnFocus(!action.busy && !list.busy);
   const refresh = useCallback(() => void list.run(() => call("import_list"), (r) => setImports(r.items)), [list.run]);
   useEffect(refresh, [refresh]);
   const listReady = imports != null && !list.busy && !list.error;
   const cannotWrite = () => action.busy || list.pending.current || !!list.error || imports == null;
   const write = (commit: (key: string) => Promise<void>) => {
     if (cannotWrite()) return;
+    returnFocus();
     setWriteAction(true);
     void action.run(commit);
   };
@@ -523,6 +545,7 @@ function Import() {
           <p className="mem-muted">Choose an export file. The Core archives the original bytes and parses them; this page sees only the file name and size.</p>
           <div className="mem-actions">
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => {
+              returnFocus();
               setWriteAction(false);
               void action.run(async () => {
                 const p = await pick("import_file");
@@ -534,7 +557,7 @@ function Import() {
               });
             }}>Choose file…</button>
             <button type="button" className="mem-button" disabled={action.busy || list.busy} onClick={() => {
-              if (!action.busy && !list.pending.current) refresh();
+              if (!action.busy && !list.pending.current) { returnFocus(); refresh(); }
             }}>{list.error ? "Read import list again" : "Refresh import list"}</button>
           </div>
           <ErrorBox error={actionError} />
@@ -608,8 +631,10 @@ function VaultPanel() {
   const operations = useStartedOperations();
   const [restore, setRestore] = useState<J>(null);
   const action = useAction();
+  const returnFocus = useReturnFocus(!action.busy);
+  const act = (f: () => Promise<unknown>) => { returnFocus(); void action.run(f); };
   const v = status?.vault ?? {};
-  const after = (f: () => Promise<unknown>) => void action.run(async () => { await f(); await refresh(); });
+  const after = (f: () => Promise<unknown>) => act(async () => { await f(); await refresh(); });
   if (!status || v.state !== "open") {
     return (
       <>
@@ -632,13 +657,13 @@ function VaultPanel() {
             <dt>Last verified restore</dt><dd>not recorded (restore preview checks the backup only)</dd>
           </dl>
           <div className="mem-actions">
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => operations.start("index_rebuild", (await call("index_rebuild")).operationId))}>Rebuild index</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => operations.start("vault_verify", (await call("vault_verify")).operationId))}>Verify Vault</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => operations.start("index_rebuild", (await call("index_rebuild")).operationId))}>Rebuild index</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => operations.start("vault_verify", (await call("vault_verify")).operationId))}>Verify Vault</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => {
               const p = await pick("backup_destination");
               if (p) operations.start("backup_export", (await call("backup_export", { destinationToken: p.token })).operationId);
             })}>Back up to an empty folder…</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => {
               const p = await pick("export_folder");
               if (p) {
                 setRestore(null);
