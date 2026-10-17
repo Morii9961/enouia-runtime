@@ -112,12 +112,19 @@ export default class App extends React.Component<AppProps, AppState> {
     if (memory.kind !== 'session_checkpoint' || !memory.covered || !memory.lastState || !memory.openLoops) throw new Error('Invalid demo checkpoint.');
     return { ...memory, covered: memory.covered, lastState: memory.lastState, openLoops: memory.openLoops };
   }
-  go(p: Page) { if (this.PAGES.includes(p)) this.setState({ page: p, memInitialCollection: 'current', editing: false, copied: false, notice: '' }); }
+  // Leaving a surface removes the control that held focus. Continue in the
+  // new surface rather than the document; focus kept elsewhere stays there.
+  show<K extends keyof AppState>(patch: Pick<AppState, K>) {
+    this.setState(patch, () => {
+      if (!document.activeElement || document.activeElement === document.body) document.getElementById('runtime-content')?.focus();
+    });
+  }
+  go(p: Page) { if (this.PAGES.includes(p)) this.show({ page: p, memInitialCollection: 'current', editing: false, copied: false, notice: '' }); }
   select(k: string) { this.setState({ sel: k, editing: false, notice: '', copied: false }); }
   openMemory(k: string) {
     const m = this.byKey(k); if (!m) return;
     const col = m.status === 'candidate' ? 'candidates' : m.status === 'superseded' ? 'superseded' : 'all';
-    this.setState({ page: 'memory', collection: col, sel: k, editing: false, notice: '', q: '' });
+    this.show({ page: 'memory', collection: col, sel: k, editing: false, notice: '', q: '' });
   }
   now() { return new Date().toISOString(); }
 
@@ -231,7 +238,7 @@ export default class App extends React.Component<AppProps, AppState> {
       else why = 'This came from an import on ' + D.tDate(srcAt) + '. The raw file is identified by its hash, not its path.';
       const R = (k: string, v: string, kind: 'p' | 'm' | 'l', onClick?: () => void, sub?: string): DetailRow => ({ k, v, sub, isPlain: kind === 'p', isMono: kind === 'm', isLink: kind === 'l', onClick });
       const prov = [R('Source', SRC[m.src.kind], 'p'), R('Source ID', D.ID('src', m.key), 'm')];
-      if (s) { prov.push(R('Session', s.id, 'l', () => this.setState({ page: 'sessions', sessionKey: s.key }))); prov.push(R('Turn', m.src.t + ' · ' + D.ID('turn', s.key + m.src.t), 'm')); }
+      if (s) { prov.push(R('Session', s.id, 'l', () => this.show({ page: 'sessions', sessionKey: s.key }))); prov.push(R('Turn', m.src.t + ' · ' + D.ID('turn', s.key + m.src.t), 'm')); }
       if (m.src.kind === 'import') { prov.push(R('Importer', m.src.importer ?? 'unknown', 'm')); prov.push(R('Raw SHA-256', m.src.sha ?? 'unknown', 'm')); }
       prov.push(R('Source created', D.tFull(srcAt), 'p'));
       if (isC) prov.push(R('Candidate', D.ID('cand', m.key), 'm'));
@@ -271,7 +278,7 @@ export default class App extends React.Component<AppProps, AppState> {
         if (it.mem) { const mm = this.requireMemory(it.mem, D.MEM); text = mm.content; srcLabel = KIND[mm.kind] + ' · ' + SRC[mm.src.kind]; ref = D.short(memId(mm));
           trace = [T('Source memory', memId(mm), 'l', () => this.openMemory(mm.key)), T('Source record', D.ID('src', mm.key) + ' · ' + mm.src.kind, 'm'), T('Capsule field', sec.field.split(' · ')[sec.key === 'events' && mm.kind !== 'session_checkpoint' ? 1 : 0], 'm'), T('Inclusion reason', it.reason, 'p'), T('Retrieval rank', it.rank != null ? String(it.rank) : 'not ranked · section rule', 'm'), T('Admitted', 'whole record · ' + it.bytes + ' B', 'm')]; }
         else if (it.turn) { const ss = sess(it.turn[0]); const tt = ss.turns[it.turn[1] - 1]; text = (tt[0] === 'user' ? 'You: ' : 'Enouia: ') + tt[1]; srcLabel = 'Turn ' + it.turn[1]; ref = D.short(D.ID('turn', ss.key + it.turn[1]));
-          trace = [T('Session', ss.id, 'l', () => this.setState({ page: 'sessions', sessionKey: ss.key })), T('Turn', D.ID('turn', ss.key + it.turn[1]), 'm'), T('Role · time', tt[0] + ' · ' + D.tFull(tt[2]), 'p'), T('Inclusion reason', it.reason, 'p'), T('Admitted', 'exact content · ' + it.bytes + ' B', 'm')]; }
+          trace = [T('Session', ss.id, 'l', () => this.show({ page: 'sessions', sessionKey: ss.key })), T('Turn', D.ID('turn', ss.key + it.turn[1]), 'm'), T('Role · time', tt[0] + ' · ' + D.tFull(tt[2]), 'p'), T('Inclusion reason', it.reason, 'p'), T('Admitted', 'exact content · ' + it.bytes + ' B', 'm')]; }
         else if (it.loop) { text = it.loop; srcLabel = 'Open loop'; ref = 'from ' + (it.from ?? []).map((k) => D.short(D.ID('mem', k))).join(', ');
           trace = (it.from ?? []).map((k) => T('Derived from', D.ID('mem', k), 'l', () => this.openMemory(k))).concat([T('Inclusion reason', it.reason, 'p'), T('Size', 'counted in capsule metadata', 'p')]); }
         else if (it.file) { srcLabel = 'Identity file'; ref = it.file; trace = [T('File', it.file, 'm'), T('Allowlist', 'core.md · runtime_rules.md', 'm'), T('Inclusion reason', it.reason, 'p'), T('Admitted', 'whole file · ' + it.bytes + ' B', 'm')]; }
@@ -319,7 +326,7 @@ export default class App extends React.Component<AppProps, AppState> {
       const open = S.actOpen === a.k; const fail = a.title === 'Collection incomplete';
       return { key: a.k, time: D.tTime(a.at), title: a.title, text: a.text, origin: CAT[a.cat][0], color: fail ? '#D8BC8A' : CAT[a.cat][1], open, bg: open ? '#111820' : 'transparent', chev: open ? 'rotate(90deg)' : 'none', toggle: () => this.setState({ actOpen: open ? null : a.k }),
         details: [{ k: 'at', v: a.at }].concat(a.details.map(([k, v]) => ({ k, v }))), hasLink: !!a.link, linkLabel: a.link ? a.link[2] : '',
-        onLink: () => { if (!a.link) return; const [p, key] = a.link; if (p === 'memory' && key) this.openMemory(key); else if (p === 'sessions' && key) this.setState({ page: 'sessions', sessionKey: key }); else this.go(p); } };
+        onLink: () => { if (!a.link) return; const [p, key] = a.link; if (p === 'memory' && key) this.openMemory(key); else if (p === 'sessions' && key) this.show({ page: 'sessions', sessionKey: key }); else this.go(p); } };
     };
     type ActivityDay = { key: string; label: string; items: ReturnType<typeof activityRow>[] };
     const dmap: Record<string, ActivityDay> = {}; const actDays: ActivityDay[] = [];
