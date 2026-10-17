@@ -582,7 +582,12 @@ function Import() {
 
 function VaultPanel() {
   const { status, refresh } = useStatus();
-  const [op, setOp] = useState<string | null>(null);
+  // Each started operation keeps its watcher, Cancel and result. A newer run
+  // of one kind supersedes only that kind's finished result.
+  const [ops, setOps] = useState<{ id: string; kind: string; done: boolean }[]>([]);
+  const setOp = (kind: string) => (id: string) => setOps((current) => [
+    ...current.filter((op) => op.id !== id && !(op.kind === kind && op.done)), { id, kind, done: false },
+  ]);
   const [restore, setRestore] = useState<J>(null);
   const action = useAction();
   const v = status?.vault ?? {};
@@ -609,11 +614,11 @@ function VaultPanel() {
             <dt>Last verified restore</dt><dd>not recorded (restore preview checks the backup only)</dd>
           </dl>
           <div className="mem-actions">
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => setOp((await call("index_rebuild")).operationId))}>Rebuild index</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => setOp((await call("vault_verify")).operationId))}>Verify Vault</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => setOp("index_rebuild")((await call("index_rebuild")).operationId))}>Rebuild index</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => setOp("vault_verify")((await call("vault_verify")).operationId))}>Verify Vault</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("backup_destination");
-              if (p) setOp((await call("backup_export", { destinationToken: p.token })).operationId);
+              if (p) setOp("backup_export")((await call("backup_export", { destinationToken: p.token })).operationId);
             })}>Back up to an empty folder…</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("export_folder");
@@ -630,7 +635,10 @@ function VaultPanel() {
             </p>
           )}
           <ErrorBox error={action.error} />
-          {op && <Operation key={op} id={op} onDone={() => void refresh()} />}
+          {ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => {
+            setOps((current) => current.map((o) => o.id === op.id ? { ...o, done: true } : o));
+            void refresh();
+          }} />)}
           {restore && (
             <div className="mem-card"><p style={{ margin: 0 }}>
               Backup is valid: commit #{restore.sequence} ({shortId(restore.commitId)}), {restore.files} files, {restore.sameVaultAsOpen ? "same Vault as the open one" : "from another Vault"}. An actual restore runs in the Memory CLI into an empty folder (<code>restore</code>).
