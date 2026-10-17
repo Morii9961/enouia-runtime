@@ -462,12 +462,23 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   );
 }
 
+// Operations can overlap. Each started one keeps its watcher, Cancel and
+// result; a newer run of one kind supersedes only that kind's finished result.
+function useStartedOperations() {
+  const [ops, setOps] = useState<{ id: string; kind: string; done: boolean }[]>([]);
+  const start = useCallback((kind: string, id: string) => setOps((current) => [
+    ...current.filter((op) => op.id !== id && !(op.kind === kind && op.done)), { id, kind, done: false },
+  ]), []);
+  const finish = useCallback((id: string) => setOps((current) => current.map((op) => op.id === id ? { ...op, done: true } : op)), []);
+  return { ops, start, finish };
+}
+
 function Import() {
   const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
   const preview = selection?.preview;
   const [alias, setAlias] = useState("acct-main");
   const aliasValid = validImportAlias(alias);
-  const [op, setOp] = useState<string | null>(null);
+  const operations = useStartedOperations();
   const [imports, setImports] = useState<J[] | null>(null);
   const [writeAction, setWriteAction] = useState(false);
   const action = useAction();
@@ -537,7 +548,7 @@ function Import() {
                   if (interrupted || duplicateUnknown || !validImportAlias(alias)) return;
                   write(async (key) => {
                     const started = await call("import_start", { importToken: selection.picked.token, accountAlias: alias }, key);
-                    setOp(started.operationId);
+                    operations.start("import", started.operationId);
                     setSelection(null);
                   });
                 }}>Start import</button>
@@ -545,7 +556,7 @@ function Import() {
               <p id="mem-alias-help" className={aliasValid ? "mem-muted" : "mem-warn"}>Use 1–64 lowercase English letters, digits, _ or -. Start with a letter or digit.</p>
             </div>
           )}
-          {op && <Operation key={op} id={op} onDone={refresh} />}
+          {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); refresh(); }} />)}
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
             <tbody>
@@ -561,7 +572,7 @@ function Import() {
                       const accountAlias = m.accountScope ?? alias;
                       if (!validImportAlias(accountAlias)) return;
                       write(async (key) => {
-                        setOp((await call("import_resume", { importId: m.importId, accountAlias }, key)).operationId);
+                        operations.start("import", (await call("import_resume", { importId: m.importId, accountAlias }, key)).operationId);
                         setSelection(null);
                       });
                     }}>Resume</button>
@@ -582,12 +593,7 @@ function Import() {
 
 function VaultPanel() {
   const { status, refresh } = useStatus();
-  // Each started operation keeps its watcher, Cancel and result. A newer run
-  // of one kind supersedes only that kind's finished result.
-  const [ops, setOps] = useState<{ id: string; kind: string; done: boolean }[]>([]);
-  const setOp = (kind: string) => (id: string) => setOps((current) => [
-    ...current.filter((op) => op.id !== id && !(op.kind === kind && op.done)), { id, kind, done: false },
-  ]);
+  const operations = useStartedOperations();
   const [restore, setRestore] = useState<J>(null);
   const action = useAction();
   const v = status?.vault ?? {};
@@ -614,11 +620,11 @@ function VaultPanel() {
             <dt>Last verified restore</dt><dd>not recorded (restore preview checks the backup only)</dd>
           </dl>
           <div className="mem-actions">
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => setOp("index_rebuild")((await call("index_rebuild")).operationId))}>Rebuild index</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => setOp("vault_verify")((await call("vault_verify")).operationId))}>Verify Vault</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => operations.start("index_rebuild", (await call("index_rebuild")).operationId))}>Rebuild index</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => operations.start("vault_verify", (await call("vault_verify")).operationId))}>Verify Vault</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("backup_destination");
-              if (p) setOp("backup_export")((await call("backup_export", { destinationToken: p.token })).operationId);
+              if (p) operations.start("backup_export", (await call("backup_export", { destinationToken: p.token })).operationId);
             })}>Back up to an empty folder…</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => void action.run(async () => {
               const p = await pick("export_folder");
@@ -635,10 +641,7 @@ function VaultPanel() {
             </p>
           )}
           <ErrorBox error={action.error} />
-          {ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => {
-            setOps((current) => current.map((o) => o.id === op.id ? { ...o, done: true } : o));
-            void refresh();
-          }} />)}
+          {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); void refresh(); }} />)}
           {restore && (
             <div className="mem-card"><p style={{ margin: 0 }}>
               Backup is valid: commit #{restore.sequence} ({shortId(restore.commitId)}), {restore.files} files, {restore.sameVaultAsOpen ? "same Vault as the open one" : "from another Vault"}. An actual restore runs in the Memory CLI into an empty folder (<code>restore</code>).
