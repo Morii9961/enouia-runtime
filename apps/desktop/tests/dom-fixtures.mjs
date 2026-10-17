@@ -11,7 +11,7 @@ const baseline = process.argv.includes('--settings-baseline') || operationBaseli
 const details = process.argv.includes('--details');
 const fixtures = ['settings-exit-ownership', 'home-status-observation', 'memory-lifecycle-gate',
   'operation-stop-observation', 'operation-observation', 'operation-cancel', 'inbox-retry-ownership',
-  'import-alias-admission', 'import-observation', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
+  'import-alias-admission', 'import-observation', 'import-operations', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
   'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume',
   'candidate-paging', 'memory-inspector-identity', 'memory-forget-focus', 'vault-operations', 'context-observation', 'saved-mock-context', 'saved-context-focus',
   'session-observation', 'session-list-recovery', 'session-id-filter', 'session-history-boundary', 'session-event-metadata',

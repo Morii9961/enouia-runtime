@@ -1,0 +1,11 @@
+# Overlapping import watchers
+
+Date: 2026-10-17 (Asia/Shanghai). Baseline `f1776a712e7625d7eb68f391470a73d8d8d175c1`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The Import panel had the same single operation slot as Vault & recovery before [its fix](Vault-operations-v1.md). Choose file and Start import wait only for their own calls, so a second import can start while the first is running. That removed the first import's watcher and its Cancel control. Because the import list is refreshed when a watched operation finishes, the first import's completion also no longer refreshed the list, which kept showing it as `parsing`.
+
+The new 6-assertion `import-operations` journey opens the actual Import route with synthetic IPC and picker tokens. On the unchanged panel it passed **3/6**. The three failures were the lost first watcher, its missing Cancel and the missing list refresh after it completed. Both panels now share one small hook. Every started operation keeps its watcher, and a newer run of the same kind supersedes only that kind's finished feedback. Import start and resume count as one kind, because the list holds each import's lasting result. Start/resume payloads and keys, duplicate and interrupted-import admission, picker use and cancellation are unchanged. The existing 21-assertion import observation journey and the Vault operations journey still pass.
+
+Fresh checks pass: 98 Node/frontend tests; 51 DOM fixtures with 700 assertions, including the 6 new ones; TypeScript and strict typing of the new fixture; runner syntax; web build; desktop no-bundle release build (compile 24.43 seconds); domain/pin guards with seven/eight negative checks; diff checks. Native sources, dependencies and the pin are unchanged, so earlier native test, Clippy and format evidence is reused from the reports cited by [the conflict focus slice](Candidate-conflict-focus-v1.md).
+
+All imports, operations and timing are synthetic in Happy DOM. The Core's real handling of concurrent imports, real picker files, WebView2 rendering, Narrator announcements and Morii acceptance are not established here. No personal Vault, personal import, Provider HTTP, credentials, Activity activation, startup, installer or status snapshot was used. Owner changes remain preserved.
