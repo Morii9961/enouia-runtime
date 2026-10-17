@@ -55,6 +55,11 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
   const idFilterInput = useRef<HTMLInputElement>(null);
   const checkpointInput = useRef<HTMLInputElement>(null);
   const focusAfterWrite = useRef<{ target: "question" | "checkpoint"; trigger: Element | null } | null>(null);
+  // Reads disable their controls, which can blur them to the document.
+  // Return to the control that started the read once reads settle.
+  const focusAfterRead = useRef<HTMLElement | null>(null);
+  const sessionHeading = useRef<HTMLHeadingElement>(null);
+  const readFrom = (trigger: HTMLElement, read: () => void) => { focusAfterRead.current = trigger; read(); };
   const selectedBranch = useRef<string | null>(null);
   const drafts = useRef(new Map<string, { text: string; summary: string }>());
   const branchKey = (b: Branch) => `${b.sessionId}:${b.branchId}`;
@@ -118,6 +123,13 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
       (target === "question" ? questionInput.current : checkpointInput.current)?.focus();
     }
   }, [busy]);
+  useEffect(() => {
+    const trigger = focusAfterRead.current;
+    if (!trigger || busy || listRead.busy || detailRead.pending.current || listRead.pending.current) return;
+    focusAfterRead.current = null;
+    if (document.activeElement !== document.body && document.activeElement !== trigger) return;
+    (trigger.isConnected ? trigger : sessionHeading.current)?.focus();
+  }, [busy, listRead.busy]);
   return (
     <section data-screen-label="Sessions" className="mem-sessions">
       <aside className="qr28" aria-label="Sessions" aria-busy={listRead.busy || (sessions == null && !listRead.error)}>
@@ -127,8 +139,8 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
         </div>
         <div className="qr20">
           <button type="button" className="mem-button" disabled={busy || listRead.busy}
-            onClick={() => {
-              if (!writing.current && !externalWriting.current && !suggestionWriting.current && !listRead.pending.current && !detailRead.pending.current) void list();
+            onClick={(e) => {
+              if (!writing.current && !externalWriting.current && !suggestionWriting.current && !listRead.pending.current && !detailRead.pending.current) readFrom(e.currentTarget, () => void list());
             }}>{listRead.error ? "Read session list again" : "Refresh session list"}</button>
           <button type="button" className="mem-button mem-primary" disabled={writesBlocked || listRead.busy}
             onClick={() => write("question", async (key) => {
@@ -161,7 +173,7 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
                 aria-label={`Session ${shortId(s.sessionId)} · branch ${shortId(b.branchId)} · ${when(s.updatedAt)} · ${b.lastEventSeq} ${b.lastEventSeq === 1 ? "event" : "events"}`}
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
-                onClick={() => { if (!writing.current && !externalWriting.current && !suggestionWriting.current) void open({ sessionId: s.sessionId, branchId: b.branchId }); }}>
+                onClick={(e) => { if (!writing.current && !externalWriting.current && !suggestionWriting.current) readFrom(e.currentTarget, () => void open({ sessionId: s.sessionId, branchId: b.branchId })); }}>
                 <span className="mem-session-identity mem-mono">Session {shortId(s.sessionId)} · Branch {shortId(b.branchId)}</span>
                 <span className="mem-session-row-meta">
                   <span className="qr24">{when(s.updatedAt)}</span>
@@ -176,13 +188,13 @@ export function Sessions({ inspect, reviewCandidates, request = call }: { inspec
       <div className="qr45" aria-label="Session transcript" aria-busy={busy}>
         <div className="qr31">
           <div className="mem-session-heading">
-            <h2 className="qr29" tabIndex={-1} title={current?.sessionId}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
+            <h2 ref={sessionHeading} className="qr29" tabIndex={-1} title={current?.sessionId}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
             {current && <div className="mem-muted mem-mono" title={current.branchId}>Branch {shortId(current.branchId)}</div>}
           </div>
           {detail && <div className="qr19">last saved event {detail.lastSavedEventId ? shortId(detail.lastSavedEventId) : "none"}</div>}
           <div className="qr30" />
           {(requested || current) && <button type="button" className="mem-button" disabled={busy}
-            onClick={() => { const target = detailRead.error ? requested : current; if (target) void open(target); }}>
+            onClick={(e) => { const target = detailRead.error ? requested : current; if (target) readFrom(e.currentTarget, () => void open(target)); }}>
             {detailRead.error ? "Read session again" : "Refresh saved session"}
           </button>}
         </div>
