@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0",
+  "project_id": "enouia.runtime",
+  "project_name": "Enouia Runtime",
+  "snapshot_at": "2026-10-17T16:33:15+08:00",
+  "source": {
+    "branch": "main",
+    "commit_sha": "3e6f1614fd101efa700ef0a0855c9ad9cd8cc783",
+    "basis": [
+      "AGENTS.md、Enouia_Runtime_Architecture_v0.3.md、docs/IMPLEMENTATION_PLAN_v0.3.md 与 docs/adr/README.md：当前授权和既有路线；Memory 领域由独立仓库负责，Activity 独立。",
+      "docs/MEMORY_INTEGRATION_v1.md 与 docs/integration/memory-pin.json：Memory 固定 8186aed861af08cf7a2c5d8c912a24eae51b4d66，workspace IPC v1 共 47 条命令。",
+      "docs/validation/Frontend-dom-regressions-v1.md 及同名 JSON：开发阶段此前保存的 98 项 Node 测试、48 个 DOM 模拟用例共 677 项断言通过；不是快照阶段新跑，不代表实际浏览器/Windows/Provider 验收。",
+      "docs/validation/Candidate-conflict-focus-v1.md：其产品源码基线的普通 release 构建（24.54 秒）、pin/领域检查及复用原生证据；之后只改测试入口和文档，不重复构建。",
+      "docs/validation/Memory-source-focus-v1.md、Source-suggestion-focus-v1.md、Candidate-conflict-focus-v1.md：来源、建议关闭和冲突读取的局部模拟焦点证据及原始基线。",
+      "docs/validation/Desktop-stack-integration-2026-10-07.md：旧版本合成环境完整冒烟 101/101，不能当作当前完整原生复验或个人验收。",
+      "docs/validation/Memory-pin-mv7-2026-10-11.md 与 docs/adr/032-memory-native-provider-setup.md：历史接入/局部验证，真实凭据、HTTPS、Provider、个人工作流仍待验收。",
+      "docs/validation/B4-coverage.md：保存的 77 份记录、1543 个选择器；C01–C18 仍全部 partial，J1/B4 未签收、B5 未激活，未重跑覆盖检查。",
+      "docs/PROVIDER_RUNTIME_HANDOFF_2026-10-17.md 与 docs/prompts/CLAUDE_RUNTIME_START_2026-10-17.md：当前交接、owner 文件与其他 worktree 保护、验收边界及后续授权门槛。",
+      "本地 main 与 origin/main 已核对同为 3e6f1614fd101efa700ef0a0855c9ad9cd8cc783，包含 PR #65–68；这是写快照前读取的代码基线，不是随后文档提交。",
+      "沿用 2026-10-11 的 provisional self_report 工程估算 65（区间 60–70）。范围：当前 Runtime 本地路线、固定 Memory 集成、Windows 桌面及 Activity 验收/启用；不含 Memory 后续 MCP、网关与副本。权重/判断得分：功能实现 50/45、局部联调 25/20、真实验收与生产启用 25/0。该口径未获 Morii 确认，不是测量值、通过率、人类验收比例、统计区间或剩余工时；本轮没有按 PR/代码数量提高进度。",
+      "本次快照阶段仅整理已保存证据并检查格式/引用，不运行测试、构建、部署或连接 Dashboard；按 Morii 最新要求，完成文档交付后停止。"
+    ],
+    "tests_rerun": false
+  },
+  "stage": "integration",
+  "summary": "集成阶段；沿用临时工程估算约65%（self_report，区间60–70%，非验收率）。前端回归已合并并有98项测试、677项DOM断言的保存证据；真实模型、Windows及J1/B4仍待验收，B5未激活。本次仅整理快照，交付后停止。",
+  "overall_progress": 65,
+  "milestones": [
+    {
+      "id": "desktop_local",
+      "title": "桌面启动与基础功能（合成环境）",
+      "status": "done",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "docs/FRONTEND_IMPLEMENTATION_v1.md：七个页面、托盘与快捷搜索；浏览器及 Runtime Inspector 的虚构边界",
+        "docs/validation/Desktop-stack-integration-2026-10-07.md：该历史版本合成环境完整冒烟 101/101，unsigned 安装包；不覆盖最新版本完整复验、实机日常使用和全部 Windows 验收",
+        "docs/validation/Activity-claude-pr29-merge/activity-default.json：合并桌面版本局部 Activity 验证 29/29",
+        "docs/validation/Candidate-conflict-focus-v1.md：最近产品 release 构建通过；不是完整 Windows 验收。",
+        "docs/validation/Frontend-dom-regressions-v1.json：98 项 Node 测试、48 个 DOM 用例及 677 项断言的保存记录。"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "memory_workflow_local",
+      "title": "Memory 会话与上下文本地闭环（合成环境）",
+      "status": "done",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "docs/validation/Desktop-stack-integration-2026-10-07.md：审阅、导入、Mock 回答与实际上下文、会话及重启读取；合成环境证据",
+        "docs/validation/Activity-claude-pr29-merge/memory-sessions-only.json：19/19",
+        "docs/validation/Activity-claude-pr29-merge/memory-source-paging-only.json：16/16",
+        "docs/validation/Activity-claude-pr29-merge/memory-session-writes-only.json：21/21",
+        "docs/validation/Frontend-dom-regressions-v1.md：保存的 Session/Context/候选/来源/建议回归，全部为模拟 IPC，不代表个人工作流。"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "memory_mv7_integration",
+      "title": "Memory MV-7 接入与局部回归",
+      "status": "done",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "docs/integration/memory-pin.json：8186aed861af08cf7a2c5d8c912a24eae51b4d66，workspace IPC v1 的 47 个命令",
+        "docs/validation/Memory-pin-mv7-2026-10-11.md：固定版本一致性及局部合成验证，完整冒烟受前台占用限制",
+        "docs/validation/Activity-claude-pr29-merge-2026-10-11.md：与 Activity 加固合并后的成品局部回归；完整 Memory 冒烟未运行",
+        "Git 36c65421e46a5bdf76b63b2635585a277e3e3f45：合并 PR #30；Git a07291e4d89ec416d81cd02566d36226ce8a6bf6：合并 PR #29",
+        "docs/MEMORY_INTEGRATION_v1.md：当前采用固定 8186aed、47 条命令；PR #65–68 未改 pin 或领域协议。"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "live_provider",
+      "title": "真实模型对话与来源提取",
+      "status": "in_progress",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "docs/adr/032-memory-native-provider-setup.md：实现已采用，缺少 owner 配置时关闭；真实使用仍待验收",
+        "docs/validation/Memory-pin-mv7-2026-10-11.md：Sessions 外部模型面板和来源提取流程已有实现及局部测试；成品配置、凭据弹窗、Credential Manager、HTTPS 和真实 Provider/提取未验证",
+        "docs/validation/Frontend-dom-regressions-v1.md：准备/发送/确认/提取恢复仍仅用模拟回执，未调用真实 Provider。"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "tools_experience",
+      "title": "通用工具执行与实际体验",
+      "status": "unknown",
+      "evidence_level": "repository",
+      "evidence_refs": [
+        "Enouia_Runtime_Architecture_v0.3.md：未来工具/MCP 路线；ADR-025 将 Memory Host/MCP 归于 Memory 的后续阶段",
+        "docs/adr/README.md：ADR-005 的 Activity 采集工具边界与 ADR-009 的后续 Memory Host/MCP 不等于已完成通用对话工具执行或实际体验验收；现有依据不足以确认完成状态"
+      ],
+      "human_acceptance": "unknown"
+    },
+    {
+      "id": "windows_acceptance",
+      "title": "Windows W01–W05 与正式分发验收",
+      "status": "in_progress",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "docs/MEMORY_INTEGRATION_v1.md：Runtime-hosted W01–W05 为 partial；签名、真实存储错误、个人工作流、Narrator、真实对比主题、实际登录启动与物理托盘菜单仍待验收。",
+        "docs/validation/Desktop-stack-integration-2026-10-07.md：旧版合成环境完整冒烟与 unsigned 安装包，不是当前个人安装/升级/卸载验收。",
+        "docs/validation/Candidate-conflict-focus-v1.md 与 docs/validation/Frontend-dom-regressions-v1.md：最新产品构建和模拟组件回归；不证明最新组合的完整原生验收。"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "activity_acceptance",
+      "title": "Activity J1/B4 验收",
+      "status": "in_progress",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "docs/validation/B4-coverage.md：C01–C18 全部 partial；77 份既有记录、1543 个选择器并不代表签收",
+        "docs/validation/Activity-claude-pr29-merge-2026-10-11.md：Activity 与固定 Memory Core 的局部隔离证据；不含真实生产链路",
+        "docs/ACTIVITY_HANDOFF_2026-10-11.md：真实账号、SSH/部署发布链路、磁盘满/断电及桌面并发验证仍有门槛"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "activity_production",
+      "title": "Activity B5 生产切换",
+      "status": "blocked",
+      "evidence_level": "repository",
+      "evidence_refs": [
+        "docs/IMPLEMENTATION_PLAN_v0.3.md：B5 依赖 B4 与全部 operational gates；收集、上传、发布、页面、调度和回滚需分别有证据",
+        "docs/validation/B4-coverage.md 与 docs/ACTIVITY_HANDOFF_2026-10-11.md：J1/B4 未签收，B5 inactive；历史公共 HTTPS 失败与真实链路缺口尚缺生产证据闭合，不宣称当前可达性已核验"
+      ],
+      "human_acceptance": "pending"
+    }
+  ],
+  "blockers": [
+    {
+      "title": "真实日常使用与 Windows 验收证据不足",
+      "impact": "成品中的 Provider 凭据、HTTPS、来源提取和个人工作流尚未验收；通用工具体验未知，W01–W05 与签名仍缺，无法确认 Morii 的 v1 日常可用。"
+    },
+    {
+      "title": "Activity 生产前置门槛未关闭",
+      "impact": "J1/B4 未签收，真实账号、SSH/发布链路、公共观察可达性、存储故障与回滚证据仍缺；B5 保持未激活。"
+    }
+  ],
+  "next_actions": [
+    {
+      "title": "真实模型与 Memory 闭环验收",
+      "priority": "P0",
+      "result": "获单独授权后，按既有 MV-7 路线形成真实对话、来源提取、会话和上下文的成品端到端证据；本轮不执行。"
+    },
+    {
+      "title": "Windows 验收与分发缺口",
+      "priority": "P1",
+      "result": "获相应指令后补齐 W01–W05 实机、签名及安装/启动/托盘记录；模拟回归不代替真实验收。"
+    },
+    {
+      "title": "Activity 验收及生产前置门槛",
+      "priority": "P1",
+      "result": "获相应授权后补齐 J1/B4 的真实链路、持久性和回滚证据；门槛通过前 B5 保持未激活。"
+    }
+  ],
+  "needs_morii": [
+    {
+      "decision": "确认日常可用 v1 的验收清单、通用工具范围及临时工程估算口径；当前 overall_progress=65 是 Agent 判断，尚非 Morii 确认的验收度量，范围改变须重估，剩余工期未知。"
+    },
+    {
+      "decision": "决定后续 Claude 的具体切片及何时单独授权真实 Provider、个人 Vault 和 Activity 生产验收；本轮文档交付后停止，无后台同步。"
+    }
+  ]
+}
