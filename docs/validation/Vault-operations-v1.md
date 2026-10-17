@@ -1,0 +1,11 @@
+# Vault & recovery operation results
+
+Date: 2026-10-17 (Asia/Shanghai). Baseline `a9ed389189fdf7749dea2e05a318c0fb36af0ca9`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
+
+The Vault & recovery panel watched only the most recently started operation. Its start buttons wait only for the start call, so Verify Vault, Rebuild index and Back up can run together. Starting a second operation removed the first one's watcher: its progress, its Cancel control and its result disappeared from the panel. A Verify Vault result reporting integrity problems was therefore never shown if Rebuild index or a backup had started while Verify ran.
+
+The new 6-assertion `vault-operations` journey mounts the actual Memory surface with synthetic IPC and opens Vault & recovery. On the unchanged component it failed: once Rebuild index started, the running verification disappeared, and the later integrity verdict never appeared (the journey timed out waiting for it). Now every operation started from the panel keeps its own watcher. Starting another run of the same kind replaces only that kind's finished result. A running operation and other kinds' results stay visible. Start commands, picker use, cancellation, status refresh and result wording are unchanged.
+
+Fresh checks pass: 98 Node/frontend tests; 50 DOM fixtures with 694 assertions, including the 6 new ones; TypeScript and strict typing of the new fixture; runner syntax; web build; desktop no-bundle release build (compile 25.83 seconds); domain/pin guards with seven/eight negative checks; diff checks. Native sources, dependencies and the pin are unchanged, so earlier native test, Clippy and format evidence is reused from the reports cited by [the conflict focus slice](Candidate-conflict-focus-v1.md).
+
+All operations, progress and verdicts are synthetic in Happy DOM. The Core's real concurrency for these operations, WebView2 rendering, Narrator announcements, real damaged-Vault verification and Morii acceptance are not established here; the earlier controlled [integrity probe](Operation-results-v1.md) remains the native evidence for verdict display. No personal Vault, Provider HTTP, credentials, Activity activation, startup, installer or status snapshot was used. Owner changes remain preserved.
