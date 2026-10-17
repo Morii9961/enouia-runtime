@@ -302,7 +302,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
         <ErrorBox error={action.error} />
         {impact && (
           <p className="mem-card">
-            A purge removes {impact.targets.length} record{impact.targets.length === 1 ? "" : "s"} and {impact.objectCount} object{impact.objectCount === 1 ? "" : "s"}; {impact.losingProvenance.length} other memor{impact.losingProvenance.length === 1 ? "y" : "ies"} would lose evidence.
+            A purge removes {impact.targets.length} record{impact.targets.length === 1 ? "" : "s"} and {impact.objectCount} object{impact.objectCount === 1 ? "" : "s"}; {impact.losingProvenance.length} other memor{impact.losingProvenance.length === 1 ? "y" : "ies"} would lose a recorded source (cited evidence or read context).
           </p>
         )}
       </div>
