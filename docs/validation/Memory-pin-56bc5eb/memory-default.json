@@ -1,0 +1,521 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "D.no_default_root",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.vault_folder_picker",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W04.folder_picker_keeps_path_native",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.process_termination_releases_root",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "S.badge_states_memory_and_inspector",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "S.home_reads_status",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.plan_shows_exact_text",
+      "ok": true,
+      "detail": "Confirm (98294ca6)"
+    },
+    {
+      "id": "W01.review_commit",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.shortcut_inert_under_dialog",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W04.text_only_rendering",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.source_visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.correction_is_a_candidate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.retry_reuses_its_key",
+      "ok": true,
+      "detail": "0 -> 1"
+    },
+    {
+      "id": "W02.paging_load_more",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.import_via_native_picker",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W04.no_paths_in_page",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.cancel_is_cancelled",
+      "ok": true,
+      "detail": "clicked"
+    },
+    {
+      "id": "W02.reimport_points_to_resume",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.resume_completes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.answer_from_local_mock",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.focus_follows_inspect",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.inspect_actual_request",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C.preview_not_sent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W04.quick_search_finds",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W04.quick_search_denies_remember",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "W04.quick_search_denies_review_confirm",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "W04.quick_search_denies_forget_plan",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "W04.quick_search_denies_vault_lock",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "W04.quick_search_denials_do_not_write",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W04.quick_search_denies_memory_pick",
+      "ok": true,
+      "detail": "{\"err\":\"Command memory_pick not allowed by ACL\"}"
+    },
+    {
+      "id": "W04.quick_search_denies_exit_app",
+      "ok": true,
+      "detail": "{\"err\":\"Command exit_app not allowed by ACL\"}"
+    },
+    {
+      "id": "W04.quick_search_denies_startup_set",
+      "ok": true,
+      "detail": "{\"err\":\"Command startup_set not allowed by ACL\"}"
+    },
+    {
+      "id": "W05.hotkey_opens_quick_search",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.quick_search_shows_empty",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.escape_hides_and_clears",
+      "ok": true,
+      "detail": "hidden true, cleared true"
+    },
+    {
+      "id": "W02.rebuild_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.lock_refuses",
+      "ok": true,
+      "detail": "{\"code\":\"vault_locked\",\"retryable\":true,\"rules\":[\"workspace.locked\"]}"
+    },
+    {
+      "id": "W03.quick_search_refused_while_locked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.create_via_folder_picker",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.open_via_folder_picker",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W04.no_fs_plugin",
+      "ok": true,
+      "detail": "Command plugin:fs|read_text_file not allowed by ACL"
+    },
+    {
+      "id": "W04.no_shell_plugin",
+      "ok": true,
+      "detail": "Command plugin:shell|execute not allowed by ACL"
+    },
+    {
+      "id": "W04.path_refused_as_token",
+      "ok": true,
+      "detail": "{\"err\":\"root_token_unavailable\"}"
+    },
+    {
+      "id": "W04.unknown_pick_kind",
+      "ok": true,
+      "detail": "{\"ok\":{\"error\":{\"code\":\"invalid_request\",\"retryable\":false,\"rules\":[\"workspace.pick_kind\"]}}}"
+    },
+    {
+      "id": "W04.remote_fetch_blocked",
+      "ok": true,
+      "detail": "blocked"
+    },
+    {
+      "id": "W05.hotkey_registered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "S.settings_vault_status",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.startup_status_readonly",
+      "ok": true,
+      "detail": "{\"ok\":{\"enabled\":false,\"state\":\"disabled\",\"supported\":true}}"
+    },
+    {
+      "id": "W05.startup_value_unchanged",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "S.shell_status",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "A.activity_native_gate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "A.inspector_labelled_fictional",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.autostart_initially_hidden",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.autostart_ignores_vault_argument",
+      "ok": true,
+      "detail": "none"
+    },
+    {
+      "id": "W05.hotkey_conflict_reported",
+      "ok": true,
+      "detail": "{\"combo\":\"Ctrl+Alt+Q\",\"state\":\"conflict\"}"
+    },
+    {
+      "id": "W05.tray_start_can_show",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.compatibility_show_main",
+      "ok": true,
+      "detail": "{\"ok\":null}"
+    },
+    {
+      "id": "W05.compatibility_exit",
+      "ok": true,
+      "detail": "exit 0"
+    },
+    {
+      "id": "W03.close_hides_to_tray",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.hidden_core_stays_open",
+      "ok": true,
+      "detail": "\"open\""
+    },
+    {
+      "id": "W03.main_restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.hotkey_registered",
+      "ok": true,
+      "detail": "{\"combo\":\"Ctrl+Alt+Q\",\"state\":\"registered\"}"
+    },
+    {
+      "id": "Q.os_hotkey_opens_search",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.approved_search",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.text_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.scope_workspace_status",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "Q.scope_memory_list",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "Q.scope_memory_detail",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "Q.scope_source_excerpt",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "Q.scope_remember",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "Q.scope_vault_lock",
+      "ok": true,
+      "detail": "{\"err\":\"permission_denied\"}"
+    },
+    {
+      "id": "Q.acl_memory_pick",
+      "ok": true,
+      "detail": "{\"err\":\"Command memory_pick not allowed by ACL\"}"
+    },
+    {
+      "id": "Q.acl_shell_status",
+      "ok": true,
+      "detail": "{\"err\":\"Command shell_status not allowed by ACL\"}"
+    },
+    {
+      "id": "Q.acl_shell_search",
+      "ok": true,
+      "detail": "{\"err\":\"Command shell_search not allowed by ACL\"}"
+    },
+    {
+      "id": "Q.acl_shell_exit",
+      "ok": true,
+      "detail": "{\"err\":\"Command shell_exit not allowed by ACL\"}"
+    },
+    {
+      "id": "Q.edit_discards_delayed_result",
+      "ok": true,
+      "detail": "{\"query\":\"new query\",\"rows\":0,\"error\":false,\"focused\":true,\"trace\":[{\"name\":\"before-set\",\"focused\":true,\"at\":1792228684673},{\"name\":\"after-set\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228684674},{\"name\":\"after-submit\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228684676},{\"name\":\"before-set\",\"focused\":true,\"at\":1792228684857},{\"name\":\"after-set\",\"query\":\"<img src=x\",\"focused\":true,\"at\":1792228684859},{\"name\":\"after-submit\",\"query\":\"<img src=x\",\"focused\":true,\"at\":1792228684861}]}"
+    },
+    {
+      "id": "Q.hide_discards_delayed_result",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_0_cleared_and_focused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_0_real_result",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_0_hide_clears",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_1_cleared_and_focused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_1_real_result",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_1_hide_clears",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_2_cleared_and_focused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.reopen_2_real_result",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.lock_clears_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.locked_error_visible",
+      "ok": true,
+      "detail": "[{\"name\":\"before-set\",\"focused\":true,\"at\":1792228684673},{\"name\":\"after-set\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228684674},{\"name\":\"after-submit\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228684676},{\"name\":\"before-set\",\"focused\":true,\"at\":1792228684857},{\"name\":\"after-set\",\"query\":\"<img src=x\",\"focused\":true,\"at\":1792228684859},{\"name\":\"after-submit\",\"query\":\"<img src=x\",\"focused\":true,\"at\":1792228684861},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228685666},{\"name\":\"blur\",\"query\":\"\",\"at\":1792228685672},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228685681},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228685994},{\"name\":\"focus\",\"query\":\"\",\"at\":1792228686007},{\"name\":\"before-set\",\"focused\":true,\"at\":1792228686017},{\"name\":\"after-set\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686018},{\"name\":\"after-submit\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686021},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686179},{\"name\":\"blur\",\"query\":\"\",\"at\":1792228686185},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686190},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686194},{\"name\":\"focus\",\"query\":\"\",\"at\":1792228686203},{\"name\":\"before-set\",\"focused\":true,\"at\":1792228686211},{\"name\":\"after-set\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686212},{\"name\":\"after-submit\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686213},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686368},{\"name\":\"blur\",\"query\":\"\",\"at\":1792228686371},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686379},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686382},{\"name\":\"focus\",\"query\":\"\",\"at\":1792228686390},{\"name\":\"before-set\",\"focused\":true,\"at\":1792228686400},{\"name\":\"after-set\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686400},{\"name\":\"after-submit\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686402},{\"name\":\"overlay-clear\",\"query\":\"paper sketchbook\",\"at\":1792228686567},{\"name\":\"blur\",\"query\":\"\",\"at\":1792228686571},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686578},{\"name\":\"overlay-clear\",\"query\":\"\",\"at\":1792228686582},{\"name\":\"focus\",\"query\":\"\",\"at\":1792228686591},{\"name\":\"before-set\",\"focused\":true,\"at\":1792228686601},{\"name\":\"after-set\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686602},{\"name\":\"after-submit\",\"query\":\"paper sketchbook\",\"focused\":true,\"at\":1792228686603}]"
+    },
+    {
+      "id": "Q.open_main",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.second_process_cannot_open_same_vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.occupied_vault_is_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.first_process_keeps_vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.conflict_reported",
+      "ok": true,
+      "detail": "{\"combo\":\"Ctrl+Alt+Q\",\"state\":\"conflict\"}"
+    },
+    {
+      "id": "Q.conflict_has_manual_fallback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q.conflict_process_exits",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.explicit_exit",
+      "ok": true,
+      "detail": "exit 0"
+    },
+    {
+      "id": "W05.no_autofill_copies",
+      "ok": true,
+      "detail": "0 autofill rows"
+    },
+    {
+      "id": "Q.hotkey_released_on_exit",
+      "ok": true,
+      "detail": "{\"combo\":\"Ctrl+Alt+Q\",\"state\":\"registered\"}"
+    },
+    {
+      "id": "W01.persists_after_restart",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.cancelled_session_end_keeps_running",
+      "ok": true,
+      "detail": "6 windows"
+    },
+    {
+      "id": "W03.restart_manager_close_runs_exit",
+      "ok": true,
+      "detail": "shutdown 0, exit 0"
+    }
+  ],
+  "screenshots": [
+    "01-home.png",
+    "02-memory-detail.png",
+    "03-import.png",
+    "04-session.png",
+    "05-context.png",
+    "06-settings.png",
+    "07-shell-settings.png",
+    "08-quick-search.png",
+    "09-vault-occupied.png"
+  ],
+  "summary": "101/101"
+}

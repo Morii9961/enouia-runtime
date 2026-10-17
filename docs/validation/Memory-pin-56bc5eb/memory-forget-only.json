@@ -1,0 +1,89 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.delete_impact_is_preview_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.deletion_plan_wait_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.purge_plan_has_explicit_flag_and_bound_target",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.purge_dialog_announces_permanence",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.cancel_preserves_memory_and_source",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.cancelled_plan_leaves_core_proposal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.cancel_explains_retained_deletion_candidate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W05.cancel_returns_to_purge_trigger",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.cancel_refreshes_visible_candidate_count",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.logical_forget_plan_is_not_permanent_purge",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.confirmed_forget_clears_selected_inspector",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.logical_forget_retains_source",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.forgotten_memory_is_refused_by_core",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W01.other_memory_stays_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W03.forget_host_exits",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "37-forget-cancel-feedback.png",
+    "38-forget-remaining-memory.png"
+  ],
+  "summary": "16/16"
+}
