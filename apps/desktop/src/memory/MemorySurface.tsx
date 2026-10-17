@@ -243,6 +243,9 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
   const planTrigger = useRef<HTMLElement | null>(null);
   const action = useAction();
   const reads = useLatestRead();
+  const returnFocus = useReturnFocus(!action.busy && !reads.busy);
+  const readAgain = useRef<HTMLButtonElement>(null);
+  const correctionInput = useRef<HTMLTextAreaElement>(null);
   const load = useCallback(() => {
     setDetail(null); setImpact(null);
     void reads.run(async () => memoryObservation(await readPage("memory_read", { memoryId: id }), id), setDetail);
@@ -259,7 +262,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
     catch { setNote("Could not copy. Select the ID and copy it manually."); }
   };
   const observation = <div className="mem-stack">
-    <button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) load(); }}>Read memory again</button>
+    <button ref={readAgain} type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) { returnFocus(() => readAgain.current); load(); } }}>Read memory again</button>
     <ErrorBox error={reads.error} />
     {reads.busy && <p role="status" className="mem-muted">Reading the memory…</p>}
     {reads.error && <p className="mem-muted">This saved memory could not be read. Read it again before starting another correction or deletion. Unsent correction text is kept.</p>}
@@ -295,17 +298,17 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
       <div className="mem-stack">
         <h4 className="mem-h4">Correct</h4>
         <label htmlFor="mem-fix" className="mem-sr">Corrected content</label>
-        <textarea id="mem-fix" className="mem-textarea" value={correction} onChange={(e) => setCorrection(e.target.value)}
+        <textarea ref={correctionInput} id="mem-fix" className="mem-textarea" value={correction} onChange={(e) => setCorrection(e.target.value)}
           placeholder="Write the correct content. It becomes a candidate for review; the memory itself is not rewritten." />
         <div className="mem-actions">
-          <button type="button" className="mem-button" disabled={!correction.trim() || action.busy} onClick={() => void action.run(async (key) => {
+          <button type="button" className="mem-button" disabled={!correction.trim() || action.busy} onClick={() => { returnFocus(() => correctionInput.current); void action.run(async (key) => {
             if (reads.pending.current || reads.error) return;
             await readPage("correction_propose", { memoryId: id, revision: r.revision, text: correction }, key);
             setCorrection((current) => current === correction ? "" : current);
             setNote("Correction proposed. Review it in the candidate inbox.");
-          })}>Propose correction</button>
+          }); }}>Propose correction</button>
           <button type="button" className="mem-button" disabled={action.busy}
-            onClick={() => { if (!reads.pending.current && !reads.error) void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); }}>Delete impact</button>
+            onClick={() => { if (!reads.pending.current && !reads.error) { returnFocus(() => readAgain.current); void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); } }}>Delete impact</button>
           <button type="button" className="mem-button" disabled={action.busy} onClick={() => forget("forget")}>Forget…</button>
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>Purge…</button>
         </div>
@@ -487,9 +490,12 @@ function useStartedOperations() {
 
 // An action disables its own control, which can blur it to the document,
 // and may remove it. Once the panel is idle, return to that control if it
-// remains, otherwise to the panel heading, unless focus has moved elsewhere.
+// remains usable, otherwise to the action's fallback (by default the panel
+// heading), unless focus has moved elsewhere.
+const panelHeading = () => document.getElementById("mem-center-title");
 function useReturnFocus(idle: boolean) {
   const trigger = useRef<HTMLElement | null>(null);
+  const fallback = useRef<() => HTMLElement | null>(panelHeading);
   const pending = useRef(false);
   useEffect(() => {
     if (!idle || !pending.current) return;
@@ -497,10 +503,12 @@ function useReturnFocus(idle: boolean) {
     const target = trigger.current;
     trigger.current = null;
     if (document.activeElement !== document.body && document.activeElement !== target) return;
-    (target?.isConnected ? target : document.getElementById("mem-center-title"))?.focus();
+    const usable = target?.isConnected && !(target as HTMLButtonElement).disabled;
+    (usable ? target : fallback.current())?.focus();
   });
-  return useCallback(() => {
+  return useCallback((otherwise: () => HTMLElement | null = panelHeading) => {
     pending.current = true;
+    fallback.current = otherwise;
     trigger.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
   }, []);
 }
