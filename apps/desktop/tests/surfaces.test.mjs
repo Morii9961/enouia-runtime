@@ -38,6 +38,8 @@ test('native Settings exposes a non-secret configuration draft even before openi
   const html = renderToStaticMarkup(createElement(App, { startPage: 'settings', memoryConnected: true, breathing: false }));
   assert.match(html, /Model configuration draft/);
   assert.match(html, /Generate settings draft/);
+  assert.match(html, /Loaded model settings/);
+  assert.match(html, /Reload model settings/);
   assert.match(html, /Generating and copying do not save the file, reload settings or activate/);
   assert.doesNotMatch(html, /type="password"|Draft memory-providers\.json|Copy settings draft/);
 });
@@ -45,7 +47,7 @@ test('native Settings exposes a non-secret configuration draft even before openi
 test('browser Settings keeps its fictional mode without a connected configuration form', () => {
   const html = renderToStaticMarkup(createElement(App, { startPage: 'settings', memoryConnected: false, breathing: false }));
   assert.match(html, /Demo · local only/);
-  assert.doesNotMatch(html, /Model configuration draft|Generate settings draft/);
+  assert.doesNotMatch(html, /Model configuration draft|Generate settings draft|Loaded model settings|Reload model settings/);
 });
 
 test('native Activity waiting and connection gate retain a labelled keyboard surface', () => {

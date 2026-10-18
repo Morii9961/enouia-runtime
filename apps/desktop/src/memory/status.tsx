@@ -7,6 +7,7 @@ import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 import { ProviderConfigDraft } from "./ProviderConfigDraft";
+import { ProviderSettingsStatus } from "./ProviderSettingsStatus";
 
 type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void> };
 const StatusContext = createContext<StatusValue | null>(null);
@@ -281,7 +282,8 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
       </div>
       <CompanionSettings status={status} />
     </div>
-    <ProviderConfigDraft disabled={exiting(status)} /></>
+    <ProviderConfigDraft disabled={exiting(status)} />
+    <ProviderSettingsStatus disabled={exiting(status)} /></>
   );
 }
 
