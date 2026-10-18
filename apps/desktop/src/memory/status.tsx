@@ -6,6 +6,7 @@ import { call, pick, shell, type J } from "./client";
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
+import { ProviderConfigDraft } from "./ProviderConfigDraft";
 
 type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void> };
 const StatusContext = createContext<StatusValue | null>(null);
@@ -261,7 +262,7 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
   const { status, vaultChanging } = useStatus();
   const v = status?.vault ?? {};
   return (
-    <div className="qr65">
+    <><div className="qr65">
       <div className="qr198">Memory Vault</div>
       <Row k="State">{vaultLabel(status, vaultChanging)}</Row>
       <Row k="Folder">{v.rootName ?? "—"}</Row>
@@ -280,6 +281,7 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
       </div>
       <CompanionSettings status={status} />
     </div>
+    <ProviderConfigDraft disabled={exiting(status)} /></>
   );
 }
 
