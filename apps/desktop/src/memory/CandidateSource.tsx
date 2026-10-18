@@ -6,7 +6,9 @@ import { useLatestRead } from "./hooks";
 import { ErrorBox, shortId } from "./ui";
 import { sourceObservation } from "./observationIdentity";
 
-export function CandidateSource({ evidence, readPage = call }: { evidence: J; readPage?: typeof call }) {
+export function CandidateSource({ evidence, kind = "evidence", readPage = call }: { evidence: J; kind?: "evidence" | "context"; readPage?: typeof call }) {
+  const isContext = kind === "context";
+  const sourceLabel = isContext ? "context source" : "evidence source";
   const [requested, setRequested] = useState(false);
   const [excerpt, setExcerpt] = useState<J>(null);
   const read = useLatestRead();
@@ -45,17 +47,18 @@ export function CandidateSource({ evidence, readPage = call }: { evidence: J; re
   return <li className="mem-evidence" aria-busy={read.busy}>
     <div className="mem-row-meta">
       <code title={evidence.sourceId}>{shortId(evidence.sourceId)}</code>
-      <span>r{evidence.sourceRevision} · supports {evidence.supports}</span>
-      <button ref={readControl} type="button" className="mem-link" onClick={() => load(null)}>{requested ? "Read source again" : "Show evidence source"}</button>
-      {requested && <button type="button" className="mem-link" onClick={hide}>Hide evidence source</button>}
+      <span>r{evidence.sourceRevision} · {isContext ? "recorded context dependency" : `supports ${evidence.supports}`}</span>
+      {!isContext && typeof evidence.evidenceClass === "string" && <span>{evidence.evidenceClass}</span>}
+      <button ref={readControl} type="button" className="mem-link" onClick={() => load(null)}>{requested ? isContext ? "Read context source again" : "Read source again" : `Show ${sourceLabel}`}</button>
+      {requested && <button type="button" className="mem-link" onClick={hide}>Hide {sourceLabel}</button>}
     </div>
-    <details><summary>Evidence locator</summary><pre className="mem-pre">{JSON.stringify(evidence.locator, null, 2)}</pre></details>
+    {!isContext && evidence.locator != null && <details><summary>Evidence locator</summary><pre className="mem-pre">{JSON.stringify(evidence.locator, null, 2)}</pre></details>}
     <ErrorBox error={sourceError} />
     {read.busy && <p role="status" className="mem-muted">Reading the source…</p>}
-    {read.error && <p className="mem-muted">This source revision could not be read. Read source again to observe it; a failed read does not remove the candidate's evidence reference.</p>}
+    {read.error && <p className="mem-muted">This source revision could not be read. Read it again to observe it; a failed read does not remove the recorded {isContext ? "context dependency" : "evidence reference"}.</p>}
     {excerpt && <figure className="mem-figure">
-      <figcaption className="mem-muted">{excerpt.sourceKind} · {excerpt.speakerRole} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions</figcaption>
-      <pre ref={sourceText} tabIndex={-1} aria-label="Evidence source text" className="mem-source">{excerpt.excerpt}</pre>
+      <figcaption className="mem-muted">{excerpt.sourceKind} · {excerpt.speakerRole} · {typeof excerpt.evidenceClass === "string" ? excerpt.evidenceClass : "evidence class not reported"} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions</figcaption>
+      <pre ref={sourceText} tabIndex={-1} aria-label={isContext ? "Context source text" : "Evidence source text"} className="mem-source">{excerpt.excerpt}</pre>
       {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={read.busy} onClick={() => load(excerpt.byteEnd)}>Next source part</button>}
     </figure>}
   </li>;

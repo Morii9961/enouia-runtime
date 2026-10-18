@@ -19,12 +19,12 @@ tauri = { version = "=2.12.0", features = ["tray-icon"] }
 # Enouia Memory's embedded workspace Core at a pinned revision (ADR-025,
 # ADR-MEM-45). Change `rev` only together with Cargo.lock and
 # docs/integration/memory-pin.json; never a branch, path or [patch].
-enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "56bc5eb8b08fb80cd6df892bf53d200ff23afc4c" }
+enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "2f1595bf38a32f43dd2c3f7f24f82b9fdc1a3342" }
 # The pinned contract's command catalog (long-running and write commands).
-enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "56bc5eb8b08fb80cd6df892bf53d200ff23afc4c" }
+enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "2f1595bf38a32f43dd2c3f7f24f82b9fdc1a3342" }
 # Native text Provider dispatch the Core hosts (Enouia Memory ADR-MEM-48):
 # HTTPS transport, Windows credential store and capability types.
-enouia-memory-provider = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "56bc5eb8b08fb80cd6df892bf53d200ff23afc4c" }
+enouia-memory-provider = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "2f1595bf38a32f43dd2c3f7f24f82b9fdc1a3342" }
 # Native dialogs for the Memory picker; pinned to the reference shell's version.
 rfd = { version = "=0.17.2", default-features = false }
 # Must equal Enouia Memory's exact workspace pins.

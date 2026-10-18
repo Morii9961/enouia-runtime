@@ -735,6 +735,8 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
     );
     assert!(candidate["evidence"][0]["sourceRevision"].is_number());
     assert!(candidate["evidence"][0]["locator"].is_object());
+    assert_eq!(candidate["evidence"][0]["evidenceClass"], "user_statement");
+    assert_eq!(candidate["contextSources"], json!([]));
     assert!(candidate["conflicts"].is_array() && candidate["target"].is_null());
     // Review can observe cited source bytes while the candidate is still
     // pending, without approving it or preparing a model request.
@@ -752,6 +754,7 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
             .contains("paper notebooks")
     );
     assert_eq!(pending_source["untrusted"], true);
+    assert_eq!(pending_source["evidenceClass"], "user_statement");
     assert_eq!(
         page.ok("workspace_status", json!({}))["pendingCandidates"],
         1

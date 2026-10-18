@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "description": "The Enouia Memory revision Runtime's desktop shell embeds (ADR-025, Enouia Memory ADR-MEM-45). Change only with apps/desktop/src-tauri/Cargo.toml and Cargo.lock; check with scripts/check-memory-integration.mjs.",
   "repository": "https://github.com/Morii9961/enouia-memory.git",
-  "revision": "56bc5eb8b08fb80cd6df892bf53d200ff23afc4c",
+  "revision": "2f1595bf38a32f43dd2c3f7f24f82b9fdc1a3342",
   "crates": ["enouia-memory-workspace", "enouia-memory-contract", "enouia-memory-provider"],
   "contract": { "name": "workspace IPC v1", "schemaVersion": 1, "commands": 47 },
-  "memorySurfaceAggregate": "2c1c064082dc14ea9d14387f982c50cd31855b301d534dfa78908f02a1cfd9d1",
-  "recordedAt": "2026-10-17"
+  "memorySurfaceAggregate": "f1d99344c596ba71d4f1c6d0abcc288a8284def4dcf5aec70b4e1ca3e997fff9",
+  "recordedAt": "2026-10-18"
 }
