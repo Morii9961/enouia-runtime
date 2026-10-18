@@ -1930,17 +1930,20 @@ async function main() {
 
     await holdOperationObservation(s, 'session');
     await select(a);
-    await waitFor(s, 'window.__operationHeld', 'older session A detail held');
-    await s.evaluate('window.__releaseOlderSession = window.__releaseOperation');
+    await waitFor(s, 'window.__operationHeld', 'session A detail held');
     check('W02.pending_selection_keeps_observed_branch', await s.evaluate(`${active} === ${JSON.stringify(b)}`));
     check('W02.pending_detail_preserves_current_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
     check('W02.pending_detail_explained', await s.evaluate("document.querySelector('[aria-label=\"Session transcript\"] [role=status]')?.textContent.includes('Reading the session') === true"));
+    // Branch rows stay disabled while a branch read runs (Session selection focus v1).
+    check('W02.pending_detail_holds_branch_rows', await s.evaluate("[...document.querySelectorAll('.mem-session-row')].every(row => row.disabled)"));
+    await select(b); // A disabled native button does not dispatch its click.
+    check('W02.pending_detail_ignores_other_selection', await s.evaluate(`${active} === ${JSON.stringify(b)}`));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, `${editable} && ${active} === ${JSON.stringify(a)}`, 'session A detail delivered');
+    check('W02.delivered_detail_restores_requested_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Unsent question in session A',summary:'Unsent checkpoint in session A'}));
     await select(b);
-    await waitFor(s, editable, 'newer session B detail delivered');
-    await s.evaluate('window.__releaseOlderSession()');
-    await sleep(300);
-    check('W02.older_detail_cannot_replace_selection', await s.evaluate(`${active} === ${JSON.stringify(b)} && ${editable}`));
-    check('W02.older_detail_cannot_replace_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
+    await waitFor(s, `${editable} && ${active} === ${JSON.stringify(b)}`, 'session B selected again');
+    check('W02.switch_back_restores_current_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
 
     await holdOperationObservation(s, 'ask');
     await click(s, 'form button', 'Send');
