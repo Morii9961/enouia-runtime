@@ -2,6 +2,8 @@
 
 Date: 2026-10-18 (Asia/Shanghai). Baseline `76c7dec`, on a feature branch based on the verified Inspector/import slices. Memory remains pinned at `56bc5eb`, with the same 47 commands.
 
+This report records the generation/copy slice at that baseline. The later explicit native save action and its separate evidence are in [Native draft save](Provider-draft-save-v1.md).
+
 ## Product behavior
 
 Native Settings now offers a local Model configuration draft before a Vault is opened. The owner selects OpenAI and/or Anthropic and explicitly supplies each exact model ID, context/output limits, streaming capability, verification timestamp and session quotas. No model, capability, date, token limit or price is prefilled. Explicit owner verification is required before generating a draft.

@@ -51,9 +51,9 @@ try {
   await toggle("I checked these models, capabilities and limits for my API account"); await generate();
   const parsed = JSON.parse(output()!.value);
   check("generated_file_contains_only_explicit_verified_values", parsed.destinations.length === 1 && parsed.destinations[0].api === "openai" && parsed.destinations[0].model === "synthetic-openai:v1" && parsed.destinations[0].streaming === false && parsed.maxAttemptsPerSession === 10);
-  check("generation_does_not_copy_save_load_or_activate", copied.length === 0 && output()!.readOnly && text().includes("does not save, load or activate") && !fixture.querySelector('input[type="password"]'));
+  check("generation_does_not_copy_save_load_or_activate", copied.length === 0 && output()!.readOnly && text().includes("Generating and copying do not save the file, reload settings or activate") && !fixture.querySelector('input[type="password"]'));
   click("Copy settings draft"); await wait(() => text().includes("Draft copied"));
-  check("copy_uses_the_inspected_exact_draft", copied[0] === output()!.value && text().includes("not been saved or loaded"));
+  check("copy_uses_the_inspected_exact_draft", copied[0] === output()!.value && text().includes("Copying does not save or reload"));
   await edit("openai · Model ID", "synthetic-new");
   check("editing_invalidates_old_output_and_copy_acknowledgement", !output() && !text().includes("Draft copied") && !button("Copy settings draft"));
   await generate(); failCopy = true; click("Copy settings draft"); await wait(() => text().includes("Copy failed"));

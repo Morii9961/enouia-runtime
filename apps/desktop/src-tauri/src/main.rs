@@ -6,8 +6,8 @@
 //! Exit is explicit and shuts the Memory Core down first, as does the end of
 //! the Windows session or an installer's request to close (ADR-027). The
 //! Activity surface reaches the independently installed producer only through
-//! that package's runner (ADR-028). The shell registers no filesystem, shell
-//! or network command, never changes a scheduled task, and closing or exiting
+//! that package's runner (ADR-028). The shell registers no general filesystem,
+//! shell or network command, never changes a scheduled task, and closing or exiting
 //! it never pauses Activity. Memory's native Provider path is enabled only by
 //! the owner's settings file, and keys are entered only in the native Windows
 //! credential prompt (ADR-032).
@@ -53,6 +53,7 @@ fn main() {
             memory::memory_pick,
             provider::memory_provider_setup,
             provider::memory_provider_reload,
+            provider::memory_provider_save_draft,
             provider::memory_provider_key,
             shell::shell_status,
             shell::shell_show,

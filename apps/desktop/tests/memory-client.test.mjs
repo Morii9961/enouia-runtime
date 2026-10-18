@@ -4,7 +4,7 @@
 // covered by src-tauri/tests/memory_core.rs.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CallError, call, describe, pick, providerKey, providerSetup, providerReload, retryable, setTransport, shell } from '../src/memory/client.ts';
+import { CallError, call, describe, pick, providerKey, providerSetup, providerReload, providerSaveDraft, retryable, setTransport, shell } from '../src/memory/client.ts';
 
 const KEY = /^[A-Za-z0-9_-]{16,128}$/;
 const REQUEST_ID = /^req_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -125,6 +125,23 @@ test('provider setup and keys use only native commands and never carry a key', a
   ]);
   for (const rule of ['provider_busy', 'credential_malformed', 'credential_failed', 'credential_prompt_failed']) {
     assert.doesNotMatch(describe(rule), /Memory call failed/, rule);
+  }
+});
+
+test('saving a model draft carries only inspected JSON through its native dialog command', async () => {
+  const sent = recorder(() => ({ saved: true, file: 'memory-providers.json' }));
+  const draft = '{"schemaVersion":1}\n';
+  assert.deepEqual(await providerSaveDraft(draft), { saved: true, file: 'memory-providers.json' });
+  assert.deepEqual(sent, [{ command: 'memory_provider_save_draft', args: { draft } }]);
+  recorder(() => ({ cancelled: true }));
+  assert.deepEqual(await providerSaveDraft(draft), { cancelled: true });
+});
+
+test('a malformed or inherited draft-save acknowledgement cannot claim a saved file', async () => {
+  const inherited = Object.assign(Object.create({ saved: true, file: 'memory-providers.json' }), { unexpected: true, other: true });
+  for (const result of [null, [], { saved: false }, { saved: true, file: 'elsewhere.json' }, { saved: true, file: 'memory-providers.json', path: 'private-path' }, { cancelled: true, saved: true }, Object.assign(Object.create({ cancelled: true }), { other: true }), inherited]) {
+    recorder(() => result);
+    await assert.rejects(providerSaveDraft('{}'), /not confirmed/);
   }
 });
 
