@@ -2334,7 +2334,7 @@ async function main() {
   s = await connect();
   await waitFor(s, has('Memory · Vault open'), 'vault open badge');
   check('W03.process_termination_releases_root', true);
-  check('S.badge_states_memory_and_inspector', await s.evaluate(`${has('Memory · Vault open')} && ${has('Inspector demo')}`));
+  check('S.badge_states_connected_workspace', await s.evaluate(`${has('Memory · Vault open')} && ${has('Connected workspace')}`));
   check('S.home_reads_status', await s.evaluate(`${has('Vault open')} && ${has('Nothing waiting for review')}`));
   await shot(s, '01-home');
 
@@ -2607,7 +2607,7 @@ async function main() {
   await waitFor(s, has('Connect the installed Activity producer'), 'isolated Activity connection gate');
   check('A.activity_native_gate', await s.evaluate("!!document.querySelector('[data-screen-label=Activity] h1')"));
   await nav(s, 'Runtime');
-  check('A.inspector_labelled_fictional', await s.evaluate(has('Fictional · frozen Runtime-local design')));
+  check('A.inspector_observes_components', await s.evaluate(`${has('Observed component status')} && ${has('Memory Core')} && ${has('Windows shell')} && ${has('Activity producer')}`));
 
   // Autostart ignores a supplied Vault and reports an occupied shortcut.
   const secondPort = await unusedPort();

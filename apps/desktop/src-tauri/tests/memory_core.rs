@@ -892,6 +892,89 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
 }
 
 #[test]
+fn import_report_fields_the_surface_renders() {
+    let mut page = Page::new("import-report");
+    std::fs::write(
+        page.base.join("report.md"),
+        "# Synthetic report\nA fictional project starts on Monday.\n",
+    )
+    .unwrap();
+    let import = || {
+        let token = page.pick(PickKind::ImportFile, "report.md");
+        let started = page.ok(
+            "import_start",
+            json!({"importToken": token, "accountAlias": "report-fixture"}),
+        );
+        assert_eq!(page.finish(&started)["state"], "succeeded");
+    };
+    import();
+    let original = page.ok("import_list", json!({}))["items"][0].clone();
+    strings(
+        &original,
+        &["importId", "status", "inputKind", "receivedAt", "updatedAt"],
+        "import report",
+    );
+    for field in [
+        "revision",
+        "inputSizeBytes",
+        "conversationsCovered",
+        "membersQuarantined",
+    ] {
+        assert!(original[field].as_u64().is_some(), "import report.{field}");
+    }
+    for field in [
+        "sources_created",
+        "sources_revised",
+        "sources_unchanged",
+        "conversations",
+        "branches",
+        "missing_parents",
+        "unparseable",
+        "attachments_present",
+        "attachments_missing",
+        "attachments_external",
+        "attachments_quarantined",
+    ] {
+        assert!(
+            original["counts"][field].as_u64().is_some(),
+            "import counts.{field}"
+        );
+    }
+    assert_eq!(original["counts"]["sources_created"], 1);
+    assert!(
+        original["accountScope"].is_null(),
+        "Markdown has no upstream account"
+    );
+    assert!(
+        original["warnings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(Value::is_string)
+    );
+    import();
+    let rows = page.ok("import_list", json!({}));
+    let duplicate = rows["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["duplicateOf"] == original["importId"])
+        .unwrap();
+    assert_eq!(duplicate["counts"]["sources_created"], 0);
+    let duplicate_id = duplicate["importId"].clone();
+    page.reopen();
+    let reread = page.ok("import_list", json!({}));
+    let saved = reread["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["importId"] == duplicate_id)
+        .unwrap();
+    assert_eq!(saved["duplicateOf"], original["importId"]);
+    assert_eq!(saved["counts"]["sources_created"], 0);
+}
+
+#[test]
 fn session_and_context_fields_the_surfaces_render() {
     let page = Page::new("session");
     let proposed = page.ok(
