@@ -15,3 +15,18 @@ Co-authored-by: Codex <267193182+codex@users.noreply.github.com>
 ```
 
 This trailer identifies the public GitHub `codex` account. Do not add it when Codex did not contribute. Preserve other contributors' changes and use the checks appropriate to the changed files before reporting completion. Desktop changes run the checks listed in [Memory integration v1](docs/MEMORY_INTEGRATION_v1.md), including `node scripts/check-memory-integration.mjs`.
+
+## Design redesign workflow (design-kit v2)
+
+Visual redesign work follows the design kit in [`docs/design-kit/`](docs/design-kit/): `divergence.md`, `anti-slop.md`, `directions.md`, `critique.md` and, for this app, `existing-app.md` (contract versus skin, worktree variants, desktop viewports); `type-cjk.md` and `dashboard.md` when prototyping. Scratch output lives in the git-ignored `.design/`; screenshots come from `tools/shot.mjs` run in `.design/`. `DESIGN.md` stays a template until the owner picks a direction.
+
+EXPLORE runs in four phases and stops after phase 3:
+
+| Phase | Work | Output in `.design/` |
+| --- | --- | --- |
+| 0 Recon | Contract list versus skin list; baseline screenshots of the browser preview at 1100, 1440 and 1920 wide plus the minimum window | `00-recon.md`, `shots/baseline/` |
+| 1 Diverge | 8 concepts, drop the first 3, keep 5, pass the distance rules | `01-directions.md`, one `DIRECTION.md` per direction |
+| 2 Prototype | One worktree and branch per direction (`redesign/<n>-<name>`, own `npm ci`, own port, never 1420/1421); slices: Home, Memory Vault, the denser of Sessions/Context, quick search overlay, minimum window, one edge state; at least two critique rounds | `critique-log.md` per direction |
+| 3 Present | Side-by-side `review/index.html` with each direction's bet, weakness and contract pressure; then stop for the owner's choice | `review/index.html` |
+
+Authorized scope for this exploration (2026-10-18, owner request; it overrides the continuous commit-and-push convention above for this work only): presentation-layer changes under `apps/desktop/src` (styles, component structure, layout, fonts, icons, copy voice with unchanged meaning) and fictional demo data extensions, committed locally on `redesign/*` branches. Not authorized: `apps/desktop/src-tauri/`, the Memory pin, the Activity producer, any backend or contract, activation or release, pushing, PRs or merges. Screenshots come only from the browser preview's fictional demo, never from the native shell's real Vault or Activity data. Every direction keeps the contract in `docs/FRONTEND_IMPLEMENTATION_v1.md` (Controls, honest fictional-demo labels, confirmation flows, Activity independent of Memory/Context, no external resources) and passes `npm run check`, `npm test`, `npm run build` and `node scripts/check-memory-integration.mjs` as at baseline. New fonts need verified licenses, self-hosting, a third-party notice update and an installer size estimate (ADR-027). Contract problems go to `.design/spec-issues.md`, not into behavior changes. Design commits made by Claude do not carry the Codex trailer.

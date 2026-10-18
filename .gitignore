@@ -27,3 +27,6 @@
 **/node_modules/
 /apps/desktop/dist/
 /apps/desktop/src-tauri/gen/
+
+# Design exploration scratch (design-kit)
+/.design/
