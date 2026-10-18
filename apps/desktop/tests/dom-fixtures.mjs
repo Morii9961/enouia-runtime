@@ -9,7 +9,7 @@ const operationBaseline = process.argv.includes('--operation-baseline');
 assert.ok(!(operationBaseline && process.argv.includes('--settings-baseline')), 'Choose only one baseline');
 const baseline = process.argv.includes('--settings-baseline') || operationBaseline;
 const details = process.argv.includes('--details');
-const fixtures = ['settings-exit-ownership', 'shell-navigation-focus', 'home-status-observation', 'startup-note', 'memory-lifecycle-gate', 'vault-gate-focus',
+const fixtures = ['settings-exit-ownership', 'runtime-inspector', 'shell-navigation-focus', 'home-status-observation', 'startup-note', 'memory-lifecycle-gate', 'vault-gate-focus',
   'operation-stop-observation', 'operation-observation', 'operation-cancel', 'inbox-retry-ownership',
   'import-alias-admission', 'import-observation', 'import-operations', 'panel-action-focus', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
   'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume',

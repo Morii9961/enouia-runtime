@@ -6,6 +6,7 @@ import Context from "./screens/Context.tsx";
 import Sessions from "./screens/Sessions.tsx";
 import Activity from "./screens/Activity.tsx";
 import Runtime from "./screens/Runtime.tsx";
+import RuntimeSurface from "./runtime/RuntimeSurface";
 import Settings from "./screens/Settings.tsx";
 import { controlWindow, isWindowMaximized, nativeWindow } from './window-controls.ts';
 import { approveDemoCandidate, reviseDemoMemory } from './demo-state.ts';
@@ -570,7 +571,7 @@ Settings
 {connected ? <ActivitySurface /> : <Activity view={view} />}
 </> : null}
 {isRuntime ? <>
-{<Runtime view={connected ? { ...view, rtSubtitle: 'Fictional · frozen Runtime-local design (ADR-025) · live Memory status is in Settings' } : view} />}
+{connected ? <RuntimeSurface /> : <Runtime view={view} />}
 </> : null}
 {isSettings ? <>
 {<Settings view={connected ? { ...view, memorySettings: <MemorySettings openMemory={() => this.go('memory')} />, shellSettings: <ShellSettings />, keyboardHint: 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves within the memory list.' } : view} />}

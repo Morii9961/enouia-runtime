@@ -51,11 +51,11 @@ export function MemoryBadge() {
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const text = status ? `Memory · ${vaultLabel(status, vaultChanging)}` : error ? "Memory status unavailable" : "Memory · checking…";
   return (
-    <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. Activity reads the separately installed producer. The Runtime Inspector shows fictional examples.">
+    <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. Activity reads the separately installed producer. The Runtime Inspector shows observed component status.">
       <span className="qr223" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
       {text}
       <span className="qr4">·</span>
-      Inspector demo
+      Connected workspace
     </div>
   );
 }
