@@ -1,6 +1,8 @@
 # Runtime 模型配置与恢复
 
-Sessions 的 External provider 面板提供 **Model setup steps** 和 **Reload settings**。配置仍由 owner 手动填写；本指南不表示真实模型、密钥或个人工作流已验收。
+Settings 新增 **Model configuration draft**：按表单填写自己已核实的模型 ID、上下文/输出上限、流式能力、UTC 核实时间和会话预算，确认核实后生成并复制 `memory-providers.json` 草稿。字段未填或相互矛盾时不会生成；修改任一字段会使旧草稿失效。表单不推断任何真实模型能力，不保存文件、不重载配置、不触发凭据窗口或请求。
+
+将生成的草稿保存到下述位置后，再使用 Sessions 的 **Model setup steps** 和 **Reload settings**。配置仍由 owner 明确采用；本指南不表示真实模型、密钥或个人工作流已验收。
 
 1. 在 `%APPDATA%\com.enouia.runtime` 创建或编辑 `memory-providers.json`。只配置自己已确认的模型及能力；不要根据订阅名称推断 API 使用权，也不要将密钥放入文件。
 2. 保存后点击 **Reload settings**，无需重启 Runtime。配置错误会说明字段或限额问题；修正后再次重载。移除文件再重载可关闭外部模型，正在发送时需先等调用结束。
@@ -27,7 +29,7 @@ Sessions 的 External provider 面板提供 **Model setup steps** 和 **Reload s
 }
 ```
 
-`api` 仅支持 `openai`、`anthropic`，每种最多一项，共一至两项。模型 ID 需精确填写且不能包含空格；输出上限需大于零并小于上下文窗口。会话尝试上限为 1–1000，预留 token 上限需大于零。`verifiedAt` 是 owner 核实能力的 ISO 时间。文件上限 64 KiB；未知字段及密钥字段会使整份配置被拒绝。
+`api` 仅支持 `openai`、`anthropic`，每种最多一项，共一至两项。模型 ID 需精确填写，长度1–160，只允许英文字母、数字和 `-_.:`；输出上限需大于零并小于上下文窗口。会话尝试上限为 1–1000，预留 token 上限需大于零。`verifiedAt` 是 owner 核实能力的 UTC 时间，必须保留毫秒并以 Z 结尾，如示例中的 `2026-10-11T00:00:00.000Z`。文件上限 64 KiB；未知字段及密钥字段会使整份配置被拒绝。
 
 会话 token 预算采用估算值，不是金额限额。模型调用是否完成以 Memory 的操作和调用记录为准；未知结果可能已到达模型服务，不应据此重复发送。**Remove key** 只删除本机条目，不在服务端撤销密钥。配置重载不能跳过授权或请求审核。
 

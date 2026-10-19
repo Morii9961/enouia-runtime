@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "destinations": [
+    {
+      "api": "openai",
+      "model": "synthetic-openai:v1",
+      "contextWindowTokens": 128000,
+      "maxOutputTokens": 4096,
+      "streaming": true,
+      "verifiedAt": "2026-10-18T00:00:00.000Z"
+    },
+    {
+      "api": "anthropic",
+      "model": "synthetic-anthropic.v2",
+      "contextWindowTokens": 96000,
+      "maxOutputTokens": 2048,
+      "streaming": false,
+      "verifiedAt": "2026-10-18T00:00:01.000Z"
+    }
+  ],
+  "maxAttemptsPerSession": 10,
+  "maxReservedTokensPerSession": 100000
+}

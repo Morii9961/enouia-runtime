@@ -449,6 +449,33 @@ mod tests {
     }
 
     #[test]
+    fn frontend_configuration_draft_passes_the_native_parser() {
+        let provider = parse(include_bytes!(
+            "../../tests/fixtures/provider-settings-draft.json"
+        ))
+        .unwrap();
+        assert_eq!(provider.destinations.len(), 2);
+        assert_eq!(
+            provider.destinations[0].capabilities.binding.model,
+            "synthetic-openai:v1"
+        );
+        assert_eq!(
+            provider.destinations[0].capabilities.context_window_tokens,
+            Some(128000)
+        );
+        assert_eq!(
+            provider.destinations[0].capabilities.streaming,
+            Capability::Supported
+        );
+        assert_eq!(
+            provider.destinations[1].capabilities.streaming,
+            Capability::Unsupported
+        );
+        assert_eq!(provider.quota.max_attempts, 10);
+        assert_eq!(provider.quota.max_reserved_tokens, 100000);
+    }
+
+    #[test]
     fn owner_settings_become_explicit_destinations() {
         let mut anthropic = openai();
         anthropic["api"] = json!("anthropic");
