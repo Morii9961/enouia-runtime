@@ -13,26 +13,29 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call 
 }) {
   const [messages, setMessages] = useState("15"), [references, setReferences] = useState("10000");
   const [plan, setPlan] = useState<J>(null), [observedAt, setObservedAt] = useState<string | null>(null);
+  const [page, setPage] = useState<{ cursor: string | null; previous: (string | null)[] } | null>(null);
   const read = useLatestRead(), id = useId();
   const focusReturn = useRef<HTMLButtonElement | null>(null);
+  const planControl = useRef<HTMLButtonElement | null>(null), pageSummary = useRef<HTMLParagraphElement | null>(null);
   const valid = positive(messages, 15) && positive(references, 100000);
   useEffect(() => {
     if (read.busy || !focusReturn.current) return;
     const trigger = focusReturn.current; focusReturn.current = null;
-    if (trigger.isConnected && (document.activeElement === document.body || document.activeElement === trigger)) trigger.focus();
+    if (document.activeElement === document.body || document.activeElement === trigger)
+      (trigger.isConnected ? trigger : pageSummary.current ?? planControl.current)?.focus();
   }, [read.busy]);
-  const refresh = (cursor: string | null, trigger: HTMLButtonElement) => {
+  const refresh = (cursor: string | null, trigger: HTMLButtonElement, previous: (string | null)[] = []) => {
     if (read.pending.current || !valid) return;
     focusReturn.current = document.activeElement === trigger ? trigger : null;
     const selection = { vaultId, importId, importRevision, messagesPerBatch: Number(messages), maxPathReferences: Number(references), cursor, limit: 10 };
-    setPlan(null); setObservedAt(null);
+    setPlan(null); setPage(null); setObservedAt(null);
     void read.run(async () => historyObservation(await request("history_plan", {
       importId, importRevision, messagesPerBatch: selection.messagesPerBatch, maxPathReferences: selection.maxPathReferences, cursor, limit: selection.limit,
-    }), selection), result => { setPlan(result); setObservedAt(new Date().toISOString()); });
+    }), selection), result => { setPlan(result); setPage({ cursor, previous }); setObservedAt(new Date().toISOString()); });
   };
   const edit = (text: string, field: "messages" | "references") => {
     if (read.pending.current) return;
-    read.clear(); setPlan(null); setObservedAt(null);
+    read.clear(); setPlan(null); setPage(null); setObservedAt(null);
     if (field === "messages") setMessages(text); else setReferences(text);
   };
   const summary = plan?.summary;
@@ -50,14 +53,19 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call 
     </fieldset>
     <p className="mem-muted">Shared ancestors count again on each branch path. These are local planning bounds, not token or spending budgets. The Core limits received/decompressed input to 64 MiB and parsed messages/units to 100000.</p>
     <div className="mem-actions">
-      <button type="button" className="mem-button" disabled={read.busy || !valid}
+      <button ref={planControl} type="button" className="mem-button" disabled={read.busy || !valid}
         onClick={event => refresh(null, event.currentTarget)}>{plan || read.error ? "Read history plan again" : "Plan archived history"}</button>
-      {plan?.nextCursor && <button type="button" className="mem-button" disabled={read.busy}
-        onClick={event => refresh(plan.nextCursor, event.currentTarget)}>Next history batches</button>}
+      {plan && page && page.previous.length > 0 && <button type="button" className="mem-button" disabled={read.busy}
+        onClick={event => refresh(page.previous.at(-1)!, event.currentTarget, page.previous.slice(0, -1))}>Previous history batches</button>}
+      {plan?.nextCursor && page && <button type="button" className="mem-button" disabled={read.busy}
+        onClick={event => refresh(plan.nextCursor, event.currentTarget, [...page.previous, page.cursor])}>Next history batches</button>}
     </div>
     {read.busy && <p role="status" className="mem-muted">Reading the archive's history plan…</p>}
     {read.error && <p role="alert" className="mem-error">{read.error.text} No plan is current. Read a fresh plan before using batch references.</p>}
     {plan && <>
+      <p ref={pageSummary} tabIndex={-1} role="status" className="mem-muted">{plan.batches.length
+        ? `Showing batches ${plan.batches[0].batchIndex + 1}–${plan.batches.at(-1).batchIndex + 1} of ${summary.batches}`
+        : "No history batches on this page"}</p>
       <p className="mem-muted">Observed {when(observedAt)} · import revision {importRevision} · head <span className="mem-mono" title={plan.identity.commitId}>{shortId(plan.identity.commitId)}</span></p>
       <p className="mem-muted">This describes the received archive, not all platform history or extraction quality. Unknown dates stay unknown; export branch selection is not owner approval.</p>
       <dl className="mem-facts">

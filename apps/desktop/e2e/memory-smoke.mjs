@@ -990,6 +990,18 @@ async function main() {
     const second = await s.evaluate('window.__historyReplies[1]');
     check('H.real_paging', second.result.planHash===first.result.planHash && second.result.batches[0].batchIndex===10 && second.result.batches.length===10);
     check('H.second_page_rendered', await s.evaluate(`(${section}).querySelector('details summary').textContent.startsWith('Batch 11 ')`));
+    await click(s, 'button', 'Next history batches');
+    await waitFor(s, 'window.__historyReplies.length===3 && document.body.innerText.includes("Showing batches 21–24 of 24")', 'history last page');
+    check('H.last_page_has_previous_without_next', await s.evaluate('!!__t.byText("button","Previous history batches") && !__t.byText("button","Next history batches")'));
+    await s.evaluate('__t.byText("button","Previous history batches").focus()');
+    await click(s, 'button', 'Previous history batches');
+    await waitFor(s, 'window.__historyReplies.length===4 && document.activeElement?.textContent==="Showing batches 11–20 of 24"', 'back to middle page');
+    check('H.previous_page_rereads_core_and_restores_keyboard_focus', await s.evaluate('window.__historyReplies[3].result.batches[0].batchIndex===10 && window.__historyReplies[3].result.planHash===window.__historyReplies[0].result.planHash'));
+    await click(s, 'button', 'Previous history batches');
+    await waitFor(s, 'window.__historyReplies.length===5 && document.body.innerText.includes("Showing batches 1–10 of 24")', 'back to first page');
+    check('H.previous_first_page_has_no_previous_action', await s.evaluate('window.__historyReplies[4].result.batches[0].batchIndex===0 && !__t.byText("button","Previous history batches")'));
+    await click(s, 'button', 'Next history batches');
+    await waitFor(s, 'window.__historyReplies.length===6 && document.body.innerText.includes("Showing batches 11–20 of 24")', 'second page after backtracking');
     check('H.planning_creates_no_sessions_or_candidates', await s.evaluate("Promise.all([__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([s,c])=>s.result.items.length===0 && c.result.total===0)"));
     check('H.planning_preserves_head', (await statusOf(s)).vault.headCommitId===before.vault.headCommitId);
     // Deliberate synthetic fixture mutation; it is not a planning side effect.
@@ -1003,12 +1015,12 @@ async function main() {
     check('H.stale_cursor_refused', stale.kind==='memory_error' && stale.error.rules.includes('history.plan_stale'));
     await waitFor(s, `(${section}).querySelectorAll('details').length===0`, 'observed head clears old history');
     check('H.stale_page_withheld', await s.evaluate(`(${section}).querySelectorAll('details').length===0`));
-    check('H.head_change_does_not_replan', await s.evaluate('window.__historyReplies.length===3'));
+    check('H.head_change_does_not_replan', await s.evaluate('window.__historyReplies.length===7'));
     const freshField = await s.evaluate("[...document.querySelectorAll('label')].find(el=>el.textContent.includes('Messages per batch')).htmlFor");
     await set(s, `[id=${JSON.stringify(freshField)}]`, '1');
     await click(s, 'button', 'Plan archived history');
-    await waitFor(s, 'window.__historyReplies.length===4 && !!__t.byText("button","Next history batches")', 'fresh history recovery');
-    const recovered = await s.evaluate('window.__historyReplies[3]');
+    await waitFor(s, 'window.__historyReplies.length===8 && !!__t.byText("button","Next history batches")', 'fresh history recovery');
+    const recovered = await s.evaluate('window.__historyReplies[7]');
     check('H.fresh_plan_recovers', recovered.result.planHash!==first.result.planHash && recovered.result.batches[0].batchIndex===0);
     await shot(s, 'history-fresh-plan');
     void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
