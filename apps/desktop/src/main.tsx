@@ -3,9 +3,11 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { isTauri } from '@tauri-apps/api/core';
 import QuickSearch from './shell/QuickSearch';
+import './theme/barograph-fonts.css';
 import './quiet-runtime.css';
 import './memory/memory.css';
 import './activity/activity.css';
+import './theme/barograph.css';
 
 class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };

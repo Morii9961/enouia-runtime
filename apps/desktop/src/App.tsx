@@ -25,9 +25,10 @@ type AppState = {
   rtKey: string; paused: boolean; motionPref: string; copied: boolean; windowError?: string; windowMaximized: boolean | null;
 };
 export type DemoView = ReturnType<App['renderVals']> & {
-  rtSubtitle?: string; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
+  rtSubtitle?: string; still?: boolean; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
 };
 import ActivitySurface from './activity/ActivitySurface.tsx';
+import { NativeStrip, RecordStrip } from './theme/RecordStrip.tsx';
 
 // Inside the native shell the Memory, Context and Sessions surfaces use the
 // pinned Enouia Memory Core (ADR-025), and Activity reads the separately
@@ -361,30 +362,44 @@ export default class App extends React.Component<AppProps, AppState> {
     const view = this.renderVals();
     const { pageTitle, nav, railKey, isHome, isMemory, isContext, isSessions, isActivity, isRuntime, isSettings } = view;
     const connected = this.connected();
+    // 01-barograph: presentation-only values for the record strip. They read the
+    // same state renderVals() used; nothing here changes what a handler does.
+    const still = this.state.motionPref === 'reduced' || (this._mq ? this._mq.matches : false) || this.props.breathing === false;
+    const page = this.page();
+    const selectedAt = this.byKey(this._selectedKey)?.created;
+    const strSession = App.D.SESS.find((s) => s.key === this.state.sessionKey);
+    const sessionSpan: [string, string] | undefined = strSession ? [strSession.created, strSession.turns[strSession.turns.length - 1][2]] : undefined;
+    const NAV_LABEL: Record<string, string> = { home: 'Home', memory: 'Memory', context: 'Context', sessions: 'Sessions', activity: 'Activity', runtime: 'Runtime', settings: 'Settings' };
+    const navEl = (
+<nav aria-label="Primary" onKeyDown={railKey} className="qr231 bg-nav">
+{this.PAGES.map((p, i) => <React.Fragment key={p}>
+{p === 'settings' ? <span className="bg-nav-gap" aria-hidden="true" /> : null}
+<button aria-label={NAV_LABEL[p]} aria-current={nav[p].cur} onClick={nav[p].go} className="qr230 bg-nav-item" type="button">
+<span className="bg-nav-n" aria-hidden="true">{i + 1}</span>
+<span className="qr229">{NAV_LABEL[p]}</span>
+</button>
+</React.Fragment>)}
+</nav>
+    );
+    const penMark = <span className="bg-pen-mark" aria-hidden="true"><svg width="18" height="14" viewBox="0 0 18 14"><path d="M0 0L18 7L0 14z" fill="currentColor" /></svg></span>;
     const surface = (
-<div className="qr234" data-motion={this.state.motionPref}>
+<div className="qr234 bg-app" data-motion={this.state.motionPref} data-page={page}>
 <a className="runtime-skip-link" href="#runtime-content" onClick={(event) => {
   event.preventDefault();
   document.getElementById('runtime-content')?.focus();
 }}>Skip to current surface</a>
-<header className="qr227" data-tauri-drag-region>
-<div className="qr220">
-<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-<circle cx="7" cy="7" r="5.5" fill="none" stroke="#9FC2D2" strokeOpacity="0.6" strokeWidth="1">
-
-</circle>
-<circle cx="7" cy="7" r="1.6" fill="#EEE7DC">
-
-</circle>
-</svg>
+<header className="qr227 bg-titlebar" data-tauri-drag-region>
+<div className="qr220 bg-logo" aria-hidden="true">
+<svg width="22" height="14" viewBox="0 0 22 14"><path d="M1 10.5C4 10.5 5 6 8 6s3.5 4 6.5 4S17 4.5 19 4.5" fill="none" stroke="currentColor" strokeWidth="1.4" /><path d="M18 2l4 2.5-4 2.5z" fill="#B01E3A" /></svg>
 </div>
 <div className="qr221">
 Enouia Runtime
 </div>
+{connected ? null : <div className="bg-chartno">Chart No. 40 · week of 28 Sep 2026</div>}
 <div className="qr222">
 {pageTitle}
 </div>
-<div className="qr30">
+<div className="qr30" data-tauri-drag-region>
 
 </div>
 {this.connected() ? <MemoryBadge /> : <div className="qr224" role="status" title="Fictional demo data. No backend connection. Reload clears changes.">
@@ -393,7 +408,7 @@ Enouia Runtime
 </span>
 Demo · local only
 </div>}
-{this.state.windowError ? <span role="alert">{this.state.windowError}</span> : null}
+{this.state.windowError ? <span role="alert" className="bg-window-error">{this.state.windowError}</span> : null}
 <div className="qr226">
 <button aria-label="Minimize" className="window-control" disabled={!nativeWindow} onClick={() => this.windowAction('minimize')} type="button">
 <svg width="10" height="10" viewBox="0 0 10 10">
@@ -405,7 +420,7 @@ Demo · local only
 <button aria-label={this.state.windowMaximized === null ? 'Maximize or restore' : this.state.windowMaximized ? 'Restore' : 'Maximize'} className="window-control" disabled={!nativeWindow} onClick={() => this.windowAction('maximize')} type="button">
 <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
 {this.state.windowMaximized ? <path d="M2.5 2.5v-2h7v7h-2M0.5 2.5h7v7h-7z" fill="none" stroke="currentColor" strokeWidth="1" /> :
-<rect x="0.5" y="0.5" width="9" height="9" rx="1" fill="none" stroke="currentColor" strokeWidth="1">
+<rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" strokeWidth="1">
 
 </rect>
 }
@@ -420,142 +435,11 @@ Demo · local only
 </button>
 </div>
 </header>
-<div className="qr233">
-<nav aria-label="Primary" onKeyDown={railKey} className="qr231">
-<button aria-label="Home" aria-current={nav.home.cur} onClick={nav.home.go} className="qr230" style={{"background": nav.home.bg, "color": nav.home.fg}} type="button">
-<span className="qr228" style={{"opacity": nav.home.ind}}>
-
-</span>
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3">
-<circle cx="10" cy="10" r="6.5">
-
-</circle>
-<circle cx="10" cy="10" r="1.8" fill="currentColor" stroke="none">
-
-</circle>
-</svg>
-<span className="qr229">
-Home
-</span>
-</button>
-<button aria-label="Memory" aria-current={nav.memory.cur} onClick={nav.memory.go} className="qr230" style={{"background": nav.memory.bg, "color": nav.memory.fg}} type="button">
-<span className="qr228" style={{"opacity": nav.memory.ind}}>
-
-</span>
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3">
-<rect x="3" y="4" width="14" height="4" rx="1">
-
-</rect>
-<path d="M4.5 8v7.5h11V8M8 11h4">
-
-</path>
-</svg>
-<span className="qr229">
-Memory
-</span>
-</button>
-<button aria-label="Context" aria-current={nav.context.cur} onClick={nav.context.go} className="qr230" style={{"background": nav.context.bg, "color": nav.context.fg}} type="button">
-<span className="qr228" style={{"opacity": nav.context.ind}}>
-
-</span>
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round">
-<path d="M10 3l7 3.8-7 3.8-7-3.8z">
-
-</path>
-<path d="M3 10.4l7 3.8 7-3.8M3 13.8l7 3.8 7-3.8">
-
-</path>
-</svg>
-<span className="qr229">
-Context
-</span>
-</button>
-<button aria-label="Sessions" aria-current={nav.sessions.cur} onClick={nav.sessions.go} className="qr230" style={{"background": nav.sessions.bg, "color": nav.sessions.fg}} type="button">
-<span className="qr228" style={{"opacity": nav.sessions.ind}}>
-
-</span>
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3">
-<path d="M6 3v14">
-
-</path>
-<circle cx="6" cy="6.5" r="1.7" fill="#0C1117">
-
-</circle>
-<circle cx="6" cy="13.5" r="1.7" fill="#0C1117">
-
-</circle>
-<path d="M10 6.5h7M10 13.5h5">
-
-</path>
-</svg>
-<span className="qr229">
-Sessions
-</span>
-</button>
-<button aria-label="Activity" aria-current={nav.activity.cur} onClick={nav.activity.go} className="qr230" style={{"background": nav.activity.bg, "color": nav.activity.fg}} type="button">
-<span className="qr228" style={{"opacity": nav.activity.ind}}>
-
-</span>
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3">
-<path d="M7 5h10M7 10h8M7 15h9">
-
-</path>
-<circle cx="3.8" cy="5" r="0.9" fill="currentColor">
-
-</circle>
-<circle cx="3.8" cy="10" r="0.9" fill="currentColor">
-
-</circle>
-<circle cx="3.8" cy="15" r="0.9" fill="currentColor">
-
-</circle>
-</svg>
-<span className="qr229">
-Activity
-</span>
-</button>
-<button aria-label="Runtime" aria-current={nav.runtime.cur} onClick={nav.runtime.go} className="qr230" style={{"background": nav.runtime.bg, "color": nav.runtime.fg}} type="button">
-<span className="qr228" style={{"opacity": nav.runtime.ind}}>
-
-</span>
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3">
-<rect x="5" y="5" width="10" height="10" rx="1.5">
-
-</rect>
-<path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5">
-
-</path>
-</svg>
-<span className="qr229">
-Runtime
-</span>
-</button>
-<div className="qr30">
-
-</div>
-<button aria-label="Settings" aria-current={nav.settings.cur} onClick={nav.settings.go} className="qr230" style={{"background": nav.settings.bg, "color": nav.settings.fg}} type="button">
-<span className="qr228" style={{"opacity": nav.settings.ind}}>
-
-</span>
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3">
-<path d="M3 6.5h14M3 13.5h14">
-
-</path>
-<circle cx="8" cy="6.5" r="2" fill="#0C1117">
-
-</circle>
-<circle cx="13" cy="13.5" r="2" fill="#0C1117">
-
-</circle>
-</svg>
-<span className="qr229">
-Settings
-</span>
-</button>
-</nav>
+<div className="qr233 bg-body">
+{connected ? <NativeStrip page={page} nav={navEl} /> : <RecordStrip page={page} nav={navEl} still={still} selectedAt={selectedAt} sessionSpan={sessionSpan} paused={this.state.paused} />}
 <main id="runtime-content" className="qr232" tabIndex={-1} aria-label={`${isHome ? 'Home' : pageTitle} content`}>
 {isHome ? <>
-{connected ? <ConnectedHome nav={view.nav} ring={view.ring} /> : <Home view={view} />}
+{connected ? <ConnectedHome nav={view.nav} ring={penMark} /> : <Home view={{ ...view, still }} />}
 </> : null}
 {isMemory ? <>
 {connected ? <MemorySurface initialCollection={this.state.memInitialCollection} /> : <Memory view={view} />}
