@@ -16,6 +16,7 @@ setTransport(async (native, args) => {
   switch (native) {
     case "shell_status": return { vaultChanging: false };
     case "startup_status": return startup();
+    case "memory_provider_setup": return { state: "absent", file: "memory-providers.json" };
     case "startup_set":
       if (holdWrite) { holdWrite = false; await new Promise<void>(resolve => { release = resolve; }); }
       if (failWrite) throw "startup_write";
@@ -46,6 +47,6 @@ try {
   check("pending_change_retires_previous_acknowledgement", note() === "");
   releasePending(); await wait(() => !!fixture.querySelector('[role="alert"]')); await sleep(30);
   check("failed_change_claims_no_new_state", note() === "" && toggle()?.getAttribute("aria-checked") === "true");
-  check("fixture_uses_only_startup_and_status_commands", calls.every(c => ["shell_status", "startup_status", "startup_set", "memory_call"].includes(c)));
+  check("fixture_uses_only_startup_and_status_commands", calls.every(c => ["shell_status", "startup_status", "startup_set", "memory_call", "memory_provider_setup"].includes(c)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePending(); root.unmount(); document.getElementById("results")!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok) }, null, 2); }

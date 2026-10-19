@@ -17,7 +17,7 @@ const fixtures = ['settings-exit-ownership', 'runtime-inspector', 'workspace-ope
   'session-observation', 'session-selection-focus', 'session-list-recovery', 'session-id-filter', 'session-history-boundary', 'session-event-metadata',
   'session-retry-ownership', 'saved-suggestions', 'saved-suggestion-identity', 'saved-suggestion-apply',
   'suggestion-resume', 'suggestion-lifetime', 'suggestion-review-journey', 'workspace-calls',
-  'operation-snapshot', 'provider-config-draft', 'provider-draft-save', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
+  'operation-snapshot', 'provider-config-draft', 'provider-draft-save', 'provider-settings-status', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
   'provider-preparation-recovery', 'provider-operations', 'provider-off-ledger', 'provider-confirmation',
   'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation'];
 const desktop = fileURLToPath(new URL('..', import.meta.url));
