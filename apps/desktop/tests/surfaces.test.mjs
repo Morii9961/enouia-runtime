@@ -38,7 +38,7 @@ test('native Settings exposes a non-secret configuration draft even before openi
   const html = renderToStaticMarkup(createElement(App, { startPage: 'settings', memoryConnected: true, breathing: false }));
   assert.match(html, /Model configuration draft/);
   assert.match(html, /Generate settings draft/);
-  assert.match(html, /does not save, load or activate/);
+  assert.match(html, /Generating and copying do not save the file, reload settings or activate/);
   assert.doesNotMatch(html, /type="password"|Draft memory-providers\.json|Copy settings draft/);
 });
 

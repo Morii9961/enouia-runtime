@@ -1,10 +1,10 @@
 # Runtime 模型配置与恢复
 
-Settings 新增 **Model configuration draft**：按表单填写自己已核实的模型 ID、上下文/输出上限、流式能力、UTC 核实时间和会话预算，确认核实后生成并复制 `memory-providers.json` 草稿。字段未填或相互矛盾时不会生成；修改任一字段会使旧草稿失效。表单不推断任何真实模型能力，不保存文件、不重载配置、不触发凭据窗口或请求。
+Settings 新增 **Model configuration draft**：按表单填写自己已核实的模型 ID、上下文/输出上限、流式能力、UTC 核实时间和会话预算，确认核实后生成 `memory-providers.json` 草稿。字段未填或相互矛盾时不会生成；修改任一字段会使旧草稿失效。**Copy settings draft** 复制已展示的文本；**Save settings draft…** 打开原生保存对话框，文件名须为 `memory-providers.json`。保存期间表单保持锁定，取消或失败仍保留草稿；结果未确认时先检查所选文件，不自动重试。表单不推断真实模型能力，保存不重载配置、不触发凭据窗口或请求。
 
 将生成的草稿保存到下述位置后，再使用 Sessions 的 **Model setup steps** 和 **Reload settings**。配置仍由 owner 明确采用；本指南不表示真实模型、密钥或个人工作流已验收。
 
-1. 在 `%APPDATA%\com.enouia.runtime` 创建或编辑 `memory-providers.json`。只配置自己已确认的模型及能力；不要根据订阅名称推断 API 使用权，也不要将密钥放入文件。
+1. 在原生对话框选择 `%APPDATA%\com.enouia.runtime\memory-providers.json`，目录不存在时先创建；也可复制草稿后自行创建或编辑该文件。保存到别处只得到草稿副本，Runtime 不会自动读取。只配置自己已确认的模型及能力；不要根据订阅名称推断 API 使用权，也不要将密钥放入文件。
 2. 保存后点击 **Reload settings**，无需重启 Runtime。配置错误会说明字段或限额问题；修正后再次重载。移除文件再重载可关闭外部模型，正在发送时需先等调用结束。
 3. 配置加载后，用 **Set key…** 在 Windows 原生凭据窗口的密码栏输入密钥，用户名不使用。密钥保存在 Windows Credential Manager，页面看不到它。此操作由 owner 自行完成。
 4. 在当前会话中审核授权，然后准备问题、检查完整请求，最后选择 **Send once**。加载配置本身不发送内容、不授予外发权限。来源提取还需要明确允许 extraction 的授权，模型建议仍需普通记忆审核。

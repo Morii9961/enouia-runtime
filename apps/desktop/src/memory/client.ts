@@ -142,6 +142,8 @@ const HOST: Record<string, string> = {
   "provider_setup.quota": "Use 1–1000 attempts per session and a positive session token budget",
   "provider_setup.too_large": "The settings file must be no larger than 64 KiB",
   "provider_setup.unreadable": "Runtime could not read its settings file. Check file access and reload",
+  "provider_setup.draft_name": "Use the file name memory-providers.json for this settings draft",
+  "provider_setup.draft_save_failed": "The settings draft could not be saved. Check the chosen folder and file access",
   credential_malformed: "That key has spaces or characters an API key cannot contain. Nothing was saved",
   credential_failed: "Windows Credential Manager could not save or remove the key",
   credential_prompt_failed: "The Windows credential prompt could not be shown",
@@ -168,6 +170,18 @@ export const providerSetup = () => transport("memory_provider_setup", {}) as Pro
 
 /** Reload the host-owned settings file; carries no path, key or request body. */
 export const providerReload = () => transport("memory_provider_reload", {}) as Promise<J>;
+
+export type DraftSaveResult = { cancelled: true } | { saved: true; file: "memory-providers.json" };
+/** Native owner-operated save dialog. No page path, key or reload argument. */
+export async function providerSaveDraft(draft: string): Promise<DraftSaveResult> {
+  const result = await transport("memory_provider_save_draft", { draft }) as J;
+  if (result && typeof result === "object" && !Array.isArray(result)) {
+    const keys = Object.keys(result);
+    if (keys.length === 1 && keys[0] === "cancelled" && result.cancelled === true) return result;
+    if (keys.length === 2 && Object.hasOwn(result, "saved") && Object.hasOwn(result, "file") && result.saved === true && result.file === "memory-providers.json") return result;
+  }
+  throw new Error("The settings save result was not confirmed");
+}
 
 /** Set a key in the native Windows credential prompt, or remove it (ADR-032). */
 export const providerKey = (api: string, action: "set" | "remove") =>

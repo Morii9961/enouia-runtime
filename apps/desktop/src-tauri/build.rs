@@ -9,6 +9,7 @@ fn main() {
             "memory_pick",
             "memory_provider_setup",
             "memory_provider_reload",
+            "memory_provider_save_draft",
             "memory_provider_key",
             "shell_status",
             "shell_show",

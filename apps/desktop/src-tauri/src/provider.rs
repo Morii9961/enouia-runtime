@@ -8,8 +8,9 @@
 //! Manager. They are entered through the native Windows credential prompt and
 //! never pass through the page, the settings file or a log.
 //!
-//! This module only parses that file, injects `HttpsTransport` and
-//! `CredentialStore` into the Core, and runs the native key prompt. Every
+//! This module parses that file, saves validated drafts through a native
+//! dialog, injects `HttpsTransport` and `CredentialStore` into the Core, and
+//! runs the native key prompt. Saving does not apply settings. Every
 //! egress rule (grants, exact-body confirmation, one attempt, ledger) lives in
 //! the Core.
 
@@ -25,7 +26,7 @@ use enouia_memory_provider::windows::CredentialStore;
 use enouia_memory_workspace::{NativeDestination, NativeProvider};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tauri::{Manager, State, WebviewWindow};
@@ -243,6 +244,106 @@ pub async fn memory_provider_reload(
     .map_err(|_| "worker_failed".to_owned())?
 }
 
+/// Export only a validated non-secret draft through an owner-operated native
+/// save dialog. This does not apply settings or reach the secret store.
+#[tauri::command]
+pub async fn memory_provider_save_draft(
+    window: WebviewWindow,
+    host: State<'_, MemoryHost>,
+    draft: String,
+) -> Result<Value, String> {
+    if !draft_window_allowed(window.label()) {
+        return Err("permission_denied".into());
+    }
+    let host = host.inner().clone();
+    let default =
+        settings_path(window.app_handle()).and_then(|path| path.parent().map(Path::to_path_buf));
+    tauri::async_runtime::spawn_blocking(move || {
+        save_draft(&host, &draft, || {
+            let mut dialog = rfd::FileDialog::new()
+                .set_parent(&window)
+                .set_title("Save model settings draft (does not reload)")
+                .set_file_name(SETTINGS_FILE)
+                .add_filter("JSON settings", &["json"]);
+            if let Some(directory) = default
+                && directory.is_dir()
+            {
+                dialog = dialog.set_directory(directory);
+            }
+            dialog.save_file()
+        })
+        .map_err(str::to_owned)
+    })
+    .await
+    .map_err(|_| "worker_failed".to_owned())?
+}
+
+fn draft_window_allowed(label: &str) -> bool {
+    label == "main"
+}
+
+fn save_draft(
+    host: &MemoryHost,
+    draft: &str,
+    choose: impl FnOnce() -> Option<PathBuf>,
+) -> Result<Value, &'static str> {
+    let _update = host.provider_update()?;
+    if draft.len() > 64 * 1024 {
+        return Err("provider_setup.too_large");
+    }
+    // The same closed settings parser rejects key fields before any dialog.
+    let _validated = parse(draft.as_bytes())?;
+    let Some(path) = choose() else {
+        return Ok(json!({"cancelled": true}));
+    };
+    if host.is_closing() {
+        return Err("runtime_closing");
+    }
+    if path.file_name().and_then(|name| name.to_str()) != Some(SETTINGS_FILE) {
+        return Err("provider_setup.draft_name");
+    }
+    replace_draft(&path, |file| file.write_all(draft.as_bytes()))
+        .map_err(|_| "provider_setup.draft_save_failed")?;
+    Ok(json!({"saved": true, "file": SETTINGS_FILE}))
+}
+
+// Same staged-write/flush/rename pattern already verified by the Activity
+// choice writer, without depending on Activity or touching its storage.
+// A failed write/replacement preserves the old file. This is not a power-loss
+// guarantee. Only this attempt's staging file is removed on ordinary failure.
+fn replace_draft(
+    path: &Path,
+    write: impl FnOnce(&mut std::fs::File) -> std::io::Result<()>,
+) -> std::io::Result<()> {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::time::{SystemTime, UNIX_EPOCH};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    let name = path.file_name().ok_or(std::io::ErrorKind::InvalidInput)?;
+    let mut staged_name = std::ffi::OsString::from(".");
+    staged_name.push(name);
+    staged_name.push(format!(
+        ".{}-{}-{}.tmp",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(std::io::Error::other)?
+            .as_nanos(),
+        NEXT.fetch_add(1, Ordering::Relaxed)
+    ));
+    let staged = path.with_file_name(staged_name);
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&staged)?;
+    let result = write(&mut file).and_then(|()| file.sync_all());
+    drop(file);
+    let result = result.and_then(|()| std::fs::rename(&staged, path));
+    if result.is_err() {
+        let _ = std::fs::remove_file(&staged);
+    }
+    result
+}
+
 /// Set or remove one API key natively. `set` opens the Windows credential
 /// prompt; the key goes from that prompt to Credential Manager without
 /// reaching the page. `remove` first takes the setup out of the Core, which
@@ -434,6 +535,180 @@ mod prompt {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    struct DraftFolder(PathBuf);
+    impl DraftFolder {
+        fn new() -> Self {
+            use std::time::{SystemTime, UNIX_EPOCH};
+            let path = std::env::temp_dir().join(format!(
+                "enouia-provider-draft-{}-{}",
+                std::process::id(),
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            std::fs::create_dir(&path).unwrap();
+            Self(path)
+        }
+        fn file(&self) -> PathBuf {
+            self.0.join(SETTINGS_FILE)
+        }
+    }
+    impl Drop for DraftFolder {
+        fn drop(&mut self) {
+            std::fs::remove_dir_all(&self.0).unwrap();
+        }
+    }
+
+    const DRAFT: &str = include_str!("../../tests/fixtures/provider-settings-draft.json");
+
+    #[test]
+    fn draft_save_is_main_only_and_overlay_capabilities_do_not_grant_it() {
+        assert!(draft_window_allowed("main"));
+        for label in ["overlay", "quick-search", "other", "", "Main"] {
+            assert!(!draft_window_allowed(label));
+        }
+        let main: Value =
+            serde_json::from_str(include_str!("../capabilities/main-window.json")).unwrap();
+        assert!(
+            main["permissions"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("allow-memory-provider-save-draft"))
+        );
+        for text in [
+            include_str!("../capabilities/overlay-window.json"),
+            include_str!("../capabilities/quick-search.json"),
+        ] {
+            let capability: Value = serde_json::from_str(text).unwrap();
+            assert!(
+                !capability["permissions"]
+                    .as_array()
+                    .unwrap()
+                    .contains(&json!("allow-memory-provider-save-draft"))
+            );
+        }
+    }
+
+    #[test]
+    fn refused_drafts_closing_and_busy_do_not_open_the_save_dialog() {
+        let host = MemoryHost::new();
+        let mut keyed: Value = serde_json::from_str(DRAFT).unwrap();
+        keyed["apiKey"] = json!("synthetic-not-a-real-key");
+        for draft in [
+            "not json".to_owned(),
+            keyed.to_string(),
+            " ".repeat(64 * 1024 + 1),
+        ] {
+            assert!(
+                save_draft(&host, &draft, || panic!("invalid draft reached the dialog")).is_err()
+            );
+        }
+        {
+            let _update = host.provider_update().unwrap();
+            assert_eq!(
+                save_draft(&host, DRAFT, || panic!("busy dialog")),
+                Err("provider_setup.busy")
+            );
+        }
+        host.begin_close();
+        assert_eq!(
+            save_draft(&host, DRAFT, || panic!("closing dialog")),
+            Err("runtime_closing")
+        );
+        host.shutdown();
+    }
+
+    #[test]
+    fn native_draft_save_preserves_exact_bytes_without_applying_settings() {
+        let folder = DraftFolder::new();
+        let host = MemoryHost::new();
+        assert_eq!(
+            save_draft(&host, DRAFT, || None).unwrap(),
+            json!({"cancelled":true})
+        );
+        assert!(!folder.file().exists());
+        assert_eq!(
+            save_draft(&host, DRAFT, || Some(folder.0.join("other.json"))),
+            Err("provider_setup.draft_name")
+        );
+        assert!(!folder.0.join("other.json").exists());
+        let saved = save_draft(&host, DRAFT, || {
+            assert!(matches!(host.provider_update(), Err("provider_setup.busy")));
+            Some(folder.file())
+        })
+        .unwrap();
+        assert_eq!(saved, json!({"saved":true, "file":SETTINGS_FILE}));
+        assert_eq!(std::fs::read(folder.file()).unwrap(), DRAFT.as_bytes());
+        assert_eq!(host.provider_setup(), Setup::Absent);
+        assert_eq!(std::fs::read_dir(&folder.0).unwrap().count(), 1);
+        host.shutdown();
+    }
+
+    #[test]
+    fn a_close_observed_after_the_dialog_prevents_the_file_commit() {
+        let folder = DraftFolder::new();
+        let host = MemoryHost::new();
+        assert_eq!(
+            save_draft(&host, DRAFT, || {
+                host.begin_close();
+                Some(folder.file())
+            }),
+            Err("runtime_closing")
+        );
+        assert!(!folder.file().exists());
+        host.shutdown();
+    }
+
+    #[test]
+    fn partial_draft_write_failure_keeps_the_prior_file_and_cleans_its_stage() {
+        let folder = DraftFolder::new();
+        std::fs::write(folder.file(), b"previous-synthetic-config").unwrap();
+        let result = replace_draft(&folder.file(), |file| {
+            file.write_all(b"partial new draft")?;
+            Err(std::io::ErrorKind::WriteZero.into())
+        });
+        assert!(result.is_err());
+        assert_eq!(
+            std::fs::read(folder.file()).unwrap(),
+            b"previous-synthetic-config"
+        );
+        assert_eq!(std::fs::read_dir(&folder.0).unwrap().count(), 1);
+        replace_draft(&folder.file(), |file| file.write_all(DRAFT.as_bytes())).unwrap();
+        assert_eq!(std::fs::read(folder.file()).unwrap(), DRAFT.as_bytes());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn draft_replacement_sharing_failure_preserves_prior_bytes_and_can_retry() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let folder = DraftFolder::new();
+        std::fs::write(folder.file(), b"previous-synthetic-config").unwrap();
+        let held = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(folder.file())
+            .unwrap();
+        let host = MemoryHost::new();
+        assert_eq!(
+            save_draft(&host, DRAFT, || Some(folder.file())),
+            Err("provider_setup.draft_save_failed")
+        );
+        assert_eq!(
+            std::fs::read(folder.file()).unwrap(),
+            b"previous-synthetic-config"
+        );
+        assert_eq!(std::fs::read_dir(&folder.0).unwrap().count(), 1);
+        drop(held);
+        assert!(
+            save_draft(&host, DRAFT, || Some(folder.file())).unwrap()["saved"]
+                .as_bool()
+                .unwrap()
+        );
+        assert_eq!(std::fs::read(folder.file()).unwrap(), DRAFT.as_bytes());
+        host.shutdown();
+    }
 
     fn settings(destinations: Value) -> Vec<u8> {
         serde_json::to_vec(&json!({
