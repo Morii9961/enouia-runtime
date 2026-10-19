@@ -53,3 +53,48 @@ export function operationListObservation(result: J): J {
   }
   return result;
 }
+
+export type HistorySelection = { vaultId: string; importId: string; importRevision: number; messagesPerBatch: number; maxPathReferences: number; cursor: string | null; limit: number };
+
+/** Reject mixed archive, page and parameter replies before showing references. */
+export function historyObservation(result: J, selection: HistorySelection): J {
+  const fail = () => { throw new Error("history observation mismatch"); };
+  const integer = (value: unknown) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+  const hash = (value: unknown): value is string => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+  const time = (value: unknown) => value === null || (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value);
+  const source = (value: J) => value && typeof value.sourceId === "string" && value.sourceId.length > 0
+    && integer(value.sourceRevision) && value.sourceRevision > 0 && typeof value.speakerRole === "string"
+    && typeof value.evidenceClass === "string" && typeof value.completeness === "string" && time(value.occurredAt);
+  const id = result?.identity, summary = result?.summary;
+  if (!id || id.plannerVersion !== "workspace-history-plan-1" || id.vaultId !== selection.vaultId
+    || id.importId !== selection.importId || id.importRevision !== selection.importRevision
+    || id.messagesPerBatch !== selection.messagesPerBatch || id.maxPathReferences !== selection.maxPathReferences
+    || typeof id.commitId !== "string" || !id.commitId || !hash(id.inputObjectHash)
+    || !hash(result.planHash) || result.readOnly !== true || result.coverageIsCompleteHistory !== false || !summary) fail();
+  for (const key of ["units", "messages", "dated", "undated", "unparseable", "incompleteMessages", "unavailableAttachments", "batches", "issues"])
+    if (!integer(summary[key])) fail();
+  if (summary.dated + summary.undated !== summary.messages || summary.incompleteMessages > summary.messages
+    || !time(summary.earliest) || !time(summary.latest) || !Array.isArray(result.batches) || !Array.isArray(result.issues)
+    || result.issues.length > 100 || !integer(result.issuesOmitted) || result.issues.length + result.issuesOmitted !== summary.issues) fail();
+  let start = 0;
+  if (selection.cursor !== null) {
+    const parts = selection.cursor.split(":");
+    if (parts.length !== 2 || parts[0] !== result.planHash || !/^\d+$/.test(parts[1])) fail();
+    start = Number(parts[1]);
+    if (!integer(start) || start > summary.batches) fail();
+  }
+  const end = start + result.batches.length;
+  if (result.batches.length !== Math.min(selection.limit, summary.batches - start)
+    || result.nextCursor !== (end < summary.batches ? `${result.planHash}:${end}` : null)) fail();
+  result.batches.forEach((batch: J, index: number) => {
+    if (batch?.batchIndex !== start + index || !source(batch.leaf) || typeof batch.selectedInExport !== "boolean"
+      || !time(batch.observedPathStart) || !(batch.preceding === null || source(batch.preceding))
+      || !Array.isArray(batch.messages) || batch.messages.length === 0 || batch.messages.length > selection.messagesPerBatch
+      || batch.messages.some((message: J) => !source(message))) fail();
+  });
+  result.issues.forEach((issue: J) => {
+    if (!integer(issue?.unitIndex) || issue.unitIndex >= summary.units
+      || !["ambiguous_message_id", "broken_parent_chain", "unknown_selection", "non_monotonic_time"].includes(issue.kind)) fail();
+  });
+  return result;
+}

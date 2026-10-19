@@ -2,6 +2,8 @@
 
 日期：2026-10-18。Runtime 基线 `bd592b7`，固定 Memory `56bc5eb`。本文是可审核的跨仓库需求，**不是已实现接口、Memory 新阶段激活或个人历史使用授权**。
 
+后续实施：Morii 已明确授权此只读跨仓库切片。当前采用契约与开发证据见[历史规划接入](../validation/History-planning-v1.md)；下文保留提出需求时的基线，不将后续 H2 或真实历史使用视为同时获批。
+
 ## 已核实的缺口
 
 固定版本已有离线 `enouia-memory-import::history::plan_history`，Provider 的 `history::materialize` 及后续审核 helpers。它们不是 Workspace 的公开宿主方法，也不属于47条页面命令。Runtime 目前只能显示 `import_list` 的归档结果，不能从 UI 调用历史覆盖规划。

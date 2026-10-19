@@ -975,6 +975,92 @@ fn import_report_fields_the_surface_renders() {
 }
 
 #[test]
+fn history_plan_fields_the_surface_renders() {
+    let mut page = Page::new("history-plan-fields");
+    std::fs::write(page.base.join("history.md"),
+        "# Synthetic one\nFirst section.\n# Synthetic two\nSecond section.\n# Synthetic three\nThird section.\n# Synthetic four\nFourth section.\n# Synthetic five\nFifth section.\n").unwrap();
+    let token = page.pick(PickKind::ImportFile, "history.md");
+    let started = page.ok(
+        "import_start",
+        json!({"importToken":token,"accountAlias":"synthetic-history"}),
+    );
+    assert_eq!(page.finish(&started)["state"], "succeeded");
+    let row = page.ok("import_list", json!({}))["items"][0].clone();
+    let status = page.ok("workspace_status", json!({}));
+    let mut args = json!({"importId":row["importId"],"importRevision":row["revision"],
+        "messagesPerBatch":2,"maxPathReferences":1000,"cursor":null,"limit":1});
+    let response = page.send("history_plan", args.clone());
+    assert_eq!(response["kind"], "history_plan");
+    assert!(response["error"].is_null());
+    let first = response["result"].clone();
+    assert_eq!(first["identity"]["vaultId"], status["vault"]["vaultId"]);
+    assert_eq!(first["identity"]["importId"], row["importId"]);
+    assert_eq!(first["identity"]["importRevision"], row["revision"]);
+    assert_eq!(first["identity"]["messagesPerBatch"], 2);
+    assert_eq!(first["identity"]["maxPathReferences"], 1000);
+    strings(
+        &first["identity"],
+        &["plannerVersion", "commitId", "inputObjectHash"],
+        "history identity",
+    );
+    assert_eq!(
+        first["identity"]["plannerVersion"],
+        "workspace-history-plan-1"
+    );
+    assert_eq!(first["planHash"].as_str().unwrap().len(), 64);
+    assert_eq!(first["summary"]["messages"], 5);
+    assert_eq!(first["summary"]["dated"], 0);
+    assert_eq!(first["summary"]["undated"], 5);
+    assert_eq!(first["summary"]["batches"], 3);
+    for field in [
+        "units",
+        "unparseable",
+        "incompleteMessages",
+        "unavailableAttachments",
+        "issues",
+    ] {
+        assert!(
+            first["summary"][field].as_u64().is_some(),
+            "history summary.{field}"
+        );
+    }
+    assert!(first["summary"]["earliest"].is_null() && first["summary"]["latest"].is_null());
+    assert_eq!(first["readOnly"], true);
+    assert_eq!(first["coverageIsCompleteHistory"], false);
+    assert_eq!(first["issues"], json!([]));
+    assert_eq!(first["issuesOmitted"], 0);
+    let batch = &first["batches"][0];
+    assert_eq!(batch["batchIndex"], 0);
+    assert!(batch["selectedInExport"].is_boolean());
+    assert!(batch["observedPathStart"].is_null());
+    assert!(batch["preceding"].is_null());
+    assert_eq!(batch["messages"].as_array().unwrap().len(), 2);
+    for source in batch["messages"].as_array().unwrap() {
+        strings(
+            source,
+            &["sourceId", "speakerRole", "evidenceClass", "completeness"],
+            "history source",
+        );
+        assert!(source["sourceRevision"].as_u64().unwrap() > 0);
+        assert!(source["occurredAt"].is_null());
+        assert!(source.get("text").is_none() && source.get("locator").is_none());
+    }
+    args["cursor"] = first["nextCursor"].clone();
+    let second = page.ok("history_plan", args.clone());
+    assert_eq!(second["planHash"], first["planHash"]);
+    assert_eq!(second["batches"][0]["batchIndex"], 1);
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        status["vault"]["headCommitId"]
+    );
+    page.reopen();
+    assert_eq!(
+        page.err("history_plan", args)["rules"][0],
+        "history.plan_stale"
+    );
+}
+
+#[test]
 fn session_and_context_fields_the_surfaces_render() {
     let page = Page::new("session");
     let proposed = page.ok(

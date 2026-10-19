@@ -10,7 +10,7 @@ All fields come from the existing `import_list` result at the pinned revision. T
 
 Selecting a report and navigating to an original duplicate entry use the current list only. A missing original stays unavailable. A refreshing or failed list withholds report details; a later successful list updates the same selected ID, and a missing selected ID never substitutes a different row. Closing returns focus to that row's Inspect control, or to the Import heading if its control is unavailable. Vault lifecycle gating unmounts the report. Missing, negative, non-integer or unsafe numeric counts display unknown rather than zero.
 
-Import completion does not claim complete upstream history, semantic extraction quality or approved memory. Unknown formats distinguish preserved original bytes from parsed content. Interrupted entries keep the existing explicit Resume action. This report does not plan or start historical extraction; the missing host interface remains a separate dependency in the [v1 plan](../RUNTIME_V1_DELIVERY_PLAN.md).
+Import completion does not claim complete upstream history, semantic extraction quality or approved memory. Unknown formats distinguish preserved original bytes from parsed content. Interrupted entries keep the existing explicit Resume action. At this report's original revision, history planning was a separate missing host dependency. The later [read-only planning slice](History-planning-v1.md) adds that entry; neither slice starts historical extraction.
 
 ## Checks
 
