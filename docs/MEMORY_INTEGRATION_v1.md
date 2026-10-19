@@ -172,7 +172,7 @@ Each test chooses temporary debugging ports and checks that the listener belongs
 
 `--context-only` checks saved preview/read states and controlled delivery/read failures, approves and indexes a synthetic fixture, and verifies a local Mock dispatch's actual request against the selected capsule. Replacement-preview retry keeps its query and remains unsent. The import argument is unused; no live Provider is called.
 
-`--sessions-only` creates two synthetic sessions, holds an older real detail reply until a newer selection has completed, and checks each branch's unsent question/checkpoint drafts. It also holds a real local Mock answer receipt, checks the write guard, then verifies the transcript and provisional checkpoint through Core. The import argument is unused.
+`--sessions-only` creates two synthetic sessions, holds a real detail reply, checks that branch rows stay disabled and ignore another selection until it is delivered, and checks each branch's unsent question/checkpoint drafts. It also holds a real local Mock answer receipt, checks the write guard, then verifies the transcript and provisional checkpoint through Core. The import argument is unused.
 
 `--session-writes-only` holds actual creation, local Mock answer and checkpoint receipts. A controlled retryable answer-delivery error tests identical retry payload/key, receipt replay, draft edits after the error and the absence of duplicate turns. The import argument is unused.
 
