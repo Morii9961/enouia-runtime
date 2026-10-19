@@ -16,11 +16,11 @@ Runtime
 </div>
 <div className="qr27">
 {rtList.map((c, cIndex) => <React.Fragment key={c.code}>
-<button onClick={c.onClick} className="qr190" style={{"background": c.bg}} type="button">
+<button onClick={c.onClick} className="qr190" data-selected={c.name === rt.name || undefined} type="button">
 <span className="qr188">
 {c.name}
 </span>
-<span className="qr189" style={{"color": c.color}}>
+<span className="qr189" data-tone={c.tone}>
 <span className="qr36" style={{"background": c.color}}>
 
 </span>
@@ -49,7 +49,7 @@ Runtime
 <h2 className="qr194">
 {rt.name}
 </h2>
-<span className="qr195" style={{"color": rt.color}}>
+<span className="qr195">
 {rt.state}
 </span>
 </div>
@@ -110,14 +110,14 @@ Health
 </div>
 <div className="qr207">
 {rtList.map((c, cIndex) => <React.Fragment key={c.code}>
-<div className="qr206">
+<div className="qr206" data-tone={c.tone}>
 <span className="qr36" style={{"background": c.color}}>
 
 </span>
 <span className="qr61">
 {c.code}
 </span>
-<span className="qr205" style={{"color": c.color}}>
+<span className="qr205">
 {c.tone}
 </span>
 </div>

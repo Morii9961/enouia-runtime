@@ -1,8 +1,27 @@
 import React from "react";
 import type { DemoView } from "../App";
+import { demoData as D } from "../demo-data";
+
+// Turns sit on a time ruler: the space between two events is proportional to
+// the real interval (2 px per minute, capped at 48 px). A checkpoint is a
+// carmine bracket along the ruler over the turns it covers.
+function rulerFor(sessionKey: string | undefined, count: number) {
+  const session = D.SESS.find((x) => x.key === sessionKey);
+  if (!session) return Array.from({ length: count }, () => ({ gap: 0, minutes: 0, bracket: undefined as string | undefined }));
+  const at: number[] = []; const turnOf: (number | null)[] = [];
+  session.turns.forEach((turn, i) => { at.push(Date.parse(turn[2])); turnOf.push(i + 1); session.checkpoints.filter((c) => c.after === i + 1).forEach((c) => { at.push(Date.parse(c.at)); turnOf.push(null); }); });
+  const covered = session.checkpoints.map((c) => { const m = D.MEM.find((x) => x.key === c.mem); return m?.covered ?? [1, c.after]; });
+  return at.map((t, i) => {
+    const minutes = i ? Math.max(0, (t - at[i - 1]) / 60000) : 0;
+    const n = turnOf[i]; let bracket: string | undefined;
+    if (n != null) for (const [a, b] of covered) if (n >= a && n <= b) bracket = a === b ? 'only' : n === a ? 'start' : n === b ? 'end' : 'mid';
+    return { gap: Math.min(48, Math.round(minutes * 2)), minutes: Math.round(minutes), bracket };
+  });
+}
 
 export default function Sessions({ view }: { view: DemoView }) {
   const { ctx, nav, ses, sessList } = view;
+  const ruler = rulerFor(sessList.find((x) => x.selected)?.key, ses.events.length);
   return (
 <section data-screen-label="Sessions" className="qr171">
 <aside className="qr136">
@@ -16,7 +35,7 @@ Append-only. Nothing is rewritten.
 </div>
 <div className="qr135">
 {sessList.map((ss, ssIndex) => <React.Fragment key={ss.key}>
-<button onClick={ss.onClick} aria-pressed={ss.selected} className="qr134" style={{"background": ss.bg}} type="button">
+<button onClick={ss.onClick} aria-pressed={ss.selected} className="qr134" type="button">
 <span className="qr133">
 {ss.title}
 </span>
@@ -35,10 +54,13 @@ Append-only. Nothing is rewritten.
 <div className="qr19">
 {ses.day}
 </div>
+<div className="qr30" />
+<div className="bg-ruler-note">Spacing = real time · 2 px per minute, capped</div>
 </div>
 <div className="qr160">
 {ses.events.map((ev, evIndex) => <React.Fragment key={ses.title + ev.seq}>
-<div className="qr159">
+<div className="qr159 bg-turn" data-bracket={ruler[evIndex]?.bracket} data-checkpoint={ev.isCheckpoint || undefined} style={{ '--gap': (ruler[evIndex]?.gap ?? 0) + 'px' } as React.CSSProperties}>
+{(ruler[evIndex]?.minutes ?? 0) >= 4 ? <span className="bg-gap" aria-hidden="true">+{ruler[evIndex].minutes} min</span> : null}
 <span className="qr138">
 {ev.seq}
 </span>
@@ -68,7 +90,7 @@ turn {ev.n} · {ev.turnShort}
 {ev.text}
 </div>
 {ev.writes.map((w, wIndex) => <React.Fragment key={w.key}>
-<button onClick={w.onClick} className="qr148" type="button">
+<button onClick={w.onClick} className="qr148" data-kind={w.label.startsWith('Candidate') ? 'candidate' : 'canonical'} type="button">
 <span className="qr36" style={{"background": w.color}}>
 
 </span>

@@ -2,7 +2,7 @@ import React from "react";
 import type { DemoView } from "../App";
 
 export default function Activity({ view }: { view: DemoView }) {
-  const { actDays, actFilters } = view;
+  const { actDays, actFilters, paused } = view;
   return (
 <section data-screen-label="Activity" className="qr187">
 <div className="qr186">
@@ -15,31 +15,31 @@ Activity
 What happened, in order. Expand a row for its record.
 </div>
 </div>
+<div className="bg-plate">Second instrument<span>Producer readings on separate paper · runtime events listed beside them</span></div>
 <div className="qr30">
 
 </div>
 <div role="group" aria-label="Filter events" className="qr173">
 {actFilters.map((f, fIndex) => <React.Fragment key={f.label}>
-<button aria-pressed={f.active} onClick={f.onClick} className="qr172" style={{"background": f.bg, "color": f.fg}} type="button">
+<button aria-pressed={f.active} onClick={f.onClick} className="qr172" type="button">
 {f.label}
 </button>
 </React.Fragment>)}
 </div>
 </div>
+{paused ? <div className="bg-lifted" role="status"><b>Pen lifted</b> Scheduled runs paused (demo). The demo switch in Settings does not reach a real scheduler.</div> : null}
 {actDays.map((dd, ddIndex) => <React.Fragment key={dd.key}>
 <div className="qr65">
 <div className="qr175">
 {dd.label}
 </div>
 {dd.items.map((a, aIndex) => <React.Fragment key={a.key}>
-<div className="qr184" style={{"background": a.bg}}>
+<div className="qr184" data-cat={a.origin === 'Activity producer' ? 'producer' : 'runtime'} data-fail={a.title === 'Collection incomplete' || undefined}>
 <button onClick={a.toggle} aria-expanded={a.open} className="qr179" type="button">
 <span className="qr11">
 {a.time}
 </span>
-<span className="qr47" style={{"background": a.color}}>
-
-</span>
+<span className="bg-cat" aria-hidden="true">{a.title === 'Collection incomplete' ? '✕' : a.origin === 'Activity producer' ? '▮' : '·'}</span>
 <span className="qr133">
 {a.title}
 </span>

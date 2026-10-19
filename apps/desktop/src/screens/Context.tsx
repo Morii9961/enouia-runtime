@@ -37,11 +37,12 @@ Query{' '}
 <div className="qr15">
 <div className="qr95">
 {ctx.segs.map((sg, sgIndex) => <React.Fragment key={sg.label}>
-<span title={sg.label} className="qr94" style={{"width": sg.w, "background": sg.c}}>
+<span title={sg.label} className="qr94" data-i={sgIndex} style={{"width": sg.w}}>
 
 </span>
 </React.Fragment>)}
 </div>
+<div className="bg-scale" aria-hidden="true"><span>0</span><span>1,024</span><span>2,048</span><span>3,072</span><span>4,096 units</span></div>
 <div className="qr98">
 <span>
 <span className="qr96">
@@ -65,8 +66,8 @@ Records admitted whole, never truncated
 <div className="qr131">
 <div className="qr105">
 {ctx.sections.map((s, sIndex) => <React.Fragment key={s.domId}>
-<button onClick={s.jump} className="qr102" style={{"background": s.bg}} type="button">
-<span className="qr100" style={{"background": s.c}}>
+<button onClick={s.jump} className="qr102" type="button">
+<span className="qr100" data-i={sIndex}>
 
 </span>
 <span>
@@ -112,7 +113,7 @@ Excluded
 </div>
 <div className="qr120">
 {s.items.map((it, itIndex) => <React.Fragment key={it.key}>
-<div className="qr119" style={{"background": it.bg}}>
+<div className="qr119">
 <button onClick={it.toggle} aria-expanded={it.open} className="qr114" type="button">
 <span className="qr42">
 <span className="qr109">

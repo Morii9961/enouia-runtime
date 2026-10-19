@@ -24,12 +24,12 @@ Appearance
 Motion
 </span>
 <span className="qr108">
-The presence ring breathes on a 6-second cycle unless reduced.
+The pen draws the week once, then drifts a pixel every 8 seconds, unless reduced.
 </span>
 </div>
 <div className="qr173">
 {motionOpts.map((f, fIndex) => <React.Fragment key={f.label}>
-<button onClick={f.onClick} aria-pressed={f.active} className="qr212" style={{"background": f.bg, "color": f.fg}} type="button">
+<button onClick={f.onClick} aria-pressed={f.active} className="qr212" type="button">
 {f.label}
 </button>
 </React.Fragment>)}
@@ -41,11 +41,11 @@ The presence ring breathes on a 6-second cycle unless reduced.
 Theme
 </span>
 <span className="qr108">
-Dark. A light theme is not designed yet.
+Chart paper (light). A dark theme is not designed in this direction.
 </span>
 </div>
 <span className="qr9">
-Dark
+Paper
 </span>
 </div>
 </div>
@@ -62,8 +62,8 @@ Pause scheduled runs · demo
 Demo switch only · scheduler is not connected
 </span>
 </div>
-<button role="switch" aria-checked={paused} aria-label="Pause scheduled runs" onClick={togglePaused} className="qr215" style={{"border": "1px solid " + (sw.border), "background": sw.bg}} type="button">
-<span className="qr214" style={{"left": sw.left, "background": sw.knob}}>
+<button role="switch" aria-checked={paused} aria-label="Pause scheduled runs" onClick={togglePaused} className="qr215" type="button">
+<span className="qr214" style={{"left": sw.left}}>
 
 </span>
 </button>

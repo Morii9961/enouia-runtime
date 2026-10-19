@@ -31,11 +31,11 @@ What I keep, and why.
 {grp.label}
 </div>
 {grp.items.map((c, cIndex) => <React.Fragment key={c.key}>
-<button onClick={c.onClick} aria-pressed={c.active} className="qr26" style={{"background": c.bg, "color": c.fg}} type="button">
+<button onClick={c.onClick} aria-pressed={c.active} className="qr26" type="button">
 <span className="qr24">
 {c.label}
 </span>
-<span className="qr25" style={{"color": c.countColor}}>
+<span className="qr25" data-waiting={c.key === 'candidates' && c.count > 0 ? 'true' : undefined}>
 {c.count}
 </span>
 </button>
@@ -61,7 +61,7 @@ Newest first · ↑ ↓ to move
 <div className="qr44">
 {timelineEmpty ? <>
 <div className="qr32">
-Nothing here matches.
+Nothing here matches. No reading on this chart for that text.
 </div>
 </> : null}
 {groups.map((g, gIndex) => <React.Fragment key={g.key}>
@@ -70,7 +70,7 @@ Nothing here matches.
 {g.label}
 </div>
 {g.items.map((m, mIndex) => <React.Fragment key={m.key}>
-<button onClick={m.onClick} aria-pressed={m.selected} className="qr43" style={{"background": m.bg}} type="button">
+<button onClick={m.onClick} aria-pressed={m.selected} className="qr43" data-status={m.showStatus ? m.statusLabel.toLowerCase() : 'canonical'} type="button">
 <span className="qr34">
 {m.time}
 </span>
@@ -85,15 +85,12 @@ Nothing here matches.
 </span>
 </> : null}
 {m.showStatus ? <>
-<span className="qr37" style={{"color": m.statusColor}}>
-<span className="qr36" style={{"background": m.statusColor}}>
-
-</span>
+<span className="qr37" data-status={m.statusLabel.toLowerCase()}>
 {m.statusLabel}
 </span>
 </> : null}
 </span>
-<span className="qr39" style={{"color": m.textColor}}>
+<span className="qr39">
 {m.content}
 </span>
 <span className="qr41">
@@ -131,10 +128,7 @@ Select a memory to see where it came from.
 <div className="qr79">
 <div className="qr54">
 <div className="qr50">
-<span className="qr48" style={{"color": sel.statusColor}}>
-<span className="qr47" style={{"background": sel.statusColor}}>
-
-</span>
+<span className="qr48" data-status={sel.statusLabel.toLowerCase()}>
 {sel.statusLabel}
 </span>
 <span className="qr9">
