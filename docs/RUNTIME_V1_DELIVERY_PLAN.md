@@ -24,6 +24,14 @@ Morii 要求功能逐项落实，最后统一验收，并在本轮明确选择�
 
 Runtime 不自行读取 Vault 文件、重建解析规则、调用未公开内核状态或增加本地分叉。该依赖待 Memory 交付；本轮继续可独立完成的 Runtime 项目。
 
+第一项只读宿主切片的输入、结果绑定、生命周期、窗口范围和出口检查已整理为[Memory 接入需求](integration/history-host-request-v1.md)，供明确领取跨仓库工作时采用；它不启用新 Memory 阶段或真实历史外发。
+
+## 本轮已交付与候选包
+
+PR #82（真实 Inspector 与导入报告）已获明确批准并合入 main。配置草稿 #83、既有任务观察 #84、原生保存 #85、Settings 已加载状态/显式重载 #86 已逐项验证、提交和推送，仍保持待审；#83 的基线已改为 main，后续 PR 依次堆叠。
+
+已基于 `bd592b7` 生成并保留未签名 NSIS 开发候选包，完整前端门禁、Windows 构建和实际安装器模板检查通过，见[候选包记录](validation/Runtime-v1-development-candidate-2026-10-18.md)。它包含尚未合并的后续切片，未运行或安装；历史功能缺口仍在，因此尚非桌面 v1 最终冻结或统一验收通过。
+
 ## 首个切片：原生 Inspector 的真实状态
 
 - Memory 复用共享的 `workspace_status` 观察，展示组件、Vault、操作数与待审数；不显示 Core 中固定的 Activity 行。
