@@ -937,6 +937,85 @@ async function contrastChecks(s) {
 }
 
 async function main() {
+  if (process.argv[6] === '--history-only') {
+    const fixture = resolve(out, '..');
+    if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-history-')
+      || vault !== join(fixture, 'vault') || importFile !== join(fixture, 'history.md')
+      || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('history mode requires its dedicated temporary synthetic fixture');
+    writeFileSync(importFile, Array.from({length:24}, (_, i) => `# Synthetic section ${i + 1}\nSynthetic history body ${i + 1}.\n`).join(''));
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, has('Memory · Vault open'), 'history fixture open');
+    const initial = await s.evaluate("Promise.all([__t.memory('import_list',{}),__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([i,s,c])=>({imports:i.result.items.length,sessions:s.result.items.length,candidates:c.result.total}))");
+    if (initial.imports || initial.sessions || initial.candidates) throw new Error('history fixture must start empty');
+    await nav(s, 'Memory');
+    await rail(s, 'Import');
+    await click(s, 'button', 'Choose file');
+    fillOpenDialog(app.pid, importFile, false);
+    await waitFor(s, has('recognized'), 'history import preview');
+    await click(s, 'button', 'Start import');
+    await waitFor(s, "[...document.querySelectorAll('.mem-operation')].some(el=>el.textContent.includes('succeeded'))", 'history import finished', 60000);
+    await click(s, 'button', 'Refresh import list');
+    await waitFor(s, "!!document.querySelector('button[aria-label^=\"Inspect import\"]:not(:disabled)')", 'history import row');
+    const before = await statusOf(s);
+    await s.evaluate(`window.__historyReplies=[]; window.__historyStatusHead=null;
+      const callbacks=window.__TAURI_INTERNALS__.callbacks, originalSet=callbacks.set;
+      callbacks.set=function(id,callback){return originalSet.call(this,id,value=>{
+        if(value?.kind==='history_plan' || value?.error?.rules?.includes('history.plan_stale')) window.__historyReplies.push(value);
+        if(value?.result?.vault?.headCommitId) window.__historyStatusHead=value.result.vault.headCommitId;
+        callback(value);
+      });}; document.querySelector('button[aria-label^="Inspect import"]').click();`);
+    await waitFor(s, has('Plan archived history'), 'explicit history entry');
+    await waitFor(s, `window.__historyStatusHead===${JSON.stringify(before.vault.headCommitId)}`, 'shared status observes imported head');
+    check('H.no_automatic_plan', await s.evaluate('window.__historyReplies.length===0'));
+    const section = "[...document.querySelectorAll('section')].find(el=>el.querySelector('h4')?.textContent==='History planning')";
+    const field = await s.evaluate("[...document.querySelectorAll('label')].find(el=>el.textContent.includes('Messages per batch')).htmlFor");
+    await set(s, `[id=${JSON.stringify(field)}]`, '1');
+    await click(s, 'button', 'Plan archived history');
+    await waitFor(s, has('Next history batches'), 'history first page');
+    const first = await s.evaluate('window.__historyReplies[0]');
+    check('H.real_core_identity', first.kind==='history_plan' && first.result.identity.vaultId===before.vault.vaultId && first.result.identity.messagesPerBatch===1);
+    check('H.coverage_unknown_time', first.result.summary.messages===24 && first.result.summary.undated===24 && first.result.summary.dated===0 && first.result.summary.batches===24);
+    check('H.first_page_rendered', await s.evaluate(`(${section}).querySelectorAll('details').length===10 && (${section}).textContent.includes(${JSON.stringify(first.result.planHash)})`));
+    check('H.references_without_text', await s.evaluate(`(${section}).textContent.includes(${JSON.stringify(first.result.batches[0].messages[0].sourceId)}) && !(${section}).textContent.includes('Synthetic history body')`));
+    const fits = `(()=>{const p=(${section}).closest('aside');return p.scrollWidth<=p.clientWidth+1 && p.firstElementChild.scrollWidth<=p.firstElementChild.clientWidth+1;})()`;
+    check('H.references_fit_the_inspector', await s.evaluate(fits));
+    ownedWindowMetrics(app, {width:1100,height:700});
+    check('H.references_fit_the_minimum_window', await s.evaluate(fits));
+    await s.evaluate(`(${section}).querySelector('dl').scrollIntoView({block:'start'})`);
+    await shot(s, 'history-first-page');
+    await click(s, 'button', 'Next history batches');
+    await waitFor(s, 'window.__historyReplies.length===2 && !!__t.byText("button","Next history batches")', 'history second page');
+    const second = await s.evaluate('window.__historyReplies[1]');
+    check('H.real_paging', second.result.planHash===first.result.planHash && second.result.batches[0].batchIndex===10 && second.result.batches.length===10);
+    check('H.second_page_rendered', await s.evaluate(`(${section}).querySelector('details summary').textContent.startsWith('Batch 11 ')`));
+    check('H.planning_creates_no_sessions_or_candidates', await s.evaluate("Promise.all([__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([s,c])=>s.result.items.length===0 && c.result.total===0)"));
+    check('H.planning_preserves_head', (await statusOf(s)).vault.headCommitId===before.vault.headCommitId);
+    // Deliberate synthetic fixture mutation; it is not a planning side effect.
+    const mutation = await s.evaluate("__t.memory('remember',{text:'Synthetic history cursor invalidation fixture',claimKey:'fixture.history.cursor'},'ui-'+crypto.randomUUID())");
+    if (mutation.error) throw new Error('history fixture mutation failed');
+    const staleArgs = {
+      importId:first.result.identity.importId, importRevision:first.result.identity.importRevision,
+      messagesPerBatch:1, maxPathReferences:10000, cursor:second.result.nextCursor, limit:10,
+    };
+    const stale = await s.evaluate(`__t.memory('history_plan',${JSON.stringify(staleArgs)})`);
+    check('H.stale_cursor_refused', stale.kind==='memory_error' && stale.error.rules.includes('history.plan_stale'));
+    await waitFor(s, `(${section}).querySelectorAll('details').length===0`, 'observed head clears old history');
+    check('H.stale_page_withheld', await s.evaluate(`(${section}).querySelectorAll('details').length===0`));
+    check('H.head_change_does_not_replan', await s.evaluate('window.__historyReplies.length===3'));
+    const freshField = await s.evaluate("[...document.querySelectorAll('label')].find(el=>el.textContent.includes('Messages per batch')).htmlFor");
+    await set(s, `[id=${JSON.stringify(freshField)}]`, '1');
+    await click(s, 'button', 'Plan archived history');
+    await waitFor(s, 'window.__historyReplies.length===4 && !!__t.byText("button","Next history batches")', 'fresh history recovery');
+    const recovered = await s.evaluate('window.__historyReplies[3]');
+    check('H.fresh_plan_recovers', recovered.result.planHash!==first.result.planHash && recovered.result.batches[0].batchIndex===0);
+    await shot(s, 'history-fresh-plan');
+    void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+    check('H.host_exits', await waitForExit(app, 20000)===0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--keyboard-journey-only') {
     const fixture = resolve(out, '..');
     if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-keyboard-journey-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('keyboard journey requires its dedicated temporary synthetic fixture');

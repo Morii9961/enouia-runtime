@@ -515,6 +515,7 @@ function useReturnFocus(idle: boolean) {
 }
 
 function Import() {
+  const { status } = useStatus();
   const [inspected, setInspected] = useState<string | null>(null);
   const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
   const preview = selection?.preview;
@@ -641,7 +642,7 @@ function Import() {
       <Inspector>
         <h3 className="mem-h3">What an import does</h3>
         <p className="mem-muted">The original export is kept byte for byte. Conversations become sources; nothing becomes a memory without your review. An interrupted import can be resumed.</p>
-        {inspected && <ImportReport selected={inspected} row={report} current={listReady}
+        {inspected && <ImportReport selected={inspected} row={report} current={listReady} vaultId={status?.vault?.vaultId} vaultHead={status?.vault?.headCommitId}
           inspectOriginal={original ? () => setInspected(original.importId) : undefined} close={() => {
             setInspected(null);
             const trigger = document.getElementById(`mem-import-report-${inspected}`) as HTMLButtonElement | null;
