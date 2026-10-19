@@ -49,3 +49,31 @@ Runtime checkout and its owner's concurrent changes remain separate.
 The owner deferred native window inspection while the old Runtime remained in
 the background. Actual rendered personal-Vault acceptance remains pending;
 the new build is delivered separately and the old process is preserved.
+
+## Portable handoff correction (2026-10-19)
+
+The first portable copy included only the executable. PE import inspection
+confirmed its direct dependency on `WebView2Loader.dll`; that DLL existed in
+the same release build but was missing from the delivery directory. Launching
+the incomplete copy exited before a Runtime window appeared. This was a
+handoff omission, and the successful build did not validate that copy.
+
+Copying the same build's 160,880-byte loader fixed startup. Both delivered
+files match their build-output SHA-256 digests:
+
+| File | SHA-256 |
+|---|---|
+| `enouia-desktop.exe` | `30f2b5c9c8ff01b0cc13a41066f1d90735068daea6968f048567fe30ffb90b5b` |
+| `WebView2Loader.dll` | `86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5` |
+
+The corrected program remained running and held its Vault host lock. Native
+read-only observations confirmed Vault open, 185 pending candidates, the first
+50 loaded rows, distinct evidence/context sections and a P0-filter count of
+17 in those loaded rows. Full-page traversal and selected-source text reading
+were not completed in this inspection. No review confirmation was performed.
+Subsequent CLI status remained healthy at sequence 408; all 185 acceptance
+plans built with zero failures and no confirmation or Canonical writes.
+
+This follow-up changes delivery documentation only. The pinned Core, source,
+build and synthetic-test evidence above remain unchanged; no full-suite rerun
+is implied. The private package manifest now inventories both runtime files.
