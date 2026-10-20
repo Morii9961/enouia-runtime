@@ -5,6 +5,7 @@
 .mem-warn{color:var(--pending)}
 .mem-note{font-size:12.5px;color:var(--ok)}
 .mem-mono{font-family:'Cascadia Code','Cascadia Mono',Consolas,monospace;font-size:12px}
+.mem-history-request{min-width:0;overflow-wrap:anywhere}
 .mem-pad{padding:16px 24px}
 .mem-stack{display:flex;flex-direction:column;gap:10px}
 .mem-grow{flex:1;min-width:0}

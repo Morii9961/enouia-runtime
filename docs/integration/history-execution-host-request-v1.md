@@ -1,23 +1,13 @@
-# 已有历史任务的请求准备：后续接入范围
+# 已有历史批次的准备、检查与单独发送
 
-日期：2026-10-20。状态：待 Morii 决定后续范围，尚未授权实现，不是已有 API。当前固定 Memory 为 `a6e4da9`、Workspace IPC v1 共52条命令；本文件不改变 pin 或激活新阶段。
+日期：2026-10-20。Morii 已明确授权本切片，实现与合成证据见[验证记录](../validation/History-batch-request-v1.md)。此文取代同日的接口提案；以 Memory ADR-MEM-71 和实际固定 Core 为准。
 
-## 为什么需要下一项切片
+Memory PR #39 当前为 OPEN / DRAFT，未合并；开发 pin 为 `d565181e0cb3bf14c938eb66a945269bba57ac8d`。Workspace IPC v1 共53条命令，aggregate `9b25885480cf2e220b37f231fe9973afaecb3bd68b8939fdf1c918d42ac233b2`。本分支只做开发验证；正式交付仍须 Memory 合并后更新最终 revision、lockfile 和 pin 并复核。本轮不自行合并任何 PR，不叠加旧草稿 #36。
 
-已合入的 H2 能保存批次、查询任务并补齐缺失的本地任务；Runtime 也已接上任务到 Sessions 的定位。保存的批次拥有既有 ExtractionJob，但当前 `extraction_prepare` 是“从来源范围创建新任务并准备请求”，不能用于原样执行这个已保存的任务。用它替代会创建另一份任务，并丢失原批次的模型、额度和请求身份。
+保存任务旁提供原批次选择、已有 extraction egress grant 和输出上限（1–32768，同时不超过当前模型上限）。`history_batch_prepare` 是带幂等键的同步本地写，参数只有 `taskId`、原始 `batchIndex`、`policyId`、`outputTokens`。Core 派生原 child/session/run/input，重新检查任务、来源、权限和模型。Runtime 不使用 `extraction_prepare` 重建另一任务。
 
-Memory 原生 `enouia-memory-provider/src/extraction.rs::prepare` 可以对既有 run 准备请求；它要求任务仍为 ready、原输入和绑定一致，并沿用来源、策略、待审预算及上下文校验。Workspace 尚未提供这个既有任务入口。
+准备返回 `external_prepared`；Runtime 核对 task/batch/session/run/input、模型及参数，显示实际 body、endpoint、模型、wireHash 和临时 callId。准备可能提交本地 Context、改变 head，但不读凭据、不调用 transport，也不代表发送授权。幂等键和精确参数属于独立于 head 预览的进程内 owner；Vault、任务、批次、policy 或 token 上限不同不能共用键。相同参数恢复使用原键。重新取得的 handle 必须重新检查。
 
-## 建议交付
+只有主人单独勾选当前请求并选择发送后，才调用既有 `external_send`，绑定该 callId/hash 和唯一发送键。提交回执不明确时只恢复同一调用；不自动重发、重新准备或创建另一任务。任何已有 invocation，包括失败、取消及 unknown，都不得借准备重试。缺失 child 走已有显式 resume；暂停、来源权限或模型漂移按 Core 错误重新观察。锁定、切换 Vault、任务/批次/参数变动、Provider/grant 变化和 handle 失效均撤下旧请求及确认；迟到回复不得认领新选择。
 
-1. 由 Memory 定义一个“为已有任务准备请求”的主窗口写入契约，建议参数仅含 `sessionId`、`runId`、显式 egress policy ID，幂等键沿用 Workspace 信封。名称及最终字段由 Memory ADR/Schema 决定，不在 Runtime 自建领域实现。
-2. Core 读取原任务的模型、Owner/Subject、来源范围、额度和输入事件；不接受页面另传模型、额度、任意文本、路径、端点、密钥或完成游标。必须拒绝删除、来源修订/读取权限变化、错误 run/session、暂停/完成状态、模型不匹配和不可用索引。
-3. 准备结果沿用现有宿主 `hold_call` 和 Provider 请求审核格式，包含确切请求/哈希及原任务身份；只准备一个现有 run，不批量自动准备或发送，不创建另一 ExtractionJob。重放原键不能重复创建任务或另记一次模型调用。
-4. Runtime 在保存任务旁提供明确的准备入口，再沿用现有请求查看、策略确认和 `external_send` 链路；发送始终是独立动作。任务已有调用、结果未知、取消或部分结果时先显示保存状态，不自动重新发送。相同动作的晚到回复不能认领另一个任务或 Vault。
-5. 模型结果仍保存在原会话/任务；已有 `extraction_preview`、`extraction_apply` 和人工 review 分别负责查看、加入待审候选及批准记忆。准备或发送本身不得替代后两步。
-
-## 开发证据与授权边界
-
-若 Morii 批准实现，仅使用合成 Vault、合成来源、假凭据和合成传输验证准备、确切请求审核、一次发送、结果保存、未知结果/取消、幂等重放、重启、来源/策略撤回和 Vault 切换。Runtime 随后固定 Memory 的已验证合并 SHA，再做字段、组件和隔离原生验证。
-
-本提案不请求真实 Provider 调用、读取个人历史/Vault、访问真实凭据、自动批量抽取或批准记忆；不包含语义提案、时间比较、MV-8、MCP、云端、Activity 或生产启用。真实模型与个人资料仍留给另行明确批准的统一验收。此前 H2 的批准只覆盖本地批次创建与续接，不能作为本契约新增写入的授权。
+本片只到请求准备、检查、发送操作和结果状态。保存结果预览、候选逐条入队、审核、语义分析、MV-8、MCP、云端及 Activity 均在后续范围。开发只用合成资料和 fake ports，不访问真实历史、个人 Vault、凭据或账户，不发真实 Provider 请求，不安装、部署或激活生产。

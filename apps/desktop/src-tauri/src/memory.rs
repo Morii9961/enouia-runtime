@@ -719,7 +719,8 @@ mod tests {
                 "extraction_apply",
                 "extraction_pause",
                 "history_materialize",
-                "history_resume"
+                "history_resume",
+                "history_batch_prepare"
             ]
         );
         for read in [

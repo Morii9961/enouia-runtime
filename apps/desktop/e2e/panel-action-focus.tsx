@@ -55,6 +55,8 @@ try {
   await begin("Choose file…");
   check("platform_blur_reaches_document_while_pending", document.activeElement === document.body);
   await settle(() => !!button("Start import") && button("Choose file…")?.disabled === false);
+  // Rendered controls can precede the focus effect under build/test load.
+  await wait(() => document.activeElement === button("Choose file…"));
   check("preview_returns_to_choose_file", document.activeElement === button("Choose file…"));
   await begin("Refresh import list"); await settle(() => button("Refresh import list")?.disabled === false);
   check("list_refresh_returns_to_its_control", document.activeElement === button("Refresh import list"));
