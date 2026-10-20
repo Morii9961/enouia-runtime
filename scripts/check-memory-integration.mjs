@@ -97,13 +97,14 @@ if (args.includes('--self-test')) {
     (i) => { i.manifest = i.manifest.replace(/rev = "[0-9a-f]{40}"/, 'branch = "main"'); },
     (i) => { i.manifest += '\n[patch."https://github.com/Morii9961/enouia-memory.git"]\nenouia-memory-workspace = { path = "../memory" }\n'; },
     (i) => { i.lock = i.lock.replace(/\?rev=[0-9a-f]{40}#/, `?rev=${'1'.repeat(40)}#`); },
-    (i) => { i.lock = i.lock.replace(/source = "git\+https:\/\/github\.com\/Morii9961\/enouia-memory\.git[^"]*"\n/, ''); },
+    (i) => { i.lock = i.lock.replace(/source = "git\+https:\/\/github\.com\/Morii9961\/enouia-memory\.git[^"]*"\r?\n/, ''); },
     (i) => { i.rootManifest += '\nenouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "x" }\n'; },
     (i) => { i.pin.crates = ['enouia-memory-workspace']; },
   ];
   for (const change of variants) {
     const copy = structuredClone(inputs);
     change(copy);
+    assert.notDeepEqual(copy, inputs, 'a negative fixture must actually change its input');
     assert.throws(() => check(copy));
   }
   result.negativeChecks = variants.length;

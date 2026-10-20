@@ -17,6 +17,8 @@ setTransport(async (native, args) => {
   if (native !== 'memory_call') throw new Error(`Unexpected native ${native}`);
   const r = args.request as Request; calls.push(r); let result: unknown;
   switch (r.command) {
+    case "history_task_list": result = { identity: { commitId: "synthetic-head" }, items: [], nextCursor: null, readOnly: true }; break;
+    case "operation_list": result = { items: [] }; break;
     case 'workspace_status': result = { vault: { state: 'open' }, pendingCandidates: 0 }; break;
     case 'memory_list': result = { items: [], total: 0, nextCursor: null }; break;
     case 'import_list': result = { items: [{ importId: 'synthetic-import', status: 'archived', inputKind: 'markdown_file', accountScope: scope, counts: { sources_created: 1, attachments_missing: 0 }, warnings: [] }] }; break;
@@ -62,6 +64,6 @@ try {
     await pick();
     check(`${command}_receipt_retains_invalid_later_draft`, alias()?.value === '' && button('Start import')?.disabled === true);
   }
-  check('alias_changes_do_not_add_commands', calls.every(r => ['workspace_status', 'memory_list', 'import_list', 'import_preview', 'import_start', 'import_resume', 'operation_get'].includes(r.command)));
+  check('alias_changes_do_not_add_commands', calls.every(r => ['history_task_list', 'operation_list', 'workspace_status', 'memory_list', 'import_list', 'import_preview', 'import_start', 'import_resume', 'operation_get'].includes(r.command)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok) }, null, 2); }

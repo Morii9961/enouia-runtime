@@ -19,6 +19,8 @@ setTransport(async (native, args) => {
   if (native !== 'memory_call') throw new Error(`Unexpected native ${native}`);
   const r = args.request as Request; calls.push(r); let result: unknown;
   switch (r.command) {
+    case "history_task_list": result = { identity: { commitId: "synthetic-head" }, items: [], nextCursor: null, readOnly: true }; break;
+    case "operation_list": result = { items: [] }; break;
     case 'workspace_status': result = { vault: { state: 'open' }, pendingCandidates: 0 }; break;
     case 'memory_list': result = { items: [], total: 0, nextCursor: null }; break;
     case 'import_list':
@@ -95,6 +97,6 @@ try {
     duplicate = null; empty = true; await mount('empty'); await wait(() => text().includes('0 recorded'));
     check('zero_is_reported_only_after_successful_empty_observation', text().includes('No recorded imports yet.') && !fixture.querySelector('[role="alert"]'));
   }
-  check('journey_uses_only_existing_local_import_and_read_commands', calls.every(r => ['workspace_status', 'memory_list', 'import_list', 'import_preview', 'import_start', 'import_resume', 'operation_get'].includes(r.command)));
+  check('journey_uses_only_existing_local_import_and_read_commands', calls.every(r => ['history_task_list', 'operation_list', 'workspace_status', 'memory_list', 'import_list', 'import_preview', 'import_start', 'import_resume', 'operation_get'].includes(r.command)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePending(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), picks, writes: calls.filter(r => ['import_start', 'import_resume'].includes(r.command)) }, null, 2); }

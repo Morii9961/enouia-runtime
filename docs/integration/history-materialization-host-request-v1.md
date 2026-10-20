@@ -1,12 +1,12 @@
-# 历史批次材料化：下一项宿主切片提案
+# 历史批次材料化：获批宿主切片
 
-日期：2026-10-19。基线：Runtime `7dd0a0e`；Memory 固定 `976ef6b`，Workspace IPC v1 共48条命令。Morii 已明确批准“本地批次材料化接入”；本文记录获批范围，接口与 UI 尚待逐项实现和验证。此前只读规划的批准不再作为本切片的写入授权依据。
+批准范围日期：2026-10-19。原提案基线：Runtime `7dd0a0e`；Memory 固定 `976ef6b`，Workspace IPC v1 共48条命令。Morii 已明确批准“本地批次材料化接入”。2026-10-20 接入 Memory PR #38 的合并版本 `a6e4da9`，契约增至52条；Runtime 实现和证据见[材料化验证记录](../validation/History-materialization-v1.md)。此前只读规划的批准不作为本切片的写入授权依据。
 
 ## 已有能力与缺口
 
-固定 Memory 的 `enouia-memory-provider/src/history.rs` 已有离线 `materialize(Vault, ActorRef, HistoryOptions, key, Cancellation)`。它按显式批次索引保留选择顺序，最多32个批次，并创建来源关联的协调 Session 输入和既有 ExtractionJob；进度来自普通子任务，不接受页面声称的完成游标。原生 helper 没有传输或凭据端口。它尚未作为 Workspace 入口开放。
+提案时 Memory 的 `enouia-memory-provider/src/history.rs` 已有离线 `materialize(Vault, ActorRef, HistoryOptions, key, Cancellation)`。它按显式批次索引保留选择顺序，最多32个批次，并创建来源关联的协调 Session 输入和既有 ExtractionJob；进度来自普通子任务，不接受页面声称的完成游标。原生 helper 没有传输或凭据端口。Memory ADR-MEM-70 现已提供四个 Workspace 入口：`history_materialize`、`history_task_list`、`history_task_get`、`history_resume`。
 
-Runtime 已可规划归档并浏览来源引用，不能直接依赖该 helper 或读取 Vault。下一项功能需要 Memory 提供受治理的宿主契约，再由 Runtime 固定新 SHA 和接入产品 UI。
+Runtime 通过固定 SHA 的 Workspace 契约接入选择、创建、查询和显式续接，不直接依赖该 helper 或读取 Vault。
 
 ## 建议实现范围
 
@@ -14,12 +14,14 @@ Runtime 已可规划归档并浏览来源引用，不能直接依赖该 helper �
 2. **离线写入。** 仅创建本地待执行批次与协调记录。模型与候选/待审/保留 token 额度沿用既有验证规则并由用户明确指定；未知价格保持未知。Owner、Subject、Policy、路径和端点由 Memory/原生身份派生，不允许页面冒充。
 3. **可恢复回执。** Workspace 写命令必须有幂等键；相同键与选择可续接或重放，改参数不得复用。回执明确区分已创建、已存在、部分进度与拒绝。丢失回执后先查询保存状态，不能自动换新键重复创建。
 4. **读取与生命周期。** 提供有界协调/批次状态观察，绑定记录和当前可读来源；不暴露任务内的源文本。主工作区可用、overlay 不可用；锁定、关闭和切换遵循既有写入/任务生命周期，不持有失效 Vault。
-5. **Runtime UI。** 展示当前选择、明确的本地写入说明、确认提交、待执行任务 ID/状态和显式刷新/续接。新任务可通过现有 Sessions 查看；不提供发送、批准、批量自动运行或失败请求重试按钮。
+5. **Runtime UI。** 展示当前选择、明确的本地写入说明、确认提交、待执行任务 ID/状态和显式刷新/续接。新任务可通过现有 Sessions 查看；不提供发送、批准、批量自动运行或失败模型请求重试按钮。未确认的本地提交回执只允许使用原参数和原键重试。
 
-具体命令、参数和回执类型由 Memory 定义并记录 ADR、Schema、Runtime surface 与兼容行；本文不把建议名称当作已有 API。
+写入状态应由规划组件之外的稳定所有者持有：H1 观察到 head 变化会清除规划，但本次材料化自己的提交也会改变 head，不能因此丢失待处理参数、原幂等键和回执。导入列表刷新、面板关闭与新页面实例不得把旧写入结果认领为新选择；重启或丢失回执后通过类型化的持久任务记录发现并明确续接。
+
+具体命令、参数和回执类型由 Memory 定义并记录 ADR、Schema、Runtime surface 与兼容行；Runtime 不自行扩充领域契约。
 
 ## 开发出口与边界
 
 合成 Core 测试覆盖当前绑定、32批次与预算、幂等/部分创建/重启续接、删除/策略拒绝、锁定/切换和只读进度；确认传输及凭据端口调用均为零。Runtime 验证实际渲染字段、选择/键归属、迟到回复和本地写入回执恢复，并保留 Memory 并发套件的既有验证限制。
 
-本提案不含个人历史、真实模型调用、自动抽取或批准记忆；不扩展到时间比较、语义提案、MV-8、MCP、云端或 Activity。后续模型发送仍需另一个明确动作及既有审核/授权链路。本次只准备可审查范围，未实现或调用材料化。
+本切片不含个人历史、真实模型调用、自动抽取或批准记忆；不扩展到时间比较、语义提案、MV-8、MCP、云端或 Activity。后续模型发送仍需另一个明确动作及既有审核/授权链路。保存本地任务不代表完成模型抽取或用户验收。

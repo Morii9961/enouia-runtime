@@ -937,7 +937,8 @@ async function contrastChecks(s) {
 }
 
 async function main() {
-  if (process.argv[6] === '--history-only') {
+  if (['--history-only', '--history-tasks-only'].includes(process.argv[6])) {
+    const tasksMode = process.argv[6] === '--history-tasks-only';
     const fixture = resolve(out, '..');
     if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-history-')
       || vault !== join(fixture, 'vault') || importFile !== join(fixture, 'history.md')
@@ -949,6 +950,12 @@ async function main() {
     await waitFor(s, has('Memory · Vault open'), 'history fixture open');
     const initial = await s.evaluate("Promise.all([__t.memory('import_list',{}),__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([i,s,c])=>({imports:i.result.items.length,sessions:s.result.items.length,candidates:c.result.total}))");
     if (initial.imports || initial.sessions || initial.candidates) throw new Error('history fixture must start empty');
+    if (tasksMode) {
+      const setup = await s.evaluate("__t.memory('provider_status',{}).then(r=>r.result)");
+      if (!setup.configured || setup.destinations.length !== 1 || setup.destinations[0].model !== 'synthetic-history-model')
+        throw new Error('history task mode requires its isolated build configuration and synthetic model metadata');
+      check('H2.synthetic_model_metadata_loaded', true);
+    }
     await nav(s, 'Memory');
     await rail(s, 'Import');
     await click(s, 'button', 'Choose file');
@@ -1023,6 +1030,56 @@ async function main() {
     const recovered = await s.evaluate('window.__historyReplies[7]');
     check('H.fresh_plan_recovers', recovered.result.planHash!==first.result.planHash && recovered.result.batches[0].batchIndex===0);
     await shot(s, 'history-fresh-plan');
+    if (tasksMode) {
+      check('H2.no_default_batch_selection', await s.evaluate(`!document.querySelector('input[type=checkbox]:checked') && __t.byText('button','Create 0 local batch tasks').disabled`));
+      const choose = async number => s.evaluate(`(()=>{const label=[...document.querySelectorAll('label')].find(el=>el.textContent.trim()==='Select batch ${number} for local tasks'); if(!label)throw Error('batch label missing');label.closest('details').open=true;label.querySelector('input').click();return true;})()`);
+      await choose(1);
+      await click(s, 'button', 'Next history batches');
+      await waitFor(s, has('Showing batches 11–20 of 24'), 'task selection second page');
+      await choose(11);
+      check('H2.explicit_order_survives_paging', await s.evaluate('__t.text().includes("Selected order: 1 → 11")'));
+      await click(s, 'button', 'Read configured history models');
+      await waitFor(s, "[...document.querySelectorAll('option')].some(el=>el.value==='openai/synthetic-history-model')", 'synthetic model observation');
+      await s.evaluate(`(()=>{const el=[...document.querySelectorAll('select')].find(el=>el.id===[...document.querySelectorAll('label')].find(l=>l.textContent==='History task model').htmlFor);Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(el,'openai/synthetic-history-model');el.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+      await waitFor(s, "!__t.byText('button','Create 2 local batch tasks').disabled", 'explicit local task submission');
+      await s.evaluate(`(()=>{window.__historyStarted=[];window.__releaseHistoryStart=null;
+        const callbacks=window.__TAURI_INTERNALS__.callbacks, previous=callbacks.set;
+        callbacks.set=function(id,callback){return previous.call(this,id,value=>{
+          if(value?.kind==='operation_started' && !window.__historyStarted.length){window.__historyStarted.push(value);window.__releaseHistoryStart=()=>callback(value);return;}
+          callback(value);
+        });};})()`);
+      await click(s, 'button', 'Create 2 local batch tasks');
+      await waitFor(s, '!!window.__releaseHistoryStart', 'real admission receipt held');
+      await click(s, 'button', 'Close report');
+      check('H2.closing_report_keeps_pending_submission', await s.evaluate('__t.text().includes("Waiting for the local task operation receipt") && !__t.text().includes("History planning")'));
+      await s.evaluate('__releaseHistoryStart();__releaseHistoryStart=null');
+      await waitFor(s, has('All selected local jobs exist'), 'real local jobs observed', 60000);
+      const taskPage = await s.evaluate("__t.memory('history_task_list',{cursor:null,limit:10}).then(r=>r.result)");
+      check('H2.one_saved_admission', taskPage.items.length===1 && taskPage.items[0].request.batchIndices.join()==='0,10');
+      const taskId = taskPage.items[0].taskId;
+      const detail = await s.evaluate(`__t.memory('history_task_get',{taskId:${JSON.stringify(taskId)}}).then(r=>r.result)`);
+      check('H2.actual_job_states_are_pending_local_work', detail.materializationComplete && detail.batches.length===2 && detail.batches.every(b=>b.state==='ready' && b.applied===0 && b.invocationState===null));
+      check('H2.unknown_cost_is_preserved', detail.request.maxReservedCostMicrousd===null);
+      check('H2.no_candidates_or_canonical_memories_created', await s.evaluate("Promise.all([__t.memory('candidate_list',{cursor:null,limit:25}),__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false})]).then(([c,m])=>c.result.total===1 && m.result.total===0)")); // H1's explicit remember fixture is the one candidate.
+      check('H2.no_model_operations', await s.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
+      await s.send('Emulation.setDeviceMetricsOverride', {width:1100,height:700,deviceScaleFactor:1,mobile:false});
+      check('H2.minimum_window_has_no_horizontal_overflow', await s.evaluate("document.documentElement.scrollWidth<=innerWidth && [...document.querySelectorAll('.qr45,.qr88')].every(el=>el.scrollWidth<=el.clientWidth+1)"));
+      await shot(s, 'history-local-task');
+      const head = (await statusOf(s)).vault.headCommitId;
+      void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+      check('H2.first_host_exits', await waitForExit(app,20000)===0); s.close();
+      const reopened = launch(['--memory-vault',vault], {profile:'webview2-reopened'}), next = await connect();
+      await waitFor(next,has('Memory · Vault open'),'reopened task fixture'); await nav(next,'Memory'); await rail(next,'Import');
+      await waitFor(next,has('Read task '),'saved task discovery');
+      await next.evaluate(`(()=>{const button=[...document.querySelectorAll('[aria-label="Saved history tasks"] button')].find(el=>el.textContent.startsWith('Read task '));if(!button)throw Error('saved task missing');button.click();})()`);
+      await waitFor(next,has('All selected local jobs exist'),'saved task read after restart');
+      check('H2.reopen_reads_original_task_without_recreating_jobs', (await statusOf(next)).vault.headCommitId===head && await next.evaluate(`__t.text().includes(${JSON.stringify(taskId)})`));
+      check('H2.saved_limits_remain_explicit_after_reopen', await next.evaluate(`__t.text().includes('Reserved token ceiling per batch') && [...document.querySelectorAll('dt')].find(el=>el.textContent==='Cost ceiling per batch (micro USD)')?.nextElementSibling?.textContent==='unknown'`));
+      check('H2.complete_task_has_no_missing_job_resume', await next.evaluate("!__t.byText('button','Resume missing local jobs')"));
+      await shot(next,'history-task-reopened');
+      void next.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+      check('H2.reopened_host_exits',await waitForExit(reopened,20000)===0);next.close();return;
+    }
     void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
     check('H.host_exits', await waitForExit(app, 20000)===0);
     s.close();
