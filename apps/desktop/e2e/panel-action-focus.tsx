@@ -22,6 +22,8 @@ setTransport(async (native, args) => {
   const r = args.request as { command: string; arguments: Record<string, unknown> };
   calls.push(r.command); let result: unknown;
   switch (r.command) {
+    case "history_task_list": result = { identity: { commitId: "synthetic-head" }, items: [], nextCursor: null, readOnly: true }; break;
+    case "operation_list": result = { items: [] }; break;
     case "workspace_status": result = { vault: { state: "open", rootName: "synthetic-vault", health: "ok", headSequence: 1, lastCommitAt: "2026-10-13T00:00:00Z" }, pendingCandidates: 0, operationsRunning: 0 }; break;
     case "memory_list": result = { items: [], total: 0, nextCursor: null }; break;
     case "import_list": await held(); result = { items: [] }; break;
@@ -63,6 +65,6 @@ try {
   nav("Vault & recovery")!.click(); await wait(() => button("Verify Vault")?.disabled === false);
   await begin("Verify Vault"); await settle(() => button("Verify Vault")?.disabled === false);
   check("vault_action_returns_to_its_control", document.activeElement === button("Verify Vault"));
-  check("actions_issue_only_requested_commands", calls.filter(c => !["workspace_status", "memory_list", "import_list", "operation_get"].includes(c)).join() === "pick:import_file,import_preview,import_start,pick:import_file,import_preview,vault_verify");
+  check("actions_issue_only_requested_commands", calls.filter(c => !["history_task_list", "operation_list", "workspace_status", "memory_list", "import_list", "operation_get"].includes(c)).join() === "pick:import_file,import_preview,import_start,pick:import_file,import_preview,vault_verify");
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePending(); root.unmount(); outside.remove(); document.getElementById("results")!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok) }, null, 2); }

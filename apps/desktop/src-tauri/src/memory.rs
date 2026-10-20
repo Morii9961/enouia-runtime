@@ -717,7 +717,9 @@ mod tests {
                 "external_send",
                 "extraction_prepare",
                 "extraction_apply",
-                "extraction_pause"
+                "extraction_pause",
+                "history_materialize",
+                "history_resume"
             ]
         );
         for read in [
@@ -725,6 +727,8 @@ mod tests {
             "operation_get",
             "operation_list",
             "memory_list",
+            "history_task_list",
+            "history_task_get",
         ] {
             assert_eq!(gate(&json!({"command": read})), Gate::Open, "{read}");
         }

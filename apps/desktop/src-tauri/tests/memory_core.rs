@@ -1061,6 +1061,158 @@ fn history_plan_fields_the_surface_renders() {
 }
 
 #[test]
+fn history_tasks_use_pinned_fields_and_never_touch_provider_ports() {
+    use enouia_memory_contract::MemoryError;
+    use enouia_memory_contract::foundation::Cancellation;
+    use enouia_memory_contract::json::SchemaVersion;
+    use enouia_memory_contract::ports::{SecretBytes, SecretStore};
+    use enouia_memory_contract::provider::{Capability, ProviderCapabilities, TokenCounting};
+    use enouia_memory_provider::client::Limits;
+    use enouia_memory_provider::codec::{Api, WireRequest};
+    use enouia_memory_provider::transport::Transport;
+    use enouia_memory_provider::vault::Quota;
+    use enouia_memory_workspace::{NativeDestination, NativeProvider};
+    use std::sync::Arc;
+    struct NoPorts;
+    impl SecretStore for NoPorts {
+        fn read(&self, _: &str) -> Result<SecretBytes, MemoryError> {
+            panic!("local history tasks must not read credentials")
+        }
+    }
+    impl Transport for NoPorts {
+        fn exchange(
+            &self,
+            _: &WireRequest,
+            _: &SecretBytes,
+            _: &dyn Cancellation,
+            _: Duration,
+            _: &mut dyn FnMut(&[u8]) -> Result<(), MemoryError>,
+        ) -> Result<(), MemoryError> {
+            panic!("local history tasks must not call a model")
+        }
+    }
+    let mut page = Page::new("history-task-fields");
+    let verified_at = serde_json::from_value(
+        page.ok("workspace_status", json!({}))["vault"]["lastCommitAt"].clone(),
+    )
+    .unwrap();
+    page.ws
+        .set_native_provider(Some(NativeProvider {
+            transport: Arc::new(NoPorts),
+            secrets: Arc::new(NoPorts),
+            destinations: vec![NativeDestination {
+                api: Api::OpenAiResponses,
+                capabilities: ProviderCapabilities {
+                    schema_version: SchemaVersion,
+                    binding: Api::OpenAiResponses.binding("synthetic-model").unwrap(),
+                    text_input: Capability::Supported,
+                    image_input: Capability::Unsupported,
+                    streaming: Capability::Unsupported,
+                    tool_calling: Capability::Unsupported,
+                    cancellation: Capability::Supported,
+                    token_counting: TokenCounting::Estimated,
+                    context_window_tokens: Some(128000),
+                    max_output_tokens: Some(4096),
+                    verified_at: Some(verified_at),
+                },
+            }],
+            quota: Quota::default(),
+            limits: Limits::default(),
+        }))
+        .unwrap();
+    assert!(page.ok("provider_status", json!({}))["destinations"][0]["verifiedAt"].is_string());
+    std::fs::write(
+        page.base.join("history.md"),
+        "# One\nSynthetic one.\n# Two\nSynthetic two.\n# Three\nSynthetic three.\n",
+    )
+    .unwrap();
+    let token = page.pick(PickKind::ImportFile, "history.md");
+    let started = page.ok(
+        "import_start",
+        json!({"importToken": token, "accountAlias":"synthetic-history"}),
+    );
+    assert_eq!(page.finish(&started)["state"], "succeeded");
+    let import = page.ok("import_list", json!({}))["items"][0].clone();
+    let plan = page.ok(
+        "history_plan",
+        json!({"importId":import["importId"],"importRevision":import["revision"],
+        "messagesPerBatch":2,"maxPathReferences":1000,"cursor":null,"limit":10}),
+    );
+    let args = json!({"importId":import["importId"],"importRevision":import["revision"],
+        "inputObjectHash":plan["identity"]["inputObjectHash"],"planHash":plan["planHash"],"previewCommitId":plan["identity"]["commitId"],
+        "messagesPerBatch":2,"maxPathReferences":1000,"batchIndices":[1,0],"api":"openai","model":"synthetic-model",
+        "maxCandidates":2,"maxPending":100,"maxReservedTokens":10000,"maxReservedCostMicrousd":null});
+    let mut spoof = args.clone();
+    spoof["policyId"] = json!("page-supplied-policy");
+    assert_eq!(
+        page.err("history_materialize", spoof)["code"],
+        "invalid_request"
+    );
+    let key = "ui-runtime-history-stable-admission";
+    let response = page.send_keyed("history_materialize", args.clone(), Some(key));
+    assert_eq!(response["kind"], "operation_started", "{response}");
+    let completed = page.finish(&response["result"]);
+    assert_eq!(completed["kind"], "history_materialize");
+    assert_eq!(completed["state"], "succeeded", "{completed}");
+    let task = completed["result"].clone();
+    assert_eq!(task["request"], args);
+    assert_eq!(task["materializationComplete"], true);
+    assert_eq!(task["missingBatchIndices"], json!([]));
+    assert_eq!(task["batches"][0]["batchIndex"], 1);
+    assert_eq!(task["batches"][1]["batchIndex"], 0);
+    assert_eq!(task["readOnly"], true);
+    assert_eq!(task["identity"]["taskId"], task["taskId"]);
+    for batch in task["batches"].as_array().unwrap() {
+        strings(
+            batch,
+            &["sessionId", "runId", "inputEventId", "state"],
+            "history batch",
+        );
+        assert_eq!(batch["state"], "ready");
+        assert_eq!(batch["applied"], 0);
+        assert!(batch["invocationState"].is_null());
+    }
+    strings(
+        &task,
+        &[
+            "createdAt",
+            "coordinatorSessionId",
+            "coordinatorInputId",
+            "materializationPlanHash",
+        ],
+        "history task",
+    );
+    let before = page.ok("workspace_status", json!({}))["vault"]["headCommitId"].clone();
+    page.reopen(); // Saved recovery does not require a new Provider configuration.
+    let list = page.ok("history_task_list", json!({"cursor":null,"limit":10}));
+    assert_eq!(list["items"].as_array().unwrap().len(), 1);
+    assert_eq!(list["items"][0]["request"], args);
+    assert!(list["nextCursor"].is_null());
+    assert_eq!(list["readOnly"], true);
+    let get_args = json!({"taskId":task["taskId"]});
+    assert_eq!(
+        page.ok("history_task_get", get_args.clone())["batches"],
+        task["batches"]
+    );
+    let replay = page.send_keyed("history_materialize", args, Some(key));
+    assert_eq!(
+        page.finish(&replay["result"])["result"]["taskId"],
+        task["taskId"]
+    );
+    let resumed = page.finish(&page.ok("history_resume", get_args));
+    assert_eq!(resumed["state"], "succeeded");
+    assert_eq!(resumed["result"]["batches"], task["batches"]);
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        before
+    );
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["pendingCandidates"],
+        0
+    );
+}
+
+#[test]
 fn session_and_context_fields_the_surfaces_render() {
     let page = Page::new("session");
     let proposed = page.ok(

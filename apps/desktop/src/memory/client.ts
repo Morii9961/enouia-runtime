@@ -27,7 +27,7 @@ const WRITES = new Set([
   "review_confirm", "forget_plan", "remember", "correction_propose", "import_start",
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
   "provider_confirm", "external_prepare", "external_send",
-  "extraction_prepare", "extraction_apply", "extraction_pause",
+  "extraction_prepare", "extraction_apply", "extraction_pause", "history_materialize", "history_resume",
 ]);
 
 export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;

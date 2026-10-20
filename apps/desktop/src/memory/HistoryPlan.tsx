@@ -5,16 +5,20 @@ import { call, type J } from "./client";
 import { useLatestRead } from "./hooks";
 import { historyObservation } from "./observationIdentity";
 import { shortId, when } from "./ui";
+import { HistoryTaskForm } from "./HistoryTaskForm";
+import type { HistoryTaskRequest } from "./historyTasks";
 
 const positive = (text: string, max: number) => /^\d+$/.test(text) && Number.isSafeInteger(Number(text)) && Number(text) > 0 && Number(text) <= max;
 
-export function HistoryPlan({ vaultId, importId, importRevision, request = call }: {
+export function HistoryPlan({ vaultId, importId, importRevision, request = call, onCreate, materializationBusy = false }: {
   vaultId: string; importId: string; importRevision: number; request?: typeof call;
+  onCreate?: (args: HistoryTaskRequest) => void; materializationBusy?: boolean;
 }) {
   const [messages, setMessages] = useState("15"), [references, setReferences] = useState("10000");
   const [plan, setPlan] = useState<J>(null), [observedAt, setObservedAt] = useState<string | null>(null);
   const [page, setPage] = useState<{ cursor: string | null; previous: (string | null)[] } | null>(null);
   const read = useLatestRead(), id = useId();
+  const [selected, setSelected] = useState<number[]>([]), selectionPlan = useRef<string | null>(null);
   const focusReturn = useRef<HTMLButtonElement | null>(null);
   const planControl = useRef<HTMLButtonElement | null>(null), pageSummary = useRef<HTMLParagraphElement | null>(null);
   const valid = positive(messages, 15) && positive(references, 100000);
@@ -28,14 +32,20 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call 
     if (read.pending.current || !valid) return;
     focusReturn.current = document.activeElement === trigger ? trigger : null;
     const selection = { vaultId, importId, importRevision, messagesPerBatch: Number(messages), maxPathReferences: Number(references), cursor, limit: 10 };
+    if (cursor === null) { setSelected([]); selectionPlan.current = null; }
     setPlan(null); setPage(null); setObservedAt(null);
     void read.run(async () => historyObservation(await request("history_plan", {
       importId, importRevision, messagesPerBatch: selection.messagesPerBatch, maxPathReferences: selection.maxPathReferences, cursor, limit: selection.limit,
-    }), selection), result => { setPlan(result); setPage({ cursor, previous }); setObservedAt(new Date().toISOString()); });
+    }), selection), result => {
+      if (selectionPlan.current !== result.planHash) setSelected([]);
+      selectionPlan.current = result.planHash;
+      setPlan(result); setPage({ cursor, previous }); setObservedAt(new Date().toISOString());
+    }, () => { setSelected([]); selectionPlan.current = null; });
   };
   const edit = (text: string, field: "messages" | "references") => {
     if (read.pending.current) return;
     read.clear(); setPlan(null); setPage(null); setObservedAt(null);
+    setSelected([]); selectionPlan.current = null;
     if (field === "messages") setMessages(text); else setReferences(text);
   };
   const summary = plan?.summary;
@@ -81,6 +91,9 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call 
       {plan.batches.length === 0 ? <p className="mem-muted">No batch references on this page. Inspect coverage and graph issues; this is not a completed extraction.</p>
         : <div className="mem-stack">{plan.batches.map((batch: J) => <details key={batch.batchIndex} className="mem-card">
           <summary className="mem-label">Batch {batch.batchIndex + 1} · {batch.messages.length} messages · {batch.selectedInExport ? "selected in export" : "other or unknown export selection"}</summary>
+          {onCreate && <label className="mem-label"><input type="checkbox" checked={selected.includes(batch.batchIndex)}
+            disabled={materializationBusy || read.busy || (!selected.includes(batch.batchIndex) && selected.length >= 32)}
+            onChange={event => { const checked = event.currentTarget.checked; setSelected(previous => checked ? [...previous, batch.batchIndex] : previous.filter(n => n !== batch.batchIndex)); }} /> Select batch {batch.batchIndex + 1} for local tasks</label>}
           <p className="mem-muted">Observed path start: {when(batch.observedPathStart)}. References do not approve a branch or create a model task.</p>
           <p className="mem-mono">Leaf: {batch.leaf.sourceId} · revision {batch.leaf.sourceRevision}</p>
           {batch.preceding && <p className="mem-mono">Preceding reference: {batch.preceding.sourceId} · revision {batch.preceding.sourceRevision}</p>}
@@ -89,5 +102,6 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call 
           </li>)}</ul>
         </details>)}</div>}
     </>}
+    {onCreate && <HistoryTaskForm vaultId={vaultId} plan={plan} selected={selected} busy={materializationBusy || read.busy} onCreate={onCreate} request={request} />}
   </section>;
 }

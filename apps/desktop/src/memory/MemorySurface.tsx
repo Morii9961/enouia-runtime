@@ -14,6 +14,7 @@ import { CandidateConflict } from "./CandidateConflict";
 import { memoryObservation } from "./observationIdentity";
 import { validImportAlias } from "./importAlias";
 import { ImportReport } from "./ImportReport";
+import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
 
 type Collection = "inbox" | "current" | "history" | "import" | "vault";
 
@@ -95,7 +96,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
       ) : collection === "inbox" ? (
         <Inbox />
       ) : (
-        <Import />
+        <Import key={status.vault.vaultId} />
       )}
     </section>
   );
@@ -516,6 +517,7 @@ function useReturnFocus(idle: boolean) {
 
 function Import() {
   const { status } = useStatus();
+  const historyTasks = useHistoryTasks(status.vault.vaultId);
   const [inspected, setInspected] = useState<string | null>(null);
   const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
   const preview = selection?.preview;
@@ -605,6 +607,7 @@ function Import() {
             </div>
           )}
           {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); refresh(); }} />)}
+          <HistoryTasks tasks={historyTasks} />
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
             <tbody>
@@ -643,6 +646,7 @@ function Import() {
         <h3 className="mem-h3">What an import does</h3>
         <p className="mem-muted">The original export is kept byte for byte. Conversations become sources; nothing becomes a memory without your review. An interrupted import can be resumed.</p>
         {inspected && <ImportReport selected={inspected} row={report} current={listReady} vaultId={status?.vault?.vaultId} vaultHead={status?.vault?.headCommitId}
+          onCreateHistory={historyTasks.create} historyBusy={!historyTasks.ready}
           inspectOriginal={original ? () => setInspected(original.importId) : undefined} close={() => {
             setInspected(null);
             const trigger = document.getElementById(`mem-import-report-${inspected}`) as HTMLButtonElement | null;
