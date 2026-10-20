@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-21",
+  "baseline": "518248722e86f14ea6d7fec9bd7f887a4d7958c9",
+  "scope": "synthetic_config_race",
+  "memoryRevision": "d565181e0cb3bf14c938eb66a945269bba57ac8d",
+  "memoryAdoption": "development_unmerged_PR_39",
+  "baselineFailures": [
+    "configuration_a_b_a_never_restores_pending_preparation_authority",
+    "status_failure_and_recovery_never_restore_old_preparation_authority",
+    "configuration_a_b_a_cancels_old_send_preflight_without_exchange"
+  ],
+  "newFixture": {
+    "fixture": "history-batch-config-race",
+    "passed": true,
+    "checks": [
+      {
+        "id": "configuration_a_b_a_never_restores_pending_preparation_authority",
+        "ok": true
+      },
+      {
+        "id": "status_failure_and_recovery_never_restore_old_preparation_authority",
+        "ok": true
+      },
+      {
+        "id": "configuration_a_b_a_cancels_old_send_preflight_without_exchange",
+        "ok": true
+      },
+      {
+        "id": "no_task_creation_or_candidate_writes_during_races",
+        "ok": true
+      }
+    ]
+  },
+  "nodeTests": 121,
+  "domFixtures": 70,
+  "domAssertions": 943,
+  "fullFrontendGatePassed": true,
+  "nativeRustEvidence": "unchanged; reuse History-batch-request-v1",
+  "installerOwnershipChecks": 26,
+  "nsisPayloadSha256": "25e93b220a65dfbbb02975db59b42a9d1e183a562b02c9bccea7865db4edb917",
+  "setupSha256": "902b9710e44188532f990a6d50ca42fce0d2123c796583bce2e18b99ae06d6a6",
+  "setupBytes": 9731505,
+  "realProviderRequests": 0,
+  "installed": false
+}

@@ -1,5 +1,7 @@
 # 已保存历史批次的请求准备与单独发送
 
+2026-10-21 续改：[Provider 配置往返竞态修正与新构建](History-batch-config-race-v1.md)。下文保留首次接入的原始证据。
+
 日期：2026-10-20（Asia/Shanghai）。Runtime 起点 `5deb9546eead991b0ea7382aa7574a6b4e6cd712`，开发分支 `codex/runtime-history-batch-prepare`。开始时工作树干净、远端 main 与起点一致，Runtime 无未合并 PR；未修改其他工作树或 Memory 仓库。
 
 Memory PR [#39](https://github.com/Morii9961/enouia-memory/pull/39) 本轮两次核实均为 OPEN / DRAFT、未合并，HEAD `d565181e0cb3bf14c938eb66a945269bba57ac8d`。本分支将三个精确 manifest revision、八个锁定 Git source 和 pin 记录一起更新到该**未合并开发提交**。Workspace IPC v1 共53条命令，surface aggregate `9b25885480cf2e220b37f231fe9973afaecb3bd68b8939fdf1c918d42ac233b2`。不叠加旧草稿 #36，不合并任何 PR。最终交付仍须 Memory #39 合并后记录其正式 merge revision，并复核依赖、接入面及受影响行为；Runtime PR 保持草稿。

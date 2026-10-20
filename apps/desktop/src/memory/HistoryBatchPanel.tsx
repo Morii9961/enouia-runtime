@@ -5,7 +5,7 @@ import { historyTaskObservation } from "./historyTasks";
 import { holdProviderSend } from "./providerSend";
 import { Operation, OperationFeedback } from "./ui";
 
-type Held = { token: string; signature: string; args: BatchArgs; send: ReturnType<typeof holdProviderSend>; expires: number };
+type Held = { token: string; generation: number; signature: string; args: BatchArgs; send: ReturnType<typeof holdProviderSend>; expires: number };
 export function HistoryBatchPanel({ vaultId, task, index, owner, request = call }: {
   vaultId: string; task: J; index: number | null; owner: HistoryBatchOwner; request?: typeof call;
 }) {
@@ -41,12 +41,16 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
         batchProviderSignature(next);
         if (!stopped) {
           if (statusRef.current && batchProviderSignature(statusRef.current) !== batchProviderSignature(next)) {
+            current.current = { ...current.current, generation: current.current.generation + 1 };
             setHeld(null); setConfirmed(false); setNotice("Provider settings or grants changed. Read the saved task and inspect a fresh request.");
           }
           statusRef.current = next; setStatus(next);
         }
       } catch (err) {
-        if (!stopped) { statusRef.current = null; setStatus(null); setHeld(null); setConfirmed(false); setError(describe(err)); }
+        if (!stopped) {
+          current.current = { ...current.current, generation: current.current.generation + 1 };
+          statusRef.current = null; setStatus(null); setHeld(null); setConfirmed(false); setError(describe(err));
+        }
       }
       if (!stopped) timer = setTimeout(poll, 3000);
     };
@@ -56,7 +60,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
 
   const status = observedStatus === statusRef.current ? observedStatus : null;
   const signature = status ? batchProviderSignature(status) : "";
-  const shown = held?.token === token && held.signature === signature ? held : null;
+  const shown = held?.token === token && held.generation === generation && held.signature === signature ? held : null;
   useEffect(() => {
     if (!shown) return;
     const timer = setTimeout(() => {
@@ -88,7 +92,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
       // Conservative TTL includes delivery time. Core checks its own TTL again.
       if (startedAt + result.expiresInMs <= Date.now()) throw new Error("expired preparation delivery");
       if (signature !== batchProviderSignature(statusRef.current)) return;
-      setHeld({ token, signature, args, send: holdProviderSend(result, request), expires: startedAt + result.expiresInMs });
+      setHeld({ token, generation, signature, args, send: holdProviderSend(result, request), expires: startedAt + result.expiresInMs });
     } catch (err) {
       if (publishable(token)) {
         setError(describe(err));
@@ -106,6 +110,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
       const next = await request("provider_status");
       if (!publishable(token)) return;
       if (batchProviderSignature(next) !== shown.signature) {
+        current.current = { ...current.current, generation: current.current.generation + 1 };
         statusRef.current = next; setStatus(next); setHeld(null); setConfirmed(false);
         setNotice("Provider settings or grants changed. Inspect a fresh request before sending."); return;
       }
