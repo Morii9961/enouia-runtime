@@ -55,7 +55,7 @@ try {
   await wait(ready);
   await begin("Read memory again");
   check("platform_blur_reaches_document_while_pending", document.activeElement === document.body);
-  await settle(ready);
+  await settle(() => ready() && document.activeElement === button("Read memory again"));
   check("reread_returns_to_read_control", document.activeElement === button("Read memory again"));
   await begin("Delete impact"); await settle(() => ready() && text().includes("A purge removes"));
   check("delete_impact_returns_to_its_control", document.activeElement === button("Delete impact"));

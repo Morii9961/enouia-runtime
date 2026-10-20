@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { VaultGate } from "./status";
+import { VaultGate, useStatus } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { SessionEventBody, SessionEventMetadata } from "./SessionEventBody";
 import { ExternalPanel } from "./ExternalPanel";
@@ -17,17 +17,24 @@ import { sessionObservation } from "./observationIdentity";
 
 type Branch = { sessionId: string; branchId: string };
 
-export default function SessionsSurface({ inspect, reviewCandidates }: { inspect: (capsuleId: string) => void; reviewCandidates?: () => void }) {
+export type SessionTarget = { vaultId: string; sessionId: string };
+export default function SessionsSurface({ inspect, reviewCandidates, target }: {
+  inspect: (capsuleId: string) => void; reviewCandidates?: () => void; target?: SessionTarget | null;
+}) {
+  const { status } = useStatus();
   return (
     <VaultGate>
-      <Sessions inspect={inspect} reviewCandidates={reviewCandidates} />
+      <Sessions key={status?.vault?.vaultId} inspect={inspect} reviewCandidates={reviewCandidates}
+        initialIdFilter={target?.vaultId === status?.vault?.vaultId ? target?.sessionId : undefined} />
     </VaultGate>
   );
 }
 
-export function Sessions({ inspect, reviewCandidates, request = call }: { inspect: (capsuleId: string) => void; reviewCandidates?: () => void; request?: typeof call }) {
+export function Sessions({ inspect, reviewCandidates, request = call, initialIdFilter = "" }: {
+  inspect: (capsuleId: string) => void; reviewCandidates?: () => void; request?: typeof call; initialIdFilter?: string;
+}) {
   const [sessions, setSessions] = useState<J[] | null>(null);
-  const [idFilter, setIdFilter] = useState("");
+  const [idFilter, setIdFilter] = useState(initialIdFilter);
   const [current, setCurrent] = useState<Branch | null>(null);
   const [requested, setRequested] = useState<Branch | null>(null);
   const [detail, setDetail] = useState<J>(null);

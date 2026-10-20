@@ -89,7 +89,9 @@ export function useHistoryTasks(vaultId: string, request = call) {
     create, resume, observe, refresh, done, recoveredDone, retry: () => { if (attempt) void execute(attempt); } };
 }
 
-export function HistoryTasks({ tasks, request = call }: { tasks: ReturnType<typeof useHistoryTasks>; request?: typeof call }) {
+export function HistoryTasks({ tasks, request = call, openSession }: {
+  tasks: ReturnType<typeof useHistoryTasks>; request?: typeof call; openSession?: (sessionId: string) => void;
+}) {
   const { page, detail } = tasks;
   return <section className="mem-card mem-stack" aria-label="Saved history tasks">
     <h3 className="mem-h3">Saved history tasks</h3>
@@ -125,7 +127,12 @@ export function HistoryTasks({ tasks, request = call }: { tasks: ReturnType<type
         <dt>Cost ceiling per batch (micro USD)</dt><dd>{detail.request.maxReservedCostMicrousd ?? "unknown"}</dd>
       </dl>
       <p role="status" className="mem-muted">{detail.materializationComplete ? "All selected local jobs exist. Model extraction and review are still separate." : `${detail.missingBatchIndices.length} local jobs are missing.`}</p>
-      <ul className="mem-list">{detail.batches.map((batch: J) => <li key={batch.batchIndex}>Batch {batch.batchIndex + 1} · {batch.state} · {batch.applied} applied · invocation {batch.invocationState ?? "none recorded"} · <span className="mem-mono">{batch.sessionId}</span></li>)}</ul>
+      {openSession && detail.coordinatorSessionId && <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
+        onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(detail.coordinatorSessionId); }}>View coordinator session</button>}
+      <ul className="mem-list">{detail.batches.map((batch: J) => <li key={batch.batchIndex}>Batch {batch.batchIndex + 1} · {batch.state} · {batch.applied} applied · invocation {batch.invocationState ?? "none recorded"} · <span className="mem-mono">{batch.sessionId}</span>
+        {openSession && <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
+          onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(batch.sessionId); }}>View batch {batch.batchIndex + 1} session</button>}
+      </li>)}</ul>
       <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy} onClick={() => tasks.observe(detail.taskId)}>Read this history task again</button>
       {!detail.materializationComplete && <button type="button" className="mem-button" disabled={!tasks.ready || tasks.read.busy} onClick={tasks.resume}>Resume missing local jobs</button>}
     </div>}

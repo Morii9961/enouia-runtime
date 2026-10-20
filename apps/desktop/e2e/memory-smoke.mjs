@@ -1077,6 +1077,19 @@ async function main() {
       check('H2.saved_limits_remain_explicit_after_reopen', await next.evaluate(`__t.text().includes('Reserved token ceiling per batch') && [...document.querySelectorAll('dt')].find(el=>el.textContent==='Cost ceiling per batch (micro USD)')?.nextElementSibling?.textContent==='unknown'`));
       check('H2.complete_task_has_no_missing_job_resume', await next.evaluate("!__t.byText('button','Resume missing local jobs')"));
       await shot(next,'history-task-reopened');
+      await next.evaluate("__t.byText('button','View batch 1 session').focus()");
+      const taskFocusBefore = await next.evaluate("({tag:document.activeElement?.tagName,id:document.activeElement?.id,label:document.activeElement?.getAttribute('aria-label')})");
+      await click(next,'button','View batch 1 session');
+      await waitFor(next,`document.querySelector('#mem-session-filter')?.value===${JSON.stringify(detail.batches[0].sessionId)} && document.querySelectorAll('.mem-session-row').length===1 && !document.querySelector('#mem-session-filter').disabled`,'saved batch session filter');
+      check('H2.task_opens_only_saved_session_filter',await next.evaluate(`document.querySelector('.mem-session-row').title.startsWith(${JSON.stringify(detail.batches[0].sessionId+' · ')}) && !document.querySelector('#mem-ask')`));
+      const taskFocusAfter = await next.evaluate("({tag:document.activeElement?.tagName,id:document.activeElement?.id,label:document.activeElement?.getAttribute('aria-label')})");
+      check('H2.task_navigation_continues_in_sessions',taskFocusAfter.id==='runtime-content' && taskFocusAfter.label==='Sessions content',JSON.stringify({before:taskFocusBefore,after:taskFocusAfter}));
+      await next.evaluate("document.querySelector('.mem-session-row').click()");
+      await waitFor(next,"!!document.querySelector('[aria-label^=\"Read saved suggestions for job \"]') && !!document.querySelector('#mem-ask')",'saved batch branch and local job');
+      check('H2.explicit_branch_read_recovers_saved_job',await next.evaluate(`document.querySelector('.mem-session-heading h2')?.title===${JSON.stringify(detail.batches[0].sessionId)} && document.querySelectorAll('[aria-label^="Read saved suggestions for job "]').length===1`));
+      check('H2.session_navigation_preserves_saved_head',(await statusOf(next)).vault.headCommitId===head);
+      check('H2.session_navigation_creates_no_model_operation',await next.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
+      await shot(next,'history-task-session');
       void next.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
       check('H2.reopened_host_exits',await waitForExit(reopened,20000)===0);next.close();return;
     }

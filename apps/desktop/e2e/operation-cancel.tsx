@@ -50,7 +50,7 @@ try{
   check("old_read_cannot_clear_acknowledgement",!!button("Local stop requested")&&button("Local stop requested")!.disabled);
   check("acknowledgement_is_not_terminal",callbacks===0&&!text().includes("recorded outcome"));
   finish=true;
-  await wait(()=>callbacks===1);
+  await wait(()=>callbacks===1&&text().includes("cancelled"));
   check("real_terminal_observation_finishes_once",text().includes("cancelled"));
 
   root.unmount();root=createRoot(fixture);mode="late";reads=0;releaseRead=null;requested=false;finish=false;callbacks=0;
@@ -75,7 +75,7 @@ try{
   check("read_failure_retains_stop_control",!!button("Stop locally")&&callbacks===0);
   button("Stop locally")!.click();await sleep(50);
   check("stop_ack_restarts_failed_observation",!!button("Local stop requested")&&!text().includes("Could not read the operation"));
-  finish=true;await wait(()=>callbacks===1);
+  finish=true;await wait(()=>callbacks===1&&text().includes("cancelled"));
   check("restarted_observation_reaches_terminal",text().includes("cancelled"));
   check("only_local_get_and_cancel",calls.every(c=>["operation_get","operation_cancel"].includes(c)));
 }catch(error){checks.push({id:String(error),ok:false});}

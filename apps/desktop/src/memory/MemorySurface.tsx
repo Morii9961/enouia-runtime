@@ -32,7 +32,9 @@ function dayOf(iso: string): string {
   return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function MemorySurface({ initialCollection = "current" }: { initialCollection?: "current" | "inbox" }) {
+export default function MemorySurface({ initialCollection = "current", openSession }: {
+  initialCollection?: "current" | "inbox"; openSession?: (vaultId: string, sessionId: string) => void;
+}) {
   const { status, vaultChanging } = useStatus();
   const [collection, setCollection] = useState<Collection>(initialCollection);
   const [query, setQuery] = useState("");
@@ -96,7 +98,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
       ) : collection === "inbox" ? (
         <Inbox />
       ) : (
-        <Import key={status.vault.vaultId} />
+        <Import key={status.vault.vaultId} openSession={openSession} />
       )}
     </section>
   );
@@ -515,7 +517,7 @@ function useReturnFocus(idle: boolean) {
   }, []);
 }
 
-function Import() {
+function Import({ openSession }: { openSession?: (vaultId: string, sessionId: string) => void }) {
   const { status } = useStatus();
   const historyTasks = useHistoryTasks(status.vault.vaultId);
   const [inspected, setInspected] = useState<string | null>(null);
@@ -607,7 +609,7 @@ function Import() {
             </div>
           )}
           {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); refresh(); }} />)}
-          <HistoryTasks tasks={historyTasks} />
+          <HistoryTasks tasks={historyTasks} openSession={openSession ? sessionId => openSession(status.vault.vaultId, sessionId) : undefined} />
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
             <tbody>
