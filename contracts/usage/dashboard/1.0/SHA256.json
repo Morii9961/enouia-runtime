@@ -1,0 +1,20 @@
+{
+  "usage-snapshot.v1.schema.json": "dae8947d3e40ca85adcb195239de6288e1a14d9ddc0adc8d94cedb7a76c799f4",
+  "fixtures/invalid-delta.json": "57f554212d7fa0a213cbf002b6d3365ae72db67dde8a4a22e2d28a461530e724",
+  "fixtures/invalid-duplicate-row.json": "ea371ae9da31717721be7665fd0e9ea1bf488481a9bc989e2aa5784d9b2130ae",
+  "fixtures/invalid-extra-private-field.json": "53dccaa3338b5716060b3b93bec4a639bf79d84b7eb176b4d6093bb72674da7b",
+  "fixtures/invalid-floating.json": "a1671a211e8c5e5d42f07e4d4b2d9c608e10783a7118bf55c12d6c3318558f33",
+  "fixtures/invalid-input-double-count.json": "646b4a42b61885cd02d562dac5fab0e6482eb059e1b85fb0348c630aa35f2bb8",
+  "fixtures/invalid-invalid-date.json": "e267f595bfefa7758d7380620fea91a80128aa341bcb13f252b3d33915efde01",
+  "fixtures/invalid-negative.json": "51bca3e00e76f29a87a2e64c46589149964dea1c8459389fa3f868181468135a",
+  "fixtures/invalid-numeric-revision.json": "32fb544c2d9147412f94c21ca21d35d582f2525f7e1fcbbf5898b6bdfd70cef5",
+  "fixtures/invalid-subset.json": "64b6a32a21c2b61f86a293d24fe16664604ccbb7813c6c7540921e77595fd052",
+  "fixtures/invalid-unknown-as-zero.json": "0b232242a05393568b3b9d212251752e1f6047fda744235fdeadefcfee109d19",
+  "fixtures/valid-account-day.json": "a342abac9af3627116e41a8f16f3b81d43943c10da1ef15fc74fb5270e65343f",
+  "fixtures/valid-claude-cache.json": "807ec465a6bcafbc50dc5d1b02258db5cec93d1410d2895ff702ff647f887a62",
+  "fixtures/valid-coverage.json": "cfd1310e7bc8550709a099f917cf2fc1670b7544e2e5f4c9bdff0a3d17316d03",
+  "fixtures/valid-monday-boundary.json": "86b8e3aac567381f00b29de7d92148251d526b026bb466e9c4000ab6b4c7b066",
+  "fixtures/valid-revision.json": "75871b35881555022c96d2432144030b71aead4216f11998d88444769c8a35cb",
+  "fixtures/valid-sunday-boundary.json": "951fbdb819745abf02401439cbd2da70820e2b15a8862cf2f45b587c0e9a8b55",
+  "fixtures/valid-week.json": "3576c75985ac1d58aa09a4de0d1a1e2fa84c46703329c5f5a96a19f30f0ee6fa"
+}

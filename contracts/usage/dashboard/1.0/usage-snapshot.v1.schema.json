@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moriium-dashboard.example/protocol/usage-snapshot/1.0",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "ai_usage_snapshot"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "mode": {
+      "const": "range_replacement"
+    },
+    "dataset_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,29}$"
+    },
+    "generated_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+]08:00)$"
+    },
+    "timezone": {
+      "const": "Asia/Shanghai"
+    },
+    "source": {
+      "enum": ["codex_local", "claude_local", "account_daily", "manual_aggregate"]
+    },
+    "source_timezone": {
+      "enum": ["Asia/Shanghai", "UTC", "provider_defined", "unknown"]
+    },
+    "range": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "end_exclusive": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        }
+      },
+      "required": ["start", "end_exclusive"],
+      "additionalProperties": false
+    },
+    "adapter_version": {
+      "type": "string",
+      "pattern": "^[0-9]+[.][0-9]+[.][0-9]+$",
+      "maxLength": 30
+    },
+    "days": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 366,
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "state": {
+            "enum": ["complete", "partial", "missing", "not_collected"]
+          }
+        },
+        "required": ["date", "state"],
+        "additionalProperties": false
+      }
+    },
+    "rows": {
+      "type": "array",
+      "maxItems": 2000,
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "provider": {
+            "enum": ["openai", "anthropic", "unknown"]
+          },
+          "model": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$"
+          },
+          "effort": {
+            "enum": ["low", "medium", "high", "xhigh", "max", "unknown", "not_applicable"]
+          },
+          "effort_evidence": {
+            "enum": ["reported", "inferred", "unknown", "not_applicable"]
+          },
+          "time_basis": {
+            "enum": ["request_start", "shanghai_day", "provider_day"]
+          },
+          "service_tier": {
+            "enum": ["standard", "fast", "ultrafast", "flex", "batch", "unknown"]
+          },
+          "context_class": {
+            "enum": ["short", "long", "not_applicable", "unknown"]
+          },
+          "region": {
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^(global|unknown|[a-z]{2}(?:-[a-z0-9]+){0,3})$"
+          },
+          "classification": {
+            "enum": ["request_classified", "unknown"]
+          },
+          "cache_detail": {
+            "enum": ["complete", "missing"]
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "input_total": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "input_uncached": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "input_cache_read": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "input_cache_write_5m": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "input_cache_write_1h": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "input_cache_write_30m": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "input_cache_write_unknown": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "output_total": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "output_reasoning_subset": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,77})$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "input_total",
+              "input_uncached",
+              "input_cache_read",
+              "input_cache_write_5m",
+              "input_cache_write_1h",
+              "input_cache_write_30m",
+              "input_cache_write_unknown",
+              "output_total",
+              "output_reasoning_subset"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "date",
+          "provider",
+          "model",
+          "effort",
+          "effort_evidence",
+          "time_basis",
+          "service_tier",
+          "context_class",
+          "region",
+          "classification",
+          "cache_detail",
+          "counts"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "schema_version",
+    "mode",
+    "dataset_id",
+    "revision",
+    "generated_at",
+    "timezone",
+    "source",
+    "source_timezone",
+    "range",
+    "adapter_version",
+    "days",
+    "rows"
+  ],
+  "additionalProperties": false
+}

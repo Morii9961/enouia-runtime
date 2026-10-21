@@ -1,6 +1,6 @@
 # ADR-035 — Private AI Usage Ledger and a gated export contract
 
-Date: 2026-10-21. Status: **proposed; R0 design only, adopted on merge**. Authority: the owner's AI Usage Ledger implementation request, which explicitly requires stopping after R0 if Dashboard's UsageSnapshot contract is not frozen. This ADR does not activate collection, a new runner, storage, or export.
+Date: 2026-10-21. Status: **R1 synthetic implementation authorized; code review pending**. Authority: the owner's AI Usage Ledger request and continuation after the Dashboard author confirmed the 1.1 Schema, fictional fixtures and SHA manifest frozen. R2/R3 remain separate verified implementation slices. No personal collection, scheduler or transmission is activated.
 
 ## Context and compatibility gate
 
@@ -74,9 +74,11 @@ Future export constructs a closed allowlist from pinned aggregate rows; it does 
 
 ## Activation gates and consequences
 
-R0 is complete with this ADR, the compatibility/field-gap study, synthetic scenario specifications and honest verification. **Stop here while the contract is absent.** No provisional schema, exporter, migration or synthetic result can waive that stop.
+R0 is complete with this ADR, the compatibility/field-gap study, synthetic scenario specifications and honest verification. The original stop applied while a compatible frozen contract was absent. Dashboard's author has now confirmed the 1.1 exchange package frozen, including finite quality reasons and explicitly unallocated observations. The owner authorized the cross-chat request and continued Runtime work. The [Usage pin](../integration/usage-pin.json) locks the exact publisher-owned bytes; no Runtime protocol variant is invented.
 
-R1 requires an immutable Dashboard schema commit/hash, documented semantic rules, closed enums/bounds, a shared fictional accepted/adversarial fixture corpus and runnable conformance checks; resolve the gaps listed in the study and adopt the narrow Claude parser exception. Verify supported Codex versions using public source or owner-selected synthetic samples; the owner's described field semantics are requirements, not evidence of every historical log version. R1 then proves adapters using synthetic data only.
+Git publication of that 1.1 package is still pending. Content-addressed immutability is sufficient for isolated synthetic R1 work: verify every Schema/fixture against the publisher's manifest, preserve those files, and fail on drift. This refines R0's unnecessarily Git-only handoff rule without reducing any count, quality or privacy requirement. Record the missing upstream commit explicitly; do not describe a local frozen package as pushed/merged or production-integrated. Before R3 delivery, reconcile publication or report that limitation separately.
+
+R1 requires an immutable Dashboard schema commit or frozen content-hash package, documented semantic rules, closed enums/bounds, a shared fictional accepted/adversarial fixture corpus and runnable conformance checks. These contract gates are satisfied by the pinned 1.0/1.1 bundle; the narrow Claude parser exception in this ADR applies only to the new usage crate. Verify supported Codex shapes using public source or owner-selected synthetic samples; historical/private CLI versions remain unverified. R1 proves adapters using synthetic data only. See [R1 evidence](../validation/AI-usage-ledger-R1.md).
 
 R2 requires independently selected synthetic private roots, concurrency/rollback/reopen/correction/replay/file-security tests and measured 100,000–1,000,000-event memory/performance trials. R3 requires exact frozen-schema conformance, decimal arithmetic, deterministic allowlist export and privacy tests in both repositories. These are future checks, not reported passes.
 
