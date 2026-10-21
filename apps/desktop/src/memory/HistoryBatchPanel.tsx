@@ -18,6 +18,8 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
   const [canRecoverSend, setCanRecoverSend] = useState(false);
   const [mustReread, setMustReread] = useState<J>(null);
   const mounted = useRef(false), pending = useRef(false), statusRef = useRef<J>(null);
+  const requestBody = useRef<HTMLPreElement>(null), prepareControl = useRef<HTMLButtonElement>(null);
+  const focusAfter = useRef<{ token: string; generation: number; trigger: Element | null; target: "body" | "prepare" } | null>(null);
   const fieldId = useId();
   const batch = task?.batches.find((b: J) => b.batchIndex === index);
   const token = JSON.stringify([vaultId, task?.taskId, index, batch?.sessionId, batch?.runId, batch?.state,
@@ -62,6 +64,15 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
   const signature = status ? batchProviderSignature(status) : "";
   const shown = held?.token === token && held.generation === generation && held.signature === signature ? held : null;
   useEffect(() => {
+    const next = focusAfter.current;
+    if (!next || busy || pending.current) return;
+    focusAfter.current = null;
+    if (next.token !== current.current.token || next.generation !== current.current.generation) return;
+    if (document.activeElement !== document.body && document.activeElement !== next.trigger) return;
+    const target = next.target === "body" ? (shown ? requestBody.current : null) : prepareControl.current;
+    if (target && !(target instanceof HTMLButtonElement && target.disabled)) target.focus();
+  }, [busy, shown, token, generation]);
+  useEffect(() => {
     if (!shown) return;
     const timer = setTimeout(() => {
       setHeld(null); setConfirmed(false); setNotice("The request handle expired. Read saved state before recovering preparation; a new handle needs a new inspection.");
@@ -76,12 +87,14 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
   const permitted = status?.configured && destination && grants.some((g: J) => g.policyId === policy);
   const invoked = owner.wasSubmitted(vaultId, task.taskId, index) || batch?.invocationState !== null;
   const eligible = batch?.state === "ready" && !invoked && task !== mustReread;
-  const valid = Number.isSafeInteger(tokens) && tokens >= 1 && tokens <= Math.min(32768, destination?.maxOutputTokens ?? 32768);
+  const maxOutput = Math.min(32768, destination?.maxOutputTokens ?? 32768);
+  const valid = Number.isSafeInteger(tokens) && tokens >= 1 && tokens <= maxOutput;
   const running = operation?.token === token ? operation : null;
   const publishable = (identity: string) => mounted.current && current.current.token === identity && current.current.generation === generation;
 
   const prepare = async () => {
     if (pending.current || !eligible || !permitted || !valid || running) return;
+    focusAfter.current = { token, generation, trigger: document.activeElement, target: "body" };
     pending.current = true; setBusy(true); setHeld(null); setConfirmed(false); setError(null); setNotice(null); setCompletion(null);
     const args: BatchArgs = { taskId: task.taskId, batchIndex: index, policyId: policy, outputTokens: tokens };
     try {
@@ -161,20 +174,24 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
     <select id={`${fieldId}-policy`} className="mem-input" value={policy} disabled={busy || !!shown || !!running} onChange={e => changeDraft({ policy: e.target.value, output })}>
       <option value="">Choose a grant</option>{grants.map((g: J) => <option key={g.policyId} value={g.policyId}>{g.policyId} · {g.maxSensitivity}</option>)}
     </select>
-    <label className="mem-label" htmlFor={`${fieldId}-tokens`}>Output token ceiling (1–32768)</label>
-    <input id={`${fieldId}-tokens`} className="mem-input" inputMode="numeric" autoComplete="off" value={output} disabled={busy || !!shown || !!running} onChange={e => changeDraft({ policy, output: e.target.value })} />
+    <label className="mem-label" htmlFor={`${fieldId}-tokens`}>Output token ceiling (1–{maxOutput})</label>
+    <input id={`${fieldId}-tokens`} className="mem-input" inputMode="numeric" autoComplete="off" value={output} aria-invalid={!valid} aria-describedby={`${fieldId}-output-help`} disabled={busy || !!shown || !!running} onChange={e => changeDraft({ policy, output: e.target.value })} />
+    <p id={`${fieldId}-output-help`} className="mem-muted">{valid ? "Use" : "Enter"} a whole number from 1 to {maxOutput}{destination ? ` for ${task.request.model}` : ""}. Your saved draft is kept until you edit it.</p>
     {error && <p role="alert" className="mem-error">{error}</p>}
     {notice && <p role="status" className="mem-muted">{notice}</p>}
     {busy && <p role="status">Waiting for the batch request receipt…</p>}
-    {!shown && <button type="button" className="mem-button" disabled={busy || !eligible || !permitted || !valid || !!running} onClick={() => void prepare()}>Prepare or recover this batch request</button>}
+    {!shown && <button ref={prepareControl} type="button" className="mem-button" disabled={busy || !eligible || !permitted || !valid || !!running} onClick={() => void prepare()}>Prepare or recover this batch request</button>}
     {shown && <div role="group" aria-label="Exact history request" className="mem-stack">
       <p>Destination: <span className="mem-mono">{shown.send.prepared.endpoint}</span> · {shown.send.prepared.model} · about {shown.send.prepared.estimatedInputTokens} input tokens · at most {shown.send.prepared.outputTokens} output tokens.</p>
       <p className="mem-mono">Call {shown.send.prepared.callId} · SHA-256 {shown.send.prepared.wireHash}</p>
       <p className="mem-muted">Request body is source data. Review this handle again after every recovery.</p>
-      <pre className="mem-pre" tabIndex={0}>{shown.send.prepared.body}</pre>
+      <pre ref={requestBody} className="mem-pre" tabIndex={0} aria-label="Exact history request body">{shown.send.prepared.body}</pre>
       <label><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} /> I inspected this exact body, destination, model and hash.</label>
       <button type="button" className="mem-button mem-primary" disabled={busy || !confirmed || (shown.send.submitted() && !canRecoverSend)} onClick={() => void send()}>{shown.send.submitted() ? "Recover this batch call" : "Send this batch once"}</button>
-      <button type="button" className="mem-button" disabled={busy} onClick={() => { setHeld(null); setConfirmed(false); setNotice("Request withdrawn. Read saved state before preparing again."); }}>Withdraw batch request</button>
+      <button type="button" className="mem-button" disabled={busy} onClick={() => {
+        focusAfter.current = { token, generation, trigger: document.activeElement, target: "prepare" };
+        setHeld(null); setConfirmed(false); setNotice("Request withdrawn. Read saved state before preparing again.");
+      }}>Withdraw batch request</button>
     </div>}
     {running && <Operation id={running.id} kind="external_send" request={request} onDone={result => {
       if (publishable(running.token)) { setOperation(null); setCompletion(result); }

@@ -59,9 +59,13 @@ export async function historyBatchPreparation(s, detail, { waitFor, check, nav, 
   await waitFor(s, `!!document.querySelector('[aria-label="Saved batch request"] option[value=${JSON.stringify(policy.result.policyId)}]')`, 'current synthetic extraction grant');
   await s.evaluate(`(()=>{const el=document.querySelector('[aria-label="Saved batch request"] select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(el,${JSON.stringify(policy.result.policyId)});el.dispatchEvent(new Event('change',{bubbles:true}));})()`);
   const outputId = await s.evaluate("[...document.querySelectorAll('label')].find(el=>el.textContent.startsWith('Output token ceiling')).htmlFor");
+  await set(s, `[id=${JSON.stringify(outputId)}]`, '4097');
+  await waitFor(s, `document.getElementById(${JSON.stringify(outputId)}).getAttribute('aria-invalid')==='true'`, 'configured output cap is explained');
+  check('HB.invalid_output_cap_is_accessible_and_does_not_prepare', await s.evaluate(`(()=>{const el=document.getElementById(${JSON.stringify(outputId)});return document.getElementById(el.getAttribute('aria-describedby')).textContent.includes('4096') && __t.byText('button','Prepare or recover this batch request').disabled && window.__batchReplies.length===0;})()`));
   await set(s, `[id=${JSON.stringify(outputId)}]`, '256');
   await waitFor(s, "!__t.byText('button','Prepare or recover this batch request').disabled", 'batch preparation enabled');
   check('HB.selection_does_not_prepare', await s.evaluate('window.__batchReplies.length===0'));
+  await s.evaluate("__t.byText('button','Prepare or recover this batch request').focus()");
   await click(s, 'button', 'Prepare or recover this batch request');
   await waitFor(s, '!!window.__batchRelease', 'actual batch preparation receipt held');
   const first = await s.evaluate('window.__batchReplies[0].result');
@@ -73,6 +77,8 @@ export async function historyBatchPreparation(s, detail, { waitFor, check, nav, 
   check('HB.head_update_keeps_pending_owner', await s.evaluate("document.body.innerText.includes('Waiting for the batch request receipt') && !document.querySelector('[aria-label=\"Exact history request\"]')"));
   await s.evaluate('window.__batchRelease();window.__batchRelease=null');
   await waitFor(s, "!!document.querySelector('[aria-label=\"Exact history request\"]')", 'actual exact request rendered');
+  await waitFor(s, "document.activeElement===document.querySelector('[aria-label=\"Exact history request body\"]')", 'preparation moves owned focus to exact readable body');
+  check('HB.preparation_focuses_named_request_body', true);
   check('HB.exact_body_endpoint_model_hash_and_handle_rendered', await s.evaluate(`(()=>{const el=document.querySelector('[aria-label="Exact history request"]');return el.querySelector('pre').textContent===${JSON.stringify(first.body)} && ${JSON.stringify([first.endpoint,first.model,first.wireHash,first.callId])}.every(value=>el.textContent.includes(value));})()`));
   check('HB.output_ceiling_and_fresh_inspection', first.outputTokens===256 && await s.evaluate("__t.byText('button','Send this batch once').disabled && !document.querySelector('[aria-label=\"Exact history request\"] input').checked"));
   check('HB.request_fits_minimum_window', await s.evaluate("document.documentElement.scrollWidth<=innerWidth && document.querySelector('.mem-history-request').scrollWidth<=document.querySelector('.mem-history-request').clientWidth+1"));
@@ -100,5 +106,6 @@ export async function historyBatchPreparation(s, detail, { waitFor, check, nav, 
   check('HB.preparation_does_not_create_another_session', JSON.stringify(await s.evaluate("__t.memory('session_list',{}).then(r=>r.result.items.map(s=>s.sessionId).sort())"))===JSON.stringify(sessionsBefore));
   check('HB.no_external_send_operation', await s.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
   check('HB.no_new_candidate_or_approved_memory', await s.evaluate("Promise.all([__t.memory('candidate_list',{cursor:null,limit:25}),__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false})]).then(([c,m])=>c.result.total===1 && m.result.total===0)"));
+  await s.evaluate("document.querySelector('[aria-label=\"Exact history request\"]').scrollIntoView({block:'center'})");
   await shot(s, 'history-batch-reopened-request');
 }
