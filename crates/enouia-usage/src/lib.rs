@@ -2,6 +2,8 @@
 pub mod adapter;
 pub mod contract;
 pub mod count;
+#[cfg(windows)]
+pub mod export;
 pub mod identity;
 #[cfg(windows)]
 pub mod safety;

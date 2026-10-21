@@ -133,6 +133,9 @@ impl Ledger {
             return Err(Error::StorageFailed);
         }
         let conn = connect(&root)?;
+        if sql(conn.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)))? != 1 {
+            return Err(Error::StorageFailed);
+        }
         if sql(conn.query_row("PRAGMA quick_check", [], |r| r.get::<_, String>(0)))? != "ok" {
             return Err(Error::StorageFailed);
         }
@@ -262,6 +265,42 @@ impl Ledger {
         }))?;
         rows.map(sql).collect()
     }
+    /// Private review view: counts and supported dimensions only, never a raw observation.
+    pub fn inspect(
+        &self,
+        source: Source,
+        group: &str,
+        identity: &str,
+        digest: &str,
+    ) -> Result<serde_json::Value> {
+        if ![group, identity, digest].iter().all(|s| is_digest(s)) {
+            return Err(Error::InvalidSchema);
+        }
+        let payload: Option<String> = sql(self
+            .conn
+            .query_row(
+                "SELECT payload FROM variants WHERE source=?1 AND gid=?2 AND iid=?3 AND digest=?4",
+                params![source.name(), group, identity, digest],
+                |r| r.get(0),
+            )
+            .optional())?;
+        let record: Record = decode(&payload.ok_or(Error::Conflict)?)?;
+        Ok(match record {
+            Record::Checkpoint { vector } => {
+                serde_json::json!({"kind":"checkpoint","counts":vector.counts()?,"time_basis":"checkpoint_unknown"})
+            }
+            Record::Step {
+                before,
+                after,
+                fact,
+            } => {
+                serde_json::json!({"kind":"step","before_counts":before.counts()?,"after_counts":after.counts()?,"measurement":fact.wire(source)})
+            }
+            Record::Message { fact, sidechain } => {
+                serde_json::json!({"kind":"message","sidechain":sidechain,"measurement":fact.wire(source)})
+            }
+        })
+    }
 }
 fn is_digest(v: &str) -> bool {
     v.len() == 64
@@ -285,7 +324,7 @@ fn connect(root: &safety::Directory) -> Result<Connection> {
     sql(c.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA trusted_schema=OFF; PRAGMA cache_size=-8192; PRAGMA temp_store=FILE; PRAGMA busy_timeout=0; PRAGMA max_page_count=2097152; CREATE TEMP TABLE dirty(gid TEXT PRIMARY KEY); CREATE TEMP TABLE seen(origin TEXT PRIMARY KEY); CREATE TEMP TABLE chosen(iid TEXT PRIMARY KEY,digest TEXT,kind TEXT,before_v TEXT,after_v TEXT,payload TEXT); CREATE INDEX chosen_before ON chosen(before_v); CREATE INDEX chosen_after ON chosen(after_v); CREATE TEMP TABLE projected(fid TEXT PRIMARY KEY,payload TEXT);"))?;
     Ok(c)
 }
-fn health(c: &Connection, s: Source) -> Result<Health> {
+pub(crate) fn health(c: &Connection, s: Source) -> Result<Health> {
     let (revision,last_attempt,last_completed,last_successful,error,coverage):(i64,Option<String>,Option<String>,Option<String>,Option<String>,String)=sql(c.query_row("SELECT revision,last_attempt,last_completed,last_successful,attempt_error,coverage FROM datasets WHERE source=?1",[s.name()],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))))?;
     Ok(Health{revision,last_attempt,last_completed,last_successful,attempt_error:error.as_deref().map(decode).transpose()?,coverage:decode(&coverage)?,conflicts:sql(c.query_row("SELECT COUNT(*) FROM current_groups WHERE source=?1 AND conflict=1",[s.name()],|r|r.get(0)))?,accepted_facts:sql(c.query_row("SELECT COUNT(*) FROM facts f JOIN current_groups g ON f.source=g.source AND f.gid=g.gid AND f.revision=g.facts_revision WHERE f.source=?1",[s.name()],|r|r.get(0)))?})
 }
@@ -328,6 +367,12 @@ impl Batch<'_> {
             self.duplicates += 1;
         } else {
             self.new += 1;
+            // A reviewed variant is scoped to evidence known at review time. New metering
+            // evidence reopens the conflict; an explicit whole-identity exclusion stays in force.
+            sql(self.tx.execute(
+                "DELETE FROM choices WHERE source=?1 AND gid=?2 AND iid=?3 AND digest IS NOT NULL",
+                params![self.source.name(), o.group, o.identity],
+            ))?;
             sql(self
                 .tx
                 .execute("INSERT OR IGNORE INTO dirty VALUES(?1)", [&o.group]))?;

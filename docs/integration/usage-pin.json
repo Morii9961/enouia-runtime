@@ -7,10 +7,10 @@
   ],
   "repository": "https://github.com/Morii9961/Moriium-Dashboard",
   "pull_request": 43,
-  "source_commit": null,
+  "source_commit": "b66a472d04da3f7767dc5ba747ba1d5b9c494a9d",
   "base_commit": "fede141e2ad53c20ef94b37af1a0916486669515",
-  "freeze_authority": "Dashboard author explicitly confirmed Schema, fixtures and SHA manifest frozen on 2026-10-21",
-  "status": "content_hash_frozen_upstream_git_publication_pending",
+  "freeze_authority": "Dashboard PR 43 merged; exact published bytes verified by check-usage-conformance.mjs",
+  "status": "published_merged_commit",
   "files": {
     "contracts/usage/dashboard/1.0/usage-snapshot.v1.schema.json": "dae8947d3e40ca85adcb195239de6288e1a14d9ddc0adc8d94cedb7a76c799f4",
     "contracts/usage/dashboard/1.0/fixtures/invalid-delta.json": "57f554212d7fa0a213cbf002b6d3365ae72db67dde8a4a22e2d28a461530e724",
