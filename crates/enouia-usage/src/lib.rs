@@ -3,6 +3,12 @@ pub mod adapter;
 pub mod contract;
 pub mod count;
 pub mod identity;
+#[cfg(windows)]
+pub mod safety;
+#[cfg(windows)]
+pub mod scan;
+#[cfg(windows)]
+pub mod store;
 pub mod time;
 
 use serde::{Deserialize, Serialize};
@@ -14,6 +20,7 @@ pub enum Error {
     InvalidJson,
     InvalidSchema,
     InvalidCounts,
+    CounterReset,
     InvalidDate,
     Overflow,
     UnsupportedSource,

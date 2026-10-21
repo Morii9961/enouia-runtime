@@ -314,6 +314,14 @@ impl<'a> Codex<'a> {
                     if previous == &current {
                         return Ok(None);
                     }
+                    if current.input < previous.input
+                        || current.output < previous.output
+                        || matches!((&current.cached,&previous.cached),(Some(a),Some(b)) if a<b)
+                        || matches!((&current.write,&previous.write),(Some(a),Some(b)) if a<b)
+                        || matches!((&current.reasoning,&previous.reasoning),(Some(a),Some(b)) if a<b)
+                    {
+                        return Err(Error::CounterReset);
+                    }
                     let delta = current.diff(previous)?;
                     self.last_mismatch = p["info"]
                         .get("last_token_usage")

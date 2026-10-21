@@ -1,6 +1,6 @@
 # ADR-035 — Private AI Usage Ledger and a gated export contract
 
-Date: 2026-10-21. Status: **R1 synthetic implementation authorized; code review pending**. Authority: the owner's AI Usage Ledger request and continuation after the Dashboard author confirmed the 1.1 Schema, fictional fixtures and SHA manifest frozen. R2/R3 remain separate verified implementation slices. No personal collection, scheduler or transmission is activated.
+Date: 2026-10-21. Status: **R1/R2 synthetic implementation verified; R3 pending**. Authority: the owner's AI Usage Ledger request and continuation after the Dashboard author confirmed the 1.1 Schema, fictional fixtures and SHA manifest frozen. No personal collection, scheduler or transmission is activated.
 
 ## Context and compatibility gate
 
@@ -80,6 +80,6 @@ Git publication of that 1.1 package is still pending. Content-addressed immutabi
 
 R1 requires an immutable Dashboard schema commit or frozen content-hash package, documented semantic rules, closed enums/bounds, a shared fictional accepted/adversarial fixture corpus and runnable conformance checks. These contract gates are satisfied by the pinned 1.0/1.1 bundle; the narrow Claude parser exception in this ADR applies only to the new usage crate. Verify supported Codex shapes using public source or owner-selected synthetic samples; historical/private CLI versions remain unverified. R1 proves adapters using synthetic data only. See [R1 evidence](../validation/AI-usage-ledger-R1.md).
 
-R2 requires independently selected synthetic private roots, concurrency/rollback/reopen/correction/replay/file-security tests and measured 100,000–1,000,000-event memory/performance trials. R3 requires exact frozen-schema conformance, decimal arithmetic, deterministic allowlist export and privacy tests in both repositories. These are future checks, not reported passes.
+R2 is implemented with independently selected synthetic private roots, concurrency/rollback/reopen/correction/replay/file-security tests and measured 100,000–1,000,000-line memory/performance trials. The exact layout, conservative source-lock behavior, process-crash limits and scale dataset are recorded in [R2 evidence](../validation/AI-usage-ledger-R2.md). Root selections remain explicit per call; no grant file or automatic discovery is needed. Immutable per-group fact projections replace the proposed eager daily materialization; R3 aggregates them inside a pinned read transaction. R3 still requires exact frozen-schema conformance, decimal arithmetic, deterministic allowlist export and privacy tests in both repositories.
 
 Real source selection and personal-data acceptance remain Morii's decision. Production scheduling, live watching, VPS transfer, API valuation, Memory changes and R4 require separate scope and authorization.
