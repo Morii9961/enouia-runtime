@@ -23,6 +23,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
+import { assertBatchFixture, createBatchVault, historyBatchPreparation } from './history-batch-native.mjs';
 
 const inputs = process.argv.slice(2, 6);
 if (inputs.length !== 4) throw new Error('usage: memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>');
@@ -232,9 +233,13 @@ async function debugOwnerRefusal(app) {
 }
 
 async function connect(overlay = false, port = PORT) {
+  let lastError = null, lastTargets = [];
   for (let i = 0; i < 160; i++) {
+    if (processesByPort.get(port)?.exitCode !== null) throw new Error(`test host is not running (exit ${processesByPort.get(port)?.exitCode})`);
     try {
       const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
+      if (targets.length) assertDebugOwner(port);
+      lastTargets = targets.map(({type, url}) => ({type, url}));
       const want = overlay ? 'overlay' : 'main';
       // The URL picks the candidate, so no extra DevTools client attaches to
       // the other window; the native label then confirms it.
@@ -252,12 +257,13 @@ async function connect(overlay = false, port = PORT) {
         s.close();
       }
     } catch (error) {
+      lastError = error.message;
       if (error.message === 'debug listener does not belong to test process' || error.message === 'test host is not running') throw error;
       /* not up yet */
     }
     await sleep(250);
   }
-  throw new Error(`no ${overlay ? 'quick-search' : 'main'} page on ${port}`);
+  throw new Error(`no ${overlay ? 'quick-search' : 'main'} page on ${port}; last error: ${lastError}; targets: ${JSON.stringify(lastTargets)}`);
 }
 
 const HELPERS = `
@@ -937,16 +943,19 @@ async function contrastChecks(s) {
 }
 
 async function main() {
-  if (['--history-only', '--history-tasks-only'].includes(process.argv[6])) {
-    const tasksMode = process.argv[6] === '--history-tasks-only';
+  if (['--history-only', '--history-tasks-only', '--history-batch-only'].includes(process.argv[6])) {
+    const batchMode = process.argv[6] === '--history-batch-only';
+    const tasksMode = batchMode || process.argv[6] === '--history-tasks-only';
     const fixture = resolve(out, '..');
     if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-history-')
       || vault !== join(fixture, 'vault') || importFile !== join(fixture, 'history.md')
       || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('history mode requires its dedicated temporary synthetic fixture');
+    if (batchMode) assertBatchFixture(exe, fixture, vault);
     writeFileSync(importFile, Array.from({length:24}, (_, i) => `# Synthetic section ${i + 1}\nSynthetic history body ${i + 1}.\n`).join(''));
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
+    if (batchMode) { app.batchVault = vault; await createBatchVault(s, app, { waitFor, fillOpenDialog }); }
     await waitFor(s, has('Memory · Vault open'), 'history fixture open');
     const initial = await s.evaluate("Promise.all([__t.memory('import_list',{}),__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([i,s,c])=>({imports:i.result.items.length,sessions:s.result.items.length,candidates:c.result.total}))");
     if (initial.imports || initial.sessions || initial.candidates) throw new Error('history fixture must start empty');
@@ -1090,6 +1099,10 @@ async function main() {
       check('H2.session_navigation_preserves_saved_head',(await statusOf(next)).vault.headCommitId===head);
       check('H2.session_navigation_creates_no_model_operation',await next.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
       await shot(next,'history-task-session');
+      if (batchMode) {
+        ownedWindowMetrics(reopened, {width:1100,height:700});
+        await historyBatchPreparation(next, detail, { waitFor, check, nav, rail, click, set, shot, statusOf });
+      }
       void next.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
       check('H2.reopened_host_exits',await waitForExit(reopened,20000)===0);next.close();return;
     }
