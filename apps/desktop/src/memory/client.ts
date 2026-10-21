@@ -27,7 +27,7 @@ const WRITES = new Set([
   "review_confirm", "forget_plan", "remember", "correction_propose", "import_start",
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
   "provider_confirm", "external_prepare", "external_send",
-  "extraction_prepare", "extraction_apply", "extraction_pause", "history_materialize", "history_resume",
+  "extraction_prepare", "extraction_apply", "extraction_pause", "history_materialize", "history_resume", "history_batch_prepare",
 ]);
 
 export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;
@@ -88,6 +88,12 @@ const RULES: Record<string, string> = {
   "index.busy": "The index is busy or rebuilding. Try again in a moment",
   "import.resume_existing": "This file's earlier import was interrupted. Resume it from the import list instead of starting it again",
   "import.adapter_changed": "This import can no longer be resumed: this version reads the file differently than when the import started",
+  "history.batch_already_invoked": "This batch already has an invocation. Read its saved outcome; preparing again cannot resend it",
+  "history.batch_not_ready": "This batch is paused or completed. Read its saved state before continuing",
+  "history.model_changed": "The configured model differs from the saved task. Restore its exact model and read the task again",
+  "history.batch_not_selected": "This batch was not selected in the saved task. Read the task again",
+  "history.batch_missing": "This child job is missing. Explicitly resume missing local jobs first",
+  "history.task_unknown": "This saved task is unavailable in the current Vault. Read saved tasks again",
   "history.import_unknown": "That import is not available in the current Vault",
   "history.import_revision": "The import report changed. Read the import list again",
   "history.import_incomplete": "Choose a completed original import; unfinished and duplicate imports cannot be planned",

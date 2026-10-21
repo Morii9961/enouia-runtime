@@ -1,0 +1,159 @@
+{
+  "date": "2026-10-20",
+  "scope": "synthetic_only",
+  "runtimeBase": "5deb9546eead991b0ea7382aa7574a6b4e6cd712",
+  "memoryRevision": "d565181e0cb3bf14c938eb66a945269bba57ac8d",
+  "memoryAdoption": "development_unmerged_PR_39",
+  "commands": 53,
+  "memorySurfaceAggregate": "9b25885480cf2e220b37f231fe9973afaecb3bd68b8939fdf1c918d42ac233b2",
+  "nodeTests": 121,
+  "domFixtures": 69,
+  "domAssertions": 939,
+  "domPassed": true,
+  "rustUnitTests": 68,
+  "pinnedCoreConsumerTests": 8,
+  "clippy": "passed",
+  "pinNegativeChecks": 8,
+  "domainNegativeChecks": 7,
+  "installerOwnershipChecks": 26,
+  "noBundleExeSha256": "c9d871f56d86d8940d569e6990ade0bbd35394265d2f17525af2760b084494ab",
+  "nsisPayloadSha256": "5a0ed01cf91205b8eec17c5b1eeb7b56da3f47e6e9c00c29b1dc52703e8e76cf",
+  "setupSha256": "c155dbea9e1ca73ced25769b8423dda773c1ae04b5a89f9e52a824e33656ee16",
+  "setupBytes": 9731507,
+  "authenticode": "NotSigned",
+  "personalVaultAccessed": false,
+  "realProviderRequests": 0,
+  "installed": false,
+  "newDomJourney": {
+    "fixture": "history-batch-request",
+    "passed": true,
+    "checks": [
+      {
+        "id": "selection_does_not_prepare_or_send",
+        "ok": true
+      },
+      {
+        "id": "head_commit_retains_one_preparation_original_batch_and_exact_body",
+        "ok": true
+      },
+      {
+        "id": "inspection_displays_destination_model_handle_hash_and_output",
+        "ok": true
+      },
+      {
+        "id": "send_requires_separate_exact_inspection",
+        "ok": true
+      },
+      {
+        "id": "uncertain_receipt_and_task_reread_reuse_exact_key_and_args",
+        "ok": true
+      },
+      {
+        "id": "recovered_handle_requires_new_inspection",
+        "ok": true
+      },
+      {
+        "id": "changed_output_uses_another_key",
+        "ok": true
+      },
+      {
+        "id": "component_remount_retains_original_selection_and_parameters_but_withdraws_handle",
+        "ok": true
+      },
+      {
+        "id": "component_remount_recovers_original_key_with_fresh_inspection",
+        "ok": true
+      },
+      {
+        "id": "late_batch_reply_cannot_publish_to_new_selection",
+        "ok": true
+      },
+      {
+        "id": "mixed_child_identity_withholds_body_and_send",
+        "ok": true
+      },
+      {
+        "id": "expired_handle_is_withdrawn_without_send",
+        "ok": true
+      },
+      {
+        "id": "provider_drift_withdraws_old_body_and_handle",
+        "ok": true
+      },
+      {
+        "id": "invalid_handle_withdraws_body_and_requires_saved_task_reread",
+        "ok": true
+      },
+      {
+        "id": "definite_presend_handle_refusal_recovers_original_preparation_key",
+        "ok": true
+      },
+      {
+        "id": "lost_send_receipt_recovers_same_handle_hash_key_one_fake_exchange",
+        "ok": true
+      },
+      {
+        "id": "completed_invocation_cannot_reprepare",
+        "ok": true
+      },
+      {
+        "id": "failed_invocation_cannot_reprepare",
+        "ok": true
+      },
+      {
+        "id": "cancelled_invocation_cannot_reprepare",
+        "ok": true
+      },
+      {
+        "id": "outcome_unknown_invocation_cannot_reprepare",
+        "ok": true
+      },
+      {
+        "id": "length_invocation_cannot_reprepare",
+        "ok": true
+      },
+      {
+        "id": "reopened_owner_has_no_old_body_or_confirmation",
+        "ok": true
+      },
+      {
+        "id": "history.model_changed_refusal_offers_saved_state_recovery_without_send",
+        "ok": true
+      },
+      {
+        "id": "history.batch_not_ready_refusal_offers_saved_state_recovery_without_send",
+        "ok": true
+      },
+      {
+        "id": "history.source_read_refusal_offers_saved_state_recovery_without_send",
+        "ok": true
+      },
+      {
+        "id": "history.batch_missing_refusal_offers_saved_state_recovery_without_send",
+        "ok": true
+      },
+      {
+        "id": "history.batch_not_selected_refusal_offers_saved_state_recovery_without_send",
+        "ok": true
+      },
+      {
+        "id": "lock_or_unmount_discards_late_receipt_and_handle",
+        "ok": true
+      },
+      {
+        "id": "lock_reopen_recovery_retains_original_key_and_requires_inspection",
+        "ok": true
+      },
+      {
+        "id": "vault_switch_withdraws_old_handle_and_late_body",
+        "ok": true
+      },
+      {
+        "id": "flow_never_creates_another_job_applies_or_approves",
+        "ok": true
+      }
+    ]
+  },
+  "aggregateDomAssertionsBeforeFinalFixtureExtension": 937,
+  "domEvidence": "69 journeys passed together at 937 assertions; unchanged 68 reused, final affected journey rerun at 31; combined 939"
+}

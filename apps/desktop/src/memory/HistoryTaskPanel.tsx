@@ -6,9 +6,12 @@ import { useLatestRead } from "./hooks";
 import { historyTaskListObservation, historyTaskObservation, validHistoryTaskRequest, type HistoryTaskRequest } from "./historyTasks";
 import { operationListObservation } from "./observationIdentity";
 import { ErrorBox, Operation, shortId, when } from "./ui";
+import { historyBatchOwner } from "./historyBatch";
+import { HistoryBatchPanel } from "./HistoryBatchPanel";
 
 type Attempt = { command: "history_materialize" | "history_resume"; args: HistoryTaskRequest | { taskId: string }; key: string };
 export function useHistoryTasks(vaultId: string, request = call) {
+  const batchOwner = historyBatchOwner(vaultId);
   const [page, setPage] = useState<J>(null), [detail, setDetail] = useState<J>(null);
   const [operations, setOperations] = useState<J[] | null>(null);
   const [attempt, setAttempt] = useState<Attempt | null>(null), [waiting, setWaiting] = useState(false);
@@ -85,7 +88,7 @@ export function useHistoryTasks(vaultId: string, request = call) {
     setNote(`Recovered local task operation ${status.state}. Read its saved task to observe local jobs.`);
     refresh();
   };
-  return { page, detail, operations, operation, attempt, waiting, busy, ready, error, note, list, read,
+  return { vaultId, batchOwner, page, detail, operations, operation, attempt, waiting, busy, ready, error, note, list, read,
     create, resume, observe, refresh, done, recoveredDone, retry: () => { if (attempt) void execute(attempt); } };
 }
 
@@ -93,6 +96,7 @@ export function HistoryTasks({ tasks, request = call, openSession }: {
   tasks: ReturnType<typeof useHistoryTasks>; request?: typeof call; openSession?: (sessionId: string) => void;
 }) {
   const { page, detail } = tasks;
+  const [selection, setSelection] = useState(tasks.batchOwner.selection);
   return <section className="mem-card mem-stack" aria-label="Saved history tasks">
     <h3 className="mem-h3">Saved history tasks</h3>
     <p className="mem-muted">These are local job descriptors. Creating or resuming them does not call a model, add suggestions or approve memories.</p>
@@ -130,11 +134,18 @@ export function HistoryTasks({ tasks, request = call, openSession }: {
       {openSession && detail.coordinatorSessionId && <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
         onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(detail.coordinatorSessionId); }}>View coordinator session</button>}
       <ul className="mem-list">{detail.batches.map((batch: J) => <li key={batch.batchIndex}>Batch {batch.batchIndex + 1} · {batch.state} · {batch.applied} applied · invocation {batch.invocationState ?? "none recorded"} · <span className="mem-mono">{batch.sessionId}</span>
+        <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
+          onClick={() => {
+            const selected = { taskId: detail.taskId, index: batch.batchIndex };
+            tasks.batchOwner.selection = selected; setSelection(selected);
+          }}>Inspect batch {batch.batchIndex + 1} request</button>
         {openSession && <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
           onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(batch.sessionId); }}>View batch {batch.batchIndex + 1} session</button>}
       </li>)}</ul>
       <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy} onClick={() => tasks.observe(detail.taskId)}>Read this history task again</button>
       {!detail.materializationComplete && <button type="button" className="mem-button" disabled={!tasks.ready || tasks.read.busy} onClick={tasks.resume}>Resume missing local jobs</button>}
     </div>}
+    <HistoryBatchPanel vaultId={tasks.vaultId} task={detail?.taskId === selection?.taskId ? detail : null}
+      index={selection?.index ?? null} owner={tasks.batchOwner} request={request} />
   </section>;
 }

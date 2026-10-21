@@ -1061,7 +1061,7 @@ fn history_plan_fields_the_surface_renders() {
 }
 
 #[test]
-fn history_tasks_use_pinned_fields_and_never_touch_provider_ports() {
+fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() {
     use enouia_memory_contract::MemoryError;
     use enouia_memory_contract::foundation::Cancellation;
     use enouia_memory_contract::json::SchemaVersion;
@@ -1073,22 +1073,41 @@ fn history_tasks_use_pinned_fields_and_never_touch_provider_ports() {
     use enouia_memory_provider::vault::Quota;
     use enouia_memory_workspace::{NativeDestination, NativeProvider};
     use std::sync::Arc;
-    struct NoPorts;
-    impl SecretStore for NoPorts {
+    struct BatchPorts {
+        reads: AtomicU64,
+        calls: AtomicU64,
+        allow: std::sync::atomic::AtomicBool,
+    }
+    let ports = Arc::new(BatchPorts {
+        reads: AtomicU64::new(0),
+        calls: AtomicU64::new(0),
+        allow: std::sync::atomic::AtomicBool::new(false),
+    });
+    impl SecretStore for BatchPorts {
         fn read(&self, _: &str) -> Result<SecretBytes, MemoryError> {
-            panic!("local history tasks must not read credentials")
+            assert!(
+                self.allow.load(Ordering::SeqCst),
+                "preparation must not read credentials"
+            );
+            self.reads.fetch_add(1, Ordering::SeqCst);
+            Ok(SecretBytes::new(b"synthetic-test-key".to_vec()))
         }
     }
-    impl Transport for NoPorts {
+    impl Transport for BatchPorts {
         fn exchange(
             &self,
             _: &WireRequest,
             _: &SecretBytes,
             _: &dyn Cancellation,
             _: Duration,
-            _: &mut dyn FnMut(&[u8]) -> Result<(), MemoryError>,
+            sink: &mut dyn FnMut(&[u8]) -> Result<(), MemoryError>,
         ) -> Result<(), MemoryError> {
-            panic!("local history tasks must not call a model")
+            assert!(
+                self.allow.load(Ordering::SeqCst),
+                "preparation must not call transport"
+            );
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            sink(&serde_json::to_vec(&json!({"status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"{\"candidates\":[]}"}]}],"usage":{"input_tokens":50,"output_tokens":10}})).unwrap())
         }
     }
     let mut page = Page::new("history-task-fields");
@@ -1096,30 +1115,29 @@ fn history_tasks_use_pinned_fields_and_never_touch_provider_ports() {
         page.ok("workspace_status", json!({}))["vault"]["lastCommitAt"].clone(),
     )
     .unwrap();
-    page.ws
-        .set_native_provider(Some(NativeProvider {
-            transport: Arc::new(NoPorts),
-            secrets: Arc::new(NoPorts),
-            destinations: vec![NativeDestination {
-                api: Api::OpenAiResponses,
-                capabilities: ProviderCapabilities {
-                    schema_version: SchemaVersion,
-                    binding: Api::OpenAiResponses.binding("synthetic-model").unwrap(),
-                    text_input: Capability::Supported,
-                    image_input: Capability::Unsupported,
-                    streaming: Capability::Unsupported,
-                    tool_calling: Capability::Unsupported,
-                    cancellation: Capability::Supported,
-                    token_counting: TokenCounting::Estimated,
-                    context_window_tokens: Some(128000),
-                    max_output_tokens: Some(4096),
-                    verified_at: Some(verified_at),
-                },
-            }],
-            quota: Quota::default(),
-            limits: Limits::default(),
-        }))
-        .unwrap();
+    let provider = NativeProvider {
+        transport: ports.clone(),
+        secrets: ports.clone(),
+        destinations: vec![NativeDestination {
+            api: Api::OpenAiResponses,
+            capabilities: ProviderCapabilities {
+                schema_version: SchemaVersion,
+                binding: Api::OpenAiResponses.binding("synthetic-model").unwrap(),
+                text_input: Capability::Supported,
+                image_input: Capability::Unsupported,
+                streaming: Capability::Unsupported,
+                tool_calling: Capability::Unsupported,
+                cancellation: Capability::Supported,
+                token_counting: TokenCounting::Estimated,
+                context_window_tokens: Some(128000),
+                max_output_tokens: Some(4096),
+                verified_at: Some(verified_at),
+            },
+        }],
+        quota: Quota::default(),
+        limits: Limits::default(),
+    };
+    page.ws.set_native_provider(Some(provider.clone())).unwrap();
     assert!(page.ok("provider_status", json!({}))["destinations"][0]["verifiedAt"].is_string());
     std::fs::write(
         page.base.join("history.md"),
@@ -1182,6 +1200,47 @@ fn history_tasks_use_pinned_fields_and_never_touch_provider_ports() {
         ],
         "history task",
     );
+    let grant = page.ok(
+        "egress_grant_plan",
+        json!({"apis":["openai"],"maxSensitivity":"private","extraction":true}),
+    );
+    let policy = page.ok(
+        "provider_confirm",
+        json!({"planId":grant["planId"],"diffHash":grant["diffHash"]}),
+    );
+    let prepare_args = json!({"taskId":task["taskId"],"batchIndex":1,"policyId":policy["policyId"],"outputTokens":256});
+    let prepare_key = "ui-saved-batch-exact-preparation";
+    let reply = page.send_keyed(
+        "history_batch_prepare",
+        prepare_args.clone(),
+        Some(prepare_key),
+    );
+    assert_eq!(reply["kind"], "external_prepared", "{reply}");
+    let prepared = reply["result"].clone();
+    for field in ["sessionId", "runId", "inputEventId"] {
+        assert_eq!(prepared[field], task["batches"][0][field]);
+    }
+    assert_eq!(prepared["taskId"], task["taskId"]);
+    assert_eq!(prepared["batchIndex"], 1);
+    assert_eq!(prepared["outputTokens"], 256);
+    strings(
+        &prepared,
+        &[
+            "callId",
+            "wireHash",
+            "body",
+            "endpoint",
+            "model",
+            "api",
+            "dispatchId",
+        ],
+        "saved batch inspection",
+    );
+    assert!(prepared["expiresInMs"].as_u64().unwrap() > 0);
+    assert!(prepared["estimatedInputTokens"].is_u64());
+    assert_eq!(prepared["streaming"], false);
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 0);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 0);
     let before = page.ok("workspace_status", json!({}))["vault"]["headCommitId"].clone();
     page.reopen(); // Saved recovery does not require a new Provider configuration.
     let list = page.ok("history_task_list", json!({"cursor":null,"limit":10}));
@@ -1209,6 +1268,65 @@ fn history_tasks_use_pinned_fields_and_never_touch_provider_ports() {
     assert_eq!(
         page.ok("workspace_status", json!({}))["pendingCandidates"],
         0
+    );
+    page.ws.set_native_provider(Some(provider)).unwrap();
+    let reopened = page.send_keyed(
+        "history_batch_prepare",
+        prepare_args.clone(),
+        Some(prepare_key),
+    );
+    assert_eq!(reopened["kind"], "external_prepared", "{reopened}");
+    let fresh = &reopened["result"];
+    assert_ne!(fresh["callId"], prepared["callId"]);
+    for field in ["wireHash", "sessionId", "runId", "inputEventId"] {
+        assert_eq!(fresh[field], prepared[field]);
+    }
+    let mut changed = prepare_args.clone();
+    changed["batchIndex"] = json!(0);
+    assert_eq!(
+        page.send_keyed("history_batch_prepare", changed, Some(prepare_key))["error"]["code"],
+        "idempotency_conflict"
+    );
+    assert_eq!(
+        page.err(
+            "external_send",
+            json!({"callId":prepared["callId"],"wireHash":prepared["wireHash"]})
+        )["code"],
+        "not_found"
+    );
+    assert_eq!(
+        page.err(
+            "external_send",
+            json!({"callId":fresh["callId"],"wireHash":"0".repeat(64)})
+        )["code"],
+        "permission_denied"
+    );
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 0);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 0);
+    ports.allow.store(true, Ordering::SeqCst);
+    let send_args = json!({"callId":fresh["callId"],"wireHash":fresh["wireHash"]});
+    let sent = page.send_keyed(
+        "external_send",
+        send_args.clone(),
+        Some("ui-history-send-once"),
+    );
+    assert_eq!(sent["error"], Value::Null, "{sent}");
+    assert_eq!(page.finish(&sent["result"])["state"], "succeeded");
+    let replay = page.send_keyed("external_send", send_args, Some("ui-history-send-once"));
+    assert_eq!(replay["result"], sent["result"]);
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 1);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(
+        page.err("history_batch_prepare", prepare_args)["code"],
+        "permission_denied"
+    );
+    assert_eq!(
+        page.ok("history_task_get", json!({"taskId":task["taskId"]}))["batches"][0]["invocationState"],
+        "completed"
+    );
+    assert_eq!(
+        page.ok("candidate_list", json!({"cursor":null,"limit":50}))["items"],
+        json!([])
     );
 }
 

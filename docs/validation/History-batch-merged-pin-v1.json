@@ -1,0 +1,386 @@
+{
+  "date": "2026-10-21",
+  "scope": "merged_memory_pin_synthetic_validation",
+  "runtimeBase": "9880541eddf74540f1bbdb1a06f6be5e340697da",
+  "runtimePR": "https://github.com/Morii9961/enouia-runtime/pull/92",
+  "runtimeMergePendingAtReport": true,
+  "memoryPR": "https://github.com/Morii9961/enouia-memory/pull/39",
+  "memoryMergedAt": "2026-10-21T04:36:36Z",
+  "memoryRevision": "18f4081d5fe8eef879d4383e306c24660f416c5e",
+  "memoryFeatureRevision": "d565181e0cb3bf14c938eb66a945269bba57ac8d",
+  "memoryBase": "a6e4da9958730ac8d7a151ce49c1108ff80f4228",
+  "memoryFeatureAndMergeTree": "ae532b3e9aa3dc73e67b0fade2fad10ed58522f9",
+  "memoryMergeTreeEqualsTestedFeature": true,
+  "memoryPremergeRustTests": 414,
+  "memoryPremergeFmtPassed": true,
+  "memoryPremergeClippyPassed": true,
+  "memorySchema": {
+    "storeDocuments": 46,
+    "workspaceMessages": 120,
+    "setRecords": 5496,
+    "schemas": 37,
+    "validRecords": 56,
+    "jsonschema": "4.26.0",
+    "providerInvocationCases": 8,
+    "python": "3.12.10",
+    "extractionJobCases": 19,
+    "ipcMessages": 51,
+    "recordCases": 126
+  },
+  "memoryAdoption": "merged",
+  "commands": 53,
+  "memorySurfaceAggregate": "9b25885480cf2e220b37f231fe9973afaecb3bd68b8939fdf1c918d42ac233b2",
+  "rustUnitTests": 68,
+  "pinnedCoreConsumerTests": 8,
+  "runtimeFmtPassed": true,
+  "runtimeClippyPassed": true,
+  "pinNegativeChecks": 8,
+  "domainNegativeChecks": 7,
+  "nodeTests": 122,
+  "domFixtures": 71,
+  "domAssertions": 953.0,
+  "fullFrontendGatePassed": true,
+  "native": {
+    "checks": [
+      {
+        "id": "W04.foreign_debug_listener_refused",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.synthetic_model_metadata_loaded",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.no_automatic_plan",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.real_core_identity",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.coverage_unknown_time",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.first_page_rendered",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.references_without_text",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.references_fit_the_inspector",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.references_fit_the_minimum_window",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.real_paging",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.second_page_rendered",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.last_page_has_previous_without_next",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.previous_page_rereads_core_and_restores_keyboard_focus",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.previous_first_page_has_no_previous_action",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.planning_creates_no_sessions_or_candidates",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.planning_preserves_head",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.stale_cursor_refused",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.stale_page_withheld",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.head_change_does_not_replan",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.fresh_plan_recovers",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.no_default_batch_selection",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.explicit_order_survives_paging",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.closing_report_keeps_pending_submission",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.one_saved_admission",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.actual_job_states_are_pending_local_work",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.unknown_cost_is_preserved",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.no_candidates_or_canonical_memories_created",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.no_model_operations",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.minimum_window_has_no_horizontal_overflow",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.first_host_exits",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.reopen_reads_original_task_without_recreating_jobs",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.saved_limits_remain_explicit_after_reopen",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.complete_task_has_no_missing_job_resume",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.task_opens_only_saved_session_filter",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.task_navigation_continues_in_sessions",
+        "ok": true,
+        "detail": "{\"before\":{\"tag\":\"BUTTON\",\"id\":\"\",\"label\":null},\"after\":{\"tag\":\"MAIN\",\"id\":\"runtime-content\",\"label\":\"Sessions content\"}}"
+      },
+      {
+        "id": "H2.explicit_branch_read_recovers_saved_job",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.session_navigation_preserves_saved_head",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.session_navigation_creates_no_model_operation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.invalid_output_cap_is_accessible_and_does_not_prepare",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.selection_does_not_prepare",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.prepared_identity_uses_original_child",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.preparation_commits_local_context",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.head_update_keeps_pending_owner",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.preparation_focuses_named_request_body",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.exact_body_endpoint_model_hash_and_handle_rendered",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.output_ceiling_and_fresh_inspection",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.request_fits_minimum_window",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.saved_task_and_request_panes_fit_minimum_window",
+        "ok": true,
+        "detail": "[]"
+      },
+      {
+        "id": "HB.import_table_has_named_bounded_scroll_region",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.import_table_scrolls_with_owned_page_keyboard",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.lock_withdraws_request_and_confirmation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.unlock_does_not_reuse_old_handle_or_approval",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.reopen_reprepares_same_child_with_new_handle",
+        "ok": true,
+        "detail": "{\"keys\":[\"ui-history-batch-v1-37a1d2aaecc3c82ed9950cdecb3a5a0971441c2186241056090d869459f2af96\",\"ui-history-batch-v1-37a1d2aaecc3c82ed9950cdecb3a5a0971441c2186241056090d869459f2af96\"]}"
+      },
+      {
+        "id": "HB.reprepared_handle_needs_new_inspection",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.preparation_does_not_create_another_session",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.no_external_send_operation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.no_new_candidate_or_approved_memory",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.reopened_host_exits",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.process_restart_does_not_restore_request_or_confirmation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.process_restart_recovers_original_key_and_child",
+        "ok": true,
+        "detail": "{\"originalKey\":\"ui-history-batch-v1-37a1d2aaecc3c82ed9950cdecb3a5a0971441c2186241056090d869459f2af96\",\"keys\":[\"ui-history-batch-v1-37a1d2aaecc3c82ed9950cdecb3a5a0971441c2186241056090d869459f2af96\"],\"identityMismatches\":[]}"
+      },
+      {
+        "id": "HB.process_restart_requires_fresh_handle_inspection",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.process_restart_creates_no_session_or_send",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.process_recovered_host_exits",
+        "ok": true,
+        "detail": ""
+      }
+    ],
+    "screenshots": [
+      "history-first-page.png",
+      "history-fresh-plan.png",
+      "history-local-task.png",
+      "history-task-reopened.png",
+      "history-task-session.png",
+      "history-batch-exact-request.png",
+      "history-batch-reopened-request.png",
+      "history-batch-process-recovered.png"
+    ],
+    "summary": "63/63"
+  },
+  "isolatedExeSha256": "c0a34aa2a5f6b8ff3a47b8b9c185c01b6e47cbc0428a2c7393b239e4ff57f2d7",
+  "loaderSha256": "86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5",
+  "rawNativeReportSha256": "4dc4537eae37e20ce4efcea17fb466dc9f44c72c49a3ccfe07c95c511e248deb",
+  "standardNoBundleBuildPassed": true,
+  "standardNsisBuildPassed": true,
+  "installerOwnershipChecks": 26,
+  "nsisPayloadSha256": "cd8919949394486f7b706b39067244852f2b4fbed47b3691ef24604e2b03c185",
+  "setupSha256": "0e61e61a423de29200444860f4e0d82a1bf27970497e1883ff83de584668d720",
+  "setupBytes": 9729429,
+  "authenticode": "NotSigned",
+  "realProviderRequests": 0,
+  "nativeExternalSendActivated": false,
+  "installed": false
+}

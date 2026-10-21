@@ -610,6 +610,7 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
           )}
           {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); refresh(); }} />)}
           <HistoryTasks tasks={historyTasks} openSession={openSession ? sessionId => openSession(status.vault.vaultId, sessionId) : undefined} />
+          <div className="mem-table-scroll" role="region" aria-label="Recorded imports" tabIndex={0}>
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
             <tbody>
@@ -642,6 +643,7 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </Center>
       <Inspector>
