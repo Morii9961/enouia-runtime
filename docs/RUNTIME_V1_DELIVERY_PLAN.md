@@ -22,7 +22,7 @@ Morii 要求功能逐项落实，最后统一验收，并在本轮明确选择�
 
 Morii 随后明确授权只读跨仓库接入。**Enouia Memory** 已提交 ADR-MEM-69 与 `history_plan`（契约48条）：绑定已归档原件、当前可读来源修订和打开/当前 head，返回有界覆盖、缺口与分页批次引用。Runtime 采用固定修订，在完整且非重复的 Import 报告旁提供显式规划与重新读取，见[实现与验证](validation/History-planning-v1.md)。
 
-Runtime 不自行读取 Vault 文件、重建解析规则、调用未公开内核状态或增加本地分叉。Memory ADR-MEM-70 已交付 H2 本地批次材料化的四个 Workspace 入口，Runtime 固定采用 `a6e4da9`；见[实现及证据](validation/History-materialization-v1.md)。2026-10-20，Morii 授权已有历史批次的准备、精确检查和单独确认发送。Runtime 开发分支采用 Memory PR #39 的固定未合并提交 `d565181e`（53条命令），实现与合成证据见[批次请求验证](validation/History-batch-request-v1.md)。Memory #39 未合并，最终合并 pin 和对应复核仍是正式交付依赖，不在本轮自行合并。结果预览、候选入队、审核、跨时间比较、主题回顾及语义提案仍需后续独立切片；保存本地任务不激活个人历史、真实模型或云端。
+Runtime 不自行读取 Vault 文件、重建解析规则、调用未公开内核状态或增加本地分叉。Memory ADR-MEM-70 已交付 H2 本地批次材料化的四个 Workspace 入口，Runtime 固定采用 `a6e4da9`；见[实现及证据](validation/History-materialization-v1.md)。2026-10-20，Morii 授权已有历史批次的准备、精确检查和单独确认发送。初始开发采用 Memory PR #39 的固定功能提交 `d565181e`（53条命令）。2026-10-21，Morii进一步明确授权完成后直接合并：Memory #39已合入 `18f4081d`，Runtime统一采用实际合并pin并复核后再合并#92；见[正式pin验证](validation/History-batch-merged-pin-v1.md)。初始与后续合成证据由[批次请求验证](validation/History-batch-request-v1.md)索引。结果预览、候选入队、审核、跨时间比较、主题回顾及语义提案仍需后续独立切片；保存本地任务不激活个人历史、真实模型或云端。
 
 最初的输入、结果绑定、生命周期、窗口范围和出口检查保存在[Memory 接入需求](integration/history-host-request-v1.md)，供追溯此切片；它不启用新 Memory 阶段或真实历史外发。
 

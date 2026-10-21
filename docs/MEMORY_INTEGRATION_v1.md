@@ -12,7 +12,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 | Contract | workspace IPC v1 (`schemaVersion: 1`, 53 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
-Development adoption (2026-10-20): the exact pin currently names Memory PR #39's **unmerged draft** commit `d565181e0cb3bf14c938eb66a945269bba57ac8d`. It is for the owner-authorized saved-batch integration and synthetic checks only. This Runtime branch/PR must remain a draft until Memory #39 is merged and the final merge revision, lock sources and aggregate are recorded and rechecked. No merge is authorized by this adoption. See [batch request evidence](validation/History-batch-request-v1.md).
+Merged adoption (2026-10-21): the owner authorized merging this saved-batch work after verification. Memory PR #39 merged as `18f4081d5fe8eef879d4383e306c24660f416c5e`; its tree equals the previously tested feature commit `d565181e0cb3bf14c938eb66a945269bba57ac8d`. The manifest, lockfile and pin now use the actual merge revision. Historical development reports retain their original unmerged pin. Runtime PR #92 is to merge only after the final-pin checks pass; see [merged-pin verification](validation/History-batch-merged-pin-v1.md). This adoption does not activate personal data, real Provider traffic or later stages.
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
 

@@ -2,7 +2,7 @@
 
 日期：2026-10-20。Morii 已明确授权本切片，实现与合成证据见[验证记录](../validation/History-batch-request-v1.md)。此文取代同日的接口提案；以 Memory ADR-MEM-71 和实际固定 Core 为准。
 
-Memory PR #39 当前为 OPEN / DRAFT，未合并；开发 pin 为 `d565181e0cb3bf14c938eb66a945269bba57ac8d`。Workspace IPC v1 共53条命令，aggregate `9b25885480cf2e220b37f231fe9973afaecb3bd68b8939fdf1c918d42ac233b2`。本分支只做开发验证；正式交付仍须 Memory 合并后更新最终 revision、lockfile 和 pin 并复核。本轮不自行合并任何 PR，不叠加旧草稿 #36。
+初始开发pin为 `d565181e0cb3bf14c938eb66a945269bba57ac8d`。2026-10-21，Morii进一步明确授权本项任务完成验证后直接合并；Memory #39已合入 `18f4081d5fe8eef879d4383e306c24660f416c5e`，Runtime的manifest、lockfile及pin统一采用该实际合并SHA。Workspace IPC v1仍为53条命令，aggregate `9b25885480cf2e220b37f231fe9973afaecb3bd68b8939fdf1c918d42ac233b2`。Runtime #92须在正式pin复核通过后合并；见[验证记录](../validation/History-batch-merged-pin-v1.md)。不叠加旧草稿#36，不激活真实Provider或后续阶段。
 
 保存任务旁提供原批次选择、已有 extraction egress grant 和输出上限（1–32768，同时不超过当前模型上限）。`history_batch_prepare` 是带幂等键的同步本地写，参数只有 `taskId`、原始 `batchIndex`、`policyId`、`outputTokens`。Core 派生原 child/session/run/input，重新检查任务、来源、权限和模型。Runtime 不使用 `extraction_prepare` 重建另一任务。
 

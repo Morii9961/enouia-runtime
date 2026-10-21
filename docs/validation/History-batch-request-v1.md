@@ -2,6 +2,8 @@
 
 最新汇总：[2026-10-21 Runtime接续记录](../HISTORY_BATCH_RUNTIME_HANDOFF_2026-10-21.md)，包括完整进程恢复、122项Node测试、953项DOM断言及63项真实WebView2合成检查。下方各日期是历史证据，不代表重复运行。
 
+后续授权已允许完成后直接合并：Memory #39已合入，Runtime采用实际合并SHA的重新验证见[正式pin记录](History-batch-merged-pin-v1.md)。下文未合并开发状态保留为历史，不是当前合并限制。
+
 2026-10-21 续改：[Provider 配置往返竞态修正与新构建](History-batch-config-race-v1.md)。下文保留首次接入的原始证据。
 
 同日新增：[53项原生 WebView2 批次准备检查](History-batch-request-native-v1.md)，仍不发送模型请求。
