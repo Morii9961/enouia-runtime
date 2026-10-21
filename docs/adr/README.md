@@ -226,3 +226,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-034 — Audit unselected generations from their manifest and sequence (Proposed; adopted on merge)
 
 [ADR-034](034-summary-audit-of-older-generations.md) cuts the write-path audit to the manifest and hash-checked `sequence.json` of each unselected generation. A full read happens only for a same-reservation pending difference. Damage confined to an older generation's archive, pending or delivery file no longer blocks writing. `recovery-inspect` reports it, and retraction still requires full validation. Measured audit cost on a one-year synthetic archive falls about eightfold.
+
+## ADR-035 — Private AI Usage Ledger and a gated export contract (Proposed; R0 only)
+
+[ADR-035](035-ai-usage-ledger.md) separates local fine-grained usage facts, deduplication, revisions and offline exports from public ActivityData v1 and all Memory paths. It proposes an independent runner/SQLite store and a narrowly gated count-only Claude adapter; existing ccusage collection, Activity state and scheduling stay unchanged. The [compatibility study](../AI_USAGE_LEDGER_R0.md) identifies missing Dashboard UsageSnapshot artifacts and source-semantic gaps. Implementation stops after R0 until an immutable schema, semantic rules, shared fictional fixtures and conformance checks are supplied. No collection, storage, export or production behavior is activated.
