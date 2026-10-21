@@ -2,6 +2,8 @@
 
 Date: 2026-10-21 (Asia/Shanghai). Scope: documentation and read-only source research. R0 stops at the missing UsageSnapshot contract gate. No parser, database, CLI, export, desktop, dependency, scheduler, producer or Memory implementation changes.
 
+Follow-up: see the [candidate review](../AI_USAGE_LEDGER_CANDIDATE_REVIEW.md) and its [result JSON](AI-usage-ledger-candidate-review.json) for a later comparison of Dashboard's uncommitted local protocol. That comparison does not supersede the original command log or establish Runtime conformance.
+
 ## Repository and protocol observations
 
 | Check | Actual observation |

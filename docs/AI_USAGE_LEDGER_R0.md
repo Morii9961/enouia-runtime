@@ -2,6 +2,8 @@
 
 Date: 2026-10-21 (Asia/Shanghai). Delivery: design and source inspection only. Implementation authority is [ADR-035](adr/035-ai-usage-ledger.md), subject to its adoption and gates. **R1–R3 are not started: UsageSnapshot v1 is not frozen in the inspected Dashboard main.**
 
+Follow-up: a [local Dashboard candidate review](AI_USAGE_LEDGER_CANDIDATE_REVIEW.md) now verifies an uncommitted Schema/fixture/checker snapshot and records remaining time/quality mappings. The initial remote-main observations below remain historical evidence; candidate files do not yet supply an immutable protocol commit or activate R1.
+
 ## Baseline and evidence
 
 Runtime checkout and remote main: `5deb9546eead991b0ea7382aa7574a6b4e6cd712`; the initial worktree was clean and detached. Existing worktrees were listed and left intact. Open Runtime PR #92 concerns Memory history request inspection and is untouched. Work proceeds on `codex/ai-usage-ledger-r0` from that baseline.
