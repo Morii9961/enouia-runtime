@@ -82,6 +82,14 @@ export async function historyBatchPreparation(s, detail, { waitFor, check, nav, 
   check('HB.exact_body_endpoint_model_hash_and_handle_rendered', await s.evaluate(`(()=>{const el=document.querySelector('[aria-label="Exact history request"]');return el.querySelector('pre').textContent===${JSON.stringify(first.body)} && ${JSON.stringify([first.endpoint,first.model,first.wireHash,first.callId])}.every(value=>el.textContent.includes(value));})()`));
   check('HB.output_ceiling_and_fresh_inspection', first.outputTokens===256 && await s.evaluate("__t.byText('button','Send this batch once').disabled && !document.querySelector('[aria-label=\"Exact history request\"] input').checked"));
   check('HB.request_fits_minimum_window', await s.evaluate("document.documentElement.scrollWidth<=innerWidth && document.querySelector('.mem-history-request').scrollWidth<=document.querySelector('.mem-history-request').clientWidth+1"));
+  const overflow = await s.evaluate(`(()=>{const root=document.querySelector('[aria-label="Saved history tasks"]');return [...new Set([...document.querySelectorAll('.qr44,.qr44 *,.qr45,.qr79,.qr88'),root,...root.querySelectorAll('*')])].filter(el=>!el.closest('.mem-table-scroll') && el.clientWidth>0 && el.scrollWidth>el.clientWidth+1).map(el=>({name:el.getAttribute('aria-label')||el.className||el.tagName,width:el.clientWidth,content:el.scrollWidth,text:el.textContent.slice(0,140)}));})()`);
+  check('HB.saved_task_and_request_panes_fit_minimum_window', overflow.length===0, JSON.stringify(overflow));
+  check('HB.import_table_has_named_bounded_scroll_region', await s.evaluate("(()=>{const region=document.querySelector('.mem-table-scroll');return !!region && region.getAttribute('role')==='region' && region.getAttribute('aria-label')==='Recorded imports' && region.tabIndex===0 && region.scrollWidth>region.clientWidth && region.getBoundingClientRect().right<=region.parentElement.getBoundingClientRect().right;})()"));
+  await s.evaluate("document.querySelector('.mem-table-scroll').focus()");
+  for (const type of ['keyDown', 'keyUp']) await s.send('Input.dispatchKeyEvent', { type, key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39 });
+  await waitFor(s, "document.querySelector('.mem-table-scroll').scrollLeft>0", 'owned-page arrow scrolls the import table');
+  check('HB.import_table_scrolls_with_owned_page_keyboard', await s.evaluate("document.activeElement===document.querySelector('.mem-table-scroll') && document.querySelector('.qr44').scrollLeft===0"));
+  await s.evaluate("document.querySelector('.mem-table-scroll').scrollLeft=0;document.querySelector('[aria-label=\"Exact history request body\"]').focus()");
   await s.evaluate("document.querySelector('[aria-label=\"Exact history request\"]').scrollIntoView({block:'center'})");
   await shot(s, 'history-batch-exact-request');
   await s.evaluate("document.querySelector('[aria-label=\"Exact history request\"] input').click()");
