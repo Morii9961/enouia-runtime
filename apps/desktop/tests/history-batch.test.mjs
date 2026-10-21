@@ -8,17 +8,27 @@ const prepared = () => ({ ...args, sessionId: 'synthetic-child-1', runId: 'synth
   callId: 'synthetic-call', dispatchId: 'synthetic-dispatch', api: 'openai', model: 'synthetic-model', endpoint: 'https://example.invalid/synthetic',
   body: '{"synthetic":true}', wireHash: 'a'.repeat(64), estimatedInputTokens: 50, expiresInMs: 60000, streaming: false });
 test('exact preparation keys survive returning to the same parameters and never cross Vault/task/batch/policy/token choices', async () => {
-  const owner = new HistoryBatchOwner(), key = owner.key('vault', args);
+  const owner = new HistoryBatchOwner(), key = await owner.key('vault', args);
   for (const [field, value] of Object.entries({ taskId: 'other', batchIndex: 0, policyId: 'other', outputTokens: 2 }))
-    assert.notEqual(owner.key('vault', { ...args, [field]: value }), key);
-  assert.notEqual(owner.key('other-vault', args), key);
-  assert.equal(owner.key('vault', { ...args }), key);
+    assert.notEqual(await owner.key('vault', { ...args, [field]: value }), key);
+  assert.notEqual(await owner.key('other-vault', args), key);
+  assert.equal(await owner.key('vault', { ...args }), key);
   const calls = [];
   await prepareHistoryBatch(owner, 'vault', args, async (...call) => { calls.push(call); });
   assert.deepEqual(calls, [['history_batch_prepare', args, key]]);
   owner.markSubmitted('vault', args);
   assert.equal(owner.wasSubmitted('vault', args.taskId, 1), true);
   assert.equal(owner.wasSubmitted('vault', args.taskId, 0), false);
+});
+
+test('a new owner reconstructs the original preparation key without stored request state', async () => {
+  const original = await new HistoryBatchOwner().key('vault', args);
+  const reopened = new HistoryBatchOwner();
+  assert.equal(await reopened.key('vault', { ...args }), original);
+  assert.match(original, /^[A-Za-z0-9_-]{16,128}$/);
+  assert.equal(reopened.selection, null);
+  assert.equal(reopened.wasSubmitted('vault', args.taskId, args.batchIndex), false);
+  assert.deepEqual(reopened.draft('vault', args.taskId, args.batchIndex), { policy: '', output: '1024' });
 });
 test('inspection refuses mixed child/run/input/model/request identity and invalid handle/hash/TTL fields', () => {
   assert.equal(batchPreparationObservation(prepared(), historyTask(), args).batchIndex, 1);

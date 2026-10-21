@@ -23,7 +23,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
-import { assertBatchFixture, createBatchVault, historyBatchPreparation } from './history-batch-native.mjs';
+import { assertBatchFixture, createBatchVault, historyBatchPreparation, historyBatchProcessReopen } from './history-batch-native.mjs';
 
 const inputs = process.argv.slice(2, 6);
 if (inputs.length !== 4) throw new Error('usage: memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>');
@@ -1099,12 +1099,22 @@ async function main() {
       check('H2.session_navigation_preserves_saved_head',(await statusOf(next)).vault.headCommitId===head);
       check('H2.session_navigation_creates_no_model_operation',await next.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
       await shot(next,'history-task-session');
+      let batchRecovery;
       if (batchMode) {
         ownedWindowMetrics(reopened, {width:1100,height:700});
-        await historyBatchPreparation(next, detail, { waitFor, check, nav, rail, click, set, shot, statusOf });
+        batchRecovery = await historyBatchPreparation(next, detail, { waitFor, check, nav, rail, click, set, shot, statusOf });
       }
       void next.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
-      check('H2.reopened_host_exits',await waitForExit(reopened,20000)===0);next.close();return;
+      check('H2.reopened_host_exits',await waitForExit(reopened,20000)===0);next.close();
+      if (batchMode) {
+        const recovered=launch(['--memory-vault',vault],{profile:'webview2-batch-recovered'}), last=await connect();
+        await waitFor(last,has('Memory · Vault open'),'batch fixture after full restart');
+        ownedWindowMetrics(recovered,{width:1100,height:700});
+        await historyBatchProcessReopen(last,batchRecovery,{waitFor,check,nav,rail,click,set,shot});
+        void last.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+        check('HB.process_recovered_host_exits',await waitForExit(recovered,20000)===0);last.close();
+      }
+      return;
     }
     void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
     check('H.host_exits', await waitForExit(app, 20000)===0);

@@ -60,5 +60,22 @@ try {
   check("preparation_respects_focus_moved_elsewhere", document.activeElement===outside);
   check("all_preparations_keep_same_original_parameters", preparations===2 && owner.draft("synthetic-vault",task.taskId,1).output==="256");
   check("focus_flow_has_no_external_send", sends===0);
+  await withdraw();
+  const originalKey=owner.key.bind(owner);
+  let releaseKey: (()=>void) | null=null;
+  owner.key=async (...args: Parameters<HistoryBatchOwner["key"]>)=>{const key=await originalKey(...args);await new Promise<void>(resolve=>{releaseKey=resolve;});return key;};
+  button(prepare)!.click();await wait(()=>releaseKey!==null);
+  root.render(<HistoryBatchPanel vaultId="synthetic-vault" task={task} index={0} owner={owner} request={call}/>);
+  await wait(()=>text().includes("Batch 1 request"));
+  root.render(<HistoryBatchPanel vaultId="synthetic-vault" task={task} index={1} owner={owner} request={call}/>);
+  await wait(()=>text().includes("Batch 2 request"));
+  (releaseKey as (()=>void)|null)?.();releaseKey=null;
+  await wait(()=>!text().includes("Waiting for the batch request receipt"));
+  check("selection_round_trip_during_key_derivation_never_submits_old_preparation", preparations===2 && !body());
+  const beforeUnmount=preparations;
+  await wait(()=>!button(prepare)!.disabled);button(prepare)!.click();await wait(()=>releaseKey!==null);
+  root.render(null);await wait(()=>fixture.childElementCount===0);
+  (releaseKey as (()=>void)|null)?.();releaseKey=null;await sleep();await sleep();
+  check("unmount_during_key_derivation_never_submits_preparation", preparations===beforeUnmount && sends===0);
   document.getElementById("results")!.textContent=JSON.stringify({ fixture:"history-batch-focus", passed:checks.every(c=>c.ok), checks });
 } finally { releasePending(); root.unmount(); outside.remove(); }

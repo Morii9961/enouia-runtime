@@ -1,12 +1,11 @@
 // Keys belong to exact saved-job arguments, outside head-bound previews.
 // No persistence of request bodies, handles or private task data in WebView storage.
-import { call, newKey, type J } from "./client.ts";
+import { call, type J } from "./client.ts";
 
 export type BatchArgs = { taskId: string; batchIndex: number; policyId: string; outputTokens: number };
 export class HistoryBatchOwner {
   selection: { taskId: string; index: number } | null = null;
   private readonly drafts = new Map<string, { policy: string; output: string }>();
-  private readonly keys = new Map<string, string>();
   private readonly submitted = new Set<string>();
   draft(vaultId: string, taskId: string, index: number) {
     return this.drafts.get(JSON.stringify([vaultId, taskId, index])) ?? { policy: "", output: "1024" };
@@ -14,11 +13,13 @@ export class HistoryBatchOwner {
   setDraft(vaultId: string, taskId: string, index: number, draft: { policy: string; output: string }) {
     this.drafts.set(JSON.stringify([vaultId, taskId, index]), { ...draft });
   }
-  key(vaultId: string, args: BatchArgs): string {
-    const identity = JSON.stringify([vaultId, args.taskId, args.batchIndex, args.policyId, args.outputTokens]);
-    let key = this.keys.get(identity);
-    if (!key) { key = newKey(); this.keys.set(identity, key); }
-    return key;
+  async key(vaultId: string, args: BatchArgs): Promise<string> {
+    // Versioned, exact-argument identity survives process exit without storing
+    // bodies, handles or approvals. This key only recovers local preparation.
+    const identity = JSON.stringify(["enouia-runtime-history-batch-prepare-v1", vaultId,
+      args.taskId, args.batchIndex, args.policyId, args.outputTokens]);
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(identity));
+    return `ui-history-batch-v1-${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("")}`;
   }
   wasSubmitted(vaultId: string, taskId: string, index: number): boolean {
     return this.submitted.has(JSON.stringify([vaultId, taskId, index]));
@@ -33,7 +34,8 @@ export class HistoryBatchOwner {
 
 // Process-local metadata survives surface remount, navigation and lock/reopen.
 // Bodies, call handles and confirmations never enter this registry. A full
-// WebView/process restart still requires fresh discovery and inspection.
+// WebView/process restart still requires fresh discovery and inspection;
+// only the exact preparation key is reproducible from saved identifiers.
 const owners = new Map<string, HistoryBatchOwner>();
 export function historyBatchOwner(vaultId: string): HistoryBatchOwner {
   let owner = owners.get(vaultId);
@@ -63,5 +65,7 @@ export function batchProviderSignature(status: J): string {
   return JSON.stringify([status.configured, status.destinations, status.grants]);
 }
 
-export const prepareHistoryBatch = (owner: HistoryBatchOwner, vaultId: string, args: BatchArgs, request = call) =>
-  request("history_batch_prepare", args, owner.key(vaultId, args));
+export const prepareHistoryBatch = async (owner: HistoryBatchOwner, vaultId: string, args: BatchArgs, request = call) => {
+  const exact = Object.freeze({ ...args });
+  return request("history_batch_prepare", exact, await owner.key(vaultId, exact));
+};

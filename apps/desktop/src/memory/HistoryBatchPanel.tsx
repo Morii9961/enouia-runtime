@@ -99,7 +99,12 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
     const args: BatchArgs = { taskId: task.taskId, batchIndex: index, policyId: policy, outputTokens: tokens };
     try {
       const startedAt = Date.now();
-      const result = await prepareHistoryBatch(owner, vaultId, args, request);
+      const result = await prepareHistoryBatch(owner, vaultId, args, (command, exact, key) => {
+        // Web Crypto yields before IPC. Recheck ownership before submitting a
+        // local write, as well as before publishing its eventual receipt.
+        if (!publishable(token) || signature !== batchProviderSignature(statusRef.current)) throw new Error("obsolete preparation owner");
+        return request(command, exact, key);
+      });
       if (!publishable(token)) return;
       batchPreparationObservation(result, task, args);
       // Conservative TTL includes delivery time. Core checks its own TTL again.

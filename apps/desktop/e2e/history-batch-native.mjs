@@ -42,7 +42,11 @@ export async function historyBatchPreparation(s, detail, { waitFor, check, nav, 
   const before = await statusOf(s);
   const sessionsBefore = await s.evaluate("__t.memory('session_list',{}).then(r=>r.result.items.map(s=>s.sessionId).sort())");
   await s.evaluate(`(()=>{
-    window.__batchReplies=[];window.__batchRelease=null;window.__batchHold=true;window.__batchObservedHead=null;
+    window.__batchReplies=[];window.__batchKeys=[];window.__batchRelease=null;window.__batchHold=true;window.__batchObservedHead=null;
+    // Tauri 2.12 invoke is non-writable. Observe only the serialized IPC body
+    // at fetch and forward every argument unchanged; never inspect headers.
+    const fetch=window.fetch;
+    window.fetch=function(...args){if(String(args[0]).endsWith('/memory_call') && typeof args[1]?.body==='string'){const envelope=JSON.parse(args[1].body);if(envelope.request?.command==='history_batch_prepare')window.__batchKeys.push(envelope.request.idempotencyKey);}return fetch.apply(this,args);};
     // Belt-and-suspenders test guard: this mode never activates Send.
     document.addEventListener('click',event=>{if(event.target.closest?.('button')?.textContent==='Send this batch once'){event.preventDefault();event.stopImmediatePropagation();throw Error('native preparation mode must not send');}},true);
     const callbacks=window.__TAURI_INTERNALS__.callbacks, previous=callbacks.set;
@@ -109,11 +113,45 @@ export async function historyBatchPreparation(s, detail, { waitFor, check, nav, 
   await click(s, 'button', 'Prepare or recover this batch request');
   await waitFor(s, 'window.__batchReplies.length===2 && !!document.querySelector(\'[aria-label="Exact history request"]\')', 'fresh handle after lock/reopen');
   const second = await s.evaluate('window.__batchReplies[1].result');
-  check('HB.reopen_reprepares_same_child_with_new_handle', second.callId!==first.callId && ['taskId','batchIndex','sessionId','runId','inputEventId','wireHash','body'].every(field=>second[field]===first[field]));
+  check('HB.reopen_reprepares_same_child_with_new_handle', second.callId!==first.callId && ['taskId','batchIndex','sessionId','runId','inputEventId','wireHash','body'].every(field=>second[field]===first[field]), JSON.stringify({keys:await s.evaluate('window.__batchKeys')}));
   check('HB.reprepared_handle_needs_new_inspection', await s.evaluate("__t.byText('button','Send this batch once').disabled && !document.querySelector('[aria-label=\"Exact history request\"] input').checked"));
   check('HB.preparation_does_not_create_another_session', JSON.stringify(await s.evaluate("__t.memory('session_list',{}).then(r=>r.result.items.map(s=>s.sessionId).sort())"))===JSON.stringify(sessionsBefore));
   check('HB.no_external_send_operation', await s.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
   check('HB.no_new_candidate_or_approved_memory', await s.evaluate("Promise.all([__t.memory('candidate_list',{cursor:null,limit:25}),__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false})]).then(([c,m])=>c.result.total===1 && m.result.total===0)"));
   await s.evaluate("document.querySelector('[aria-label=\"Exact history request\"]').scrollIntoView({block:'center'})");
   await shot(s, 'history-batch-reopened-request');
+  return { taskId:detail.taskId, policyId:policy.result.policyId, prepared:first, lastCallId:second.callId,
+    key:await s.evaluate('window.__batchKeys[0]'), sessions:sessionsBefore };
+}
+
+export async function historyBatchProcessReopen(s, saved, { waitFor, check, nav, rail, click, set, shot }) {
+  await nav(s, 'Memory'); await rail(s, 'Import');
+  await waitFor(s, "!!__t.byText('button','Read task ')", 'saved batch task after full process restart');
+  await click(s, 'button', 'Read task ');
+  await waitFor(s, "!!__t.byText('button','Inspect batch 1 request')", 'saved batch detail after process restart');
+  await s.evaluate(`(()=>{
+    window.__batchRestartKeys=[];window.__batchRestartReplies=[];
+    document.addEventListener('click',event=>{if(event.target.closest?.('button')?.textContent==='Send this batch once'){event.preventDefault();event.stopImmediatePropagation();throw Error('process recovery test must not send');}},true);
+    const fetch=window.fetch;
+    window.fetch=function(...args){if(String(args[0]).endsWith('/memory_call') && typeof args[1]?.body==='string'){const envelope=JSON.parse(args[1].body);if(envelope.request?.command==='history_batch_prepare')window.__batchRestartKeys.push(envelope.request.idempotencyKey);}return fetch.apply(this,args);};
+    const callbacks=window.__TAURI_INTERNALS__.callbacks,previous=callbacks.set;
+    callbacks.set=function(id,callback){return previous.call(this,id,value=>{if(value?.kind==='external_prepared' && value.result?.taskId===${JSON.stringify(saved.taskId)})window.__batchRestartReplies.push(value.result);callback(value);});};
+  })()`);
+  await click(s, 'button', 'Inspect batch 1 request');
+  await waitFor(s, `!!document.querySelector('[aria-label="Saved batch request"] option[value=${JSON.stringify(saved.policyId)}]')`, 'saved extraction grant after restart');
+  check('HB.process_restart_does_not_restore_request_or_confirmation', await s.evaluate("!document.querySelector('[aria-label=\"Exact history request\"]') && window.__batchRestartKeys.length===0"));
+  await s.evaluate(`(()=>{const el=document.querySelector('[aria-label="Saved batch request"] select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(el,${JSON.stringify(saved.policyId)});el.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+  const outputId = await s.evaluate("[...document.querySelectorAll('label')].find(el=>el.textContent.startsWith('Output token ceiling')).htmlFor");
+  await set(s, `[id=${JSON.stringify(outputId)}]`, '256');
+  await waitFor(s, "!__t.byText('button','Prepare or recover this batch request').disabled", 'explicit original arguments after restart');
+  await click(s, 'button', 'Prepare or recover this batch request');
+  await waitFor(s, "window.__batchRestartReplies.length===1 && !!document.querySelector('[aria-label=\"Exact history request\"]')", 'recovered preparation after full restart');
+  const prepared=await s.evaluate('window.__batchRestartReplies[0]');
+  check('HB.process_restart_recovers_original_key_and_child', await s.evaluate(`window.__batchRestartKeys.length===1 && window.__batchRestartKeys[0]===${JSON.stringify(saved.key)}`)
+    && ['taskId','batchIndex','sessionId','runId','inputEventId','outputTokens'].every(field=>prepared[field]===saved.prepared[field]), JSON.stringify({originalKey:saved.key,keys:await s.evaluate('window.__batchRestartKeys'),identityMismatches:['taskId','batchIndex','sessionId','runId','inputEventId','outputTokens'].filter(field=>prepared[field]!==saved.prepared[field])}));
+  check('HB.process_restart_requires_fresh_handle_inspection', prepared.callId!==saved.lastCallId && await s.evaluate("__t.byText('button','Send this batch once').disabled && !document.querySelector('[aria-label=\"Exact history request\"] input').checked"));
+  check('HB.process_restart_creates_no_session_or_send', JSON.stringify(await s.evaluate("__t.memory('session_list',{}).then(r=>r.result.items.map(s=>s.sessionId).sort())"))===JSON.stringify(saved.sessions)
+    && await s.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
+  await s.evaluate("document.querySelector('[aria-label=\"Exact history request\"]').scrollIntoView({block:'center'})");
+  await shot(s, 'history-batch-process-recovered');
 }
