@@ -3,8 +3,12 @@ pub mod adapter;
 pub mod contract;
 pub mod count;
 #[cfg(windows)]
+pub mod desktop;
+#[cfg(windows)]
 pub mod export;
 pub mod identity;
+#[cfg(windows)]
+pub mod review;
 #[cfg(windows)]
 pub mod safety;
 #[cfg(windows)]
@@ -27,6 +31,7 @@ pub enum Error {
     Overflow,
     UnsupportedSource,
     Conflict,
+    StaleRead,
     UnsafePath,
     BudgetExceeded,
     Cancelled,

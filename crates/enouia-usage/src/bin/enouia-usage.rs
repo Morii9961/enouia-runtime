@@ -17,9 +17,21 @@ fn run() -> enouia_usage::Result<serde_json::Value> {
         .first()
         .map(String::as_str)
         .ok_or(Error::Unconfigured)?;
+    if command == "desktop" && args.len() == 1 {
+        use std::io::Read;
+        let mut bytes = Vec::new();
+        std::io::stdin()
+            .take(64 * 1024 + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|_| Error::InvalidJson)?;
+        let value = enouia_usage::bounded_json(&bytes, 64 * 1024)?;
+        let request: enouia_usage::desktop::Request =
+            serde_json::from_value(value).map_err(|_| Error::InvalidSchema)?;
+        return request.run(&now()?);
+    }
     if command == "help" {
         return Ok(
-            serde_json::json!({"notice":NOTICE,"commands":["init LEDGER","health LEDGER SOURCE","scan LEDGER SOURCE ROOT... [--model PUBLIC_LABEL] [--deadline-seconds 1..600]","replay LEDGER SOURCE","candidates LEDGER SOURCE","inspect LEDGER SOURCE GROUP IDENTITY DIGEST","resolve LEDGER SOURCE GROUP IDENTITY DIGEST_OR_exclude","export LEDGER SOURCE START END_EXCLUSIVE NEW_OUTPUT_JSON"],"sources":["codex_local","claude_local"],"selection":"Each scan reads only explicitly supplied roots. No automatic source discovery.","date_coverage":"Legacy observations without proven request starts remain unallocated; daily zero is never inferred."}),
+            serde_json::json!({"notice":NOTICE,"commands":["init LEDGER","health LEDGER SOURCE","scan LEDGER SOURCE ROOT... [--model PUBLIC_LABEL] [--deadline-seconds 1..600]","replay LEDGER SOURCE","candidates LEDGER SOURCE [CURSOR]","inspect LEDGER SOURCE GROUP IDENTITY DIGEST","resolve LEDGER SOURCE GROUP IDENTITY DIGEST_OR_exclude","export LEDGER SOURCE START END_EXCLUSIVE NEW_OUTPUT_JSON"],"sources":["codex_local","claude_local"],"selection":"Each scan reads only explicitly supplied roots. No automatic source discovery.","date_coverage":"Legacy observations without proven request starts remain unallocated; daily zero is never inferred."}),
         );
     }
     let root = PathBuf::from(args.get(1).ok_or(Error::Unconfigured)?);
@@ -78,9 +90,9 @@ fn run() -> enouia_usage::Result<serde_json::Value> {
             );
         }
         "replay" if args.len() == 3 => ledger.replay(source, &now)?,
-        "candidates" if args.len() == 3 => {
+        "candidates" if args.len() == 3 || args.len() == 4 => {
             return Ok(
-                serde_json::json!({"candidates":ledger.candidates(source,2000)?,"limit":2000,"notice":"Opaque group, identity, digest handles only. Review before selecting a correction."}),
+                serde_json::json!({"page":ledger.candidate_page(source,args.get(3).map(String::as_str),64)?,"notice":"Opaque group, identity, digest handles only. Review before selecting a correction."}),
             );
         }
         "resolve" if args.len() == 6 => ledger.resolve(

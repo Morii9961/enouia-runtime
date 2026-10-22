@@ -636,3 +636,114 @@ fn export_row_budget_refuses_without_truncation_or_output_file() {
     assert!(!path.exists());
     assert_eq!(l.health(Source::ClaudeLocal).unwrap().accepted_facts, 2001);
 }
+
+#[test]
+fn review_pages_are_complete_and_new_evidence_invalidates_pages_and_confirmations() {
+    let t = Temp::new();
+    let root = t.source();
+    let file = root.join("a.jsonl");
+    let lines = |lower: bool, new: bool| {
+        (0..70)
+            .map(|i| {
+                message(
+                    &format!("fictional-review-{i}"),
+                    if new && i == 0 {
+                        5
+                    } else if lower {
+                        10
+                    } else {
+                        100
+                    },
+                )
+            })
+            .collect::<String>()
+    };
+    fs::write(&file, lines(false, false)).unwrap();
+    let s = selection(Source::ClaudeLocal, &root);
+    let mut l = Ledger::init(&t.ledger()).unwrap();
+    scan(&mut l, &s);
+    fs::write(&file, lines(true, false)).unwrap();
+    scan(&mut l, &s);
+    let first = l.candidate_page(Source::ClaudeLocal, None, 64).unwrap();
+    assert_eq!(first.items.len(), 64);
+    assert!(first.next_cursor.is_some());
+    let review = l
+        .review_candidate(Source::ClaudeLocal, &first.items[0])
+        .unwrap();
+    let mut all = std::collections::BTreeSet::new();
+    let mut cursor = None;
+    loop {
+        let page = l
+            .candidate_page(Source::ClaudeLocal, cursor.as_deref(), 64)
+            .unwrap();
+        for c in page.items {
+            assert!(all.insert((c.group, c.identity, c.digest)));
+        }
+        cursor = page.next_cursor;
+        if cursor.is_none() {
+            break;
+        }
+    }
+    assert_eq!(all.len(), 140);
+    let revision = l.health(Source::ClaudeLocal).unwrap().revision;
+    fs::write(&file, lines(true, true)).unwrap();
+    scan(&mut l, &s);
+    assert_eq!(
+        l.health(Source::ClaudeLocal).unwrap().revision,
+        revision,
+        "same exported projection, but new conflict evidence exists"
+    );
+    assert!(matches!(
+        l.candidate_page(Source::ClaudeLocal, first.next_cursor.as_deref(), 64),
+        Err(Error::StaleRead)
+    ));
+    assert!(matches!(
+        l.resolve_reviewed(
+            Source::ClaudeLocal,
+            review["review_token"].as_str().unwrap(),
+            false,
+            AT
+        ),
+        Err(Error::StaleRead)
+    ));
+}
+
+#[test]
+fn desktop_stdin_channel_is_closed_and_only_returns_count_facts() {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+    let t = Temp::new();
+    let root = t.source();
+    fs::write(root.join("a.jsonl"), message("fictional-desktop", 10)).unwrap();
+    let invoke = |value: serde_json::Value| {
+        let mut child = Command::new(env!("CARGO_BIN_EXE_enouia-usage"))
+            .arg("desktop")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(value.to_string().as_bytes())
+            .unwrap();
+        let r = child.wait_with_output().unwrap();
+        assert!(r.stderr.is_empty());
+        serde_json::from_slice::<serde_json::Value>(&r.stdout).unwrap()
+    };
+    let request =
+        |action| json!({"version":1,"root":t.ledger(),"source":"claude_local","action":action});
+    let init = invoke(request(json!({"operation":"init","confirm":true})));
+    assert_eq!(init["health"]["revision"], 0);
+    let scanned = invoke(request(
+        json!({"operation":"scan","roots":[root],"models":["fictional-model"]}),
+    ));
+    assert_eq!(scanned["counts"]["input_total"], "13");
+    assert!(!scanned.to_string().contains("PRIVATE_SENTINEL"));
+    assert!(!scanned.to_string().contains(t.0.to_str().unwrap()));
+    let mut bad = request(json!({"operation":"overview"}));
+    bad["untrusted_path"] = json!("PRIVATE_SENTINEL");
+    assert_eq!(invoke(bad), json!({"error":"invalid_schema"}));
+}
