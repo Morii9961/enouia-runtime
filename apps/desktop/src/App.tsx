@@ -30,6 +30,8 @@ export type DemoView = ReturnType<App['renderVals']> & {
   rtSubtitle?: string; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
 };
 import ActivitySurface from './activity/ActivitySurface.tsx';
+import {UsageProvider} from './usage/UsageProvider';
+import {ActivityWorkspace} from './usage/ActivityWorkspace';
 
 // Inside the native shell the Memory, Context and Sessions surfaces use the
 // pinned Enouia Memory Core (ADR-025), and Activity reads the separately
@@ -572,7 +574,7 @@ Settings
 {connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} reviewCandidates={this.reviewCandidates} target={this.state.memSessionTarget} /> : <Sessions view={view} />}
 </> : null}
 {isActivity ? <>
-{connected ? <ActivitySurface /> : <Activity view={view} />}
+<ActivityWorkspace>{connected ? <ActivitySurface /> : <Activity view={view} />}</ActivityWorkspace>
 </> : null}
 {isRuntime ? <>
 {connected ? <RuntimeSurface /> : <Runtime view={view} />}
@@ -584,6 +586,6 @@ Settings
 </div>
 </div>
     );
-    return connected ? <MemoryStatusProvider>{surface}</MemoryStatusProvider> : surface;
+    return <UsageProvider native={nativeWindow}>{connected ? <MemoryStatusProvider>{surface}</MemoryStatusProvider> : surface}</UsageProvider>;
   }
 }

@@ -118,6 +118,8 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 
 ## Build and checks
 
+The owner-authorized private Usage view (ADR-036) adds main-only `usage_pick`, `usage_call` and `usage_cancel`. Native choices remain opaque and temporary; the shell launches the independent hash-checked Usage package through its bounded count-only stdin channel. It imports no Usage crate and passes no data through the Memory adapter. The overlay receives none of these grants. Explicit shell exit stops the owned Usage child; Memory shutdown and its pinned Core remain authoritative for Memory. See the [manual guide](AI_USAGE_LEDGER.md) and [desktop evidence](validation/AI-usage-ledger-U1-desktop.md). This continuation changes no Memory pin, Provider settings or personal data.
+
 Prerequisites:
 - The pinned Rust 1.98.1 GNU toolchain.
 - Node 24.15.0 or later.

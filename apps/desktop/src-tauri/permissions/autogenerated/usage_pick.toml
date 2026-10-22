@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-usage-pick"
+description = "Enables the usage_pick command without any pre-configured scope."
+commands.allow = ["usage_pick"]
+
+[[permission]]
+identifier = "deny-usage-pick"
+description = "Denies the usage_pick command without any pre-configured scope."
+commands.deny = ["usage_pick"]

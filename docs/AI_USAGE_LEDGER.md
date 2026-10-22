@@ -1,12 +1,16 @@
 # 本地 AI Usage Ledger
 
-这是一套独立的 Windows 手动采集命令。它只读取每次明确选择的目录，把计量事实保存在仓库外私有账本中，再按要求生成离线 JSON。它不随桌面或 Activity 启动，不注册任务，不上传数据，也不计算货币价格。
+这是一套独立的 Windows 手动用量账本，可在桌面 Activity 的“私有用量”页操作，也可使用命令。它只读取每次明确选择的目录，把计量事实保存在仓库外私有账本中，再按要求生成离线 JSON。它不随桌面或 Activity 自动采集，不注册任务，不上传数据，也不计算货币价格。
 
 **导出只含聚合，不含源正文。** 当前支持的旧格式没有可靠的请求开始时间，因此计量保留在协议的 `unallocated` 中：观测日期用于说明来源，不冒充每日用量归属。`days: not_collected` 不表示用量为零。Dashboard 可以显示这些未归日事实及质量原因，不能据此生成准确的上海日桶或完整价格。
 
 ## 查看命令与选择目录
 
-在仓库内运行 `cargo run --offline --locked -p enouia-usage -- help`，或使用编译生成的 `enouia-usage.exe help`。本阶段没有安装程序或自动采集入口。
+桌面操作：进入 **Activity → 私有用量**，先选择配套程序包，再打开或新建账本。选择 Codex/Claude 来源，添加授权的日志根目录，按需填写确认可公开的模型名称，然后点击“采集所选目录”。采集结束后先查看覆盖诊断；冲突通过“读取冲突列表 → 查看计数 → 核对并采用/排除”处理。最后选择一个新 JSON 文件导出，供 Dashboard 手动导入。来源、程序包和目录选择只在本次应用运行期间保留，页面不会收到原始路径。
+
+`scripts/package-usage.ps1 -Destination ABSOLUTE_NEW_FOLDER` 会从锁定源码离线构建并生成配套程序包，不安装或注册任务。桌面选择该文件夹中的清单与程序，并在每次启动前重新核对 SHA-256；这不是数字签名，只选择自己核对过的本次构建产物。停止按钮只停止当前 Usage 子进程，已确认记录保留；离开页面不会把仍在进行的采集当作成功。源目录和账本都必须先由 Morii 明确选择，开发验证不包含个人日志。
+
+在仓库内运行 `cargo run --offline --locked -p enouia-usage -- help`，或使用编译生成的 `enouia-usage.exe help`。独立 Usage 程序包不执行安装，也没有自动采集入口。
 
 先由 Morii 选择一个新的账本目录。其父目录应已存在；账本必须位于本地磁盘，与源目录、仓库、程序目录和同步目录分开。首次 `init` 只接受新目录，不覆盖旧账本。新目录只允许当前 Windows 用户和 SYSTEM 访问；账本不是跨 Windows 账号可直接携带的备份格式。
 
@@ -50,7 +54,7 @@ enouia-usage resolve LEDGER SOURCE GROUP IDENTITY DIGEST
 enouia-usage resolve LEDGER SOURCE GROUP IDENTITY exclude
 ```
 
-`SOURCE` 为 `codex_local` 或 `claude_local`。`candidates` 返回最多 2,000 个不透明的组、身份和版本摘要；`inspect` 只展示该候选的计数与受支持维度，供人工比较。确认后才能选择准确摘要，或明确排除某身份。Codex 分支冲突可能需要逐个排除歧义边；命令不会猜测哪条历史正确。候选列表若达到上限，需要通过本地 API 进一步检查，不能假设已列出全部候选。
+`SOURCE` 为 `codex_local` 或 `claude_local`。`candidates` 每页返回最多 64 个不透明的组、身份和版本摘要，并提供 `next_cursor`；下一次命令可在来源后传入该游标。`inspect` 只展示该候选的计数与受支持维度，供人工比较。确认后才能选择准确摘要，或明确排除某身份。Codex 分支冲突可能需要逐个排除歧义边；命令不会猜测哪条历史正确。桌面页提供前后翻页，并在证据变化时拒绝旧游标和旧审阅，要求刷新。
 
 未解决冲突保留上次确认投影；若此前没有确认值，相关组保持隔离。选择修订后会形成新版本，可以向下修正，不会叠加旧值。同一身份以后出现新的不同计量，会重新要求解决冲突；明确排除整个身份的决定继续有效。保留的旧候选和历史修订不会被清理。`replay` 只从规范化证据重建投影，不能恢复已删除的原始日志，也不会更新最近成功采集时间；要改变源解析证据，必须再次明确选择根进行扫描。
 
@@ -58,6 +62,6 @@ enouia-usage resolve LEDGER SOURCE GROUP IDENTITY exclude
 
 ## 验证与下一步人工验收
 
-合成实现证据见 [R1](validation/AI-usage-ledger-R1.md)、[R2](validation/AI-usage-ledger-R2.md) 和 [R3](validation/AI-usage-ledger-R3.md)。默认 Rust 测试不需要 Dashboard 检出；跨仓校验需要明确传入一个与固定提交一致的 Dashboard 协议工作树，既不安装依赖，也不修改该仓库。
+合成实现证据见 [R1](validation/AI-usage-ledger-R1.md)、[R2](validation/AI-usage-ledger-R2.md)、[R3](validation/AI-usage-ledger-R3.md) 和 [桌面手动操作](validation/AI-usage-ledger-U1-desktop.md)。默认 Rust 测试不需要 Dashboard 检出；跨仓校验需要明确传入一个与固定提交一致的 Dashboard 协议工作树，既不安装依赖，也不修改该仓库。
 
 真实小样本验收仍由 Morii 决定：先明确源目录与时间范围，再比较已选择样本中的累计链、重复副本、缓存字段和质量诊断；检查导出没有正文、路径和原始标识后，才决定是否手动导入 Dashboard。本轮未读取个人日志，也未启用调度、实时监视、VPS 传输或真实 Provider。物理断电恢复、全部历史覆盖和生产接受度仍未验收。

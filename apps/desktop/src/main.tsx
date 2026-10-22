@@ -6,6 +6,7 @@ import QuickSearch from './shell/QuickSearch';
 import './quiet-runtime.css';
 import './memory/memory.css';
 import './activity/activity.css';
+import './usage/usage.css';
 
 class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };

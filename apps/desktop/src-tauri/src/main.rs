@@ -20,6 +20,8 @@ mod provider;
 mod root_lease;
 mod shell;
 mod startup;
+mod usage;
+mod usage_wire;
 
 use activity::ActivityHost;
 use memory::MemoryHost;
@@ -46,9 +48,13 @@ fn main() {
         .manage(host)
         .manage(shell::ShellState::default())
         .manage(ActivityHost::new(&args))
+        .manage(usage::UsageHost::default())
         .invoke_handler(tauri::generate_handler![
             activity::activity_call,
             activity::activity_setup,
+            usage::usage_call,
+            usage::usage_pick,
+            usage::usage_cancel,
             memory::memory_call,
             memory::memory_pick,
             provider::memory_provider_setup,
@@ -108,6 +114,7 @@ fn main() {
             shell::request_exit(app);
         }
         if let RunEvent::Exit = event {
+            app.state::<usage::UsageHost>().shutdown();
             app.state::<MemoryHost>().shutdown();
         }
     });
