@@ -1340,6 +1340,34 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
     let preview = page.send("history_batch_preview", selected.clone());
     assert_eq!(preview["kind"], "extraction_preview");
     let preview = preview["result"].clone();
+    let comparison_args = json!({"batches":[selected.clone()]});
+    let comparison = page.send("history_compare", comparison_args.clone());
+    assert_eq!(comparison["kind"], "history_comparison");
+    let comparison = &comparison["result"];
+    assert_eq!(comparison["base"]["commitId"], before);
+    assert_eq!(comparison["batches"][0]["taskId"], task["taskId"]);
+    assert_eq!(comparison["batches"][0]["sessionId"], preview["sessionId"]);
+    assert_eq!(
+        comparison["runs"][0]["response_hash"],
+        preview["responseHash"]
+    );
+    let entries: Vec<_> = comparison["topics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .flat_map(|topic| topic["entries"].as_array().unwrap())
+        .collect();
+    assert_eq!(entries.len(), 2);
+    for entry in entries {
+        let item = &preview["items"][entry["responseIndex"].as_u64().unwrap() as usize];
+        assert_eq!(entry["content"], item["content"]);
+        assert_eq!(entry["selectedText"], item["selectedText"]);
+        assert_eq!(entry["candidate"], Value::Null);
+    }
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        before
+    );
     assert_eq!(preview["items"].as_array().unwrap().len(), 2);
     assert_eq!(preview["job"]["cursor"], 0);
     assert_eq!(preview["taskId"], task["taskId"]);
@@ -1466,6 +1494,16 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
     assert_eq!(second["result"]["job"]["cursor"], 2);
     assert_eq!(second["result"]["job"]["state"], "completed");
     let completed = page.ok("history_batch_preview", selected);
+    let compared = page.ok("history_compare", comparison_args);
+    assert_eq!(compared["runs"][0]["applied"], 2);
+    assert!(
+        compared["topics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|topic| topic["entries"].as_array().unwrap())
+            .all(|entry| entry["candidate"]["status"] == "pending")
+    );
     assert!(
         completed["items"]
             .as_array()
