@@ -9,10 +9,10 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 | Repository | `https://github.com/Morii9961/enouia-memory.git` (public) |
 | Revision | recorded in [docs/integration/memory-pin.json](integration/memory-pin.json), in `apps/desktop/src-tauri/Cargo.toml` and in its `Cargo.lock` |
 | Consumed crates | `enouia-memory-workspace`, `enouia-memory-contract` for its command catalog (long-running and write commands), and `enouia-memory-provider` for native text Provider setup (Memory ADR-MEM-48) |
-| Contract | workspace IPC v1 (`schemaVersion: 1`, 56 commands) |
+| Contract | workspace IPC v1 (`schemaVersion: 1`, 57 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
-Current adoption (2026-10-23): comparison preparation pins Memory draft #49 at `20cbb2f60c2694e5d7385fce0effb3b5a47f002b` (56 commands), stacked on saved history results #94. The independent read-only consumer/panel, exact surface record and focused new-pin native checks are ready for review; upstream merge and Claude product entry integration remain required. Embedded hosting remains. See [actual evidence](validation/History-comparison-v1.md) and [Claude integration](integration/HISTORY_COMPARISON_CLAUDE_HANDOFF.md).
+Current adoption (2026-10-23): local source navigation preparation pins Memory draft #50 at `08892702d0d0104b2d23240f89d2130c4dc1d323` (57 commands), stacked on comparison #96. The deterministic text/hash consumer and standalone nested panel are ready for review; new-pin Runtime native checks and upstream merge remain required. Embedded hosting remains. See [actual evidence](validation/History-navigation-brief-v1.md) and [Claude integration](integration/HISTORY_NAVIGATION_CLAUDE_HANDOFF.md).
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
 

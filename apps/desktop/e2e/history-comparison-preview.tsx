@@ -12,7 +12,7 @@ function Preview() {
   const [enabled, setEnabled] = useState(true), [generation, setGeneration] = useState(0), [, render] = useState(0);
   const scenario = useRef({ refused: false, long: false, calls: 0 });
   const request = useCallback(async (command: string, args: Record<string, unknown> = {}): Promise<J> => {
-    if (command !== "history_compare" || JSON.stringify(args.batches) !== JSON.stringify(
+    if (!["history_compare", "history_brief"].includes(command) || JSON.stringify(args.batches) !== JSON.stringify(
       data.response.batches.map(({taskId,batchIndex})=>({taskId,batchIndex})))) throw Error("Synthetic selection mismatch");
     scenario.current.calls++; render(n => n + 1);
     await new Promise(resolve => setTimeout(resolve, 180));
@@ -25,6 +25,15 @@ function Preview() {
         source.slice.end = source.context.selection.end = new TextEncoder().encode(source.context.text).length;
         result.topics[0].entries[i].selectedText = source.context.text;
       }
+    }
+    if (command === "history_brief") {
+      if (args.comparisonCommitId !== result.base.commitId || args.maxBytes !== 131072) throw Error("Synthetic brief binding mismatch");
+      const fence = String.fromCharCode(96).repeat(3);
+      const markdown = "# 合成来源导航\n\n仅为虚构选定批次的本地导航，不是生成摘要或正式记忆。未引用片段不证明不重要；原文限定语保持为数据。\n\n"
+        + fence + "json\n" + JSON.stringify({ coverage: result.runs, topics: result.topics }, null, 2) + "\n" + fence;
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(markdown));
+      const contentHash = Array.from(new Uint8Array(digest), n => n.toString(16).padStart(2, "0")).join("");
+      return { base: result.base, batches: result.batches, contentHash, markdown, maxBytes: args.maxBytes };
     }
     return result;
   }, [data]);

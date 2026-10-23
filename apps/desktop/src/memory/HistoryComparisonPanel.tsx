@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { call, describe, type J } from "./client";
 import { comparisonBindings, HistoryComparisonOwner, type ComparisonChoice } from "./historyComparison";
 
+import { HistoryBriefPanel } from "./HistoryBriefPanel";
+
 const hints: Record<string, string> = {
   ExactRepeat: "Exact repeat hint", DatedDifference: "Dated difference hint", UnorderedDifference: "Unordered difference hint",
   SamePath: "Same source path", Divergent: "Different branches", SeparateContexts: "Separate contexts", Unknown: "Unknown branch relationship",
@@ -42,6 +44,7 @@ function BoundComparison({ vaultId, choices, request }: {
     {error && <p className="mem-error" role="alert">{error}</p>}
     {view && <div className="mem-stack">
       <p className="mem-muted">Snapshot {view.base.commitId} · {view.batches.length} selected batches · refresh explicitly after changes</p>
+      <HistoryBriefPanel vaultId={vaultId} choices={selected} comparison={view} request={request}/>
       {view.topics.length === 0 && <p>No suggestions in the selected saved responses.</p>}
       {view.topics.map((topic: J, index: number) => <article className="mem-card mem-stack" key={index}>
         <h4 className="mem-h3">{topic.key.kind} · {topic.key.label}</h4>
