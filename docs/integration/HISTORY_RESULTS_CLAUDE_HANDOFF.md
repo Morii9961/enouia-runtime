@@ -1,6 +1,6 @@
 # 历史结果：Claude 最小页面接入
 
-2026-10-23，Asia/Shanghai。交付状态：**原生消费者与恢复状态模型完成，产品入口待整合**。这是 Runtime 独立工作片的页面契约；未向其他会话发送消息，也不替 Claude 宣告 UI 完成。
+2026-10-23，Asia/Shanghai。交付状态：**原生消费者、恢复状态模型和独立面板完成，产品入口待整合**。这是 Runtime 独立工作片的页面契约；未向其他会话发送消息，也不替 Claude 宣告 UI 完成。
 
 ## 固定版本与文件归属
 
@@ -8,6 +8,7 @@ Runtime 从 main `e1e7e922b288c13dbc483c4089e7da146b7596b4` 开始，分支 `cod
 
 | 文件 | 本片提供 / Claude 接入位置 |
 | --- | --- |
+| apps/desktop/src/memory/HistoryResultPanel.tsx | 可直接挂载的独立结果面板；使用现有 mem-* 控件类，无壳、路由或 CSS 修改。 |
 | apps/desktop/src/memory/historyResults.ts | 生产消费者、观察校验、稳定应用键和恢复 owner，均已验证。 |
 | apps/desktop/src/memory/client.ts | history_batch_apply 已进入写集合；preview 为无 key 只读调用。使用现有 memory_call，无新增 Tauri 命令/权限。 |
 | apps/desktop/src-tauri/src/memory.rs | 生命周期和窗口范围继续采用固定 Core command catalog；新 apply 走共享写 gate，preview 为 read。 |
@@ -22,6 +23,21 @@ Runtime 从 main `e1e7e922b288c13dbc483c4089e7da146b7596b4` 开始，分支 `cod
 - `history_batch_apply({ taskId, batchIndex, responseHash, cursor }, key)` → `extraction_job`：原 task/batch/session/run、responseHash、job。
 - 外层字段为 camelCase；job 是保存的 ExtractionJob，字段为 snake_case，如 `input_event_id`、`max_candidates`。cursor 为 0–32，不能把 job 的位置换成数组索引或另一个 batch。
 - Core 从 durable admission 派生 child/run/input；页面不传 session/run、policy、model 或 source 来指定应用目标。结果处理不需要配置 Provider，不调用 prepare/send。
+
+## 可直接挂载的独立面板
+
+```tsx
+import { HistoryResultPanel } from "./memory/HistoryResultPanel";
+// 放在原 task/batch 详情；index 是原 batchIndex，不是 items 的位置。
+<HistoryResultPanel vaultId={vaultId} task={observedSavedTask}
+  index={originalBatchIndex} enabled={memoryUsable && !vaultChanging && !exiting} />
+```
+
+面板挂载不发 IPC。只有按钮明确读取保存响应，再由本份预览的勾选确认提交一步；成功和未知后均不自动刷新或推进。它提供源与完整上下文、speaker/evidence、未知 occurredAt、原提议/当前候选、空响应、暂停/完成状态以及原请求恢复。错误不会退回展示上次正文。读取后将自有焦点移到预览标题，用户移到外部控件时不抢回。
+
+完整 task 观察的可序列化字段、Vault 或原 batch 改变会重挂内部 owner，撤销旧观察。传入内容相同的新对象副本不会重置本次核对。锁定、Exit、失去可用状态或切换 Vault 时，外层必须卸载或令 enabled=false；不要仅用 CSS 隐藏面板。现有生命周期 gate 仍需使用，不由结果面板替代。面板按 Vault 复用进程内恢复 owner，同一 Vault 同时只挂一个结果详情。
+
+本片没有修改 HistoryTaskPanel、App.tsx、main.tsx 或共享样式。Claude 只需在现有原任务详情中选择/挂载；可直接复用组件，也可在自己的 UI 中按下列 owner 契约重排。两种方案都不得批量自动消费结果或转成记忆批准。
 
 ## Owner 的最小使用方式
 
@@ -71,7 +87,7 @@ owner 在进程内按 Vault 保留未确认的精确参数/键。任务/批次�
 ```text
 请在你现有的 Runtime redesign 分支接入“保存历史批次结果检查与单步候选入队”页面。
 先读 docs/integration/HISTORY_RESULTS_CLAUDE_HANDOFF.md 和 docs/validation/History-batch-results-v1.md，
-复用 codex/history-batch-results 的固定 55 命令消费者与 HistoryResultOwner。
+复用 codex/history-batch-results 的固定 55 命令消费者与 HistoryResultPanel / HistoryResultOwner。
 按原 task/batch 展示保存响应、quote/完整 selectedText 和当前 candidate；
 每一步都重新观察、核对并确认；未知回执保留原 hash/cursor/key，仅明确恢复同一请求。
 保护现有壳和所有 redesign 工作，不从功能分支整文件覆盖 App.tsx/main.tsx。

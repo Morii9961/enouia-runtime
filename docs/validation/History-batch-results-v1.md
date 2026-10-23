@@ -61,3 +61,11 @@ App.tsx/main.tsx、HistoryTaskPanel 和样式均未修改；[Claude 最小页面
 先在未修改的生产模型上复现：定向用例 1 fail（Missing expected rejection），保存 target/history-results/inspection-binding-before.txt。修复只给 apply / recover 增加 inspected 参数，必须与当前深度冻结的预览为同一引用；刷新、重绑、导航或失效后旧引用不能发写。Claude 接口示例同步要求保留所展示的 shown，不能从旧回调临时换取最新 snapshot。
 
 本补修实际运行：含两个新增回归的相邻 Node 消费者检查 **33 pass、0 skipped**（复用本片已保存的合成 Core fixture），TypeScript 通过，check-memory-integration.mjs 通过。输出分别为 target/history-results/inspection-binding-after.txt、inspection-typescript.txt；未改 Rust/pin/协议，未重跑原生、Clippy、打包或全量检查。上面的 31 个用例和原生结果仍属于初始工作片，不改写为补修重跑。
+
+## 独立结果面板
+
+补齐 apps/desktop/src/memory/HistoryResultPanel.tsx，供 Claude 在原 task/batch 详情直接挂载。没有修改 HistoryTaskPanel、App.tsx、main.tsx、路由、壳或 CSS。挂载不读取，明确按钮预览后才允许勾选单步；成功/未知均撤销观察，恢复同一 args/key。全部正文为普通 React 文本节点。完整上下文、来源/角色/证据、未知时间、原提议与当前候选分开展示；完成只表示本地处理进度。
+
+单个 DOM 旅程通过 24 项断言：未挂载调用、初始未确认、同内容 task 副本不重置核对、刷新撤销确认、双击一步、精确 IPC 参数/键、候选内容分离、未知原键恢复、已写丢回执后只读恢复、暂停/来源拒绝、外部焦点、批次往返、锁定、Vault 切换、空响应、晚写回执及重开后不消费下一项。运行 `node tests/dom-fixtures.mjs --worker history-results`，输出 target/history-results/result-panel-dom.txt。这是 Happy DOM 模型与假 IPC，不是浏览器、原生窗口或人类验收。TypeScript 及 Memory 集成检查通过；沿用固定 Core 的原生证据，不再调用它或 Provider。
+
+Claude 的交接增加可复制组件挂载示例与 enabled/lifecycle 要求。产品页面入口仍待整合，不把独立 fixture 当作已上线功能。

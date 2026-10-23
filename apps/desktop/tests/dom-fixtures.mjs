@@ -11,7 +11,7 @@ const baseline = process.argv.includes('--settings-baseline') || operationBaseli
 const details = process.argv.includes('--details');
 const fixtures = ['settings-exit-ownership', 'usage-manual', 'runtime-inspector', 'workspace-operations-inspector', 'shell-navigation-focus', 'home-status-observation', 'startup-note', 'memory-lifecycle-gate', 'vault-gate-focus',
   'operation-stop-observation', 'operation-observation', 'operation-cancel', 'inbox-retry-ownership',
-  'import-alias-admission', 'import-observation', 'import-report', 'history-plan', 'history-task-form', 'history-task-owner', 'history-task-navigation', 'history-batch-request', 'history-batch-config-race', 'history-batch-focus', 'import-operations', 'panel-action-focus', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
+  'import-alias-admission', 'import-observation', 'import-report', 'history-plan', 'history-task-form', 'history-task-owner', 'history-task-navigation', 'history-results', 'history-batch-request', 'history-batch-config-race', 'history-batch-focus', 'import-operations', 'panel-action-focus', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
   'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume',
   'candidate-paging', 'memory-inspector-identity', 'inspector-action-focus', 'memory-forget-focus', 'explorer-paging-focus', 'vault-operations', 'context-observation', 'saved-mock-context', 'saved-context-focus',
   'session-observation', 'session-selection-focus', 'session-list-recovery', 'session-id-filter', 'session-history-boundary', 'session-event-metadata',
