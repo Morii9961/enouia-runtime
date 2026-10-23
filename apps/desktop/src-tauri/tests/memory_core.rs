@@ -1107,7 +1107,11 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
                 "preparation must not call transport"
             );
             self.calls.fetch_add(1, Ordering::SeqCst);
-            sink(&serde_json::to_vec(&json!({"status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"{\"candidates\":[]}"}]}],"usage":{"input_tokens":50,"output_tokens":10}})).unwrap())
+            let text = json!({"candidates":[
+                {"kind":"fact","content":"Synthetic first result","quote":"Synthetic","source_index":0,"claim_key":"synthetic_history_first"},
+                {"kind":"fact","content":"Synthetic second result","quote":"Synthetic","source_index":0,"claim_key":"synthetic_history_second"}
+            ]}).to_string();
+            sink(&serde_json::to_vec(&json!({"status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":text}]}],"usage":{"input_tokens":50,"output_tokens":10}})).unwrap())
         }
     }
     let mut page = Page::new("history-task-fields");
@@ -1328,6 +1332,147 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
         page.ok("candidate_list", json!({"cursor":null,"limit":50}))["items"],
         json!([])
     );
+    // New 55-command consumer: inspect/apply saved results with all ports absent.
+    ports.allow.store(false, Ordering::SeqCst);
+    page.ws.set_native_provider(None).unwrap();
+    let selected = json!({"taskId":task["taskId"],"batchIndex":1});
+    let before = page.ok("workspace_status", json!({}))["vault"]["headCommitId"].clone();
+    let preview = page.send("history_batch_preview", selected.clone());
+    assert_eq!(preview["kind"], "extraction_preview");
+    let preview = preview["result"].clone();
+    assert_eq!(preview["items"].as_array().unwrap().len(), 2);
+    assert_eq!(preview["job"]["cursor"], 0);
+    assert_eq!(preview["taskId"], task["taskId"]);
+    assert_eq!(preview["sessionId"], task["batches"][0]["sessionId"]);
+    assert_eq!(preview["runId"], task["batches"][0]["runId"]);
+    assert_eq!(
+        preview["job"]["input_event_id"],
+        task["batches"][0]["inputEventId"]
+    );
+    for item in preview["items"].as_array().unwrap() {
+        strings(
+            item,
+            &[
+                "content",
+                "quote",
+                "selectedText",
+                "sourceId",
+                "speakerRole",
+                "evidenceClass",
+                "capturedAt",
+            ],
+            "history result item",
+        );
+        assert_eq!(item["application"], "awaiting_cursor");
+        assert!(item["candidate"].is_null());
+        assert!(
+            item["selectedText"]
+                .as_str()
+                .unwrap()
+                .contains(item["quote"].as_str().unwrap())
+        );
+    }
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        before
+    );
+    let request = json!({"taskId":task["taskId"],"batchIndex":1,"responseHash":preview["responseHash"],"cursor":0});
+    let mut changed = request.clone();
+    changed["responseHash"] = json!("0".repeat(64));
+    assert_eq!(
+        page.err("history_batch_apply", changed)["rules"][0],
+        "history.response_stale"
+    );
+    let mut future = request.clone();
+    future["cursor"] = json!(1);
+    assert_eq!(
+        page.err("history_batch_apply", future)["rules"][0],
+        "history.response_stale"
+    );
+    let applied = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-apply-step-zero"),
+    );
+    assert_eq!(applied["kind"], "extraction_job", "{applied}");
+    let first = applied["result"].clone();
+    assert_eq!(first["responseHash"], preview["responseHash"]);
+    assert_eq!(first["job"]["cursor"], 1);
+    assert_eq!(first["job"]["state"], "ready");
+    let head = page.ok("workspace_status", json!({}))["vault"]["headCommitId"].clone();
+    let replay = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-apply-step-zero"),
+    );
+    assert_eq!(replay["result"], first);
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        head
+    );
+    page.reopen();
+    let replay = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-apply-step-zero"),
+    );
+    assert_eq!(replay["result"], first);
+    let old = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-old-cursor"),
+    );
+    assert_eq!(old["result"]["job"]["cursor"], 1);
+    let preview_first = page.ok("history_batch_preview", selected.clone());
+    assert_eq!(preview_first["items"][0]["candidate"]["status"], "pending");
+    assert_eq!(preview_first["items"][1]["application"], "awaiting_cursor");
+    let mut next = request;
+    next["cursor"] = json!(1);
+    assert_eq!(
+        page.send_keyed(
+            "history_batch_apply",
+            next.clone(),
+            Some("ui-runtime-history-apply-step-zero")
+        )["error"]["code"],
+        "idempotency_conflict"
+    );
+    let second = page.send_keyed(
+        "history_batch_apply",
+        next,
+        Some("ui-runtime-history-apply-step-one"),
+    );
+    assert_eq!(second["result"]["job"]["cursor"], 2);
+    assert_eq!(second["result"]["job"]["state"], "completed");
+    let completed = page.ok("history_batch_preview", selected);
+    assert!(
+        completed["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|i| i["candidate"]["status"] == "pending")
+    );
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["pendingCandidates"],
+        2
+    );
+    assert!(
+        page.ok(
+            "memory_list",
+            json!({"includeInactive":false,"cursor":null,"limit":25})
+        )["items"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 1);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 1);
+    // Optional owned fixture for the TypeScript consumer's actual-Core field check.
+    if let Some(path) = std::env::var_os("RUNTIME_HISTORY_RESULT_FIXTURE") {
+        std::fs::write(path, serde_json::to_vec_pretty(&json!({
+            "vaultId":task["identity"]["vaultId"],"task":task,"preview":preview,
+            "first":first,"previewFirst":preview_first,"second":second["result"],"completed":completed
+        })).unwrap()).unwrap();
+    }
 }
 
 #[test]
