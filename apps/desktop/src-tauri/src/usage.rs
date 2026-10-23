@@ -31,6 +31,7 @@ struct Choice {
     id: String,
     kind: Kind,
     path: PathBuf,
+    package_hash: Option<String>,
 }
 #[derive(Default)]
 pub struct UsageHost {
@@ -77,7 +78,7 @@ impl UsageHost {
             .map(|c| c.path.clone())
             .ok_or_else(|| "usage_choice_expired".into())
     }
-    fn keep(&self, kind: Kind, path: PathBuf) -> String {
+    fn keep(&self, kind: Kind, path: PathBuf, package_hash: Option<String>) -> String {
         let id = format!(
             "usage-choice-{}",
             self.counter.fetch_add(1, Ordering::Relaxed)
@@ -90,8 +91,24 @@ impl UsageHost {
             id: id.clone(),
             kind,
             path,
+            package_hash,
         });
         id
+    }
+    fn selected_package(&self, id: &str) -> Result<(PathBuf, Vec<File>), String> {
+        let choice = self
+            .choices
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .iter()
+            .find(|c| c.id == id && c.kind == Kind::Package)
+            .cloned()
+            .ok_or("usage_choice_expired")?;
+        let (binary, hash, pins) = package(&choice.path)?;
+        if choice.package_hash.as_deref() != Some(hash.as_str()) {
+            return Err("usage_binary_changed".into());
+        }
+        Ok((binary, pins))
     }
 }
 fn allows_usage(label: &str) -> bool {
@@ -214,7 +231,7 @@ fn pin_package(root: &Path) -> Result<Vec<File>, String> {
     }
     Ok(files)
 }
-fn package(root: &Path) -> Result<(PathBuf, Vec<File>), String> {
+fn package(root: &Path) -> Result<(PathBuf, String, Vec<File>), String> {
     let mut pins = pin_package(root)?;
     let mut manifest = Vec::new();
     safe_file(&root.join("usage-package.json"))?
@@ -253,7 +270,7 @@ fn package(root: &Path) -> Result<(PathBuf, Vec<File>), String> {
         return Err("usage_binary_changed".into());
     }
     pins.push(file);
-    Ok((path, pins))
+    Ok((path, m.sha256, pins))
 }
 fn arguments(host: &UsageHost, r: &WebRequest) -> Result<(Value, &'static str), String> {
     if !wire::source(&r.source) {
@@ -472,8 +489,7 @@ fn run_request(host: &UsageHost, r: WebRequest) -> Result<Value, String> {
     }
     let _gate = host.gate.try_lock().map_err(|_| "usage_busy")?;
     let (request, op) = arguments(host, &r)?;
-    let root = host.choice(&r.package, Kind::Package)?;
-    let (binary, _pins) = package(&root)?;
+    let (binary, _pins) = host.selected_package(&r.package)?;
     let value = execute(host, &binary, &request)?;
     let result = wire::reply(value, op, &r.source).map_err(str::to_owned)?;
     if op == "init"
@@ -555,10 +571,12 @@ pub async fn usage_pick(window: WebviewWindow, kind: String) -> Result<Value, St
         if !path.is_absolute() {
             return Err("usage_invalid_request".into());
         }
-        if kind == Kind::Package {
-            let _ = package(&path)?;
-        }
-        let token = host.keep(kind, path);
+        let package_hash = if kind == Kind::Package {
+            Some(package(&path)?.1)
+        } else {
+            None
+        };
+        let token = host.keep(kind, path, package_hash);
         Ok(json!({"token":token}))
     })
     .await
@@ -606,13 +624,50 @@ mod tests {
         }
         assert!(serde_json::from_value::<WebRequest>(json!({"package":"usage-choice-0","ledger":"usage-choice-1","source":"codex_local","action":{"operation":"overview"},"path":"PRIVATE_SENTINEL"})).is_err());
         let h = UsageHost::default();
-        let token = h.keep(Kind::Claude, PathBuf::from("C:\\fictional"));
+        let token = h.keep(Kind::Claude, PathBuf::from("C:\\fictional"), None);
         assert!(h.choice(&token, Kind::Codex).is_err());
         assert!(h.choice(&token, Kind::Claude).is_ok());
         h.begin_close();
         assert!(h.closing.load(Ordering::SeqCst));
         h.resume();
         assert!(!h.closing.load(Ordering::SeqCst));
+    }
+    #[test]
+    fn selected_package_rejects_replaced_binary_and_matching_manifest() {
+        let root = std::env::temp_dir().join(format!(
+            "enouia-usage-package-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let write_package = |bytes: &[u8]| {
+            let hash = format!("{:x}", Sha256::digest(bytes));
+            std::fs::write(root.join("enouia-usage.exe"), bytes).unwrap();
+            std::fs::write(
+                root.join("usage-package.json"),
+                json!({"kind":"enouia_usage_package","version":1,"desktop_protocol":1,
+                    "binary":"enouia-usage.exe","sha256":hash})
+                .to_string(),
+            )
+            .unwrap();
+            hash
+        };
+        // Deliberately non-executable bytes: this fixture never launches a process.
+        let first = write_package(b"fictional package A");
+        let host = UsageHost::default();
+        let token = host.keep(Kind::Package, root.clone(), Some(first));
+        assert!(host.selected_package(&token).is_ok());
+        let second = write_package(b"fictional package B");
+        assert_eq!(package(&root).unwrap().1, second);
+        assert!(matches!(host.selected_package(&token), Err(e) if e == "usage_binary_changed"));
+        let reselected = host.keep(Kind::Package, root.clone(), Some(second));
+        assert!(host.selected_package(&reselected).is_ok());
+        std::fs::remove_file(root.join("usage-package.json")).unwrap();
+        std::fs::remove_file(root.join("enouia-usage.exe")).unwrap();
+        std::fs::remove_dir(root).unwrap();
     }
     #[test]
     #[ignore = "explicit independently built Usage runner; synthetic roots only"]
@@ -643,10 +698,10 @@ mod tests {
         let line=json!({"type":"assistant","timestamp":"2026-10-20T12:00:00Z","requestId":"fictional-request","message":{"id":"fictional-message","model":"fictional-model","content":"PRIVATE_SENTINEL_BODY","usage":{"input_tokens":10,"cache_read_input_tokens":3,"cache_creation_input_tokens":0,"output_tokens":2}}}).to_string()+"\n";
         std::fs::write(source.join("fictional.jsonl"), &line).unwrap();
         let host = Arc::new(UsageHost::default());
-        let p = host.keep(Kind::Package, pkg.clone());
-        let l = host.keep(Kind::NewLedger, root.join("ledger"));
-        let s = host.keep(Kind::Claude, source.clone());
-        let d = host.keep(Kind::Export, root.join("aggregate.json"));
+        let p = host.keep(Kind::Package, pkg.clone(), Some(hash));
+        let l = host.keep(Kind::NewLedger, root.join("ledger"), None);
+        let s = host.keep(Kind::Claude, source.clone(), None);
+        let d = host.keep(Kind::Export, root.join("aggregate.json"), None);
         let req = |action| {
             serde_json::from_value::<WebRequest>(
                 json!({"package":p,"ledger":l,"source":"claude_local","action":action}),
