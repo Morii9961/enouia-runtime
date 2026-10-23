@@ -55,10 +55,10 @@ test('the real client envelope keys apply only, requires fresh inspection/confir
     return{kind:'extraction_job',result:historyApplication(cursor)};
   });
   assert.equal(calls.length,0);
-  await assert.rejects(o.apply(true),/inspect/);
+  await assert.rejects(o.apply(o.snapshot.preview,true),/inspect/);
   await o.preview();
-  await assert.rejects(o.apply(false),/inspect/);
-  const first=await o.apply(true);
+  await assert.rejects(o.apply(o.snapshot.preview,false),/inspect/);
+  const first=await o.apply(o.snapshot.preview,true);
   assert.equal(first.job.cursor,1);
   assert.deepEqual(calls.map(r=>r.command),['history_batch_preview','history_batch_apply']);
   assert.equal(calls[0].idempotencyKey,null);
@@ -66,15 +66,15 @@ test('the real client envelope keys apply only, requires fresh inspection/confir
   assert.equal(calls[1].idempotencyKey,await historyApplicationKey(vault,args));
   assert.equal(o.snapshot.phase,'recovery_required');
   assert.equal(o.snapshot.preview,null);
-  await assert.rejects(o.apply(true),/inspect/);
+  await assert.rejects(o.apply(o.snapshot.preview,true),/inspect/);
   await o.preview();
   assert.equal(o.snapshot.phase,'inspected');
-  await o.apply(true);
+  await o.apply(o.snapshot.preview,true);
   assert.deepEqual(calls[3].arguments,{...args,cursor:1});
   assert.notEqual(calls[3].idempotencyKey,calls[1].idempotencyKey);
   assert.equal(calls.length,4);
   await o.preview();
-  await assert.rejects(o.apply(true),/inspect/);
+  await assert.rejects(o.apply(o.snapshot.preview,true),/inspect/);
 });
 
 test('lost or invalid receipts retain the original request through navigation and explicit same-key recovery', async () => {
@@ -85,18 +85,18 @@ test('lost or invalid receipts retain the original request through navigation an
     throw 'worker_failed';
   };
   await o.preview(request);
-  await assert.rejects(o.apply(true,request),e=>e==='worker_failed');
+  await assert.rejects(o.apply(o.snapshot.preview,true,request),e=>e==='worker_failed');
   const pending=o.snapshot.pending;
   assert.deepEqual(pending.args,args);assert.equal(pending.acknowledged,false);
   assert.throws(()=>{pending.args.cursor=1;},TypeError);
-  await assert.rejects(o.recover(true,undefined,request),/inspect/);
+  await assert.rejects(o.recover(o.snapshot.preview,true,undefined,request),/inspect/);
   o.invalidate();o.select(task(),1);
   assert.deepEqual(o.snapshot.pending.args,args);
   await o.preview(request);
-  await assert.rejects(o.apply(true,request),/inspect/);
-  await assert.rejects(o.recover(false,undefined,request),/inspect/);
-  await assert.rejects(o.recover(true,{...args,cursor:1},request),/inspect/);
-  const recovered=await o.recover(true,undefined,async(command,a,key)=>{
+  await assert.rejects(o.apply(o.snapshot.preview,true,request),/inspect/);
+  await assert.rejects(o.recover(o.snapshot.preview,false,undefined,request),/inspect/);
+  await assert.rejects(o.recover(o.snapshot.preview,true,{...args,cursor:1},request),/inspect/);
+  const recovered=await o.recover(o.snapshot.preview,true,undefined,async(command,a,key)=>{
     calls.push([command,a,key]);return historyApplication();
   });
   assert.equal(recovered.job.cursor,1);
@@ -109,7 +109,7 @@ test('lost or invalid receipts retain the original request through navigation an
 test('a fresh owner recovers supplied original metadata with the original key; old cursors never select the next item', async () => {
   const reopened=owner(),calls=[];
   await reopened.preview(async()=>historyResult(1));
-  await reopened.recover(true,{...args},async(...call)=>{calls.push(call);return historyApplication(1);});
+  await reopened.recover(reopened.snapshot.preview,true,{...args},async(...call)=>{calls.push(call);return historyApplication(1);});
   assert.deepEqual(calls,[['history_batch_apply',args,await historyApplicationKey(vault,args)]]);
   assert.equal(reopened.snapshot.preview,null);
   assert.equal(reopened.snapshot.pending.args.cursor,0);
@@ -118,7 +118,7 @@ test('a fresh owner recovers supplied original metadata with the original key; o
 test('refresh can observe an uncertain step already advanced, without replaying a write or asserting candidate publication', async () => {
   const o=owner();
   await o.preview(async()=>historyResult());
-  await assert.rejects(o.apply(true,async()=>{throw new Error('reply lost after commit');}));
+  await assert.rejects(o.apply(o.snapshot.preview,true,async()=>{throw new Error('reply lost after commit');}));
   let reads=0;
   await o.preview(async command=>{assert.equal(command,'history_batch_preview');reads++;return historyResult(1);});
   assert.equal(reads,1);assert.equal(o.snapshot.pending,null);
@@ -127,38 +127,38 @@ test('refresh can observe an uncertain step already advanced, without replaying 
   const empty=owner(),r=historyResult();r.items=[];
   await empty.preview(async()=>r);
   const done=historyApplication(0);done.job.state='completed';
-  await empty.apply(true,async()=>done);
+  await empty.apply(empty.snapshot.preview,true,async()=>done);
   const complete={...r,job:done.job};
   await empty.preview(async()=>complete);
   assert.equal(empty.snapshot.pending,null);
-  await assert.rejects(empty.apply(true),/inspect/);
+  await assert.rejects(empty.apply(empty.snapshot.preview,true),/inspect/);
 });
 
 test('A -> B -> A and invalidation during Web Crypto suppress writes, and delayed previews cannot restore authority', async () => {
   const o=owner();
   await o.preview(async()=>historyResult());
   let writes=0;
-  const applying=o.apply(true,async()=>{writes++;return historyApplication();});
+  const applying=o.apply(o.snapshot.preview,true,async()=>{writes++;return historyApplication();});
   o.select(task(),0);o.select(task(),1);
   assert.equal(await applying,null);assert.equal(writes,0);assert.equal(o.snapshot.pending,null);
   const gate=deferred(),reading=o.preview(async()=>gate.promise);
   o.invalidate();o.select(task(),1);
   gate.resolve(historyResult());
   assert.equal(await reading,null);assert.equal(o.snapshot.preview,null);
-  await assert.rejects(o.apply(true),/inspect/);
+  await assert.rejects(o.apply(o.snapshot.preview,true),/inspect/);
 });
 
 test('late write receipts update only retained request metadata and cannot enable another cursor after navigation', async () => {
   const o=owner(),gate=deferred(),started=deferred();
   await o.preview(async()=>historyResult());
-  const applying=o.apply(true,async()=>{started.resolve();return gate.promise;});
+  const applying=o.apply(o.snapshot.preview,true,async()=>{started.resolve();return gate.promise;});
   await started.promise;
   await assert.rejects(o.preview(async()=>historyResult()),/unavailable/);
   o.invalidate();o.select(task(),1);
   gate.resolve(historyApplication());
   assert.equal(await applying,null);
   assert.equal(o.snapshot.preview,null);assert.equal(o.snapshot.pending.acknowledged,true);
-  await assert.rejects(o.apply(true),/inspect/);
+  await assert.rejects(o.apply(o.snapshot.preview,true),/inspect/);
   await o.preview(async()=>historyResult(1));
   assert.equal(o.snapshot.pending,null);
 });
@@ -166,17 +166,17 @@ test('late write receipts update only retained request metadata and cannot enabl
 test('read errors, paused state, changed response and malformed application replies withhold write authority', async () => {
   const o=owner();
   await o.preview(async()=>historyResult(0,'paused'));
-  await assert.rejects(o.apply(true),/inspect/);
+  await assert.rejects(o.apply(o.snapshot.preview,true),/inspect/);
   await o.preview(async()=>historyResult());
-  await assert.rejects(o.apply(true,async()=>({...historyApplication(),responseHash:'e'.repeat(64)})),/mismatch/);
+  await assert.rejects(o.apply(o.snapshot.preview,true,async()=>({...historyApplication(),responseHash:'e'.repeat(64)})),/mismatch/);
   const key=o.snapshot.pending.key;
   const changed=historyResult();changed.responseHash='e'.repeat(64);
   await o.preview(async()=>changed);
-  await assert.rejects(o.recover(true),/inspect/);
+  await assert.rejects(o.recover(o.snapshot.preview,true),/inspect/);
   assert.equal(o.snapshot.pending.key,key);
   await assert.rejects(o.preview(async()=>{throw new CallError({code:'permission_denied',retryable:false,rules:['history.source_read']});}));
   assert.equal(o.snapshot.preview,null);assert.equal(o.snapshot.pending.key,key);
-  await assert.rejects(o.recover(true),/inspect/);
+  await assert.rejects(o.recover(o.snapshot.preview,true),/inspect/);
   assert.throws(()=>o.select({...task(),identity:{...task().identity,vaultId:'wrong'}},1),/mismatch/);
   assert.equal(o.snapshot.scope,null);
 });
@@ -191,13 +191,44 @@ test('explicit pinned-Core synthetic fixture passes the production inspector and
     historyPreviewObservation(f[name],f.vaultId,f.task,1);
   const o=new HistoryResultOwner(f.vaultId);o.select(f.task,1);
   await o.preview(async()=>f.preview);
-  await o.apply(true,async()=>f.first);
+  await o.apply(o.snapshot.preview,true,async()=>f.first);
   assert.equal(o.snapshot.preview,null);
   await o.preview(async()=>f.previewFirst);
   assert.equal(o.snapshot.pending,null);
-  await o.apply(true,async()=>f.second);
+  await o.apply(o.snapshot.preview,true,async()=>f.second);
   await o.preview(async()=>f.completed);
   assert.equal(o.snapshot.preview.job.state,'completed');
   assert.equal(o.snapshot.pending,null);
   assert.ok(o.snapshot.preview.items.every(item=>item.candidate.status==='pending'));
+});
+
+test('refresh invalidates the confirmation captured for an older displayed preview', async () => {
+  const o=owner();
+  await o.preview(async()=>historyResult());
+  const displayed=o.snapshot.preview;
+  // A second client advances the saved job while this page refreshes.
+  await o.preview(async()=>historyResult(1));
+  assert.notEqual(o.snapshot.preview,displayed);
+  let writes=0;
+  await assert.rejects(o.apply(displayed,true,async()=>{writes++;return historyApplication(2);}),/inspect/);
+  assert.equal(writes,0);
+});
+
+test('same-cursor refresh also invalidates old apply and recovery confirmations', async () => {
+  const o=owner();
+  await o.preview(async()=>historyResult());
+  const first=o.snapshot.preview;
+  await o.preview(async()=>historyResult());
+  let writes=0;
+  const request=async()=>{writes++;throw new Error('receipt unknown');};
+  await assert.rejects(o.apply(first,true,request),/inspect/);
+  assert.equal(writes,0);
+  await assert.rejects(o.apply(o.snapshot.preview,true,request),/receipt unknown/);
+  await o.preview(async()=>historyResult());
+  const recovery=o.snapshot.preview;
+  await o.preview(async()=>historyResult());
+  await assert.rejects(o.recover(recovery,true,undefined,request),/inspect/);
+  assert.equal(writes,1);
+  await o.recover(o.snapshot.preview,true,undefined,async()=>{writes++;return historyApplication();});
+  assert.equal(writes,2);
 });

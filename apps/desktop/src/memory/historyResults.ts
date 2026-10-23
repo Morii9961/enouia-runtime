@@ -154,9 +154,11 @@ export class HistoryResultOwner {
       throw error;
     } finally { this.active = null; }
   }
-  async apply(confirmed: boolean, request = call): Promise<J> {
+  /** The caller must retain the actual displayed immutable preview. Refresh or
+   * reselection invalidates its confirmation, even at the same cursor. */
+  async apply(inspected: J, confirmed: boolean, request = call): Promise<J> {
     const scope = this.observedScope();
-    if (confirmed !== true || !this.shown || this.shown.job.state !== "ready" || this.held.has(this.identity(scope))) {
+    if (confirmed !== true || !this.shown || inspected !== this.shown || this.shown.job.state !== "ready" || this.held.has(this.identity(scope))) {
       throw new Error("inspect and confirm one history result step first");
     }
     return this.submit(scope, argumentsFor({ taskId: scope.taskId, batchIndex: scope.batchIndex,
@@ -165,10 +167,10 @@ export class HistoryResultOwner {
   /** Explicitly retry the held step. After process restart, the caller may
    * supply original hash/cursor metadata: the original key is reconstructed.
    * A fresh preview must first verify this response and cursor. */
-  async recover(confirmed: boolean, original?: HistoryApplyArgs, request = call): Promise<J> {
+  async recover(inspected: J, confirmed: boolean, original?: HistoryApplyArgs, request = call): Promise<J> {
     const scope = this.observedScope(), held = this.held.get(this.identity(scope));
     const args = original ? argumentsFor(original) : held?.args;
-    if (confirmed !== true || !args || !this.shown || args.taskId !== scope.taskId || args.batchIndex !== scope.batchIndex
+    if (confirmed !== true || !args || !this.shown || inspected !== this.shown || args.taskId !== scope.taskId || args.batchIndex !== scope.batchIndex
       || args.responseHash !== this.shown.responseHash || args.cursor > this.shown.job.cursor
       || held && JSON.stringify(args) !== JSON.stringify(held.args)) {
       throw new Error("inspect the saved response before recovering the original history step");

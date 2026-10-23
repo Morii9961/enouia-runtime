@@ -53,3 +53,11 @@ Node 场景覆盖跨 Vault/task/batch/hash/cursor 键隔离、原提议与当前
 App.tsx/main.tsx、HistoryTaskPanel 和样式均未修改；[Claude 最小页面契约及可复制启动文字](../integration/HISTORY_RESULTS_CLAUDE_HANDOFF.md) 明确绑定/失效/恢复 API。未完成产品入口、实际浏览器/物理交互或个人历史质量验收。没有新 GUI 构建、安装包、smoke、性能或全量 workspace/前端测试；未改范围复用原 main 的已有证据。
 
 这片保持 embedded、无 Host/MCP/云端迁移、无个人日志/Vault/凭据读取、无真实 Provider/网络发送、无安装部署、无自动入队或 Canonical 批准。Activity/Usage 和 Dashboard 协议未改。提交与推送按仓库本次开发授权执行，新 PR 供评审；#93 的合并授权不延伸为本片自动合并权。
+
+## 确认与所展示预览的绑定补修
+
+继续评审发现具体缺口：原 apply(true) 取调用时的最新 owner.preview。用户在 cursor 0 核对后，页面刷新观察到其他客户端推进的 cursor 1，旧确认回调仍可能写入 cursor 1；即使同 cursor，刷新后的候选内容也可能已经变化。恢复动作同样需要绑定这次实际核对的观察。
+
+先在未修改的生产模型上复现：定向用例 1 fail（Missing expected rejection），保存 target/history-results/inspection-binding-before.txt。修复只给 apply / recover 增加 inspected 参数，必须与当前深度冻结的预览为同一引用；刷新、重绑、导航或失效后旧引用不能发写。Claude 接口示例同步要求保留所展示的 shown，不能从旧回调临时换取最新 snapshot。
+
+本补修实际运行：含两个新增回归的相邻 Node 消费者检查 **33 pass、0 skipped**（复用本片已保存的合成 Core fixture），TypeScript 通过，check-memory-integration.mjs 通过。输出分别为 target/history-results/inspection-binding-after.txt、inspection-typescript.txt；未改 Rust/pin/协议，未重跑原生、Clippy、打包或全量检查。上面的 31 个用例和原生结果仍属于初始工作片，不改写为补修重跑。

@@ -35,9 +35,11 @@ await owner.preview(); // 由用户点击“检查保存结果”触发
 const shown = owner.snapshot.preview;
 // 展示原 proposal、quote、完整 selectedText、来源与当前 candidate 状态。
 // 用户核对这一位置后，单独确认本次一步：
-await owner.apply(checked === true);
+await owner.apply(shown, checked === true);
 // 不从回执自动推进。下一步必须再次明确 preview、核对并确认。
 ```
+
+`shown` 必须是用户核对并确认时实际展示的那份不可变预览引用；不要在旧回调中临时取最新 snapshot 替换。apply / recover 都核对引用身份。每次重新 preview、切换或重绑都会撤销旧确认，即使响应 hash 和 cursor 相同。页面同步清空勾选状态。
 
 owner 没有 React 订阅机制。页面用自己的局部状态在显式动作开始/结束时读取 snapshot，并用既有 mounted/selection/lifecycle 防护发布 UI；不能在订阅或 effect 中循环调用 apply。构造、select 和取得 snapshot 均不发 IPC。
 
@@ -53,8 +55,8 @@ owner 在进程内按 Vault 保留未确认的精确参数/键。任务/批次�
 ## 明确恢复与重新开始后的边界
 
 - 未知回执后先 `await owner.preview()`。同一响应的 cursor 已前进（或空响应已 completed）时，owner 只认定当前进度已被观察，不把它归因于本次请求或宣称候选已发布。
-- 若同一 cursor 仍 ready，pending 保留，调用 `owner.recover(true)` 才重发原 args/key。该动作需要再次明确确认；没有自动重试。
-- 完整进程重启不从 WebView storage 恢复正文、引文、预览或确认。重新读取 task 与响应；同一未推进 hash/cursor 会确定性生成同一 key。若显式保有原参数，可 `owner.recover(true, originalArgs)` 恢复旧步骤；即使 Core 已前进，旧 cursor 的重放也不会消费下一项。
+- 若同一 cursor 仍 ready，pending 保留，调用 `owner.recover(shown, true)` 才重发原 args/key。该动作需要再次明确确认；没有自动重试。
+- 完整进程重启不从 WebView storage 恢复正文、引文、预览或确认。重新读取 task 与响应；同一未推进 hash/cursor 会确定性生成同一 key。若显式保有原参数，可 `owner.recover(shown, true, originalArgs)` 恢复旧步骤；即使 Core 已前进，旧 cursor 的重放也不会消费下一项。
 - hash 不匹配、未来 cursor、来源读取拒绝、删除、锁定或暂停均不能转成成功/空结果。不清除未知写身份后换新键，不自动跳到下一 cursor。
 - 已完成回执后 snapshot.preview 被撤回；必须重新检查才能选择下一步。没有循环遍历 batch 或全部 suggestions 的 API。
 
