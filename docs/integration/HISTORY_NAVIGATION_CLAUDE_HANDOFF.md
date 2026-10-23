@@ -41,3 +41,5 @@ Markdown/HTML。所有原文、建议、人工修订和限定语保持为数据�
 来源缺口导航补充：面板显示选定响应数、片段出现次数、按 sourceId/revision/start/end 去重的片段数、未引用次数和零建议响应数。可本地查看未引用、零建议、未知时间及非用户证据；不触发 IPC、不替代主题筛选、不把空结果解释为完整性或不重要。所有计数始终针对原始选定范围。
 
 每条提议的 View linked source span 会在已加载覆盖数据中定位原 Session/run、sourceId/revision 和引用序号对应的精确片段，打开对应视图并把键盘焦点移到来源区域。没有新 IPC、来源重读或路径访问；重新读取比较会撤回定位。
+
+更小的入口整合：可直接挂载 HistoryComparisonSelection（vaultId、tasks、enabled），由它提供最多 32 个已保存批次的明确勾选并挂载原比较面板。tasks 必须是当前 Vault 已加载的完整 history_task_get 观察，不能传 task_list 摘要行；它不会自行发现、读取详情或恢复任务。只有 invocationState=completed 的已存在批次可选；新观察、切 Vault、隐藏/锁定或清空选择撤回旧比较。同一元数据的对象副本不触发 IPC。
