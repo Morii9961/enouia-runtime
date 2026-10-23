@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { call, describe, type J } from "./client";
 import { comparisonBindings, HistoryComparisonOwner, type ComparisonChoice } from "./historyComparison";
 
@@ -24,13 +24,21 @@ function BoundComparison({ vaultId, choices, request }: {
   const [owner] = useState(() => new HistoryComparisonOwner(vaultId));
   const [selected] = useState(() => structuredClone(choices));
   const [view, setView] = useState<J>(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const fieldId = useId();
+  const [project, setProject] = useState("all"), [topicIndex, setTopicIndex] = useState("");
+  const topics: { topic: J; index: number }[] = view?.topics.map((topic: J, index: number) => ({ topic, index })) ?? [];
+  const projectTopics = topics.filter(({ topic }) => project === "all"
+    || (project === "none" ? topic.key.project === null : topic.key.project === project));
+  const displayedTopics = projectTopics.filter(({ index }) => topicIndex === "" || index === Number(topicIndex));
+  const projects: string[] = [...new Set<string>(topics.flatMap(({ topic }) => topic.key.project === null ? [] : [topic.key.project]))];
+
   useEffect(() => {
     owner.select(selected); setView(null); setBusy(false); setError("");
     return () => owner.invalidate();
   }, [owner, selected]);
   async function inspect() {
     if (owner.snapshot.reading) return;
-    setBusy(true); setView(null); setError("");
+    setBusy(true); setView(null); setError(""); setProject("all"); setTopicIndex("");
     try {
       const result = await owner.read(request);
       if (owner.snapshot.bindings) setView(result);
@@ -46,7 +54,26 @@ function BoundComparison({ vaultId, choices, request }: {
       <p className="mem-muted">Snapshot {view.base.commitId} · {view.batches.length} selected batches · refresh explicitly after changes</p>
       <HistoryBriefPanel vaultId={vaultId} choices={selected} comparison={view} request={request}/>
       {view.topics.length === 0 && <p>No suggestions in the selected saved responses.</p>}
-      {view.topics.map((topic: J, index: number) => <article className="mem-card mem-stack" key={index}>
+      {view.topics.length > 0 && <div className="mem-stack">
+        <label className="mem-label" htmlFor={fieldId + "-project"}>Project context</label>
+        <select id={fieldId + "-project"} className="mem-input" style={{ maxWidth: "100%" }} value={project}
+          onChange={e => { setProject(e.target.value); setTopicIndex(""); }}>
+          <option value="all">All project contexts</option>
+          <option value="none">No explicit project</option>
+          {projects.map(id => <option key={id} value={id}>{id}</option>)}
+        </select>
+        <label className="mem-label" htmlFor={fieldId + "-topic"}>Exact topic</label>
+        <select id={fieldId + "-topic"} className="mem-input" style={{ maxWidth: "100%" }} value={topicIndex}
+          onChange={e => setTopicIndex(e.target.value)}>
+          <option value="">All topics in this project context</option>
+          {projectTopics.map(({ topic, index }) => <option key={index} value={index}>
+            {topic.key.kind} · {topic.key.label} · subjects: {topic.key.subjects.join(", ")}
+          </option>)}
+        </select>
+        <p className="mem-muted">Showing {displayedTopics.length} of {view.topics.length} topics. Local display filter only; the brief and source coverage retain all selected responses.</p>
+        {displayedTopics.length === 0 && <p>No topics match this local selection. Source coverage remains below.</p>}
+      </div>}
+      {displayedTopics.map(({ topic, index }) => <article className="mem-card mem-stack" key={index}>
         <h4 className="mem-h3">{topic.key.kind} · {topic.key.label}</h4>
         <p className="mem-muted">Subjects: {topic.key.subjects.join(", ")} · project: {topic.key.project ?? "None"}</p>
         <ol className="mem-list">{topic.entries.map((entry: J, i: number) => <li className="mem-stack" key={i}>

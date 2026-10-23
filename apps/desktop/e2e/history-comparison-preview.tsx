@@ -8,7 +8,15 @@ import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
 function Preview() {
-  const [data] = useState(historyComparisonFixture);
+  const [data] = useState(() => {
+    const data = historyComparisonFixture(), first = data.response.topics[0], second = first.entries.pop()!;
+    first.comparisons = [];
+    second.details.claim_key = "synthetic_second_topic";
+    (second.details as J).project_id = "synthetic-project";
+    data.response.topics.push({ key: { ...first.key, label: "synthetic_second_topic", project: "synthetic-project" },
+      entries: [second], comparisons: [] });
+    return data;
+  });
   const [enabled, setEnabled] = useState(true), [generation, setGeneration] = useState(0), [, render] = useState(0);
   const scenario = useRef({ refused: false, long: false, calls: 0 });
   const request = useCallback(async (command: string, args: Record<string, unknown> = {}): Promise<J> => {
@@ -19,11 +27,12 @@ function Preview() {
     if (scenario.current.refused) throw new CallError({ code: "permission_denied", retryable: false, rules: ["history.source_read"] });
     const result = structuredClone(data.response);
     if (scenario.current.long) {
-      for (const [i, run] of result.runs.entries()) {
+      for (const run of result.runs) {
         const source = run.sources[0];
         source.context.text += "\n  Synthetic qualifier: not an accepted fact.\n" + "syntheticunbrokencontext".repeat(80);
         source.slice.end = source.context.selection.end = new TextEncoder().encode(source.context.text).length;
-        result.topics[0].entries[i].selectedText = source.context.text;
+        for (const topic of result.topics) for (const entry of topic.entries)
+          if (entry.runId === run.selection.run_id) entry.selectedText = source.context.text;
       }
     }
     if (command === "history_brief") {

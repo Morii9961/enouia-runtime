@@ -33,6 +33,6 @@ export function historyComparisonFixture() {
         content: "Current owner edited synthetic wording", details: { ...details, claim_key: "edited_synthetic_key" } } };
   });
   return { task, choices, response: { base: { commitId: "synthetic-comparison-head", sequence: 10, policyEpoch: 1, deletionEpoch: 0 },
-    batches, runs, topics: [{ key: { kind: "Fact", subjects: ["synthetic-subject"], project: null, label: "synthetic_comparison" },
+    batches, runs, topics: [{ key: { kind: "Fact", subjects: ["synthetic-subject"], project: null as string | null, label: "synthetic_comparison" },
       entries, comparisons: [{ left: 0, right: 1, difference: "UnorderedDifference", branches: "SeparateContexts" }] }] } };
 }

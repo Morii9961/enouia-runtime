@@ -34,3 +34,5 @@ No full workspace/frontend/package/smoke/performance/Usage-conformance rerun,
 app installation, personal data, real Provider, Host/MCP/cloud activation or
 manual status refresh. Product entry, physical interaction, real-data/model
 quality and owner acceptance remain open.
+
+Local navigation follow-up: exact project/topic display filters preserve the original comparison and all selected-response coverage/brief data. A fresh read resets the filter. No protocol, pin, backend or stylesheet changes. Per owner instruction, prior evidence is reused and no suite is rerun for these reversible display controls.
