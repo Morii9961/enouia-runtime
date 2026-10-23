@@ -36,3 +36,7 @@ manual status refresh. Product entry, physical interaction, real-data/model
 quality and owner acceptance remain open.
 
 Local navigation follow-up: exact project/topic display filters preserve the original comparison and all selected-response coverage/brief data. A fresh read resets the filter. No protocol, pin, backend or stylesheet changes. Per owner instruction, prior evidence is reused and no suite is rerun for these reversible display controls.
+
+Coverage navigation follow-up adds selected-response/occurrence/unique-span/uncited/zero-suggestion counts and local gap views. Unique identity is source ID/revision/start/end; repeated spans remain in occurrence totals. These are source-navigation counts, not quality/completeness metrics. Existing evidence is reused; only TypeScript is checked for the local display change, without new tests or native/protocol runs.
+
+The linked-source action locates the native response-index/source association inside the existing observed run, opens only that span and moves keyboard focus to source coverage. It does not fetch or infer a source. No new test suite is added or rerun.

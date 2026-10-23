@@ -15,10 +15,17 @@ function Preview() {
     (second.details as J).project_id = "synthetic-project";
     data.response.topics.push({ key: { ...first.key, label: "synthetic_second_topic", project: "synthetic-project" },
       entries: [second], comparisons: [] });
+    const uncited = structuredClone(data.response.runs[0].sources[0]);
+    uncited.slice.source.source_id = uncited.context.source.source_id = "synthetic-uncited-source";
+    uncited.context.source_index = 1;
+    uncited.context.text = "Synthetic uncited context. No suggestion does not prove this is irrelevant.";
+    uncited.slice.end = uncited.context.selection.end = new TextEncoder().encode(uncited.context.text).length;
+    uncited.suggestion_indices = [];
+    data.response.runs[0].sources.push(uncited);
     return data;
   });
   const [enabled, setEnabled] = useState(true), [generation, setGeneration] = useState(0), [, render] = useState(0);
-  const scenario = useRef({ refused: false, long: false, calls: 0 });
+  const scenario = useRef({ refused: false, long: false, zero: false, calls: 0 });
   const request = useCallback(async (command: string, args: Record<string, unknown> = {}): Promise<J> => {
     if (!["history_compare", "history_brief"].includes(command) || JSON.stringify(args.batches) !== JSON.stringify(
       data.response.batches.map(({taskId,batchIndex})=>({taskId,batchIndex})))) throw Error("Synthetic selection mismatch");
@@ -34,6 +41,12 @@ function Preview() {
         for (const topic of result.topics) for (const entry of topic.entries)
           if (entry.runId === run.selection.run_id) entry.selectedText = source.context.text;
       }
+    }
+    if (scenario.current.zero) {
+      const empty = result.runs[1];
+      empty.suggestions = 0;
+      for (const source of empty.sources) source.suggestion_indices = [];
+      result.topics = result.topics.filter(topic => topic.entries.every(entry => entry.runId !== empty.selection.run_id));
     }
     if (command === "history_brief") {
       if (args.comparisonCommitId !== result.base.commitId || args.maxBytes !== 131072) throw Error("Synthetic brief binding mismatch");
@@ -54,6 +67,7 @@ function Preview() {
       <label><input type="checkbox" checked={enabled} onChange={e=>setEnabled(e.target.checked)}/> 显示比较详情；取消会卸载旧观察</label>
       <label><input type="checkbox" checked={scenario.current.refused} onChange={e=>{scenario.current.refused=e.target.checked;render(n=>n+1);}}/> 模拟来源读取拒绝；再读取时生效</label>
       <label><input type="checkbox" checked={scenario.current.long} onChange={e=>{scenario.current.long=e.target.checked;render(n=>n+1);}}/> 长行及限定语；再读取时生效</label>
+      <label><input type="checkbox" checked={scenario.current.zero} onChange={e=>{scenario.current.zero=e.target.checked;render(n=>n+1);}}/> 模拟第二份已保存响应没有建议；再读取时生效</label>
       <p className="mem-muted">合成只读请求：{scenario.current.calls} 次；挂载、切换和重置均不自动读取。</p>
       <button type="button" className="mem-button" onClick={()=>setGeneration(n=>n+1)}>重置观察</button>
     </fieldset>

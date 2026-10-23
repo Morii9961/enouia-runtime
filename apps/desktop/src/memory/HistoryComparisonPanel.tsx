@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { call, describe, type J } from "./client";
 import { comparisonBindings, HistoryComparisonOwner, type ComparisonChoice } from "./historyComparison";
 
@@ -26,6 +26,24 @@ function BoundComparison({ vaultId, choices, request }: {
   const [view, setView] = useState<J>(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
   const fieldId = useId();
   const [project, setProject] = useState("all"), [topicIndex, setTopicIndex] = useState("");
+  const [coverageMode, setCoverageMode] = useState("all");
+  const [focusedSource, setFocusedSource] = useState<J>(null);
+  const coverageRef = useRef<HTMLElement>(null);
+
+  const spans: J[] = view?.runs.flatMap((run: J) => run.sources) ?? [];
+  const uniqueSpans = new Set(spans.map(source => JSON.stringify([
+    source.slice.source.source_id, source.slice.source.source_revision, source.slice.start, source.slice.end,
+  ]))).size;
+  const uncitedSpans = spans.filter(source => source.suggestion_indices.length === 0).length;
+  const zeroResponses = view?.runs.filter((run: J) => run.suggestions === 0).length ?? 0;
+  const sourceMatches = (source: J) => coverageMode === "selected" ? source === focusedSource
+    : coverageMode === "uncited" ? source.suggestion_indices.length === 0
+    : coverageMode === "unknown" ? source.context.source_context.occurred_at === null
+    : coverageMode === "non_user" ? !["user_statement", "user_confirmation"].includes(source.context.evidence_class) : true;
+  const coverageRuns: { run: J; sources: J[] }[] = (view?.runs ?? []).map((run: J) => ({
+    run, sources: run.sources.filter(sourceMatches),
+  })).filter(({ run, sources }: { run: J; sources: J[] }) => sources.length > 0 && (coverageMode !== "zero" || run.suggestions === 0));
+
   const topics: { topic: J; index: number }[] = view?.topics.map((topic: J, index: number) => ({ topic, index })) ?? [];
   const projectTopics = topics.filter(({ topic }) => project === "all"
     || (project === "none" ? topic.key.project === null : topic.key.project === project));
@@ -38,12 +56,21 @@ function BoundComparison({ vaultId, choices, request }: {
   }, [owner, selected]);
   async function inspect() {
     if (owner.snapshot.reading) return;
-    setBusy(true); setView(null); setError(""); setProject("all"); setTopicIndex("");
+    setBusy(true); setView(null); setError(""); setProject("all"); setTopicIndex(""); setCoverageMode("all"); setFocusedSource(null);
     try {
       const result = await owner.read(request);
       if (owner.snapshot.bindings) setView(result);
     } catch (e) { if (owner.snapshot.bindings) setError(describe(e)); }
     finally { if (owner.snapshot.bindings) setBusy(false); }
+  }
+  function showSource(entry: J) {
+    const run = view.runs.find((run: J) => run.selection.session_id === entry.sessionId && run.selection.run_id === entry.runId);
+    const source = run?.sources.find((source: J) => source.slice.source.source_id === entry.sourceId
+      && source.slice.source.source_revision === entry.sourceRevision
+      && source.suggestion_indices.includes(entry.responseIndex));
+    if (!source) return;
+    setFocusedSource(source); setCoverageMode("selected");
+    coverageRef.current?.focus();
   }
   return <section className="mem-stack mem-history-request" aria-label="Saved history comparison" aria-busy={busy}>
     <h3 className="mem-h3">Compare selected saved batches</h3>
@@ -83,6 +110,7 @@ function BoundComparison({ vaultId, choices, request }: {
           <blockquote className="mem-content">{entry.quote}</blockquote>
           <p className="mem-content">Full selected context: {entry.selectedText}</p>
           <p className="mem-muted">Source {entry.sourceId} · r{entry.sourceRevision} · {entry.speakerRole} · {entry.evidenceClass}</p>
+          <div><button type="button" className="mem-button" onClick={() => showSource(entry)}>View linked source span</button></div>
           <p className="mem-muted">Occurred: {entry.occurredAt ?? "Unknown"} · captured: {entry.capturedAt}</p>
           <p className="mem-muted">{entry.flags.map((f: string) => hints[f]).join(" · ") || "No review flags"}</p>
           {entry.candidate && <div className="mem-stack">
@@ -95,10 +123,24 @@ function BoundComparison({ vaultId, choices, request }: {
           Entries {pair.left + 1} / {pair.right + 1}: {hints[pair.difference]} · {hints[pair.branches]}
         </li>)}</ul>
       </article>)}
-      <details className="mem-card"><summary>All selected source coverage, including uncited slices</summary>
-        {view.runs.map((run: J) => <div className="mem-stack" key={run.selection.run_id}>
+      <section className="mem-stack" aria-label="Selected response coverage" tabIndex={-1} ref={coverageRef}>
+        <h4 className="mem-h3">Selected source coverage</h4>
+        <p className="mem-muted">{view.runs.length} saved responses · {spans.length} span occurrences · {uniqueSpans} unique spans · {uncitedSpans} uncited occurrences · {zeroResponses} zero-suggestion responses</p>
+        <p className="mem-muted">Only the selected saved responses are covered. Uncited text and zero suggestions are review gaps, not proof of irrelevance or complete history.</p>
+        <label className="mem-label" htmlFor={fieldId + "-coverage"}>Source navigation</label>
+        <select id={fieldId + "-coverage"} className="mem-input" value={coverageMode} onChange={e => { setCoverageMode(e.target.value); setFocusedSource(null); }}>
+          <option value="all">All selected source spans</option>
+          {focusedSource && <option value="selected">Source linked from the chosen suggestion</option>}
+          <option value="uncited">Uncited spans</option>
+          <option value="zero">Zero-suggestion responses</option>
+          <option value="unknown">Unknown source time</option>
+          <option value="non_user">Non-user evidence</option>
+        </select>
+        {coverageRuns.length === 0 && <p>No selected source spans match this view. This does not describe unselected history.</p>}
+        <details className="mem-card" open={coverageMode !== "all" || undefined}><summary>{coverageMode === "all" ? "All selected source coverage, including uncited slices" : "Source spans matching the current navigation view"}</summary>
+        {coverageRuns.map(({ run, sources }) => <div className="mem-stack" key={run.selection.run_id}>
           <p className="mem-muted">Run {run.selection.run_id} · {run.state} · {run.applied}/{run.suggestions} applied · response {run.response_hash}</p>
-          {run.sources.map((source: J, i: number) => <div className="mem-stack" key={i}>
+          {sources.map((source: J, i: number) => <div className="mem-stack" key={i}>
             <p className="mem-muted">Source {source.slice.source.source_id} · r{source.slice.source.source_revision} · bytes {source.slice.start}–{source.slice.end}
               {" · "}{source.context.speaker_role} · {source.context.evidence_class}
               {" · occurred: "}{source.context.source_context.occurred_at ?? "Unknown"}
@@ -108,7 +150,8 @@ function BoundComparison({ vaultId, choices, request }: {
             <p className="mem-content">{source.context.text}</p>
           </div>)}
         </div>)}
-      </details>
+        </details>
+      </section>
     </div>}
   </section>;
 }
