@@ -62,7 +62,7 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
   const preview = view?.preview, held = view?.pending, pausePending = view?.pausePending;
   const ready = preview?.job.state === "ready";
   const canRecover = held && ready && preview.responseHash === held.args.responseHash && preview.job.cursor >= held.args.cursor;
-  return <section className="mem-stack" aria-label="Saved history batch results" aria-busy={busy}>
+  return <section className="mem-stack mem-history-request" aria-label="Saved history batch results" aria-busy={busy}>
     <h3 className="mem-h3">Saved batch {index + 1} results</h3>
     <p className="mem-muted">Inspect the saved response, then confirm one local step into the review queue. This does not send to a model or approve a memory.</p>
     {error && <p className="mem-error" role="alert">{error}</p>}
@@ -78,14 +78,14 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
       {preview.items.length === 0 && <p className="mem-muted">The saved response contains no suggestions. Completing its local job adds no candidate.</p>}
       <ul className="mem-list">{preview.items.map((item: J) => <li key={item.responseIndex} className="mem-stack">
         <span className="mem-label">Result {item.responseIndex + 1} · {item.proposedType} · {item.application}</span>
-        <p>Original proposal: {item.content}</p>
-        <blockquote>{item.quote}</blockquote>
-        <p>Full selected context: {item.selectedText}</p>
+        <p className="mem-content">Original proposal: {item.content}</p>
+        <blockquote className="mem-content">{item.quote}</blockquote>
+        <p className="mem-content">Full selected context: {item.selectedText}</p>
         <p className="mem-muted">Source {item.sourceId} · r{item.sourceRevision} · speaker {item.speakerRole} · evidence {item.evidenceClass}</p>
         <p className="mem-muted">Occurred: {item.occurredAt ?? "Unknown"} · captured: {item.capturedAt}</p>
         {item.candidate && <div className="mem-stack">
           <span className="mem-label">Current candidate · {item.candidate.status} · r{item.candidate.revision} · {item.candidate.candidateId}</span>
-          <p>{item.candidate.content}</p>
+          <p className="mem-content">{item.candidate.content}</p>
         </div>}
         {item.application === "suppressed" && <p className="mem-muted">No candidate recorded for this proposal.</p>}
       </li>)}</ul>

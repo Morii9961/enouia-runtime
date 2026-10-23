@@ -103,3 +103,13 @@ owner 在进程内按 Vault 保留未确认的精确参数/键。任务/批次�
 结果处理不需要 Provider 配置，不发送、不访问个人资料、不批准 Canonical；
 本任务不采用 Host、不安装部署，也不自行合并 PR。
 ```
+
+## 合成浏览器评审入口
+
+已有开发依赖时，从 apps/desktop 运行：
+
+```text
+node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 1437 --strictPort
+```
+
+打开 http://127.0.0.1:1437/e2e/history-results-preview.html 。此独立页不调用原生 IPC，全为明确标注的虚构数据；可检查单步、暂停/恢复、未知回执重读、来源拒绝、候选已修订、长上下文和卸载行为。它不替代 Claude 页面整合或真实资料验收，也不进入产品路由。生产组件复用既有 mem-history-request / mem-content，保留长文本断行、换行和缩进；不带新的壳或 CSS。

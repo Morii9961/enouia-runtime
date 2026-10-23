@@ -79,3 +79,13 @@ Claude 的交接增加可复制组件挂载示例与 enabled/lifecycle 要求。
 相邻 Node 检查 37 pass、0 skipped，含实际 Core 的暂停/恢复回执与观察。单个 Happy DOM 面板旅程 31 项断言通过，增加明确状态控制、未知回执重读、新决定新键、暂停/恢复后仍保留原应用身份。TypeScript、受影响 memory_core 测试的严格 Clippy、Memory pin 检查和差异空白检查通过。保存输出为 pause-native-core.txt、pause-node-tests.txt、pause-panel-dom.txt、pause-typescript.txt、pause-clippy.txt（均在 target/history-results/）。旧 31/33 用例和 24 项面板记录保留为各次实现时的证据，不改写成新检查次数。
 
 没有新 Tauri 命令、协议采用、Usage 导出、壳、样式、安装或真实数据操作；未重跑全量前端、workspace、构建、打包、smoke、性能或 publisher conformance。新 UI 入口仍由 Claude 整合。
+
+## 可手动评审的合成浏览器预览
+
+新增开发专用 e2e/history-results-preview.html / .tsx。它直接把内存假 request 传给生产 HistoryResultPanel，不调用 native IPC；所有任务、来源、引文和候选均为虚构数据。预览提供本地丢回执、来源拒绝、当前候选已修订、长行上下文和详情卸载场景。它不是正式产品路由，不修改壳或 CSS。
+
+本机已用浏览器实际操作：明确暂停/恢复均保持 cursor 0；单步写入后模拟丢回执，旧预览/确认撤回；只读重读观察 cursor 1，并分开展示原提议和当前候选。下一步确认保持未勾选、按钮禁用。浏览器预览与固定 Core 证据分开；没有原生窗口或人类验收结论。
+
+长行场景在原组件上复现横向溢出：视口 1270px、页面 17399px、面板 880px、内容 17204px。最小修复只复用现有 mem-history-request / mem-content 类；同一场景修复后页面 1270px、面板与内容均 880px。来源限定语换行和缩进保留，实际 computed white-space 为 pre-wrap。没有新增样式、截断文本或替换 Claude 壳。观察摘要在 target/history-results/browser-layout-observations.json；截图在本次本机交付附件，不入库。
+
+运行方式：apps/desktop 下用已有依赖执行 `node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 1437 --strictPort`，打开 http://127.0.0.1:1437/e2e/history-results-preview.html 。只监听本机回环；无安装、发布或采集。页面显著标明合成环境；刷新或重置只丢弃该夹具内存状态。此片另做定向预览源码类型检查、生产 TypeScript 与 pin/空白检查；复用未受影响的原生和消费者证据，不再跑全量套件。
