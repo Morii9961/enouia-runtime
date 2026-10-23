@@ -1,0 +1,85 @@
+{
+  "kind": "ai_usage_snapshot",
+  "schema_version": "1.1",
+  "mode": "range_replacement",
+  "dataset_id": "b7c1064a-bdb0-4ea2-9f1d-346d810ab16c",
+  "revision": "11",
+  "generated_at": "2026-11-03T12:00:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "manual_aggregate",
+  "source_timezone": "Asia/Shanghai",
+  "range": {
+    "start": "2026-10-26",
+    "end_exclusive": "2026-11-02"
+  },
+  "adapter_version": "1.0.0",
+  "days": [
+    {
+      "date": "2026-10-26",
+      "state": "complete",
+      "quality": {
+        "state": "reported",
+        "reasons": []
+      }
+    },
+    {
+      "date": "2026-10-27",
+      "state": "complete",
+      "quality": {
+        "state": "reported",
+        "reasons": []
+      }
+    },
+    {
+      "date": "2026-10-28",
+      "state": "complete",
+      "quality": {
+        "state": "reported",
+        "reasons": []
+      }
+    },
+    {
+      "date": "2026-10-29",
+      "state": "complete",
+      "quality": {
+        "state": "reported",
+        "reasons": []
+      }
+    },
+    {
+      "date": "2026-10-30",
+      "state": "complete",
+      "quality": {
+        "state": "reported",
+        "reasons": []
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "state": "complete",
+      "quality": {
+        "state": "reported",
+        "reasons": []
+      }
+    },
+    {
+      "date": "2026-11-01",
+      "state": "complete",
+      "quality": {
+        "state": "reported",
+        "reasons": []
+      }
+    }
+  ],
+  "rows": [],
+  "quality": {
+    "state": "reported",
+    "reasons": [
+      {
+        "code": "source_missing",
+        "occurrences": "0"
+      }
+    ]
+  },
+  "unallocated": []
+}

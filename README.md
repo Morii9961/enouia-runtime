@@ -122,4 +122,6 @@ The paragraphs below, from A1 Memory model v1 through the selected orchestration
 
 [Selected orchestration histories](docs/ORCHESTRATION_TRACES_v1_DESIGN.md) freeze 26 symbolic cancellation/retry/restart/ownership histories with 164 observations. `python scripts/check-orchestration-traces-design.py` checks those expected histories and false completion/invariant cases; [validation](docs/validation/Core-orchestration-traces-design.md) explicitly excludes actual calls, process restart, canonical files and durability.
 
+[Private AI Usage Ledger](docs/AI_USAGE_LEDGER.md) provides separate manual count-only scans, durable revisions and offline UsageSnapshot 1.1 exports. It uses explicit source roots and never starts with Activity or desktop. [Synthetic verification](docs/validation/AI-usage-ledger-R3.md) includes the frozen Dashboard contract, process recovery and bounded scale trials; personal collection and production activation remain unperformed.
+
 This project is published under the [MIT License](LICENSE).

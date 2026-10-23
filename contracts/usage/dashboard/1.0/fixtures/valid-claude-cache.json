@@ -1,0 +1,48 @@
+{
+  "kind": "ai_usage_snapshot",
+  "schema_version": "1.0",
+  "mode": "range_replacement",
+  "dataset_id": "284b8e27-74dd-4ef7-ab37-a431fa67f854",
+  "revision": "1",
+  "generated_at": "2026-11-03T12:00:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "claude_local",
+  "source_timezone": "Asia/Shanghai",
+  "range": {
+    "start": "2026-11-01",
+    "end_exclusive": "2026-11-02"
+  },
+  "adapter_version": "1.0.0",
+  "days": [
+    {
+      "date": "2026-11-01",
+      "state": "complete"
+    }
+  ],
+  "rows": [
+    {
+      "date": "2026-11-01",
+      "provider": "anthropic",
+      "model": "synthetic-claude",
+      "effort": "not_applicable",
+      "effort_evidence": "not_applicable",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "short",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "1300",
+        "input_uncached": "200",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "100",
+        "input_cache_write_1h": "200",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    }
+  ]
+}

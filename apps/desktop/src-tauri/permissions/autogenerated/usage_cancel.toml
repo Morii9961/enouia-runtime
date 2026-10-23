@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-usage-cancel"
+description = "Enables the usage_cancel command without any pre-configured scope."
+commands.allow = ["usage_cancel"]
+
+[[permission]]
+identifier = "deny-usage-cancel"
+description = "Denies the usage_cancel command without any pre-configured scope."
+commands.deny = ["usage_cancel"]

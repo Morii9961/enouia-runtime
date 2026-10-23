@@ -1,0 +1,41 @@
+/* Quiet Runtime's existing ink, ice and tabular counts; no remote resources. */
+.usage-workspace{height:100%;min-height:0;display:flex;flex-direction:column}
+.usage-tabs{display:flex;gap:20px;flex:none;padding:0 28px;border-bottom:1px solid var(--hairline)}
+.usage-tabs button{padding:12px 2px;border:0;border-bottom:2px solid transparent;background:none;color:var(--secondary);cursor:pointer}
+.usage-tabs button[aria-pressed=true]{border-color:var(--ice);color:var(--primary)}
+.usage-workspace-body{flex:1;min-height:0;overflow:auto}
+.usage-surface{padding:24px 28px 36px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.usage-head,.usage-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.usage-eyebrow{color:var(--tertiary);font-size:12px;margin-bottom:8px}
+.usage-head p{margin:8px 0 0;max-width:650px}
+.usage-boundary{border-left:2px solid var(--ice);background:var(--well);padding:12px 16px;display:flex;align-items:baseline;gap:18px;color:var(--secondary);line-height:1.7}
+.usage-boundary strong{font-weight:500;color:var(--primary);white-space:nowrap}
+.usage-layout{display:grid;grid-template-columns:minmax(210px,260px) minmax(0,1fr);gap:18px;align-items:start}
+.usage-main,.usage-setup{min-width:0}
+.usage-field{display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--secondary)}
+.usage-field input,.usage-field select{width:100%;min-width:0;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:4px;background:var(--well);color:var(--primary);font-size:13px;color-scheme:dark}
+.usage-small{font-size:12px;line-height:1.65;color:var(--tertiary);margin:0}
+.usage-roots{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.usage-roots li,.usage-candidate{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}
+.usage-roots li{font-size:12.5px;color:var(--secondary)}
+.usage-counts{display:flex;flex-direction:column;margin:4px 0 0;border-top:1px solid var(--hairline)}
+.usage-counts>div{display:grid;grid-template-columns:minmax(130px,1fr) minmax(0,1.2fr);gap:14px;padding:8px 0;border-bottom:1px solid var(--hairline);align-items:baseline}
+.usage-counts dt{font-size:12.5px;color:var(--secondary)}
+.usage-counts dd{margin:0;text-align:right;font-family:'Cascadia Mono',Consolas,monospace;font-size:13px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--warm)}
+.usage-counts .usage-subset{padding-left:12px}.usage-subset dt,.usage-subset dd{color:var(--tertiary);font-size:12px}
+.usage-coverage{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
+.usage-coverage>div{display:flex;justify-content:space-between;gap:12px;font-size:12.5px}
+.usage-coverage dt{color:var(--secondary)}.usage-coverage dd{margin:0;font-variant-numeric:tabular-nums}
+.usage-notice,.usage-progress{padding:10px 14px;border:1px solid var(--border);border-radius:4px;background:var(--well);color:var(--secondary);font-size:13px;line-height:1.6}
+.usage-progress{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.usage-candidates{max-height:340px;overflow:auto;border-top:1px solid var(--hairline)}
+.usage-candidate{padding:10px 0;border-bottom:1px solid var(--hairline);font-size:12.5px}
+.usage-candidate code{font-family:'Cascadia Mono',Consolas,monospace;color:var(--secondary)}
+.usage-review{display:flex;flex-direction:column;gap:14px;border-left:2px solid var(--pending);padding:8px 0 8px 16px}
+.usage-check{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.6}.usage-check input{accent-color:var(--ice);margin-top:4px}
+.usage-range,.usage-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.usage-compare h4{font-size:12px;font-weight:500;color:var(--secondary)}
+.usage-review summary{font-size:12.5px;color:var(--secondary);cursor:pointer}
+@media(max-width:1100px){.usage-layout{grid-template-columns:1fr}.usage-setup{display:grid;grid-template-columns:1fr 1fr;gap:14px}.usage-setup>.mem-card{margin:0}.usage-surface{padding:20px}.usage-tabs{padding:0 20px}}
+@media(max-width:650px){.usage-setup,.usage-range,.usage-compare,.usage-coverage{grid-template-columns:1fr}.usage-boundary{flex-direction:column;gap:4px}.usage-surface{padding:14px}.usage-counts>div{grid-template-columns:minmax(120px,1fr) minmax(0,1fr)}}
+@media(forced-colors:active){.usage-boundary,.usage-review{border-color:Highlight}.usage-tabs button[aria-pressed=true]{border-color:Highlight}.usage-notice,.usage-progress{border-color:ButtonText}}

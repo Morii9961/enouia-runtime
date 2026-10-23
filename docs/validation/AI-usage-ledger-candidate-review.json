@@ -1,0 +1,121 @@
+{
+  "scope": "R0_uncommitted_Dashboard_candidate_comparison_only",
+  "runtimeBaseline": "e8ead3c92b0cfc48b507da74c6bbd3f23ae786ae",
+  "dashboardBaseline": "d0fb1c9708f52570f5a898ff65437c39669a6795",
+  "dashboardCandidateCommit": null,
+  "schemaSha256": "8684f0928da25413aae738fd15ea6afd7f84002ada0e0d49855c64e2e5a26ba4",
+  "manifestSha256": "02a533c6d073a12727ec121267dcde678474cdbc1620968c71f293089a76c53f",
+  "sourceSha256": {
+    "src/usage.ts": "fc48927eae3a2536b022a708c90611aa4c02cdba2cd216ab7ead7f7e08ee0d44",
+    "src/usage-types.ts": "c281c25298d5dfa7a0794248fd795a4f178014bf6ebb923a5be672d50e9e100e",
+    "src/datetime.ts": "538e5cf1ced5f79daac9b2e76f254d48e5f7325b24f083b6e2e1c1f4825771f0",
+    "src/fingerprint.ts": "dcbed4c39e7bf5288b227efebb43bc81df90c4f1d3add2e5a3a69be7d98926e3",
+    "src/ajv-runtime.ts": "cf0a80211deaf8a614e03facad045eb68e87da39e50e9d0b109ec9e88725e086",
+    "src/generated/usage-validator.js": "fd4720fe92567b7495e7e03af84d9388f208e797377181674f790d052cd20447"
+  },
+  "candidateManifestEntriesVerified": 12,
+  "copiedFilesUnchangedDuringComparison": 19,
+  "candidateFixtureResults": [
+    {
+      "name": "fixtures/invalid-delta.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-duplicate-row.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-extra-private-field.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-floating.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-input-double-count.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-invalid-date.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-negative.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-numeric-revision.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-subset.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/invalid-unknown-as-zero.json",
+      "accepted": false
+    },
+    {
+      "name": "fixtures/valid-week.json",
+      "accepted": true
+    }
+  ],
+  "candidateBehaviorProbes": [
+    {
+      "name": "codex-local-source-accepted",
+      "accepted": true
+    },
+    {
+      "name": "claude-local-source-accepted",
+      "accepted": true
+    },
+    {
+      "name": "local-shanghai-day-accepted",
+      "accepted": true
+    },
+    {
+      "name": "partial-day-preserves-existing-rows",
+      "accepted": true
+    },
+    {
+      "name": "missing-day-cannot-carry-counts",
+      "accepted": false
+    },
+    {
+      "name": "numeric-revision-is-not-decimal-string",
+      "accepted": false
+    },
+    {
+      "name": "explicit-quality-flags-not-in-candidate-schema",
+      "accepted": false
+    },
+    {
+      "name": "coverage-summary-not-in-candidate-schema",
+      "accepted": false
+    },
+    {
+      "name": "30m-cache-category-preserves-conservation",
+      "accepted": true
+    },
+    {
+      "name": "unknown-cache-writes-stay-null",
+      "accepted": true
+    },
+    {
+      "name": "unknown-tier-context-region-stay-unknown",
+      "accepted": true
+    }
+  ],
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0"
+  },
+  "limitations": [
+    "Candidate files were uncommitted at inspection; no immutable Dashboard protocol commit is pinned.",
+    "Only a temporary snapshot of public protocol code and fictional fixtures was executed.",
+    "No Runtime usage adapter, scanner, ledger, export or source-log parsing was implemented or tested.",
+    "No cross-repository conformance, real-data acceptance, scheduling or transmission is claimed."
+  ]
+}

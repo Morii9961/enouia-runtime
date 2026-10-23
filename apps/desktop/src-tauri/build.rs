@@ -5,6 +5,9 @@ fn main() {
         tauri_build::AppManifest::new().commands(&[
             "activity_call",
             "activity_setup",
+            "usage_call",
+            "usage_pick",
+            "usage_cancel",
             "memory_call",
             "memory_pick",
             "memory_provider_setup",
