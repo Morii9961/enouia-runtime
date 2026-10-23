@@ -20,6 +20,7 @@ Runtime 从 main `e1e7e922b288c13dbc483c4089e7da146b7596b4` 开始，分支 `cod
 来源为固定提交的 [ADR-MEM-72](https://github.com/Morii9961/enouia-memory/blob/9d68d3d8707749ad3b0e2a36cfc97d71a27e712f/docs/adr/072-history-batch-response-application.md)、[Workspace contract](https://github.com/Morii9961/enouia-memory/blob/9d68d3d8707749ad3b0e2a36cfc97d71a27e712f/crates/enouia-memory-contract/src/workspace.rs) 和 [native consumer](https://github.com/Morii9961/enouia-memory/blob/9d68d3d8707749ad3b0e2a36cfc97d71a27e712f/crates/enouia-memory-workspace/src/native.rs)。
 
 - `history_batch_preview({ taskId, batchIndex })` → `extraction_preview`：taskId / batchIndex / sessionId / runId / dispatchId / responseHash / job / items。
+- `extraction_pause({ sessionId, runId, paused }, key)` → `extraction_job`：只有 job；原 child/run 由已验证的 task/batch 观察导出，不从编辑框输入。它只改本地状态，不推进 cursor 或发请求。
 - `history_batch_apply({ taskId, batchIndex, responseHash, cursor }, key)` → `extraction_job`：原 task/batch/session/run、responseHash、job。
 - 外层字段为 camelCase；job 是保存的 ExtractionJob，字段为 snake_case，如 `input_event_id`、`max_candidates`。cursor 为 0–32，不能把 job 的位置换成数组索引或另一个 batch。
 - Core 从 durable admission 派生 child/run/input；页面不传 session/run、policy、model 或 source 来指定应用目标。结果处理不需要配置 Provider，不调用 prepare/send。
@@ -33,7 +34,7 @@ import { HistoryResultPanel } from "./memory/HistoryResultPanel";
   index={originalBatchIndex} enabled={memoryUsable && !vaultChanging && !exiting} />
 ```
 
-面板挂载不发 IPC。只有按钮明确读取保存响应，再由本份预览的勾选确认提交一步；成功和未知后均不自动刷新或推进。它提供源与完整上下文、speaker/evidence、未知 occurredAt、原提议/当前候选、空响应、暂停/完成状态以及原请求恢复。错误不会退回展示上次正文。读取后将自有焦点移到预览标题，用户移到外部控件时不抢回。
+面板挂载不发 IPC。只有按钮明确读取保存响应，再由本份预览的勾选确认提交一步；成功和未知后均不自动刷新或推进。它提供源与完整上下文、speaker/evidence、未知 occurredAt、原提议/当前候选、空响应、暂停/完成状态、本地暂停/恢复以及原请求恢复。错误不会退回展示上次正文。读取后将自有焦点移到预览标题，用户移到外部控件时不抢回。
 
 完整 task 观察的可序列化字段、Vault 或原 batch 改变会重挂内部 owner，撤销旧观察。传入内容相同的新对象副本不会重置本次核对。锁定、Exit、失去可用状态或切换 Vault 时，外层必须卸载或令 enabled=false；不要仅用 CSS 隐藏面板。现有生命周期 gate 仍需使用，不由结果面板替代。面板按 Vault 复用进程内恢复 owner，同一 Vault 同时只挂一个结果详情。
 
@@ -63,7 +64,7 @@ owner 没有 React 订阅机制。页面用自己的局部状态在显式动作�
 | --- | --- |
 | unobserved | 不展示已确认的结果或空列表；先读取原 task，再明确预览。 |
 | reading / applying | 禁用重复动作；只保留本次选定身份，不承诺同步写可取消或回滚。 |
-| inspected | 展示这次预览。ready 才提供单步确认；paused/completed 不作为下一步写授权。 |
+| inspected | 展示这次预览。ready 才提供单步候选应用；paused 只提供明确的本地恢复，completed 不再写。 |
 | recovery_required | 保留 pending.args 与 pending.key。acknowledged=true 仅表示已收到匹配回执；仍须重读。false 是未知或未确认结果，不能表示失败后未写入。 |
 
 owner 在进程内按 Vault 保留未确认的精确参数/键。任务/批次切换、Vault 切换或锁定、观察到 Exit、卸载结果面板时调用 `owner.invalidate()`，立即撤销预览及确认。原来已经提交的写可能完成；晚回执不会恢复旧页面权限。回到同一 Vault、重新观察同一原 task/batch 后可重绑 owner 并 preview；不新建任务或重新 prepare。
@@ -75,6 +76,14 @@ owner 在进程内按 Vault 保留未确认的精确参数/键。任务/批次�
 - 完整进程重启不从 WebView storage 恢复正文、引文、预览或确认。重新读取 task 与响应；同一未推进 hash/cursor 会确定性生成同一 key。若显式保有原参数，可 `owner.recover(shown, true, originalArgs)` 恢复旧步骤；即使 Core 已前进，旧 cursor 的重放也不会消费下一项。
 - hash 不匹配、未来 cursor、来源读取拒绝、删除、锁定或暂停均不能转成成功/空结果。不清除未知写身份后换新键，不自动跳到下一 cursor。
 - 已完成回执后 snapshot.preview 被撤回；必须重新检查才能选择下一步。没有循环遍历 batch 或全部 suggestions 的 API。
+
+## 本地暂停与恢复
+
+独立面板已提供“Pause / Resume local result processing”，均需核对本次保存预览后单独确认。若自己重排 UI，调用 `owner.setPaused(shown, true, checked)` 暂停，或 `owner.setPaused(shown, false, checked)` 恢复。owner 从原 task/batch 的不可变观察生成 sessionId/runId；不传响应正文、来源、Provider 或另一 child 身份。
+
+`setPaused` 成功或未知后均撤回预览，要求再明确读取。snapshot.pausePending 仅保留原 args、responseHash、key、acknowledged；导航/锁定仍保留元数据，正文和确认立即失效。新的同响应观察会清除此控制等待状态，只说明当前状态已被观察，不归因哪个请求提交。暂停控制不同于逐候选应用：不提供自动重放或“同键回执证明”，也不把旧控制重用于后来的暂停/恢复决定；每个重新核对后的明确状态决定用新 key。
+
+本地控制不会替换 snapshot.pending 中未知候选应用的原 hash/cursor/key。若其他客户端已把 job 暂停，可以明确恢复本地状态、再重读，之后仍以 recover 恢复原候选步骤。暂停/恢复不是发送取消、Provider 中断、Canonical 批准或批量入队。完成状态不能暂停或恢复。hash 改变或回执身份不匹配时不解除等待，需要重新调查保存状态。
 
 ## 展示与验收
 

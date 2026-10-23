@@ -191,6 +191,12 @@ test('explicit pinned-Core synthetic fixture passes the production inspector and
     historyPreviewObservation(f[name],f.vaultId,f.task,1);
   const o=new HistoryResultOwner(f.vaultId);o.select(f.task,1);
   await o.preview(async()=>f.preview);
+  await o.setPaused(o.snapshot.preview,true,true,async()=>f.pauseReceipt);
+  await o.preview(async()=>f.pausedPreview);
+  assert.equal(o.snapshot.preview.job.state,'paused');
+  await o.setPaused(o.snapshot.preview,false,true,async()=>f.resumeReceipt);
+  await o.preview(async()=>f.resumedPreview);
+  assert.equal(o.snapshot.preview.job.cursor,0);
   await o.apply(o.snapshot.preview,true,async()=>f.first);
   assert.equal(o.snapshot.preview,null);
   await o.preview(async()=>f.previewFirst);
@@ -231,4 +237,75 @@ test('same-cursor refresh also invalidates old apply and recovery confirmations'
   assert.equal(writes,1);
   await o.recover(o.snapshot.preview,true,undefined,async()=>{writes++;return historyApplication();});
   assert.equal(writes,2);
+});
+
+test('local pause and resume bind the displayed original job without advancing a cursor or reusing a later decision key', async () => {
+  const o=owner(), controls=[];
+  await assert.rejects(o.setPaused(null,true,true),/inspect/);
+  const stale=await o.preview(async()=>historyResult());
+  await o.preview(async()=>historyResult());
+  await assert.rejects(o.setPaused(stale,true,true),/inspect/);
+  const change=async(command,a,key)=>{controls.push([command,a,key]);return{job:historyResult(0,a.paused?'paused':'ready').job};};
+  await assert.rejects(o.setPaused(o.snapshot.preview,true,false,change),/inspect/);
+  await o.setPaused(o.snapshot.preview,true,true,change);
+  assert.deepEqual(controls[0].slice(0,2),['extraction_pause',{sessionId:task().batches[0].sessionId,runId:task().batches[0].runId,paused:true}]);
+  assert.equal(o.snapshot.preview,null);assert.equal(o.snapshot.pausePending.acknowledged,true);
+  assert.throws(()=>{o.snapshot.pausePending.args.paused=false;},TypeError);
+  await assert.rejects(o.setPaused(stale,false,true,change),/inspect/);
+  await o.preview(async()=>historyResult(0,'paused'));
+  assert.equal(o.snapshot.pausePending,null);
+  await o.setPaused(o.snapshot.preview,false,true,change);
+  await o.preview(async()=>historyResult());
+  await o.setPaused(o.snapshot.preview,true,true,change);
+  assert.equal(controls.length,3);assert.equal(new Set(controls.map(c=>c[2])).size,3);
+  assert.ok(controls.every(c=>c[0]==='extraction_pause'));
+});
+
+test('an unknown local control requires fresh observation and a new explicit decision, with no automatic retry or send', async () => {
+  const o=owner();await o.preview(async()=>historyResult());
+  let calls=0;
+  await assert.rejects(o.setPaused(o.snapshot.preview,true,true,async()=>{calls++;throw new Error('control receipt unknown');}));
+  const old=o.snapshot.pausePending;
+  o.invalidate();o.select(task(),1);
+  assert.equal(o.snapshot.pausePending.key,old.key);
+  assert.equal(o.snapshot.pausePending.acknowledged,false);
+  await assert.rejects(o.setPaused(null,true,true),/inspect/);
+  await o.preview(async()=>historyResult());
+  assert.equal(o.snapshot.pausePending,null);assert.equal(calls,1);
+  await o.setPaused(o.snapshot.preview,true,true,async(command,a,key)=>{
+    assert.equal(command,'extraction_pause');assert.notEqual(key,old.key);calls++;return{job:historyResult(0,'paused').job};
+  });
+  assert.equal(calls,2);
+});
+
+test('resuming a separately paused job preserves an unknown original application identity', async () => {
+  const o=owner();await o.preview(async()=>historyResult());
+  await assert.rejects(o.apply(o.snapshot.preview,true,async()=>{throw new Error('application unknown');}));
+  const original=o.snapshot.pending;
+  await o.preview(async()=>historyResult(0,'paused'));
+  await o.setPaused(o.snapshot.preview,false,true,async()=>({job:historyResult().job}));
+  assert.equal(o.snapshot.pending.key,original.key);
+  await assert.rejects(o.recover(o.snapshot.preview,true),/inspect/);
+  await o.preview(async()=>historyResult());
+  await o.recover(o.snapshot.preview,true,undefined,async(command,a,key)=>{
+    assert.equal(command,'history_batch_apply');assert.equal(key,original.key);assert.deepEqual(a,original.args);return historyApplication();
+  });
+});
+
+test('late or mismatched local control receipts do not restore authority; changed response and completion withhold controls', async () => {
+  const o=owner(),gate=deferred();await o.preview(async()=>historyResult());
+  const writing=o.setPaused(o.snapshot.preview,true,true,async()=>gate.promise);
+  o.invalidate();o.select(task(),1);gate.resolve({job:historyResult(0,'paused').job});
+  assert.equal(await writing,null);assert.equal(o.snapshot.preview,null);assert.equal(o.snapshot.pausePending.acknowledged,true);
+  await o.preview(async()=>historyResult(0,'paused'));
+  const bad=historyResult();bad.job.run_id='foreign';
+  await assert.rejects(o.setPaused(o.snapshot.preview,false,true,async()=>({job:bad.job})),/mismatch/);
+  assert.equal(o.snapshot.pausePending.acknowledged,false);
+  const changed=historyResult();changed.responseHash='e'.repeat(64);
+  await o.preview(async()=>changed);
+  assert.notEqual(o.snapshot.pausePending,null);
+  await assert.rejects(o.apply(o.snapshot.preview,true),/inspect/);
+  await o.preview(async()=>historyResult(2));
+  assert.equal(o.snapshot.pausePending,null);
+  await assert.rejects(o.setPaused(o.snapshot.preview,false,true),/inspect/);
 });

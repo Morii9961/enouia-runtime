@@ -1,6 +1,6 @@
 // Memory ADR-MEM-72 consumer at the exact pin. No Provider setup, transport,
 // approval, Vault-file access or WebView storage belongs here.
-import { call, type J } from "./client.ts";
+import { call, newKey, type J } from "./client.ts";
 import { historyTaskObservation } from "./historyTasks.ts";
 
 export type HistoryApplyArgs = { taskId: string; batchIndex: number; responseHash: string; cursor: number };
@@ -9,6 +9,7 @@ type Scope = {
   api: string; model: string; maxCandidates: number; maxPending: number;
   maxReservedTokens: number; maxReservedCostMicrousd: number | null;
 };
+type PauseHeld = { args: Readonly<{ sessionId: string; runId: string; paused: boolean }>; responseHash: string; key: string; acknowledged: boolean };
 type Held = { args: Readonly<HistoryApplyArgs>; key: string; acknowledged: boolean };
 const integer = (v: unknown, min: number, max = Number.MAX_SAFE_INTEGER): v is number =>
   typeof v === "number" && Number.isSafeInteger(v) && v >= min && v <= max;
@@ -116,13 +117,16 @@ export class HistoryResultOwner {
   private shown: J = null;
   private active: "reading" | "applying" | null = null;
   private readonly held = new Map<string, Held>();
+  private readonly pauseHeld = new Map<string, PauseHeld>();
   constructor(vaultId: string) { if (!id(vaultId)) mismatch(); this.vaultId = vaultId; }
   private identity(scope: Scope): string { return JSON.stringify(scope); }
   private current(scope: Scope, epoch: number): boolean { return this.scope === scope && this.epoch === epoch; }
   get snapshot() {
     const pending = this.scope ? this.held.get(this.identity(this.scope)) ?? null : null;
-    return Object.freeze({ phase: this.active ?? (pending ? "recovery_required" : this.shown ? "inspected" : "unobserved"),
-      scope: this.scope, preview: this.shown, pending: pending ? Object.freeze({ ...pending }) : null });
+    const pausePending = this.scope ? this.pauseHeld.get(this.identity(this.scope)) ?? null : null;
+    return Object.freeze({ phase: this.active ?? (pending || pausePending ? "recovery_required" : this.shown ? "inspected" : "unobserved"),
+      scope: this.scope, preview: this.shown, pending: pending ? Object.freeze({ ...pending }) : null,
+      pausePending: pausePending ? Object.freeze({ ...pausePending }) : null });
   }
   select(task: J, batchIndex: number): void {
     this.invalidate();
@@ -148,6 +152,10 @@ export class HistoryResultOwner {
         && (result.job.cursor > held.args.cursor || result.job.state === "completed" && result.job.cursor === held.args.cursor)) {
         this.held.delete(this.identity(scope));
       }
+      const pause = this.pauseHeld.get(this.identity(scope));
+      // This establishes the current local state, not which control committed.
+      // A later control is a new explicit decision, never an automatic retry.
+      if (pause && result.responseHash === pause.responseHash) this.pauseHeld.delete(this.identity(scope));
       return result;
     } catch (error) {
       if (!this.current(scope, epoch)) return null;
@@ -158,7 +166,7 @@ export class HistoryResultOwner {
    * reselection invalidates its confirmation, even at the same cursor. */
   async apply(inspected: J, confirmed: boolean, request = call): Promise<J> {
     const scope = this.observedScope();
-    if (confirmed !== true || !this.shown || inspected !== this.shown || this.shown.job.state !== "ready" || this.held.has(this.identity(scope))) {
+    if (confirmed !== true || !this.shown || inspected !== this.shown || this.shown.job.state !== "ready" || this.pauseHeld.has(this.identity(scope)) || this.held.has(this.identity(scope))) {
       throw new Error("inspect and confirm one history result step first");
     }
     return this.submit(scope, argumentsFor({ taskId: scope.taskId, batchIndex: scope.batchIndex,
@@ -170,12 +178,38 @@ export class HistoryResultOwner {
   async recover(inspected: J, confirmed: boolean, original?: HistoryApplyArgs, request = call): Promise<J> {
     const scope = this.observedScope(), held = this.held.get(this.identity(scope));
     const args = original ? argumentsFor(original) : held?.args;
-    if (confirmed !== true || !args || !this.shown || inspected !== this.shown || args.taskId !== scope.taskId || args.batchIndex !== scope.batchIndex
+    if (confirmed !== true || !args || !this.shown || inspected !== this.shown || this.pauseHeld.has(this.identity(scope)) || args.taskId !== scope.taskId || args.batchIndex !== scope.batchIndex
       || args.responseHash !== this.shown.responseHash || args.cursor > this.shown.job.cursor
       || held && JSON.stringify(args) !== JSON.stringify(held.args)) {
       throw new Error("inspect the saved response before recovering the original history step");
     }
     return this.submit(scope, args, request);
+  }
+  /** Set only the saved job's local pause state. No cursor, candidate or
+   * Provider request is advanced. Unknown replies require a fresh read, then
+   * a new explicit state decision; they are not a send/cursor replay API. */
+  async setPaused(inspected: J, paused: boolean, confirmed: boolean, request = call): Promise<J> {
+    const scope = this.observedScope(), identity = this.identity(scope), epoch = this.epoch;
+    if (confirmed !== true || typeof paused !== "boolean" || !this.shown || inspected !== this.shown
+      || this.pauseHeld.has(identity) || this.shown.job.state !== (paused ? "ready" : "paused")) {
+      throw new Error("inspect and confirm the current local pause state first");
+    }
+    const shown = this.shown;
+    const held: PauseHeld = { args: Object.freeze({ sessionId: scope.sessionId, runId: scope.runId, paused }),
+      responseHash: shown.responseHash, key: newKey(), acknowledged: false };
+    this.pauseHeld.set(identity, held);
+    this.active = "applying"; this.shown = null;
+    try {
+      const result = await request("extraction_pause", held.args, held.key);
+      const job = jobObservation({ taskId: scope.taskId, batchIndex: scope.batchIndex,
+        sessionId: scope.sessionId, runId: scope.runId, job: result?.job }, scope);
+      if (job.state !== (paused ? "paused" : "ready") || job.cursor < shown.job.cursor) mismatch();
+      held.acknowledged = true;
+      return this.current(scope, epoch) ? immutable(structuredClone(result)) : null;
+    } catch (error) {
+      if (!this.current(scope, epoch)) return null;
+      throw error;
+    } finally { this.active = null; }
   }
   private async submit(scope: Scope, args: Readonly<HistoryApplyArgs>, request: typeof call): Promise<J> {
     const epoch = this.epoch, identity = this.identity(scope);

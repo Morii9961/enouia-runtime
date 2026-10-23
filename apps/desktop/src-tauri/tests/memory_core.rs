@@ -1377,6 +1377,28 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
         before
     );
     let request = json!({"taskId":task["taskId"],"batchIndex":1,"responseHash":preview["responseHash"],"cursor":0});
+    let pause_receipt = page.ok("extraction_pause", json!({"sessionId":task["batches"][0]["sessionId"],"runId":task["batches"][0]["runId"],"paused":true}));
+    assert_eq!(pause_receipt["job"]["state"], "paused");
+    assert_eq!(pause_receipt["job"]["cursor"], 0);
+    let paused_preview = page.ok(
+        "history_batch_preview",
+        json!({"taskId":task["taskId"],"batchIndex":1}),
+    );
+    assert_eq!(paused_preview["job"]["state"], "paused");
+    assert_eq!(paused_preview["items"], preview["items"]);
+    assert_eq!(
+        page.err("history_batch_apply", request.clone())["rules"][0],
+        "history.batch_paused"
+    );
+    let resume_receipt = page.ok("extraction_pause", json!({"sessionId":task["batches"][0]["sessionId"],"runId":task["batches"][0]["runId"],"paused":false}));
+    assert_eq!(resume_receipt["job"]["state"], "ready");
+    assert_eq!(resume_receipt["job"]["cursor"], 0);
+    let resumed_preview = page.ok(
+        "history_batch_preview",
+        json!({"taskId":task["taskId"],"batchIndex":1}),
+    );
+    assert_eq!(resumed_preview["items"], preview["items"]);
+    assert_eq!(resumed_preview["responseHash"], preview["responseHash"]);
     let mut changed = request.clone();
     changed["responseHash"] = json!("0".repeat(64));
     assert_eq!(
@@ -1470,7 +1492,8 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
     if let Some(path) = std::env::var_os("RUNTIME_HISTORY_RESULT_FIXTURE") {
         std::fs::write(path, serde_json::to_vec_pretty(&json!({
             "vaultId":task["identity"]["vaultId"],"task":task,"preview":preview,
-            "first":first,"previewFirst":preview_first,"second":second["result"],"completed":completed
+            "first":first,"previewFirst":preview_first,"second":second["result"],"completed":completed,
+            "pauseReceipt":pause_receipt,"pausedPreview":paused_preview,"resumeReceipt":resume_receipt,"resumedPreview":resumed_preview
         })).unwrap()).unwrap();
     }
 }

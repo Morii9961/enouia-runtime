@@ -29,18 +29,20 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
     return () => { mounted.current = false; owner.invalidate(); };
   }, [binding, owner]);
 
-  const perform = async (kind: "inspect" | "apply" | "recover") => {
+  const perform = async (kind: "inspect" | "apply" | "recover" | "pause" | "resume") => {
     if (pending.current || !view || (kind !== "inspect" && !confirmed)) return;
     const shown = view.preview; // the exact rendered observation, never a later snapshot
     pending.current = true; setBusy(true); setConfirmed(false); setError(null); setNotice(null); setView(null);
     const origin = document.activeElement;
     try {
       if (kind === "inspect") await owner.preview(request);
+      else if (kind === "pause" || kind === "resume") await owner.setPaused(shown, kind === "pause", true, request);
       else if (kind === "apply") await owner.apply(shown, true, request);
       else await owner.recover(shown, true, undefined, request);
       if (mounted.current) {
         setView(owner.snapshot);
-        if (kind !== "inspect") setNotice("Local step receipt observed. Inspect saved results again before another step. Candidates still require separate human review.");
+        if (kind === "pause" || kind === "resume") setNotice("Local pause-state receipt observed. This control does not add a candidate. Inspect saved results again.");
+        else if (kind !== "inspect") setNotice("Local step receipt observed. Inspect saved results again before another step. Candidates still require separate human review.");
       }
     } catch (err) {
       if (mounted.current) { setError(describe(err)); setView(owner.snapshot); }
@@ -57,7 +59,7 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
       }
     }
   };
-  const preview = view?.preview, held = view?.pending;
+  const preview = view?.preview, held = view?.pending, pausePending = view?.pausePending;
   const ready = preview?.job.state === "ready";
   const canRecover = held && ready && preview.responseHash === held.args.responseHash && preview.job.cursor >= held.args.cursor;
   return <section className="mem-stack" aria-label="Saved history batch results" aria-busy={busy}>
@@ -69,6 +71,7 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
       onClick={() => void perform("inspect")}>Inspect saved batch results</button></div>
     {busy && <p className="mem-muted" role="status">Observing this local step…</p>}
     {held && <p className="mem-muted" role="status">{held.acknowledged ? "A matching receipt was observed." : "The previous local step outcome is unconfirmed."} Inspect saved results first. If the same step remains, explicitly recover that original request.</p>}
+    {pausePending && <p className="mem-muted" role="status">The local pause-state decision needs a fresh observation. Inspect saved results before making another explicit pause or resume decision.</p>}
     {preview && <>
       <h4 ref={previewTitle} tabIndex={-1} className="mem-label">Saved response · {preview.job.cursor} / {preview.items.length} processed · {preview.job.state}</h4>
       <p className="mem-muted">Quotes establish source correspondence, not truth. Original proposals and current candidates are separate records; approved content belongs in Memory Vault.</p>
@@ -86,15 +89,18 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
         </div>}
         {item.application === "suppressed" && <p className="mem-muted">No candidate recorded for this proposal.</p>}
       </li>)}</ul>
-      {preview.job.state === "paused" && <p className="mem-muted" role="status">This local job is paused. No result can be added here until its saved state is resumed separately.</p>}
+      {preview.job.state === "paused" && <p className="mem-muted" role="status">This local job is paused. Resuming only changes its local state; inspect and confirm separately before adding any result.</p>}
       {preview.job.state === "completed" && <p className="mem-muted" role="status">Saved local processing is complete. Candidate status and approved memories require their own review.</p>}
-      {ready && (!held || canRecover) && <div className="mem-stack">
+      {(ready || preview.job.state === "paused") && !pausePending && <div className="mem-stack">
         <label className="mem-muted"><input type="checkbox" checked={confirmed} disabled={busy}
           onChange={event => setConfirmed(event.target.checked)} /> I checked this saved preview and confirm one local step.</label>
-        <div className="mem-actions"><button type="button" className="mem-button mem-primary" disabled={busy || !confirmed}
+        <div className="mem-actions">{ready && (!held || canRecover) && <button type="button" className="mem-button mem-primary" disabled={busy || !confirmed}
           onClick={() => void perform(held ? "recover" : "apply")}>
           {held ? "Recover original local step" : preview.items.length === 0 ? "Complete empty local result" : "Add one result to review"}
-        </button></div>
+        </button>}
+          <button type="button" className="mem-button" disabled={busy || !confirmed} onClick={() => void perform(ready ? "pause" : "resume")}>
+            {ready ? "Pause local result processing" : "Resume local result processing"}
+          </button></div>
       </div>}
     </>}
   </section>;
