@@ -42,3 +42,23 @@ Coverage navigation follow-up adds selected-response/occurrence/unique-span/unci
 The linked-source action locates the native response-index/source association inside the existing observed run, opens only that span and moves keyboard focus to source coverage. It does not fetch or infer a source. No new test suite is added or rerun.
 
 Saved-batch selection follow-up adds a drop-in HistoryComparisonSelection over already loaded full task observations. Only saved completed responses are selectable, with a 32-selection cap; snapshot/lifecycle changes discard the old selection/view, and selection itself performs no IPC. The synthetic preview now exercises this entry with explicit checkboxes and partial selections. Verification is limited to TypeScript; no new test suite or native/source fetch is performed.
+
+
+## Native integration follow-up (2026-10-24)
+
+The previously uncached exact public source 08892702 was fetched with the
+locked manifest. The existing Runtime Core scenario then passed: 1 passed,
+7 filtered. Its production code and test match the merged #97 source; the
+intervening 81a97ba changes upstream-adoption metadata only.
+
+Command: cargo test --offline --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --test memory_core history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation -- --exact.
+Saved output: target/history-brief/native-merge.txt in the owned history
+comparison worktree. This compiled the new-pin native consumer and exercised
+saved batch preview/application/local control, comparison and exact brief
+hash/base binding, including rejection of an old comparison head. Fake ports
+supply synthetic saved output; local reads do not send a real Provider request.
+
+This resolves the earlier source-cache/native-scenario gap. New-pin Clippy,
+physical Windows UI, Claude product entry integration and real-data/owner
+acceptance are not implied. No full suite, app build/package, installation,
+activation or real-account activity was performed.
