@@ -720,7 +720,8 @@ mod tests {
                 "extraction_pause",
                 "history_materialize",
                 "history_resume",
-                "history_batch_prepare"
+                "history_batch_prepare",
+                "history_batch_apply"
             ]
         );
         for read in [
@@ -730,6 +731,7 @@ mod tests {
             "memory_list",
             "history_task_list",
             "history_task_get",
+            "history_batch_preview",
         ] {
             assert_eq!(gate(&json!({"command": read})), Gate::Open, "{read}");
         }

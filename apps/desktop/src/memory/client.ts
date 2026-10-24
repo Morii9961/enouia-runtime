@@ -27,7 +27,7 @@ const WRITES = new Set([
   "review_confirm", "forget_plan", "remember", "correction_propose", "import_start",
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
   "provider_confirm", "external_prepare", "external_send",
-  "extraction_prepare", "extraction_apply", "extraction_pause", "history_materialize", "history_resume", "history_batch_prepare",
+  "extraction_prepare", "extraction_apply", "extraction_pause", "history_materialize", "history_resume", "history_batch_prepare", "history_batch_apply",
 ]);
 
 export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;
@@ -91,6 +91,10 @@ const RULES: Record<string, string> = {
   "history.batch_already_invoked": "This batch already has an invocation. Read its saved outcome; preparing again cannot resend it",
   "history.batch_not_ready": "This batch is paused or completed. Read its saved state before continuing",
   "history.model_changed": "The configured model differs from the saved task. Restore its exact model and read the task again",
+  "history.response_stale": "The saved response hash or application cursor changed. Inspect the saved response again; keep the original key for an uncertain step",
+  "history.batch_paused": "This saved job is paused. Read its current state; no candidate was approved",
+  "provider.extraction_preview": "The saved response cannot currently be inspected. Read the saved task and check source access",
+  "provider.extraction_apply": "The local step did not return a confirmed result. Keep its exact response hash, cursor and key, then inspect saved state",
   "history.batch_not_selected": "This batch was not selected in the saved task. Read the task again",
   "history.batch_missing": "This child job is missing. Explicitly resume missing local jobs first",
   "history.task_unknown": "This saved task is unavailable in the current Vault. Read saved tasks again",
