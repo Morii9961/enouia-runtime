@@ -1351,6 +1351,19 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
         comparison["runs"][0]["response_hash"],
         preview["responseHash"]
     );
+    let brief_args = json!({"batches":[selected.clone()],
+        "comparisonCommitId":comparison["base"]["commitId"],"maxBytes":131072});
+    let brief = page.send("history_brief", brief_args.clone());
+    assert_eq!(brief["kind"], "history_brief");
+    let brief = brief["result"].clone();
+    assert_eq!(brief["base"], comparison["base"]);
+    assert_eq!(brief["batches"], comparison["batches"]);
+    assert_eq!(
+        brief["contentHash"],
+        json!(enouia_memory_contract::hash::sha256(
+            brief["markdown"].as_str().unwrap().as_bytes()
+        ))
+    );
     let entries: Vec<_> = comparison["topics"]
         .as_array()
         .unwrap()
@@ -1495,6 +1508,16 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
     assert_eq!(second["result"]["job"]["state"], "completed");
     let completed = page.ok("history_batch_preview", selected);
     let compared = page.ok("history_compare", comparison_args);
+    assert_eq!(
+        page.err("history_brief", brief_args)["code"],
+        "revision_conflict"
+    );
+    let current_brief = page.ok("history_brief",
+        json!({"batches":compared["batches"].as_array().unwrap().iter()
+            .map(|b| json!({"taskId":b["taskId"],"batchIndex":b["batchIndex"]})).collect::<Vec<_>>(),
+            "comparisonCommitId":compared["base"]["commitId"],"maxBytes":131072}));
+    assert_eq!(current_brief["base"], compared["base"]);
+
     assert_eq!(compared["runs"][0]["applied"], 2);
     assert!(
         compared["topics"]
