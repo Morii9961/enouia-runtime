@@ -68,7 +68,7 @@ export default function Timeline({ sel, select }: ViewProps) {
   const rx = xOf(toMs(m.received));
   const recv = pack(AUTO_MEMORIES.map((x) => ({ x, at: xOf(toMs(x.received)) })), (t) => [t.at - 7 / EST, t.at + 7 / EST]);
   const recvRows = recv.rows ?? 1;
-  const recvH = recvRows * 11 + 30;
+  const recvH = recvRows * 11 + 48;
   const unknown = AUTO_MEMORIES.filter((x) => x.occurred.precision === 'unknown');
   const lag = span ? daysBetween(D0 + span.b * (D1 - D0), toMs(m.received)) : null;
   // Pen notes for the selected memory: ordinal marks, nudged apart so they never overlap.
@@ -120,7 +120,7 @@ export default function Timeline({ sel, select }: ViewProps) {
                   aria-label={`Received ${fmtStamp(item.x.received)}. ${item.x.title}.`} />
               ))}
               {span && lag !== null && lag >= 1 ? <span className="am-lag" style={{ left: pct(Math.min(span.b, rx)), width: pct(Math.abs(rx - span.b)) }}><span>received {lag} {lag === 1 ? 'day' : 'days'} after it happened</span></span> : null}
-              <span className="am-rt-label" data-side={rx > 0.72 ? 'l' : 'r'} style={{ left: pct(rx), bottom: 12 + (recv.find((r) => r.item.x.id === sel)?.row ?? 0) * 11 }}>received {fmtDayShort(toMs(m.received))}, {fmtClock(toMs(m.received))}</span>
+              <span className="am-rt-label" data-side={rx > 0.72 ? 'l' : 'r'} style={{ left: pct(rx), top: 5 }}>received {fmtDayShort(toMs(m.received))}, {fmtClock(toMs(m.received))}</span>
             </div>
             <div className="am-lane am-form" style={{ ...GRID, height: FORMATION_H }} role="group" aria-label={`Formation notes for ${m.title}`}>
               <svg className="am-leaders" viewBox={`0 0 1000 ${FORMATION_H}`} preserveAspectRatio="none" aria-hidden="true">
