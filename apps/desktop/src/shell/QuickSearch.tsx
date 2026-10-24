@@ -84,8 +84,6 @@ export default function QuickSearch() {
 
   return (
     <main className="quick-search" aria-label="Quick Search" aria-busy={reads.busy}>
-      {/* Decorative slip of chart paper (01-barograph); no data is drawn on it. */}
-      <div className="qs-paper" aria-hidden="true"><svg viewBox="0 0 560 56" preserveAspectRatio="none"><path d="M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg></div>
       <header><h1>Quick Search</h1><span className="mem-muted">Approved Memory · read only</span></header>
       <form onSubmit={search} role="search">
         <label className="mem-sr" htmlFor="quick-query">Search approved memories</label>

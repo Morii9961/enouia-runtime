@@ -34,8 +34,11 @@ const STEPS = 7 * 24 * 4; // quarter hours
 const end = Math.min(STEPS, Math.ceil(xOf(DEMO_CLOCK) * STEPS));
 const raw = Array.from({ length: end + 1 }, (_, i) => density(WEEK_START + Math.min(i / STEPS, xOf(DEMO_CLOCK)) * WEEK_MS));
 const peak = Math.max(...raw, 1);
-/** Pen height, 0 = top of the chart, 1 = bottom. A tiny steady wobble stands in for the pen's own friction; it carries no data. */
-const level = (i: number, d: number) => 0.74 - 0.56 * (d / peak) + 0.012 * Math.sin(i * 0.37) + 0.008 * Math.sin(i * 0.11);
+/** Deterministic hand-tremor: the pen's own friction, a pixel or two at most. It carries no data (a regular sine read as a fake signal in round 1). */
+const hash = (i: number) => { const s = Math.sin(i * 12.9898 + 4.1414) * 43758.5453; return s - Math.floor(s) - 0.5; };
+const tremor = (i: number) => (hash(i - 1) + hash(i) * 2 + hash(i + 1)) / 4;
+/** Pen height, 0 = top of the chart, 1 = bottom. */
+const level = (i: number, d: number) => 0.74 - 0.56 * (d / peak) + 0.01 * tremor(i);
 export const samples = raw.map((d, i) => ({ x: Math.min(i / STEPS, xOf(DEMO_CLOCK)), y: level(i, d) }));
 export const yAt = (iso: string | number) => {
   const x = xOf(iso); const i = Math.max(0, Math.min(samples.length - 1, Math.round(x * STEPS)));

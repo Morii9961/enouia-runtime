@@ -37,7 +37,7 @@ Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">demo clo
 <path d={`M${(xOf(at) * 1000).toFixed(1)} ${(yAt(at) * 1000).toFixed(1)} L${(NOTES_LEFT * 1000 - 18).toFixed(1)} ${(NOTE_TOPS[i] * 1000).toFixed(1)} H${(NOTES_LEFT * 1000).toFixed(1)}`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />
 </React.Fragment>)}
 </svg>
-<h1 className="qr2 bg-here" style={{ right: pct(1 - pen.x), top: pct(pen.y + 0.1) }}>
+<h1 className="qr2 bg-here" style={{ right: pct(1 - pen.x + 0.035), top: pct(pen.y + 0.06) }}>
 I'm here.
 </h1>
 <div className="qr13 bg-notes" style={{ left: pct(NOTES_LEFT) }}>
