@@ -15,10 +15,11 @@
   },
   "memorySurfaceAggregate": "a7dc389a9e7073e26bcb17ac644c9949693a24e3ebf358513de58d2e2ecc52e7",
   "adoption": {
-    "state": "draft",
+    "state": "merged",
     "pullRequest": "https://github.com/Morii9961/enouia-memory/pull/50",
-    "mergeRequiredForDelivery": true,
-    "sourceRevision": "08892702d0d0104b2d23240f89d2130c4dc1d323"
+    "mergeRequiredForDelivery": false,
+    "sourceRevision": "08892702d0d0104b2d23240f89d2130c4dc1d323",
+    "mergeCommit": "80c48e82cad829f64a372f3b2a734e691d8e36c3"
   },
-  "recordedAt": "2026-10-23"
+  "recordedAt": "2026-10-24"
 }
