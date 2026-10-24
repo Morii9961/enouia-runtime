@@ -49,7 +49,7 @@ export function Inspector({ m, select }: { m: AutoMemory; select: (id: string) =
               <li key={i}>
                 <p className="am-ev-src"><span>{e.source}</span> <span className="am-role">{e.role}</span> <span className="am-mono">{e.rev}</span></p>
                 <blockquote>{e.excerpt}</blockquote>
-                <p className="am-ev-time"><b>Received</b> <span className="am-mono">{fmtStamp(e.received)}</span></p>
+                <p className="am-evid-time"><b>Received</b> <span className="am-mono">{fmtStamp(e.received)}</span></p>
               </li>
             ))}
           </ul>
