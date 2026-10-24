@@ -6,6 +6,7 @@ import React from 'react';
 import type { Page } from '../demo-types';
 import { DAYS, DEMO_CLOCK, NEXT_RUN, earlier, marks, onChart, pct, pen, readings, tracePath, xOf, yAt, dayLabel } from './chart';
 import { useStatus, exiting } from '../memory/status';
+import { useAutoMode } from './autoMode';
 
 const MARK_LABEL = { canonical: 'canonical write', candidate: 'candidate proposed', checkpoint: 'checkpoint', superseded: 'superseded write' };
 
@@ -57,7 +58,10 @@ type StripProps = { page: Page; nav: React.ReactNode; still: boolean; selectedAt
 /** Demo strip: fictional week, demo clock, and the page's own mark. */
 export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, paused = false }: StripProps) {
   const activity = page === 'activity';
-  const meta = activity
+  const auto = useAutoMode() && page === 'memory';
+  const meta = auto
+    ? <><b>Automatic memory</b> · synthetic preview · its own sample paper, 1 Jul – 31 Oct 2026</>
+    : activity
     ? <><b>Second instrument</b> · Activity producer · separate paper · demo readings</>
     : <><b>Chart No. 40</b> · week of 28 Sep 2026 · <span className="bg-clock">demo clock Thu 1 Oct, 14:44</span></>;
   let overlay: React.ReactNode = null;
@@ -71,12 +75,12 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, paused 
     else overlay = <span className="bg-offchart">◂ this session: {dayLabel(sessionSpan[0])} · on an earlier chart</span>;
   }
   return (
-    <div className="bg-strip" data-page={page} data-paper={activity ? 'activity' : 'memory'}>
+    <div className="bg-strip" data-page={page} data-paper={activity ? 'activity' : 'memory'} data-auto={auto || undefined}>
       <div className="bg-strip-head">
         {nav}
         <div className="bg-strip-meta">{meta}</div>
       </div>
-      {page === 'home' ? null : (
+      {page === 'home' || auto ? null : (
         <div className="bg-strip-chart" role="img" aria-label={activity ? 'Fictional demo readings of the separate Activity producer: collected on 1 October, no reading on 30 September' + (paused ? ', scheduled runs paused in the demo.' : '.') : summary}>
           <Paper variant={activity ? 'activity' : 'memory'}>
             {activity ? <ActivityTrace paused={paused} /> : <Trace still={still} showMarks tip />}

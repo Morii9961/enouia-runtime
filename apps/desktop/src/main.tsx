@@ -8,6 +8,7 @@ import './quiet-runtime.css';
 import './memory/memory.css';
 import './activity/activity.css';
 import './theme/barograph.css';
+import './theme/automemory.css';
 
 class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };

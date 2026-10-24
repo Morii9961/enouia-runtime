@@ -1,8 +1,16 @@
 import React from "react";
 import type { DemoView } from "../App";
+import AutoMemory from "./automemory/AutoMemory";
+import { AUTO_ENTRY } from "./automemory/fixture";
 
 export default function Memory({ view }: { view: DemoView }) {
+  // Browser demo only: a synthetic design preview of automatic memory. Local state, nothing stored.
+  const [auto, setAuto] = React.useState(false);
+  const entry = React.useRef<HTMLButtonElement>(null);
+  const wasAuto = React.useRef(false);
+  React.useEffect(() => { if (!auto && wasAuto.current) entry.current?.focus(); wasAuto.current = auto; }, [auto]);
   const { act, colCount, colTitle, collections, copyLabel, draft, editing, groups, hasNotice, noSel, notEditing, notice, onDraft, onQuery, q, sel, timelineEmpty } = view;
+  if (auto) return <AutoMemory onExit={() => setAuto(false)} />;
   return (
 <section data-screen-label="Memory Vault" className="qr89">
 <aside className="qr28">
@@ -14,6 +22,10 @@ Memory Vault
 What I keep, and why.
 </div>
 </div>
+<button type="button" className="am-entry" ref={entry} onClick={() => setAuto(true)} aria-describedby="am-entry-sub">
+<span className="am-entry-k">{AUTO_ENTRY}</span>
+<span className="am-entry-s" id="am-entry-sub">Invented data · not running · opens a design preview</span>
+</button>
 <label className="qr22">
 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7F8D9A" strokeWidth="1.2">
 <circle cx="6" cy="6" r="4.2">
