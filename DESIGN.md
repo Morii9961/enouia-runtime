@@ -97,14 +97,29 @@
 
 ## 7. 动效
 
-- 性格：**像记录仪：一次画出，然后安静；移动只沿时间轴。**
-- 时长与缓动：
-  - 笔迹画出 `1.2s linear`（`clip-path: inset()` 从右收起）；笔尖淡入 `160ms linear`，延迟 1.2s。
-  - 平移（图表 `transform`、取景框 `left/width`、「I'm here.」位置）`320ms cubic-bezier(.2,.7,.2,1)`（令牌 `--ease`）；拖动或滚轮驱动时无过渡，跟手。
-  - 悬停/选中：瞬时。以后新增动效以 Memory UI 规格为上限：常规反馈 120–180ms，布局过渡 180–240ms。
-- 只动哪些东西：笔迹、笔尖、取景框、平移层、首页句子位置。不动：导航、列表、Inspector、数字、加载状态（没有骨架闪烁、没有无限循环）。
-- 减少动画：`prefers-reduced-motion: reduce` **或** Settings 选「Reduced」（`data-motion="reduced"`）时，所有动画与过渡为 0，笔迹直接画完，平移瞬时；不播放 `enouiaBreath`。
-- 实现约束：只动 `transform`、`opacity`、`clip-path` 和取景框的 `left/width`；不引入动画库。星图规模化时的技术选择方法见 OPEN_ISSUES #6。
+- 性格：**像记录仪：一次画出，然后安静；移动只沿时间轴或导航顺序。** 没有循环、弹跳、发光、抖动。
+- 缓动与时长：一条曲线 `cubic-bezier(.2,.7,.2,1)`（`--ease`），淡出用 linear。四档：`--t1` 120ms · `--t2` 180ms · `--t3` 240ms · `--t4` 320ms；退出约为进入的 70%。
+- 实现：`theme/motion.ts` 用浏览器的 View Transitions API（`moveAlong(kind, update, dir)`；缺 API 或减少动画时直接更新）；`theme/motion.css` 写全部时长与关键帧。只动 `transform`、`opacity`、`clip-path`、取景框的 `left/width`；不引入动画库。
+- 时刻（录像与慢放见 `.design/review/motion/`）：
+
+| 时刻 | 做法 | 时长 |
+| --- | --- | --- |
+| 首页载入 | 笔迹从左到右画出（`clip-path`），画完后笔尖淡入，写入记号落到纸上；之后静止 | 1.2s linear · 160ms · 180ms |
+| 切换页面 | 内容像胶片前进一格：旧页向左让 12px 并淡出，新页从右 12px 进来；往回走则反向。导航上的反相块滑到新位置。标题栏与记录带不动 | 出 120 · 进 180 |
+| 时间小地图 | 移动取景框，图表沿时间平移；拖动或滚轮时跟手、无过渡 | 320 |
+| Memory 列表选中 | 反相块从旧行移到新行（↑↓ 与点击相同）；Inspector 翻到下一帧（旧内容淡出，新内容从右 12px 进来） | 块 120 · Inspector 80 + 120 |
+| 自动记忆切视图 | 主视图按视图顺序前进一格；按下的视图按钮滑到新位置；Inspector 不动 | 出 120 · 进 180 |
+| 自动记忆选中 | Inspector 翻帧；Constellation 里每条记忆保持身份（`view-transition-name: am-n-<id>`），从旧位置移到新位置 | 180 |
+| 记录到达 | Formation 事件、记忆格、Quick Search 结果从右 8px 依次到达，每条错开 30ms，第 7 条起一起到；Recall lab 五步每步 80ms 依次出现；只在出现时播一次 | 240 / 180 |
+| Quick Search | 窗口出现时纸条落下到位 | 160 |
+| 系统明暗切换 | 整个窗口淡入另一套配色（显影） | 240 |
+| Vault 锁定 / 未载入 | 斜线从左到右画过记录带与小地图 | 240 |
+| 悬停 | 底色与字色短过渡 | 80 |
+
+- 不动的：标题栏、记录带本身、数字、加载状态（不放骨架动画）、错误（直接反相，不抖动）。
+- 第二批（未做）：Timeline 天/周/月缩放；自动记忆状态图形的形变（例如暂存 → 采用）；列表增删行的高度展开。新增动效不超过 Memory UI 规格的上限（常规反馈 120–180ms，布局过渡 180–240ms，平移 320ms 例外）。
+- 减少动画：`prefers-reduced-motion: reduce` **或** Settings 选「Reduced」（`data-motion="reduced"`）时，所有动画、过渡与视图过渡为 0，笔迹直接画完，平移瞬时；不播放 `enouiaBreath`。
+- 测试环境（Happy DOM）没有 View Transitions，状态直接更新；真实 WebView2 里状态更新晚一帧，界面测试应等待结果，不假设同步。
 
 ## 8. 数据可视语言
 

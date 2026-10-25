@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-10-25 · 全界面动效（第一批）
+
+- 决定：采用 `redesign/v2-motion` 的动效原型，规则与时刻写入 DESIGN.md §7：页面沿导航顺序推进、导航反相块滑动、Memory 选中光标移动与 Inspector 翻帧、自动记忆视图推进、星图按身份重排、记录依次到达、首页记号落下、Quick Search 纸条落下、明暗切换显影、锁定斜线画过、悬停 80ms。替代 DESIGN.md 旧 §7 里「悬停/选中瞬时、导航与列表不动」的说法。
+- 理由：Morii 希望整个界面有动效（2026-10-25），看完录像后确认「现有的都挺好的」。全部只沿时间或顺序移动，与「记录仪」一致。
+- 影响：新增 `theme/motion.ts`、`theme/motion.css`；`App.tsx` 的 `show`/`select`、`AutoMemory.tsx` 的视图与选中、`Constellation.tsx` 的节点名、`main.tsx` 的明暗切换改走 `moveAlong`。行为与测试不变（测试环境无 View Transitions，直接更新）。主 JS 增约 0.6 kB。
+- 依据：`.design/review/motion/` 的 16 段录像（8 场景 × 2 主题，无控制台错误）与 1/10 速抽帧；`npm test`（node 116 过 3 跳过，DOM 75/75）、build、两个仓库检查全过。原生 WebView2 尚未录制。
+- 状态：定稿
+
 ## 2026-10-25 · 合并 main：用量账本界面一起删除，原生命令已撤下
 
 - 决定：把 origin/main（到 PR #100）合入 `redesign/v2`。main 新增的私有用量账本界面（`src/usage/` 的视图、`UsageProvider` 包裹、`ActivityWorkspace`、其测试与 `usage-manual` fixture）按「移除 Activity / Usage 界面」一并删除；main 新的原生 Runtime Inspector 去掉「Activity producer」一节。main 带来的 Memory 历史任务、Provider 配置草稿、导入报告、合成自动记忆集合、原生 Runtime Inspector（Memory Core、Windows shell、Memory 操作）保留，套用 UI v2 外观。
