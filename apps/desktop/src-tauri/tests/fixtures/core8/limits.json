@@ -1,0 +1,9 @@
+{
+  "max_jobs": 4,
+  "total_tokens": 1000,
+  "total_cost_microusd": 100,
+  "call_tokens": 100,
+  "call_cost_microusd": 10,
+  "call_timeout_ms": 2000,
+  "max_result_bytes": 262144
+}

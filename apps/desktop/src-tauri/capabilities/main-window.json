@@ -29,6 +29,7 @@
     "allow-hide-window",
     "allow-exit-app",
     "allow-startup-status",
-    "allow-startup-set"
+    "allow-startup-set",
+    "allow-memory-automation"
   ]
 }

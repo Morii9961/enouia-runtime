@@ -9,6 +9,7 @@ fn main() {
             "usage_pick",
             "usage_cancel",
             "memory_call",
+            "memory_automation",
             "memory_pick",
             "memory_provider_setup",
             "memory_provider_reload",

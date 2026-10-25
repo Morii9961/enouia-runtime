@@ -1111,7 +1111,7 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
                 {"kind":"fact","content":"Synthetic first result","quote":"Synthetic","source_index":0,"claim_key":"synthetic_history_first"},
                 {"kind":"fact","content":"Synthetic second result","quote":"Synthetic","source_index":0,"claim_key":"synthetic_history_second"}
             ]}).to_string();
-            sink(&serde_json::to_vec(&json!({"status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":text}]}],"usage":{"input_tokens":50,"output_tokens":10}})).unwrap())
+            sink(&serde_json::to_vec(&json!({"id":"resp_synthetic_runtime_history","object":"response","error":null,"status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":text}]}],"usage":{"input_tokens":50,"output_tokens":10}})).unwrap())
         }
     }
     let mut page = Page::new("history-task-fields");
@@ -1315,7 +1315,8 @@ fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() 
         Some("ui-history-send-once"),
     );
     assert_eq!(sent["error"], Value::Null, "{sent}");
-    assert_eq!(page.finish(&sent["result"])["state"], "succeeded");
+    let completed_send = page.finish(&sent["result"]);
+    assert_eq!(completed_send["state"], "succeeded", "{completed_send}");
     let replay = page.send_keyed("external_send", send_args, Some("ui-history-send-once"));
     assert_eq!(replay["result"], sent["result"]);
     assert_eq!(ports.reads.load(Ordering::SeqCst), 1);

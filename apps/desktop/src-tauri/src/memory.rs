@@ -30,6 +30,7 @@ use tauri::{State, WebviewWindow};
 #[derive(Clone)]
 pub struct MemoryHost {
     core: Arc<Workspace>,
+    automation: crate::memory_automation::NativeAutomation,
     gate: Arc<RwLock<()>>,
     closing: Arc<AtomicBool>,
     lifecycle: Arc<AtomicUsize>,
@@ -46,6 +47,7 @@ impl MemoryHost {
     pub fn new() -> Self {
         Self {
             core: Arc::new(Workspace::new(Config::default())),
+            automation: crate::memory_automation::NativeAutomation::default(),
             gate: Arc::new(RwLock::new(())),
             closing: Arc::new(AtomicBool::new(false)),
             lifecycle: Arc::new(AtomicUsize::new(0)),
@@ -58,6 +60,10 @@ impl MemoryHost {
             provider_setup: Arc::new(Mutex::new(crate::provider::Setup::Absent)),
             provider_update: Arc::new(Mutex::new(())),
         }
+    }
+
+    pub fn automation(&self) -> &crate::memory_automation::NativeAutomation {
+        &self.automation
     }
 
     /// Hand the Core a native Provider setup, or take it away (ADR-032).
@@ -85,6 +91,9 @@ impl MemoryHost {
     /// Serialize configuration reloads and key changes without queuing a
     /// second native prompt. Core still owns admission against active sends.
     pub fn provider_update(&self) -> Result<MutexGuard<'_, ()>, &'static str> {
+        if self.automation.enabled() {
+            return Err("automation_synthetic_mode");
+        }
         let guard = self
             .provider_update
             .try_lock()
@@ -108,6 +117,7 @@ impl MemoryHost {
     pub fn begin_close(&self) -> bool {
         let first = !self.closing.swap(true, Ordering::SeqCst);
         if first {
+            self.automation.begin_close();
             self.publish_companion();
         }
         first
@@ -118,6 +128,7 @@ impl MemoryHost {
     }
 
     pub fn close_failed(&self) {
+        self.automation.close_failed();
         self.closing.store(false, Ordering::SeqCst);
         self.publish_companion();
     }
@@ -224,6 +235,7 @@ impl MemoryHost {
         };
         match gate(request) {
             Gate::Exclusive => {
+                self.automation.lock();
                 let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
                 invoke()
             }
@@ -269,6 +281,7 @@ impl MemoryHost {
 
     /// Cancel and join operations, then release the Vault and the index.
     pub fn shutdown(&self) {
+        self.automation.shutdown();
         let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
         self.core.shutdown();
         *self
@@ -683,6 +696,16 @@ mod tests {
         assert!(surface("overlay").is_some_and(|s| s.allows(&json!({"command": "memory_search"}))));
     }
 
+    #[test]
+    fn synthetic_startup_refuses_real_provider_updates_before_bootstrap() {
+        let host = MemoryHost::new();
+        host.automation().request_synthetic_mode();
+        assert!(matches!(
+            host.provider_update(),
+            Err("automation_synthetic_mode")
+        ));
+        assert_eq!(host.automation().call("main", &json!({"schema_version": 2, "capability": "memory-native-read-1", "query": {"operation": "status"}})).unwrap()["state"], "disabled");
+    }
     #[test]
     fn lifecycle_excludes_commits_and_operation_starts_but_not_reads() {
         let of = |kind: Gate| -> Vec<&str> {
