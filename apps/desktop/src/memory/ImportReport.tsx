@@ -2,6 +2,8 @@
 // count; this view neither reparses raw input nor plans model extraction.
 import type { J } from "./client";
 import { when } from "./ui";
+import { HistoryPlan } from "./HistoryPlan";
+import type { HistoryTaskRequest } from "./historyTasks";
 
 const COUNTS = [
   ["Sources created", "sources_created"], ["Sources revised", "sources_revised"],
@@ -14,8 +16,9 @@ const COUNTS = [
 
 const count = (value: unknown): string => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? String(value) : "unknown";
 
-export function ImportReport({ row, current, selected, inspectOriginal, close }: {
-  row: J; current: boolean; selected: string; inspectOriginal?: () => void; close: () => void;
+export function ImportReport({ row, current, selected, vaultId, vaultHead, inspectOriginal, close, onCreateHistory, historyBusy = false }: {
+  row: J; current: boolean; selected: string; vaultId?: string; vaultHead?: string; inspectOriginal?: () => void; close: () => void;
+  onCreateHistory?: (args: HistoryTaskRequest) => void; historyBusy?: boolean;
 }) {
   return <div className="mem-stack" aria-label="Import report">
     <h3 id="mem-import-report-title" tabIndex={-1} className="mem-h3">Import report</h3>
@@ -60,6 +63,9 @@ export function ImportReport({ row, current, selected, inspectOriginal, close }:
           }}>Inspect original import</button>
             : <p className="mem-muted">The original import is not in the latest list.</p>}
         </>}
+        {vaultId && row.importId === selected && row.status === "completed" && !row.duplicateOf && Number.isSafeInteger(row.revision) && row.revision > 0
+          && <HistoryPlan key={`${vaultId}:${vaultHead ?? "unobserved"}:${selected}:${row.revision}`} vaultId={vaultId} importId={selected} importRevision={row.revision}
+            onCreate={onCreateHistory} materializationBusy={historyBusy} />}
       </>}
   </div>;
 }

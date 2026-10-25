@@ -5,23 +5,21 @@
 //! tray, quick search and opt-in login startup. Closing a window hides it;
 //! Exit is explicit and shuts the Memory Core down first, as does the end of
 //! the Windows session or an installer's request to close (ADR-027). The
-//! Activity surface reaches the independently installed producer only through
-//! that package's runner (ADR-028). The shell registers no filesystem, shell
-//! or network command, never changes a scheduled task, and closing or exiting
-//! it never pauses Activity. Memory's native Provider path is enabled only by
+//! Activity and private Usage now leave the desktop backend (ADR-037).
+//! The shell registers no general filesystem, shell or network command and
+//! never changes a scheduled task. Memory's native Provider path is enabled only by
 //! the owner's settings file, and keys are entered only in the native Windows
 //! credential prompt (ADR-032).
 
-mod activity;
 mod companion;
 mod hotkey;
 mod memory;
+mod memory_automation;
 mod provider;
 mod root_lease;
 mod shell;
 mod startup;
 
-use activity::ActivityHost;
 use memory::MemoryHost;
 use tauri::{Manager, RunEvent, WindowEvent};
 
@@ -29,7 +27,15 @@ fn main() {
     let host = MemoryHost::new();
     let args: Vec<String> = std::env::args().collect();
     let autostart = args.iter().any(|arg| arg == "--autostart");
-    if !autostart && let Some(root) = memory::vault_argument(&args) {
+    let synthetic_requested = args.iter().any(|arg| arg == "--memory-synthetic");
+    let synthetic = !autostart && synthetic_requested;
+    if synthetic_requested {
+        host.automation().request_synthetic_mode();
+    }
+    if !autostart
+        && !synthetic
+        && let Some(root) = memory::vault_argument(&args)
+    {
         host.open_root(&root);
     }
     let mut context = tauri::generate_context!();
@@ -45,14 +51,13 @@ fn main() {
     let app = tauri::Builder::default()
         .manage(host)
         .manage(shell::ShellState::default())
-        .manage(ActivityHost::new(&args))
         .invoke_handler(tauri::generate_handler![
-            activity::activity_call,
-            activity::activity_setup,
             memory::memory_call,
+            memory_automation::memory_automation,
             memory::memory_pick,
             provider::memory_provider_setup,
             provider::memory_provider_reload,
+            provider::memory_provider_save_draft,
             provider::memory_provider_key,
             shell::shell_status,
             shell::shell_show,
@@ -65,11 +70,20 @@ fn main() {
             companion::startup_status,
             companion::startup_set
         ])
-        .setup(|app| {
+        .setup(move |app| {
             // Native Provider sending stays off without the owner's
             // settings file (ADR-032).
-            let path = provider::settings_path(app.handle());
-            let _ = provider::apply(&app.state::<MemoryHost>(), path.as_deref());
+            if synthetic_requested {
+                if synthetic {
+                    let native = app.state::<MemoryHost>().automation().clone();
+                    tauri::async_runtime::spawn_blocking(move || {
+                        let _ = native.initialize_synthetic();
+                    });
+                }
+            } else {
+                let path = provider::settings_path(app.handle());
+                let _ = provider::apply(&app.state::<MemoryHost>(), path.as_deref());
+            }
             shell::install(app)?;
             Ok(())
         })

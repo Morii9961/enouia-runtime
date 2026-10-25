@@ -1,0 +1,94 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.no_automatic_plan",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.real_core_identity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.coverage_unknown_time",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.first_page_rendered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.references_without_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.references_fit_the_inspector",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.references_fit_the_minimum_window",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.real_paging",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.second_page_rendered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.planning_creates_no_sessions_or_candidates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.planning_preserves_head",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.stale_cursor_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.stale_page_withheld",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.head_change_does_not_replan",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.fresh_plan_recovers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.host_exits",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "history-first-page.png",
+    "history-fresh-plan.png"
+  ],
+  "summary": "17/17"
+}

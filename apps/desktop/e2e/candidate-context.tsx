@@ -65,6 +65,10 @@ try {
   revision = 2; click("Refresh candidates"); await wait(() => !!button("Show context source") && text().includes("r2"));
   click("Show context source"); await wait(() => text().includes("Synthetic context r2:"));
   check("context_read_uses_selected_exact_revision", calls.filter(c => c.command === "source_excerpt").at(-1)?.args.sourceRevision === 2);
+  hold = true; click("Read context source again"); await wait(() => release !== null);
+  revision = 3; click("Refresh candidates"); await wait(() => text().includes("r3") && !!button("Show context source"));
+  release!(); release = null; await sleep(35);
+  check("revised_candidate_discards_late_context_reply", !fixture.querySelector('[aria-label="Context source text"]'));
   mode = "empty"; click("Refresh candidates"); await wait(() => text().includes("No context dependencies were recorded."));
   check("empty_recorded_list_is_not_completeness_claim", !button("Show context source") && text().includes("does not establish complete reading history"));
   mode = "legacy"; click("Refresh candidates"); await wait(() => text().includes("This Core did not report context dependency information."));

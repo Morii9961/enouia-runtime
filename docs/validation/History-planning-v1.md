@@ -1,0 +1,29 @@
+# Archived history planning in Runtime
+
+Date: 2026-10-19 (Asia/Shanghai). Runtime baseline `0a1d653`; this slice adopts Memory's owner-authorized read-only H1 Workspace entry through the exact revision and surface aggregate in [the pin record](../integration/memory-pin.json). Workspace IPC v1 has 48 commands. H2 materialization, extraction, temporal comparison and semantic proposals remain separate integrations.
+
+## Behavior
+
+An inspected, completed, nonduplicate import offers **Plan archived history**. Nothing plans on selection or mount. The owner supplies a messages-per-batch bound (1–15) and path-reference budget (1–100,000); these are local planning bounds, not token/spending authorization. The Core also enforces received/decompressed input, parsed-input and serialized-result caps. Oversize or unsupported archives are refused rather than partially represented as complete.
+
+The surface displays the received archive's coverage, known/unknown time, parse/attachment gaps, graph issues, bounded batches and current Source references. It contains no source text, task creation, request, extraction or approval action. Export branch selection and a successful import do not establish complete platform history, quality or owner review. Full/delta imports whose unchanged sources were reconciled into earlier imports can be refused by the strict exact-import binding; Runtime does not infer missing lineage.
+
+Before rendering, Runtime validates the planner version, Vault/import/revision, archive/plan hashes, parameters, counts, time fields and contiguous page/cursor identity. Editing bounds clears the prior observation. A pending read blocks overlapping reads/edits; stale/error replies withhold the old page and offer an explicit fresh first-page read. Import-list refresh/failure, revised selection, an observed head change, Vault lifecycle changes and unmount invalidate the component and its late replies. Head invalidation follows the existing shared status observation; it is not an instantaneous cross-client notification. The adapter forwards only the existing main-workspace channel; Quick Search cannot call this command.
+
+## Development evidence
+
+The actual ImportReport/HistoryPlan DOM journey passed 20 assertions for explicit reads, paging, changed bounds, refusal, identity validation, held replies, fresh recovery and selection/head/Vault ownership. Three pure tests cover mixed identities, invalid counts/times and page/source/issue shape. The final frontend gate passed 113 Node tests and 65 synthetic DOM fixtures (872 assertions); production and strict fixture TypeScript checks passed. IPC in those journeys is synthetic.
+
+The pin is `976ef6bf14e29ea455a3f3e308c4eef27d8c1a72` from [Memory PR #37](https://github.com/Morii9961/enouia-memory/pull/37), with surface aggregate `575548bf9f94c887deeb0463d08f53e18a59a5aff6f8af233a72f7161974f197`. Three exact dependencies and eight locked Git package source lines changed; no dependency version was re-resolved. Online locked fetch, offline metadata, dependency guard (7 negatives), pin/surface guard (8 negatives), Rust format, all 68 desktop unit tests, all 7 pinned-Core integration tests and strict all-target Clippy passed. The new consumer test exercises every rendered field, real pagination, an unchanged head and opening-bound stale cursors.
+
+The final Windows GNU no-bundle build passed (22.04-second native release step). Its executable SHA-256 is `28429eb7ce8884f1564e67e4d55063ede3140b3ab308b1449f49da256cc3569d`. The focused real-WebView2 `--history-only` smoke passed [17/17 checks](History-planning-native.json) against that build. It uses only a dedicated temporary synthetic Vault and 24-section generated Markdown, observes real import/planning replies, checks read-only paging, direct stale-cursor refusal, shared-head invalidation without automatic planning and explicit fresh recovery, then closes its spawned host. A separate deliberate fixture mutation invalidates the cursor; it is not a planning side effect. The report's exact-byte SHA-256 is `2931cb9e1f9d3fc566d9d7234837be9a9f426615aae72826f7cb367170c09671`.
+
+Native screenshot inspection found the long plan hash could widen the inspector. Local wrapping fixes it; the affected 20-assertion DOM journey passed again, and the final native run verifies inspector width at the initial window and at 1100×700. The other unchanged journeys reuse the preceding complete frontend gate. This is a check of the history inspector, not acceptance of all Windows layouts.
+
+The final NSIS development bundle also built; its actual rendered installer passed all 26 ownership checks. Setup size is 9,610,976 bytes, SHA-256 `9f9b0c9f7bdaf49903190a76098465337d00b3027734637b6a524f171da2ea5d`, Authenticode `NotSigned`. It was not installed or published, and the NSIS-tagged payload is distinct from the no-bundle executable tested above. Product version stays `0.1.0`; this is not the final v1 acceptance candidate.
+
+An initial smoke attempt failed because the new observer tried to replace Tauri's immutable invoke property. That incomplete run is not passing evidence. The final observer uses the existing callback-map seam, passes every actual native reply through unchanged and waits for the shared status observation before planning. No product handler was changed to accommodate the test.
+
+Memory's own [verification report](https://github.com/Morii9961/enouia-memory/blob/976ef6bf14e29ea455a3f3e308c4eef27d8c1a72/docs/validation/MV-7-workspace-history-planning.md) retains its default/four-thread suite failures and subsequent passing serial library/integration evidence. Runtime's native gate passed at normal concurrency; it does not erase those separate Memory suite limits.
+
+No personal history, credential, live Provider, installed application replacement, production activation or Morii acceptance is established.

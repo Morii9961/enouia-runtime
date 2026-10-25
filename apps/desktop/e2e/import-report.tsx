@@ -24,6 +24,7 @@ setTransport(async (native, args) => {
   let result: unknown;
   if (request.command === "workspace_status") result = { vault: { state: "open" }, pendingCandidates: 0 };
   else if (request.command === "memory_list") result = { items: [], total: 0, nextCursor: null };
+  else if (request.command === "history_task_list") result = { identity: { commitId: "synthetic-head" }, items: [], nextCursor: null, readOnly: true };
   else if (request.command === "operation_list") result = { items: [] };
   else if (request.command === "import_list") {
     const captured = structuredClone(rows);
@@ -87,7 +88,7 @@ try {
   changing = true; click(fixture.querySelector<HTMLButtonElement>("#fixture-status"));
   await wait(() => text().includes("Finishing Vault change"));
   check("vault_lifecycle_unmounts_the_report", !report());
-  check("inspection_never_sends_writes_or_model_calls", calls.every(c => ["workspace_status", "memory_list", "import_list", "operation_list"].includes(c.command) && c.key === null));
+  check("inspection_never_sends_writes_or_model_calls", calls.every(c => ["history_task_list", "workspace_status", "memory_list", "import_list", "operation_list"].includes(c.command) && c.key === null));
 } finally {
   releaseRead(); root.unmount();
   document.getElementById("results")!.textContent = JSON.stringify({ passed: checks.length > 0 && checks.every(c => c.ok), checks });

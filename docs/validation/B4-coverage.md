@@ -127,3 +127,7 @@ The [schedule-container follow-up](Activity-schedule-container-2026-10-10.md) re
 The [day-series provenance follow-up](Activity-days-provenance-2026-10-10.md) rejects missing or invalid requested history before range filtering can turn it into a valid empty result. It adds 51 C17 selectors, with 49/49 actual controlled-runner/native checks against a 32/49 baseline, fresh 53 host + 3 Core tests, exact empty/range/integer semantics, 27/27 schedule-container and 35/35 actual action regressions.
 
 The [day-source metadata follow-up](Activity-days-metadata-2026-10-10.md) rejects conflicting or missing units/day boundaries before deriving a source-labelled reply. It adds 37 C17 selectors, with 36/36 actual controlled-runner/native checks against a 26/36 baseline, fresh 54 host + 3 Core tests, exact valid/null-source semantics, 49/49 day-series and 35/35 actual action regressions.
+
+## Later shared-process implementation follow-up (2026-10-23)
+
+[Job assignment before child execution](Windows-child-job-start-v1.md) adds a suspended-start barrier only to the shared Windows process crate and its Activity runner consumers. Eighteen focused process tests pass, including the real pre-assignment barrier, exact Job membership, immediate descendants, refusal, .cmd compatibility and an unrelated owned sentinel surviving cancellation. Forced host death before assignment can still leave a suspended orphan. This follow-up does not replace historical hashed reports/selectors, close C12/C17, cover every desktop runner, or waive physical, storage and production gates.

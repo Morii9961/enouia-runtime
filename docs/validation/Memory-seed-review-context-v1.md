@@ -1,5 +1,7 @@
 # Native seed review: context sources and P0 candidates
 
+Historical October 18–19 evidence. Current-main integration and its new verification are recorded in [the October 25 completion](Memory-seed-review-completion-2026-10-25.md); the old pin and counts below are not the current release baseline.
+
 Date: 2026-10-18 (Asia/Shanghai). Runtime baseline `76c7dec`.
 Memory is pinned to `2f1595bf38a32f43dd2c3f7f24f82b9fdc1a3342` in all three
 Git dependencies, all eight lockfile source entries and the pin record.

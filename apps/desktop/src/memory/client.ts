@@ -27,7 +27,7 @@ const WRITES = new Set([
   "review_confirm", "forget_plan", "remember", "correction_propose", "import_start",
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
   "provider_confirm", "external_prepare", "external_send",
-  "extraction_prepare", "extraction_apply", "extraction_pause",
+  "extraction_prepare", "extraction_apply", "extraction_pause", "history_materialize", "history_resume", "history_batch_prepare", "history_batch_apply",
 ]);
 
 export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;
@@ -88,6 +88,27 @@ const RULES: Record<string, string> = {
   "index.busy": "The index is busy or rebuilding. Try again in a moment",
   "import.resume_existing": "This file's earlier import was interrupted. Resume it from the import list instead of starting it again",
   "import.adapter_changed": "This import can no longer be resumed: this version reads the file differently than when the import started",
+  "history.batch_already_invoked": "This batch already has an invocation. Read its saved outcome; preparing again cannot resend it",
+  "history.batch_not_ready": "This batch is paused or completed. Read its saved state before continuing",
+  "history.model_changed": "The configured model differs from the saved task. Restore its exact model and read the task again",
+  "history.response_stale": "The saved response hash or application cursor changed. Inspect the saved response again; keep the original key for an uncertain step",
+  "history.batch_paused": "This saved job is paused. Read its current state; no candidate was approved",
+  "provider.extraction_preview": "The saved response cannot currently be inspected. Read the saved task and check source access",
+  "provider.extraction_apply": "The local step did not return a confirmed result. Keep its exact response hash, cursor and key, then inspect saved state",
+  "history.batch_not_selected": "This batch was not selected in the saved task. Read the task again",
+  "history.batch_missing": "This child job is missing. Explicitly resume missing local jobs first",
+  "history.task_unknown": "This saved task is unavailable in the current Vault. Read saved tasks again",
+  "history.import_unknown": "That import is not available in the current Vault",
+  "history.import_revision": "The import report changed. Read the import list again",
+  "history.import_incomplete": "Choose a completed original import; unfinished and duplicate imports cannot be planned",
+  "history.plan_stale": "The Vault opening, saved head or planning parameters changed. Read a fresh plan",
+  "history.source_missing": "The archive no longer has all of its original current source bindings. Reconciled or removed sources cannot be revived from this plan",
+  "history.source_binding": "An archived message no longer matches its current source revision. This plan is unavailable",
+  "history.source_read": "The current policy does not allow reading these sources for a planning preview",
+  "history.input_budget": "This planner accepts at most 64 MiB of received input. Use a smaller owner-selected archive",
+  "history.reference_budget": "The branch paths exceed the chosen reference budget. Review that bound before planning again",
+  "history.message_budget": "This planner accepts at most 100000 parsed messages or units",
+  "history.result_budget": "The planning page exceeds its output bound. Use fewer messages per batch",
   "workspace.vault_in_use": "This Vault is open in another app. Lock it or exit there first",
   "root.inside_repository": "That folder is inside a Git working tree, which cannot hold a Vault",
   "root.cloud_sync_folder": "That folder is inside a sync folder such as OneDrive",
@@ -142,8 +163,15 @@ const HOST: Record<string, string> = {
   "provider_setup.quota": "Use 1–1000 attempts per session and a positive session token budget",
   "provider_setup.too_large": "The settings file must be no larger than 64 KiB",
   "provider_setup.unreadable": "Runtime could not read its settings file. Check file access and reload",
+  "provider_setup.draft_name": "Use the file name memory-providers.json for this settings draft",
+  "provider_setup.draft_save_failed": "The settings draft could not be saved. Check the chosen folder and file access",
   credential_malformed: "That key has spaces or characters an API key cannot contain. Nothing was saved",
   credential_failed: "Windows Credential Manager could not save or remove the key",
+  automation_busy: "Automatic Memory is busy. Try the read again shortly.",
+  automation_locked: "The automatic Memory library is locked",
+  automation_stale: "The automatic Memory library changed. Refresh the list.",
+  automation_read_refused: "The automatic Memory read was refused",
+  automation_version_unsupported: "This automatic Memory version is unsupported",
   credential_prompt_failed: "The Windows credential prompt could not be shown",
   invalid_request: "The request does not match the contract",
 };
@@ -168,6 +196,18 @@ export const providerSetup = () => transport("memory_provider_setup", {}) as Pro
 
 /** Reload the host-owned settings file; carries no path, key or request body. */
 export const providerReload = () => transport("memory_provider_reload", {}) as Promise<J>;
+
+export type DraftSaveResult = { cancelled: true } | { saved: true; file: "memory-providers.json" };
+/** Native owner-operated save dialog. No page path, key or reload argument. */
+export async function providerSaveDraft(draft: string): Promise<DraftSaveResult> {
+  const result = await transport("memory_provider_save_draft", { draft }) as J;
+  if (result && typeof result === "object" && !Array.isArray(result)) {
+    const keys = Object.keys(result);
+    if (keys.length === 1 && keys[0] === "cancelled" && result.cancelled === true) return result;
+    if (keys.length === 2 && Object.hasOwn(result, "saved") && Object.hasOwn(result, "file") && result.saved === true && result.file === "memory-providers.json") return result;
+  }
+  throw new Error("The settings save result was not confirmed");
+}
 
 /** Set a key in the native Windows credential prompt, or remove it (ADR-032). */
 export const providerKey = (api: string, action: "set" | "remove") =>

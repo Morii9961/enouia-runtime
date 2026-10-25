@@ -18,6 +18,7 @@ setTransport(async (native, args) => {
   const r = args.request as { command: string }; calls.push(r.command);
   let result: unknown;
   switch (r.command) {
+    case "history_task_list": result = { identity: { commitId: "synthetic-head" }, items: [], nextCursor: null, readOnly: true }; break;
     case 'workspace_status': result = { vault: { state, rootName: 'Synthetic Vault' }, pendingCandidates: 0, companion: { exiting }, components: [] }; break;
     case 'memory_list': case 'candidate_list': result = { items: [], total: 0, nextCursor: null }; break;
     case 'import_list':
@@ -82,6 +83,6 @@ try {
   const before = calls.filter(command => command === 'import_list').length;
   click('Import'); await wait(() => text().includes('No recorded imports yet.'));
   check('reopening_import_observes_fresh_list', calls.filter(command => command === 'import_list').length === before + 1);
-  check('lifecycle_probe_never_opens_files_or_writes', calls.every(command => ['workspace_status', 'memory_list', 'candidate_list', 'import_list', 'operation_list'].includes(command)));
+  check('lifecycle_probe_never_opens_files_or_writes', calls.every(command => ['history_task_list', 'operation_list', 'workspace_status', 'memory_list', 'candidate_list', 'import_list', 'operation_list'].includes(command)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePending(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), calls }, null, 2); }

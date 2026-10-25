@@ -12,7 +12,7 @@ import { controlWindow, isWindowMaximized, nativeWindow } from './window-control
 import { approveDemoCandidate, reviseDemoMemory } from './demo-state.ts';
 import { ConnectedHome, MemoryBadge, MemorySettings, MemoryStatusProvider } from './memory/status.tsx';
 import MemorySurface from './memory/MemorySurface.tsx';
-import SessionsSurface from './memory/SessionsSurface.tsx';
+import SessionsSurface, { type SessionTarget } from './memory/SessionsSurface.tsx';
 import ContextSurface from './memory/ContextSurface.tsx';
 import ShellSettings from './shell/ShellSettings';
 import type { DemoMemory } from './demo-state';
@@ -21,6 +21,7 @@ import type { Page, WindowAction, DetailRow, SessionEvent, CollectionDefinition,
 type AppProps = { startPage?: Page; memoryConnected?: boolean; breathing?: boolean; showIds?: boolean };
 type AppState = {
   page: Page | null; memCapsule: string | null; memInitialCollection?: "current" | "inbox"; collection: string; sel: string; q: string;
+  memSessionTarget?: SessionTarget | null;
   editing: boolean; draft: string; notice: string; mems: DemoMemory[] | null;
   ctxOpen: string | null; sessionKey: string; actFilter: string; actOpen: string | null;
   rtKey: string; paused: boolean; motionPref: string; copied: boolean; windowError?: string; windowMaximized: boolean | null;
@@ -29,6 +30,8 @@ export type DemoView = ReturnType<App['renderVals']> & {
   rtSubtitle?: string; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
 };
 import ActivitySurface from './activity/ActivitySurface.tsx';
+import {UsageProvider} from './usage/UsageProvider';
+import {ActivityWorkspace} from './usage/ActivityWorkspace';
 
 // Inside the native shell the Memory, Context and Sessions surfaces use the
 // pinned Enouia Memory Core (ADR-025), and Activity reads the separately
@@ -101,6 +104,9 @@ export default class App extends React.Component<AppProps, AppState> {
     this.setState({ page: 'memory', memInitialCollection: 'inbox', editing: false, copied: false, notice: '' },
       () => requestAnimationFrame(() => document.getElementById('mem-center-title')?.focus()));
   };
+  openSavedSession = (vaultId: string, sessionId: string) => {
+    this.show({ page: 'sessions', memSessionTarget: { vaultId, sessionId }, editing: false, copied: false, notice: '' });
+  };
   mems() { return this.state.mems || App.D.MEM; }
   byKey(k: string | undefined) { return this.mems().find((m) => m.key === k); }
   requireMemory(k: string, memories = this.mems()) {
@@ -120,7 +126,7 @@ export default class App extends React.Component<AppProps, AppState> {
       if (!document.activeElement || document.activeElement === document.body) document.getElementById('runtime-content')?.focus();
     });
   }
-  go(p: Page) { if (this.PAGES.includes(p)) this.show({ page: p, memInitialCollection: 'current', editing: false, copied: false, notice: '' }); }
+  go(p: Page) { if (this.PAGES.includes(p)) this.show({ page: p, memInitialCollection: 'current', memSessionTarget: null, editing: false, copied: false, notice: '' }); }
   select(k: string) { this.setState({ sel: k, editing: false, notice: '', copied: false }); }
   openMemory(k: string) {
     const m = this.byKey(k); if (!m) return;
@@ -559,16 +565,16 @@ Settings
 {connected ? <ConnectedHome nav={view.nav} ring={view.ring} /> : <Home view={view} />}
 </> : null}
 {isMemory ? <>
-{connected ? <MemorySurface initialCollection={this.state.memInitialCollection} /> : <Memory view={view} />}
+{connected ? <MemorySurface initialCollection={this.state.memInitialCollection} openSession={this.openSavedSession} /> : <Memory view={view} />}
 </> : null}
 {isContext ? <>
 {connected ? <ContextSurface capsuleId={this.state.memCapsule} /> : <Context view={view} />}
 </> : null}
 {isSessions ? <>
-{connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} reviewCandidates={this.reviewCandidates} /> : <Sessions view={view} />}
+{connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} reviewCandidates={this.reviewCandidates} target={this.state.memSessionTarget} /> : <Sessions view={view} />}
 </> : null}
 {isActivity ? <>
-{connected ? <ActivitySurface /> : <Activity view={view} />}
+<ActivityWorkspace>{connected ? <ActivitySurface /> : <Activity view={view} />}</ActivityWorkspace>
 </> : null}
 {isRuntime ? <>
 {connected ? <RuntimeSurface /> : <Runtime view={view} />}
@@ -580,6 +586,6 @@ Settings
 </div>
 </div>
     );
-    return connected ? <MemoryStatusProvider>{surface}</MemoryStatusProvider> : surface;
+    return <UsageProvider native={nativeWindow}>{connected ? <MemoryStatusProvider>{surface}</MemoryStatusProvider> : surface}</UsageProvider>;
   }
 }

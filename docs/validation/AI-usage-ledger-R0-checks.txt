@@ -1,0 +1,6 @@
+PASS document formatting: 4 files; relative file links: 55
+PASS fictional arithmetic: 5 examples (including exact BigInt beyond JS safe integer)
+PASS protected tracked paths unchanged: 12 path groups
+PASS working changes limited to R0 documentation allowlist
+Environment: win32/x64; Node v24.15.0
+NOT RUN: source parsers, ledger/recovery/scale, desktop, frozen UsageSnapshot conformance, personal-data or production acceptance.

@@ -1,0 +1,207 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.synthetic_model_metadata_loaded",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.no_automatic_plan",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.real_core_identity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.coverage_unknown_time",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.first_page_rendered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.references_without_text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.references_fit_the_inspector",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.references_fit_the_minimum_window",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.real_paging",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.second_page_rendered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.last_page_has_previous_without_next",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.previous_page_rereads_core_and_restores_keyboard_focus",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.previous_first_page_has_no_previous_action",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.planning_creates_no_sessions_or_candidates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.planning_preserves_head",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.stale_cursor_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.stale_page_withheld",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.head_change_does_not_replan",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H.fresh_plan_recovers",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.no_default_batch_selection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.explicit_order_survives_paging",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.closing_report_keeps_pending_submission",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.one_saved_admission",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.actual_job_states_are_pending_local_work",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.unknown_cost_is_preserved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.no_candidates_or_canonical_memories_created",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.no_model_operations",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.minimum_window_has_no_horizontal_overflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.first_host_exits",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.reopen_reads_original_task_without_recreating_jobs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.saved_limits_remain_explicit_after_reopen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.complete_task_has_no_missing_job_resume",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.task_opens_only_saved_session_filter",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.task_navigation_continues_in_sessions",
+      "ok": true,
+      "detail": "{\"before\":{\"tag\":\"BUTTON\",\"id\":\"\",\"label\":null},\"after\":{\"tag\":\"MAIN\",\"id\":\"runtime-content\",\"label\":\"Sessions content\"}}"
+    },
+    {
+      "id": "H2.explicit_branch_read_recovers_saved_job",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.session_navigation_preserves_saved_head",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.session_navigation_creates_no_model_operation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "H2.reopened_host_exits",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "history-first-page.png",
+    "history-fresh-plan.png",
+    "history-local-task.png",
+    "history-task-reopened.png",
+    "history-task-session.png"
+  ],
+  "summary": "39/39"
+}

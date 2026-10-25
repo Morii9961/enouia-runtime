@@ -5,6 +5,7 @@ import { activity, describe as activityError, describeSetup, type Overview, type
 import { shell, describe, type J } from "../memory/client";
 import { ComponentList, exiting, useStatus, vaultLabel } from "../memory/status";
 import { when } from "../memory/ui";
+import { WorkspaceOperations } from "./WorkspaceOperations";
 
 type Snapshot<T> = { value: T; observedAt: string };
 
@@ -103,6 +104,7 @@ export default function RuntimeSurface() {
           </>}
         </>}
       </section>
+      {open && typeof status.vault.vaultId === "string" && status.vault.vaultId.length > 0 && <WorkspaceOperations key={status.vault.vaultId} />}
       <section className="mem-stack" aria-labelledby="runtime-shell-title">
         <h2 id="runtime-shell-title" className="qr194">Windows shell</h2>
         <ReadStatus {...host} observedAt={host.snapshot?.observedAt} label="shell status" />

@@ -1,0 +1,321 @@
+{
+  "date": "2026-10-21",
+  "baseline": "608930400841e44379754161be6727d3e11fb10d",
+  "scope": "synthetic_focus_and_output_limit",
+  "memoryRevision": "d565181e0cb3bf14c938eb66a945269bba57ac8d",
+  "memoryAdoption": "development_unmerged_PR_39",
+  "baselineFailures": [
+    "configured_output_limit_has_accessible_invalid_explanation",
+    "preparation_continues_at_readable_exact_body_when_focus_was_lost",
+    "request_body_has_accessible_reading_name",
+    "withdrawal_returns_to_original_preparation_control"
+  ],
+  "focusFixture": {
+    "fixture": "history-batch-focus",
+    "checks": 8,
+    "passed": true,
+    "failedChecks": []
+  },
+  "nodeTests": 121,
+  "domFixtures": 71,
+  "domAssertions": 951.0,
+  "fullFrontendGatePassed": true,
+  "native": {
+    "checks": [
+      {
+        "id": "W04.foreign_debug_listener_refused",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.synthetic_model_metadata_loaded",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.no_automatic_plan",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.real_core_identity",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.coverage_unknown_time",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.first_page_rendered",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.references_without_text",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.references_fit_the_inspector",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.references_fit_the_minimum_window",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.real_paging",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.second_page_rendered",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.last_page_has_previous_without_next",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.previous_page_rereads_core_and_restores_keyboard_focus",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.previous_first_page_has_no_previous_action",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.planning_creates_no_sessions_or_candidates",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.planning_preserves_head",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.stale_cursor_refused",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.stale_page_withheld",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.head_change_does_not_replan",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H.fresh_plan_recovers",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.no_default_batch_selection",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.explicit_order_survives_paging",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.closing_report_keeps_pending_submission",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.one_saved_admission",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.actual_job_states_are_pending_local_work",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.unknown_cost_is_preserved",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.no_candidates_or_canonical_memories_created",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.no_model_operations",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.minimum_window_has_no_horizontal_overflow",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.first_host_exits",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.reopen_reads_original_task_without_recreating_jobs",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.saved_limits_remain_explicit_after_reopen",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.complete_task_has_no_missing_job_resume",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.task_opens_only_saved_session_filter",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.task_navigation_continues_in_sessions",
+        "ok": true,
+        "detail": "{\"before\":{\"tag\":\"BUTTON\",\"id\":\"\",\"label\":null},\"after\":{\"tag\":\"MAIN\",\"id\":\"runtime-content\",\"label\":\"Sessions content\"}}"
+      },
+      {
+        "id": "H2.explicit_branch_read_recovers_saved_job",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.session_navigation_preserves_saved_head",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.session_navigation_creates_no_model_operation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.invalid_output_cap_is_accessible_and_does_not_prepare",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.selection_does_not_prepare",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.prepared_identity_uses_original_child",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.preparation_commits_local_context",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.head_update_keeps_pending_owner",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.preparation_focuses_named_request_body",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.exact_body_endpoint_model_hash_and_handle_rendered",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.output_ceiling_and_fresh_inspection",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.request_fits_minimum_window",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.lock_withdraws_request_and_confirmation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.unlock_does_not_reuse_old_handle_or_approval",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.reopen_reprepares_same_child_with_new_handle",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.reprepared_handle_needs_new_inspection",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.preparation_does_not_create_another_session",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.no_external_send_operation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "HB.no_new_candidate_or_approved_memory",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "H2.reopened_host_exits",
+        "ok": true,
+        "detail": ""
+      }
+    ],
+    "screenshots": [
+      "history-first-page.png",
+      "history-fresh-plan.png",
+      "history-local-task.png",
+      "history-task-reopened.png",
+      "history-task-session.png",
+      "history-batch-exact-request.png",
+      "history-batch-reopened-request.png"
+    ],
+    "summary": "55/55"
+  },
+  "isolatedExeSha256": "a15aca15c7cd83e1fc67c0a1df3b4cee20f538bdc74677c298bcf547b6845b52",
+  "loaderSha256": "86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5",
+  "rawNativeReportSha256": "87516511c0fb153e4107832c1acd9eab7d4151163e8fc86ac0872550300dd204",
+  "installerOwnershipChecks": 26,
+  "nsisPayloadSha256": "b7bead166eb16c9db44c68e904bdfe6022097707e1f886066cd13ddb976980a9",
+  "setupSha256": "74ee34f11c592eea303e7ad51e3d02b0267bb674c5c3a2130c2c94f14e9c9f4b",
+  "nativeRustEvidence": "unchanged; reuse History-batch-request-v1",
+  "externalSendActivated": false,
+  "installed": false
+}

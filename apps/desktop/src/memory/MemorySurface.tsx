@@ -14,10 +14,13 @@ import { CandidateConflict } from "./CandidateConflict";
 import { memoryObservation } from "./observationIdentity";
 import { validImportAlias } from "./importAlias";
 import { ImportReport } from "./ImportReport";
+import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
+import { AutomaticMemory } from "./AutomaticMemory";
 
-type Collection = "inbox" | "current" | "history" | "import" | "vault";
+type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated";
 
 const TITLES: Record<Collection, string> = {
+  automated: "Synthetic automatic memories",
   inbox: "Candidate inbox",
   current: "Current memories",
   history: "Including history",
@@ -31,7 +34,9 @@ function dayOf(iso: string): string {
   return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function MemorySurface({ initialCollection = "current" }: { initialCollection?: "current" | "inbox" }) {
+export default function MemorySurface({ initialCollection = "current", openSession }: {
+  initialCollection?: "current" | "inbox"; openSession?: (vaultId: string, sessionId: string) => void;
+}) {
   const { status, vaultChanging } = useStatus();
   const [collection, setCollection] = useState<Collection>(initialCollection);
   const [query, setQuery] = useState("");
@@ -41,6 +46,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = [
     { label: "Review", items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: "Canonical", items: [["current", TITLES.current], ["history", TITLES.history]] },
+    { label: "Automatic", items: [["automated", TITLES.automated]] },
     { label: "Vault", items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
@@ -77,7 +83,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
           </div>
         ))}
       </aside>
-      {status && (vaultChanging || exiting(status)) ? (
+      {collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>
@@ -95,7 +101,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
       ) : collection === "inbox" ? (
         <Inbox />
       ) : (
-        <Import />
+        <Import key={status.vault.vaultId} openSession={openSession} />
       )}
     </section>
   );
@@ -403,12 +409,13 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
           onClick={() => observe(null)}>Refresh candidates</button>
           <label className="mem-row-meta"><input type="checkbox" aria-label="Show P0 core candidates" checked={coreOnly} disabled={actionsBlocked}
             onChange={event => setCoreOnly(event.target.checked)} />P0 core from loaded candidates</label></div>
+        {coreOnly && <p className="mem-muted mem-pad">P0 is a saved proposal priority, not approval. Only loaded candidates are filtered.</p>}
         <ErrorBox error={actionError} />
         <ErrorBox error={reads.error} />
         {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : readingMore ? "Reading more candidates…" : "Refreshing candidates…"}</p>}
         {reads.error && items.length > 0 && <p role="status" className="mem-muted mem-pad">Previous candidate observation. Refresh candidates before reviewing or saving another candidate. Unsent edits are kept.</p>}
         {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
-        {coreOnly && !reads.busy && !reads.error && items.length > 0 && visibleItems.length === 0 && <p className="mem-muted mem-pad">No P0 core candidates in the loaded rows. Load more candidates to continue checking.</p>}
+        {coreOnly && !reads.busy && !reads.error && items.length > 0 && visibleItems.length === 0 && <p className="mem-muted mem-pad">No P0 core candidates in the loaded rows.{next && " Load more candidates to continue checking."}</p>}
         {visibleItems.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
           return (
@@ -531,7 +538,9 @@ function useReturnFocus(idle: boolean) {
   }, []);
 }
 
-function Import() {
+function Import({ openSession }: { openSession?: (vaultId: string, sessionId: string) => void }) {
+  const { status } = useStatus();
+  const historyTasks = useHistoryTasks(status.vault.vaultId);
   const [inspected, setInspected] = useState<string | null>(null);
   const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
   const preview = selection?.preview;
@@ -621,6 +630,8 @@ function Import() {
             </div>
           )}
           {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); refresh(); }} />)}
+          <HistoryTasks tasks={historyTasks} openSession={openSession ? sessionId => openSession(status.vault.vaultId, sessionId) : undefined} />
+          <div className="mem-table-scroll" role="region" aria-label="Recorded imports" tabIndex={0}>
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
             <tbody>
@@ -653,12 +664,14 @@ function Import() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </Center>
       <Inspector>
         <h3 className="mem-h3">What an import does</h3>
         <p className="mem-muted">The original export is kept byte for byte. Conversations become sources; nothing becomes a memory without your review. An interrupted import can be resumed.</p>
-        {inspected && <ImportReport selected={inspected} row={report} current={listReady}
+        {inspected && <ImportReport selected={inspected} row={report} current={listReady} vaultId={status?.vault?.vaultId} vaultHead={status?.vault?.headCommitId}
+          onCreateHistory={historyTasks.create} historyBusy={!historyTasks.ready}
           inspectOriginal={original ? () => setInspected(original.importId) : undefined} close={() => {
             setInspected(null);
             const trigger = document.getElementById(`mem-import-report-${inspected}`) as HTMLButtonElement | null;

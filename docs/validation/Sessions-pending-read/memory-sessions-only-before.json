@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "id": "W04.foreign_debug_listener_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.new_session_has_own_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_selection_keeps_observed_branch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_detail_preserves_current_drafts",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "W02.pending_detail_explained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "run",
+      "ok": false,
+      "detail": "timeout: newer session B detail delivered | s memory-providers.json in Runtime's settings folder with the exact models and limits they verified. Model setup steps Reload settings Saved source suggestions Saved suggestion runs from this session, including its other branches. Reading them never sends to a model or approves a memory. Adding remaining suggestions only creates local pending candidates. Review them in Memory Vault before they become approved memories. No suggestion runs in this saved session. Checkpoints Provisional session artifacts. They become memories only after review. None yet. Checkpoint summary Save checkpoint"
+    }
+  ],
+  "screenshots": [],
+  "summary": "5/6"
+}
