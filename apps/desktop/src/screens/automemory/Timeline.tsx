@@ -13,11 +13,11 @@ import { clearViews, panTo, peekView, useTimeView } from '../../theme/timeview';
 // different time and never stands in for the occurred one. The lane at the
 // bottom is the pen's remark trail for the selected memory: how it formed.
 const FALLBACK_W = 760;     // visible width (px) used until the real width is measured
-const ROW = 18;
+const ROW = 16;
 const LABEL_PX = 6.4;       // average width of one title character in the lane labels (px, Geist 13)
 const DAY = 24 * 36e5;
 const TL_SPAN = 42 * DAY;   // the chart shows six weeks
-const TL_START = dayStart('2026-08-24');
+const TL_START = dayStart('2026-08-31');
 const pct = (x: number) => (x * 100).toFixed(3) + '%';
 
 const SPEC: MapSpec = {
@@ -59,12 +59,12 @@ function layoutLane(id: string, EST: number) {
     return { ...p, side, ext: (side === 'r' ? [a0 - 6 / EST, a0 + mk + w + 6 / EST] : [a0 - w - 6 / EST, a0 + mk + 6 / EST]) as [number, number] };
   });
   const packed = pack(items, (t) => t.ext);
-  return { packed, rows: packed.rows ?? 1, height: Math.max(34, (packed.rows ?? 1) * ROW + 16) };
+  return { packed, rows: packed.rows ?? 1, height: Math.max(id === '' ? 38 : 30, (packed.rows ?? 1) * ROW + 12) };
 }
-const FORMATION_H = 56;
+const FORMATION_H = 50;
 
 function markerStyle(s: Span, row: number): React.CSSProperties {
-  const top = 8 + row * ROW;
+  const top = 6 + row * ROW;
   if (s.shape === 'dot') return { left: `calc(${pct(s.a)} - 5px)`, width: 10, top };
   if (s.shape === 'cell') return { left: pct(s.a), width: `max(${pct(s.b - s.a)}, 9px)`, top };
   return { left: pct(s.a), width: s.open ? 9 : `max(${pct(s.b - s.a)}, 8px)`, top };
@@ -101,7 +101,7 @@ export default function Timeline({ sel, select }: ViewProps) {
   const rx = xOf(toMs(m.received));
   const recv = pack(AUTO_MEMORIES.map((x) => ({ x, at: xOf(toMs(x.received)) })), (t) => [t.at - 7 / EST, t.at + 7 / EST]);
   const recvRows = recv.rows ?? 1;
-  const recvH = recvRows * 11 + 40;
+  const recvH = recvRows * 11 + 32;
   const unknown = AUTO_MEMORIES.filter((x) => x.occurred.precision === 'unknown');
   const lag = span ? daysBetween(D0 + span.b * (D1 - D0), toMs(m.received)) : null;
   // Pen notes for the selected memory: ordinal marks, nudged apart so they never overlap.
@@ -110,15 +110,15 @@ export default function Timeline({ sel, select }: ViewProps) {
   const notes = trail.map((t) => { const cx = Math.max(t.x, last + 26 / EST); last = cx; return { ...t, cx }; });
   return (
     <div className="am-timeline">
-      <div className="am-view-head">
+      <div className="am-view-head am-tl-head">
         <h2 className="am-vh">Timeline <span>when it happened · {fmtDayShort(v.start)} – {fmtDayShort(v.start + v.span - 1)} of 1 Jul – 31 Oct</span></h2>
-        <p className="am-fine">{THEME_NOTE} Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the amber frame in the time map above to see other weeks.</p>
+        <p className="am-fine am-tl-fine">{THEME_NOTE} Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the amber frame in the time map above to see other weeks.</p>
       </div>
 
       <div className="am-tl" role="group" aria-label="Timeline, 1 July to 31 October 2026">
         <div className="am-tl-gut" aria-hidden="false">
           <div className="am-tl-corner"><b>Theme pens</b><span>model suggestion</span></div>
-          {LAYOUT.map((l) => { const o = off(l.id); return <div key={l.id || 'none'} className="am-lane-label" style={{ height: l.height }}><span>{l.name}</span>{l.packed.length === 0 ? <em>no dated memory{l.id === '' ? ' · see below' : ''}</em> : o.before || o.after ? <em>{o.before ? `◂ ${o.before} earlier` : ''}{o.before && o.after ? ' · ' : ''}{o.after ? `${o.after} later ▸` : ''}</em> : null}</div>; })}
+          {LAYOUT.map((l) => { const o = off(l.id); return <div key={l.id || 'none'} className="am-lane-label" style={{ height: l.height }}><span>{l.name}</span>{l.packed.length === 0 ? <em>no dated memory</em> : o.before || o.after ? <em>{o.before ? `◂ ${o.before} earlier` : ''}{o.before && o.after ? ' · ' : ''}{o.after ? `${o.after} later ▸` : ''}</em> : null}</div>; })}
           <div className="am-lane-label am-lane-recv" style={{ height: recvH }}><span>Received</span><em>pen 2 · when material arrived</em></div>
           <div className="am-lane-label am-lane-form" style={{ height: FORMATION_H }}><span>Formation</span><em>selected memory</em></div>
         </div>

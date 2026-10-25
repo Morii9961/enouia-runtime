@@ -16,14 +16,14 @@
 /* ---- record strip ---- */
 .bg-strip{position:relative;border-bottom:1px solid var(--grid-major);background:var(--paper)}
 .bg-strip-head{display:flex;align-items:center;height:var(--strip-head);padding:0 12px 0 8px}
-.bg-nav{display:flex;align-items:center;gap:0;min-width:0}
+.bg-nav{display:flex;flex:none;align-items:center;gap:0}
 .bg-nav-gap{width:12px;border-right:1px solid var(--grid-major);height:16px;margin:0 10px 0 0}
 .bg-nav-item{position:relative;display:flex;align-items:center;gap:6px;height:24px;padding:0 9px;border:0;background:transparent;color:var(--ink-3);cursor:pointer;font-family:var(--f-lab);font-size:12px;font-weight:500;font-stretch:var(--w-nav);letter-spacing:0.04em;text-transform:uppercase}
 .bg-nav-n{font-family:var(--f-mono);font-size:12px;letter-spacing:0;color:var(--ink-3)}
 .bg-nav-item .qr229{font-size:12px;line-height:1}
 .bg-nav-item:hover:not([aria-current="page"]){background:var(--wash);color:var(--ink)}
 .bg-nav-item:focus-visible{outline-offset:-4px;box-shadow:none}
-.bg-strip-meta{margin-left:auto;display:flex;align-items:center;gap:4px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
+.bg-strip-meta{flex:1 1 0;margin-left:16px;min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
 .bg-strip-meta b{font-weight:600;color:var(--ink)}
 .bg-clock{color:var(--ink-2)}
 .bg-strip-chart{position:relative;height:var(--strip-chart);margin:0 12px;border-top:1px solid var(--grid-major)}

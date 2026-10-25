@@ -304,8 +304,8 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 .qr228{display:none}
 .qr229{font-size:12px}
 .qr232{min-width:0;min-height:0;overflow:hidden;background:var(--paper)}
-.qr233{display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0}
-.qr234{height:100vh;min-height:700px;min-width:1100px;display:grid;grid-template-rows:34px minmax(0,1fr);background:var(--paper);overflow:hidden}
+.qr233{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);min-height:0}
+.qr234{height:100vh;min-height:700px;min-width:1100px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:34px minmax(0,1fr);background:var(--paper);overflow:hidden}
 
 /* ---- hover: the surface lifts one step, nothing moves ---- */
 .qr12:hover,.qr114:hover,.qr126:hover,.qr78:hover,.qr179:hover{background:var(--wash)}

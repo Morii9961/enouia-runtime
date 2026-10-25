@@ -5,11 +5,13 @@ import { Glyph } from './parts';
 import type { ViewProps } from './types';
 
 // Constellation: the selected memory and its bounded neighbourhood, plotted on
-// chart paper. Every node has the same size; the five relations are five pen
+// the negative. Every node has the same size; the five relations are five pen
 // line styles and each line carries its own word, so line style is never the
-// only signal. Zoom spreads the plot; it does not grow the nodes.
+// only signal. + and − zoom the whole figure (nodes, lines and words together);
+// above 100% the plot scrolls.
 const TYPES: RelType[] = ['source', 'supersedes', 'shared theme', 'context dependency', 'suggestion'];
-const ZOOM = [0.8, 0.9, 1, 1.15, 1.3];
+const ZOOM = [0.85, 1, 1.25, 1.5];
+const Z0 = 1;                  // index of 100%
 const NW = 164, NH = 50;       // node size in px, identical for every node
 const PLOT_H = 330;
 const relLabel = (t: RelType) => (t === 'suggestion' ? 'suggestion · unconfirmed' : t);
@@ -32,17 +34,20 @@ function edge(cx: number, cy: number, tx: number, ty: number, pad = 3): [number,
 }
 
 export default function Constellation({ sel, select }: ViewProps) {
-  const [zi, setZi] = useState(2);
+  const [zi, setZi] = useState(Z0);
   const [w, setW] = useState(740);
+  const frame = useRef<HTMLDivElement>(null);
   const plot = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const el = plot.current;
+    const el = frame.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(() => setW(Math.max(480, Math.round(el.clientWidth))));
     ro.observe(el); setW(Math.max(480, Math.round(el.clientWidth)));
     return () => ro.disconnect();
   }, []);
   const zoom = ZOOM[zi];
+  // After a zoom step, keep the figure's centre in view.
+  useEffect(() => { const el = plot.current; if (el) { el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2; el.scrollTop = (el.scrollHeight - el.clientHeight) / 2; } }, [zoom, w]);
   const m = byId.get(sel)!;
   const rels = relationsOf(sel);
   const cx = w / 2, cy = PLOT_H / 2;
@@ -51,8 +56,8 @@ export default function Constellation({ sel, select }: ViewProps) {
   const nodes = rels.map((r, i) => {
     const deg = (ANGLES[n] ?? Array.from({ length: n }, (_, k) => -90 + (360 / n) * k))[i];
     const ang = (deg * Math.PI) / 180;
-    const x = Math.max(NW / 2 + 8, Math.min(w - NW / 2 - 8, cx + 0.42 * w * zoom * Math.cos(ang)));
-    const y = Math.max(NH / 2 + 8, Math.min(PLOT_H - NH / 2 - 8, cy + 0.4 * PLOT_H * zoom * Math.sin(ang)));
+    const x = Math.max(NW / 2 + 8, Math.min(w - NW / 2 - 8, cx + 0.42 * w * Math.cos(ang)));
+    const y = Math.max(NH / 2 + 8, Math.min(PLOT_H - NH / 2 - 8, cy + 0.4 * PLOT_H * Math.sin(ang)));
     return { r, o: byId.get(r.other)!, x, y };
   });
   return (
@@ -64,10 +69,13 @@ export default function Constellation({ sel, select }: ViewProps) {
       <div className="am-plot-bar" role="group" aria-label="Plot zoom">
         <button type="button" className="am-zoom" aria-label="Zoom in (+)" disabled={zi === ZOOM.length - 1} onClick={() => setZi((z) => Math.min(ZOOM.length - 1, z + 1))}>+</button>
         <button type="button" className="am-zoom" aria-label="Zoom out (−)" disabled={zi === 0} onClick={() => setZi((z) => Math.max(0, z - 1))}>−</button>
-        <button type="button" className="am-zoom am-zoom-reset" aria-label="Reset view" disabled={zi === 2} onClick={() => setZi(2)}>Reset</button>
-        <span className="am-fine am-mono" aria-live="polite">spread {Math.round(zoom * 100)}%</span>
+        <button type="button" className="am-zoom am-zoom-reset" aria-label="Reset view" disabled={zi === Z0} onClick={() => setZi(Z0)}>Reset</button>
+        <span className="am-fine am-mono" aria-live="polite">zoom {Math.round(zoom * 100)}%</span>
       </div>
-      <div className="am-plot" ref={plot} style={{ height: PLOT_H }} role="group" aria-label={`Neighbourhood of ${m.title}: ${n} direct relation${n === 1 ? '' : 's'}`}>
+      <div className="am-plot-frame" ref={frame}>
+      <div className="am-plot" ref={plot} style={{ height: PLOT_H }} role="group" tabIndex={zoom > 1 ? 0 : undefined} aria-label={`Neighbourhood of ${m.title}: ${n} direct relation${n === 1 ? '' : 's'}`}>
+      <div className="am-plot-wrap" style={{ width: Math.max(w, w * zoom), height: Math.max(PLOT_H, PLOT_H * zoom) }}>
+      <div className="am-plot-stage" style={{ width: w, height: PLOT_H, transform: `scale(${zoom})`, transformOrigin: '0 0', left: Math.max(0, (w * Math.max(1, zoom) - w * zoom) / 2), top: Math.max(0, (PLOT_H * Math.max(1, zoom) - PLOT_H * zoom) / 2) }}>
         <svg className="am-plot-lines" width={w} height={PLOT_H} viewBox={`0 0 ${w} ${PLOT_H}`} aria-hidden="true">
           {nodes.map(({ r, x, y }, i) => {
             const from: [number, number] = r.type === 'supersedes' && r.dir === 'in' ? [x, y] : [cx, cy];
@@ -100,6 +108,9 @@ export default function Constellation({ sel, select }: ViewProps) {
           </button>
         ))}
         {n === 0 ? <p className="am-plot-none">No relation in this sample for this memory. That is not a finding about the memory.</p> : null}
+      </div>
+      </div>
+      </div>
       </div>
 
       <section className="am-rels" aria-label="Relations as a list">
