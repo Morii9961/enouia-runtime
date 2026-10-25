@@ -1,7 +1,7 @@
 /* 08-negative · "Automatic memory · synthetic preview" (browser demo only).
    Same negative as the rest: dark ground, light ink, selection by inversion.
-   Amber appears only where the pen is: the cursor of the selected memory on a
-   chart, the amber frame in the time map, and "Corrected by you".
+   The pen colour appears only where the pen is: the cursor of the selected memory on a
+   chart, the frame in the time map, and "Corrected by you".
    Loaded after negative.css. */
 
 /* ---- state marks: one fill system for glyphs, markers, bars and chips ---- */

@@ -2,7 +2,7 @@
    Home chart, the second strip (Activity), Quick Search and native gates.
    Loaded after quiet-runtime.css, memory.css and activity.css.
    One frame kind per screen (a 1px line); grid only where data is drawn, and
-   only the coarse grid; amber only on the pen, the map frame and corrections. */
+   only the coarse grid; the pen colour only on the pen, the map frame and corrections. */
 :root{--strip-head:34px;--strip-chart:46px;--ease:cubic-bezier(.2,.7,.2,1)}
 
 /* ---- title bar ---- */
@@ -55,7 +55,7 @@
 .bg-offchart{left:4px;color:var(--ink)}
 .bg-earlier{right:6px;color:var(--ink-3);font-weight:500}
 
-/* ---- the time map: the whole record in one 20 px strip; the amber frame is what the chart shows ---- */
+/* ---- the time map: the whole record in one 20 px strip; the pen-coloured frame is what the chart shows ---- */
 .tm{display:flex;align-items:stretch;height:20px;margin:0 12px;border-top:1px solid var(--grid-major)}
 .tm-btn{flex:none;display:grid;place-items:center;width:24px;padding:0;border:0;border-right:1px solid var(--grid-major);background:transparent;color:var(--ink-2);cursor:pointer}
 .tm-btn:last-of-type{border-right:0;border-left:1px solid var(--grid-major)}

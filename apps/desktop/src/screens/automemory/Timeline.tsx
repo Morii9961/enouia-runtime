@@ -8,7 +8,7 @@ import { clearViews, panTo, peekView, useTimeView } from '../../theme/timeview';
 
 // Timeline, the signature view. The whole sample (1 Jul to 31 Oct) is the time
 // map in the strip above the page; the chart shows six weeks of it, and the
-// amber frame in the map moves them. Each theme is a pen lane (model
+// frame in the map moves them. Each theme is a pen lane (model
 // suggestions); the lower pen records when the material was received, which is a
 // different time and never stands in for the occurred one. The lane at the
 // bottom is the pen's remark trail for the selected memory: how it formed.
@@ -22,7 +22,7 @@ const pct = (x: number) => (x * 100).toFixed(3) + '%';
 
 const SPEC: MapSpec = {
   key: 'timeline',
-  label: 'Time map of the sample, 1 July to 31 October 2026, one cell per day. The amber frame is the six weeks the Timeline shows.',
+  label: 'Time map of the sample, 1 July to 31 October 2026, one cell per day. The frame is the six weeks the Timeline shows.',
   cells: Math.round((D1 - D0) / DAY),
   ticks: [],
   bars: (() => { const n = Math.round((D1 - D0) / DAY); const c = Array.from({ length: n }, () => 0); AUTO_MEMORIES.forEach((m) => { const sp = spanOf(m.occurred); if (!sp) return; const a = Math.max(0, Math.floor(sp.a * n)), b = Math.min(n, Math.max(a + 1, Math.ceil(sp.b * n))); for (let i = a; i < b; i++) c[i]++; }); const mx = Math.max(...c, 1); return c.map((x) => x / mx); })(),
@@ -113,7 +113,7 @@ export default function Timeline({ sel, select }: ViewProps) {
     <div className="am-timeline">
       <div className="am-view-head am-tl-head">
         <h2 className="am-vh">Timeline <span>when it happened · {fmtDayShort(v.start)} – {fmtDayShort(v.start + v.span - 1)} of 1 Jul – 31 Oct</span></h2>
-        <p className="am-fine am-tl-fine">{THEME_NOTE} Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the amber frame in the time map above to see other weeks.</p>
+        <p className="am-fine am-tl-fine">{THEME_NOTE} Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see other weeks.</p>
       </div>
 
       <div className="am-tl" role="group" aria-label="Timeline, 1 July to 31 October 2026">

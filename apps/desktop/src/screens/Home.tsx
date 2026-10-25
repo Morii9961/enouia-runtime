@@ -7,7 +7,7 @@ import { homeSpec } from "../theme/mapSpecs";
 import { clearViews, useTimeView } from "../theme/timeview";
 
 // The record chart, enlarged. The page shows four days of a three-week record;
-// the time map in the strip under the title bar moves the amber frame, and this
+// the time map in the strip under the title bar moves the frame, and this
 // chart pans with it. Each status line is a note whose leader runs back to the
 // moment it was recorded on the trace (when that moment is on screen).
 const PANE = 0.58;          // the chart's share of the paper; the notes take the rest
@@ -59,7 +59,7 @@ Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">demo clo
 <div className="bg-pan bg-pan-grid" style={layer} aria-hidden="true">
 {DOM_CELLS.map((c) => <span key={c.i} className="bg-day" data-today={c.today || undefined} style={{ left: pct(c.i / DOM_CELLS.length) }}>{c.dow} <b>{c.date}</b></span>)}
 </div>
-<div className="bg-draw" data-draw={!still ? 'on' : undefined} role="img" aria-label={`Fictional demo trace of the conversation, four days at a time, drawn up to the demo clock, Thursday 1 October 14:44. The amber frame in the time map above shows which four days are on screen.`}>
+<div className="bg-draw" data-draw={!still ? 'on' : undefined} role="img" aria-label={`Fictional demo trace of the conversation, four days at a time, drawn up to the demo clock, Thursday 1 October 14:44. The frame in the time map above shows which four days are on screen.`}>
 <div className="bg-pan bg-pan-ink" style={layer}>
 <Trace d={domPath} marks={domMarks} penAt={domPen} still={!!still} draw={false} />
 </div>

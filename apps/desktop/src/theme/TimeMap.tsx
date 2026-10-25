@@ -1,5 +1,5 @@
 // 08-negative · the time map: the whole recorded stretch squeezed into one 20 px
-// strip, one cell per day (or per minute for a session), with an amber frame
+// strip, one cell per day (or per minute for a session), with a pen-coloured frame
 // that marks what the chart below is showing. Moving the frame pans the chart.
 // Keyboard: the map is a slider (← → move by a step, Shift or PageUp/PageDown by
 // a whole view, Home / End to the ends) and two buttons do the same; the pointer
@@ -93,7 +93,7 @@ export default function TimeMap({ spec }: { spec: MapSpec }) {
       <button type="button" className="tm-btn" aria-label={`Show later time (one ${spec.unit})`} aria-disabled={fixed || atEnd || undefined} data-end={atEnd || undefined} onClick={() => go(v.start + spec.step)}><Tri dir="r" /></button>
       <div className="tm-read" aria-hidden="true">{text}</div>
       {spec.jump ? <button type="button" className="tm-jump" onClick={() => go(spec.jump!.start)}>{spec.jump.label}</button> : null}
-      <span id={id} className="mem-sr">{fixed ? 'The chart already shows the whole stretch, so there is nothing to move.' : `Left and right arrow keys move the amber frame by one ${spec.unit}. Hold Shift, or use Page Up and Page Down, to move by a whole view. Home and End go to the ends. The chart below follows the frame.`}</span>
+      <span id={id} className="mem-sr">{fixed ? 'The chart already shows the whole stretch, so there is nothing to move.' : `Left and right arrow keys move the frame by one ${spec.unit}. Hold Shift, or use Page Up and Page Down, to move by a whole view. Home and End go to the ends. The chart below follows the frame.`}</span>
     </div>
   );
 }

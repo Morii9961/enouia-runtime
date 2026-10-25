@@ -2,7 +2,7 @@
 // Presentation only. It lives in this module, not in App's state: it holds a
 // start time and a span per chart, is never persisted and reaches no backend.
 // The map in the record strip and the chart in the page both read it; moving
-// the amber frame (pointer, buttons or arrow keys) pans the chart.
+// the frame (pointer, buttons or arrow keys) pans the chart.
 import { useSyncExternalStore } from 'react';
 
 /** 'home', 'timeline' or 'sessions:<session key>'. */

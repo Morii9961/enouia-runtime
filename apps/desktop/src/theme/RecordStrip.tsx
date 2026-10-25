@@ -22,7 +22,7 @@ export function Paper({ variant = 'memory', days = true, children, className = '
   );
 }
 
-/** The amber trace, its write marks and the pen. Coordinates are fractions of the layer it is drawn in. */
+/** The pen trace, its write marks and the pen. Coordinates are fractions of the layer it is drawn in. */
 export function Trace({ d = tracePath, marks: m = marks, penAt = pen, still, showMarks = true, tip = true, draw = false }: { d?: string; marks?: Mark[]; penAt?: { x: number; y: number }; still: boolean; showMarks?: boolean; tip?: boolean; draw?: boolean }) {
   return (
     <>
