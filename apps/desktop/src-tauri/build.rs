@@ -3,11 +3,6 @@ fn main() {
     // them makes every command need an explicit capability grant.
     tauri_build::try_build(tauri_build::Attributes::new().app_manifest(
         tauri_build::AppManifest::new().commands(&[
-            "activity_call",
-            "activity_setup",
-            "usage_call",
-            "usage_pick",
-            "usage_cancel",
             "memory_call",
             "memory_automation",
             "memory_pick",

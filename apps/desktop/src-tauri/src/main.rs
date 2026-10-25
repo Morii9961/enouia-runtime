@@ -5,14 +5,12 @@
 //! tray, quick search and opt-in login startup. Closing a window hides it;
 //! Exit is explicit and shuts the Memory Core down first, as does the end of
 //! the Windows session or an installer's request to close (ADR-027). The
-//! Activity surface reaches the independently installed producer only through
-//! that package's runner (ADR-028). The shell registers no general filesystem,
-//! shell or network command, never changes a scheduled task, and closing or exiting
-//! it never pauses Activity. Memory's native Provider path is enabled only by
+//! Activity and private Usage now leave the desktop backend (ADR-037).
+//! The shell registers no general filesystem, shell or network command and
+//! never changes a scheduled task. Memory's native Provider path is enabled only by
 //! the owner's settings file, and keys are entered only in the native Windows
 //! credential prompt (ADR-032).
 
-mod activity;
 mod companion;
 mod hotkey;
 mod memory;
@@ -21,10 +19,7 @@ mod provider;
 mod root_lease;
 mod shell;
 mod startup;
-mod usage;
-mod usage_wire;
 
-use activity::ActivityHost;
 use memory::MemoryHost;
 use tauri::{Manager, RunEvent, WindowEvent};
 
@@ -56,14 +51,7 @@ fn main() {
     let app = tauri::Builder::default()
         .manage(host)
         .manage(shell::ShellState::default())
-        .manage(ActivityHost::new(&args))
-        .manage(usage::UsageHost::default())
         .invoke_handler(tauri::generate_handler![
-            activity::activity_call,
-            activity::activity_setup,
-            usage::usage_call,
-            usage::usage_pick,
-            usage::usage_cancel,
             memory::memory_call,
             memory_automation::memory_automation,
             memory::memory_pick,
@@ -133,7 +121,6 @@ fn main() {
             shell::request_exit(app);
         }
         if let RunEvent::Exit = event {
-            app.state::<usage::UsageHost>().shutdown();
             app.state::<MemoryHost>().shutdown();
         }
     });

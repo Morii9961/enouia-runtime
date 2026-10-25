@@ -726,7 +726,6 @@ dependencies = [
  "rfd",
  "serde",
  "serde_json",
- "sha2",
  "tauri",
  "tauri-build",
  "windows-sys 0.61.2",

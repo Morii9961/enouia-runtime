@@ -1,5 +1,7 @@
 # Architecture decision register — v0.3
 
+[ADR-037](037-activity-usage-desktop-retirement.md) retires the desktop Activity / Usage native hosts and command grants. Standalone backend retirement and installed-data changes wait for the Moriium migration.
+
 Date: 2026-09-26. These are phase design decisions, not claims of implemented behavior. “Adopted” means the current implementation specification chooses this direction; “Deferred” means no implementation of that topic is authorized by this phase. Changes require recording what supersedes a decision and updating the architecture, affected contracts, and tests together.
 
 References: [Architecture v0.3](../../Enouia_Runtime_Architecture_v0.3.md), [implementation plan](../IMPLEMENTATION_PLAN_v0.3.md), [migration runbook](../ACTIVITY_MIGRATION_v0.3.md). The IDs retain the v0.2 candidate numbering where applicable. This consolidated register is the ADR artifact for this design phase; split individual records into files if later changes need a longer history.
