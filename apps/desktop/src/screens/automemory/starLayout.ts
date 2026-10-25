@@ -85,31 +85,44 @@ function repel(x: Float32Array, y: Float32Array, fx: Float32Array, fy: Float32Ar
   }
 }
 
-export function force(f: StarField, iterations = f.n > 2000 ? 90 : 160): Float32Array {
-  const n = f.n; const start = clusters(f);
+/**
+ * The force layout as a simulation that can be stepped, so the worker can show it
+ * settling. It starts from `start` (the positions on screen, so a change of layout
+ * relaxes out of the old one) or from the theme clusters; every frame it hands out
+ * is fitted the same way as the last, so nothing jumps when it ends.
+ */
+export function forceSim(f: StarField, start?: Float32Array | null, iterations = f.n > 2000 ? 90 : 160) {
+  const n = f.n; const from = start && start.length === n * 2 ? start : clusters(f);
   const x = new Float32Array(n), y = new Float32Array(n), vx = new Float32Array(n), vy = new Float32Array(n), fx = new Float32Array(n), fy = new Float32Array(n);
-  for (let i = 0; i < n; i++) { x[i] = start[2 * i] * 0.6; y[i] = start[2 * i + 1] * 0.6; }
+  for (let i = 0; i < n; i++) { x[i] = from[2 * i] * 0.6; y[i] = from[2 * i + 1] * 0.6; }
   const centres = themeCentres(f).map(([a, b]) => [a * 0.6, b * 0.6]);
   const K = 30 * Math.sqrt(700 / Math.max(50, n)), REST = 10, SPRING = 0.08, PULL = 0.03, GRAV = 0.001;
-  for (let it = 0; it < iterations; it++) {
-    const alpha = 1 - it / iterations;
-    fx.fill(0); fy.fill(0);
-    repel(x, y, fx, fy, n, K, 1.2);
-    for (const l of f.links) {
-      const dx = x[l.b] - x[l.a], dy = y[l.b] - y[l.a]; const d = Math.hypot(dx, dy) || 1;
-      const s = (SPRING * (l.type === 'theme' ? 0.6 : 1) * (d - REST)) / d;
-      fx[l.a] += dx * s; fy[l.a] += dy * s; fx[l.b] -= dx * s; fy[l.b] -= dy * s;
+  let it = 0;
+  const step = (count: number) => {
+    for (let c = 0; c < count && it < iterations; c++, it++) {
+      const alpha = 1 - it / iterations;
+      fx.fill(0); fy.fill(0);
+      repel(x, y, fx, fy, n, K, 1.2);
+      for (const l of f.links) {
+        const dx = x[l.b] - x[l.a], dy = y[l.b] - y[l.a]; const d = Math.hypot(dx, dy) || 1;
+        const s = (SPRING * (l.type === 'theme' ? 0.6 : 1) * (d - REST)) / d;
+        fx[l.a] += dx * s; fy[l.a] += dy * s; fx[l.b] -= dx * s; fy[l.b] -= dy * s;
+      }
+      for (let i = 0; i < n; i++) {
+        const c = centres[f.stars[i].theme];
+        fx[i] += (c[0] - x[i]) * PULL - x[i] * GRAV; fy[i] += (c[1] - y[i]) * PULL - y[i] * GRAV;
+        vx[i] = (vx[i] + fx[i] * alpha) * 0.82; vy[i] = (vy[i] + fy[i] * alpha) * 0.82;
+        const v = Math.hypot(vx[i], vy[i]); if (v > 30) { vx[i] *= 30 / v; vy[i] *= 30 / v; }
+        x[i] += vx[i]; y[i] += vy[i];
+      }
     }
-    for (let i = 0; i < n; i++) {
-      const c = centres[f.stars[i].theme];
-      fx[i] += (c[0] - x[i]) * PULL - x[i] * GRAV; fy[i] += (c[1] - y[i]) * PULL - y[i] * GRAV;
-      vx[i] = (vx[i] + fx[i] * alpha) * 0.82; vy[i] = (vy[i] + fy[i] * alpha) * 0.82;
-      const v = Math.hypot(vx[i], vy[i]); if (v > 30) { vx[i] *= 30 / v; vy[i] *= 30 / v; }
-      x[i] += vx[i]; y[i] += vy[i];
-    }
-  }
-  const p = new Float32Array(n * 2); for (let i = 0; i < n; i++) { p[2 * i] = x[i]; p[2 * i + 1] = y[i]; }
-  return fit(p);
+  };
+  const positions = () => { const p = new Float32Array(n * 2); for (let i = 0; i < n; i++) { p[2 * i] = x[i]; p[2 * i + 1] = y[i]; } return fit(p); };
+  return { iterations, step, positions, done: () => it >= iterations };
+}
+
+export function force(f: StarField, iterations?: number): Float32Array {
+  const sim = forceSim(f, null, iterations); sim.step(sim.iterations); return sim.positions();
 }
 
 export function layout(f: StarField, id: LayoutId) { return id === 'force' ? force(f) : id === 'drum' ? drum(f) : clusters(f); }
