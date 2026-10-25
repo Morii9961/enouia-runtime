@@ -1,0 +1,84 @@
+/* 08-negative · motion (DESIGN.md §7). Character: a recorder — drawn once, then quiet;
+   movement only along time. One curve (--ease) and four durations: 120 / 180 / 240 / 320 ms;
+   exits run about 70% of entries. No loops, no bounce, no glow. Everything here is off when
+   motion is reduced (system setting or Settings → Reduced). */
+:root{--t1:120ms;--t2:180ms;--t3:240ms;--t4:320ms}
+
+/* ---- view transitions: only the named parts move; the rest of the window switches at once ---- */
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-group(*){animation-duration:var(--t2);animation-timing-function:var(--ease)}
+
+/* page: the content advances one frame along the nav order; the inverted nav item slides to its new place */
+html[data-vt="page"] .qr232{view-transition-name:page}
+html[data-vt="page"] .bg-nav-item[aria-current="page"]{view-transition-name:nav-current}
+html[data-vt="page"]::view-transition-old(page){animation:vtOut var(--t1) var(--ease) both}
+html[data-vt="page"]::view-transition-new(page){animation:vtIn var(--t2) var(--ease) both}
+html[data-vt-dir="back"]::view-transition-old(page){animation-name:vtOutBack}
+html[data-vt-dir="back"]::view-transition-new(page){animation-name:vtInBack}
+::view-transition-old(nav-current),::view-transition-new(nav-current){animation-duration:var(--t2);mix-blend-mode:normal}
+
+/* automatic memory: the main view advances, the pressed view button slides */
+html[data-vt="view"] .am-main{view-transition-name:am-main}
+html[data-vt="view"] .am-view[aria-pressed="true"]{view-transition-name:am-view-current}
+html[data-vt="view"]::view-transition-old(am-main){animation:vtOut var(--t1) var(--ease) both}
+html[data-vt="view"]::view-transition-new(am-main){animation:vtIn var(--t2) var(--ease) both}
+html[data-vt="view"][data-vt-dir="back"]::view-transition-old(am-main){animation-name:vtOutBack}
+html[data-vt="view"][data-vt-dir="back"]::view-transition-new(am-main){animation-name:vtInBack}
+
+/* selection: the inverted row slides to the new row (Vault demo), the Inspector turns to the next frame,
+   and in the Constellation every memory keeps its identity while the neighbourhood re-forms */
+html[data-vt="select"] .qr43[aria-pressed="true"]{view-transition-name:sel-row}
+html[data-vt="select"] .qr88,html[data-vt="select"] .am-inspector{view-transition-name:inspector}
+html[data-vt="select"] .am-node{view-transition-name:var(--vtn,none)}
+html[data-vt="select"]::view-transition-old(inspector){animation:vtFadeOut 80ms linear both}
+html[data-vt="select"]::view-transition-new(inspector){animation:vtIn var(--t1) var(--ease) both}
+html[data-vt="select"]::view-transition-group(sel-row){animation-duration:var(--t1)}
+
+/* theme: the whole window develops into the other palette */
+html[data-vt="theme"]::view-transition-old(root){animation:vtFadeOut var(--t3) linear both}
+html[data-vt="theme"]::view-transition-new(root){animation:vtFadeIn var(--t3) linear both}
+
+@keyframes vtOut{to{opacity:0;transform:translateX(-12px)}}
+@keyframes vtIn{from{opacity:0;transform:translateX(12px)}}
+@keyframes vtOutBack{to{opacity:0;transform:translateX(12px)}}
+@keyframes vtInBack{from{opacity:0;transform:translateX(-12px)}}
+@keyframes vtFadeOut{to{opacity:0}}
+@keyframes vtFadeIn{from{opacity:0}}
+
+/* ---- arrivals: rows come in along time, a few at a time, once ---- */
+@keyframes rowIn{from{opacity:0;transform:translateX(8px)}}
+.am-ev,.am-slip,.quick-results li{animation:rowIn var(--t3) var(--ease) both}
+.am-steps > li{animation:rowIn var(--t2) var(--ease) both}
+.am-ev:nth-of-type(2),.am-slip:nth-child(2),.quick-results li:nth-child(2){animation-delay:30ms}
+.am-ev:nth-of-type(3),.am-slip:nth-child(3),.quick-results li:nth-child(3){animation-delay:60ms}
+.am-ev:nth-of-type(4),.am-slip:nth-child(4),.quick-results li:nth-child(4){animation-delay:90ms}
+.am-ev:nth-of-type(5),.am-slip:nth-child(5),.quick-results li:nth-child(5){animation-delay:120ms}
+.am-ev:nth-of-type(6),.am-slip:nth-child(6),.quick-results li:nth-child(6){animation-delay:150ms}
+.am-ev:nth-of-type(n+7),.am-slip:nth-child(n+7),.quick-results li:nth-child(n+7){animation-delay:180ms}
+.am-steps > li:nth-child(2){animation-delay:80ms}
+.am-steps > li:nth-child(3){animation-delay:160ms}
+.am-steps > li:nth-child(4){animation-delay:240ms}
+.am-steps > li:nth-child(5){animation-delay:320ms}
+
+/* Quick Search: the slip drops into place when the window shows */
+@keyframes slipIn{from{opacity:0;transform:translateY(-6px)}}
+.quick-search{animation:slipIn 160ms var(--ease) both}
+
+/* record strip: write marks drop onto the paper after the trace is drawn */
+@keyframes markIn{from{opacity:0;transform:translateY(-6px)}}
+.bg-mark{animation:markIn var(--t2) var(--ease) 1.2s both}
+
+/* native gates: the hatch is drawn across the strip when no film is loaded */
+@keyframes hatchIn{from{clip-path:inset(0 100% 0 0)}}
+.tm-stopped,.bg-strip[data-drum="stopped"] .bg-paper{animation:hatchIn var(--t3) var(--ease) both}
+
+/* hover: a short wash, never a jump */
+.qr43,.qr26,.qr12,.bg-nav-item,.am-view,.am-slip,.am-ev,.am-node,.tm-btn,.tm-jump,.mem-button{transition:background-color 80ms linear,color 80ms linear}
+
+/* ---- reduced motion: nothing moves ---- */
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none !important}
+  .am-ev,.am-slip,.quick-results li,.am-steps > li,.quick-search,.bg-mark,.tm-stopped,.bg-strip[data-drum="stopped"] .bg-paper{animation:none !important}
+}
+[data-motion="reduced"] .am-ev,[data-motion="reduced"] .am-slip,[data-motion="reduced"] .am-steps > li,[data-motion="reduced"] .bg-mark,
+[data-motion="reduced"] .tm-stopped,[data-motion="reduced"] .bg-paper{animation:none !important}

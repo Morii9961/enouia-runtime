@@ -9,6 +9,8 @@ import './memory/memory.css';
 import './theme/negative.css';
 import './theme/automemory.css';
 import './theme/palettes.css';
+import './theme/motion.css';
+import { moveAlong } from './theme/motion';
 
 // Colour only: Tile Blue when the system is dark, Xuan Paper when it is light (DESIGN.md §2).
 // The browser demo also takes ?theme=dark|light, for screenshots.
@@ -18,7 +20,8 @@ const applyTheme = () => {
   document.documentElement.dataset.theme = asked === 'light' || asked === 'dark' ? asked : scheme.matches ? 'light' : 'dark';
 };
 applyTheme();
-scheme.addEventListener('change', applyTheme);
+// A system switch develops the window into the other palette (DESIGN.md §7).
+scheme.addEventListener('change', () => moveAlong('theme', applyTheme));
 
 class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };

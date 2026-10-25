@@ -29,6 +29,7 @@ export type DemoView = ReturnType<App['renderVals']> & {
   rtSubtitle?: string; still?: boolean; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
 };
 import { NativeStrip, RecordStrip } from './theme/RecordStrip.tsx';
+import { moveAlong } from './theme/motion.ts';
 
 // Inside the native shell the Memory, Context and Sessions surfaces use the
 // pinned Enouia Memory Core (ADR-025). A browser preview has no shell, so it
@@ -118,12 +119,19 @@ export default class App extends React.Component<AppProps, AppState> {
   // Leaving a surface removes the control that held focus. Continue in the
   // new surface rather than the document; focus kept elsewhere stays there.
   show<K extends keyof AppState>(patch: Pick<AppState, K>) {
-    this.setState(patch, () => {
+    const apply = () => this.setState(patch, () => {
       if (!document.activeElement || document.activeElement === document.body) document.getElementById('runtime-content')?.focus();
     });
+    // Changing surface advances the page along the nav order (presentation only; DESIGN.md §7).
+    const next = (patch as Partial<AppState>).page;
+    const from = this.PAGES.indexOf(this.page()), to = next ? this.PAGES.indexOf(next) : from;
+    if (to !== from && to >= 0) moveAlong('page', apply, to > from ? 'fwd' : 'back'); else apply();
   }
   go(p: Page) { if (this.PAGES.includes(p)) this.show({ page: p, memInitialCollection: 'current', memSessionTarget: null, editing: false, copied: false, notice: '' }); }
-  select(k: string) { this.setState({ sel: k, editing: false, notice: '', copied: false }); }
+  select(k: string) {
+    const apply = () => this.setState({ sel: k, editing: false, notice: '', copied: false });
+    if (k !== this._selectedKey) moveAlong('select', apply); else apply();
+  }
   openMemory(k: string) {
     const m = this.byKey(k); if (!m) return;
     const col = m.status === 'candidate' ? 'candidates' : m.status === 'superseded' ? 'superseded' : 'all';

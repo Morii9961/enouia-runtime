@@ -96,12 +96,12 @@ export default function Constellation({ sel, select }: ViewProps) {
           const [ax, ay] = edge(cx, cy, x, y); const [bx, by] = edge(x, y, cx, cy);
           return <span key={'w' + i} className="am-rel-word" data-t={r.type} style={{ left: (ax + bx) / 2, top: (ay + by) / 2 }}>{relLabel(r.type)}</span>;
         })}
-        <button type="button" className="am-node am-node-center" aria-pressed="true" style={{ left: cx, top: cy, width: NW, height: NH }} onClick={() => select(sel)} aria-label={`${m.title}. ${STATE_LABEL[m.state]}. Selected; the plot shows its direct relations.`}>
+        <button type="button" className="am-node am-node-center" aria-pressed="true" style={{ left: cx, top: cy, width: NW, height: NH, '--vtn': 'am-n-' + m.id } as React.CSSProperties} onClick={() => select(sel)} aria-label={`${m.title}. ${STATE_LABEL[m.state]}. Selected; the plot shows its direct relations.`}>
           <span className="am-node-top"><Glyph s={m.state} /><span className="am-node-t">{m.title}</span></span>
           <span className="am-node-sub"><span className="am-mono">{m.id}</span> · {STATE_LABEL[m.state]}</span>
         </button>
-        {nodes.map(({ r, o, x, y }) => (
-          <button key={r.other + r.type} type="button" className="am-node" style={{ left: x, top: y, width: NW, height: NH }} onClick={() => select(o.id)}
+        {nodes.map(({ r, o, x, y }, i) => (
+          <button key={r.other + r.type} type="button" className="am-node" style={{ left: x, top: y, width: NW, height: NH, '--vtn': nodes.findIndex((q) => q.o.id === o.id) === i && o.id !== m.id ? 'am-n-' + o.id : 'none' } as React.CSSProperties} onClick={() => select(o.id)}
             aria-label={`${o.title}. ${STATE_LABEL[o.state]}. ${relWords(r)} of ${m.title}. Select to plot its neighbourhood.`}>
             <span className="am-node-top"><Glyph s={o.state} /><span className="am-node-t">{o.title}</span></span>
             <span className="am-node-sub"><span className="am-mono">{o.id}</span> · {STATE_LABEL[o.state]}</span>

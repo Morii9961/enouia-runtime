@@ -9,6 +9,7 @@ import Recall from './Recall';
 import { Inspector } from './Inspector';
 import type { ViewId } from './types';
 import { setAutoMode } from '../../theme/autoMode';
+import { moveAlong } from '../../theme/motion';
 
 // Automatic memory · synthetic preview (browser demo only, invented fixture).
 // Five views share one Inspector and one selection. Local state only: no IPC,
@@ -27,11 +28,15 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
   const head = useRef<HTMLHeadingElement>(null);
   useEffect(() => { setAutoMode(true); head.current?.focus(); return () => setAutoMode(false); }, []);
   const m = byId.get(sel)!;
-  const body = view === 'formation' ? <Formation sel={sel} select={setSel} />
-    : view === 'grid' ? <Grid sel={sel} select={setSel} />
-    : view === 'timeline' ? <Timeline sel={sel} select={setSel} />
-    : view === 'stars' ? <Constellation sel={sel} select={setSel} />
-    : <Recall sel={sel} select={setSel} />;
+  // Views advance along their order; a new selection turns the Inspector (DESIGN.md §7).
+  const order = VIEWS.map((v) => v.id);
+  const showView = (id: ViewId) => { if (id !== view) moveAlong('view', () => setView(id), order.indexOf(id) > order.indexOf(view) ? 'fwd' : 'back'); };
+  const choose = (id: string) => { if (id !== sel) moveAlong('select', () => setSel(id)); };
+  const body = view === 'formation' ? <Formation sel={sel} select={choose} />
+    : view === 'grid' ? <Grid sel={sel} select={choose} />
+    : view === 'timeline' ? <Timeline sel={sel} select={choose} />
+    : view === 'stars' ? <Constellation sel={sel} select={choose} />
+    : <Recall sel={sel} select={choose} />;
   return (
     <section data-screen-label="Memory Vault" className="am" data-view={view}
       // ArrowUp/Down belong to the lists in this preview; the demo Vault's global
@@ -47,7 +52,7 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
         <div className="am-head-row am-head-views">
           <div className="am-views" role="group" aria-label="Automatic memory views">
             {VIEWS.map((v) => (
-              <button key={v.id} type="button" className="am-view" aria-pressed={view === v.id} title={v.hint} onClick={() => setView(v.id)}>
+              <button key={v.id} type="button" className="am-view" aria-pressed={view === v.id} title={v.hint} onClick={() => showView(v.id)}>
                 <span className="am-vn">{v.name}</span>
               </button>
             ))}
@@ -58,7 +63,7 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
       </header>
       <div className="am-body">
         <div className="am-main" id="am-main">{body}</div>
-        <Inspector m={m} select={setSel} />
+        <Inspector m={m} select={choose} />
       </div>
     </section>
   );
