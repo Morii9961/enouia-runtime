@@ -192,6 +192,10 @@ explicit source/destination/old-writer fence; this slice activates none of them.
 
 ## Build and checks
 
+Candidate seed-review integration (2026-10-25): the candidate inbox distinguishes recorded context dependencies from citations, exposes literal source excerpts and evidence classes, and filters P0 proposals only among loaded rows. This does not approve personal candidates or change the current Memory pin. See [completion evidence](validation/Memory-seed-review-completion-2026-10-25.md).
+
+For a portable Windows GNU handoff, keep `enouia-desktop.exe` beside the same build's `WebView2Loader.dll` and validate the final copied package. An executable-only copy can fail before creating a window; the [historical correction](validation/Memory-seed-review-context-v1.md#portable-handoff-correction-2026-10-19) documents that failure. This requirement does not apply extra packaging work to a source-only edit.
+
 2026-10-25 update: [ADR-037](adr/037-activity-usage-desktop-retirement.md) removes Activity / Usage native registration, grants and host lifecycle. The following ADR-036 paragraph is historical. Standalone programs and installed data remain untouched until the Moriium migration is accepted. Run `node scripts/check-activity-retirement.mjs` alongside the pin guard.
 
 The owner-authorized private Usage view (ADR-036) adds main-only `usage_pick`, `usage_call` and `usage_cancel`. Native choices remain opaque and temporary; the shell launches the independent hash-checked Usage package through its bounded count-only stdin channel. It imports no Usage crate and passes no data through the Memory adapter. The overlay receives none of these grants. Explicit shell exit stops the owned Usage child; Memory shutdown and its pinned Core remain authoritative for Memory. See the [manual guide](AI_USAGE_LEDGER.md) and [desktop evidence](validation/AI-usage-ledger-U1-desktop.md). This continuation changes no Memory pin, Provider settings or personal data.
