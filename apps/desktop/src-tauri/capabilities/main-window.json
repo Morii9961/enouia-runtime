@@ -1,6 +1,6 @@
 {
   "identifier": "main-window",
-  "description": "The main window: window controls, the Memory adapter, the Activity adapter over the installed runner (ADR-028), explicit exit, its own login-startup setting and the native Provider setup state and key prompt (ADR-032). No fs, shell, http, dialog or opener permission exists.",
+  "description": "The main window: window controls, the Memory adapter, explicit exit, its own login-startup setting and native Provider setup, validated draft save and key prompt (ADR-032). Activity and private Usage commands were retired in ADR-037. No general fs, shell, http, dialog or opener plugin permission exists.",
   "windows": [
     "main"
   ],
@@ -10,12 +10,11 @@
     "core:window:allow-is-maximized",
     "core:window:allow-close",
     "core:window:allow-start-dragging",
-    "allow-activity-call",
-    "allow-activity-setup",
     "allow-memory-call",
     "allow-memory-pick",
     "allow-memory-provider-setup",
     "allow-memory-provider-reload",
+    "allow-memory-provider-save-draft",
     "allow-memory-provider-key",
     "allow-shell-status",
     "allow-shell-show",
@@ -25,6 +24,7 @@
     "allow-hide-window",
     "allow-exit-app",
     "allow-startup-status",
-    "allow-startup-set"
+    "allow-startup-set",
+    "allow-memory-automation"
   ]
 }

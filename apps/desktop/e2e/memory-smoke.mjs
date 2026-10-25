@@ -23,6 +23,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
+import { assertBatchFixture, createBatchVault, historyBatchPreparation, historyBatchProcessReopen } from './history-batch-native.mjs';
 
 const inputs = process.argv.slice(2, 6);
 if (inputs.length !== 4) throw new Error('usage: memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>');
@@ -54,14 +55,17 @@ const check = (id, ok, detail = '') => {
 };
 
 function launch(args, { port = PORT, profile = 'webview2' } = {}) {
+  const nativeLog = args.includes('--memory-synthetic') ? openSync(join(out, 'core8-native-process.log'), 'a') : null;
   const child = spawn(exe, [...args, '--hotkey-key', 'Q', '--activity-settings', join(out, 'activity-install.json')], {
     env: {
       ...process.env,
       WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
       WEBVIEW2_USER_DATA_FOLDER: join(out, profile),
     },
-    stdio: 'ignore',
+    stdio: nativeLog === null ? 'ignore' : ['ignore', nativeLog, nativeLog],
+    windowsHide: args.includes('--memory-synthetic'),
   });
+  if (nativeLog !== null) closeSync(nativeLog);
   children.add(child);
   processesByPort.set(port, child);
   child.exited = new Promise((r) => child.once('exit', (code) => { children.delete(child); r(code); }));
@@ -232,9 +236,13 @@ async function debugOwnerRefusal(app) {
 }
 
 async function connect(overlay = false, port = PORT) {
+  let lastError = null, lastTargets = [];
   for (let i = 0; i < 160; i++) {
+    if (processesByPort.get(port)?.exitCode !== null) throw new Error(`test host is not running (exit ${processesByPort.get(port)?.exitCode})`);
     try {
       const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
+      if (targets.length) assertDebugOwner(port);
+      lastTargets = targets.map(({type, url}) => ({type, url}));
       const want = overlay ? 'overlay' : 'main';
       // The URL picks the candidate, so no extra DevTools client attaches to
       // the other window; the native label then confirms it.
@@ -252,12 +260,13 @@ async function connect(overlay = false, port = PORT) {
         s.close();
       }
     } catch (error) {
+      lastError = error.message;
       if (error.message === 'debug listener does not belong to test process' || error.message === 'test host is not running') throw error;
       /* not up yet */
     }
     await sleep(250);
   }
-  throw new Error(`no ${overlay ? 'quick-search' : 'main'} page on ${port}`);
+  throw new Error(`no ${overlay ? 'quick-search' : 'main'} page on ${port}; last error: ${lastError}; targets: ${JSON.stringify(lastTargets)}`);
 }
 
 const HELPERS = `
@@ -936,7 +945,268 @@ async function contrastChecks(s) {
   await shot(s, '16-ordinary-selection');
 }
 
+// Core-8 mode uses only the fresh built-in synthetic root. The legacy path
+// arguments remain signature placeholders; no picker, Provider or personal root.
+async function automaticMemoryChecks() {
+  const fixture = resolve(out, '..');
+  if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-core8-smoke-') || lstatSync(fixture).isSymbolicLink()) throw new Error('Core-8 smoke requires its dedicated temporary fixture');
+  let app = launch(['--memory-synthetic']);
+  let s = await connect();
+  try {
+  await s.evaluate(`__t.automatic = query => __t.invoke('memory_automation', { request: { schema_version: 2, capability: 'memory-native-read-1', query } })`);
+  await waitFor(s, "__t.automatic({operation:'status'}).then(r=>r.ok?.state==='open')", 'synthetic native root');
+  const initial = await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok)");
+  check('CORE8.native_capability_and_synthetic_mode', initial.schema_version === 2 && initial.capability === 'memory-native-read-1' && initial.mode === 'synthetic_only' && initial.available);
+  check('CORE8.legacy_workspace_does_not_adopt_v2', (await statusOf(s)).vault.state === 'none');
+  const page = await s.evaluate("__t.automatic({operation:'page',filter:{form:null,adoption:null,event_window:null,include_unknown_event_time:false},cursor:null,limit:1}).then(r=>r.ok)");
+  check('CORE8.native_rows_have_system_receipts', page.matched_in_scope === 3 && page.items.length === 1 && page.items[0].system_actor.actor_type === 'system' && !!page.items[0].receipt);
+  check('CORE8.unimplemented_global_views_are_unavailable', !page.capabilities.global_graph && !page.capabilities.global_timeline && !page.capabilities.saved_experiment && !page.capabilities.vectors);
+  const next = await s.evaluate(`__t.automatic({operation:'page',filter:{form:null,adoption:null,event_window:null,include_unknown_event_time:false},cursor:${JSON.stringify(page.next)},limit:1}).then(r=>r.ok)`);
+  check('CORE8.native_cursor_progresses', next.items[0].memory.memory_id !== page.items[0].memory.memory_id);
+  const unsupported = await s.evaluate("__t.invoke('memory_automation',{request:{schema_version:99,capability:'memory-native-read-1',query:{operation:'detail',memory_id:'malformed'}}})");
+  check('CORE8.version_refused_before_operation_decode', unsupported.err === 'automation_version_unsupported');
+  const injectedRoot = await s.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',root:'forbidden-root-field',query:{operation:'status'}}})");
+  check('CORE8.packet_cannot_select_root_or_principal', injectedRoot.err === 'automation_invalid_request');
+  const quick = await connect(true);
+  const denied = await quick.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}})");
+  check('CORE8.overlay_cannot_reach_new_native_capability', !!denied.err && !denied.ok);
+  quick.close();
+  await nav(s, 'Memory');
+  await rail(s, 'Synthetic automatic memories');
+  await waitFor(s, has('3 currently authorized memories'), 'automatic Memory list');
+  check('CORE8.real_panel_labels_synthetic_system_adoption', (await s.evaluate('document.body.innerText')).includes('Isolated synthetic library') && (await s.evaluate('document.body.innerText')).includes('System adopted'));
+  await shot(s, 'core8-01-automatic-list');
+  await click(s, '.qr44 button', 'pottery cup');
+  try { await waitFor(s, has('Learned at:'), 'native detail'); }
+  catch(error) {
+    writeFileSync(join(out,'core8-detail-failure.txt'),await s.evaluate('document.body.innerText'));
+    await shot(s,'core8-detail-failure');
+    throw error;
+  }
+  check('CORE8.real_detail_keeps_time_and_validity_axes', (await s.evaluate('document.body.innerText')).includes('Source captured at:') && (await s.evaluate('document.body.innerText')).includes('Validity: unspecified'));
+  check('CORE8.source_body_requires_explicit_selection', (await s.evaluate('document.body.innerText')).includes('Original text has not been requested'));
+  await click(s, 'button', 'Read selected original sources');
+  await waitFor(s, "document.querySelector('.qr88 pre')?.textContent.includes('Synthetic example:')", 'selected original source');
+  await shot(s, 'core8-02-selected-source');
+  await set(s, '.qr44 form input', 'ceramics');
+  await click(s, 'button', 'Simulate read-only recall');
+  await waitFor(s, has('Native read · no saved experiment'), 'native recall simulation');
+  check('CORE8.native_read_simulation_renders_qualified_context', (await s.evaluate('document.body.innerText')).includes('Subject stated (not independently verified):'));
+  const after = await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok)");
+  check('CORE8.simulation_does_not_advance_current', JSON.stringify(after.snapshot) === JSON.stringify(initial.snapshot));
+  await shot(s, 'core8-03-read-only-recall');
+  await click(s, 'button', 'Lock synthetic library');
+  await waitFor(s, has('Library: locked'), 'synthetic lock');
+  const locked = await s.evaluate("__t.automatic({operation:'page',filter:{form:null,adoption:null,event_window:null,include_unknown_event_time:false},cursor:null,limit:1})");
+  check('CORE8.lock_refuses_native_reads_and_clears_body', locked.err === 'automation_locked' && !(await s.evaluate('document.body.innerText')).includes('Learned at:'));
+  await click(s, 'button', 'Unlock synthetic library');
+  await waitFor(s, has('3 currently authorized memories'), 'synthetic unlock');
+  await s.evaluate("document.querySelector('button[aria-label=\"Close\"]').click()");
+  await sleep(300);
+  const hidden = await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('CORE8.close_to_tray_keeps_background_library', hidden.visible === false && (await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok?.state)")) === 'open');
+  await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
+  void s.evaluate("__t.invoke('shell_exit')").catch(() => 0);
+  check('CORE8.explicit_exit_joins_memory_workers', (await waitForExit(app, 20000)) === 0);
+  s.close();
+  const secondPort = await unusedPort();
+  app = launch(['--memory-synthetic'], { port: secondPort, profile: 'webview2-core8-fresh' });
+  s = await connect(false, secondPort);
+  await waitFor(s, "__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}}).then(r=>r.ok?.state==='open')", 'fresh synthetic restart');
+  const fresh = await s.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}}).then(r=>r.ok)");
+  check('CORE8.restart_creates_fresh_root_without_reopening_private_data', fresh.snapshot.vault_id !== initial.snapshot.vault_id && (await statusOf(s)).vault.state === 'none');
+  void s.evaluate("__t.invoke('shell_exit')").catch(() => 0);
+  check('CORE8.second_explicit_exit', (await waitForExit(app, 20000)) === 0);
+  s.close();
+  } catch(error) {
+    try {
+      writeFileSync(join(out,'core8-detail-failure.txt'),await s.evaluate('document.body.innerText'));
+      await shot(s,'core8-detail-failure');
+    } catch { /* preserve the original failed check */ }
+    throw error;
+  }
+}
+
 async function main() {
+  if (process.argv[6] === '--automatic-only') return automaticMemoryChecks();
+  if (['--history-only', '--history-tasks-only', '--history-batch-only'].includes(process.argv[6])) {
+    const batchMode = process.argv[6] === '--history-batch-only';
+    const tasksMode = batchMode || process.argv[6] === '--history-tasks-only';
+    const fixture = resolve(out, '..');
+    if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-history-')
+      || vault !== join(fixture, 'vault') || importFile !== join(fixture, 'history.md')
+      || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('history mode requires its dedicated temporary synthetic fixture');
+    if (batchMode) assertBatchFixture(exe, fixture, vault);
+    writeFileSync(importFile, Array.from({length:24}, (_, i) => `# Synthetic section ${i + 1}\nSynthetic history body ${i + 1}.\n`).join(''));
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    if (batchMode) { app.batchVault = vault; await createBatchVault(s, app, { waitFor, fillOpenDialog }); }
+    await waitFor(s, has('Memory · Vault open'), 'history fixture open');
+    const initial = await s.evaluate("Promise.all([__t.memory('import_list',{}),__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([i,s,c])=>({imports:i.result.items.length,sessions:s.result.items.length,candidates:c.result.total}))");
+    if (initial.imports || initial.sessions || initial.candidates) throw new Error('history fixture must start empty');
+    if (tasksMode) {
+      const setup = await s.evaluate("__t.memory('provider_status',{}).then(r=>r.result)");
+      if (!setup.configured || setup.destinations.length !== 1 || setup.destinations[0].model !== 'synthetic-history-model')
+        throw new Error('history task mode requires its isolated build configuration and synthetic model metadata');
+      check('H2.synthetic_model_metadata_loaded', true);
+    }
+    await nav(s, 'Memory');
+    await rail(s, 'Import');
+    await click(s, 'button', 'Choose file');
+    fillOpenDialog(app.pid, importFile, false);
+    await waitFor(s, has('recognized'), 'history import preview');
+    await click(s, 'button', 'Start import');
+    await waitFor(s, "[...document.querySelectorAll('.mem-operation')].some(el=>el.textContent.includes('succeeded'))", 'history import finished', 60000);
+    await click(s, 'button', 'Refresh import list');
+    await waitFor(s, "!!document.querySelector('button[aria-label^=\"Inspect import\"]:not(:disabled)')", 'history import row');
+    const before = await statusOf(s);
+    await s.evaluate(`window.__historyReplies=[]; window.__historyStatusHead=null;
+      const callbacks=window.__TAURI_INTERNALS__.callbacks, originalSet=callbacks.set;
+      callbacks.set=function(id,callback){return originalSet.call(this,id,value=>{
+        if(value?.kind==='history_plan' || value?.error?.rules?.includes('history.plan_stale')) window.__historyReplies.push(value);
+        if(value?.result?.vault?.headCommitId) window.__historyStatusHead=value.result.vault.headCommitId;
+        callback(value);
+      });}; document.querySelector('button[aria-label^="Inspect import"]').click();`);
+    await waitFor(s, has('Plan archived history'), 'explicit history entry');
+    await waitFor(s, `window.__historyStatusHead===${JSON.stringify(before.vault.headCommitId)}`, 'shared status observes imported head');
+    check('H.no_automatic_plan', await s.evaluate('window.__historyReplies.length===0'));
+    const section = "[...document.querySelectorAll('section')].find(el=>el.querySelector('h4')?.textContent==='History planning')";
+    const field = await s.evaluate("[...document.querySelectorAll('label')].find(el=>el.textContent.includes('Messages per batch')).htmlFor");
+    await set(s, `[id=${JSON.stringify(field)}]`, '1');
+    await click(s, 'button', 'Plan archived history');
+    await waitFor(s, has('Next history batches'), 'history first page');
+    const first = await s.evaluate('window.__historyReplies[0]');
+    check('H.real_core_identity', first.kind==='history_plan' && first.result.identity.vaultId===before.vault.vaultId && first.result.identity.messagesPerBatch===1);
+    check('H.coverage_unknown_time', first.result.summary.messages===24 && first.result.summary.undated===24 && first.result.summary.dated===0 && first.result.summary.batches===24);
+    check('H.first_page_rendered', await s.evaluate(`(${section}).querySelectorAll('details').length===10 && (${section}).textContent.includes(${JSON.stringify(first.result.planHash)})`));
+    check('H.references_without_text', await s.evaluate(`(${section}).textContent.includes(${JSON.stringify(first.result.batches[0].messages[0].sourceId)}) && !(${section}).textContent.includes('Synthetic history body')`));
+    const fits = `(()=>{const p=(${section}).closest('aside');return p.scrollWidth<=p.clientWidth+1 && p.firstElementChild.scrollWidth<=p.firstElementChild.clientWidth+1;})()`;
+    check('H.references_fit_the_inspector', await s.evaluate(fits));
+    ownedWindowMetrics(app, {width:1100,height:700});
+    check('H.references_fit_the_minimum_window', await s.evaluate(fits));
+    await s.evaluate(`(${section}).querySelector('dl').scrollIntoView({block:'start'})`);
+    await shot(s, 'history-first-page');
+    await click(s, 'button', 'Next history batches');
+    await waitFor(s, 'window.__historyReplies.length===2 && !!__t.byText("button","Next history batches")', 'history second page');
+    const second = await s.evaluate('window.__historyReplies[1]');
+    check('H.real_paging', second.result.planHash===first.result.planHash && second.result.batches[0].batchIndex===10 && second.result.batches.length===10);
+    check('H.second_page_rendered', await s.evaluate(`(${section}).querySelector('details summary').textContent.startsWith('Batch 11 ')`));
+    await click(s, 'button', 'Next history batches');
+    await waitFor(s, 'window.__historyReplies.length===3 && document.body.innerText.includes("Showing batches 21–24 of 24")', 'history last page');
+    check('H.last_page_has_previous_without_next', await s.evaluate('!!__t.byText("button","Previous history batches") && !__t.byText("button","Next history batches")'));
+    await s.evaluate('__t.byText("button","Previous history batches").focus()');
+    await click(s, 'button', 'Previous history batches');
+    await waitFor(s, 'window.__historyReplies.length===4 && document.activeElement?.textContent==="Showing batches 11–20 of 24"', 'back to middle page');
+    check('H.previous_page_rereads_core_and_restores_keyboard_focus', await s.evaluate('window.__historyReplies[3].result.batches[0].batchIndex===10 && window.__historyReplies[3].result.planHash===window.__historyReplies[0].result.planHash'));
+    await click(s, 'button', 'Previous history batches');
+    await waitFor(s, 'window.__historyReplies.length===5 && document.body.innerText.includes("Showing batches 1–10 of 24")', 'back to first page');
+    check('H.previous_first_page_has_no_previous_action', await s.evaluate('window.__historyReplies[4].result.batches[0].batchIndex===0 && !__t.byText("button","Previous history batches")'));
+    await click(s, 'button', 'Next history batches');
+    await waitFor(s, 'window.__historyReplies.length===6 && document.body.innerText.includes("Showing batches 11–20 of 24")', 'second page after backtracking');
+    check('H.planning_creates_no_sessions_or_candidates', await s.evaluate("Promise.all([__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([s,c])=>s.result.items.length===0 && c.result.total===0)"));
+    check('H.planning_preserves_head', (await statusOf(s)).vault.headCommitId===before.vault.headCommitId);
+    // Deliberate synthetic fixture mutation; it is not a planning side effect.
+    const mutation = await s.evaluate("__t.memory('remember',{text:'Synthetic history cursor invalidation fixture',claimKey:'fixture.history.cursor'},'ui-'+crypto.randomUUID())");
+    if (mutation.error) throw new Error('history fixture mutation failed');
+    const staleArgs = {
+      importId:first.result.identity.importId, importRevision:first.result.identity.importRevision,
+      messagesPerBatch:1, maxPathReferences:10000, cursor:second.result.nextCursor, limit:10,
+    };
+    const stale = await s.evaluate(`__t.memory('history_plan',${JSON.stringify(staleArgs)})`);
+    check('H.stale_cursor_refused', stale.kind==='memory_error' && stale.error.rules.includes('history.plan_stale'));
+    await waitFor(s, `(${section}).querySelectorAll('details').length===0`, 'observed head clears old history');
+    check('H.stale_page_withheld', await s.evaluate(`(${section}).querySelectorAll('details').length===0`));
+    check('H.head_change_does_not_replan', await s.evaluate('window.__historyReplies.length===7'));
+    const freshField = await s.evaluate("[...document.querySelectorAll('label')].find(el=>el.textContent.includes('Messages per batch')).htmlFor");
+    await set(s, `[id=${JSON.stringify(freshField)}]`, '1');
+    await click(s, 'button', 'Plan archived history');
+    await waitFor(s, 'window.__historyReplies.length===8 && !!__t.byText("button","Next history batches")', 'fresh history recovery');
+    const recovered = await s.evaluate('window.__historyReplies[7]');
+    check('H.fresh_plan_recovers', recovered.result.planHash!==first.result.planHash && recovered.result.batches[0].batchIndex===0);
+    await shot(s, 'history-fresh-plan');
+    if (tasksMode) {
+      check('H2.no_default_batch_selection', await s.evaluate(`!document.querySelector('input[type=checkbox]:checked') && __t.byText('button','Create 0 local batch tasks').disabled`));
+      const choose = async number => s.evaluate(`(()=>{const label=[...document.querySelectorAll('label')].find(el=>el.textContent.trim()==='Select batch ${number} for local tasks'); if(!label)throw Error('batch label missing');label.closest('details').open=true;label.querySelector('input').click();return true;})()`);
+      await choose(1);
+      await click(s, 'button', 'Next history batches');
+      await waitFor(s, has('Showing batches 11–20 of 24'), 'task selection second page');
+      await choose(11);
+      check('H2.explicit_order_survives_paging', await s.evaluate('__t.text().includes("Selected order: 1 → 11")'));
+      await click(s, 'button', 'Read configured history models');
+      await waitFor(s, "[...document.querySelectorAll('option')].some(el=>el.value==='openai/synthetic-history-model')", 'synthetic model observation');
+      await s.evaluate(`(()=>{const el=[...document.querySelectorAll('select')].find(el=>el.id===[...document.querySelectorAll('label')].find(l=>l.textContent==='History task model').htmlFor);Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(el,'openai/synthetic-history-model');el.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+      await waitFor(s, "!__t.byText('button','Create 2 local batch tasks').disabled", 'explicit local task submission');
+      await s.evaluate(`(()=>{window.__historyStarted=[];window.__releaseHistoryStart=null;
+        const callbacks=window.__TAURI_INTERNALS__.callbacks, previous=callbacks.set;
+        callbacks.set=function(id,callback){return previous.call(this,id,value=>{
+          if(value?.kind==='operation_started' && !window.__historyStarted.length){window.__historyStarted.push(value);window.__releaseHistoryStart=()=>callback(value);return;}
+          callback(value);
+        });};})()`);
+      await click(s, 'button', 'Create 2 local batch tasks');
+      await waitFor(s, '!!window.__releaseHistoryStart', 'real admission receipt held');
+      await click(s, 'button', 'Close report');
+      check('H2.closing_report_keeps_pending_submission', await s.evaluate('__t.text().includes("Waiting for the local task operation receipt") && !__t.text().includes("History planning")'));
+      await s.evaluate('__releaseHistoryStart();__releaseHistoryStart=null');
+      await waitFor(s, has('All selected local jobs exist'), 'real local jobs observed', 60000);
+      const taskPage = await s.evaluate("__t.memory('history_task_list',{cursor:null,limit:10}).then(r=>r.result)");
+      check('H2.one_saved_admission', taskPage.items.length===1 && taskPage.items[0].request.batchIndices.join()==='0,10');
+      const taskId = taskPage.items[0].taskId;
+      const detail = await s.evaluate(`__t.memory('history_task_get',{taskId:${JSON.stringify(taskId)}}).then(r=>r.result)`);
+      check('H2.actual_job_states_are_pending_local_work', detail.materializationComplete && detail.batches.length===2 && detail.batches.every(b=>b.state==='ready' && b.applied===0 && b.invocationState===null));
+      check('H2.unknown_cost_is_preserved', detail.request.maxReservedCostMicrousd===null);
+      check('H2.no_candidates_or_canonical_memories_created', await s.evaluate("Promise.all([__t.memory('candidate_list',{cursor:null,limit:25}),__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false})]).then(([c,m])=>c.result.total===1 && m.result.total===0)")); // H1's explicit remember fixture is the one candidate.
+      check('H2.no_model_operations', await s.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
+      await s.send('Emulation.setDeviceMetricsOverride', {width:1100,height:700,deviceScaleFactor:1,mobile:false});
+      check('H2.minimum_window_has_no_horizontal_overflow', await s.evaluate("document.documentElement.scrollWidth<=innerWidth && [...document.querySelectorAll('.qr45,.qr88')].every(el=>el.scrollWidth<=el.clientWidth+1)"));
+      await shot(s, 'history-local-task');
+      const head = (await statusOf(s)).vault.headCommitId;
+      void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+      check('H2.first_host_exits', await waitForExit(app,20000)===0); s.close();
+      const reopened = launch(['--memory-vault',vault], {profile:'webview2-reopened'}), next = await connect();
+      await waitFor(next,has('Memory · Vault open'),'reopened task fixture'); await nav(next,'Memory'); await rail(next,'Import');
+      await waitFor(next,has('Read task '),'saved task discovery');
+      await next.evaluate(`(()=>{const button=[...document.querySelectorAll('[aria-label="Saved history tasks"] button')].find(el=>el.textContent.startsWith('Read task '));if(!button)throw Error('saved task missing');button.click();})()`);
+      await waitFor(next,has('All selected local jobs exist'),'saved task read after restart');
+      check('H2.reopen_reads_original_task_without_recreating_jobs', (await statusOf(next)).vault.headCommitId===head && await next.evaluate(`__t.text().includes(${JSON.stringify(taskId)})`));
+      check('H2.saved_limits_remain_explicit_after_reopen', await next.evaluate(`__t.text().includes('Reserved token ceiling per batch') && [...document.querySelectorAll('dt')].find(el=>el.textContent==='Cost ceiling per batch (micro USD)')?.nextElementSibling?.textContent==='unknown'`));
+      check('H2.complete_task_has_no_missing_job_resume', await next.evaluate("!__t.byText('button','Resume missing local jobs')"));
+      await shot(next,'history-task-reopened');
+      await next.evaluate("__t.byText('button','View batch 1 session').focus()");
+      const taskFocusBefore = await next.evaluate("({tag:document.activeElement?.tagName,id:document.activeElement?.id,label:document.activeElement?.getAttribute('aria-label')})");
+      await click(next,'button','View batch 1 session');
+      await waitFor(next,`document.querySelector('#mem-session-filter')?.value===${JSON.stringify(detail.batches[0].sessionId)} && document.querySelectorAll('.mem-session-row').length===1 && !document.querySelector('#mem-session-filter').disabled`,'saved batch session filter');
+      check('H2.task_opens_only_saved_session_filter',await next.evaluate(`document.querySelector('.mem-session-row').title.startsWith(${JSON.stringify(detail.batches[0].sessionId+' · ')}) && !document.querySelector('#mem-ask')`));
+      const taskFocusAfter = await next.evaluate("({tag:document.activeElement?.tagName,id:document.activeElement?.id,label:document.activeElement?.getAttribute('aria-label')})");
+      check('H2.task_navigation_continues_in_sessions',taskFocusAfter.id==='runtime-content' && taskFocusAfter.label==='Sessions content',JSON.stringify({before:taskFocusBefore,after:taskFocusAfter}));
+      await next.evaluate("document.querySelector('.mem-session-row').click()");
+      await waitFor(next,"!!document.querySelector('[aria-label^=\"Read saved suggestions for job \"]') && !!document.querySelector('#mem-ask')",'saved batch branch and local job');
+      check('H2.explicit_branch_read_recovers_saved_job',await next.evaluate(`document.querySelector('.mem-session-heading h2')?.title===${JSON.stringify(detail.batches[0].sessionId)} && document.querySelectorAll('[aria-label^="Read saved suggestions for job "]').length===1`));
+      check('H2.session_navigation_preserves_saved_head',(await statusOf(next)).vault.headCommitId===head);
+      check('H2.session_navigation_creates_no_model_operation',await next.evaluate("__t.memory('operation_list',{}).then(r=>r.result.items.every(op=>op.kind!=='external_send'))"));
+      await shot(next,'history-task-session');
+      let batchRecovery;
+      if (batchMode) {
+        ownedWindowMetrics(reopened, {width:1100,height:700});
+        batchRecovery = await historyBatchPreparation(next, detail, { waitFor, check, nav, rail, click, set, shot, statusOf });
+      }
+      void next.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+      check('H2.reopened_host_exits',await waitForExit(reopened,20000)===0);next.close();
+      if (batchMode) {
+        const recovered=launch(['--memory-vault',vault],{profile:'webview2-batch-recovered'}), last=await connect();
+        await waitFor(last,has('Memory · Vault open'),'batch fixture after full restart');
+        ownedWindowMetrics(recovered,{width:1100,height:700});
+        await historyBatchProcessReopen(last,batchRecovery,{waitFor,check,nav,rail,click,set,shot});
+        void last.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+        check('HB.process_recovered_host_exits',await waitForExit(recovered,20000)===0);last.close();
+      }
+      return;
+    }
+    void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
+    check('H.host_exits', await waitForExit(app, 20000)===0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--keyboard-journey-only') {
     const fixture = resolve(out, '..');
     if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-keyboard-journey-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('keyboard journey requires its dedicated temporary synthetic fixture');
@@ -1929,17 +2199,20 @@ async function main() {
 
     await holdOperationObservation(s, 'session');
     await select(a);
-    await waitFor(s, 'window.__operationHeld', 'older session A detail held');
-    await s.evaluate('window.__releaseOlderSession = window.__releaseOperation');
+    await waitFor(s, 'window.__operationHeld', 'session A detail held');
     check('W02.pending_selection_keeps_observed_branch', await s.evaluate(`${active} === ${JSON.stringify(b)}`));
     check('W02.pending_detail_preserves_current_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
     check('W02.pending_detail_explained', await s.evaluate("document.querySelector('[aria-label=\"Session transcript\"] [role=status]')?.textContent.includes('Reading the session') === true"));
+    // Branch rows stay disabled while a branch read runs (Session selection focus v1).
+    check('W02.pending_detail_holds_branch_rows', await s.evaluate("[...document.querySelectorAll('.mem-session-row')].every(row => row.disabled)"));
+    await select(b); // A disabled native button does not dispatch its click.
+    check('W02.pending_detail_ignores_other_selection', await s.evaluate(`${active} === ${JSON.stringify(b)}`));
+    await s.evaluate('window.__releaseOperation()');
+    await waitFor(s, `${editable} && ${active} === ${JSON.stringify(a)}`, 'session A detail delivered');
+    check('W02.delivered_detail_restores_requested_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Unsent question in session A',summary:'Unsent checkpoint in session A'}));
     await select(b);
-    await waitFor(s, editable, 'newer session B detail delivered');
-    await s.evaluate('window.__releaseOlderSession()');
-    await sleep(300);
-    check('W02.older_detail_cannot_replace_selection', await s.evaluate(`${active} === ${JSON.stringify(b)} && ${editable}`));
-    check('W02.older_detail_cannot_replace_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
+    await waitFor(s, `${editable} && ${active} === ${JSON.stringify(b)}`, 'session B selected again');
+    check('W02.switch_back_restores_current_drafts', JSON.stringify(await s.evaluate(drafts)) === JSON.stringify({text:'Synthetic question in session B',summary:'Synthetic checkpoint in session B'}));
 
     await holdOperationObservation(s, 'ask');
     await click(s, 'form button', 'Send');
@@ -2333,7 +2606,7 @@ async function main() {
   s = await connect();
   await waitFor(s, has('Memory · Vault open'), 'vault open badge');
   check('W03.process_termination_releases_root', true);
-  check('S.badge_states_memory_and_inspector', await s.evaluate(`${has('Memory · Vault open')} && ${has('Inspector demo')}`));
+  check('S.badge_states_connected_workspace', await s.evaluate(`${has('Memory · Vault open')} && ${has('Connected workspace')}`));
   check('S.home_reads_status', await s.evaluate(`${has('Vault open')} && ${has('Nothing waiting for review')}`));
   await shot(s, '01-home');
 
@@ -2604,7 +2877,7 @@ async function main() {
   await shot(s, '07-shell-settings');
   check('A.activity_interface_removed', await s.evaluate("!document.querySelector('nav[aria-label=Primary] button[aria-label=Activity]') && !document.querySelector('[data-screen-label=Activity]')"));
   await nav(s, 'Runtime');
-  check('A.inspector_labelled_fictional', await s.evaluate(has('Fictional · frozen Runtime-local design')));
+  check('A.inspector_observes_components', await s.evaluate(`${has('Observed component status')} && ${has('Memory Core')} && ${has('Windows shell')} && !${has('Activity producer')}`));
 
   // Autostart ignores a supplied Vault and reports an occupied shortcut.
   const secondPort = await unusedPort();

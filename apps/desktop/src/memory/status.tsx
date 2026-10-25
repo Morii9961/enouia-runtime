@@ -6,6 +6,8 @@ import { call, pick, shell, type J } from "./client";
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
+import { ProviderConfigDraft } from "./ProviderConfigDraft";
+import { ProviderSettingsStatus } from "./ProviderSettingsStatus";
 
 type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void> };
 const StatusContext = createContext<StatusValue | null>(null);
@@ -51,11 +53,11 @@ export function MemoryBadge() {
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const text = status ? `Memory · ${vaultLabel(status, vaultChanging)}` : error ? "Memory status unavailable" : "Memory · checking…";
   return (
-    <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. The Runtime Inspector shows fictional examples.">
+    <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. The Runtime Inspector shows observed component status.">
       <span className="qr223" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
       {text}
       <span className="qr4">·</span>
-      Inspector demo
+      Connected workspace
     </div>
   );
 }
@@ -254,7 +256,7 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
   const { status, vaultChanging } = useStatus();
   const v = status?.vault ?? {};
   return (
-    <div className="qr65">
+    <><div className="qr65">
       <div className="qr198">Memory Vault</div>
       <Row k="State">{vaultLabel(status, vaultChanging)}</Row>
       <Row k="Folder">{v.rootName ?? "—"}</Row>
@@ -273,6 +275,8 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
       </div>
       <CompanionSettings status={status} />
     </div>
+    <ProviderConfigDraft disabled={exiting(status)} />
+    <ProviderSettingsStatus disabled={exiting(status)} /></>
   );
 }
 

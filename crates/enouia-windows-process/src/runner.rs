@@ -101,14 +101,7 @@ impl ProcessRunner for WindowsProcessRunner {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .creation_flags(CREATE_NO_WINDOW);
-        let mut child = command
-            .spawn()
-            .map_err(|_| error(ErrorCode::Unconfigured, self.component))?;
-        if let Err(failure) = job.assign(&child, self.component) {
-            let _ = child.kill();
-            let _ = child.wait();
-            return Err(failure);
-        }
+        let mut child = job.spawn(&mut command, self.component)?;
         let stdout = child.stdout.take().ok_or_else(invalid)?;
         let stderr = child.stderr.take().ok_or_else(invalid)?;
         let total = Arc::new(AtomicUsize::new(0));

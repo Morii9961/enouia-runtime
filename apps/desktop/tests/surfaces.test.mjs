@@ -32,6 +32,22 @@ const appAt = (page, state = {}) => {
   return app;
 };
 
+test('native Settings exposes a non-secret configuration draft even before opening a Vault', () => {
+  const html = renderToStaticMarkup(createElement(App, { startPage: 'settings', memoryConnected: true, breathing: false }));
+  assert.match(html, /Model configuration draft/);
+  assert.match(html, /Generate settings draft/);
+  assert.match(html, /Loaded model settings/);
+  assert.match(html, /Reload model settings/);
+  assert.match(html, /Generating and copying do not save the file, reload settings or activate/);
+  assert.doesNotMatch(html, /type="password"|Draft memory-providers\.json|Copy settings draft/);
+});
+
+test('browser Settings keeps its fictional mode without a connected configuration form', () => {
+  const html = renderToStaticMarkup(createElement(App, { startPage: 'settings', memoryConnected: false, breathing: false }));
+  assert.match(html, /Demo · local only/);
+  assert.doesNotMatch(html, /Model configuration draft|Generate settings draft|Loaded model settings|Reload model settings/);
+});
+
 test('all six demo surfaces render exactly one screen and disclose demo mode', () => {
   const screens = { home: 'Home', memory: 'Memory Vault', context: 'Context Surface',
     sessions: 'Sessions', runtime: 'Runtime Inspector', settings: 'Settings' };

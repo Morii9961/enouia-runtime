@@ -15,6 +15,7 @@ setTransport(async (native, args) => {
   calls.push({ command: native, args });
   switch (native) {
     case 'shell_status': return { vaultChanging: changing };
+    case 'memory_provider_setup': return { state: 'absent', file: 'memory-providers.json' };
     case 'startup_status':
       if (holdRead) { holdRead = false; await new Promise<void>(resolve => { release = resolve; }); }
       if (failRead) throw 'startup_read';
@@ -91,6 +92,6 @@ try {
     failRead = false; click(button('Read startup setting again')); await wait(() => toggle()?.disabled === false);
     check('successful_reread_restores_control_without_writing', toggle()?.getAttribute('aria-checked') === 'true' && writes().length === beforeReadRetry);
   }
-  check('fixture_uses_only_status_startup_and_synthetic_exit', calls.every(c => ['shell_status', 'startup_status', 'startup_set', 'exit_app', 'memory_call'].includes(c.command)));
+  check('fixture_uses_only_status_startup_and_synthetic_exit', calls.every(c => ['shell_status', 'startup_status', 'startup_set', 'exit_app', 'memory_call', 'memory_provider_setup'].includes(c.command)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePending(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), startupWrites: calls.filter(c => c.command === 'startup_set') }, null, 2); }

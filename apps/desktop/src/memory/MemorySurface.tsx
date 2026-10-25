@@ -13,10 +13,14 @@ import { CandidateSource } from "./CandidateSource";
 import { CandidateConflict } from "./CandidateConflict";
 import { memoryObservation } from "./observationIdentity";
 import { validImportAlias } from "./importAlias";
+import { ImportReport } from "./ImportReport";
+import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
+import { AutomaticMemory } from "./AutomaticMemory";
 
-type Collection = "inbox" | "current" | "history" | "import" | "vault";
+type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated";
 
 const TITLES: Record<Collection, string> = {
+  automated: "Synthetic automatic memories",
   inbox: "Candidate inbox",
   current: "Current memories",
   history: "Including history",
@@ -30,7 +34,9 @@ function dayOf(iso: string): string {
   return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function MemorySurface({ initialCollection = "current" }: { initialCollection?: "current" | "inbox" }) {
+export default function MemorySurface({ initialCollection = "current", openSession }: {
+  initialCollection?: "current" | "inbox"; openSession?: (vaultId: string, sessionId: string) => void;
+}) {
   const { status, vaultChanging } = useStatus();
   const [collection, setCollection] = useState<Collection>(initialCollection);
   const [query, setQuery] = useState("");
@@ -40,6 +46,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = [
     { label: "Review", items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: "Canonical", items: [["current", TITLES.current], ["history", TITLES.history]] },
+    { label: "Automatic", items: [["automated", TITLES.automated]] },
     { label: "Vault", items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
@@ -76,7 +83,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
           </div>
         ))}
       </aside>
-      {status && (vaultChanging || exiting(status)) ? (
+      {collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>
@@ -94,7 +101,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
       ) : collection === "inbox" ? (
         <Inbox />
       ) : (
-        <Import />
+        <Import key={status.vault.vaultId} openSession={openSession} />
       )}
     </section>
   );
@@ -513,7 +520,10 @@ function useReturnFocus(idle: boolean) {
   }, []);
 }
 
-function Import() {
+function Import({ openSession }: { openSession?: (vaultId: string, sessionId: string) => void }) {
+  const { status } = useStatus();
+  const historyTasks = useHistoryTasks(status.vault.vaultId);
+  const [inspected, setInspected] = useState<string | null>(null);
   const [selection, setSelection] = useState<{ picked: Picked; preview: J } | null>(null);
   const preview = selection?.preview;
   const [alias, setAlias] = useState("acct-main");
@@ -545,6 +555,8 @@ function Import() {
   const earlier = preview?.duplicateOf ? imports?.find((m) => m.importId === preview.duplicateOf) : undefined;
   const interrupted = earlier?.status === "parsing" || earlier?.status === "archived";
   const duplicateUnknown = !!preview?.duplicateOf && (!listReady || !earlier);
+  const report = imports?.find(m => m.importId === inspected);
+  const original = listReady && report?.duplicateOf ? imports?.find(m => m.importId === report.duplicateOf) : undefined;
   return (
     <>
       <Center title={TITLES.import} count={list.error ? "Imports unavailable" : imports == null ? "Waiting for imports" : `${imports.length} recorded`}
@@ -600,6 +612,8 @@ function Import() {
             </div>
           )}
           {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); refresh(); }} />)}
+          <HistoryTasks tasks={historyTasks} openSession={openSession ? sessionId => openSession(status.vault.vaultId, sessionId) : undefined} />
+          <div className="mem-table-scroll" role="region" aria-label="Recorded imports" tabIndex={0}>
           <table className="mem-table">
             <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
             <tbody>
@@ -610,7 +624,15 @@ function Import() {
                   <td>{m.counts.sources_created}</td>
                   <td>{m.counts.attachments_missing}</td>
                   <td>{m.warnings.join(", ")}</td>
-                  <td>{(m.status === "parsing" || m.status === "archived") && (
+                  <td><button id={`mem-import-report-${m.importId}`} type="button" className="mem-button" disabled={!listReady}
+                    aria-label={`Inspect import ${m.importId}`} aria-pressed={inspected === m.importId} onClick={(event) => {
+                      if (!listReady) return;
+                      const trigger = event.currentTarget;
+                      setInspected(m.importId);
+                      requestAnimationFrame(() => {
+                        if (trigger.isConnected && (document.activeElement === trigger || document.activeElement === document.body)) document.getElementById("mem-import-report-title")?.focus();
+                      });
+                    }}>Inspect</button>{(m.status === "parsing" || m.status === "archived") && (
                     <button type="button" className="mem-button" disabled={action.busy || !listReady || !validImportAlias(m.accountScope ?? alias)} onClick={() => {
                       const accountAlias = m.accountScope ?? alias;
                       if (!validImportAlias(accountAlias)) return;
@@ -624,11 +646,19 @@ function Import() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </Center>
       <Inspector>
         <h3 className="mem-h3">What an import does</h3>
         <p className="mem-muted">The original export is kept byte for byte. Conversations become sources; nothing becomes a memory without your review. An interrupted import can be resumed.</p>
+        {inspected && <ImportReport selected={inspected} row={report} current={listReady} vaultId={status?.vault?.vaultId} vaultHead={status?.vault?.headCommitId}
+          onCreateHistory={historyTasks.create} historyBusy={!historyTasks.ready}
+          inspectOriginal={original ? () => setInspected(original.importId) : undefined} close={() => {
+            setInspected(null);
+            const trigger = document.getElementById(`mem-import-report-${inspected}`) as HTMLButtonElement | null;
+            (trigger && !trigger.disabled ? trigger : document.getElementById("mem-center-title"))?.focus();
+          }} />}
       </Inspector>
     </>
   );

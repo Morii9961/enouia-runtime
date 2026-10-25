@@ -121,7 +121,7 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
   const { done, total } = status.progress;
   const active = status.state === "queued" || status.state === "running";
   const external = status.kind === "external_send";
-  const cancellable = external || ["import", "import_resume", "index_rebuild"].includes(status.kind);
+  const cancellable = external || ["import", "import_resume", "index_rebuild", "history_materialize", "history_resume"].includes(status.kind);
   return (
     <div className="mem-operation" role="status" aria-live="polite" aria-atomic="true">
       <span className="mem-mono">{status.kind}</span>

@@ -1,5 +1,7 @@
 # Architecture decision register — v0.3
 
+[ADR-037](037-activity-usage-desktop-retirement.md) retires the desktop Activity / Usage native hosts and command grants. Standalone backend retirement and installed-data changes wait for the Moriium migration.
+
 Date: 2026-09-26. These are phase design decisions, not claims of implemented behavior. “Adopted” means the current implementation specification chooses this direction; “Deferred” means no implementation of that topic is authorized by this phase. Changes require recording what supersedes a decision and updating the architecture, affected contracts, and tests together.
 
 References: [Architecture v0.3](../../Enouia_Runtime_Architecture_v0.3.md), [implementation plan](../IMPLEMENTATION_PLAN_v0.3.md), [migration runbook](../ACTIVITY_MIGRATION_v0.3.md). The IDs retain the v0.2 candidate numbering where applicable. This consolidated register is the ADR artifact for this design phase; split individual records into files if later changes need a longer history.
@@ -226,3 +228,14 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-034 — Audit unselected generations from their manifest and sequence (Proposed; adopted on merge)
 
 [ADR-034](034-summary-audit-of-older-generations.md) cuts the write-path audit to the manifest and hash-checked `sequence.json` of each unselected generation. A full read happens only for a same-reservation pending difference. Damage confined to an older generation's archive, pending or delivery file no longer blocks writing. `recovery-inspect` reports it, and retraction still requires full validation. Measured audit cost on a one-year synthetic archive falls about eightfold.
+
+## ADR-035 — Private AI Usage Ledger and a gated export contract (R0–R3 synthetic implementation; review pending)
+
+[ADR-035](035-ai-usage-ledger.md) separates local usage facts, deduplication, revisions and offline exports from public ActivityData v1 and all Memory paths. The independent `enouia-usage` crate now supplies count adapters, a private transactional ledger, bounded manual scans, reviewed corrections and allowlist UsageSnapshot 1.1 export. The [pin](../integration/usage-pin.json) records Dashboard's merged `b66a472` protocol; [R1](../validation/AI-usage-ledger-R1.md), [R2](../validation/AI-usage-ledger-R2.md), [R3](../validation/AI-usage-ledger-R3.md) and the [manual guide](../AI_USAGE_LEDGER.md) record scope and limits. Legacy observations without proven request dates stay unallocated. Existing ccusage collection, Activity state, Memory pin and scheduling stay unchanged; personal and production acceptance remain pending.
+
+## ADR-036 — Manual private Usage workspace (Owner-authorized implementation)
+
+[ADR-036](036-manual-usage-desktop.md) adds the owner's explicitly requested manual desktop continuation: native directory grants, independent hash-checked Usage runner, count/coverage inspection, paged evidence-bound conflict review and offline export within Activity's private view. No Runtime domain crate enters the desktop graph; no personal source, Memory path, schedule or transmission is activated. [Runner evidence](../validation/AI-usage-ledger-U1-backend.md) separates the synthetic backend gate from desktop and owner acceptance.
+## ADR-037 — Explicit synthetic native Memory adoption (isolated synthetic slice complete)
+
+[ADR-037](037-synthetic-native-memory-adoption.md) adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 owner records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.

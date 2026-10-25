@@ -8,6 +8,8 @@ Update (2026-10-04, [ADR-025](adr/025-enouia-memory-integration.md)): inside the
 
 Update (2026-10-07, [ADR-028](adr/028-activity-surface.md)): inside the native shell the Activity page (`src/activity/`) reads and drives the separately installed Activity producer through that package's runner. It shows the three source calendars, totals, freshness, schedule, delivery and payload preview, and offers Run now, Retry pending and Pause/Resume. Browser previews keep the fictional event timeline.
 
+Update (2026-10-18): the native Runtime Inspector now shows observed Memory, Windows shell and Activity component status through existing read-only facades. Browser previews retain the fictional Inspector described below. See [the delivery plan](RUNTIME_V1_DELIVERY_PLAN.md) and [validation](validation/Runtime-inspector-v1.md).
+
 Update (2026-10-06): [Runtime Vault admission](validation/Root-admission-v1.md) reserves a Vault directory for cooperating Runtime processes and explains refused startup choices. Locking retains the reservation until switching Vaults or exiting. Other Memory clients still require explicit ownership separation.
 
 ## Implemented surface
@@ -58,7 +60,7 @@ On this restricted host, Vite/Tauri builds require approved execution outside th
 
 ## Backend integration boundary
 
-The view fixtures in `demo-data.ts` and `DemoMemory` in `demo-state.ts` are **not canonical Rust DTOs**. Never forward them as backend requests. The Memory boundary has been replaced by the typed Memory client (`src/memory/client.ts`) over the adapter (ADR-025); The native Activity surface uses its independent typed Activity client and runner adapter (ADR-028). Runtime Inspector keeps its demo boundary. Canonical IDs, source records, timestamps, durability and acknowledgements must be backend-owned. Only an acknowledged result may update the production UI; errors/disconnects must retain pending state. Proposed v2 jobs and read contracts cannot be activated by simply copying the v1 handoff mapping.
+The view fixtures in `demo-data.ts` and `DemoMemory` in `demo-state.ts` are **not canonical Rust DTOs**. Never forward them as backend requests. The Memory boundary has been replaced by the typed Memory client (`src/memory/client.ts`) over the adapter (ADR-025); the native Activity surface uses its independent typed Activity client and runner adapter (ADR-028). The native Inspector reads these existing facades and the Windows shell status; the browser Inspector stays a demo. Canonical IDs, source records, timestamps, durability and acknowledgements must be backend-owned. Only an acknowledged result may update the production UI; errors/disconnects must retain pending state. Proposed v2 jobs and read contracts cannot be activated by simply copying the v1 handoff mapping.
 
 Keep Activity & Usage outside Memory/Context. The browser Activity page remains a fictional event timeline; the native page shows the installed producer calendars. The tray, global hotkey, Quick Search and login startup are implemented under [ADR-026](adr/026-companion-shell.md), and the unsigned current-user installer under [ADR-027](adr/027-desktop-installer.md). The [tray lifecycle](validation/Tray-lifecycle-v1.md), [Quick Search](validation/Quick-search-v1.md) and [installer](validation/Desktop-installer-v1.md) reports record their respective releases. Real Provider continuation (Memory MV-7), migration, signing and production activation remain separate work. This integration does not claim A3/J1 acceptance.
 

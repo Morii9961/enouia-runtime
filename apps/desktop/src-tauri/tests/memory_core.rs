@@ -892,6 +892,675 @@ fn review_explorer_and_source_fields_the_memory_surface_renders() {
 }
 
 #[test]
+fn import_report_fields_the_surface_renders() {
+    let mut page = Page::new("import-report");
+    std::fs::write(
+        page.base.join("report.md"),
+        "# Synthetic report\nA fictional project starts on Monday.\n",
+    )
+    .unwrap();
+    let import = || {
+        let token = page.pick(PickKind::ImportFile, "report.md");
+        let started = page.ok(
+            "import_start",
+            json!({"importToken": token, "accountAlias": "report-fixture"}),
+        );
+        assert_eq!(page.finish(&started)["state"], "succeeded");
+    };
+    import();
+    let original = page.ok("import_list", json!({}))["items"][0].clone();
+    strings(
+        &original,
+        &["importId", "status", "inputKind", "receivedAt", "updatedAt"],
+        "import report",
+    );
+    for field in [
+        "revision",
+        "inputSizeBytes",
+        "conversationsCovered",
+        "membersQuarantined",
+    ] {
+        assert!(original[field].as_u64().is_some(), "import report.{field}");
+    }
+    for field in [
+        "sources_created",
+        "sources_revised",
+        "sources_unchanged",
+        "conversations",
+        "branches",
+        "missing_parents",
+        "unparseable",
+        "attachments_present",
+        "attachments_missing",
+        "attachments_external",
+        "attachments_quarantined",
+    ] {
+        assert!(
+            original["counts"][field].as_u64().is_some(),
+            "import counts.{field}"
+        );
+    }
+    assert_eq!(original["counts"]["sources_created"], 1);
+    assert!(
+        original["accountScope"].is_null(),
+        "Markdown has no upstream account"
+    );
+    assert!(
+        original["warnings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(Value::is_string)
+    );
+    import();
+    let rows = page.ok("import_list", json!({}));
+    let duplicate = rows["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["duplicateOf"] == original["importId"])
+        .unwrap();
+    assert_eq!(duplicate["counts"]["sources_created"], 0);
+    let duplicate_id = duplicate["importId"].clone();
+    page.reopen();
+    let reread = page.ok("import_list", json!({}));
+    let saved = reread["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["importId"] == duplicate_id)
+        .unwrap();
+    assert_eq!(saved["duplicateOf"], original["importId"]);
+    assert_eq!(saved["counts"]["sources_created"], 0);
+}
+
+#[test]
+fn history_plan_fields_the_surface_renders() {
+    let mut page = Page::new("history-plan-fields");
+    std::fs::write(page.base.join("history.md"),
+        "# Synthetic one\nFirst section.\n# Synthetic two\nSecond section.\n# Synthetic three\nThird section.\n# Synthetic four\nFourth section.\n# Synthetic five\nFifth section.\n").unwrap();
+    let token = page.pick(PickKind::ImportFile, "history.md");
+    let started = page.ok(
+        "import_start",
+        json!({"importToken":token,"accountAlias":"synthetic-history"}),
+    );
+    assert_eq!(page.finish(&started)["state"], "succeeded");
+    let row = page.ok("import_list", json!({}))["items"][0].clone();
+    let status = page.ok("workspace_status", json!({}));
+    let mut args = json!({"importId":row["importId"],"importRevision":row["revision"],
+        "messagesPerBatch":2,"maxPathReferences":1000,"cursor":null,"limit":1});
+    let response = page.send("history_plan", args.clone());
+    assert_eq!(response["kind"], "history_plan");
+    assert!(response["error"].is_null());
+    let first = response["result"].clone();
+    assert_eq!(first["identity"]["vaultId"], status["vault"]["vaultId"]);
+    assert_eq!(first["identity"]["importId"], row["importId"]);
+    assert_eq!(first["identity"]["importRevision"], row["revision"]);
+    assert_eq!(first["identity"]["messagesPerBatch"], 2);
+    assert_eq!(first["identity"]["maxPathReferences"], 1000);
+    strings(
+        &first["identity"],
+        &["plannerVersion", "commitId", "inputObjectHash"],
+        "history identity",
+    );
+    assert_eq!(
+        first["identity"]["plannerVersion"],
+        "workspace-history-plan-1"
+    );
+    assert_eq!(first["planHash"].as_str().unwrap().len(), 64);
+    assert_eq!(first["summary"]["messages"], 5);
+    assert_eq!(first["summary"]["dated"], 0);
+    assert_eq!(first["summary"]["undated"], 5);
+    assert_eq!(first["summary"]["batches"], 3);
+    for field in [
+        "units",
+        "unparseable",
+        "incompleteMessages",
+        "unavailableAttachments",
+        "issues",
+    ] {
+        assert!(
+            first["summary"][field].as_u64().is_some(),
+            "history summary.{field}"
+        );
+    }
+    assert!(first["summary"]["earliest"].is_null() && first["summary"]["latest"].is_null());
+    assert_eq!(first["readOnly"], true);
+    assert_eq!(first["coverageIsCompleteHistory"], false);
+    assert_eq!(first["issues"], json!([]));
+    assert_eq!(first["issuesOmitted"], 0);
+    let batch = &first["batches"][0];
+    assert_eq!(batch["batchIndex"], 0);
+    assert!(batch["selectedInExport"].is_boolean());
+    assert!(batch["observedPathStart"].is_null());
+    assert!(batch["preceding"].is_null());
+    assert_eq!(batch["messages"].as_array().unwrap().len(), 2);
+    for source in batch["messages"].as_array().unwrap() {
+        strings(
+            source,
+            &["sourceId", "speakerRole", "evidenceClass", "completeness"],
+            "history source",
+        );
+        assert!(source["sourceRevision"].as_u64().unwrap() > 0);
+        assert!(source["occurredAt"].is_null());
+        assert!(source.get("text").is_none() && source.get("locator").is_none());
+    }
+    args["cursor"] = first["nextCursor"].clone();
+    let second = page.ok("history_plan", args.clone());
+    assert_eq!(second["planHash"], first["planHash"]);
+    assert_eq!(second["batches"][0]["batchIndex"], 1);
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        status["vault"]["headCommitId"]
+    );
+    page.reopen();
+    assert_eq!(
+        page.err("history_plan", args)["rules"][0],
+        "history.plan_stale"
+    );
+}
+
+#[test]
+fn history_tasks_prepare_saved_batches_and_send_only_after_exact_confirmation() {
+    use enouia_memory_contract::MemoryError;
+    use enouia_memory_contract::foundation::Cancellation;
+    use enouia_memory_contract::json::SchemaVersion;
+    use enouia_memory_contract::ports::{SecretBytes, SecretStore};
+    use enouia_memory_contract::provider::{Capability, ProviderCapabilities, TokenCounting};
+    use enouia_memory_provider::client::Limits;
+    use enouia_memory_provider::codec::{Api, WireRequest};
+    use enouia_memory_provider::transport::Transport;
+    use enouia_memory_provider::vault::Quota;
+    use enouia_memory_workspace::{NativeDestination, NativeProvider};
+    use std::sync::Arc;
+    struct BatchPorts {
+        reads: AtomicU64,
+        calls: AtomicU64,
+        allow: std::sync::atomic::AtomicBool,
+    }
+    let ports = Arc::new(BatchPorts {
+        reads: AtomicU64::new(0),
+        calls: AtomicU64::new(0),
+        allow: std::sync::atomic::AtomicBool::new(false),
+    });
+    impl SecretStore for BatchPorts {
+        fn read(&self, _: &str) -> Result<SecretBytes, MemoryError> {
+            assert!(
+                self.allow.load(Ordering::SeqCst),
+                "preparation must not read credentials"
+            );
+            self.reads.fetch_add(1, Ordering::SeqCst);
+            Ok(SecretBytes::new(b"synthetic-test-key".to_vec()))
+        }
+    }
+    impl Transport for BatchPorts {
+        fn exchange(
+            &self,
+            _: &WireRequest,
+            _: &SecretBytes,
+            _: &dyn Cancellation,
+            _: Duration,
+            sink: &mut dyn FnMut(&[u8]) -> Result<(), MemoryError>,
+        ) -> Result<(), MemoryError> {
+            assert!(
+                self.allow.load(Ordering::SeqCst),
+                "preparation must not call transport"
+            );
+            self.calls.fetch_add(1, Ordering::SeqCst);
+            let text = json!({"candidates":[
+                {"kind":"fact","content":"Synthetic first result","quote":"Synthetic","source_index":0,"claim_key":"synthetic_history_first"},
+                {"kind":"fact","content":"Synthetic second result","quote":"Synthetic","source_index":0,"claim_key":"synthetic_history_second"}
+            ]}).to_string();
+            sink(&serde_json::to_vec(&json!({"id":"resp_synthetic_runtime_history","object":"response","error":null,"status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":text}]}],"usage":{"input_tokens":50,"output_tokens":10}})).unwrap())
+        }
+    }
+    let mut page = Page::new("history-task-fields");
+    let verified_at = serde_json::from_value(
+        page.ok("workspace_status", json!({}))["vault"]["lastCommitAt"].clone(),
+    )
+    .unwrap();
+    let provider = NativeProvider {
+        transport: ports.clone(),
+        secrets: ports.clone(),
+        destinations: vec![NativeDestination {
+            api: Api::OpenAiResponses,
+            capabilities: ProviderCapabilities {
+                schema_version: SchemaVersion,
+                binding: Api::OpenAiResponses.binding("synthetic-model").unwrap(),
+                text_input: Capability::Supported,
+                image_input: Capability::Unsupported,
+                streaming: Capability::Unsupported,
+                tool_calling: Capability::Unsupported,
+                cancellation: Capability::Supported,
+                token_counting: TokenCounting::Estimated,
+                context_window_tokens: Some(128000),
+                max_output_tokens: Some(4096),
+                verified_at: Some(verified_at),
+            },
+        }],
+        quota: Quota::default(),
+        limits: Limits::default(),
+    };
+    page.ws.set_native_provider(Some(provider.clone())).unwrap();
+    assert!(page.ok("provider_status", json!({}))["destinations"][0]["verifiedAt"].is_string());
+    std::fs::write(
+        page.base.join("history.md"),
+        "# One\nSynthetic one.\n# Two\nSynthetic two.\n# Three\nSynthetic three.\n",
+    )
+    .unwrap();
+    let token = page.pick(PickKind::ImportFile, "history.md");
+    let started = page.ok(
+        "import_start",
+        json!({"importToken": token, "accountAlias":"synthetic-history"}),
+    );
+    assert_eq!(page.finish(&started)["state"], "succeeded");
+    let import = page.ok("import_list", json!({}))["items"][0].clone();
+    let plan = page.ok(
+        "history_plan",
+        json!({"importId":import["importId"],"importRevision":import["revision"],
+        "messagesPerBatch":2,"maxPathReferences":1000,"cursor":null,"limit":10}),
+    );
+    let args = json!({"importId":import["importId"],"importRevision":import["revision"],
+        "inputObjectHash":plan["identity"]["inputObjectHash"],"planHash":plan["planHash"],"previewCommitId":plan["identity"]["commitId"],
+        "messagesPerBatch":2,"maxPathReferences":1000,"batchIndices":[1,0],"api":"openai","model":"synthetic-model",
+        "maxCandidates":2,"maxPending":100,"maxReservedTokens":10000,"maxReservedCostMicrousd":null});
+    let mut spoof = args.clone();
+    spoof["policyId"] = json!("page-supplied-policy");
+    assert_eq!(
+        page.err("history_materialize", spoof)["code"],
+        "invalid_request"
+    );
+    let key = "ui-runtime-history-stable-admission";
+    let response = page.send_keyed("history_materialize", args.clone(), Some(key));
+    assert_eq!(response["kind"], "operation_started", "{response}");
+    let completed = page.finish(&response["result"]);
+    assert_eq!(completed["kind"], "history_materialize");
+    assert_eq!(completed["state"], "succeeded", "{completed}");
+    let task = completed["result"].clone();
+    assert_eq!(task["request"], args);
+    assert_eq!(task["materializationComplete"], true);
+    assert_eq!(task["missingBatchIndices"], json!([]));
+    assert_eq!(task["batches"][0]["batchIndex"], 1);
+    assert_eq!(task["batches"][1]["batchIndex"], 0);
+    assert_eq!(task["readOnly"], true);
+    assert_eq!(task["identity"]["taskId"], task["taskId"]);
+    for batch in task["batches"].as_array().unwrap() {
+        strings(
+            batch,
+            &["sessionId", "runId", "inputEventId", "state"],
+            "history batch",
+        );
+        assert_eq!(batch["state"], "ready");
+        assert_eq!(batch["applied"], 0);
+        assert!(batch["invocationState"].is_null());
+    }
+    strings(
+        &task,
+        &[
+            "createdAt",
+            "coordinatorSessionId",
+            "coordinatorInputId",
+            "materializationPlanHash",
+        ],
+        "history task",
+    );
+    let grant = page.ok(
+        "egress_grant_plan",
+        json!({"apis":["openai"],"maxSensitivity":"private","extraction":true}),
+    );
+    let policy = page.ok(
+        "provider_confirm",
+        json!({"planId":grant["planId"],"diffHash":grant["diffHash"]}),
+    );
+    let prepare_args = json!({"taskId":task["taskId"],"batchIndex":1,"policyId":policy["policyId"],"outputTokens":256});
+    let prepare_key = "ui-saved-batch-exact-preparation";
+    let reply = page.send_keyed(
+        "history_batch_prepare",
+        prepare_args.clone(),
+        Some(prepare_key),
+    );
+    assert_eq!(reply["kind"], "external_prepared", "{reply}");
+    let prepared = reply["result"].clone();
+    for field in ["sessionId", "runId", "inputEventId"] {
+        assert_eq!(prepared[field], task["batches"][0][field]);
+    }
+    assert_eq!(prepared["taskId"], task["taskId"]);
+    assert_eq!(prepared["batchIndex"], 1);
+    assert_eq!(prepared["outputTokens"], 256);
+    strings(
+        &prepared,
+        &[
+            "callId",
+            "wireHash",
+            "body",
+            "endpoint",
+            "model",
+            "api",
+            "dispatchId",
+        ],
+        "saved batch inspection",
+    );
+    assert!(prepared["expiresInMs"].as_u64().unwrap() > 0);
+    assert!(prepared["estimatedInputTokens"].is_u64());
+    assert_eq!(prepared["streaming"], false);
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 0);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 0);
+    let before = page.ok("workspace_status", json!({}))["vault"]["headCommitId"].clone();
+    page.reopen(); // Saved recovery does not require a new Provider configuration.
+    let list = page.ok("history_task_list", json!({"cursor":null,"limit":10}));
+    assert_eq!(list["items"].as_array().unwrap().len(), 1);
+    assert_eq!(list["items"][0]["request"], args);
+    assert!(list["nextCursor"].is_null());
+    assert_eq!(list["readOnly"], true);
+    let get_args = json!({"taskId":task["taskId"]});
+    assert_eq!(
+        page.ok("history_task_get", get_args.clone())["batches"],
+        task["batches"]
+    );
+    let replay = page.send_keyed("history_materialize", args, Some(key));
+    assert_eq!(
+        page.finish(&replay["result"])["result"]["taskId"],
+        task["taskId"]
+    );
+    let resumed = page.finish(&page.ok("history_resume", get_args));
+    assert_eq!(resumed["state"], "succeeded");
+    assert_eq!(resumed["result"]["batches"], task["batches"]);
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        before
+    );
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["pendingCandidates"],
+        0
+    );
+    page.ws.set_native_provider(Some(provider)).unwrap();
+    let reopened = page.send_keyed(
+        "history_batch_prepare",
+        prepare_args.clone(),
+        Some(prepare_key),
+    );
+    assert_eq!(reopened["kind"], "external_prepared", "{reopened}");
+    let fresh = &reopened["result"];
+    assert_ne!(fresh["callId"], prepared["callId"]);
+    for field in ["wireHash", "sessionId", "runId", "inputEventId"] {
+        assert_eq!(fresh[field], prepared[field]);
+    }
+    let mut changed = prepare_args.clone();
+    changed["batchIndex"] = json!(0);
+    assert_eq!(
+        page.send_keyed("history_batch_prepare", changed, Some(prepare_key))["error"]["code"],
+        "idempotency_conflict"
+    );
+    assert_eq!(
+        page.err(
+            "external_send",
+            json!({"callId":prepared["callId"],"wireHash":prepared["wireHash"]})
+        )["code"],
+        "not_found"
+    );
+    assert_eq!(
+        page.err(
+            "external_send",
+            json!({"callId":fresh["callId"],"wireHash":"0".repeat(64)})
+        )["code"],
+        "permission_denied"
+    );
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 0);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 0);
+    ports.allow.store(true, Ordering::SeqCst);
+    let send_args = json!({"callId":fresh["callId"],"wireHash":fresh["wireHash"]});
+    let sent = page.send_keyed(
+        "external_send",
+        send_args.clone(),
+        Some("ui-history-send-once"),
+    );
+    assert_eq!(sent["error"], Value::Null, "{sent}");
+    let completed_send = page.finish(&sent["result"]);
+    assert_eq!(completed_send["state"], "succeeded", "{completed_send}");
+    let replay = page.send_keyed("external_send", send_args, Some("ui-history-send-once"));
+    assert_eq!(replay["result"], sent["result"]);
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 1);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(
+        page.err("history_batch_prepare", prepare_args)["code"],
+        "permission_denied"
+    );
+    assert_eq!(
+        page.ok("history_task_get", json!({"taskId":task["taskId"]}))["batches"][0]["invocationState"],
+        "completed"
+    );
+    assert_eq!(
+        page.ok("candidate_list", json!({"cursor":null,"limit":50}))["items"],
+        json!([])
+    );
+    // New 55-command consumer: inspect/apply saved results with all ports absent.
+    ports.allow.store(false, Ordering::SeqCst);
+    page.ws.set_native_provider(None).unwrap();
+    let selected = json!({"taskId":task["taskId"],"batchIndex":1});
+    let before = page.ok("workspace_status", json!({}))["vault"]["headCommitId"].clone();
+    let preview = page.send("history_batch_preview", selected.clone());
+    assert_eq!(preview["kind"], "extraction_preview");
+    let preview = preview["result"].clone();
+    let comparison_args = json!({"batches":[selected.clone()]});
+    let comparison = page.send("history_compare", comparison_args.clone());
+    assert_eq!(comparison["kind"], "history_comparison");
+    let comparison = &comparison["result"];
+    assert_eq!(comparison["base"]["commitId"], before);
+    assert_eq!(comparison["batches"][0]["taskId"], task["taskId"]);
+    assert_eq!(comparison["batches"][0]["sessionId"], preview["sessionId"]);
+    assert_eq!(
+        comparison["runs"][0]["response_hash"],
+        preview["responseHash"]
+    );
+    let brief_args = json!({"batches":[selected.clone()],
+        "comparisonCommitId":comparison["base"]["commitId"],"maxBytes":131072});
+    let brief = page.send("history_brief", brief_args.clone());
+    assert_eq!(brief["kind"], "history_brief");
+    let brief = brief["result"].clone();
+    assert_eq!(brief["base"], comparison["base"]);
+    assert_eq!(brief["batches"], comparison["batches"]);
+    assert_eq!(
+        brief["contentHash"],
+        json!(enouia_memory_contract::hash::sha256(
+            brief["markdown"].as_str().unwrap().as_bytes()
+        ))
+    );
+    let entries: Vec<_> = comparison["topics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .flat_map(|topic| topic["entries"].as_array().unwrap())
+        .collect();
+    assert_eq!(entries.len(), 2);
+    for entry in entries {
+        let item = &preview["items"][entry["responseIndex"].as_u64().unwrap() as usize];
+        assert_eq!(entry["content"], item["content"]);
+        assert_eq!(entry["selectedText"], item["selectedText"]);
+        assert_eq!(entry["candidate"], Value::Null);
+    }
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        before
+    );
+    assert_eq!(preview["items"].as_array().unwrap().len(), 2);
+    assert_eq!(preview["job"]["cursor"], 0);
+    assert_eq!(preview["taskId"], task["taskId"]);
+    assert_eq!(preview["sessionId"], task["batches"][0]["sessionId"]);
+    assert_eq!(preview["runId"], task["batches"][0]["runId"]);
+    assert_eq!(
+        preview["job"]["input_event_id"],
+        task["batches"][0]["inputEventId"]
+    );
+    for item in preview["items"].as_array().unwrap() {
+        strings(
+            item,
+            &[
+                "content",
+                "quote",
+                "selectedText",
+                "sourceId",
+                "speakerRole",
+                "evidenceClass",
+                "capturedAt",
+            ],
+            "history result item",
+        );
+        assert_eq!(item["application"], "awaiting_cursor");
+        assert!(item["candidate"].is_null());
+        assert!(
+            item["selectedText"]
+                .as_str()
+                .unwrap()
+                .contains(item["quote"].as_str().unwrap())
+        );
+    }
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        before
+    );
+    let request = json!({"taskId":task["taskId"],"batchIndex":1,"responseHash":preview["responseHash"],"cursor":0});
+    let pause_receipt = page.ok("extraction_pause", json!({"sessionId":task["batches"][0]["sessionId"],"runId":task["batches"][0]["runId"],"paused":true}));
+    assert_eq!(pause_receipt["job"]["state"], "paused");
+    assert_eq!(pause_receipt["job"]["cursor"], 0);
+    let paused_preview = page.ok(
+        "history_batch_preview",
+        json!({"taskId":task["taskId"],"batchIndex":1}),
+    );
+    assert_eq!(paused_preview["job"]["state"], "paused");
+    assert_eq!(paused_preview["items"], preview["items"]);
+    assert_eq!(
+        page.err("history_batch_apply", request.clone())["rules"][0],
+        "history.batch_paused"
+    );
+    let resume_receipt = page.ok("extraction_pause", json!({"sessionId":task["batches"][0]["sessionId"],"runId":task["batches"][0]["runId"],"paused":false}));
+    assert_eq!(resume_receipt["job"]["state"], "ready");
+    assert_eq!(resume_receipt["job"]["cursor"], 0);
+    let resumed_preview = page.ok(
+        "history_batch_preview",
+        json!({"taskId":task["taskId"],"batchIndex":1}),
+    );
+    assert_eq!(resumed_preview["items"], preview["items"]);
+    assert_eq!(resumed_preview["responseHash"], preview["responseHash"]);
+    let mut changed = request.clone();
+    changed["responseHash"] = json!("0".repeat(64));
+    assert_eq!(
+        page.err("history_batch_apply", changed)["rules"][0],
+        "history.response_stale"
+    );
+    let mut future = request.clone();
+    future["cursor"] = json!(1);
+    assert_eq!(
+        page.err("history_batch_apply", future)["rules"][0],
+        "history.response_stale"
+    );
+    let applied = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-apply-step-zero"),
+    );
+    assert_eq!(applied["kind"], "extraction_job", "{applied}");
+    let first = applied["result"].clone();
+    assert_eq!(first["responseHash"], preview["responseHash"]);
+    assert_eq!(first["job"]["cursor"], 1);
+    assert_eq!(first["job"]["state"], "ready");
+    let head = page.ok("workspace_status", json!({}))["vault"]["headCommitId"].clone();
+    let replay = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-apply-step-zero"),
+    );
+    assert_eq!(replay["result"], first);
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["vault"]["headCommitId"],
+        head
+    );
+    page.reopen();
+    let replay = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-apply-step-zero"),
+    );
+    assert_eq!(replay["result"], first);
+    let old = page.send_keyed(
+        "history_batch_apply",
+        request.clone(),
+        Some("ui-runtime-history-old-cursor"),
+    );
+    assert_eq!(old["result"]["job"]["cursor"], 1);
+    let preview_first = page.ok("history_batch_preview", selected.clone());
+    assert_eq!(preview_first["items"][0]["candidate"]["status"], "pending");
+    assert_eq!(preview_first["items"][1]["application"], "awaiting_cursor");
+    let mut next = request;
+    next["cursor"] = json!(1);
+    assert_eq!(
+        page.send_keyed(
+            "history_batch_apply",
+            next.clone(),
+            Some("ui-runtime-history-apply-step-zero")
+        )["error"]["code"],
+        "idempotency_conflict"
+    );
+    let second = page.send_keyed(
+        "history_batch_apply",
+        next,
+        Some("ui-runtime-history-apply-step-one"),
+    );
+    assert_eq!(second["result"]["job"]["cursor"], 2);
+    assert_eq!(second["result"]["job"]["state"], "completed");
+    let completed = page.ok("history_batch_preview", selected);
+    let compared = page.ok("history_compare", comparison_args);
+    assert_eq!(
+        page.err("history_brief", brief_args)["code"],
+        "revision_conflict"
+    );
+    let current_brief = page.ok("history_brief",
+        json!({"batches":compared["batches"].as_array().unwrap().iter()
+            .map(|b| json!({"taskId":b["taskId"],"batchIndex":b["batchIndex"]})).collect::<Vec<_>>(),
+            "comparisonCommitId":compared["base"]["commitId"],"maxBytes":131072}));
+    assert_eq!(current_brief["base"], compared["base"]);
+
+    assert_eq!(compared["runs"][0]["applied"], 2);
+    assert!(
+        compared["topics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|topic| topic["entries"].as_array().unwrap())
+            .all(|entry| entry["candidate"]["status"] == "pending")
+    );
+    assert!(
+        completed["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|i| i["candidate"]["status"] == "pending")
+    );
+    assert_eq!(
+        page.ok("workspace_status", json!({}))["pendingCandidates"],
+        2
+    );
+    assert!(
+        page.ok(
+            "memory_list",
+            json!({"includeInactive":false,"cursor":null,"limit":25})
+        )["items"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(ports.reads.load(Ordering::SeqCst), 1);
+    assert_eq!(ports.calls.load(Ordering::SeqCst), 1);
+    // Optional owned fixture for the TypeScript consumer's actual-Core field check.
+    if let Some(path) = std::env::var_os("RUNTIME_HISTORY_RESULT_FIXTURE") {
+        std::fs::write(path, serde_json::to_vec_pretty(&json!({
+            "vaultId":task["identity"]["vaultId"],"task":task,"preview":preview,
+            "first":first,"previewFirst":preview_first,"second":second["result"],"completed":completed,
+            "pauseReceipt":pause_receipt,"pausedPreview":paused_preview,"resumeReceipt":resume_receipt,"resumedPreview":resumed_preview
+        })).unwrap()).unwrap();
+    }
+}
+
+#[test]
 fn session_and_context_fields_the_surfaces_render() {
     let page = Page::new("session");
     let proposed = page.ok(

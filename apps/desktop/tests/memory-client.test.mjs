@@ -4,7 +4,7 @@
 // covered by src-tauri/tests/memory_core.rs.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CallError, call, describe, pick, providerKey, providerSetup, providerReload, retryable, setTransport, shell } from '../src/memory/client.ts';
+import { CallError, call, describe, pick, providerKey, providerSetup, providerReload, providerSaveDraft, retryable, setTransport, shell } from '../src/memory/client.ts';
 
 const KEY = /^[A-Za-z0-9_-]{16,128}$/;
 const REQUEST_ID = /^req_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -128,6 +128,23 @@ test('provider setup and keys use only native commands and never carry a key', a
   }
 });
 
+test('saving a model draft carries only inspected JSON through its native dialog command', async () => {
+  const sent = recorder(() => ({ saved: true, file: 'memory-providers.json' }));
+  const draft = '{"schemaVersion":1}\n';
+  assert.deepEqual(await providerSaveDraft(draft), { saved: true, file: 'memory-providers.json' });
+  assert.deepEqual(sent, [{ command: 'memory_provider_save_draft', args: { draft } }]);
+  recorder(() => ({ cancelled: true }));
+  assert.deepEqual(await providerSaveDraft(draft), { cancelled: true });
+});
+
+test('a malformed or inherited draft-save acknowledgement cannot claim a saved file', async () => {
+  const inherited = Object.assign(Object.create({ saved: true, file: 'memory-providers.json' }), { unexpected: true, other: true });
+  for (const result of [null, [], { saved: false }, { saved: true, file: 'elsewhere.json' }, { saved: true, file: 'memory-providers.json', path: 'private-path' }, { cancelled: true, saved: true }, Object.assign(Object.create({ cancelled: true }), { other: true }), inherited]) {
+    recorder(() => result);
+    await assert.rejects(providerSaveDraft('{}'), /not confirmed/);
+  }
+});
+
 test('external commands are keyed writes, and provider rules have owner text', async () => {
   const sent = recorder(() => ({ kind: 'external_prepared', result: {} }));
   await call('external_prepare', {});
@@ -138,4 +155,16 @@ test('external commands are keyed writes, and provider rules have owner text', a
   assert.equal(sent[2].args.request.idempotencyKey, null);
   const refused = new CallError({ code: 'provider_unavailable', retryable: false, rules: ['provider.not_configured'] });
   assert.match(describe(refused), /not set up/);
+});
+
+
+test('the adopted history write commands keep one submission key on an explicit retry', async () => {
+  const sent = recorder(() => ({ kind: 'synthetic_reply', result: {}, error: null }));
+  for (const command of ['history_materialize', 'history_resume', 'history_batch_prepare', 'history_batch_apply']) {
+    await call(command, { synthetic: true });
+    const key = sent.at(-1).args.request.idempotencyKey;
+    assert.match(key, KEY);
+    await call(command, { synthetic: true }, key);
+    assert.equal(sent.at(-1).args.request.idempotencyKey, key);
+  }
 });

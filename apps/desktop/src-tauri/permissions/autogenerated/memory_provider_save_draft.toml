@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-memory-provider-save-draft"
+description = "Enables the memory_provider_save_draft command without any pre-configured scope."
+commands.allow = ["memory_provider_save_draft"]
+
+[[permission]]
+identifier = "deny-memory-provider-save-draft"
+description = "Denies the memory_provider_save_draft command without any pre-configured scope."
+commands.deny = ["memory_provider_save_draft"]

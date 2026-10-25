@@ -19,6 +19,8 @@ setTransport(async (native, args) => {
   const r = args.request as { command: string; arguments: Record<string, unknown> };
   calls.push({ command: r.command, args: r.arguments }); let result: unknown;
   switch (r.command) {
+    case "history_task_list": result = { identity: { commitId: "synthetic-head" }, items: [], nextCursor: null, readOnly: true }; break;
+    case "operation_list": result = { items: [] }; break;
     case "workspace_status": result = { vault: { state: "open" }, pendingCandidates: 0 }; break;
     case "memory_list": result = { items: [], total: 0, nextCursor: null }; break;
     case "import_list": result = { items: imports.map(m => ({ ...m, inputKind: "markdown_file", accountScope: "fixture-account", counts: { sources_created: m.status === "completed" ? 1 : 0, attachments_missing: 0 }, warnings: [], duplicateOf: null })) }; break;
@@ -66,6 +68,6 @@ try {
   await wait(() => rows().every(s => s === "completed") && !watchers().includes("running"));
   await startImport(3); await wait(() => watchers().includes("running")); await sleep(50);
   check("new_import_retires_finished_import_feedback", JSON.stringify(watchers()) === JSON.stringify(["running"]));
-  check("imports_issue_only_expected_commands", calls.every(c => ["workspace_status", "memory_list", "import_list", "import_preview", "import_start", "operation_get"].includes(c.command)));
+  check("imports_issue_only_expected_commands", calls.every(c => ["history_task_list", "operation_list", "workspace_status", "memory_list", "import_list", "import_preview", "import_start", "operation_get"].includes(c.command)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { root.unmount(); document.getElementById("results")!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok) }, null, 2); }

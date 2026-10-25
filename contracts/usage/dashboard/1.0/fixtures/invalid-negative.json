@@ -1,0 +1,240 @@
+{
+  "kind": "ai_usage_snapshot",
+  "schema_version": "1.0",
+  "mode": "range_replacement",
+  "dataset_id": "b7c1064a-bdb0-4ea2-9f1d-346d810ab16c",
+  "revision": "1",
+  "generated_at": "2026-11-03T12:00:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "manual_aggregate",
+  "source_timezone": "Asia/Shanghai",
+  "range": {
+    "start": "2026-10-26",
+    "end_exclusive": "2026-11-02"
+  },
+  "adapter_version": "1.0.0",
+  "days": [
+    {
+      "date": "2026-10-26",
+      "state": "complete"
+    },
+    {
+      "date": "2026-10-27",
+      "state": "complete"
+    },
+    {
+      "date": "2026-10-28",
+      "state": "complete"
+    },
+    {
+      "date": "2026-10-29",
+      "state": "complete"
+    },
+    {
+      "date": "2026-10-30",
+      "state": "complete"
+    },
+    {
+      "date": "2026-10-31",
+      "state": "complete"
+    },
+    {
+      "date": "2026-11-01",
+      "state": "complete"
+    }
+  ],
+  "rows": [
+    {
+      "date": "2026-10-26",
+      "provider": "openai",
+      "model": "synthetic-sol",
+      "effort": "high",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "short",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "-1",
+        "input_uncached": "200",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "0",
+        "input_cache_write_1h": "0",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    },
+    {
+      "date": "2026-10-27",
+      "provider": "openai",
+      "model": "synthetic-sol",
+      "effort": "xhigh",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "short",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "1000",
+        "input_uncached": "200",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "0",
+        "input_cache_write_1h": "0",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    },
+    {
+      "date": "2026-10-28",
+      "provider": "openai",
+      "model": "synthetic-sol",
+      "effort": "high",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "long",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "300100",
+        "input_uncached": "299300",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "0",
+        "input_cache_write_1h": "0",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    },
+    {
+      "date": "2026-10-29",
+      "provider": "openai",
+      "model": "synthetic-sol",
+      "effort": "xhigh",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "unknown",
+      "context_class": "short",
+      "region": "global",
+      "classification": "unknown",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "1000",
+        "input_uncached": "200",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "0",
+        "input_cache_write_1h": "0",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    },
+    {
+      "date": "2026-10-30",
+      "provider": "openai",
+      "model": "synthetic-sol",
+      "effort": "high",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "short",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "9007199254741999",
+        "input_uncached": "9007199254741199",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "0",
+        "input_cache_write_1h": "0",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    },
+    {
+      "date": "2026-10-31",
+      "provider": "openai",
+      "model": "synthetic-sol",
+      "effort": "xhigh",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "short",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "missing",
+      "counts": {
+        "input_total": "1000",
+        "input_uncached": null,
+        "input_cache_read": "800",
+        "input_cache_write_5m": null,
+        "input_cache_write_1h": "0",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    },
+    {
+      "date": "2026-11-01",
+      "provider": "openai",
+      "model": "synthetic-unknown",
+      "effort": "high",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "short",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "1000",
+        "input_uncached": "200",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "0",
+        "input_cache_write_1h": "0",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    },
+    {
+      "date": "2026-10-26",
+      "provider": "anthropic",
+      "model": "synthetic-claude",
+      "effort": "xhigh",
+      "effort_evidence": "reported",
+      "time_basis": "request_start",
+      "service_tier": "standard",
+      "context_class": "short",
+      "region": "global",
+      "classification": "request_classified",
+      "cache_detail": "complete",
+      "counts": {
+        "input_total": "1300",
+        "input_uncached": "200",
+        "input_cache_read": "800",
+        "input_cache_write_5m": "100",
+        "input_cache_write_1h": "200",
+        "input_cache_write_30m": "0",
+        "input_cache_write_unknown": "0",
+        "output_total": "100",
+        "output_reasoning_subset": "40"
+      }
+    }
+  ]
+}

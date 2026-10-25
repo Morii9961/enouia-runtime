@@ -9,17 +9,17 @@ const operationBaseline = process.argv.includes('--operation-baseline');
 assert.ok(!(operationBaseline && process.argv.includes('--settings-baseline')), 'Choose only one baseline');
 const baseline = process.argv.includes('--settings-baseline') || operationBaseline;
 const details = process.argv.includes('--details');
-const fixtures = ['settings-exit-ownership', 'shell-navigation-focus', 'home-status-observation', 'startup-note', 'memory-lifecycle-gate', 'vault-gate-focus',
+const fixtures = ['settings-exit-ownership', 'runtime-inspector', 'workspace-operations-inspector', 'shell-navigation-focus', 'home-status-observation', 'startup-note', 'memory-lifecycle-gate', 'vault-gate-focus',
   'operation-stop-observation', 'operation-observation', 'operation-cancel', 'inbox-retry-ownership',
-  'import-alias-admission', 'import-observation', 'import-operations', 'panel-action-focus', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
+  'import-alias-admission', 'import-observation', 'import-report', 'history-plan', 'history-task-form', 'history-task-owner', 'history-task-navigation', 'history-results', 'history-comparison', 'history-brief', 'history-batch-request', 'history-batch-config-race', 'history-batch-focus', 'import-operations', 'panel-action-focus', 'candidate-conflict-focus', 'candidate-conflict', 'candidate-source-focus', 'candidate-source',
   'memory-source-focus', 'source-suggestion-focus', 'source-suggestions', 'source-suggestion-resume',
   'candidate-paging', 'memory-inspector-identity', 'inspector-action-focus', 'memory-forget-focus', 'explorer-paging-focus', 'vault-operations', 'context-observation', 'saved-mock-context', 'saved-context-focus',
   'session-observation', 'session-selection-focus', 'session-list-recovery', 'session-id-filter', 'session-history-boundary', 'session-event-metadata',
   'session-retry-ownership', 'saved-suggestions', 'saved-suggestion-identity', 'saved-suggestion-apply',
   'suggestion-resume', 'suggestion-lifetime', 'suggestion-review-journey', 'workspace-calls',
-  'operation-snapshot', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
+  'operation-snapshot', 'provider-config-draft', 'provider-draft-save', 'provider-settings-status', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
   'provider-preparation-recovery', 'provider-operations', 'provider-off-ledger', 'provider-confirmation',
-  'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation'];
+  'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation', 'automatic-memory'];
 const desktop = fileURLToPath(new URL('..', import.meta.url));
 const baselineSha = operationBaseline ? '290248b6cb37fe4e905970963793042b097bc7b8' : '6cb6920eab5ca5a84e23b7d9f55773cf3f61609d';
 const baselineFile = operationBaseline ? 'ui.tsx' : 'status.tsx';

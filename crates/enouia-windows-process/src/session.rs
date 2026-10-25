@@ -45,14 +45,7 @@ impl WindowsJsonLineSession {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .creation_flags(CREATE_NO_WINDOW);
-        let mut child = command
-            .spawn()
-            .map_err(|_| error(ErrorCode::Unconfigured))?;
-        if let Err(failure) = job.assign(&child, ComponentId::ActivityCollectorCodex) {
-            let _ = child.kill();
-            let _ = child.wait();
-            return Err(failure);
-        }
+        let mut child = job.spawn(&mut command, ComponentId::ActivityCollectorCodex)?;
         let mut stdin = child
             .stdin
             .take()

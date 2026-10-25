@@ -19,7 +19,7 @@ const pureDependencies = {
 // Runtime's frozen `enouia-memory` crate shares the prefix.
 const MEMORY_SOURCE = 'git+https://github.com/Morii9961/enouia-memory.git';
 const PINNED = /^git\+https:\/\/github\.com\/Morii9961\/enouia-memory\.git\?rev=([0-9a-f]{40})#([0-9a-f]{40})$/;
-const runtimeName = (name) => name.startsWith('enouia-activity') || core.has(name) || shared.has(name);
+const runtimeName = (name) => name.startsWith('enouia-activity') || name === 'enouia-usage' || core.has(name) || shared.has(name);
 const isProduction = (dep) => dep.dep_kinds.some(k => k.kind === null || k.kind === 'build');
 
 function graph(input) {
@@ -56,10 +56,12 @@ function checkDomain(input, g) {
   assert.equal(upstream.size, 0, 'the domain workspace must not depend on Enouia Memory; only the desktop shell embeds it');
   const workspace = input.workspace_members.map(id => packages.get(id));
   const activity = new Set(workspace.filter(p => p.name.startsWith('enouia-activity')).map(p => p.name));
-  assert.equal(workspace.length, 12, 'new workspace ownership needs explicit boundary review');
+  const usage = new Set(['enouia-usage']);
+  assert.equal(workspace.length, 13, 'new workspace ownership needs explicit boundary review');
   assert.equal(activity.size, 5);
+  assert(workspace.some(p => usage.has(p.name)), 'independent Usage domain required');
   for (const pkg of workspace) {
-    assert(core.has(pkg.name) || activity.has(pkg.name) || shared.has(pkg.name), `unclassified module: ${pkg.name}`);
+    assert(core.has(pkg.name) || activity.has(pkg.name) || usage.has(pkg.name) || shared.has(pkg.name), `unclassified module: ${pkg.name}`);
     const node = nodes.get(pkg.id);
     assert(node, 'workspace node missing');
     if (pureDependencies[pkg.name]) {
@@ -67,13 +69,14 @@ function checkDomain(input, g) {
       assert.deepEqual([...new Set(production)].sort(), [...pureDependencies[pkg.name]].sort(), `pure contract dependency changed: ${pkg.name}`);
     }
     reach(pkg.id, (target, id) => {
-      if (activity.has(pkg.name)) assert(!core.has(target.name) && !upstream.has(id), `Activity reaches Core or Memory: ${pkg.name} -> ${target.name}`);
-      if (core.has(pkg.name)) assert(!activity.has(target.name), `Core reaches Activity: ${pkg.name} -> ${target.name}`);
-      if (shared.has(pkg.name)) assert(!core.has(target.name) && !activity.has(target.name) && !upstream.has(id), `shared adapter reaches a domain: ${pkg.name}`);
+      if (activity.has(pkg.name)) assert(!core.has(target.name) && !usage.has(target.name) && !upstream.has(id), `Activity reaches another domain: ${pkg.name} -> ${target.name}`);
+      if (core.has(pkg.name)) assert(!activity.has(target.name) && !usage.has(target.name), `Core reaches another domain: ${pkg.name} -> ${target.name}`);
+      if (usage.has(pkg.name)) assert(!core.has(target.name) && !activity.has(target.name) && !upstream.has(id), `Usage reaches Activity or Memory: ${pkg.name} -> ${target.name}`);
+      if (shared.has(pkg.name)) assert(!core.has(target.name) && !activity.has(target.name) && !usage.has(target.name) && !upstream.has(id), `shared adapter reaches a domain: ${pkg.name}`);
     });
   }
   assert(!nodes.get(workspace.find(p => p.name === 'enouia-provider').id).deps.some(d => packages.get(d.pkg).name === 'enouia-core-contract'), 'Provider must not depend on local UI contract');
-  return { state: 'dependency_boundaries_passed', workspace: 'domain', workspaceModules: 12, activityModules: 5, coreModules: 5, sharedModules: 2, memoryPackages: 0, scope: 'resolved_production_and_build_dependencies' };
+  return { state: 'dependency_boundaries_passed', workspace: 'domain', workspaceModules: 13, activityModules: 5, usageModules: 1, coreModules: 5, sharedModules: 2, memoryPackages: 0, scope: 'resolved_production_and_build_dependencies' };
 }
 
 /** The desktop shell: one member that embeds pinned Memory; no Runtime domain crate anywhere. */
@@ -116,6 +119,10 @@ if (args.includes('--self-test')) {
   negative(m => fake(m, 'enouia-memory-index', `${MEMORY_SOURCE}?branch=main#${'b'.repeat(40)}`));
   negative(m => fake(m, 'enouia-memory-vault', null));
   if (result.workspace === 'domain') {
+    negative(m => add(m, 'enouia-usage', 'enouia-memory'));
+    negative(m => add(m, 'enouia-usage', 'enouia-activity'));
+    negative(m => add(m, 'enouia-activity', 'enouia-usage'));
+    negative(m => add(m, 'enouia-common', 'enouia-usage'));
     negative(m => add(m, 'enouia-activity', 'enouia-memory'));
     negative(m => add(m, 'enouia-memory', 'enouia-activity'));
     negative(m => add(m, 'enouia-common', 'enouia-memory'));
