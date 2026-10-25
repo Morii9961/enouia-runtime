@@ -98,8 +98,6 @@ pub fn request_exit(app: &AppHandle) {
     if !host.begin_close() {
         return;
     }
-    // Independent local Usage children stop before the shell releases its UI.
-    app.state::<crate::usage::UsageHost>().begin_close();
     let _ = show_main(app);
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.set_title("Enouia Runtime · finishing Memory operations");
@@ -112,7 +110,6 @@ pub fn request_exit(app: &AppHandle) {
         let worker_app = app.clone();
         if matches!(
             tauri::async_runtime::spawn_blocking(move || {
-                worker_app.state::<crate::usage::UsageHost>().shutdown();
                 worker.shutdown();
                 let state = worker_app.state::<ShellState>();
                 let mut owned = state.hotkey.lock().unwrap_or_else(PoisonError::into_inner);
@@ -131,7 +128,6 @@ pub fn request_exit(app: &AppHandle) {
             app.exit(0);
         } else {
             host.close_failed();
-            app.state::<crate::usage::UsageHost>().resume();
             app.state::<ShellState>().error(Some("shutdown_failed"));
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.set_title("Enouia Runtime");
