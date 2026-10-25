@@ -41,7 +41,7 @@ The trace is drawn once on Home and the time map glides for 320 ms. Reduced make
 Theme
 </span>
 <span className="qr108">
-Dark negative with an amber pen. A light theme is not designed yet.
+Three dark and three light palettes. The mode follows the system; ?theme= and ?palette= pick one in the browser demo.
 </span>
 </div>
 <span className="qr9">

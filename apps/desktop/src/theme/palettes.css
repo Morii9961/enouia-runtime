@@ -1,0 +1,39 @@
+/* 08-negative · six palettes, generated. Three dark (d1–d3), three light (l1–l3).
+   main.tsx sets <html data-theme data-palette>: the mode follows the system unless ?theme= is given,
+   and ?palette=1|2|3 picks the palette within the mode (browser demo; default 1).
+   Before the script runs, the system mode picks d1 or l1. Only colour lives here.
+   d1 Moss Night · 苔夜 — 04 标本馆的灰绿世界翻成夜里；笔是锈。
+   d2 Iron Gall · 铁胆 — 铁胆墨的紫黑，压得很低；笔是铜绿。
+   d3 Pine Soot · 松烟 — 松烟墨的暖黑与骨白；笔是石青。
+   l1 Herbarium Sheet · 台纸 — 04 的台面灰绿与绿黑墨；笔是锈。
+   l2 Lilac Ledger · 藕荷 — 偏紫的冷灰纸，紫黑墨；笔是铜绿。
+   l3 Xuan Paper · 宣纸 — 不发黄的宣纸灰、松烟墨；笔是石青。 */
+:root,:root[data-palette="d1"]{--paper:#121915;--wash:#18211B;--wash-2:#1E2821;--grid-minor:#1F2922;--grid-major:#2D3A31;--ink:#D0DDCF;--ink-2:#9FB09F;--ink-3:#80927F;--ink-hi:#EDF4EA;--pen:#D7825A;
+  --i-paper:#D0DDCF;--i-wash:#C5CFC3;--i-wash-2:#B9C4B7;--i-grid-minor:#B3BFB1;--i-grid-major:#9AA799;--i-ink:#121915;--i-ink-2:#33403A;--i-ink-3:#424F45;--i-pen:#8B3818;
+  --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
+@media (prefers-color-scheme: light){:root:not([data-palette]){--paper:#E7EDE3;--wash:#DCE3D8;--wash-2:#D1DACD;--grid-minor:#D2DACE;--grid-major:#B8C4B3;--ink:#1A2A1F;--ink-2:#3A4B3F;--ink-3:#4D5E52;--ink-hi:#0E1812;--pen:#9A361C;
+  --i-paper:#1A2A1F;--i-wash:#25342A;--i-wash-2:#2C3C31;--i-grid-minor:#304036;--i-grid-major:#44564A;--i-ink:#E7EDE3;--i-ink-2:#BFCABD;--i-ink-3:#A0ADA0;--i-pen:#E39069;
+  --backdrop:rgba(20,20,18,0.42);color-scheme:light}}
+:root[data-palette="d2"]{--paper:#17131A;--wash:#1E1922;--wash-2:#241E28;--grid-minor:#261F2A;--grid-major:#362D3B;--ink:#E0D6E0;--ink-2:#AFA3AF;--ink-3:#91858F;--ink-hi:#F6EEF5;--pen:#74B8A2;
+  --i-paper:#E0D6E0;--i-wash:#D0C8CE;--i-wash-2:#C4BCC2;--i-grid-minor:#BEB5BB;--i-grid-major:#A69CA3;--i-ink:#17131A;--i-ink-2:#3D343B;--i-ink-3:#544A51;--i-pen:#1D5C4D;
+  --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
+:root[data-palette="d3"]{--paper:#15130F;--wash:#1C1A16;--wash-2:#23201B;--grid-minor:#25221D;--grid-major:#35312A;--ink:#E4DDCF;--ink-2:#B1A99B;--ink-3:#918A7D;--ink-hi:#F7F2E8;--pen:#8AABD1;
+  --i-paper:#E4DDCF;--i-wash:#D4CEC3;--i-wash-2:#C8C2B6;--i-grid-minor:#C1BBAF;--i-grid-major:#A8A296;--i-ink:#15130F;--i-ink-2:#3D3933;--i-ink-3:#55504A;--i-pen:#264D7A;
+  --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
+:root[data-palette="l1"]{--paper:#E7EDE3;--wash:#DCE3D8;--wash-2:#D1DACD;--grid-minor:#D2DACE;--grid-major:#B8C4B3;--ink:#1A2A1F;--ink-2:#3A4B3F;--ink-3:#4D5E52;--ink-hi:#0E1812;--pen:#9A361C;
+  --i-paper:#1A2A1F;--i-wash:#25342A;--i-wash-2:#2C3C31;--i-grid-minor:#304036;--i-grid-major:#44564A;--i-ink:#E7EDE3;--i-ink-2:#BFCABD;--i-ink-3:#A0ADA0;--i-pen:#E39069;
+  --backdrop:rgba(20,20,18,0.42);color-scheme:light}
+:root[data-palette="l2"]{--paper:#EDE8EE;--wash:#E2DCE4;--wash-2:#D8D1DA;--grid-minor:#D9D2DB;--grid-major:#C2B9C4;--ink:#241C27;--ink-2:#463C49;--ink-3:#5B5160;--ink-hi:#140F16;--pen:#1D6354;
+  --i-paper:#241C27;--i-wash:#2E2630;--i-wash-2:#362D38;--i-grid-minor:#3A313C;--i-grid-major:#504553;--i-ink:#EDE8EE;--i-ink-2:#C8BFC9;--i-ink-3:#A89FA9;--i-pen:#7CC2AB;
+  --backdrop:rgba(20,20,18,0.42);color-scheme:light}
+:root[data-palette="l3"]{--paper:#F1F0EB;--wash:#E7E5DF;--wash-2:#DDDAD3;--grid-minor:#DCD9D2;--grid-major:#C5C1B8;--ink:#1D1C1A;--ink-2:#44423E;--ink-3:#5C5954;--ink-hi:#100F0D;--pen:#29528A;
+  --i-paper:#1D1C1A;--i-wash:#282622;--i-wash-2:#302D29;--i-grid-minor:#33302B;--i-grid-major:#4A463F;--i-ink:#F1F0EB;--i-ink-2:#C6C1B7;--i-ink-3:#A6A196;--i-pen:#93B3D8;
+  --backdrop:rgba(20,20,18,0.42);color-scheme:light}
+/* The Quick Search slip's trace is an inline SVG, so its pen colour is written per palette. */
+.quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%23D7825A' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%23D7825A'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+@media (prefers-color-scheme: light){:root:not([data-palette]) .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%239A361C' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%239A361C'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}}
+:root[data-palette="d2"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2374B8A2' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2374B8A2'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+:root[data-palette="d3"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%238AABD1' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%238AABD1'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+:root[data-palette="l1"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%239A361C' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%239A361C'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+:root[data-palette="l2"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%231D6354' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%231D6354'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+:root[data-palette="l3"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2329528A' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2329528A'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}

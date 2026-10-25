@@ -139,7 +139,7 @@ Excluded
 {it.bytes}
 </span>
 <svg width="12" height="12" viewBox="0 0 12 12" className="qr112" style={{"transform": it.chev}}>
-<path d="M4 2.5L7.5 6 4 9.5" fill="none" stroke="#A3A79F" strokeWidth="1.2">
+<path d="M4 2.5L7.5 6 4 9.5" fill="none" style={{ stroke: 'var(--ink-2)' }} strokeWidth="1.2">
 
 </path>
 </svg>

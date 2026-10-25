@@ -390,7 +390,7 @@ export default class App extends React.Component<AppProps, AppState> {
 }}>Skip to current surface</a>
 <header className="qr227 bg-titlebar" data-tauri-drag-region>
 <div className="qr220 bg-logo" aria-hidden="true">
-<svg width="22" height="14" viewBox="0 0 22 14"><path d="M1 10.5C4 10.5 5 6 8 6s3.5 4 6.5 4S17 4.5 19 4.5" fill="none" stroke="currentColor" strokeWidth="1.4" /><path d="M18 2l4 2.5-4 2.5z" fill="#D2A24C" /></svg>
+<svg width="22" height="14" viewBox="0 0 22 14"><path d="M1 10.5C4 10.5 5 6 8 6s3.5 4 6.5 4S17 4.5 19 4.5" fill="none" stroke="currentColor" strokeWidth="1.4" /><path d="M18 2l4 2.5-4 2.5z" style={{ fill: 'var(--pen)' }} /></svg>
 </div>
 <div className="qr221">
 Enouia Runtime

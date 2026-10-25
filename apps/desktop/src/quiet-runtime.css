@@ -1,15 +1,13 @@
 /* 08-negative · the shared surface classes re-inked as a negative.
    Class names are the exported .qr* hooks that tests, smoke scripts and the
    native Memory surfaces rely on; only their appearance changes here.
-   Dark ground, light ink, one amber pen. Amber is used for the trace, the pen
-   tip, the time-map frame, the pen's cursor on a chart and "Corrected by you",
-   and nowhere else. Selection is inversion (light block, dark text); focus is a
-   light 2px line; error = inversion + hatch + "✕". States carry a glyph or words. */
+   One ground, one ink, one pen colour (palettes.css: three dark, three light).
+   The pen is used for the trace, the pen tip, the time-map frame, the pen's
+   cursor on a chart and "Corrected by you", and nowhere else. Selection is
+   inversion (an ink block, ground-coloured text); focus is a 2px ink line;
+   error = inversion + hatch + "✕". States carry a glyph or words. */
 :root{
-  --paper:#121312;--wash:#1B1D1B;--wash-2:#202220;
-  --grid-minor:#232623;--grid-major:#2C2F2C;
-  --ink:#D9DCD5;--ink-2:#A3A79F;--ink-3:#858A82;--ink-hi:#F1F3EC;
-  --pen:#D2A24C;
+  /* colour tokens: theme/palettes.css */
   --f-lab:'Martian Mono','Microsoft YaHei UI','Microsoft YaHei',monospace;
   --f-text:'Geist','Microsoft YaHei UI','Microsoft YaHei','Segoe UI',sans-serif;
   --f-mono:'Martian Mono','Microsoft YaHei UI','Microsoft YaHei',monospace;
@@ -19,7 +17,6 @@
   --canvas:var(--paper);--surface:var(--wash);--elevated:var(--wash-2);--hover:var(--wash);--well:var(--wash);
   --border:var(--ink-3);--hairline:var(--grid-major);--primary:var(--ink);--secondary:var(--ink-2);--tertiary:var(--ink-3);
   --ice:var(--ink);--warm:var(--ink);--ok:var(--ink);--pending:var(--ink-2);--error:var(--ink);--line:var(--grid-major);
-  color-scheme:dark;
 }
 
 html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:14px;font-stretch:var(--w-sm);font-synthesis:none;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
@@ -37,13 +34,13 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 @keyframes enouiaBreath{0%,100%{opacity:0.6}50%{opacity:1}}
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
 
-/* ---- the one inversion: a selected row, tab or button is a light block with dark text.
+/* ---- the one inversion: a selected row, tab or button is an ink block with ground-coloured text.
    The scope's tokens flip, so every child that reads --ink / --ink-2 / --ink-3 follows. ---- */
 .qr26[aria-pressed="true"],.qr43[aria-pressed="true"],.qr134[aria-pressed="true"],.qr190[data-selected],.qr172[aria-pressed="true"],.qr212[aria-pressed="true"],
 .bg-nav-item[aria-current="page"],.am-view[aria-pressed="true"],.am-chip[aria-pressed="true"],.am-slip[aria-pressed="true"],.am-ev[aria-pressed="true"],.am-ref[aria-pressed="true"],
 .am-rel-row[aria-pressed="true"],.qr215[aria-checked="true"],.mem-primary,.qr81,.qr83,.qr224,.bg-inv,.window-close:enabled:hover,.mem-error{
-  --ink:#121312;--ink-2:#3B3E39;--ink-3:#51554E;--paper:#D9DCD5;--wash:#CBCEC6;--wash-2:#C0C3BA;--grid-major:#A5A89F;--grid-minor:#BCBFB6;--pen:#6A4A08;
-  background:#D9DCD5 !important;color:#121312 !important;
+  --ink:var(--i-ink);--ink-2:var(--i-ink-2);--ink-3:var(--i-ink-3);--paper:var(--i-paper);--wash:var(--i-wash);--wash-2:var(--i-wash-2);--grid-major:var(--i-grid-major);--grid-minor:var(--i-grid-minor);--pen:var(--i-pen);
+  background:var(--i-paper) !important;color:var(--i-ink) !important;
 }
 .qr26[aria-pressed="true"]:focus-visible,.qr43[aria-pressed="true"]:focus-visible,.qr134[aria-pressed="true"]:focus-visible,.qr190[data-selected]:focus-visible,.qr172[aria-pressed="true"]:focus-visible,.qr212[aria-pressed="true"]:focus-visible,
 .bg-nav-item[aria-current="page"]:focus-visible,.am-view[aria-pressed="true"]:focus-visible,.am-chip[aria-pressed="true"]:focus-visible,.am-slip[aria-pressed="true"]:focus-visible,.am-ev[aria-pressed="true"]:focus-visible,.am-ref[aria-pressed="true"]:focus-visible,.am-rel-row[aria-pressed="true"]:focus-visible,
@@ -89,7 +86,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 .qr30{flex:1}
 .qr31{display:flex;align-items:baseline;gap:12px;padding:16px 20px 10px;border-bottom:1px solid var(--grid-major)}
 .qr32{padding:40px 24px;font-size:14px;color:var(--ink-2)}
-.qr33{position:sticky;top:0;z-index:1;padding:2px 20px 1px 20px;line-height:16px;background:#858A82;color:#121312;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+.qr33{position:sticky;top:0;z-index:1;padding:2px 20px 1px 20px;line-height:16px;background:var(--ink-3);color:var(--paper);font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
 .qr34{font-family:var(--f-mono);font-size:12px;line-height:20px;font-weight:500;color:var(--ink-2);text-align:right;padding-right:10px;position:relative}
 .qr35{color:var(--ink-3)}
 .qr36{width:5px;height:8px;background:var(--ink) !important;display:inline-block}
@@ -240,7 +237,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 .qr172:last-child{border-right:0}
 .qr173{display:flex;padding:0;border:1px solid var(--grid-major);background:transparent;gap:0}
 .qr174{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--grid-major)}
-.qr175{margin-top:18px;padding:4px 8px 3px;background:#858A82;color:#121312;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+.qr175{margin-top:18px;padding:4px 8px 3px;background:var(--ink-3);color:var(--paper);font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
 .qr176{font-size:13px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qr177{font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3);text-align:right}
 .qr179{display:grid;grid-template-columns:52px 12px 168px minmax(0,1fr) 132px 14px;gap:12px;align-items:center;width:100%;min-height:42px;padding:0 8px;border:0;background:transparent;text-align:left;cursor:pointer}

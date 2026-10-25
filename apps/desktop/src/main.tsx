@@ -9,6 +9,20 @@ import './memory/memory.css';
 import './activity/activity.css';
 import './theme/negative.css';
 import './theme/automemory.css';
+import './theme/palettes.css';
+
+// Colour only: the mode follows the system unless ?theme=dark|light is given; ?palette=1|2|3 picks within it.
+const look = new URLSearchParams(location.search);
+const scheme = matchMedia('(prefers-color-scheme: light)');
+const applyLook = () => {
+  const asked = look.get('theme');
+  const mode = asked === 'light' || asked === 'dark' ? asked : scheme.matches ? 'light' : 'dark';
+  const n = /^[123]$/.test(look.get('palette') ?? '') ? look.get('palette') : '1';
+  document.documentElement.dataset.theme = mode;
+  document.documentElement.dataset.palette = mode[0] + n;
+};
+applyLook();
+scheme.addEventListener('change', applyLook);
 
 class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };

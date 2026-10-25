@@ -29,7 +29,7 @@ What I keep, and why.
 <span className="am-entry-s" id="am-entry-sub">Invented data · not running · opens a design preview</span>
 </button>
 <label className="qr22">
-<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#A3A79F" strokeWidth="1.2">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ stroke: 'var(--ink-2)' }} strokeWidth="1.2">
 <circle cx="6" cy="6" r="4.2">
 
 </circle>
