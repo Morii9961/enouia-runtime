@@ -1,27 +1,50 @@
-// 01-barograph · geometry for the weekly record chart.
+// 08-negative · geometry for the record chart.
 // Presentation only: every value is derived from the fictional demo fixture
 // and drawn against a fixed demo clock. Nothing here reads a live source.
+// Two frames share one trace: the week on the record strip (Memory, Activity)
+// and the three-week domain behind Home's time map, where the chart pans.
 import { demoData as D } from '../demo-data';
 
 const H = 36e5;
-/** Monday 28 September 2026, 00:00 Asia/Shanghai — the chart's left edge. */
+const DAY = 24 * H;
+/** Monday 28 September 2026, 00:00 Asia/Shanghai — the strip's left edge. */
 export const WEEK_START = Date.parse('2026-09-27T16:00:00.000Z');
-export const WEEK_MS = 7 * 24 * H;
+export const WEEK_MS = 7 * DAY;
 /** Demo clock: the fixture's last compile, 1 Oct 2026 14:44 Asia/Shanghai. Never the real time. */
 export const DEMO_CLOCK = Date.parse('2026-10-01T06:44:02.318Z');
 export const CHART_NO = 40; // ISO week of 28 Sep 2026
 
+/** Home's time map covers three weeks: Mon 14 Sep – Sun 4 Oct (Asia/Shanghai). */
+export const DOM_START = Date.parse('2026-09-13T16:00:00.000Z');
+export const DOM_DAYS = 21;
+export const DOM_MS = DOM_DAYS * DAY;
+/** The chart on Home shows four days at a time; the demo clock sits near its right edge by default. */
+export const HOME_SPAN = 4 * DAY;
+export const HOME_START = WEEK_START;
+
 const t = (iso: string | number) => (typeof iso === 'number' ? iso : Date.parse(iso));
-/** 0 at Monday 00:00, 1 at the following Monday 00:00. */
+/** 0 at Monday 00:00, 1 at the following Monday 00:00 (the strip's week). */
 export const xOf = (iso: string | number) => (t(iso) - WEEK_START) / WEEK_MS;
 export const onChart = (iso: string | number) => { const x = xOf(iso); return x >= 0 && x <= xOf(DEMO_CLOCK) + 1e-9; };
 export const pct = (x: number) => (Math.max(0, Math.min(1, x)) * 100).toFixed(3) + '%';
+/** 0 at the domain's left edge, 1 at its right edge. */
+export const domX = (iso: string | number) => (t(iso) - DOM_START) / DOM_MS;
+export const inDom = (iso: string | number) => { const x = domX(iso); return x >= 0 && x <= domX(DEMO_CLOCK) + 1e-9; };
 
 const DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const parts = (ms: number) => new Date(ms + 8 * H);
 export const DAYS = Array.from({ length: 7 }, (_, i) => {
-  const d = new Date(WEEK_START + i * 24 * H + 8 * H);
+  const d = parts(WEEK_START + i * DAY);
   return { key: i, dow: DOW[d.getUTCDay()], date: String(d.getUTCDate()), today: i === Math.floor(xOf(DEMO_CLOCK) * 7) };
 });
+/** The domain's days, one cell each. */
+export const DOM_CELLS = Array.from({ length: DOM_DAYS }, (_, i) => {
+  const d = parts(DOM_START + i * DAY);
+  return { i, at: DOM_START + i * DAY, dow: DOW[d.getUTCDay()], date: d.getUTCDate(), month: MON[d.getUTCMonth()], today: DOM_START + (i + 1) * DAY > DEMO_CLOCK && DOM_START + i * DAY <= DEMO_CLOCK };
+});
+/** "28 SEP" style label for a timestamp (Asia/Shanghai). */
+export const dayShort = (ms: number) => { const d = parts(ms); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
 
 // The trace: conversation intensity, a smoothed sum over every demo turn and
 // memory write, so the pen rises while we talk and settles between talks.
@@ -30,32 +53,49 @@ D.SESS.forEach((s) => s.turns.forEach((turn) => events.push(t(turn[2]))));
 D.MEM.forEach((m) => events.push(t(m.created)));
 const SIGMA = 75 * 60e3;
 const density = (at: number) => events.reduce((sum, e) => sum + Math.exp(-0.5 * ((at - e) / SIGMA) ** 2), 0);
-const STEPS = 7 * 24 * 4; // quarter hours
-const end = Math.min(STEPS, Math.ceil(xOf(DEMO_CLOCK) * STEPS));
-const raw = Array.from({ length: end + 1 }, (_, i) => density(WEEK_START + Math.min(i / STEPS, xOf(DEMO_CLOCK)) * WEEK_MS));
+const QH = 15 * 60e3;
+const STEPS = DOM_DAYS * 96; // quarter hours across the domain
+const end = Math.min(STEPS, Math.ceil((DEMO_CLOCK - DOM_START) / QH));
+const rawAt = (i: number) => DOM_START + Math.min(i * QH, DEMO_CLOCK - DOM_START);
+const raw = Array.from({ length: end + 1 }, (_, i) => density(rawAt(i)));
 const peak = Math.max(...raw, 1);
-/** Deterministic hand-tremor: the pen's own friction, a pixel or two at most. It carries no data (a regular sine read as a fake signal in round 1). */
+/** Deterministic hand-tremor: the pen's own friction, a pixel or two at most. It carries no data. */
 const hash = (i: number) => { const s = Math.sin(i * 12.9898 + 4.1414) * 43758.5453; return s - Math.floor(s) - 0.5; };
 const tremor = (i: number) => (hash(i - 1) + hash(i) * 2 + hash(i + 1)) / 4;
 /** Pen height, 0 = top of the chart, 1 = bottom. */
 const level = (i: number, d: number) => 0.74 - 0.56 * (d / peak) + 0.01 * tremor(i);
-export const samples = raw.map((d, i) => ({ x: Math.min(i / STEPS, xOf(DEMO_CLOCK)), y: level(i, d) }));
+/** One sample per quarter hour from the domain's left edge up to the demo clock. */
+const samples = raw.map((d, i) => ({ at: rawAt(i), y: level(i, d) }));
 export const yAt = (iso: string | number) => {
-  const x = xOf(iso); const i = Math.max(0, Math.min(samples.length - 1, Math.round(x * STEPS)));
+  const i = Math.max(0, Math.min(samples.length - 1, Math.round((t(iso) - DOM_START) / QH)));
   return samples[i].y;
 };
-/** Trace path in a 1000 × 100 box (draw with preserveAspectRatio="none" and a non-scaling stroke). */
-export const tracePath = samples.map((p, i) => (i ? 'L' : 'M') + (p.x * 1000).toFixed(2) + ' ' + (p.y * 100).toFixed(2)).join(' ');
-export const pen = { x: xOf(DEMO_CLOCK), y: samples[samples.length - 1].y };
+/** Trace path for a frame of the domain, in a 1000 × 100 box (draw with preserveAspectRatio="none" and a non-scaling stroke). */
+const pathFor = (start: number, span: number) => samples.filter((p) => p.at >= start - QH && p.at <= start + span + QH)
+  .map((p, i) => (i ? 'L' : 'M') + (((p.at - start) / span) * 1000).toFixed(2) + ' ' + (p.y * 100).toFixed(2)).join(' ');
+/** The week on the record strip. */
+export const tracePath = pathFor(WEEK_START, WEEK_MS);
+/** The whole three weeks, for Home's panning chart. */
+export const domPath = pathFor(DOM_START, DOM_MS);
+const penY = samples[samples.length - 1].y;
+export const pen = { x: xOf(DEMO_CLOCK), y: penY };
+export const domPen = { x: domX(DEMO_CLOCK), y: penY };
 
 export type Mark = { key: string; x: number; y: number; kind: 'canonical' | 'candidate' | 'checkpoint' | 'superseded'; at: string };
-/** Memory writes on this week's paper: canonical = solid tick, candidate = hollow tick, checkpoint = pen-pressure dot. */
-export const marks: Mark[] = D.MEM.filter((m) => onChart(m.created)).map((m) => ({
-  key: m.key, at: m.created, x: xOf(m.created), y: yAt(m.created),
+const markOf = (m: (typeof D.MEM)[number], x: number): Mark => ({
+  key: m.key, at: m.created, x, y: yAt(m.created),
   kind: m.kind === 'session_checkpoint' ? 'checkpoint' : m.status === 'candidate' ? 'candidate' : m.status === 'active' ? 'canonical' : 'superseded',
-}));
+});
+/** Memory writes on this week's strip: canonical = solid tick, candidate = hollow tick, checkpoint = pen-pressure dot. */
+export const marks: Mark[] = D.MEM.filter((m) => onChart(m.created)).map((m) => markOf(m, xOf(m.created)));
+/** The same marks on Home's three-week domain. */
+export const domMarks: Mark[] = D.MEM.filter((m) => inDom(m.created)).map((m) => markOf(m, domX(m.created)));
 /** Records written before Monday live on earlier charts. */
 export const earlier = D.MEM.filter((m) => xOf(m.created) < 0).length;
+/** Records before the three-week domain. */
+export const domEarlier = D.MEM.filter((m) => domX(m.created) < 0).length;
+/** Event instants inside the domain, as fractions of it, for the time map's ticks. */
+export const domTicks = events.filter((e) => e >= DOM_START && e <= DEMO_CLOCK).map((e) => (e - DOM_START) / DOM_MS);
 
 /** Second instrument: the Activity producer's daily 12:00 collections from the demo events. */
 export const readings = D.ACT.filter((a) => a.cat === 'producer' && onChart(a.at)).map((a) => ({
@@ -63,4 +103,4 @@ export const readings = D.ACT.filter((a) => a.cat === 'producer' && onChart(a.at
 }));
 /** The producer's next scheduled run in the demo fixture (2 Oct, 12:00). */
 export const NEXT_RUN = Date.parse('2026-10-02T04:00:00.000Z');
-export const dayLabel = (iso: string) => { const d = new Date(t(iso) + 8 * H); return DOW[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getUTCMonth()]; };
+export const dayLabel = (iso: string) => { const d = parts(t(iso)); return DOW[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };

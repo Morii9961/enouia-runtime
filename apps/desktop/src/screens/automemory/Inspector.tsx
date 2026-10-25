@@ -27,6 +27,7 @@ export function Inspector({ m, select }: { m: AutoMemory; select: (id: string) =
 
       <section className="am-i-sec" aria-label="Times">
         <h3>Five times, kept apart</h3>
+        <p className="am-fine am-tz">All times are Asia/Shanghai (UTC+8), the same as the rest of this demo. The browser's own zone is not used.</p>
         <dl className="am-times">
           <dt>Occurred</dt><dd><span className="am-mono">{occ.text}</span> <em>{occ.tag}</em></dd>
           <dt>Valid</dt><dd><span className="am-mono">{valid.text}</span> <em>{valid.note}</em></dd>

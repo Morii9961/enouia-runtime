@@ -21,7 +21,7 @@ export default function Recall({ sel, select }: ViewProps) {
     <div className="am-recall">
       <div className="am-view-head">
         <h2 className="am-vh">Recall lab <span>why each memory was or was not offered</span></h2>
-        <p className="am-stamp-line"><span className="am-stamp">Synthetic · no IPC · nothing saved</span> <span className="am-fine">Two invented cases. Nothing is sent, read from a Vault or kept.</span></p>
+        <p className="am-stamp-line"><span className="am-stamp bg-inv">Synthetic · no IPC · nothing saved</span> <span className="am-fine">Two invented cases. Nothing is sent, read from a Vault or kept.</span></p>
       </div>
       <div className="am-cases" role="group" aria-label="Recall case">
         {RECALL_CASES.map((rc, i) => (

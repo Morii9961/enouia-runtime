@@ -40,15 +40,15 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
       <header className="am-head">
         <div className="am-head-row">
           <h1 className="am-h1" tabIndex={-1} ref={head}>Automatic memory <span>synthetic preview</span></h1>
-          <p className="am-stamp">{AUTO_LABEL}</p>
+          <p className="am-stamp bg-inv">{AUTO_LABEL}</p>
           <button type="button" className="am-back" onClick={onExit}>Back to Vault · owner review</button>
         </div>
         <p className="am-note">{AUTO_NOTE}</p>
         <div className="am-head-row am-head-views">
           <div className="am-views" role="group" aria-label="Automatic memory views">
             {VIEWS.map((v) => (
-              <button key={v.id} type="button" className="am-view" aria-pressed={view === v.id} onClick={() => setView(v.id)}>
-                <span className="am-vn">{v.name}</span><span className="am-vhint">{v.hint}</span>
+              <button key={v.id} type="button" className="am-view" aria-pressed={view === v.id} title={v.hint} onClick={() => setView(v.id)}>
+                <span className="am-vn">{v.name}</span>
               </button>
             ))}
           </div>

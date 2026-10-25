@@ -362,7 +362,7 @@ export default class App extends React.Component<AppProps, AppState> {
     const view = this.renderVals();
     const { pageTitle, nav, railKey, isHome, isMemory, isContext, isSessions, isActivity, isRuntime, isSettings } = view;
     const connected = this.connected();
-    // 01-barograph: presentation-only values for the record strip. They read the
+    // 08-negative: presentation-only values for the record strip. They read the
     // same state renderVals() used; nothing here changes what a handler does.
     const still = this.state.motionPref === 'reduced' || (this._mq ? this._mq.matches : false) || this.props.breathing === false;
     const page = this.page();
@@ -390,12 +390,12 @@ export default class App extends React.Component<AppProps, AppState> {
 }}>Skip to current surface</a>
 <header className="qr227 bg-titlebar" data-tauri-drag-region>
 <div className="qr220 bg-logo" aria-hidden="true">
-<svg width="22" height="14" viewBox="0 0 22 14"><path d="M1 10.5C4 10.5 5 6 8 6s3.5 4 6.5 4S17 4.5 19 4.5" fill="none" stroke="currentColor" strokeWidth="1.4" /><path d="M18 2l4 2.5-4 2.5z" fill="#B01E3A" /></svg>
+<svg width="22" height="14" viewBox="0 0 22 14"><path d="M1 10.5C4 10.5 5 6 8 6s3.5 4 6.5 4S17 4.5 19 4.5" fill="none" stroke="currentColor" strokeWidth="1.4" /><path d="M18 2l4 2.5-4 2.5z" fill="#D2A24C" /></svg>
 </div>
 <div className="qr221">
 Enouia Runtime
 </div>
-{connected ? null : <div className="bg-chartno">Chart No. 40 · week of 28 Sep 2026</div>}
+{connected ? null : <div className="bg-chartno">Negative No. 40 · week of 28 Sep 2026</div>}
 <div className="qr222">
 {pageTitle}
 </div>
@@ -436,7 +436,7 @@ Demo · local only
 </div>
 </header>
 <div className="qr233 bg-body">
-{connected ? <NativeStrip page={page} nav={navEl} /> : <RecordStrip page={page} nav={navEl} still={still} selectedAt={selectedAt} sessionSpan={sessionSpan} paused={this.state.paused} />}
+{connected ? <NativeStrip page={page} nav={navEl} /> : <RecordStrip page={page} nav={navEl} still={still} selectedAt={selectedAt} sessionSpan={sessionSpan} sessionKey={this.state.sessionKey} paused={this.state.paused} />}
 <main id="runtime-content" className="qr232" tabIndex={-1} aria-label={`${isHome ? 'Home' : pageTitle} content`}>
 {isHome ? <>
 {connected ? <ConnectedHome nav={view.nav} ring={penMark} /> : <Home view={{ ...view, still }} />}

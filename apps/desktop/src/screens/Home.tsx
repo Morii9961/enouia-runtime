@@ -1,21 +1,45 @@
 import React from "react";
 import type { DemoView } from "../App";
 import { demoData as D } from "../demo-data";
-import { Paper, Trace } from "../theme/RecordStrip";
-import { pct, pen, xOf, yAt } from "../theme/chart";
+import { Trace } from "../theme/RecordStrip";
+import { DEMO_CLOCK, DOM_CELLS, DOM_MS, DOM_START, domMarks, domPath, domPen, pct, yAt } from "../theme/chart";
+import { homeSpec } from "../theme/mapSpecs";
+import { clearViews, useTimeView } from "../theme/timeview";
 
-// The week's chart, enlarged. Each status line is an annotation whose leader
-// runs back to the moment it was recorded on the trace.
-const NOTES_LEFT = 0.575;
-const NOTE_TOPS = [0.05, 0.29, 0.53, 0.77];
+// The record chart, enlarged. The page shows four days of a three-week record;
+// the time map in the strip under the title bar moves the amber frame, and this
+// chart pans with it. Each status line is a note whose leader runs back to the
+// moment it was recorded on the trace (when that moment is on screen).
+const PANE = 0.58;          // the chart's share of the paper; the notes take the rest
+const NOTES_LEFT = 0.605;
+const NOTE_TOPS = [0.04, 0.28, 0.52, 0.76];
 
 export default function Home({ view }: { view: DemoView }) {
   const { home, nav, still } = view;
+  const v = useTimeView('home', homeSpec.init);
+  // Leaders are drawn in screen space, so they wait until the chart has settled.
+  const [settled, setSettled] = React.useState(true);
+  React.useEffect(() => {
+    if (v.seq === 0) return;
+    setSettled(false);
+    const id = setTimeout(() => setSettled(true), 360);
+    return () => clearTimeout(id);
+  }, [v.seq]);
+  React.useEffect(() => () => clearViews('home'), []);
+
   const lastWrite = D.MEM.filter((m) => m.status === 'active' && m.kind !== 'session_checkpoint').map((m) => m.created).sort().slice(-1)[0];
   const lastTurn = D.SESS[0].turns[D.SESS[0].turns.length - 1][2];
   const checkpointAt = D.MEM.find((m) => m.key === 'm7')?.created ?? lastTurn;
   const compiledAt = '2026-10-01T06:44:02.318Z';
   const targets = [lastWrite, compiledAt, lastTurn, checkpointAt];
+
+  const inPane = (ms: number) => (ms - v.start) / v.span;      // 0 at the pane's left edge, 1 at its right edge
+  const penFrac = inPane(DEMO_CLOCK);
+  const penOn = penFrac >= 0 && penFrac <= 1;
+  const panWidth = (DOM_MS / v.span) * 100;                    // the three weeks laid out at pane scale, in % of the pane
+  const shift = -((v.start - DOM_START) / DOM_MS) * 100;       // % of the laid-out width
+  const layer = { width: panWidth.toFixed(3) + '%', transform: `translateX(${shift.toFixed(4)}%)` };
+  const showLeaders = settled || !!still;
   return (
 <section data-screen-label="Home" className="qr17 bg-home">
 <div className="bg-home-head">
@@ -30,16 +54,23 @@ Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">demo clo
 </div>
 </div>
 <div className="bg-home-chart">
-<Paper variant="memory" className="bg-paper-big">
-<Trace still={!!still} draw />
-<svg className="bg-leaders" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-{targets.map((at, i) => <React.Fragment key={i}>
-<path d={`M${(xOf(at) * 1000).toFixed(1)} ${(yAt(at) * 1000).toFixed(1)} L${(NOTES_LEFT * 1000 - 18).toFixed(1)} ${(NOTE_TOPS[i] * 1000).toFixed(1)} H${(NOTES_LEFT * 1000).toFixed(1)}`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-</React.Fragment>)}
-</svg>
-<h1 className="qr2 bg-here" style={{ right: pct(1 - pen.x + 0.035), top: pct(pen.y + 0.06) }}>
+<div className="bg-paper bg-paper-big" data-by={v.by}>
+<div className="bg-pane" style={{ width: pct(PANE) }}>
+<div className="bg-pan bg-pan-grid" style={layer} aria-hidden="true">
+{DOM_CELLS.map((c) => <span key={c.i} className="bg-day" data-today={c.today || undefined} style={{ left: pct(c.i / DOM_CELLS.length) }}>{c.dow} <b>{c.date}</b></span>)}
+</div>
+<div className="bg-draw" data-draw={!still ? 'on' : undefined} role="img" aria-label={`Fictional demo trace of the conversation, four days at a time, drawn up to the demo clock, Thursday 1 October 14:44. The amber frame in the time map above shows which four days are on screen.`}>
+<div className="bg-pan bg-pan-ink" style={layer}>
+<Trace d={domPath} marks={domMarks} penAt={domPen} still={!!still} draw={false} />
+</div>
+</div>
+<h1 className="qr2 bg-here" data-away={!penOn || undefined} style={{ right: pct(penOn ? 1 - penFrac + 0.04 : 0.03) }}>
 I'm here.
 </h1>
+</div>
+<svg className="bg-leaders" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" data-hidden={!showLeaders || undefined}>
+{targets.map((at, i) => { const f = inPane(Date.parse(at)); return f >= 0 && f <= 1 ? <path key={i} d={`M${(PANE * f * 1000).toFixed(1)} ${(yAt(at) * 1000).toFixed(1)} L${(NOTES_LEFT * 1000 - 18).toFixed(1)} ${(NOTE_TOPS[i] * 1000 + 6).toFixed(1)} H${(NOTES_LEFT * 1000).toFixed(1)}`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" /> : null; })}
+</svg>
 <div className="qr13 bg-notes" style={{ left: pct(NOTES_LEFT) }}>
 <button onClick={nav.memory.go} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[0]) }} type="button">
 <span className="bg-note-time">{D.tTime(lastWrite)}</span>
@@ -90,7 +121,7 @@ Turns 1–8 covered at {home.cpTime}
 </span>
 </button>
 </div>
-</Paper>
+</div>
 </div>
 <div className="bg-home-foot">
 <div className="qr6 bg-legend">

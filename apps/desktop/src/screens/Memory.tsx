@@ -1,7 +1,9 @@
 import React from "react";
 import type { DemoView } from "../App";
-import AutoMemory from "./automemory/AutoMemory";
-import { AUTO_ENTRY } from "./automemory/fixture";
+import { AUTO_ENTRY } from "./automemory/entry";
+
+// The preview is a separate chunk: it only loads when someone opens it, which keeps the main script small.
+const AutoMemory = React.lazy(() => import("./automemory/AutoMemory"));
 
 export default function Memory({ view }: { view: DemoView }) {
   // Browser demo only: a synthetic design preview of automatic memory. Local state, nothing stored.
@@ -10,7 +12,7 @@ export default function Memory({ view }: { view: DemoView }) {
   const wasAuto = React.useRef(false);
   React.useEffect(() => { if (!auto && wasAuto.current) entry.current?.focus(); wasAuto.current = auto; }, [auto]);
   const { act, colCount, colTitle, collections, copyLabel, draft, editing, groups, hasNotice, noSel, notEditing, notice, onDraft, onQuery, q, sel, timelineEmpty } = view;
-  if (auto) return <AutoMemory onExit={() => setAuto(false)} />;
+  if (auto) return <React.Suspense fallback={<section data-screen-label="Memory Vault" className="am-loading" aria-busy="true"><p>Loading the synthetic preview…</p></section>}><AutoMemory onExit={() => setAuto(false)} /></React.Suspense>;
   return (
 <section data-screen-label="Memory Vault" className="qr89">
 <aside className="qr28">
@@ -27,7 +29,7 @@ What I keep, and why.
 <span className="am-entry-s" id="am-entry-sub">Invented data · not running · opens a design preview</span>
 </button>
 <label className="qr22">
-<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7F8D9A" strokeWidth="1.2">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#A3A79F" strokeWidth="1.2">
 <circle cx="6" cy="6" r="4.2">
 
 </circle>
@@ -73,7 +75,7 @@ Newest first · ↑ ↓ to move
 <div className="qr44">
 {timelineEmpty ? <>
 <div className="qr32">
-Nothing here matches. No reading on this chart for that text.
+Nothing here matches. No reading on this strip for that text.
 </div>
 </> : null}
 {groups.map((g, gIndex) => <React.Fragment key={g.key}>

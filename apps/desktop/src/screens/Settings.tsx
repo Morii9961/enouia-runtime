@@ -24,7 +24,7 @@ Appearance
 Motion
 </span>
 <span className="qr108">
-The pen draws the week once, then drifts a pixel every 8 seconds, unless reduced.
+The trace is drawn once on Home and the time map glides for 320 ms. Reduced makes both instant.
 </span>
 </div>
 <div className="qr173">
@@ -41,11 +41,11 @@ The pen draws the week once, then drifts a pixel every 8 seconds, unless reduced
 Theme
 </span>
 <span className="qr108">
-Chart paper (light). A dark theme is not designed in this direction.
+Dark negative with an amber pen. A light theme is not designed yet.
 </span>
 </div>
 <span className="qr9">
-Paper
+Negative
 </span>
 </div>
 </div>
