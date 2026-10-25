@@ -152,6 +152,18 @@
 .qr15.bg-margin{gap:2px;padding:8px 0 0;border:0;border-top:1px solid var(--grid-major)}
 .bg-margin .qr9{color:var(--ink)}
 
+/* ---- the enlarged insert: four crop corners round the Inspector, as on a film frame (05) ---- */
+.qr88{position:relative}
+.qr88::after,.am-body::after{content:"";position:absolute;pointer-events:none;z-index:3;
+  background:linear-gradient(var(--ink-3),var(--ink-3)) 0 0/10px 1px no-repeat,linear-gradient(var(--ink-3),var(--ink-3)) 0 0/1px 10px no-repeat,
+    linear-gradient(var(--ink-3),var(--ink-3)) 100% 0/10px 1px no-repeat,linear-gradient(var(--ink-3),var(--ink-3)) 100% 0/1px 10px no-repeat,
+    linear-gradient(var(--ink-3),var(--ink-3)) 0 100%/10px 1px no-repeat,linear-gradient(var(--ink-3),var(--ink-3)) 0 100%/1px 10px no-repeat,
+    linear-gradient(var(--ink-3),var(--ink-3)) 100% 100%/10px 1px no-repeat,linear-gradient(var(--ink-3),var(--ink-3)) 100% 100%/1px 10px no-repeat}
+.qr88::after{inset:6px}
+.am-body{position:relative}
+.am-body::after{top:6px;bottom:6px;right:6px;width:calc(380px - 12px)}
+@media (max-width:1240px){.am-body::after{width:calc(336px - 12px)}}
+
 /* ---- Memory: status glyphs instead of coloured dots ---- */
 [data-status] > .qr36,.qr37 > .qr36,.qr48 > .qr47{display:none}
 .qr37::before,.qr48::before{content:"";display:inline-block;width:5px;height:9px;box-sizing:border-box;background:var(--ink)}
