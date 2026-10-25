@@ -1,6 +1,6 @@
 /* 08-negative · structure for the negative: title bar, record strip, time map,
-   Home chart, the second strip (Activity), Quick Search and native gates.
-   Loaded after quiet-runtime.css, memory.css and activity.css.
+   Home chart, Quick Search and native gates.
+   Loaded after quiet-runtime.css and memory.css.
    One frame kind per screen (a 1px line); grid only where data is drawn, and
    only the coarse grid; the pen colour only on the pen, the map frame and corrections. */
 :root{--strip-head:34px;--strip-chart:46px;--ease:cubic-bezier(.2,.7,.2,1)}
@@ -82,30 +82,7 @@
 .tm-stopped{position:relative;align-items:center;justify-content:center;background-image:repeating-linear-gradient(135deg,var(--grid-major) 0 1px,transparent 1px 7px)}
 .tm-stopped span{padding:0 10px;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase}
 
-/* ---- the second strip: Activity is another film, perforated ---- */
-.bg-strip[data-paper="activity"]{background:var(--wash)}
-.bg-strip[data-paper="activity"] .bg-strip-head{padding-left:8px}
-.bg-paper-activity{background-color:var(--wash);background-image:linear-gradient(to right,var(--grid-major) 1px,transparent 1px)}
-.bg-paper-activity::before,.bg-paper-activity::after{content:"";position:absolute;left:0;right:0;height:5px;background:repeating-linear-gradient(to right,var(--paper) 0 8px,transparent 8px 16px);pointer-events:none}
-.bg-paper-activity::before{top:3px}
-.bg-paper-activity::after{bottom:3px}
-.bg-act-line{position:absolute;top:32px;height:0;border-top:2px solid var(--ink-2)}
-.bg-act-line[data-missing]{border-top:2px dashed var(--ink-3)}
-.bg-reading{position:absolute;top:38px;transform:translateX(-50%);padding:0 4px;background:var(--wash);font-family:var(--f-lab);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap}
-.bg-reading-next{color:var(--ink-3);font-weight:500}
-.bg-reading-next[data-cancelled]{text-decoration:line-through}
-.bg-act-pen{position:absolute;top:32px;width:0;height:0}
-.bg-act-pen::before{content:"";position:absolute;left:-10px;top:-4px;border-left:10px solid var(--pen);border-top:4px solid transparent;border-bottom:4px solid transparent}
-.bg-act-pen[data-lifted]::before{top:-12px}
-.bg-act-pen[data-lifted]::after{content:"";position:absolute;left:-1px;top:-6px;height:6px;border-left:1px dotted var(--pen)}
-.bg-act-note{position:absolute;right:10px;top:37px;padding:0 6px;font-family:var(--f-lab);font-size:12px;font-weight:600;white-space:nowrap}
-.bg-reading[data-failed],.bg-act-note,.qr150,.bg-inv{--ink:var(--i-ink);--ink-2:var(--i-ink-2);--ink-3:var(--i-ink-3);--paper:var(--i-paper);--wash:var(--i-wash);--wash-2:var(--i-wash-2);--grid-major:var(--i-grid-major);--grid-minor:var(--i-grid-minor);--pen:var(--i-pen);background-color:var(--i-paper) !important;color:var(--i-ink) !important}
-.bg-reading[data-failed]{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--i-ink) 22%,transparent) 0 1px,transparent 1px 5px) !important}
-.bg-strip[data-paper="activity"] .bg-strip-chart{height:62px}
-.bg-paper-activity .bg-day{top:10px}
-.bg-app[data-page="activity"] .qr232{background:var(--wash)}
-.bg-app[data-page="activity"] .qr184,.bg-app[data-page="activity"] .qr183{background:transparent}
-.bg-app[data-page="activity"] .qr183{background:var(--paper)}
+.qr150,.bg-inv{--ink:var(--i-ink);--ink-2:var(--i-ink-2);--ink-3:var(--i-ink-3);--paper:var(--i-paper);--wash:var(--i-wash);--wash-2:var(--i-wash-2);--grid-major:var(--i-grid-major);--grid-minor:var(--i-grid-minor);--pen:var(--i-pen);background-color:var(--i-paper) !important;color:var(--i-ink) !important}
 
 /* native: no strip loaded */
 .bg-strip[data-drum="stopped"] .bg-paper{background-image:repeating-linear-gradient(135deg,var(--grid-major) 0 1px,transparent 1px 7px)}
@@ -194,17 +171,6 @@
 .qr148 .qr36{width:4px;height:9px}
 .qr150{padding:0 6px;line-height:18px}
 
-/* ---- Activity rows ---- */
-.qr184[data-cat="producer"] .qr179{background:linear-gradient(to right,var(--ink) 0 3px,transparent 3px)}
-.qr184 .qr47{display:none}
-.bg-cat{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);text-align:center}
-.qr184[data-cat="producer"] .bg-cat{color:var(--ink)}
-.qr184[data-fail]{background:repeating-linear-gradient(135deg,var(--grid-major) 0 1px,transparent 1px 7px) !important}
-.bg-plate{display:flex;flex-direction:column;gap:2px;padding:6px 10px;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase}
-.bg-plate span{font-weight:500}
-.bg-lifted{display:flex;gap:10px;align-items:baseline;margin-top:14px;padding:8px 12px;border:0;border-top:1px solid var(--ink);font-size:13px;color:var(--ink)}
-.bg-lifted b{font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink)}
-
 /* ---- Runtime tone glyphs ---- */
 [data-tone] > .qr36{display:none}
 .qr189[data-tone]::before,.qr206[data-tone]::before{content:"";display:inline-block;width:5px;height:9px;box-sizing:border-box;background:var(--ink)}
@@ -263,23 +229,6 @@
 .mem-event-assistant_output,.mem-event-assistant{border-left-color:var(--ink)}
 .mem-operation{border-radius:0;border-color:var(--grid-major)}
 .mem-candidate{border-top:1px solid var(--grid-major)}
-.act-run,.act-json{border-radius:0;background:var(--wash);border:1px solid var(--grid-major)}
-.act-run-failed{border-color:var(--ink);color:var(--ink)}
-.act-confirm{border:1px solid var(--ink);border-radius:0;background:var(--wash);color:var(--ink)}
-.act-surface{background:var(--wash)}
-.act-cell{border-radius:0}
-.act-known[data-level="0"]{background:var(--grid-minor)}
-.act-known[data-level="1"]{background:color-mix(in oklab,var(--ink) 25%,var(--grid-minor))}
-.act-known[data-level="2"]{background:color-mix(in oklab,var(--ink) 50%,var(--grid-minor))}
-.act-known[data-level="3"]{background:color-mix(in oklab,var(--ink) 75%,var(--grid-minor))}
-.act-known[data-level="4"]{background:var(--ink)}
-.act-missing{border:1px dashed var(--ink-3)}
-.act-outside{background:var(--paper)}
-.act-incomplete{outline:1px solid var(--ink);outline-offset:-1px;background-image:repeating-linear-gradient(135deg,var(--paper) 0 1px,transparent 1px 3px)}
-.act-legend{color:var(--ink-3)}
-.act-table summary,.act-payload summary{color:var(--ink-2)}
-.act-table td,.act-table th{color:var(--ink)}
-.act-table thead th{color:var(--ink-3)}
 
 /* ---- Quick Search: a short slip of the strip ---- */
 .quick-search{gap:12px;padding:0 18px 12px;background:var(--paper);color:var(--ink);font-family:var(--f-text);border:1px solid var(--grid-major)}

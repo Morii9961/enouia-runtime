@@ -2,7 +2,7 @@ import React from "react";
 import type { DemoView } from "../App";
 
 export default function Settings({ view }: { view: DemoView }) {
-  const { keyboardHint, memorySettings, motionOpts, paused, sw, togglePaused, shellSettings } = view;
+  const { keyboardHint, memorySettings, motionOpts, shellSettings } = view;
   return (
 <section data-screen-label="Settings" className="qr187">
 <div className="qr219">
@@ -41,32 +41,12 @@ The trace is drawn once on Home and the time map glides for 320 ms. Reduced make
 Theme
 </span>
 <span className="qr108">
-Three dark and three light palettes. The mode follows the system; ?theme= and ?palette= pick one in the browser demo.
+Tile Blue when the system is dark, Xuan Paper when it is light.
 </span>
 </div>
 <span className="qr9">
 Negative
 </span>
-</div>
-</div>
-<div className="qr65">
-<div className="qr198">
-Activity producer
-</div>
-<div className="qr213">
-<div className="qr135">
-<span className="qr211">
-Pause scheduled runs · demo
-</span>
-<span className="qr101">
-Demo switch only · scheduler is not connected
-</span>
-</div>
-<button role="switch" aria-checked={paused} aria-label="Pause scheduled runs" onClick={togglePaused} className="qr215" type="button">
-<span className="qr214" style={{"left": sw.left}}>
-
-</span>
-</button>
 </div>
 </div>
 {memorySettings ?? <>
@@ -94,7 +74,7 @@ core.md · runtime_rules.md
 </>}
 {shellSettings}
 <div className="qr218">
-{keyboardHint ?? 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves through memories and sessions.'}
+{keyboardHint ?? 'Keyboard: Ctrl+1–6 switches surfaces · ↑ ↓ moves through memories and sessions.'}
 </div>
 </div>
 </section>

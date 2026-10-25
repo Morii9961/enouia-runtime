@@ -4,7 +4,6 @@ import Home from "./screens/Home.tsx";
 import Memory from "./screens/Memory.tsx";
 import Context from "./screens/Context.tsx";
 import Sessions from "./screens/Sessions.tsx";
-import Activity from "./screens/Activity.tsx";
 import Runtime from "./screens/Runtime.tsx";
 import Settings from "./screens/Settings.tsx";
 import { controlWindow, isWindowMaximized, nativeWindow } from './window-controls.ts';
@@ -15,33 +14,31 @@ import SessionsSurface from './memory/SessionsSurface.tsx';
 import ContextSurface from './memory/ContextSurface.tsx';
 import ShellSettings from './shell/ShellSettings';
 import type { DemoMemory } from './demo-state';
-import type { Page, WindowAction, DetailRow, SessionEvent, CollectionDefinition, MemoryActions, DemoActivity } from './demo-types';
+import type { Page, WindowAction, DetailRow, SessionEvent, CollectionDefinition, MemoryActions } from './demo-types';
 
 type AppProps = { startPage?: Page; memoryConnected?: boolean; breathing?: boolean; showIds?: boolean };
 type AppState = {
   page: Page | null; memCapsule: string | null; memInitialCollection?: "current" | "inbox"; collection: string; sel: string; q: string;
   editing: boolean; draft: string; notice: string; mems: DemoMemory[] | null;
-  ctxOpen: string | null; sessionKey: string; actFilter: string; actOpen: string | null;
-  rtKey: string; paused: boolean; motionPref: string; copied: boolean; windowError?: string; windowMaximized: boolean | null;
+  ctxOpen: string | null; sessionKey: string;
+  rtKey: string; motionPref: string; copied: boolean; windowError?: string; windowMaximized: boolean | null;
 };
 export type DemoView = ReturnType<App['renderVals']> & {
   rtSubtitle?: string; still?: boolean; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
 };
-import ActivitySurface from './activity/ActivitySurface.tsx';
 import { NativeStrip, RecordStrip } from './theme/RecordStrip.tsx';
 
 // Inside the native shell the Memory, Context and Sessions surfaces use the
-// pinned Enouia Memory Core (ADR-025), and Activity reads the separately
-// installed producer through its runner (ADR-028). A browser preview has no
-// shell, so it keeps the fictional demo.
+// pinned Enouia Memory Core (ADR-025). A browser preview has no shell, so it
+// keeps the fictional demo.
 const memoryConnected = nativeWindow;
 
 export default class App extends React.Component<AppProps, AppState> {
   static D = demoData;
 
-  state: AppState = { page: null, memCapsule: null, collection: 'all', sel: 'm1', q: '', editing: false, draft: '', notice: '', mems: null, ctxOpen: 'm1', sessionKey: 's1', actFilter: 'all', actOpen: 'a1', rtKey: 'core', paused: false, motionPref: 'system', copied: false, windowMaximized: nativeWindow ? null : false };
+  state: AppState = { page: null, memCapsule: null, collection: 'all', sel: 'm1', q: '', editing: false, draft: '', notice: '', mems: null, ctxOpen: 'm1', sessionKey: 's1', rtKey: 'core', motionPref: 'system', copied: false, windowMaximized: nativeWindow ? null : false };
   ctxScroll = React.createRef<HTMLDivElement>();
-  PAGES: Page[] = ['home', 'memory', 'context', 'sessions', 'activity', 'runtime', 'settings'];
+  PAGES: Page[] = ['home', 'memory', 'context', 'sessions', 'runtime', 'settings'];
 
   _key?: (event: KeyboardEvent) => void;
   _mq?: MediaQueryList;
@@ -57,7 +54,7 @@ export default class App extends React.Component<AppProps, AppState> {
       if (document.querySelector('dialog[open]')) return;
       const target = e.target instanceof Element ? e.target : null;
       const tag = target?.tagName || '';
-      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '7') { e.preventDefault(); this.go(this.PAGES[+e.key - 1]); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '6') { e.preventDefault(); this.go(this.PAGES[+e.key - 1]); return; }
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
       if (target?.closest('nav')) return;
@@ -177,7 +174,7 @@ export default class App extends React.Component<AppProps, AppState> {
     const memId = (m: DemoMemory) => D.ID('mem', m.key);
     const srcRef = (m: DemoMemory) => m.src.kind === 'import' ? m.src.importer : m.src.s ? D.short(sess(m.src.s).id) + ' · turn ' + m.src.t : D.short(D.ID('src', m.key));
 
-    const titles = { home: 'Presence', memory: 'Memory Vault', context: 'Context Surface', sessions: 'Sessions', activity: 'Activity', runtime: 'Runtime Inspector', settings: 'Settings' };
+    const titles = { home: 'Presence', memory: 'Memory Vault', context: 'Context Surface', sessions: 'Sessions', runtime: 'Runtime Inspector', settings: 'Settings' };
     const nav = {} as Record<Page, { go: () => void; bg: string; fg: string; ind: number; cur: 'page' | undefined }>;
     this.PAGES.forEach((p) => { const a = p === page; nav[p] = { go: () => this.go(p), bg: a ? '#17212B' : 'transparent', fg: a ? '#E7EDF2' : '#9BA9B6', ind: a ? 1 : 0, cur: a ? 'page' : undefined }; });
     const railKey = (e: React.KeyboardEvent<HTMLElement>) => {
@@ -320,47 +317,28 @@ export default class App extends React.Component<AppProps, AppState> {
       noCheckpoints: !cs.checkpoints.length,
       writes: allWrites.map((w) => ({ key: w.key, text: w.content, turn: w.src.t, label: STATUS[w.status][0], onClick: () => this.openMemory(w.key) })), noWrites: !allWrites.length, hasCapsule: cs.key === 's1' };
 
-    // Activity
-    const CAT = { memory: ['Memory', '#9FC2D2'], session: ['Sessions', '#EEE7DC'], context: ['Context', '#B9CCB7'], producer: ['Activity producer', '#7F8D9A'] };
-    const actFilters = [['all', 'All'], ['memory', 'Memory'], ['session', 'Sessions'], ['context', 'Context'], ['producer', 'Producer']].map(([k, label]) => { const a = S.actFilter === k; return { label, active: a, bg: a ? '#17212B' : 'transparent', fg: a ? '#E7EDF2' : '#9BA9B6', onClick: () => this.setState({ actFilter: k }) }; });
-    const activityRow = (a: DemoActivity) => {
-      const open = S.actOpen === a.k; const fail = a.title === 'Collection incomplete';
-      return { key: a.k, time: D.tTime(a.at), title: a.title, text: a.text, origin: CAT[a.cat][0], color: fail ? '#D8BC8A' : CAT[a.cat][1], open, bg: open ? '#111820' : 'transparent', chev: open ? 'rotate(90deg)' : 'none', toggle: () => this.setState({ actOpen: open ? null : a.k }),
-        details: [{ k: 'at', v: a.at }].concat(a.details.map(([k, v]) => ({ k, v }))), hasLink: !!a.link, linkLabel: a.link ? a.link[2] : '',
-        onLink: () => { if (!a.link) return; const [p, key] = a.link; if (p === 'memory' && key) this.openMemory(key); else if (p === 'sessions' && key) this.show({ page: 'sessions', sessionKey: key }); else this.go(p); } };
-    };
-    type ActivityDay = { key: string; label: string; items: ReturnType<typeof activityRow>[] };
-    const dmap: Record<string, ActivityDay> = {}; const actDays: ActivityDay[] = [];
-    D.ACT.filter((a) => S.actFilter === 'all' || a.cat === S.actFilter).forEach((a) => {
-      const dk = D.dayKey(a.at);
-      if (!dmap[dk]) { dmap[dk] = { key: dk, label: D.tDay(a.at), items: [] }; actDays.push(dmap[dk]); }
-      dmap[dk].items.push(activityRow(a));
-    });
-
     // Runtime
-    const rtList = D.RT.map((c) => ({ name: c.name, code: c.code, state: c.k === 'activity' && S.paused ? 'Paused' : c.state, tone: c.k === 'activity' && S.paused ? 'paused' : c.tone, color: TONE[c.k === 'activity' && S.paused ? 'pending' : c.tone], bg: c.k === S.rtKey ? '#17212B' : 'transparent', onClick: () => this.setState({ rtKey: c.k }) }));
+    const rtList = D.RT.map((c) => ({ name: c.name, code: c.code, state: c.state, tone: c.tone, color: TONE[c.tone], bg: c.k === S.rtKey ? '#17212B' : 'transparent', onClick: () => this.setState({ rtKey: c.k }) }));
     const rc = D.RT.find((c) => c.k === S.rtKey) ?? D.RT[0];
-    const rt = { name: rc.name, state: rc.k === 'activity' && S.paused ? 'Paused' : rc.state, color: TONE[rc.k === 'activity' && S.paused ? 'pending' : rc.tone], desc: rc.desc,
-      rows: rc.rows.map(([k, v]) => ({ k, v: rc.k === 'activity' && k === 'schedule' && S.paused ? 'paused' : v })), checks: rc.checks.map(([k, v]) => ({ k, v })), limits: rc.limits };
-    const rtStrip = [['memory', 'v1'], ['session', 'v1'], ['capsule', 'v1'], ['core ipc', 'v1'], ['activity ipc', 'v1'], ['schemaVersion', '1'], ['mutation result', 'model_only'], ['toolchain', 'rust 1.98.1 · gnu']].map(([k, v]) => ({ k, v }));
+    const rt = { name: rc.name, state: rc.state, color: TONE[rc.tone], desc: rc.desc,
+      rows: rc.rows.map(([k, v]) => ({ k, v })), checks: rc.checks.map(([k, v]) => ({ k, v })), limits: rc.limits };
+    const rtStrip = [['memory', 'v1'], ['session', 'v1'], ['capsule', 'v1'], ['core ipc', 'v1'], ['schemaVersion', '1'], ['mutation result', 'model_only'], ['toolchain', 'rust 1.98.1 · gnu']].map(([k, v]) => ({ k, v }));
 
     const cp = this.checkpoint('m7');
     return {
       pageTitle: titles[page], nav, railKey, ring,
-      isHome: page === 'home', isMemory: page === 'memory', isContext: page === 'context', isSessions: page === 'sessions', isActivity: page === 'activity', isRuntime: page === 'runtime', isSettings: page === 'settings',
+      isHome: page === 'home', isMemory: page === 'memory', isContext: page === 'context', isSessions: page === 'sessions', isRuntime: page === 'runtime', isSettings: page === 'settings',
       home: { memoryLine: active.length + ' canonical memories' + (cands.length ? ', ' + cands.length + ' waiting for your review' : ', nothing waiting for review'), capTime: D.tTime('2026-10-01T06:44:02.318Z'), capShort: D.short(D.CAP), sesTime: D.tTime(D.SESS[0].turns[11][2]), sesShort: D.short(sess('s1').id), cpTime: D.tTime(cp.created), cpShort: D.short(D.ID('mem', 'm7')), openCheckpoint: () => this.openMemory('m7') },
       q: S.q, onQuery: (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ q: e.target.value }), collections, colTitle, colCount: visible.length + (visible.length === 1 ? ' record' : ' records'), groups, timelineEmpty: !visible.length,
       sel, hasSel: !!sel, noSel: !sel, act, editing: S.editing, notEditing: !S.editing, draft: S.draft, onDraft: (e: React.ChangeEvent<HTMLTextAreaElement>) => this.setState({ draft: e.target.value }), notice: S.notice, hasNotice: !!S.notice, copyLabel: S.copied ? 'Copied' : 'Copy ID',
-      ctx, ctxScroll: this.ctxScroll, sessList, ses, actFilters, actDays, rtList, rt, rtStrip,
-      paused: S.paused, togglePaused: () => this.setState((s) => ({ paused: !s.paused })),
-      sw: { bg: S.paused ? '#9FC2D2' : 'transparent', border: S.paused ? '#9FC2D2' : '#3A4958', knob: S.paused ? '#0C1117' : '#9BA9B6', left: S.paused ? '23px' : '3px' },
+      ctx, ctxScroll: this.ctxScroll, sessList, ses, rtList, rt, rtStrip,
       motionOpts: [['system', 'Follow system'], ['reduced', 'Reduced']].map(([k, label]) => { const a = S.motionPref === k; return { label, active: a, bg: a ? '#17212B' : 'transparent', fg: a ? '#E7EDF2' : '#9BA9B6', onClick: () => this.setState({ motionPref: k }) }; }),
     };
   }
 
   render() {
     const view = this.renderVals();
-    const { pageTitle, nav, railKey, isHome, isMemory, isContext, isSessions, isActivity, isRuntime, isSettings } = view;
+    const { pageTitle, nav, railKey, isHome, isMemory, isContext, isSessions, isRuntime, isSettings } = view;
     const connected = this.connected();
     // 08-negative: presentation-only values for the record strip. They read the
     // same state renderVals() used; nothing here changes what a handler does.
@@ -369,7 +347,7 @@ export default class App extends React.Component<AppProps, AppState> {
     const selectedAt = this.byKey(this._selectedKey)?.created;
     const strSession = App.D.SESS.find((s) => s.key === this.state.sessionKey);
     const sessionSpan: [string, string] | undefined = strSession ? [strSession.created, strSession.turns[strSession.turns.length - 1][2]] : undefined;
-    const NAV_LABEL: Record<string, string> = { home: 'Home', memory: 'Memory', context: 'Context', sessions: 'Sessions', activity: 'Activity', runtime: 'Runtime', settings: 'Settings' };
+    const NAV_LABEL: Record<string, string> = { home: 'Home', memory: 'Memory', context: 'Context', sessions: 'Sessions', runtime: 'Runtime', settings: 'Settings' };
     const navEl = (
 <nav aria-label="Primary" onKeyDown={railKey} className="qr231 bg-nav">
 {this.PAGES.map((p, i) => <React.Fragment key={p}>
@@ -436,7 +414,7 @@ Demo · local only
 </div>
 </header>
 <div className="qr233 bg-body">
-{connected ? <NativeStrip page={page} nav={navEl} /> : <RecordStrip page={page} nav={navEl} still={still} selectedAt={selectedAt} sessionSpan={sessionSpan} sessionKey={this.state.sessionKey} paused={this.state.paused} />}
+{connected ? <NativeStrip page={page} nav={navEl} /> : <RecordStrip page={page} nav={navEl} still={still} selectedAt={selectedAt} sessionSpan={sessionSpan} sessionKey={this.state.sessionKey} />}
 <main id="runtime-content" className="qr232" tabIndex={-1} aria-label={`${isHome ? 'Home' : pageTitle} content`}>
 {isHome ? <>
 {connected ? <ConnectedHome nav={view.nav} ring={penMark} /> : <Home view={{ ...view, still }} />}
@@ -450,14 +428,11 @@ Demo · local only
 {isSessions ? <>
 {connected ? <SessionsSurface inspect={(id) => this.inspectCapsule(id)} reviewCandidates={this.reviewCandidates} /> : <Sessions view={view} />}
 </> : null}
-{isActivity ? <>
-{connected ? <ActivitySurface /> : <Activity view={view} />}
-</> : null}
 {isRuntime ? <>
 {<Runtime view={connected ? { ...view, rtSubtitle: 'Fictional · frozen Runtime-local design (ADR-025) · live Memory status is in Settings' } : view} />}
 </> : null}
 {isSettings ? <>
-{<Settings view={connected ? { ...view, memorySettings: <MemorySettings openMemory={() => this.go('memory')} />, shellSettings: <ShellSettings />, keyboardHint: 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves within the memory list.' } : view} />}
+{<Settings view={connected ? { ...view, memorySettings: <MemorySettings openMemory={() => this.go('memory')} />, shellSettings: <ShellSettings />, keyboardHint: 'Keyboard: Ctrl+1–6 switches surfaces · ↑ ↓ moves within the memory list.' } : view} />}
 </> : null}
 </main>
 </div>

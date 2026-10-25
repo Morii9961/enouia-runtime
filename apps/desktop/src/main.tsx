@@ -6,25 +6,19 @@ import QuickSearch from './shell/QuickSearch';
 import './theme/negative-fonts.css';
 import './quiet-runtime.css';
 import './memory/memory.css';
-import './activity/activity.css';
 import './theme/negative.css';
 import './theme/automemory.css';
 import './theme/palettes.css';
 
-// Colour only: the mode follows the system unless ?theme=dark|light is given; ?palette=N picks within it
-// (dark 1–9, default 1; light 1–3, default 3, the chosen Xuan Paper).
-const look = new URLSearchParams(location.search);
+// Colour only: Tile Blue when the system is dark, Xuan Paper when it is light (DESIGN.md §2).
+// The browser demo also takes ?theme=dark|light, for screenshots.
+const asked = new URLSearchParams(location.search).get('theme');
 const scheme = matchMedia('(prefers-color-scheme: light)');
-const applyLook = () => {
-  const asked = look.get('theme');
-  const mode = asked === 'light' || asked === 'dark' ? asked : scheme.matches ? 'light' : 'dark';
-  const askedN = look.get('palette') ?? '';
-  const n = (mode === 'dark' ? /^[1-9]$/ : /^[1-3]$/).test(askedN) ? askedN : mode === 'dark' ? '1' : '3';
-  document.documentElement.dataset.theme = mode;
-  document.documentElement.dataset.palette = mode[0] + n;
+const applyTheme = () => {
+  document.documentElement.dataset.theme = asked === 'light' || asked === 'dark' ? asked : scheme.matches ? 'light' : 'dark';
 };
-applyLook();
-scheme.addEventListener('change', applyLook);
+applyTheme();
+scheme.addEventListener('change', applyTheme);
 
 class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
   state = { failed: false };

@@ -4,7 +4,7 @@
 // trace) and, when the Vault is not open, a strip with no film loaded.
 import React from 'react';
 import type { Page } from '../demo-types';
-import { DAYS, DEMO_CLOCK, NEXT_RUN, earlier, marks, onChart, pct, pen, readings, tracePath, xOf, yAt, dayLabel, type Mark } from './chart';
+import { DAYS, DEMO_CLOCK, earlier, marks, onChart, pct, pen, tracePath, xOf, yAt, dayLabel, type Mark } from './chart';
 import { useStatus, exiting } from '../memory/status';
 import { useAutoMode } from './autoMode';
 import TimeMap, { useLentMap } from './TimeMap';
@@ -13,9 +13,9 @@ import { homeSpec, sessionSpec } from './mapSpecs';
 const MARK_LABEL = { canonical: 'canonical write', candidate: 'candidate proposed', checkpoint: 'checkpoint', superseded: 'superseded write' };
 
 /** Day columns (the coarse grid only) and, when asked, day names; children are drawn on top. */
-export function Paper({ variant = 'memory', days = true, children, className = '' }: { variant?: 'memory' | 'activity'; days?: boolean; children?: React.ReactNode; className?: string }) {
+export function Paper({ days = true, children, className = '' }: { days?: boolean; children?: React.ReactNode; className?: string }) {
   return (
-    <div className={'bg-paper bg-paper-' + variant + ' ' + className}>
+    <div className={'bg-paper ' + className}>
       {days ? DAYS.map((d) => <span key={d.key} className="bg-day" data-today={d.today || undefined} style={{ left: pct(d.key / 7) }}>{d.dow} <b>{d.date}</b></span>) : null}
       {children}
     </div>
@@ -37,35 +37,14 @@ export function Trace({ d = tracePath, marks: m = marks, penAt = pen, still, sho
   );
 }
 
-function ActivityTrace({ paused }: { paused: boolean }) {
-  const failed = readings.find((r) => r.failed);
-  const gap = 0.022;
-  const segs: [number, number, boolean][] = failed
-    ? [[0, failed.x - gap, false], [failed.x - gap, failed.x + gap, true], [failed.x + gap, pen.x, false]]
-    : [[0, pen.x, false]];
-  return (
-    <>
-      {segs.map(([a, b, missing], i) => <span key={i} className="bg-act-line" data-missing={missing || undefined} style={{ left: pct(a), width: pct(b - a) }} />)}
-      {readings.filter((r) => r.title !== 'Activity published').map((r) => <span key={r.key} className="bg-reading" data-failed={r.failed || undefined} style={{ left: pct(r.x) }}>{r.failed ? '✕ no reading' : '▮ collected'}</span>)}
-      {paused
-        ? <><span className="bg-act-pen" data-lifted="true" style={{ left: pct(pen.x) }} /><span className="bg-act-note">PEN LIFTED — scheduled runs paused (demo)</span></>
-        : <span className="bg-act-pen" style={{ left: pct(pen.x) }} />}
-      <span className="bg-reading bg-reading-next" data-cancelled={paused || undefined} style={{ left: pct(xOf(NEXT_RUN)) }}>{paused ? 'next run held' : '▯ next 12:00'}</span>
-    </>
-  );
-}
-
-type StripProps = { page: Page; nav: React.ReactNode; still: boolean; selectedAt?: string; sessionSpan?: [string, string]; sessionKey?: string; paused?: boolean };
+type StripProps = { page: Page; nav: React.ReactNode; still: boolean; selectedAt?: string; sessionSpan?: [string, string]; sessionKey?: string };
 
 /** Demo strip: fictional week, demo clock, the page's own mark and, where the page has a time axis, the time map. */
-export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, sessionKey, paused = false }: StripProps) {
-  const activity = page === 'activity';
+export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, sessionKey }: StripProps) {
   const auto = useAutoMode() && page === 'memory';
   const lent = useLentMap();
   const meta = auto
     ? <><b>Automatic memory</b> · synthetic preview · its own sample time, 1 Jul – 31 Oct 2026</>
-    : activity
-    ? <><b>Second strip</b> · Activity producer · not Memory · demo readings</>
     : <><b>Week of 28 Sep 2026</b> · <span className="bg-clock">demo clock Thu 1 Oct, 14:44</span></>;
   let overlay: React.ReactNode = null;
   let summary = 'Fictional demo strip, week of 28 September 2026, drawn up to the demo clock, Thursday 1 October 14:44.';
@@ -83,17 +62,17 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
     : auto ? (lent ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>Time map · Timeline view · the other views have no time axis to move</span></div>)
     : null;
   return (
-    <div className="bg-strip" data-page={page} data-paper={activity ? 'activity' : 'memory'} data-auto={auto || undefined}>
+    <div className="bg-strip" data-page={page} data-auto={auto || undefined}>
       <div className="bg-strip-head">
         {nav}
         <div className="bg-strip-meta">{meta}</div>
       </div>
       {page === 'home' || auto ? null : (
-        <div className="bg-strip-chart" role="img" aria-label={activity ? 'Fictional demo readings of the separate Activity producer: collected on 1 October, no reading on 30 September' + (paused ? ', scheduled runs paused in the demo.' : '.') : summary}>
-          <Paper variant={activity ? 'activity' : 'memory'}>
-            {activity ? <ActivityTrace paused={paused} /> : <Trace still={still} showMarks tip />}
+        <div className="bg-strip-chart" role="img" aria-label={summary}>
+          <Paper>
+            <Trace still={still} showMarks tip />
             {overlay}
-            {!activity && earlier ? <span className="bg-earlier">{earlier} earlier records ◂</span> : null}
+            {earlier ? <span className="bg-earlier">{earlier} earlier records ◂</span> : null}
           </Paper>
         </div>
       )}
@@ -106,17 +85,17 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
 export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode }) {
   const { status, vaultChanging } = useStatus();
   const state = status?.vault?.state;
-  const stopped = page !== 'activity' && (!status || exiting(status) || vaultChanging || state !== 'open');
+  const stopped = (!status || exiting(status) || vaultChanging || state !== 'open');
   const why = !status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open';
   return (
-    <div className="bg-strip" data-page={page} data-paper={page === 'activity' ? 'activity' : 'memory'} data-drum={stopped ? 'stopped' : undefined}>
+    <div className="bg-strip" data-page={page} data-drum={stopped ? 'stopped' : undefined}>
       <div className="bg-strip-head">
         {nav}
-        <div className="bg-strip-meta">{page === 'activity' ? <><b>Second strip</b> · Activity producer · not Memory</> : <><b>Live shell</b> · trace not plotted in this prototype</>}</div>
+        <div className="bg-strip-meta"><b>Live shell</b> · trace not plotted in this prototype</div>
       </div>
       {page === 'home' ? null : (
         <div className="bg-strip-chart">
-          <Paper variant={page === 'activity' ? 'activity' : 'memory'} days={false} />
+          <Paper days={false} />
         </div>
       )}
       {stopped ? <div className="tm tm-stopped" role="img" aria-label={'No strip loaded: ' + why}><span className="bg-inv" aria-hidden="true">No strip loaded · {why}</span></div> : null}

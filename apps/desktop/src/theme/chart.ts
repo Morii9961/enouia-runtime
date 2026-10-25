@@ -1,7 +1,7 @@
 // 08-negative · geometry for the record chart.
 // Presentation only: every value is derived from the fictional demo fixture
 // and drawn against a fixed demo clock. Nothing here reads a live source.
-// Two frames share one trace: the week on the record strip (Memory, Activity)
+// Two frames share one trace: the week on the record strip
 // and the three-week domain behind Home's time map, where the chart pans.
 import { demoData as D } from '../demo-data';
 
@@ -99,10 +99,4 @@ export const domTicks = events.filter((e) => e >= DOM_START && e <= DEMO_CLOCK).
 /** How many events fell on each day of the domain, scaled 0 to 1 (the time map's bars). */
 export const domBars = (() => { const c = Array.from({ length: DOM_DAYS }, () => 0); domTicks.forEach((x) => { c[Math.min(DOM_DAYS - 1, Math.floor(x * DOM_DAYS))]++; }); const m = Math.max(...c, 1); return c.map((n) => n / m); })();
 
-/** Second instrument: the Activity producer's daily 12:00 collections from the demo events. */
-export const readings = D.ACT.filter((a) => a.cat === 'producer' && onChart(a.at)).map((a) => ({
-  key: a.k, x: xOf(a.at), failed: a.title === 'Collection incomplete', title: a.title,
-}));
-/** The producer's next scheduled run in the demo fixture (2 Oct, 12:00). */
-export const NEXT_RUN = Date.parse('2026-10-02T04:00:00.000Z');
 export const dayLabel = (iso: string) => { const d = parts(t(iso)); return DOW[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };

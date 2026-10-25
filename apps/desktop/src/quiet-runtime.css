@@ -1,7 +1,7 @@
 /* 08-negative · the shared surface classes re-inked as a negative.
    Class names are the exported .qr* hooks that tests, smoke scripts and the
    native Memory surfaces rely on; only their appearance changes here.
-   One ground, one ink, one pen colour (palettes.css: three dark, three light).
+   One ground, one ink, one pen colour (palettes.css: one dark, one light).
    The pen is used for the trace, the pen tip, the time-map frame, the pen's
    cursor on a chart and "Corrected by you", and nowhere else. Selection is
    inversion (an ink block, ground-coloured text); focus is a 2px ink line;
@@ -13,7 +13,7 @@
   --f-mono:'Martian Mono','Microsoft YaHei UI','Microsoft YaHei',monospace;
   /* Martian Mono is variable in width: small labels run narrow (0.60 em per character), navigation a little wider, display widest (0.75 em). */
   --w-sm:75%;--w-nav:87.5%;--w-display:112.5%;
-  /* Legacy token names, still read by memory.css, activity.css and native markup. */
+  /* Legacy token names, still read by memory.css and native markup. */
   --canvas:var(--paper);--surface:var(--wash);--elevated:var(--wash-2);--hover:var(--wash);--well:var(--wash);
   --border:var(--ink-3);--hairline:var(--grid-major);--primary:var(--ink);--secondary:var(--ink-2);--tertiary:var(--ink-3);
   --ice:var(--ink);--warm:var(--ink);--ok:var(--ink);--pending:var(--ink-2);--error:var(--ink);--line:var(--grid-major);
@@ -36,13 +36,13 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 
 /* ---- the one inversion: a selected row, tab or button is an ink block with ground-coloured text.
    The scope's tokens flip, so every child that reads --ink / --ink-2 / --ink-3 follows. ---- */
-.qr26[aria-pressed="true"],.qr43[aria-pressed="true"],.qr134[aria-pressed="true"],.qr190[data-selected],.qr172[aria-pressed="true"],.qr212[aria-pressed="true"],
+.qr26[aria-pressed="true"],.qr43[aria-pressed="true"],.qr134[aria-pressed="true"],.qr190[data-selected],.qr212[aria-pressed="true"],
 .bg-nav-item[aria-current="page"],.am-view[aria-pressed="true"],.am-chip[aria-pressed="true"],.am-slip[aria-pressed="true"],.am-ev[aria-pressed="true"],.am-ref[aria-pressed="true"],
 .am-rel-row[aria-pressed="true"],.qr215[aria-checked="true"],.mem-primary,.qr81,.qr83,.qr224,.bg-inv,.window-close:enabled:hover,.mem-error{
   --ink:var(--i-ink);--ink-2:var(--i-ink-2);--ink-3:var(--i-ink-3);--paper:var(--i-paper);--wash:var(--i-wash);--wash-2:var(--i-wash-2);--grid-major:var(--i-grid-major);--grid-minor:var(--i-grid-minor);--pen:var(--i-pen);
   background:var(--i-paper) !important;color:var(--i-ink) !important;
 }
-.qr26[aria-pressed="true"]:focus-visible,.qr43[aria-pressed="true"]:focus-visible,.qr134[aria-pressed="true"]:focus-visible,.qr190[data-selected]:focus-visible,.qr172[aria-pressed="true"]:focus-visible,.qr212[aria-pressed="true"]:focus-visible,
+.qr26[aria-pressed="true"]:focus-visible,.qr43[aria-pressed="true"]:focus-visible,.qr134[aria-pressed="true"]:focus-visible,.qr190[data-selected]:focus-visible,.qr212[aria-pressed="true"]:focus-visible,
 .bg-nav-item[aria-current="page"]:focus-visible,.am-view[aria-pressed="true"]:focus-visible,.am-chip[aria-pressed="true"]:focus-visible,.am-slip[aria-pressed="true"]:focus-visible,.am-ev[aria-pressed="true"]:focus-visible,.am-ref[aria-pressed="true"]:focus-visible,.am-rel-row[aria-pressed="true"]:focus-visible,
 .mem-primary:focus-visible,.qr81:focus-visible,.qr83:focus-visible{outline-offset:-4px;box-shadow:none}
 
@@ -232,22 +232,9 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 .qr170{border-left:1px solid var(--grid-major);background:var(--paper);overflow:auto;padding:18px 20px;display:flex;flex-direction:column;gap:18px}
 .qr171{height:100%;display:grid;grid-template-columns:240px minmax(0,1fr) 290px;min-height:0}
 
-/* ---- Activity ---- */
-.qr172{height:26px;padding:0 10px;border:0;border-right:1px solid var(--grid-major);background:transparent !important;color:var(--ink-2) !important;font-family:var(--f-lab);font-size:12px;font-weight:500;cursor:pointer}
-.qr172:last-child{border-right:0}
+/* ---- Settings segmented control, Runtime values, Settings page ---- */
 .qr173{display:flex;padding:0;border:1px solid var(--grid-major);background:transparent;gap:0}
-.qr174{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--grid-major)}
-.qr175{margin-top:18px;padding:4px 8px 3px;background:var(--ink-3);color:var(--paper);font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
-.qr176{font-size:13px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.qr177{font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3);text-align:right}
-.qr179{display:grid;grid-template-columns:52px 12px 168px minmax(0,1fr) 132px 14px;gap:12px;align-items:center;width:100%;min-height:42px;padding:0 8px;border:0;background:transparent;text-align:left;cursor:pointer}
 .qr180{color:var(--ink);word-break:break-all}
-.qr181{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;font-family:var(--f-mono);font-size:12px;line-height:20px;border-top:1px solid var(--grid-minor)}
-.qr182{align-self:flex-start;margin-top:8px;padding:0;border:0;background:transparent;font-size:13px;color:var(--ink);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.qr183{margin:0 8px 12px 88px;padding:10px 14px;border:0;background:var(--wash);display:flex;flex-direction:column;gap:0}
-.qr184{border-top:1px solid var(--grid-major);background:transparent !important}
-.qr185{margin-top:24px;font-size:13px;line-height:19px;color:var(--ink-2)}
-.qr186{max-width:960px;margin:0 auto;padding:18px 40px 56px}
 .qr187{height:100%;overflow:auto}
 
 /* ---- Runtime ---- */
@@ -305,18 +292,18 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 .qr234{height:100vh;min-height:700px;min-width:1100px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:34px minmax(0,1fr);background:var(--paper);overflow:hidden}
 
 /* ---- hover: the surface lifts one step, nothing moves ---- */
-.qr12:hover,.qr114:hover,.qr126:hover,.qr78:hover,.qr179:hover{background:var(--wash)}
+.qr12:hover,.qr114:hover,.qr126:hover,.qr78:hover{background:var(--wash)}
 .qr26:hover:not([aria-pressed="true"]){background:var(--wash) !important;color:var(--ink) !important}
 .qr43:hover:not([aria-pressed="true"]),.qr134:hover:not([aria-pressed="true"]),.qr190:hover:not([data-selected]){background:var(--wash) !important}
 .qr49:hover{color:var(--ink);border-color:var(--ink)}
-.qr63:hover,.qr116:hover,.qr152:hover,.qr168:hover,.qr182:hover{color:var(--ink-hi)}
+.qr63:hover,.qr116:hover,.qr152:hover,.qr168:hover{color:var(--ink-hi)}
 .qr81:hover,.qr83:hover{background:var(--ink-hi) !important}
 .qr82:hover,.qr84:hover{background:var(--wash)}
 .qr102:hover,.qr104:hover{background:var(--wash) !important;color:var(--ink)}
 .qr148:hover{color:var(--ink);border-bottom-color:var(--ink)}
 .qr163:hover{text-decoration:underline;text-underline-offset:3px}
 .qr167:hover .qr165{text-decoration:underline}
-.qr172:hover:not([aria-pressed="true"]),.qr212:hover:not([aria-pressed="true"]){background:var(--wash) !important;color:var(--ink) !important}
+.qr212:hover:not([aria-pressed="true"]){background:var(--wash) !important;color:var(--ink) !important}
 .window-control{width:44px;height:34px;border:0;background:transparent;color:var(--ink);display:grid;place-items:center}
 .window-control:enabled:hover{background:var(--wash-2)}
 .window-control:disabled{color:var(--ink-3);cursor:default}

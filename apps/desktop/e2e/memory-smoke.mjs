@@ -1058,13 +1058,13 @@ async function main() {
       writeFileSync(join(out,`uia-${name}.json`),JSON.stringify(rows,null,2));
       return rows;
     };
-    for (const page of ['Home','Memory','Context','Sessions','Activity','Runtime','Settings']) {
+    for (const page of ['Home','Memory','Context','Sessions','Runtime','Settings']) {
       await nav(s,page);
       await sleep(250);
       const rows = await capture(page.toLowerCase());
       const controls=rows.filter(row=>row.Enabled && row.Focusable && ['ControlType.Button','ControlType.Edit','ControlType.CheckBox','ControlType.ComboBox','ControlType.Hyperlink','ControlType.RadioButton'].includes(row.Type));
       check(`AX.${page}_native_controls_named`,controls.length>0 && controls.every(row=>row.Name.trim().length>0),JSON.stringify(controls.filter(row=>!row.Name.trim())));
-      const name={Home:'Home',Memory:'Memory Vault',Context:'Context Surface',Sessions:'Sessions',Activity:'Activity',Runtime:'Runtime Inspector',Settings:'Settings'}[page]+' content';
+      const name={Home:'Home',Memory:'Memory Vault',Context:'Context Surface',Sessions:'Sessions',Runtime:'Runtime Inspector',Settings:'Settings'}[page]+' content';
       check(`AX.${page}_named_main_landmark`,rows.some(row=>row.Name===name) && await s.evaluate(`document.querySelector('main')?.getAttribute('aria-label')===${JSON.stringify(name)}`));
     }
     await nav(s,'Home');
@@ -1672,7 +1672,6 @@ async function main() {
       await waitFor(s,has('Windows shell'),'layout settings ready');
       await measure(width+'_settings');
       await shot(s,'32-layout-settings-'+width);
-      await nav(s,'Activity'); await measure(width+'_activity');
       await nav(s,'Runtime'); await measure(width+'_runtime');
     }
     const clear=await s.send('Emulation.clearDeviceMetricsOverride');
@@ -2603,9 +2602,7 @@ async function main() {
   check('S.shell_status', await s.evaluate(has('Hide to tray · Memory operations keep running')));
   await s.evaluate("document.querySelector('[aria-label=\"Windows shell\"]').scrollIntoView({block:'end'})");
   await shot(s, '07-shell-settings');
-  await nav(s, 'Activity');
-  await waitFor(s, has('Connect the installed Activity producer'), 'isolated Activity connection gate');
-  check('A.activity_native_gate', await s.evaluate("!!document.querySelector('[data-screen-label=Activity] h1')"));
+  check('A.activity_interface_removed', await s.evaluate("!document.querySelector('nav[aria-label=Primary] button[aria-label=Activity]') && !document.querySelector('[data-screen-label=Activity]')"));
   await nav(s, 'Runtime');
   check('A.inspector_labelled_fictional', await s.evaluate(has('Fictional · frozen Runtime-local design')));
 

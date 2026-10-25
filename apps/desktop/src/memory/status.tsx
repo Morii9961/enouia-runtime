@@ -51,7 +51,7 @@ export function MemoryBadge() {
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const text = status ? `Memory · ${vaultLabel(status, vaultChanging)}` : error ? "Memory status unavailable" : "Memory · checking…";
   return (
-    <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. Activity reads the separately installed producer. The Runtime Inspector shows fictional examples.">
+    <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. The Runtime Inspector shows fictional examples.">
       <span className="qr223" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
       {text}
       <span className="qr4">·</span>
@@ -214,8 +214,6 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
               <span>{vaultLabel(status, vaultChanging)}{v?.rootName ? ` · ${v.rootName}` : ""}</span>
               <span className="qr4">·</span>
               <span>Local Mock responses</span>
-              <span className="qr4">·</span>
-              <span className="qr5">Activity uses a separate producer</span>
             </div>
           </div>
         </div>
@@ -234,11 +232,6 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
             <span className="qr9">Context</span>
             <span className="qr10">Preview what a question would carry, and why</span>
             <span className="qr11">inspect</span>
-          </button>
-          <button onClick={nav.activity.go} className="qr12" type="button">
-            <span className="qr9">Activity</span>
-            <span className="qr10">Connect to the Activity producer, which runs on its own schedule</span>
-            <span className="qr11">producer</span>
           </button>
         </div>
         {open && (
@@ -352,7 +345,7 @@ function CompanionSettings({ status }: { status: J }) {
         <span>
           <button type="button" className="mem-button mem-danger" disabled={leaving}
             onClick={() => void leave.run(async () => { await shell.exit(); await refresh(); })}>Exit Enouia Runtime</button>
-          <span className="mem-muted"> Stops model calls locally and releases the Vault first. Read saved session outcomes before sending again. The Activity producer keeps its own schedule.</span>
+          <span className="mem-muted"> Stops model calls locally and releases the Vault first. Read saved session outcomes before sending again.</span>
         </span>
       </div>
       {leaving && <p role="status" className="mem-note">{EXITING}</p>}

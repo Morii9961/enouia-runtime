@@ -9,7 +9,7 @@ const errors: Record<string, string> = {
   window_failed: 'The window could not be shown. Try the tray again.',
 };
 
-/** Host lifecycle only. Activity and the installed scheduler stay separate. */
+/** Host lifecycle only. */
 export default function ShellSettings() {
   const [status, setStatus] = useState<ShellStatus | null>(null);
   const [error, setError] = useState('');

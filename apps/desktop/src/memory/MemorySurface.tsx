@@ -701,7 +701,7 @@ function VaultPanel() {
         <ul className="mem-list mem-muted">
           <li><strong>Lock Vault</strong> stops model calls locally, cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Local stopping does not confirm remote cancellation. After unlocking, read saved session outcomes before sending again. Vault work is unavailable until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
           <li><strong>Closing the window</strong> only hides it to the tray. Memory keeps running, and so does any operation.</li>
-          <li><strong>Exit</strong> (tray or Settings) does the same release, then ends Runtime. The Activity producer keeps its own schedule.</li>
+          <li><strong>Exit</strong> (tray or Settings) does the same release, then ends Runtime.</li>
           <li><strong>Pausing sync</strong> does not exist yet: Memory has no sync before its gateway stage.</li>
         </ul>
       </Inspector>

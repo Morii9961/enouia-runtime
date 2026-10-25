@@ -1,6 +1,6 @@
 import type { DemoMemory } from './demo-state';
 
-export type Page = 'home' | 'memory' | 'context' | 'sessions' | 'activity' | 'runtime' | 'settings';
+export type Page = 'home' | 'memory' | 'context' | 'sessions' | 'runtime' | 'settings';
 export type WindowAction = 'minimize' | 'maximize' | 'close';
 export type DemoSession = {
   key: string; title: string; created: string; id: string;
@@ -12,11 +12,6 @@ export type ContextSection = {
   items: { key: string; bytes: number; reason: string; text?: string; file?: string;
     mem?: string; rank?: number | null; turn?: [string, number];
     loop?: string; from?: string[]; policy?: boolean }[];
-};
-export type DemoActivity = {
-  k: string; at: string; cat: 'context' | 'memory' | 'session' | 'producer';
-  title: string; text: string; details: [string, string][];
-  link?: [Page, string | null, string];
 };
 export type DemoRuntime = {
   k: string; code: string; name: string; state: string; tone: 'ok' | 'model' | 'pending' | 'err';
