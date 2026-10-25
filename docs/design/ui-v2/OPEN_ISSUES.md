@@ -9,7 +9,7 @@
 | 3 | **没有应用内明暗覆盖。** 现在只跟随系统（演示可用 `?theme=`）。 | 有人想白天用深色。 | 若要加，放在 Settings → Appearance → Theme 一行（Follow system / Tile Blue / Xuan Paper），状态只存本地偏好。 | owner 决定要不要 |
 | 4 | **1100–1279 宽的 Inspector。** Memory UI 规格建议 900–1279 改为抽屉；Runtime 最小窗口 1100，目前在 1100 仍是三栏（Inspector 336–400px）。 | 1100 下主列表偏窄，长正文换行多。 | 先在演示里各做一版（常驻 vs 抽屉）截图比较。 | owner 选 |
 | 5 | **DOM 测试在基线就不稳定。** 3 次全量 `npm test` 曾有 2 次失败，失败的 fixture 不固定（如 `inspector-action-focus`、`operation-cancel`），单独重跑通过。 | 会把真实回归和偶发失败混在一起。 | 单独查时序；在那之前失败的 fixture 单独重跑确认。 | 实现者 |
-| 6 | **记忆星图的规模与技术。** 现在只有 15 条虚构记忆的邻域图（SVG）。全库星图需要后端授权聚合投影。 | 节点到几百上千时 SVG 会慢。 | 按 Memory UI 规格：先用合成规模样例（如 200 / 1,000 / 5,000 节点）测帧率与布局时间，再在 SVG / Canvas / Web Worker 布局间选；需要新依赖时另记决定。 | 实现者 + owner（依赖） |
+| 6 | **记忆星图的规模与技术。** 已有合成原型（`redesign/v2-starmap`）：Canvas 绘制 + Worker 里自写的 Barnes–Hut 力导向，生产构建实测 5,000 节点布局约 0.5 s、每帧 JS 绘制 < 1 ms（无头 Edge，未在 WebView2 实测）。全库星图仍需要后端授权的图投影（MEMORY_DATA_REQUIREMENTS §3）。 | 节点到几百上千时 SVG 会慢。 | 按 Memory UI 规格：先用合成规模样例（如 200 / 1,000 / 5,000 节点）测帧率与布局时间，再在 SVG / Canvas / Web Worker 布局间选；需要新依赖时另记决定。 | 实现者 + owner（依赖） |
 | 7 | **皮肤值写在视图模型里。** `App.tsx renderVals()` 仍输出旧 Quiet 颜色（`bg`、`fg`、`TONE`、`STATUS`、开关颜色），`demo-data.ts` 的 Context 分区也带色值；现在靠 CSS `!important` 覆盖。 | 改主题时容易漏；`!important` 越积越多。 | 实现时把这些字段改成状态名（如 `data-tone`），颜色只在 CSS。 | 实现者 |
 | 8 | **Inspector 里的长 ID 越界。** Memory Vault 的 Session ID 超出右侧裁切角（截图 `dark-memory-1440`）。 | 破坏唯一的框。 | ID 用 `overflow-wrap: anywhere` 或中间省略 + Copy。 | 实现者 |
 | 9 | **11.5px 文字。** `memory/memory.css` 的 `.mem-tag` 写 11.5px（原生表面旧样式）。 | 低于 12px 下限。 | 改 12px，检查标签高度 20px 是否还放得下。 | 实现者 |

@@ -7,6 +7,7 @@
 3. [SCREENS.md](SCREENS.md)：有哪些屏幕、每屏放什么、做到哪一步（已做 / 部分 / 未做 / 需后端）。
 4. [OPEN_ISSUES.md](OPEN_ISSUES.md)：还没决定或已知有问题的地方。
 5. [REFERENCES.md](REFERENCES.md)：参考图与方向的来历（参考原图不在仓库里）。
+5a. [MEMORY_DATA_REQUIREMENTS.md](MEMORY_DATA_REQUIREMENTS.md)：前端对 Memory 记录格式与后端读取能力的需求，以及与 Core-7 的差距。
 6. 截图：[shots/](shots/)，`dark-*` 是黛蓝、`light-*` 是宣纸；全部是浏览器演示的虚构数据，标「桩」的来自截图专用的 Tauri 桩。
 
 仓库规则仍以根目录 `AGENTS.md`、`docs/MEMORY_INTEGRATION_v1.md`、`docs/design-kit/` 为准；本目录只描述界面。
