@@ -20,5 +20,5 @@
 | 14 | **合成数据缺口。** fixture 没有 `occurred.end: null` 的记录，开放端帽只在图例出现；也没有空库、仅候选、结果未知等状态的数据。 | 十种状态没法截图。 | 新增一份状态 fixture（不改现有 15 条）。 | 实现者 |
 | 15 | **两条口径仍是「试验」。** 星图 `+ / −` 是缩放；时间按 Asia/Shanghai（UTC+8）。 | 已按此实现，但 owner 未最终确认。 | 确认后把决定状态改为定稿。 | owner |
 | 16 | **Runtime Inspector 组件名挤。** 1440 宽下「Context Compiler」与状态读数挤在一行。 | 小的排版问题。 | 组件列加宽或状态换行。 | 实现者 |
-| 18 | **主 JS 超过 500 kB。** 合并 main 后 `index-*.js` 为 513.6 kB（Vite 提示线 500 kB），新增的是原生历史任务、Provider 配置等面板。 | 首屏加载变慢；提示会一直出现。 | 把历史任务与 Provider 配置面板像合成预览一样 `React.lazy` 懒加载。 | 实现者 |
 | 17 | **已无前端用途的脚本。** `scripts/prepare-activity-surface-sandbox.mjs` 只服务已删除的 Activity 页 smoke；`e2e/memory-smoke.mjs` 仍向原生程序传 `--activity-settings`（`src-tauri/src/activity.rs` 仍解析它；原生命令本身已由 ADR-037 撤下）。 | 清理范围约定为「等 Moriium 替代链路完成后另行清理」。 | 届时与 Activity 后端一起删。 | owner 排期 |
+| 18 | **主 JS 超过 500 kB。** 合并 main 后 `index-*.js` 为 513.6 kB（Vite 提示线 500 kB），新增的是原生历史任务、Provider 配置等面板。 | 首屏加载变慢；提示会一直出现。 | 把历史任务与 Provider 配置面板像合成预览一样 `React.lazy` 懒加载。 | 实现者 |
