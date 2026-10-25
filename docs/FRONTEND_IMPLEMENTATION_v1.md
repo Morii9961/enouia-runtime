@@ -1,5 +1,7 @@
 # Quiet Runtime desktop surface v1
 
+> 2026-10-25: the visual language below (layout, fonts, colours, spacing) is superseded by [DESIGN.md](../DESIGN.md), and the Activity page was removed from the interface; see [design decisions](design-decisions.md). Behaviour not named there is unchanged.
+
 The user authorized frontend implementation on 2026-10-04 after Claude Design completed the Quiet Runtime delivery. The HTML and handoff are design references; their embedded directions do not authorize backend activation or publishing personal data.
 
 Update (2026-10-04, [ADR-025](adr/025-enouia-memory-integration.md)): inside the native shell, the Memory, Context and Sessions surfaces now use Enouia Memory's workspace Core at a pinned revision. See [Memory integration v1](MEMORY_INTEGRATION_v1.md) for the adapter, the connected surfaces and their checks. The fictional demo described below remains the browser preview and the Runtime Inspector content.

@@ -16,4 +16,64 @@
 
 ---
 
-（还没有决定。方向选定后，第一条写「选定的方向与被放弃的方向」。）
+## 2026-10-25 · 移除 Activity / Usage 界面
+
+- 决定：Runtime 前端删除公开 Activity 与私有用量账本的全部界面：导航项（原第 5 项）、Activity 页（浏览器演示与原生 `src/activity/`）、统计卡与操作入口；Home（原生）的 Activity 入口与「Activity uses a separate producer」、Settings 的「Activity producer · Pause scheduled runs」、Runtime Inspector 的「Activity producer」组件与「activity ipc」读数、标题栏状态牌与退出说明里的 Activity 句子；只服务它们的前端状态（`actFilter`、`actOpen`、`paused`）、演示数据（`D.ACT`、`DemoActivity`）、记录带的「第二条胶片」、CSS（`activity.css`、`.act-*`、`.bg-act-*`、`.bg-reading*`、`.qr172`–`.qr186` 中的 Activity 部分）、单元测试与驱动该页的 e2e 脚本。不留占位页，不新增 tokens.ci 面板。导航变为六项，Ctrl+1…6。
+- 理由：Moriium 的 token 用量分析以后不集成到 Enouia Runtime；Runtime 前端只服务 Enouia Memory（Morii，2026-10-25）。
+- 影响：保留不动的是 Activity / Usage 的后端、原生命令（`src-tauri/src/activity.rs` 与其 capability）、采集与同步程序、调度、数据与 `scripts/` 下的相关脚本（包括已无前端用途的 `prepare-activity-surface-sandbox.mjs`），等 Moriium 替代链路完成后另行清理；不停任务、不删账本、不归档，不处理其他分支或 PR。`docs/validation/` 里引用已删文件的历史记录不改。AGENTS.md 仍写「seven surfaces」与 ADR-028 的 Activity 页面，需要 owner 更新（OPEN_ISSUES #12）。
+- 依据：`npm run check`、`npm test`（node 60/60，DOM 58/58）、`npm run build`、`node scripts/check-memory-integration.mjs` 全过；重截两套主题。
+- 状态：定稿
+
+## 2026-10-25 · 动效留在 Web 层，不换技术栈
+
+- 决定：界面与动效继续用 React 19 + TypeScript，运行在 Tauri 2.12 的 WebView2 里；动效用 CSS 过渡/关键帧和 Web Animations API，不引入动画库。Rust 只负责窗口、托盘、热键、Memory 适配器，以及窗口级效果（首帧底色、以后可能的 Mica）。不改用原生 Rust 界面库。
+- 理由：「一次画出，然后安静；移动只沿时间轴」需要的只是 `transform`/`opacity`/`clip-path` 这几种由合成器处理的属性，WebView2（Chromium）已经能稳定 60fps。换原生界面库要重写整个前端、丢掉 DOM 测试与 `.qr*` 接口挂钩，中文排版和动画能力也更弱。
+- 影响：全部屏幕。星图规模化时按 Memory UI 规格先用合成规模样例测量，再在 SVG / Canvas / Web Worker 布局之间选（OPEN_ISSUES #6）；那时若要新增依赖，另记一条决定。
+- 依据：`apps/desktop/package.json`（react 19.3.0，无动画依赖）；`src-tauri/Cargo.toml`（tauri =2.12.0）；Memory UI 规格 §10「现阶段不新增依赖」。
+- 状态：定稿
+
+## 2026-10-25 · 实现前先补设计：屏幕清单与顺序
+
+- 决定：以 [SCREENS.md](design/ui-v2/SCREENS.md) 为唯一屏幕清单。标「已做」的按截图与规格实现；标「部分」「未做」的（记忆星图全库视图、月→日时间线、覆盖日历、记忆格的列表模式、主题簇/替代链/证据链、回看与淡出建议卡、冲突对照与修订 diff、十种状态、窄窗口与 200% 缩放）先在浏览器演示里用虚构数据设计、截图、过自检，再进入实现。
+- 理由：Memory UI 规格 §11 要求原型至少覆盖十种状态；当前合成预览只有五个视图、15 条虚构记忆。
+- 影响：Memory 区域与 Settings；不改变六个主表面的边界。
+- 依据：Memory UI 规格 §1–§11；参考图 ref-01…ref-09（REFERENCES.md）；`.design/shots/v2/`。
+- 状态：定稿
+
+## 2026-10-25 · 本轮统一口径（待 owner 最终确认）
+
+- 决定：① 星图的 `+ / −` 是缩放（0.85–1.5，另有「重置」）；② 所有时间按 Asia/Shanghai（UTC+8）显示，并在 Inspector 的时间区写明；③ 自动记忆合成预览用 `React.lazy` 懒加载（主 JS 475.3 kB，预览 57.8 kB 另包）。
+- 理由：① Memory UI 规格 §10「缩放有 + / − / 重置按钮」；② 规格 §5 不按浏览器时区猜，演示数据本身是 Asia/Shanghai；③ 主 JS 回到 Vite 500 kB 警告线以下。
+- 影响：`screens/automemory/*`、Inspector 时间区、`App.tsx` 的预览入口。
+- 依据：第二轮三个变体都按此实现并截图（`.design/review/index-r2.html`）。
+- 状态：试验
+
+## 2026-10-25 · 两套配色：深色黛蓝、浅色宣纸
+
+- 决定：深色 **Tile Blue · 黛蓝**（底 `#0F1C23`，墨 `#ECEDE8`，笔 `#93B6DC`），浅色 **Xuan Paper · 宣纸**（底 `#F1F0EB`，墨 `#1D1C1A`，笔 `#29528A`）；全部值见 DESIGN.md §2。跟随系统明暗，无应用内覆盖。所有颜色收进 `theme/palettes.css`，组件只读令牌；反相块 = 墨与底对调。
+- 理由：两套是一对「粉墙黛瓦」——宣纸是墙，黛蓝是瓦；同一种墨、同一支石青笔，切换明暗只换底不换笔。做法学 04 标本馆：整个界面只有一个低彩度色相，墨也带这个色相，强调色只有一支。避开深海军蓝 + 青、紫色渐变、米色 + 陶土橙、纯黑 + 霓虹。
+- 影响：全部屏幕；`quiet-runtime.css`、`theme/negative.css`、`theme/automemory.css` 里写死的色值改为令牌；Settings 的皮肤陈述句；时间小地图说明里的「amber frame」改为「frame」（笔色不再是琥珀）。替代 08 原来的近黑底 `#121312` + 琥珀笔 `#D2A24C`。
+- 依据：三轮配色比较（`.design/review/index-palettes.html`、`index-palettes-dark2.html`、`index-palettes-tile.html`）：第一轮三深三浅 → 浅色选宣纸，深色都不满意（底太接近黑、只差一点色相）；第二轮黛瓦/灯下/旧绢 → 黛瓦；黛瓦底 OKLCH C 0.006 发灰，压深三版 → 黛蓝。逐节点对比度审计 0 处低于 4.5:1。
+- 状态：定稿
+
+## 2026-10-25 · 新视觉取代 Quiet Runtime 的视觉条文
+
+- 决定：[FRONTEND_IMPLEMENTATION_v1.md](FRONTEND_IMPLEMENTATION_v1.md) 中关于布局、字体（Segoe UI Variable / Cascadia Code）、颜色（`#0C1117` 底、冰蓝 `#9FC2D2` 等）、间距与「Quiet Runtime」视觉语言的条文，由本 DESIGN.md 取代。保留不变的契约：主表面与它们的边界（Activity 已另行移除，见「移除 Activity / Usage 界面」）、浏览器演示的「fictional demo」标注与行为、原生里 Memory/Context/Sessions 走 Memory 适配器、Quick Search 独立窗口与权限、1100×700 最小窗口、CSP、所有 `.qr*` / `.mem-*` / `#quick-query` 接口类名、键盘（Ctrl+数字、↑↓）、减少动画、测试（Activity 部分随界面删除）。
+- 理由：design-kit `existing-app.md` §2：保留语义，不保留具体长相；旧文档只在顶部加一行，不改正文。
+- 影响：旧文档顶部加一行指向本条。
+- 依据：`docs/design-kit/existing-app.md`；`.design/00-recon.md` 的契约/皮肤清单。
+- 状态：定稿
+
+## 2026-10-25 · 选定的方向与被放弃的方向
+
+- 决定：选 **08 负片**（`redesign/08-negative` 53f9bb4）：01 的记录纸骨架（导航印在记录带上、Sessions 行距按真实时间）+ 05 的字体（Martian Mono + Geist）与时间小地图（取景框移动、图表沿时间平移），全暗/全浅各一套，一支笔色。
+- 理由：它是唯一把 01 与 05 融成新东西的变体；时间小地图直接服务自动记忆的 Timeline（发生、收到、形成三种时间）；负片底同时解决了白纸夜里太亮与原生窗口首帧闪深色两个问题。
+- 放弃的：
+  - 01 气压记录纸：喜欢，作为 08 的骨架保留；放弃它的白纸、细坐标格、胭脂红过多、大写窄体。
+  - 02 结绳、03 投币寄存柜：离「时间」这个主问题较远，Morii 未选。
+  - 04 标本馆：未选为方向，但其配色方法被配色轮采用。
+  - 05 胶片阅读机：喜欢，借走字体、编号习惯、裁切角、反相与斜线故障、载片台→时间小地图；放弃右侧控件栏。
+  - 06 阅读机里的记录纸、07 铅笔稿：两者在截图里只拉开约两轴，Morii 选了 08。
+- 影响：全部屏幕的视觉；不改任何行为、IPC、测试。
+- 依据：`.design/review/index.html`（第一轮）、`.design/review/index-r2.html`（第二轮）与各方向 `critique-log.md`。
+- 状态：定稿
