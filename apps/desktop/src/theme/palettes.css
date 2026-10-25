@@ -1,6 +1,6 @@
-/* 08-negative · palettes, generated. Dark d1–d6 (d4–d6 are the second dark round), light l1–l3 (l3 chosen).
+/* 08-negative · palettes, generated. Dark d1–d9 (d4–d6 second round; d7–d9 deepen d4), light l1–l3 (l3 chosen).
    main.tsx sets <html data-theme data-palette>: the mode follows the system unless ?theme= is given,
-   and ?palette=N picks the palette within the mode (browser demo; dark 1–6, default 1; light 1–3, default 3).
+   and ?palette=N picks the palette within the mode (browser demo; dark 1–9, default 1; light 1–3, default 3).
    Before the script runs, the system mode picks d1 or l3. Only colour lives here.
    d1 Moss Night · 苔夜 — 04 标本馆的灰绿世界翻成夜里；笔是锈。
    d2 Iron Gall · 铁胆 — 铁胆墨的紫黑，压得很低；笔是铜绿。
@@ -8,6 +8,9 @@
    d4 Dark Tile · 黛瓦 — 粉墙黛瓦：l3 是墙，这是瓦。偏冷的青灰，离开黑色一档；笔是石青。
    d5 Lamplight · 灯下 — 灯下看同一张宣纸：暖灰调暗，不是黑；笔是石青。
    d6 Old Silk · 旧绢 — 绢本旧画的橄榄褐与绢白；笔是赭石，最接近 08 原来的琥珀。
+   d7 Deep Tile · 深黛 — d4 压深一档、色相不变：瓦在夜里更深，青灰仍然克制。笔是石青。
+   d8 Tile Green · 黛青 — d4 加一点青绿：雨后的瓦，颜色最看得出来。笔是石青。
+   d9 Tile Blue · 黛蓝 — d4 往石青笔的方向偏一点蓝：底和笔同一族，最统一。笔是石青。
    l1 Herbarium Sheet · 台纸 — 04 的台面灰绿与绿黑墨；笔是锈。
    l2 Lilac Ledger · 藕荷 — 偏紫的冷灰纸，紫黑墨；笔是铜绿。
    l3 Xuan Paper · 宣纸 — 不发黄的宣纸灰、松烟墨；笔是石青。 */
@@ -32,6 +35,15 @@
 :root[data-palette="d6"]{--paper:#1D1C16;--wash:#24231C;--wash-2:#2B2A22;--grid-minor:#2A2921;--grid-major:#3B392F;--ink:#E6E0CC;--ink-2:#B4AE9A;--ink-3:#97917D;--ink-hi:#F5F0DE;--pen:#D4A55C;
   --i-paper:#E6E0CC;--i-wash:#DAD4C1;--i-wash-2:#D0CAB8;--i-grid-minor:#CAC5B3;--i-grid-major:#B2AD9D;--i-ink:#1D1C16;--i-ink-2:#413F37;--i-ink-3:#514F45;--i-pen:#6B4810;
   --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
+:root[data-palette="d7"]{--paper:#131C1B;--wash:#192422;--wash-2:#202B29;--grid-minor:#1F2A28;--grid-major:#2F3A39;--ink:#ECEDE8;--ink-2:#B7BBB6;--ink-3:#969B97;--ink-hi:#F8F9F5;--pen:#93B6DC;
+  --i-paper:#ECEDE8;--i-wash:#DFE0DC;--i-wash-2:#D4D6D1;--i-grid-minor:#CED0CB;--i-grid-major:#B4B7B3;--i-ink:#131C1B;--i-ink-2:#3A4240;--i-ink-3:#4B5250;--i-pen:#22497A;
+  --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
+:root[data-palette="d8"]{--paper:#0F1F1E;--wash:#152626;--wash-2:#1B2E2D;--grid-minor:#1B2D2C;--grid-major:#2B3D3C;--ink:#ECEDE8;--ink-2:#B7BBB6;--ink-3:#969B97;--ink-hi:#F8F9F5;--pen:#93B6DC;
+  --i-paper:#ECEDE8;--i-wash:#DFE1DC;--i-wash-2:#D4D6D2;--i-grid-minor:#CDD0CC;--i-grid-major:#B3B7B3;--i-ink:#0F1F1E;--i-ink-2:#374442;--i-ink-3:#485553;--i-pen:#22497A;
+  --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
+:root[data-palette="d9"]{--paper:#0F1C23;--wash:#16232B;--wash-2:#1C2B32;--grid-minor:#1B2A31;--grid-major:#2B3A42;--ink:#ECEDE8;--ink-2:#B7BBB6;--ink-3:#969B97;--ink-hi:#F8F9F5;--pen:#93B6DC;
+  --i-paper:#ECEDE8;--i-wash:#DFE0DC;--i-wash-2:#D4D6D2;--i-grid-minor:#CDD0CC;--i-grid-major:#B3B7B5;--i-ink:#0F1C23;--i-ink-2:#374246;--i-ink-3:#485256;--i-pen:#22497A;
+  --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
 :root[data-palette="l1"]{--paper:#E7EDE3;--wash:#DCE3D8;--wash-2:#D1DACD;--grid-minor:#D2DACE;--grid-major:#B8C4B3;--ink:#1A2A1F;--ink-2:#3A4B3F;--ink-3:#4D5E52;--ink-hi:#0E1812;--pen:#9A361C;
   --i-paper:#1A2A1F;--i-wash:#25342A;--i-wash-2:#2C3C31;--i-grid-minor:#304036;--i-grid-major:#44564A;--i-ink:#E7EDE3;--i-ink-2:#BFCABD;--i-ink-3:#A0ADA0;--i-pen:#E39069;
   --backdrop:rgba(20,20,18,0.42);color-scheme:light}
@@ -49,6 +61,9 @@
 :root[data-palette="d4"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2393B6DC' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2393B6DC'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
 :root[data-palette="d5"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%239DBCE0' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%239DBCE0'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
 :root[data-palette="d6"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%23D4A55C' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%23D4A55C'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+:root[data-palette="d7"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2393B6DC' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2393B6DC'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+:root[data-palette="d8"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2393B6DC' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2393B6DC'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+:root[data-palette="d9"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2393B6DC' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2393B6DC'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
 :root[data-palette="l1"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%239A361C' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%239A361C'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
 :root[data-palette="l2"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%231D6354' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%231D6354'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
 :root[data-palette="l3"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2329528A' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2329528A'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}

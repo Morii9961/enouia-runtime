@@ -12,14 +12,14 @@ import './theme/automemory.css';
 import './theme/palettes.css';
 
 // Colour only: the mode follows the system unless ?theme=dark|light is given; ?palette=N picks within it
-// (dark 1–6, default 1; light 1–3, default 3, the chosen Xuan Paper).
+// (dark 1–9, default 1; light 1–3, default 3, the chosen Xuan Paper).
 const look = new URLSearchParams(location.search);
 const scheme = matchMedia('(prefers-color-scheme: light)');
 const applyLook = () => {
   const asked = look.get('theme');
   const mode = asked === 'light' || asked === 'dark' ? asked : scheme.matches ? 'light' : 'dark';
   const askedN = look.get('palette') ?? '';
-  const n = (mode === 'dark' ? /^[1-6]$/ : /^[1-3]$/).test(askedN) ? askedN : mode === 'dark' ? '1' : '3';
+  const n = (mode === 'dark' ? /^[1-9]$/ : /^[1-3]$/).test(askedN) ? askedN : mode === 'dark' ? '1' : '3';
   document.documentElement.dataset.theme = mode;
   document.documentElement.dataset.palette = mode[0] + n;
 };
