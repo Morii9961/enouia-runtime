@@ -1,5 +1,7 @@
 # UI v2 对 Memory 数据格式与后端能力的需求
 
+> 2026-10-26：已由 [backend/](backend/README.md) 的三份文档取代（缺口报告、初始化要求、MCP 要求）。本文件保留为初稿。
+
 日期：2026-10-25。写给 Morii 与 Memory 仓库的实现者（Codex）。这是 Runtime 前端的需求说明，不是 Memory 的契约或 ADR；Memory 侧的决定仍按它自己的阶段与 ADR 做。
 
 核对的版本：
