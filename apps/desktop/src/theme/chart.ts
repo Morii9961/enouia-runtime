@@ -94,8 +94,10 @@ export const domMarks: Mark[] = D.MEM.filter((m) => inDom(m.created)).map((m) =>
 export const earlier = D.MEM.filter((m) => xOf(m.created) < 0).length;
 /** Records before the three-week domain. */
 export const domEarlier = D.MEM.filter((m) => domX(m.created) < 0).length;
-/** Event instants inside the domain, as fractions of it, for the time map's ticks. */
+/** Event instants inside the domain, as fractions of it. */
 export const domTicks = events.filter((e) => e >= DOM_START && e <= DEMO_CLOCK).map((e) => (e - DOM_START) / DOM_MS);
+/** How many events fell on each day of the domain, scaled 0 to 1 (the time map's bars). */
+export const domBars = (() => { const c = Array.from({ length: DOM_DAYS }, () => 0); domTicks.forEach((x) => { c[Math.min(DOM_DAYS - 1, Math.floor(x * DOM_DAYS))]++; }); const m = Math.max(...c, 1); return c.map((n) => n / m); })();
 
 /** Second instrument: the Activity producer's daily 12:00 collections from the demo events. */
 export const readings = D.ACT.filter((a) => a.cat === 'producer' && onChart(a.at)).map((a) => ({

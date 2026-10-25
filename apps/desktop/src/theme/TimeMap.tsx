@@ -14,6 +14,8 @@ export interface MapSpec {
   cells: number;
   /** Small marks for recorded events, as fractions of the domain; `tall` marks a checkpoint or a write. */
   ticks: { at: number; tall?: boolean }[];
+  /** How much was recorded in each cell, 0 to 1: the map's own small bar chart. */
+  bars?: number[];
   labels: { at: number; text: string }[];
   /** Where the demo clock is, as a fraction of the domain. */
   now?: number;
@@ -79,9 +81,10 @@ export default function TimeMap({ spec }: { spec: MapSpec }) {
     <div className="tm" data-by={v.by} data-fixed={fixed || undefined}>
       <button type="button" className="tm-btn" aria-label={`Show earlier time (one ${spec.unit})`} aria-disabled={fixed || atStart || undefined} data-end={atStart || undefined} onClick={() => go(v.start - spec.step)}><Tri dir="l" /></button>
       <div ref={map} className="tm-map" role="slider" tabIndex={0} aria-label={spec.label} aria-describedby={id}
-        aria-valuemin={0} aria-valuemax={maxIdx} aria-valuenow={Math.round((v.start - d0) / cellMs)} aria-valuetext={text} aria-disabled={fixed || undefined}
+        aria-valuemin={0} aria-valuemax={maxIdx} aria-valuenow={Math.round((v.start - d0) / cellMs)} aria-valuetext={text} aria-disabled={fixed || undefined} title="Left and right arrow keys move the frame; Shift moves a whole view"
         style={{ backgroundSize: `calc(100% / ${spec.cells}) 100%` }}
         onKeyDown={onKey} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
+        {spec.bars?.map((b, i) => b > 0 ? <span key={'b' + i} className="tm-bar" style={{ left: (i / spec.cells * 100).toFixed(3) + '%', width: (100 / spec.cells).toFixed(3) + '%', height: Math.round(3 + b * 7) }} aria-hidden="true" /> : null)}
         {spec.ticks.map((t, i) => <span key={i} className="tm-tick" data-tall={t.tall || undefined} style={{ left: (t.at * 100).toFixed(3) + '%' }} aria-hidden="true" />)}
         {spec.labels.map((l, i) => <span key={i} className="tm-lab" style={{ left: (l.at * 100).toFixed(3) + '%' }} aria-hidden="true">{l.text}</span>)}
         {spec.now != null ? <span className="tm-now" style={{ left: (spec.now * 100).toFixed(3) + '%' }} aria-hidden="true" /> : null}

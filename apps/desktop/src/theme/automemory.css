@@ -80,7 +80,7 @@
 .am-pipe-l{font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink)}
 .am-pipe-n{color:var(--ink-2)}
 .am-day{position:relative}
-.am-day-h{position:sticky;top:-16px;z-index:2;padding:4px 8px 3px;background:#858A82;color:#121312;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+.am-day-h{position:sticky;top:-16px;z-index:2;padding:2px 8px 1px;line-height:16px;background:#858A82;color:#121312;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
 .am-day ul{list-style:none;margin:0;padding:0}
 .am-gap{margin:0;padding:6px 0 6px 62px;font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3);background:repeating-linear-gradient(to bottom,transparent 0 3px,var(--grid-major) 3px 4px) 61px 0 / 1px 100% no-repeat}
 .am-ev{position:relative;display:grid;grid-template-columns:52px 20px minmax(0,1fr);column-gap:10px;width:100%;padding:8px 8px 9px 0;border:0;border-top:1px solid var(--grid-minor);background:transparent;text-align:left;color:var(--ink)}

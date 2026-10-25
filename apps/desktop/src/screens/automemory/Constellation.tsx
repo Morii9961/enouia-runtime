@@ -12,7 +12,7 @@ import type { ViewProps } from './types';
 const TYPES: RelType[] = ['source', 'supersedes', 'shared theme', 'context dependency', 'suggestion'];
 const ZOOM = [0.85, 1, 1.25, 1.5];
 const Z0 = 1;                  // index of 100%
-const NW = 164, NH = 50;       // node size in px, identical for every node
+const NW = 206, NH = 50;       // node size in px, identical for every node
 const PLOT_H = 330;
 const relLabel = (t: RelType) => (t === 'suggestion' ? 'suggestion · unconfirmed' : t);
 

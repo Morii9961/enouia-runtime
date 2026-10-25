@@ -48,7 +48,7 @@ function ActivityTrace({ paused }: { paused: boolean }) {
       {segs.map(([a, b, missing], i) => <span key={i} className="bg-act-line" data-missing={missing || undefined} style={{ left: pct(a), width: pct(b - a) }} />)}
       {readings.filter((r) => r.title !== 'Activity published').map((r) => <span key={r.key} className="bg-reading" data-failed={r.failed || undefined} style={{ left: pct(r.x) }}>{r.failed ? '✕ no reading' : '▮ collected'}</span>)}
       {paused
-        ? <span className="bg-act-pen" data-lifted="true" style={{ left: pct(pen.x) }}><span className="bg-act-note">PEN LIFTED — scheduled runs paused (demo)</span></span>
+        ? <><span className="bg-act-pen" data-lifted="true" style={{ left: pct(pen.x) }} /><span className="bg-act-note">PEN LIFTED — scheduled runs paused (demo)</span></>
         : <span className="bg-act-pen" style={{ left: pct(pen.x) }} />}
       <span className="bg-reading bg-reading-next" data-cancelled={paused || undefined} style={{ left: pct(xOf(NEXT_RUN)) }}>{paused ? 'next run held' : '▯ next 12:00'}</span>
     </>

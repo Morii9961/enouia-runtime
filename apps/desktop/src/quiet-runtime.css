@@ -89,7 +89,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 .qr30{flex:1}
 .qr31{display:flex;align-items:baseline;gap:12px;padding:16px 20px 10px;border-bottom:1px solid var(--grid-major)}
 .qr32{padding:40px 24px;font-size:14px;color:var(--ink-2)}
-.qr33{position:sticky;top:0;z-index:1;padding:4px 20px 3px 20px;background:#858A82;color:#121312;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+.qr33{position:sticky;top:0;z-index:1;padding:2px 20px 1px 20px;line-height:16px;background:#858A82;color:#121312;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
 .qr34{font-family:var(--f-mono);font-size:12px;line-height:20px;font-weight:500;color:var(--ink-2);text-align:right;padding-right:10px;position:relative}
 .qr35{color:var(--ink-3)}
 .qr36{width:5px;height:8px;background:var(--ink) !important;display:inline-block}
@@ -256,7 +256,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-
 /* ---- Runtime ---- */
 .qr188{font-size:14px;color:var(--ink)}
 .qr189{display:flex;align-items:center;gap:6px;font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-2) !important}
-.qr190{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;height:40px;padding:0 8px 0 10px;border:0;border-bottom:1px solid var(--grid-major);background:transparent !important;text-align:left;cursor:pointer}
+.qr190{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-height:40px;padding:6px 8px 6px 10px;border:0;border-bottom:1px solid var(--grid-major);background:transparent !important;text-align:left;cursor:pointer}
 .qr191{border-right:1px solid var(--grid-major);overflow:auto;padding:18px 12px;display:flex;flex-direction:column;gap:14px}
 .qr192{display:flex;flex-direction:column;gap:3px;padding:6px 12px;border-right:1px solid var(--grid-major)}
 .qr193{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--grid-major);background:transparent;font-family:var(--f-mono);font-size:12px}

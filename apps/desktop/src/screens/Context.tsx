@@ -47,12 +47,12 @@ Query{' '}
 <span>
 <span className="qr96">
 2,427
-</span>
- of{' '}
+</span>{' '}
+of{' '}
 <span className="qr97">
 4,096
-</span>
- units
+</span>{' '}
+units
 </span>
 <span className="qr97">
 utf8_bytes_v1 · 2,171 B + 256 reserve

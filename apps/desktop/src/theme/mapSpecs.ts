@@ -2,7 +2,7 @@
 // (The Timeline of the automatic-memory preview lends its own spec, see lendMap.)
 // Presentation only, derived from the fictional demo fixture.
 import { demoData as D } from '../demo-data';
-import { DEMO_CLOCK, DOM_CELLS, DOM_MS, DOM_START, HOME_SPAN, HOME_START, domMarks, domTicks, domX, dayShort } from './chart';
+import { DEMO_CLOCK, DOM_CELLS, DOM_MS, DOM_START, HOME_SPAN, HOME_START, domBars, domMarks, domX, dayShort } from './chart';
 import type { MapSpec } from './TimeMap';
 
 const DAY = 24 * 36e5;
@@ -11,7 +11,8 @@ export const homeSpec: MapSpec = {
   key: 'home',
   label: 'Time map, 14 September to 4 October 2026, one cell per day. The amber frame is the stretch the chart shows.',
   cells: DOM_CELLS.length,
-  ticks: [...domTicks.map((at) => ({ at })), ...domMarks.map((m) => ({ at: m.x, tall: true }))],
+  ticks: domMarks.map((m) => ({ at: m.x, tall: true })),
+  bars: domBars,
   labels: DOM_CELLS.filter((c) => c.dow === 'MON').map((c) => ({ at: c.i / DOM_CELLS.length, text: c.date + ' ' + c.month })),
   now: domX(DEMO_CLOCK),
   step: DAY,
