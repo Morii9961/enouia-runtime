@@ -234,3 +234,6 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-036 — Manual private Usage workspace (Owner-authorized implementation)
 
 [ADR-036](036-manual-usage-desktop.md) adds the owner's explicitly requested manual desktop continuation: native directory grants, independent hash-checked Usage runner, count/coverage inspection, paged evidence-bound conflict review and offline export within Activity's private view. No Runtime domain crate enters the desktop graph; no personal source, Memory path, schedule or transmission is activated. [Runner evidence](../validation/AI-usage-ledger-U1-backend.md) separates the synthetic backend gate from desktop and owner acceptance.
+## ADR-037 — Explicit synthetic native Memory adoption (isolated synthetic slice complete)
+
+[ADR-037](037-synthetic-native-memory-adoption.md) adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 owner records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.

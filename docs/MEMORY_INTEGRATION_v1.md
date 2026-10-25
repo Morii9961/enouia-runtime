@@ -8,13 +8,83 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 |---|---|
 | Repository | `https://github.com/Morii9961/enouia-memory.git` (public) |
 | Revision | recorded in [docs/integration/memory-pin.json](integration/memory-pin.json), in `apps/desktop/src-tauri/Cargo.toml` and in its `Cargo.lock` |
-| Consumed crates | `enouia-memory-workspace`, `enouia-memory-contract` for its command catalog (long-running and write commands), and `enouia-memory-provider` for native text Provider setup (Memory ADR-MEM-48) |
-| Contract | workspace IPC v1 (`schemaVersion: 1`, 57 commands) |
+| Consumed crates | `enouia-memory-workspace`, `enouia-memory-contract`, `enouia-memory-provider`; `enouia-memory-host` and `enouia-memory-vault` for the explicit synthetic native adapter (ADR-037) |
+| Contract | workspace IPC v1 (`schemaVersion: 1`, 58 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
-Current adoption (2026-10-23): local source navigation preparation pins Memory draft #50 at `08892702d0d0104b2d23240f89d2130c4dc1d323` (57 commands), stacked on comparison #96. The deterministic text/hash consumer and standalone nested panel are ready for review; new-pin Runtime native checks and upstream merge remain required. Embedded hosting remains. See [actual evidence](validation/History-navigation-brief-v1.md) and [Claude integration](integration/HISTORY_NAVIGATION_CLAUDE_HANDOFF.md).
+Current adoption (2026-10-25): the integrated Memory revision `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327` is merged through [Memory #55](https://github.com/Morii9961/enouia-memory/pull/55). It preserves all 58 Workspace v1 commands and current history consumers while adding the separate opt-in Core-8 synthetic capability. See [integrated evidence](validation/Core8-main-integration-2026-10-25.md); personal libraries, real model quality and production cutover remain separate activation gates.
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
+
+## Core-8 synthetic native capability
+
+[ADR-037](adr/037-synthetic-native-memory-adoption.md) consumes Memory Core-7
+`bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327` with surface aggregate
+`01cfc998a6707897b1956ef31248dbd44102578440ff558095ab5566917f5b82`.
+The default workspace channel remains schema 1. A matching Git revision does
+not make that channel a V2 Vault reader.
+
+| Consumer | Supported combination and behavior |
+| --- | --- |
+| Existing Memory explorer/review/history | Existing v1 root and owner semantics; 58-command catalog, including the four newly adopted history write keys/lifecycle classifications |
+| Automatic Memory region | Explicit `--memory-synthetic`, fresh schema-2 `automation-host-v2` root, admission rules 3, `memory-native-read-1`; System provenance, knowledge/adoption/validity/attention/time axes, bounded history, source opt-in and exact local provenance |
+| Context and Sessions | Existing v1 roots/API; never decode or fabricate capsules/sessions from the V2 root. The new region's native read simulator saves no Context preview or experiment |
+| Provider | Existing normal-mode opt-in setup; synthetic mode skips settings and refuses Provider updates before worker startup. No real account, credential, model or embedding is used by this slice |
+| Overlay / Quick Search | Existing scoped v1 search only; the new command is refused by capability and native window identity |
+| Activity / Usage | Independent producer/runner/storage; no data enters Memory. Desktop metadata continues to exclude Runtime domain crates from Memory's graph |
+| Shared shell/design | Existing frontend App/navigation/router/token system and Claude exploration trees retained; only native Memory command/startup registration and the Memory region mount change |
+
+The native request is `{schema_version:2, capability:"memory-native-read-1",
+query:{operation:...}}`. Closed operations are `status`, `page`, `detail`,
+`simulate`, `lock` and `unlock`. Version/capability refusal precedes operation
+and root access. The native binding owns the root, System principal, attention
+profile and Private ceiling; packets cannot override them. Runtime maps its
+closed recall request DTO to Memory's transport-neutral `RecallQuery`.
+
+Status has kind `runtime_memory_automation_status`; page/detail/simulation retain
+Memory's own kinds. Absent detail uses `automation_memory_absent`, identically
+for inaccessible and missing identities. Pure outputs use `native_read`.
+Lock/unlock acknowledgements use `native_control`: they may change job/lifecycle
+state and do not promise a read-only operation or a successful memory commit.
+Only exact pre-read Busy on a pure read permits native observation waits, with a
+two-second retry budget. Attempts release the binding/writer locks and repeat
+all live authorization gates. The frontend sends the cloned query once; unknown
+outcomes, controls, stale cursors and unsupported versions are never replayed.
+Lock signals withdrawal before waiting for the in-flight observation. Cursor
+scope includes snapshot/filter/profile/sensitivity.
+
+Source text is explicit and plain; supporting citations and analysis dependencies
+are labelled separately. Learned commit time, captured time and unknown event
+dates stay separate. A Busy status hides observations while retaining selection;
+a fresh same-snapshot observation is required to redisplay it. Other failures,
+lock/revocation and changed snapshots clear data. Control generations reject
+late open responses. The UI uses scoped counts and explicitly unavailable global
+views, never Owner-confirmed labels for machine adoption.
+
+Build the independent shell with `npm run desktop:build -- --debug` from
+`apps/desktop`, then start its executable with `--memory-synthetic` for a fresh
+example. No root is remembered. Autostart ignores synthetic/legacy startup roots.
+The example contains three fixed statements, a bounded fake generation budget
+and one Memory-owned maintenance worker, with a one-hour admission policy.
+It performs no semantic understanding of arbitrary input. Initialization/read
+and teardown use native workers; lock and exit fence late initialization and
+join workers. Failed exit makes this optional reader unavailable until restart.
+Synthetic temporary files are retained for diagnosis, not adopted as a sidecar
+or reopened on the next launch. The normal installed client is not replaced.
+
+The existing owned-process smoke supports `--automatic-only`; it requires a new
+`enouia-runtime-core8-smoke-*` fixture under the temporary directory. Its legacy
+Vault/import arguments are unused placeholders in this mode. It uses a fresh
+WebView profile and empty Activity settings override, checks debug-port process
+ownership and touches no unrelated window. See [scope and checks](validation/Core8-native-adoption-2026-10-25.md).
+
+Rollback the pin record, all five manifest revisions, the lockfile, native
+adapter/permission and client together. Old Runtime/MCP clients must reject the
+new root before business decoding/querying, never rely on the page hiding fields.
+Keep v1 owner bytes/approval history unchanged. Do not downgrade a synthetic V2
+root, copy its CURRENT into v1, rewind deletion/policy watermarks or create dual
+writers. Actual migration needs a fixed snapshot, independent recovery and an
+explicit source/destination/old-writer fence; this slice activates none of them.
 
 ## Adapter (`apps/desktop/src-tauri`)
 
@@ -154,7 +224,7 @@ cd ../../..
 node scripts/check-memory-integration.mjs --self-test
 ```
 
-`npm test` runs the Node tests and the explicitly registered synthetic component fixtures in isolated Happy DOM workers. The default DOM gate now includes all 71 current TSX journeys, including loaded-settings observation/reload ([evidence](validation/Provider-settings-status-v1.md)), native configuration-draft saving ([evidence](validation/Provider-draft-save-v1.md)), global operation observation ([evidence](validation/Workspace-operations-inspector-v1.md)) and model configuration drafts ([evidence](validation/Provider-config-draft-v1.md)) and import result inspection ([evidence](validation/Import-report-v1.md)) and the native Inspector ([evidence](validation/Runtime-inspector-v1.md)) and Explorer paging, session selection, panel and inspector action focus ([Explorer](validation/Explorer-paging-focus-v1.md), [Sessions](validation/Session-selection-focus-v1.md), [panels](validation/Panel-action-focus-v1.md), [inspector](validation/Inspector-action-focus-v1.md)), shell navigation and Vault gate focus ([shell](validation/Shell-navigation-focus-v1.md), [gate](validation/Vault-gate-focus-v1.md)), the login startup acknowledgement ([evidence](validation/Startup-note-v1.md)), saved Session/Context reads, Provider receipt recovery, source suggestions, confirmed Explorer deletion feedback ([evidence](validation/Explorer-deletion-focus-v1.md)), overlapping Vault and import operation results ([Vault](validation/Vault-operations-v1.md), [import](validation/Import-operations-v1.md)) and the actual main-window Quick Search component with SDK mocks. `node apps/desktop/tests/dom-fixtures.mjs --details` from the repository root records assertion details and per-fixture progress; a failure names its fixture. No browser or native acceptance follows from this gate. See [expanded gate evidence](validation/Frontend-dom-regressions-v1.md).
+`npm test` runs the Node tests and the explicitly registered synthetic component fixtures in isolated Happy DOM workers. The default DOM gate now includes all 76 current TSX journeys, including loaded-settings observation/reload ([evidence](validation/Provider-settings-status-v1.md)), native configuration-draft saving ([evidence](validation/Provider-draft-save-v1.md)), global operation observation ([evidence](validation/Workspace-operations-inspector-v1.md)) and model configuration drafts ([evidence](validation/Provider-config-draft-v1.md)) and import result inspection ([evidence](validation/Import-report-v1.md)) and the native Inspector ([evidence](validation/Runtime-inspector-v1.md)) and Explorer paging, session selection, panel and inspector action focus ([Explorer](validation/Explorer-paging-focus-v1.md), [Sessions](validation/Session-selection-focus-v1.md), [panels](validation/Panel-action-focus-v1.md), [inspector](validation/Inspector-action-focus-v1.md)), shell navigation and Vault gate focus ([shell](validation/Shell-navigation-focus-v1.md), [gate](validation/Vault-gate-focus-v1.md)), the login startup acknowledgement ([evidence](validation/Startup-note-v1.md)), saved Session/Context reads, Provider receipt recovery, source suggestions, confirmed Explorer deletion feedback ([evidence](validation/Explorer-deletion-focus-v1.md)), overlapping Vault and import operation results ([Vault](validation/Vault-operations-v1.md), [import](validation/Import-operations-v1.md)) and the actual main-window Quick Search component with SDK mocks. `node apps/desktop/tests/dom-fixtures.mjs --details` from the repository root records assertion details and per-fixture progress; a failure names its fixture. No browser or native acceptance follows from this gate. See [expanded gate evidence](validation/Frontend-dom-regressions-v1.md).
 
 `apps/desktop/e2e/memory-smoke.mjs <exe> <vault-root> <import-file> <out-dir>` drives the built executable over WebView2 remote debugging on loopback, which is enabled only in that test's environment. It uses a synthetic Vault created outside any Git working tree, for example with the pinned Memory revision's `enouia-memory init <dir> --confirm-new-vault`, plus a synthetic Markdown file for the import picker. It tests Ctrl+Alt+Q via Windows input only while its own process is foreground, and launches a second isolated test process for shortcut conflict and occupied-root refusal. An optional `--quick-only` prepares two approved records and a completed index rebuild in a fresh empty synthetic Vault, then checks the overlay including three real reopening cycles. Reopening waits for observed native clear/focus/visibility before test input. See [opening prerequisite evidence](validation/Quick-search-opening-v1.md). `--operations-only` takes a fresh synthetic Vault and a 500-session synthetic `enouia-runtime-session/1` JSON export to test cancellation/resume, fresh observation state and read-error retry. Controlled callback delivery in that mode is explicitly synthetic. Screenshots and `report.json` go to the output folder, which is not committed. See the [validation report](validation/Memory-integration-v1.md).
 
