@@ -16,6 +16,7 @@ mod activity;
 mod companion;
 mod hotkey;
 mod memory;
+mod memory_automation;
 mod provider;
 mod root_lease;
 mod shell;
@@ -29,7 +30,15 @@ fn main() {
     let host = MemoryHost::new();
     let args: Vec<String> = std::env::args().collect();
     let autostart = args.iter().any(|arg| arg == "--autostart");
-    if !autostart && let Some(root) = memory::vault_argument(&args) {
+    let synthetic_requested = args.iter().any(|arg| arg == "--memory-synthetic");
+    let synthetic = !autostart && synthetic_requested;
+    if synthetic_requested {
+        host.automation().request_synthetic_mode();
+    }
+    if !autostart
+        && !synthetic
+        && let Some(root) = memory::vault_argument(&args)
+    {
         host.open_root(&root);
     }
     let mut context = tauri::generate_context!();
@@ -50,6 +59,7 @@ fn main() {
             activity::activity_call,
             activity::activity_setup,
             memory::memory_call,
+            memory_automation::memory_automation,
             memory::memory_pick,
             provider::memory_provider_setup,
             provider::memory_provider_reload,
@@ -65,11 +75,20 @@ fn main() {
             companion::startup_status,
             companion::startup_set
         ])
-        .setup(|app| {
+        .setup(move |app| {
             // Native Provider sending stays off without the owner's
             // settings file (ADR-032).
-            let path = provider::settings_path(app.handle());
-            let _ = provider::apply(&app.state::<MemoryHost>(), path.as_deref());
+            if synthetic_requested {
+                if synthetic {
+                    let native = app.state::<MemoryHost>().automation().clone();
+                    tauri::async_runtime::spawn_blocking(move || {
+                        let _ = native.initialize_synthetic();
+                    });
+                }
+            } else {
+                let path = provider::settings_path(app.handle());
+                let _ = provider::apply(&app.state::<MemoryHost>(), path.as_deref());
+            }
             shell::install(app)?;
             Ok(())
         })

@@ -13,10 +13,12 @@ import { CandidateSource } from "./CandidateSource";
 import { CandidateConflict } from "./CandidateConflict";
 import { memoryObservation } from "./observationIdentity";
 import { validImportAlias } from "./importAlias";
+import { AutomaticMemory } from "./AutomaticMemory";
 
-type Collection = "inbox" | "current" | "history" | "import" | "vault";
+type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated";
 
 const TITLES: Record<Collection, string> = {
+  automated: "Synthetic automatic memories",
   inbox: "Candidate inbox",
   current: "Current memories",
   history: "Including history",
@@ -40,6 +42,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = [
     { label: "Review", items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: "Canonical", items: [["current", TITLES.current], ["history", TITLES.history]] },
+    { label: "Automatic", items: [["automated", TITLES.automated]] },
     { label: "Vault", items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
@@ -76,7 +79,7 @@ export default function MemorySurface({ initialCollection = "current" }: { initi
           </div>
         ))}
       </aside>
-      {status && (vaultChanging || exiting(status)) ? (
+      {collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>

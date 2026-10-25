@@ -61,6 +61,7 @@ function launch(args, { port = PORT, profile = 'webview2' } = {}) {
       WEBVIEW2_USER_DATA_FOLDER: join(out, profile),
     },
     stdio: 'ignore',
+    windowsHide: args.includes('--memory-synthetic'),
   });
   children.add(child);
   processesByPort.set(port, child);
@@ -936,7 +937,90 @@ async function contrastChecks(s) {
   await shot(s, '16-ordinary-selection');
 }
 
+// Core-8 mode uses only the fresh built-in synthetic root. The legacy path
+// arguments remain signature placeholders; no picker, Provider or personal root.
+async function automaticMemoryChecks() {
+  const fixture = resolve(out, '..');
+  if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-core8-smoke-') || lstatSync(fixture).isSymbolicLink()) throw new Error('Core-8 smoke requires its dedicated temporary fixture');
+  let app = launch(['--memory-synthetic']);
+  let s = await connect();
+  try {
+  await s.evaluate(`__t.automatic = async query => { for(let n=0;;n++) { const result = await __t.invoke('memory_automation', { request: { schema_version: 2, capability: 'memory-native-read-1', query } }); if(result.err !== 'automation_busy' || !['status','page','detail','simulate'].includes(query.operation) || n>=5) return result; await new Promise(r=>setTimeout(r,25)); } }`);
+  await waitFor(s, "__t.automatic({operation:'status'}).then(r=>r.ok?.state==='open')", 'synthetic native root');
+  const initial = await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok)");
+  check('CORE8.native_capability_and_synthetic_mode', initial.schema_version === 2 && initial.capability === 'memory-native-read-1' && initial.mode === 'synthetic_only' && initial.available);
+  check('CORE8.legacy_workspace_does_not_adopt_v2', (await statusOf(s)).vault.state === 'none');
+  const page = await s.evaluate("__t.automatic({operation:'page',filter:{form:null,adoption:null,event_window:null,include_unknown_event_time:false},cursor:null,limit:1}).then(r=>r.ok)");
+  check('CORE8.native_rows_have_system_receipts', page.matched_in_scope === 3 && page.items.length === 1 && page.items[0].system_actor.actor_type === 'system' && !!page.items[0].receipt);
+  check('CORE8.unimplemented_global_views_are_unavailable', !page.capabilities.global_graph && !page.capabilities.global_timeline && !page.capabilities.saved_experiment && !page.capabilities.vectors);
+  const next = await s.evaluate(`__t.automatic({operation:'page',filter:{form:null,adoption:null,event_window:null,include_unknown_event_time:false},cursor:${JSON.stringify(page.next)},limit:1}).then(r=>r.ok)`);
+  check('CORE8.native_cursor_progresses', next.items[0].memory.memory_id !== page.items[0].memory.memory_id);
+  const unsupported = await s.evaluate("__t.invoke('memory_automation',{request:{schema_version:99,capability:'memory-native-read-1',query:{operation:'detail',memory_id:'malformed'}}})");
+  check('CORE8.version_refused_before_operation_decode', unsupported.err === 'automation_version_unsupported');
+  const injectedRoot = await s.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',root:'forbidden-root-field',query:{operation:'status'}}})");
+  check('CORE8.packet_cannot_select_root_or_principal', injectedRoot.err === 'automation_invalid_request');
+  const quick = await connect(true);
+  const denied = await quick.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}})");
+  check('CORE8.overlay_cannot_reach_new_native_capability', !!denied.err && !denied.ok);
+  quick.close();
+  await nav(s, 'Memory');
+  await rail(s, 'Synthetic automatic memories');
+  await waitFor(s, has('3 currently authorized memories'), 'automatic Memory list');
+  check('CORE8.real_panel_labels_synthetic_system_adoption', (await s.evaluate('document.body.innerText')).includes('Isolated synthetic library') && (await s.evaluate('document.body.innerText')).includes('System adopted'));
+  await shot(s, 'core8-01-automatic-list');
+  await click(s, '.qr44 button', 'pottery cup');
+  try { await waitFor(s, has('Learned at:'), 'native detail'); }
+  catch(error) {
+    writeFileSync(join(out,'core8-detail-failure.txt'),await s.evaluate('document.body.innerText'));
+    await shot(s,'core8-detail-failure');
+    throw error;
+  }
+  check('CORE8.real_detail_keeps_time_and_validity_axes', (await s.evaluate('document.body.innerText')).includes('Source captured at:') && (await s.evaluate('document.body.innerText')).includes('Validity: unspecified'));
+  check('CORE8.source_body_requires_explicit_selection', (await s.evaluate('document.body.innerText')).includes('Original text has not been requested'));
+  await click(s, 'button', 'Read selected original sources');
+  await waitFor(s, "document.querySelector('.qr88 pre')?.textContent.includes('Synthetic example:')", 'selected original source');
+  await shot(s, 'core8-02-selected-source');
+  await set(s, '.qr44 form input', 'ceramics');
+  await click(s, 'button', 'Simulate read-only recall');
+  await waitFor(s, has('Native read · no saved experiment'), 'native recall simulation');
+  check('CORE8.native_read_simulation_renders_qualified_context', (await s.evaluate('document.body.innerText')).includes('Subject stated (not independently verified):'));
+  const after = await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok)");
+  check('CORE8.simulation_does_not_advance_current', JSON.stringify(after.snapshot) === JSON.stringify(initial.snapshot));
+  await shot(s, 'core8-03-read-only-recall');
+  await click(s, 'button', 'Lock synthetic library');
+  await waitFor(s, has('Library: locked'), 'synthetic lock');
+  const locked = await s.evaluate("__t.automatic({operation:'page',filter:{form:null,adoption:null,event_window:null,include_unknown_event_time:false},cursor:null,limit:1})");
+  check('CORE8.lock_refuses_native_reads_and_clears_body', locked.err === 'automation_locked' && !(await s.evaluate('document.body.innerText')).includes('Learned at:'));
+  await click(s, 'button', 'Unlock synthetic library');
+  await waitFor(s, has('3 currently authorized memories'), 'synthetic unlock');
+  await s.evaluate("document.querySelector('button[aria-label=\"Close\"]').click()");
+  await sleep(300);
+  const hidden = await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+  check('CORE8.close_to_tray_keeps_background_library', hidden.visible === false && (await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok?.state)")) === 'open');
+  await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
+  void s.evaluate("__t.invoke('shell_exit')").catch(() => 0);
+  check('CORE8.explicit_exit_joins_memory_workers', (await waitForExit(app, 20000)) === 0);
+  s.close();
+  const secondPort = await unusedPort();
+  app = launch(['--memory-synthetic'], { port: secondPort, profile: 'webview2-core8-fresh' });
+  s = await connect(false, secondPort);
+  await waitFor(s, "__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}}).then(r=>r.ok?.state==='open')", 'fresh synthetic restart');
+  const fresh = await s.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}}).then(r=>r.ok)");
+  check('CORE8.restart_creates_fresh_root_without_reopening_private_data', fresh.snapshot.vault_id !== initial.snapshot.vault_id && (await statusOf(s)).vault.state === 'none');
+  void s.evaluate("__t.invoke('shell_exit')").catch(() => 0);
+  check('CORE8.second_explicit_exit', (await waitForExit(app, 20000)) === 0);
+  s.close();
+  } catch(error) {
+    try {
+      writeFileSync(join(out,'core8-detail-failure.txt'),await s.evaluate('document.body.innerText'));
+      await shot(s,'core8-detail-failure');
+    } catch { /* preserve the original failed check */ }
+    throw error;
+  }
+}
+
 async function main() {
+  if (process.argv[6] === '--automatic-only') return automaticMemoryChecks();
   if (process.argv[6] === '--keyboard-journey-only') {
     const fixture = resolve(out, '..');
     if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-keyboard-journey-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('keyboard journey requires its dedicated temporary synthetic fixture');

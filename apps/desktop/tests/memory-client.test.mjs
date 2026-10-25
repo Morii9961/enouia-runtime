@@ -139,3 +139,15 @@ test('external commands are keyed writes, and provider rules have owner text', a
   const refused = new CallError({ code: 'provider_unavailable', retryable: false, rules: ['provider.not_configured'] });
   assert.match(describe(refused), /not set up/);
 });
+
+
+test('the adopted history write commands keep one submission key on an explicit retry', async () => {
+  const sent = recorder(() => ({ kind: 'synthetic_reply', result: {}, error: null }));
+  for (const command of ['history_materialize', 'history_resume', 'history_batch_prepare', 'history_batch_apply']) {
+    await call(command, { synthetic: true });
+    const key = sent.at(-1).args.request.idempotencyKey;
+    assert.match(key, KEY);
+    await call(command, { synthetic: true }, key);
+    assert.equal(sent.at(-1).args.request.idempotencyKey, key);
+  }
+});

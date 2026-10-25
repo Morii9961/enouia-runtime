@@ -75,7 +75,7 @@ try{
   check("read_failure_retains_stop_control",!!button("Stop locally")&&callbacks===0);
   button("Stop locally")!.click();await sleep(50);
   check("stop_ack_restarts_failed_observation",!!button("Local stop requested")&&!text().includes("Could not read the operation"));
-  finish=true;await wait(()=>callbacks===1);
+  finish=true;await wait(()=>callbacks===1&&text().includes("cancelled"));
   check("restarted_observation_reaches_terminal",text().includes("cancelled"));
   check("only_local_get_and_cancel",calls.every(c=>["operation_get","operation_cancel"].includes(c)));
 }catch(error){checks.push({id:String(error),ok:false});}

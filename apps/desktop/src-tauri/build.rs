@@ -6,6 +6,7 @@ fn main() {
             "activity_call",
             "activity_setup",
             "memory_call",
+            "memory_automation",
             "memory_pick",
             "memory_provider_setup",
             "memory_provider_reload",

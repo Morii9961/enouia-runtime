@@ -226,3 +226,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-034 — Audit unselected generations from their manifest and sequence (Proposed; adopted on merge)
 
 [ADR-034](034-summary-audit-of-older-generations.md) cuts the write-path audit to the manifest and hash-checked `sequence.json` of each unselected generation. A full read happens only for a same-reservation pending difference. Damage confined to an older generation's archive, pending or delivery file no longer blocks writing. `recovery-inspect` reports it, and retraction still requires full validation. Measured audit cost on a one-year synthetic archive falls about eightfold.
+
+## ADR-037 — Explicit synthetic native Memory adoption (WIP checkpoint)
+
+[ADR-037](037-synthetic-native-memory-adoption.md) adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 owner records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.

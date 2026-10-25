@@ -19,7 +19,7 @@ const fixtures = ['settings-exit-ownership', 'shell-navigation-focus', 'home-sta
   'suggestion-resume', 'suggestion-lifetime', 'suggestion-review-journey', 'workspace-calls',
   'operation-snapshot', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
   'provider-preparation-recovery', 'provider-operations', 'provider-off-ledger', 'provider-confirmation',
-  'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation'];
+  'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation', 'automatic-memory'];
 const desktop = fileURLToPath(new URL('..', import.meta.url));
 const baselineSha = operationBaseline ? '290248b6cb37fe4e905970963793042b097bc7b8' : '6cb6920eab5ca5a84e23b7d9f55773cf3f61609d';
 const baselineFile = operationBaseline ? 'ui.tsx' : 'status.tsx';
