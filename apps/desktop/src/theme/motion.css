@@ -19,7 +19,7 @@ html[data-vt-dir="back"]::view-transition-new(page){animation-name:vtInBack}
 
 /* automatic memory: the main view advances, the pressed view button slides */
 html[data-vt="view"] .am-main{view-transition-name:am-main}
-html[data-vt="view"] .am-view[aria-pressed="true"]{view-transition-name:am-view-current}
+html[data-vt="view"] .am-head-views .am-view[aria-pressed="true"]{view-transition-name:am-view-current}
 html[data-vt="view"]::view-transition-old(am-main){animation:vtOut var(--t1) var(--ease) both}
 html[data-vt="view"]::view-transition-new(am-main){animation:vtIn var(--t2) var(--ease) both}
 html[data-vt="view"][data-vt-dir="back"]::view-transition-old(am-main){animation-name:vtOutBack}

@@ -6,6 +6,7 @@ import Grid from './Grid';
 import Timeline from './Timeline';
 import Constellation from './Constellation';
 import Recall from './Recall';
+import StarMap from './StarMap';
 import { Inspector } from './Inspector';
 import type { ViewId } from './types';
 import { setAutoMode } from '../../theme/autoMode';
@@ -19,6 +20,7 @@ const VIEWS: { id: ViewId; name: string; hint: string }[] = [
   { id: 'grid', name: 'Memory grid', hint: 'one slip each' },
   { id: 'timeline', name: 'Timeline', hint: 'when it happened' },
   { id: 'stars', name: 'Constellation', hint: 'what touches it' },
+  { id: 'starmap', name: 'Star map', hint: 'the whole generated sample' },
   { id: 'recall', name: 'Recall lab', hint: 'why offered' },
 ];
 
@@ -61,10 +63,15 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
           <a className="am-skip" href="#am-inspector" onClick={(e) => { e.preventDefault(); document.getElementById('am-inspector')?.focus(); }}>Skip to inspector</a>
         </div>
       </header>
-      <div className="am-body">
-        <div className="am-main" id="am-main">{body}</div>
-        <Inspector m={m} select={choose} />
-      </div>
+      {view === 'starmap' ? (
+        // The star map has its own sample (700 generated memories by default) and its own panel.
+        <div className="am-body"><div className="am-main sm-host" id="am-main"><StarMap /></div></div>
+      ) : (
+        <div className="am-body">
+          <div className="am-main" id="am-main">{body}</div>
+          <Inspector m={m} select={choose} />
+        </div>
+      )}
     </section>
   );
 }

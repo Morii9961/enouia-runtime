@@ -44,7 +44,9 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
   const auto = useAutoMode() && page === 'memory';
   const lent = useLentMap();
   const meta = auto
-    ? <><b>Automatic memory</b> · synthetic preview · its own sample time, 1 Jul – 31 Oct 2026</>
+    ? lent?.key === 'starmap'
+      ? <><b>Star map</b> · generated sample · its own sample time, Nov 2025 – Oct 2026</>
+      : <><b>Automatic memory</b> · synthetic preview · its own sample time, 1 Jul – 31 Oct 2026</>
     : <><b>Week of 28 Sep 2026</b> · <span className="bg-clock">demo clock Thu 1 Oct, 14:44</span></>;
   let overlay: React.ReactNode = null;
   let summary = 'Fictional demo strip, week of 28 September 2026, drawn up to the demo clock, Thursday 1 October 14:44.';
