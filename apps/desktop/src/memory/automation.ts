@@ -9,16 +9,9 @@ export async function automationRead(query: Record<string, unknown>): Promise<J>
   const request = { schema_version: 2, capability: "memory-native-read-1", query: structuredClone(query) };
   const operation = String(request.query.operation);
   const pureRead = ["status", "page", "detail", "simulate"].includes(operation);
-  let response: unknown;
-  for (let attempt = 0; ; attempt += 1) {
-    try { response = await transport("memory_automation", { request }); break; }
-    catch (error) {
-      // Native Busy occurs before the read; every retry rechecks live authority.
-      // Never replay controls, unknown outcomes, version errors or stale cursors.
-      if (!pureRead || error !== "automation_busy" || attempt >= 2) throw error;
-      await new Promise(resolve => setTimeout(resolve, 25));
-    }
-  }
+  // The native adapter owns bounded Busy observation waits and live authority.
+  // IPC errors, including exhausted Busy and control outcomes, are never replayed here.
+  const response = await transport("memory_automation", { request });
   const value = response as J;
   // Gate the capability/effect before consumers inspect business fields.
   const effect = pureRead ? "native_read" : "native_control";

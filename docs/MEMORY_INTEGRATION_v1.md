@@ -44,9 +44,12 @@ Memory's own kinds. Absent detail uses `automation_memory_absent`, identically
 for inaccessible and missing identities. Pure outputs use `native_read`.
 Lock/unlock acknowledgements use `native_control`: they may change job/lifecycle
 state and do not promise a read-only operation or a successful memory commit.
-Only exact native Busy on a pure read permits two bounded retries of the same
-cloned query. Unknown outcomes, controls, stale cursors and unsupported versions
-are not retried. Cursor scope includes snapshot/filter/profile/sensitivity.
+Only exact pre-read Busy on a pure read permits native observation waits, with a
+two-second retry budget. Attempts release the binding/writer locks and repeat
+all live authorization gates. The frontend sends the cloned query once; unknown
+outcomes, controls, stale cursors and unsupported versions are never replayed.
+Lock signals withdrawal before waiting for the in-flight observation. Cursor
+scope includes snapshot/filter/profile/sensitivity.
 
 Source text is explicit and plain; supporting citations and analysis dependencies
 are labelled separately. Learned commit time, captured time and unknown event

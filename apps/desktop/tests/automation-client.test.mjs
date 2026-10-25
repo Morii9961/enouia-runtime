@@ -23,20 +23,8 @@ test('snapshot identity is order independent and rejects missing or unsafe water
   assert.throws(() => snapshotKey({ ...a, deletion_watermark: 9007199254740992 }));
 });
 
-test('only pure reads reobserve explicit native Busy with the original query', async () => {
-  const query = { operation: 'status' };
-  let calls = 0;
-  setAutomationTransport(async (_command, args) => {
-    calls += 1;
-    assert.equal(args.request.query.operation, 'status');
-    if (calls === 1) { query.operation = 'lock'; throw 'automation_busy'; }
-    return response;
-  });
-  await automationRead(query);
-  assert.equal(calls, 2);
-});
-test('controls and unknown or stale outcomes are never replayed', async () => {
-  for (const [operation, error] of [['lock', 'automation_busy'], ['unlock', 'automation_busy'], ['page', 'automation_stale'], ['status', 'worker_failed']]) {
+test('all IPC errors remain single sends, including exhausted native Busy', async () => {
+  for (const [operation, error] of [['status', 'automation_busy'], ['page', 'automation_busy'], ['lock', 'automation_busy'], ['unlock', 'automation_busy'], ['page', 'automation_stale'], ['status', 'worker_failed']]) {
     let calls = 0;
     setAutomationTransport(async () => { calls += 1; throw error; });
     await assert.rejects(automationRead({ operation }), actual => actual === error);

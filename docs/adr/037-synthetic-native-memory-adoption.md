@@ -1,6 +1,6 @@
 # ADR-037 — Explicit synthetic native Memory adoption
 
-Date: 2026-10-25. Status: implementation checkpoint; final isolated native gate incomplete. Production adoption is not activated.
+Date: 2026-10-25. Status: accepted for the isolated synthetic adoption slice. Production adoption is not activated.
 Authority: Morii explicitly authorized Core-8 independent Runtime adoption after Core-7.
 ADR-035/036 are already used by the parallel Activity work; this decision preserves that work.
 
@@ -29,9 +29,11 @@ remain unavailable. Native controls only lock/unlock the synthetic binding.
 Read outputs carry `native_read`; lifecycle acknowledgements carry
 `native_control` and never claim a memory commit or owner confirmation.
 
-Only pure reads may repeat explicit pre-read Busy, at most twice. Controls,
-unknown outcomes, stale cursors and version failures are never replayed. Each
-read repeats current Memory authorization. A contended status hides displayed
+Only pure reads may wait on explicit pre-read Busy in the native blocking worker,
+with a two-second retry budget and no binding/writer lock held between attempts.
+Each attempt re-enters current Memory authorization. Controls, unknown outcomes,
+stale cursors and version failures are never replayed; the frontend sends one IPC
+request. Lock signals withdrawal before waiting for an in-flight observation. A contended status hides displayed
 observations until the same snapshot is freshly confirmed; revocation, changed
 snapshots and other failures clear them. Control epochs reject late open replies.
 

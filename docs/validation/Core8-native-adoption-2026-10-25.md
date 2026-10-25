@@ -1,6 +1,6 @@
 # Core-8 独立 Runtime 合成原生采用
 
-日期：2026-10-25，Asia/Shanghai。状态：WIP 检查点；额度达到 95% 按 Morii 要求停工保存。最终原生 gate 未通过，不宣布 Core-8 完成。
+日期：2026-10-25，Asia/Shanghai。状态：Core-8 独立合成原生采用切片完成。实际模型质量、私人数据迁移与生产激活仍未验收。
 Runtime 基线 `b8254d8a8a88d67cd92e7f0d8ce72964a62f344e`，分支
 `codex/core8-native-adoption`。Morii 在 Core-7 接续中明确批准独立 Runtime 采用，
 保留 Claude 探索树并继续仅用合成资料。
@@ -43,30 +43,42 @@ staged 状态不转成真人必审队列。原生只读召回与保存 Context p
 
 ## 实际检查与边界
 
-- Rust 1.98.1 GNU、offline/locked：67 项 adapter/unit + 5 项 pinned-Core 字段集成测试通过；
+- Rust 1.98.1 GNU、offline/locked：69 项 adapter/unit + 5 项 pinned-Core 字段集成测试通过；
   fmt、clippy all-targets `-D warnings` 通过。旧 lifecycle 测试对新增四条 history 写命令的
   预期已对齐，实际权限与写入分类仍取自 pinned Memory。
 - 新增确定性竞态：根已构造但尚未绑定时，lock/exit 均丢弃它；启动前即拒绝真实 Provider
   更新。新增 native fixture 验证真实文件、System 回执、来源/历史、模拟不改 CURRENT、锁定、
   退出及旧 Workspace 拒读新根。
-- Native schema/effect/client/DOM：版本/模式/副作用错配先拒绝；只有纯读取可对明确 Busy 做
-  有界重读，保留原 query；控制/未知结果/stale 不自动重放。
+- Native schema/effect/client/DOM：版本/模式/副作用错配先拒绝；只有纯读取可在原生 worker 对明确 Busy 做
+  有界等待，每次重验完整授权；前端单次发送，控制/未知结果/stale 不自动重放。
 - 实际窗口曾间歇丢失详情/来源。组件用例复现了状态探测 Busy 取消并行详情；修正后未知状态
   先隐藏正文，同 snapshot 新授权观察后恢复；锁定/撤回、其他错误和新 snapshot 则清空。
   临时阶段诊断已移除。不能把旧绿测代替这一修复的最终窗口检查。
 - 历史带阶段诊断的原生窗口曾通过 18/18；这不是最终版本通过证据。
-- 最终无诊断、明确 native_control 版本：原生 smoke 执行到只读召回时失败，11/12 已执行
-  检查通过，随后超时；界面显示 generic Memory call failed，观察状态清空。此前详情/来源也
-  曾间歇丢失。需要继续诊断真实 IPC 错误/观察生命周期，不能仅加超时或套用旧绿测。
-- 最终 Node 105/105，DOM 59/59 journey、760 项断言全部通过；前端类型检查和
-  `npm run desktop:build -- --debug` 通过。Rust 最终 67+5 项、fmt/clippy 通过；
+- 早先 WIP 的无诊断版本在只读召回前超时，11/12 已执行检查通过。合成故障日志捕获
+  Core `Vault(Busy)`，操作耗时记录显示授权读取约 0.5～0.7 秒；原前端两次 25ms 重试窗口
+  覆盖不了它，锁定也可能撞上状态读取。这是实际并发可用性问题，不是语义模型证据。
+- 修复把 Busy 等待收敛到原生 blocking worker，最多两秒重试预算，等待期间不持 binding/
+  writer 锁，每次调用完整原生 gate；其他错误与控制一次返回。Lock 在等待 binding 前发出
+  停止信号。移除前端和验收脚本的额外重试；原生回归覆盖等待上限、close 重验和锁定屏障。
+- 并发修复后无产品 tracing、无测试 IPC 重试版本：真实窗口两次 18/18 通过，含来源、只读召回、
+  CURRENT 不变、锁定拒读、托盘隐藏后台存活、退出 join、重启新库与第二次退出。
+- 两次中间复验未连接到主窗口页面（0/1，未进入 Memory 检查），出现在 Cargo 检查后直接
+  使用同路径 executable 的顺序中；重新执行 `desktop:build -- --debug` 后完整通过。
+  未将这两个失败计入通过次数，也未仅凭顺序关联断言其底层原因。原生 gate 使用最后一次
+  Tauri 嵌入资源构建的产物，放在 Cargo 检查之后。合成进程输出保存在验收目录用于诊断。
+- 实际截图检查发现新区域输入缺少现有主题类、长召回文本不换行；只在新组件复用现有
+  Memory 的 input/source/list/spacing 类修正，未修改共享 CSS 或设计系统。样式后组件 10 项
+  断言、类型检查/嵌入构建及最终原生 18/18 再次通过，截图确认输入与长文本可读。
+- 最终 Node 104/104，DOM 59/59 journey、760 项断言全部通过；前端类型检查和
+  `npm run desktop:build -- --debug` 通过。Rust 最终 69+5 项、fmt/clippy 通过；
   pin self-test 8 项反例、依赖边界 self-test 7 项反例通过。旧 operation-cancel 用例曾在
   callback 已发生而 DOM 未 commit 时抢先断言，现同时等 callback 与终态 DOM，原断言保留。
   owned Cargo.lock 已规范为 LF，未改变 registry 包/依赖边；避免旧自测的行移除变体不生效。
 
 实际执行了 locked/offline desktop cargo test、clippy all-targets、cargo fmt check、metadata，
-Node pin/domain checks、npm check/test、全 DOM 和 debug native build。最终 native 失败材料
-保存在本地 private gate；额度停止后没有继续修改实现。下次先复现该失败，再完成 native gate。原生 smoke 的截图/完整报告只保存在本地 ignored/private
+Node pin/domain checks、npm check/test、全 DOM 和 debug native build。WIP 失败记录与最终通过
+记录分开保留，不将旧阶段诊断绿测当最终证据。原生 smoke 的截图/完整报告只保存在本地 ignored/private
 验证材料，不发布个人路径或附件。Release/installer、Narrator/物理托盘/真实 sign-out、真实
 Provider/模型质量、私人历史覆盖/迁移/恢复及云端均未验收，不由本片推断完成。
 

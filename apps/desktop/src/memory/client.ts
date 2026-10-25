@@ -145,6 +145,11 @@ const HOST: Record<string, string> = {
   "provider_setup.unreadable": "Runtime could not read its settings file. Check file access and reload",
   credential_malformed: "That key has spaces or characters an API key cannot contain. Nothing was saved",
   credential_failed: "Windows Credential Manager could not save or remove the key",
+  automation_busy: "Automatic Memory is busy. Try the read again shortly.",
+  automation_locked: "The automatic Memory library is locked",
+  automation_stale: "The automatic Memory library changed. Refresh the list.",
+  automation_read_refused: "The automatic Memory read was refused",
+  automation_version_unsupported: "This automatic Memory version is unsupported",
   credential_prompt_failed: "The Windows credential prompt could not be shown",
   invalid_request: "The request does not match the contract",
 };

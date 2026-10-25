@@ -54,15 +54,17 @@ const check = (id, ok, detail = '') => {
 };
 
 function launch(args, { port = PORT, profile = 'webview2' } = {}) {
+  const nativeLog = args.includes('--memory-synthetic') ? openSync(join(out, 'core8-native-process.log'), 'a') : null;
   const child = spawn(exe, [...args, '--hotkey-key', 'Q', '--activity-settings', join(out, 'activity-install.json')], {
     env: {
       ...process.env,
       WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
       WEBVIEW2_USER_DATA_FOLDER: join(out, profile),
     },
-    stdio: 'ignore',
+    stdio: nativeLog === null ? 'ignore' : ['ignore', nativeLog, nativeLog],
     windowsHide: args.includes('--memory-synthetic'),
   });
+  if (nativeLog !== null) closeSync(nativeLog);
   children.add(child);
   processesByPort.set(port, child);
   child.exited = new Promise((r) => child.once('exit', (code) => { children.delete(child); r(code); }));
@@ -945,7 +947,7 @@ async function automaticMemoryChecks() {
   let app = launch(['--memory-synthetic']);
   let s = await connect();
   try {
-  await s.evaluate(`__t.automatic = async query => { for(let n=0;;n++) { const result = await __t.invoke('memory_automation', { request: { schema_version: 2, capability: 'memory-native-read-1', query } }); if(result.err !== 'automation_busy' || !['status','page','detail','simulate'].includes(query.operation) || n>=5) return result; await new Promise(r=>setTimeout(r,25)); } }`);
+  await s.evaluate(`__t.automatic = query => __t.invoke('memory_automation', { request: { schema_version: 2, capability: 'memory-native-read-1', query } })`);
   await waitFor(s, "__t.automatic({operation:'status'}).then(r=>r.ok?.state==='open')", 'synthetic native root');
   const initial = await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok)");
   check('CORE8.native_capability_and_synthetic_mode', initial.schema_version === 2 && initial.capability === 'memory-native-read-1' && initial.mode === 'synthetic_only' && initial.available);

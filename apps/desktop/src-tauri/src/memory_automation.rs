@@ -206,6 +206,25 @@ impl NativeAutomation {
             state.locked = true;
         }
     }
+    /// Busy means no observation was produced. Re-enter the full native gate
+    /// on each attempt, without holding the binding or a Vault writer lock.
+    /// The two-second bound covers measured subsecond authorization reads;
+    /// controls and every other error return once, without replay.
+    fn call_waiting(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
+        let read = matches!(
+            value["query"]["operation"].as_str(),
+            Some("status" | "page" | "detail" | "simulate")
+        );
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        loop {
+            match self.call(window, value) {
+                Err("automation_busy") if read && std::time::Instant::now() < until => {
+                    std::thread::sleep(std::time::Duration::from_millis(20));
+                }
+                result => return result,
+            }
+        }
+    }
     pub fn call(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
         if window != "main" {
             return Err("permission_denied");
@@ -232,6 +251,17 @@ impl NativeAutomation {
             } else {
                 Err("automation_read_refused")
             };
+        }
+        // A lock is a withdrawal barrier, not a best-effort observation. Signal
+        // bootstrap cancellation before waiting for the current bounded read.
+        if matches!(request.query, AutomationQuery::Lock) {
+            if !self.enabled() {
+                return Err("automation_not_enabled");
+            }
+            self.lock();
+            let mut view = status("locked");
+            view["effect"] = json!("native_control");
+            return Ok(view);
         }
         let mut state = self.0.state.try_lock().map_err(|_| "automation_busy")?;
         if matches!(request.query, AutomationQuery::Status) {
@@ -270,16 +300,6 @@ impl NativeAutomation {
             return Ok(view);
         }
 
-        if matches!(request.query, AutomationQuery::Lock) {
-            if !self.enabled() {
-                return Err("automation_not_enabled");
-            }
-            drop(state);
-            self.lock();
-            let mut view = status("locked");
-            view["effect"] = json!("native_control");
-            return Ok(view);
-        }
         let locked = state.locked;
         let fixture = state.fixture.as_mut().ok_or("automation_not_enabled")?;
         if matches!(request.query, AutomationQuery::Unlock) {
@@ -366,7 +386,7 @@ pub async fn memory_automation(
     let host = host.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         host.automation()
-            .call("main", &request)
+            .call_waiting("main", &request)
             .map_err(str::to_owned)
     })
     .await
@@ -384,15 +404,56 @@ mod tests {
             query["operation"].as_str(),
             Some("page" | "detail" | "simulate" | "status")
         ));
-        let until = std::time::Instant::now() + std::time::Duration::from_secs(3);
-        loop {
-            match native.call("main", &packet(query.clone())) {
-                Err("automation_busy") if std::time::Instant::now() < until => {
-                    std::thread::sleep(std::time::Duration::from_millis(5))
-                }
-                result => return result.unwrap(),
-            }
+        native.call_waiting("main", &packet(query)).unwrap()
+    }
+    #[test]
+    fn observation_wait_is_bounded_and_rechecks_close_instead_of_replaying_controls() {
+        let native = NativeAutomation::default();
+        let guard = native.0.state.lock().unwrap();
+        let reader = native.clone();
+        let task = std::thread::spawn(move || {
+            reader.call_waiting("main", &packet(json!({"operation":"status"})))
+        });
+        // A pending read must still observe the close barrier after contention.
+        native.begin_close();
+        drop(guard);
+        assert_eq!(task.join().unwrap().unwrap()["state"], "closing");
+        let native = NativeAutomation::default();
+        let guard = native.0.state.lock().unwrap();
+        let start = std::time::Instant::now();
+        assert_eq!(
+            native.call_waiting("main", &packet(json!({"operation":"unlock"}))),
+            Err("automation_busy")
+        );
+        assert!(start.elapsed() < std::time::Duration::from_secs(1));
+        assert_eq!(
+            native.call_waiting("main", &packet(json!({"operation":"status"}))),
+            Err("automation_busy")
+        );
+        assert!(start.elapsed() < std::time::Duration::from_secs(4));
+        drop(guard);
+        assert_eq!(
+            observe(&native, json!({"operation":"status"}))["state"],
+            "disabled"
+        );
+    }
+    #[test]
+    fn lock_packet_withdraws_before_waiting_for_an_inflight_observation() {
+        let native = NativeAutomation::default();
+        native.request_synthetic_mode();
+        let guard = native.0.state.lock().unwrap();
+        let control = native.clone();
+        let task = std::thread::spawn(move || {
+            control.call_waiting("main", &packet(json!({"operation":"lock"})))
+        });
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        while !native.0.init_stop.load(Ordering::SeqCst) {
+            assert!(std::time::Instant::now() < until);
+            std::thread::yield_now();
         }
+        drop(guard);
+        assert_eq!(task.join().unwrap().unwrap()["state"], "locked");
+        assert!(native.0.state.lock().unwrap().locked);
     }
     #[test]
     fn version_scope_and_request_fields_are_refused_before_any_binding() {
