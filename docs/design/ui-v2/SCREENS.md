@@ -38,7 +38,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 | 2 | Memory Vault | `Memory Vault` | 已做 | 部分（`src/memory/MemorySurface.tsx` 只换了皮，未截图） | `dark-memory-1440` `dark-memory-1100` `dark-memory-candidate-1440` `light-memory-1440` |
 | 3 | Context Surface | `Context Surface` | 已做 | 部分（同上） | `dark-context-1440` |
 | 4 | Sessions | `Sessions` | 已做 | 部分（同上） | `dark-sessions-1440` `light-sessions-1440` |
-| 5 | Runtime Inspector | `Runtime Inspector` | 已做 | 同演示（本来就是虚构文档参考） | `dark-runtime-1440` |
+| 5 | Runtime Inspector | `Runtime Inspector` | 已做 | 部分（原生是 `src/runtime/RuntimeSurface.tsx` 的观察页：Memory Core、Memory 操作、Windows shell；只换了皮，未截图） | `dark-runtime-1440` |
 | 6 | Settings | `Settings` | 已做 | 部分 | `dark-settings-1440` `light-settings-1440` |
 
 ### 1.1 Home
@@ -68,7 +68,9 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 ### 1.5 Runtime Inspector
 
-- 顶部一行契约读数（memory / session / capsule / core ipc / schemaVersion / mutation result / toolchain）；左：组件列表（Core、Vault、Index、Context Compiler、Provider、Gateway），状态用竖块形状；右：选中组件的 STATE / VERIFICATION / NOT YET / HEALTH。内容是文档参考，不是实时探测（`dark-runtime-1440`）。
+- 浏览器演示：顶部一行契约读数（memory / session / capsule / core ipc / schemaVersion / mutation result / toolchain）；左：组件列表（Core、Vault、Index、Context Compiler、Provider、Gateway），状态用竖块形状；右：选中组件的 STATE / VERIFICATION / NOT YET / HEALTH。内容是文档参考，不是实时探测（`dark-runtime-1440`）。
+- 原生：「Observed component status」——Memory Core（Vault、最新提交、运行中的操作、待审候选、组件健康）、Memory 操作列表与详情、Windows shell（生命周期、托盘、Quick Search 热键、主窗口）。每块有「Read … again」，失败时清掉旧观察。没有 Activity 一节。
+- 原生 Memory 里另有 main 带来的视图，外观只继承 `.mem-*` 换皮、还没有专门设计：历史任务（计划、批次、结果、比较、简报）、Provider 配置草稿与设置状态、导入报告、「Synthetic automatic memories」集合。它们归入 §3 的「形成」「召回」工作区一起设计。
 
 ### 1.6 Settings
 

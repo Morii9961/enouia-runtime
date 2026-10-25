@@ -62,6 +62,10 @@ npm run build
 node scripts/check-memory-integration.mjs
 ```
 
+```bash
+node scripts/check-activity-retirement.mjs
+```
+
 另外：两套主题都看一遍（`?theme=dark`、`?theme=light`）；1100×700 不横向溢出；文字不小于 12px；对比度按 DESIGN.md §2 的口径测。DOM 测试在基线就偶发失败（OPEN_ISSUES #5），单独重跑确认。
 
 ## 协作

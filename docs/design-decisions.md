@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-10-25 · 合并 main：用量账本界面一起删除，原生命令已撤下
+
+- 决定：把 origin/main（到 PR #100）合入 `redesign/v2`。main 新增的私有用量账本界面（`src/usage/` 的视图、`UsageProvider` 包裹、`ActivityWorkspace`、其测试与 `usage-manual` fixture）按「移除 Activity / Usage 界面」一并删除；main 新的原生 Runtime Inspector 去掉「Activity producer」一节。main 带来的 Memory 历史任务、Provider 配置草稿、导入报告、合成自动记忆集合、原生 Runtime Inspector（Memory Core、Windows shell、Memory 操作）保留，套用 UI v2 外观。
+- 理由：main 的交接说明（`docs/prompts/CLAUDE_ACTIVITY_BACKEND_HANDOFF_2026-10-25.md`）与 Morii 的范围调整一致：两块界面一起删，保留 Memory、Context、Sessions、Provider 配置、Memory 任务观察、会话请求的 token 信息与 Windows 外壳。
+- 影响：替代上一条里「原生命令暂留」的说法：桌面 Activity/Usage 原生命令与授权已由 [ADR-037](adr/037-activity-usage-desktop-retirement.md) 撤下；独立采集/上传程序、账本、安装任务与数据仍保留，等 Moriium 替代链路完成后再清理。主 JS 增到 513.6 kB（超过 Vite 500 kB 提示线，OPEN_ISSUES #18）。
+- 依据：`npm run check`；`npm test`（node 116 通过、3 跳过、0 失败；DOM 75/75）；`npm run build`；`node scripts/check-memory-integration.mjs`；`node scripts/check-activity-retirement.mjs`；浏览器演示重截，与合并前只差 Home 笔尖 27 像素。
+- 状态：定稿
+
 ## 2026-10-25 · 移除 Activity / Usage 界面
 
 - 决定：Runtime 前端删除公开 Activity 与私有用量账本的全部界面：导航项（原第 5 项）、Activity 页（浏览器演示与原生 `src/activity/`）、统计卡与操作入口；Home（原生）的 Activity 入口与「Activity uses a separate producer」、Settings 的「Activity producer · Pause scheduled runs」、Runtime Inspector 的「Activity producer」组件与「activity ipc」读数、标题栏状态牌与退出说明里的 Activity 句子；只服务它们的前端状态（`actFilter`、`actOpen`、`paused`）、演示数据（`D.ACT`、`DemoActivity`）、记录带的「第二条胶片」、CSS（`activity.css`、`.act-*`、`.bg-act-*`、`.bg-reading*`、`.qr172`–`.qr186` 中的 Activity 部分）、单元测试与驱动该页的 e2e 脚本。不留占位页，不新增 tokens.ci 面板。导航变为六项，Ctrl+1…6。
