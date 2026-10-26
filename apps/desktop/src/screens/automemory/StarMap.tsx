@@ -1,15 +1,21 @@
 // Star map · the whole generated sample at once (browser demo only, invented data).
 // Canvas for the stars; a list view and the side panel for keyboard and screen
-// readers. The map is live: the force layout settles in front of you (streamed by
+// readers. The map is live: the galaxy settles in front of you (streamed by
 // starWorker.ts), a dragged star pulls the stars it links to and they spring back
-// when it is let go, and while nothing is touched the field drifts and the theme
-// clusters turn slowly. That idle motion means nothing about the memories; Pause
+// when it is let go, and while nothing is touched the field drifts: the galaxy turns,
+// a ripple runs outward and the stars twinkle, and the theme clusters turn slowly.
+// In the galaxy a star's distance from the core is its age at the date the frame
+// shows, so a replay sends every star outward along its arm. The idle motion means
+// nothing about the memories; Pause
 // stops it, it stops while the map is out of sight, and reduced motion turns it off.
 // In the time drum the pen stays at twelve o'clock and the year turns under it.
+// The sphere is drawn in perspective: it turns by itself, a drag on empty space turns
+// it by hand (and lets it spin on), and nearer stars are larger and brighter; in the
+// dark palette they glow, so the crowded core of new memories shines.
 // Nothing is read from a Vault, sent or kept.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { makeStarField, type LinkType, type StarField, type StarState } from './starfield';
-import { DRUM, layout as layoutSync, type LayoutId } from './starLayout';
+import { BALL, DRUM, GALAXY, ball, galaxyRadius, layout as layoutSync, project, type LayoutId } from './starLayout';
 import { lendMap, type MapSpec } from '../../theme/TimeMap';
 import { clearViews, panTo, peekView, useTimeView } from '../../theme/timeview';
 import { motionReduced } from '../../theme/motion';
@@ -17,7 +23,8 @@ import { motionReduced } from '../../theme/motion';
 import { dateFmt, labels, locale, msg, t, tn, useLang } from '../../i18n/index.ts';
 const SIZES = [200, 700, 1000, 5000];
 const LAYOUTS: { id: LayoutId; name: string; hint: string }[] = [
-  { id: 'force', name: msg('Force'), hint: msg('links pull, memories push apart') },
+  { id: 'sphere', name: msg('Sphere'), hint: msg('a ball that turns; newest at the centre; drag empty space to turn it') },
+  { id: 'force', name: msg('Galaxy'), hint: msg('newest at the core, older further out; links pull') },
   { id: 'drum', name: msg('Time drum'), hint: msg('one turn is the year; one ring per theme; the pen stays at the top') },
   { id: 'clusters', name: msg('Theme clusters'), hint: msg('one cluster per suggested theme, oldest at the centre') },
 ];
@@ -36,6 +43,11 @@ const DRIFT = 2.5, FLOW = 5;       // screen px: each star's own drift, and a sl
 const FLOW_LEN = 520, FLOW_S = 23; // the current's wavelength (world units) and period (seconds)
 const CHASE = 9;                   // a new layout closes 1 − e^(−9t) of the gap: about 95% in a third of a second
 const TURN_S = 240;                // a theme cluster turns once in about four minutes
+const SPIN_S = 480;                // the galaxy turns once in eight minutes
+const BALL_S = 150;                // the sphere turns once in two and a half minutes
+const TURN_BY = 0.006;             // a drag on empty space turns the sphere this much per pixel (radians)
+const SWAY = 0.07, SWAY_S = 37;    // the inner disc sways against the outer (radians at the core, period)
+const RIPPLE = 0.02, RIPPLE_S = 9, RIPPLE_LEN = 300; // a ripple runs outward: depth, period, wavelength
 const IDLE_MS = 32;                // idle motion on its own draws about 30 frames a second
 
 /** Timings for the performance test (synthetic preview only; read by .design/measure-starmap.mjs). */
@@ -61,6 +73,18 @@ function mapSpec(f: StarField): MapSpec {
 type Colors = { paper: string; ink: string; ink2: string; ink3: string; hi: string; minor: string; major: string; pen: string; lab: string; text: string };
 const readColors = (): Colors => { const s = getComputedStyle(document.documentElement); const v = (k: string) => s.getPropertyValue(k).trim(); return { paper: v('--paper'), ink: v('--ink'), ink2: v('--ink-2'), ink3: v('--ink-3'), hi: v('--ink-hi'), minor: v('--grid-minor'), major: v('--grid-major'), pen: v('--pen'), lab: v('--f-lab') || '"Martian Mono", monospace', text: v('--f-text') || 'Geist, sans-serif' }; };
 const hash = (i: number) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+/** A dark ground (luminance under a half), where the sphere's stars may glow. */
+const isDark = (hex: string) => { const m = /^#([0-9a-f]{6})$/i.exec(hex); if (!m) return false; const v = parseInt(m[1], 16); return ((v >> 16) * 0.299 + ((v >> 8) & 255) * 0.587 + (v & 255) * 0.114) < 128; };
+/** A soft round glow in the pen colour, drawn once per colour and stamped behind each near star. */
+let glowSprite: { key: string; img: HTMLCanvasElement } | null = null;
+const glowFor = (color: string) => {
+  if (glowSprite?.key === color) return glowSprite.img;
+  const img = document.createElement('canvas'); img.width = img.height = 64; const g = img.getContext('2d');
+  if (g) { const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, color); r.addColorStop(0.25, color); r.addColorStop(1, 'rgba(0,0,0,0)'); g.globalAlpha = 0.5; g.fillStyle = r; g.fillRect(0, 0, 64, 64); }
+  glowSprite = { key: color, img }; return img;
+};
+/** Background specks for the galaxy, fixed: a wide disc thinning outward. */
+const DUST = (() => { const p = new Float32Array(2 * 900); for (let j = 0; j < 900; j++) { const r = 900 * Math.sqrt(hash(j + 5000)) ** 1.3, a = hash(j + 9000) * TAU; p[2 * j] = Math.cos(a) * r; p[2 * j + 1] = Math.sin(a) * r; } return p; })();
 const wrap = (a: number) => a - TAU * Math.round(a / TAU);
 type Cam = { k: number; x: number; y: number };
 
@@ -72,7 +96,7 @@ function makeSim(f: StarField) {
   const drift = new Float32Array(n * 4); // two angular speeds (rad/s, periods of 6 to 14 s) and two phases
   for (let i = 0; i < n; i++) { drift[4 * i] = 0.45 + hash(i) * 0.6; drift[4 * i + 1] = hash(i + 101) * TAU; drift[4 * i + 2] = 0.45 + hash(i + 7) * 0.6; drift[4 * i + 3] = hash(i + 211) * TAU; }
   return {
-    n, la, lb, lw, drift,
+    n, la, lb, lw, drift, ball: ball(f), proj: new Float32Array(2 * n), depth: new Float32Array(n), order: new Uint32Array(n),
     target: null as Float32Array | null, anchor: null as Float32Array | null, centres: new Float32Array(2 * f.themes.length),
     place: new Float32Array(2 * n), d: new Float32Array(2 * n), v: new Float32Array(2 * n), force: new Float32Array(2 * n), shown: new Float32Array(2 * n),
     chasing: false, moving: false,
@@ -82,7 +106,7 @@ type Sim = ReturnType<typeof makeSim>;
 
 export default function StarMap() {
   const [n, setN] = useState(700);
-  const [lay, setLay] = useState<LayoutId>('force');
+  const [lay, setLay] = useState<LayoutId>('sphere');
   const [mode, setMode] = useState<'map' | 'list'>('map');
   const [theme, setTheme] = useState<number | null>(null);
   const [sel, setSel] = useState<number | null>(null);
@@ -104,7 +128,7 @@ export default function StarMap() {
   const colors = useRef<Colors | null>(null);
   const hover = useRef<number | null>(null);
   const grab = useRef<{ i: number; x: number; y: number } | null>(null); // world point a dragged star is held at
-  const loop = useRef({ raf: 0, last: 0, lastDraw: 0, busy: true, clock: 0, turn0: 0, drum: 0, drumSet: false, seen: true, cam: null as null | { from: Cam; to: Cam; t0: number }, fling: null as null | { vx: number; vy: number } });
+  const loop = useRef({ raf: 0, last: 0, lastDraw: 0, busy: true, clock: 0, turn0: 0, drum: 0, drumSet: false, cut: 0, cutSet: false, yaw: 0, pitch: BALL.tilt, spin: null as null | { vy: number; vp: number }, seen: true, cam: null as null | { from: Cam; to: Cam; t0: number }, fling: null as null | { vx: number; vy: number } });
   const state = useRef({ field, cutoff, sel, theme, lay, start: view.start, paused });
   state.current = { field, cutoff, sel, theme, lay, start: view.start, paused };
 
@@ -149,15 +173,27 @@ export default function StarMap() {
       const tip = (DRUM.outer + 6) * k; g.fillStyle = col.pen; g.beginPath(); g.moveTo(cx0 + ca * tip - sa * 5, cy0 + sa * tip + ca * 5); g.lineTo(cx0 + ca * tip + sa * 5, cy0 + sa * tip - ca * 5); g.lineTo(cx0 + ca * (tip - 8), cy0 + sa * (tip - 8)); g.fill();
     } else {
       const sums = f.themes.map(() => [0, 0, 0]);
-      for (let i = 0; i < f.n; i++) { const q = sums[f.stars[i].theme]; q[0] += pos[2 * i]; q[1] += pos[2 * i + 1]; q[2]++; }
+      for (let i = 0; i < f.n; i++) {
+        if (l === 'force') { const r = Math.hypot(pos[2 * i], pos[2 * i + 1]); if (r < 300 || r > 390) continue; }
+        if (l === 'sphere') continue; // the sphere has no theme names: they would pile up in the middle
+        const q = sums[f.stars[i].theme]; q[0] += pos[2 * i]; q[1] += pos[2 * i + 1]; q[2]++;
+      }
       g.fillStyle = col.ink3;
       sums.forEach((q, t) => { if (!q[2] || (th !== null && th !== t)) return; const tx = cx0 + (q[0] / q[2]) * k, ty = cy0 + (q[1] / q[2]) * k; g.lineWidth = 4; g.strokeStyle = col.paper; g.strokeText(f.themes[t].toUpperCase(), tx, ty); g.fillText(f.themes[t].toUpperCase(), tx, ty); });
+    }
+    // the galaxy's background: faint far specks, not memories, that pan and turn more slowly than the stars
+    if (l === 'force') {
+      const ang = (TAU * (loop.current.clock - loop.current.turn0)) / (SPIN_S * 2.5), ca = Math.cos(ang), sa = Math.sin(ang);
+      const bx = w / 2 + px * 0.35, by = h / 2 + py * 0.35, bk = k * 0.7;
+      g.fillStyle = col.ink3; g.globalAlpha = 0.35;
+      for (let j = 0; j < DUST.length; j += 2) { const x = bx + (ca * DUST[j] - sa * DUST[j + 1]) * bk, y = by + (sa * DUST[j] + ca * DUST[j + 1]) * bk; if (x >= 0 && y >= 0 && x <= w && y <= h) g.fillRect(x, y, 1, 1); }
+      g.globalAlpha = 1;
     }
     // links, batched by type
     const sl = s !== null ? s : -1; const hv = hover.current !== null && hover.current !== sl ? hover.current : -1;
     const batches: [LinkType, string, number[], number][] = [['theme', col.major, [3, 3], 1], ['source', col.ink3, [], 1], ['supersedes', col.ink2, [], 1.2]];
     for (const [type, stroke, dash, lw] of batches) {
-      g.strokeStyle = stroke; g.lineWidth = lw; g.setLineDash(dash); g.globalAlpha = sl >= 0 ? 0.35 : 1; g.beginPath();
+      g.strokeStyle = stroke; g.lineWidth = lw; g.setLineDash(dash); g.globalAlpha = sl >= 0 ? 0.35 : l === 'sphere' ? 0.16 : 1; g.beginPath();
       for (const ln of f.links) if (ln.type === type && vis(ln.a) && vis(ln.b)) { g.moveTo(X(ln.a), Y(ln.a)); g.lineTo(X(ln.b), Y(ln.b)); }
       g.stroke();
     }
@@ -170,14 +206,24 @@ export default function StarMap() {
     }
     // stars: shape carries the state; the pen only marks the selection and "Corrected by you"
     const rad = Math.max(2.2, Math.min(5, 3.2 * Math.sqrt(k)));
+    const dr = S.drift, clock = loop.current.clock;
     const near = new Set<number>(); if (sl >= 0) for (const ln of f.links) { if (ln.a === sl) near.add(ln.b); if (ln.b === sl) near.add(ln.a); }
-    for (let i = 0; i < f.n; i++) {
+    // the sphere is drawn far to near, nearer stars larger and brighter, glowing on a dark ground
+    const ball3 = l === 'sphere', dep = S.depth, order = S.order;
+    if (ball3) { for (let i = 0; i < f.n; i++) order[i] = i; order.sort((a, b) => dep[a] - dep[b]); }
+    const glow = ball3 && isDark(col.paper) ? glowFor(col.pen) : null;
+    const glowK = Math.min(1, Math.sqrt(900 / Math.max(1, f.n))); // the more stars, the less each glows, so the core never burns out
+    for (let o = 0; o < f.n; o++) {
+      const i = ball3 ? order[o] : o;
       if (!vis(i)) continue;
       const st = f.stars[i].state; const x = X(i), y = Y(i); if (x < -10 || y < -10 || x > w + 10 || y > h + 10) continue;
       const dim = sl >= 0 && i !== sl && !near.has(i); const fresh = f.stars[i].t >= start;
-      g.globalAlpha = dim ? 0.3 : st === 'fading' ? 0.55 : 1;
+      const q = 4 * i, tw = 0.8 + 0.2 * Math.sin(dr[q] * 2.3 * clock + dr[q + 3]); // twinkle: still when the clock is
+      const z = ball3 ? dep[i] : 0, sc = ball3 ? Math.max(0.5, 0.95 + 0.4 * z) : 1;
+      g.globalAlpha = (dim ? 0.3 : st === 'fading' ? 0.55 : 1) * tw * (ball3 ? 0.4 + 0.3 * (z + 1) : 1);
+      if (glow && !dim && z > -0.4) { const gr = rad * sc * 4.5; const a0 = g.globalAlpha; g.globalAlpha = a0 * glowK; g.globalCompositeOperation = 'lighter'; g.drawImage(glow, x - gr, y - gr, 2 * gr, 2 * gr); g.globalCompositeOperation = 'source-over'; g.globalAlpha = a0; }
       const ink = st === 'corrected' ? col.pen : fresh ? col.hi : near.has(i) || i === hv ? col.ink : col.ink2;
-      g.beginPath(); g.arc(x, y, rad, 0, TAU);
+      g.beginPath(); g.arc(x, y, rad * sc, 0, TAU);
       if (st === 'held' || st === 'superseded') { g.strokeStyle = st === 'superseded' ? col.ink3 : ink; g.lineWidth = 1; g.stroke(); }
       else { g.fillStyle = ink; g.fill(); }
     }
@@ -234,12 +280,30 @@ export default function StarMap() {
           const ox = S.centres[2 * t], oy = S.centres[2 * t + 1]; const x = anchor[2 * i] - ox, y = anchor[2 * i + 1] - oy;
           place[2 * i] = ox + c * x - s * y; place[2 * i + 1] = oy + s * x + c * y;
         }
+      } else if (st.lay === 'sphere') {
+        // the anchor carries the change from the last layout; the ball's turn rides on top of it
+        project(S.ball, L.yaw + (TAU * (L.clock - L.turn0)) / BALL_S, L.pitch, S.proj, S.depth);
+        const base = target ?? S.proj;
+        for (let i = 0; i < 2 * S.n; i++) place[i] = anchor[i] + S.proj[i] - base[i];
+      } else if (st.lay === 'force') {
+        // the galaxy: distance is age at the frame's date, eased so a jump in time spreads out
+        const [d0, d1] = f.domain; const span = d1 - d0; const gap = st.cutoff - L.cut;
+        if (reduced || !L.cutSet || Math.abs(gap) < span * 2e-4) { L.cut = st.cutoff; L.cutSet = true; } else { L.cut += gap * (1 - Math.exp(-5 * dt)); turning = true; }
+        const age = L.clock - L.turn0; const rot = (TAU * age) / SPIN_S;
+        const sway = SWAY * Math.sin((TAU * age) / SWAY_S), ph = age / RIPPLE_S;
+        for (let i = 0; i < S.n; i++) {
+          const x = anchor[2 * i], y = anchor[2 * i + 1]; const r = Math.hypot(x, y); const t = f.stars[i].t;
+          const ratio = galaxyRadius((L.cut - t) / span) / galaxyRadius((d1 - t) / span);
+          const a = Math.atan2(y, x) + rot + GALAXY.wind * Math.log(ratio) + sway * Math.exp(-r / 160);
+          const rr = r * ratio * (1 + RIPPLE * Math.sin(TAU * (ph - (r * ratio) / RIPPLE_LEN)));
+          place[2 * i] = Math.cos(a) * rr; place[2 * i + 1] = Math.sin(a) * rr;
+        }
       } else place.set(anchor);
     }
     const held = grab.current;
     if (reduced) { d.fill(0); v.fill(0); S.moving = false; }
     else if (idle || S.moving || held) {
-      const A = idle ? DRIFT / cam.current.k : 0, B = idle ? FLOW / cam.current.k : 0, t = L.clock;
+      const A = idle ? DRIFT / cam.current.k : 0, B = idle && st.lay !== 'force' && st.lay !== 'sphere' ? FLOW / cam.current.k : 0, t = L.clock;
       const wf = TAU / FLOW_S, kf = TAU / FLOW_LEN, dr = S.drift;
       for (let i = 0; i < S.n; i++) {
         let tx = 0, ty = 0;
@@ -259,13 +323,17 @@ export default function StarMap() {
       const p = Math.min(1, (now - L.cam.t0) / 320), e = ease(p), { from, to } = L.cam;
       cam.current = { k: from.k + (to.k - from.k) * e, x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e }; if (p >= 1) L.cam = null;
     }
+    if (L.spin) {
+      const ms = dt * 1000; L.yaw += L.spin.vy * ms; L.pitch = Math.max(-1.3, Math.min(1.3, L.pitch + L.spin.vp * ms)); const fade = Math.exp(-ms / 600); L.spin.vy *= fade; L.spin.vp *= fade;
+      if (Math.hypot(L.spin.vy, L.spin.vp) < 2e-5) L.spin = null;
+    }
     if (L.fling) {
       const ms = dt * 1000; cam.current.x += L.fling.vx * ms; cam.current.y += L.fling.vy * ms; const fade = Math.exp(-ms / 220); L.fling.vx *= fade; L.fling.vy *= fade;
       if (Math.hypot(L.fling.vx, L.fling.vy) < 0.02) L.fling = null;
     }
     if (!draw()) return;
     L.lastDraw = now;
-    L.busy = S.chasing || S.moving || held !== null || L.cam !== null || L.fling !== null || turning;
+    L.busy = S.chasing || S.moving || held !== null || L.cam !== null || L.fling !== null || L.spin !== null || turning;
     if (L.busy || idle) L.raf = requestAnimationFrame(tick);
   }, [draw]);
   const kick = useCallback(() => { const L = loop.current; if (!L.raf) { L.last = performance.now(); L.busy = true; L.raf = requestAnimationFrame(tick); } }, [tick]);
@@ -281,7 +349,8 @@ export default function StarMap() {
         const c = Math.cos(-L.drum), s = Math.sin(-L.drum); for (let i = 0; i < S.n; i++) { const x = S.place[2 * i], y = S.place[2 * i + 1]; S.anchor[2 * i] = c * x - s * y; S.anchor[2 * i + 1] = s * x + c * y; }
       } else S.anchor.set(S.place);
     }
-    if (lay === 'clusters') L.turn0 = L.clock;
+    if (lay === 'clusters' || lay === 'force' || lay === 'sphere') L.turn0 = L.clock;
+    if (lay === 'sphere') { L.yaw = 0; L.pitch = BALL.tilt; L.spin = null; }
     const accept = (pos: Float32Array, ms: number, done: boolean) => {
       if (!alive) return;
       if (done) { perf.layoutMs = ms; setLayoutMs(ms); setDoneKey(key); }
@@ -355,7 +424,7 @@ export default function StarMap() {
     e.currentTarget.style.cursor = '';
     if (!d.moved) { if (click) setSel(pick(e)); return; }
     if (d.star !== null) { grab.current = null; hover.current = null; if (sim.current) sim.current.moving = true; kick(); return; }
-    if (!motionReduced() && Math.hypot(d.vx, d.vy) > 0.05 && performance.now() - d.t < 80) { L.fling = { vx: d.vx, vy: d.vy }; kick(); }
+    if (!motionReduced() && Math.hypot(d.vx, d.vy) > 0.05 && performance.now() - d.t < 80) { if (lay === 'sphere') L.spin = { vy: d.vx * TURN_BY, vp: d.vy * TURN_BY }; else L.fling = { vx: d.vx, vy: d.vy }; kick(); }
   };
 
   const ready = doneKey === field.n + ':' + lay;
@@ -401,7 +470,7 @@ export default function StarMap() {
                 const h = pick(e), S = sim.current; let ox = 0, oy = 0;
                 if (h !== null && S) { const w = toWorld(e); ox = S.shown[2 * h] - w.x; oy = S.shown[2 * h + 1] - w.y; }
                 drag.current = { x: e.clientX, y: e.clientY, moved: false, star: h, ox, oy, vx: 0, vy: 0, t: performance.now() };
-                loop.current.cam = null; loop.current.fling = null; e.currentTarget.setPointerCapture(e.pointerId);
+                loop.current.cam = null; loop.current.fling = null; loop.current.spin = null; e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={(e) => {
                 const d = drag.current;
@@ -410,6 +479,7 @@ export default function StarMap() {
                   if (!d.moved && Math.abs(dx) + Math.abs(dy) > 3) { d.moved = true; e.currentTarget.style.cursor = 'grabbing'; }
                   if (!d.moved) return;
                   if (d.star !== null) { const w = toWorld(e); grab.current = { i: d.star, x: w.x + d.ox, y: w.y + d.oy }; hover.current = d.star; }
+                  else if (lay === 'sphere') { const L = loop.current; L.yaw += dx * TURN_BY; L.pitch = Math.max(-1.3, Math.min(1.3, L.pitch + dy * TURN_BY)); const now = performance.now(), ms = Math.max(1, now - d.t); d.vx = 0.6 * (dx / ms) + 0.4 * d.vx; d.vy = 0.6 * (dy / ms) + 0.4 * d.vy; d.t = now; }
                   else { cam.current.x += dx; cam.current.y += dy; const now = performance.now(), ms = Math.max(1, now - d.t); d.vx = 0.6 * (dx / ms) + 0.4 * d.vx; d.vy = 0.6 * (dy / ms) + 0.4 * d.vy; d.t = now; }
                   d.x = e.clientX; d.y = e.clientY; kick(); return;
                 }
@@ -451,7 +521,7 @@ export default function StarMap() {
         )}
         <p className="sm-legend am-fine">
           <span><i className="sm-k sm-k-fill" /> {t("adopted or consolidated")}</span><span><i className="sm-k sm-k-ring" /> {t("held hypothesis")}</span><span><i className="sm-k sm-k-pen" /> {t("corrected by you")}</span>
-          <span><i className="sm-l" /> {t("same conversation")}</span><span><i className="sm-l sm-l-dash" /> {t("shared theme · algorithm suggestion")}</span><span>{t('Positions and drift mean nothing; dot size is the same for every memory.')}</span>
+          <span><i className="sm-l" /> {t("same conversation")}</span><span><i className="sm-l sm-l-dash" /> {t("shared theme · algorithm suggestion")}</span><span>{lay === 'sphere' ? t('In the sphere, distance from the centre is age; nearer stars look larger and brighter, and the turning means nothing.') : lay === 'force' ? t('In the galaxy, distance from the core is age; arms, turning and twinkle mean nothing. Dot size is the same for every memory.') : t('Positions and drift mean nothing; dot size is the same for every memory.')}</span>
         </p>
       </div>
       <aside className="am-inspector sm-panel" aria-label={t("Star map details")} tabIndex={-1}>

@@ -1,16 +1,43 @@
-// Star map · three layouts, written here (no graph library). Positions are world
+// Star map · four layouts, written here (no graph library). Positions are world
 // units: a disc of radius about 450 round the origin, as a Float32Array of x,y pairs.
+//   sphere   — a ball in three dimensions, newest at the centre; the page turns it and draws it
+//              in perspective, so it is the one layout whose positions come from ball() + project();
 //   clusters — each suggested theme is a sunflower of its memories, oldest at the centre;
 //   drum     — the year is one turn of a recorder drum (angle = time), one ring per theme;
-//   force    — links pull, every memory pushes (Barnes–Hut quadtree), themes drift together.
-// Positions say nothing about the memories; they are only a way to look.
+//   force    — a galaxy: each theme is an arm of a logarithmic spiral and a memory lies further
+//              out the older it is, so the newest are in the bright core; then links pull and
+//              every memory pushes (Barnes–Hut quadtree), which knots linked memories along the arms.
+// Apart from the galaxy's distance-is-age, positions say nothing about the memories.
 import type { StarField } from './starfield';
 
-export type LayoutId = 'force' | 'drum' | 'clusters';
+export type LayoutId = 'sphere' | 'force' | 'drum' | 'clusters';
 const R = 450;
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
 
 const jitter = (i: number) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+/** A standard normal number that is the same for the same i. */
+const gauss = (i: number) => Math.sqrt(-2 * Math.log(Math.max(1e-6, jitter(i)))) * Math.cos(2 * Math.PI * jitter(i + 0.37));
+
+/** The galaxy: the core's radius, and how far an arm winds per e-fold of distance (radians). */
+export const GALAXY = { core: 40, wind: 1.15 };
+/** Distance from the centre for an age between 0 (now) and 1 (the oldest the sample holds). */
+export const galaxyRadius = (age: number) => GALAXY.core + (R - GALAXY.core) * Math.pow(Math.max(0, Math.min(1, age)), 0.85);
+
+/**
+ * Where the force layout settles towards. Radius follows age, so area grows faster than the
+ * count and the field thins from a dense core to a sparse halo, as a real one does; the arms
+ * blur together near the core and fray as they go out. Already in world units, not refit.
+ */
+export function galaxy(f: StarField): Float32Array {
+  const p = new Float32Array(f.n * 2); const [, d1] = f.domain; const span = f.domain[1] - f.domain[0]; const m = f.themes.length;
+  f.stars.forEach((s) => {
+    const r = galaxyRadius((d1 - s.t) / span) * (1 + 0.04 * gauss(s.i * 3 + 1));
+    const spread = 0.055 + 0.8 * Math.exp(-r / 80);
+    const a = (2 * Math.PI * s.theme) / m + GALAXY.wind * Math.log(Math.max(r, GALAXY.core) / GALAXY.core) + spread * gauss(s.i * 3 + 2);
+    p[2 * s.i] = Math.cos(a) * r; p[2 * s.i + 1] = Math.sin(a) * r;
+  });
+  return p;
+}
 
 /** Scale so the 98th-percentile radius is R. */
 function fit(p: Float32Array) {
@@ -88,15 +115,14 @@ function repel(x: Float32Array, y: Float32Array, fx: Float32Array, fy: Float32Ar
 /**
  * The force layout as a simulation that can be stepped, so the worker can show it
  * settling. It starts from `start` (the positions on screen, so a change of layout
- * relaxes out of the old one) or from the theme clusters; every frame it hands out
- * is fitted the same way as the last, so nothing jumps when it ends.
+ * relaxes out of the old one) or from the galaxy itself. Each memory is held to its place
+ * in the galaxy, so links only gather it locally and the spiral survives.
  */
 export function forceSim(f: StarField, start?: Float32Array | null, iterations = f.n > 2000 ? 90 : 160) {
-  const n = f.n; const from = start && start.length === n * 2 ? start : clusters(f);
+  const n = f.n; const home = galaxy(f); const from = start && start.length === n * 2 ? start : home;
   const x = new Float32Array(n), y = new Float32Array(n), vx = new Float32Array(n), vy = new Float32Array(n), fx = new Float32Array(n), fy = new Float32Array(n);
-  for (let i = 0; i < n; i++) { x[i] = from[2 * i] * 0.6; y[i] = from[2 * i + 1] * 0.6; }
-  const centres = themeCentres(f).map(([a, b]) => [a * 0.6, b * 0.6]);
-  const K = 30 * Math.sqrt(700 / Math.max(50, n)), REST = 10, SPRING = 0.08, PULL = 0.03, GRAV = 0.001;
+  for (let i = 0; i < n; i++) { x[i] = from[2 * i]; y[i] = from[2 * i + 1]; }
+  const K = 14 * Math.sqrt(700 / Math.max(50, n)), REST = 6, SPRING = 0.06, PULL = 0.09;
   let it = 0;
   const step = (count: number) => {
     for (let c = 0; c < count && it < iterations; c++, it++) {
@@ -109,15 +135,14 @@ export function forceSim(f: StarField, start?: Float32Array | null, iterations =
         fx[l.a] += dx * s; fy[l.a] += dy * s; fx[l.b] -= dx * s; fy[l.b] -= dy * s;
       }
       for (let i = 0; i < n; i++) {
-        const c = centres[f.stars[i].theme];
-        fx[i] += (c[0] - x[i]) * PULL - x[i] * GRAV; fy[i] += (c[1] - y[i]) * PULL - y[i] * GRAV;
+        fx[i] += (home[2 * i] - x[i]) * PULL; fy[i] += (home[2 * i + 1] - y[i]) * PULL;
         vx[i] = (vx[i] + fx[i] * alpha) * 0.82; vy[i] = (vy[i] + fy[i] * alpha) * 0.82;
         const v = Math.hypot(vx[i], vy[i]); if (v > 30) { vx[i] *= 30 / v; vy[i] *= 30 / v; }
         x[i] += vx[i]; y[i] += vy[i];
       }
     }
   };
-  const positions = () => { const p = new Float32Array(n * 2); for (let i = 0; i < n; i++) { p[2 * i] = x[i]; p[2 * i + 1] = y[i]; } return fit(p); };
+  const positions = () => { const p = new Float32Array(n * 2); for (let i = 0; i < n; i++) { p[2 * i] = x[i]; p[2 * i + 1] = y[i]; } return p; };
   return { iterations, step, positions, done: () => it >= iterations };
 }
 
@@ -125,4 +150,52 @@ export function force(f: StarField, iterations?: number): Float32Array {
   const sim = forceSim(f, null, iterations); sim.step(sim.iterations); return sim.positions();
 }
 
-export function layout(f: StarField, id: LayoutId) { return id === 'force' ? force(f) : id === 'drum' ? drum(f) : clusters(f); }
+/** The sphere's tilt towards the viewer (radians), and the camera's distance for the perspective. */
+export const BALL = { tilt: 0.38, eye: 1700 };
+
+/**
+ * The sphere: x, y, z triples. Distance from the centre follows age, so the newest memories
+ * crowd a bright core and the oldest thin out towards the surface, as in a globular cluster.
+ * Each theme leans towards its own direction (spread evenly over the sphere) without owning
+ * a region, and a few rounds of link springs gather linked memories into small constellations.
+ */
+export function ball(f: StarField): Float32Array {
+  const n = f.n, m = f.themes.length; const [, d1] = f.domain; const span = f.domain[1] - f.domain[0];
+  const dirs = f.themes.map((_, k) => { const y = 1 - (2 * (k + 0.5)) / m, r = Math.sqrt(1 - y * y), a = k * GOLDEN; return [Math.cos(a) * r, y, Math.sin(a) * r]; });
+  const p = new Float32Array(n * 3), home = new Float32Array(n * 3);
+  f.stars.forEach((s) => {
+    const age = Math.max(0, Math.min(1, (d1 - s.t) / span));
+    const r = R * (0.05 + 0.95 * Math.pow(age, 0.7)) * (1 + 0.05 * gauss(s.i * 5 + 1));
+    const d = dirs[s.theme]; let x = d[0] * 0.7 + gauss(s.i * 5 + 2), y = d[1] * 0.7 + gauss(s.i * 5 + 3), z = d[2] * 0.7 + gauss(s.i * 5 + 4);
+    const l = Math.hypot(x, y, z) || 1; x *= r / l; y *= r / l; z *= r / l;
+    home[3 * s.i] = p[3 * s.i] = x; home[3 * s.i + 1] = p[3 * s.i + 1] = y; home[3 * s.i + 2] = p[3 * s.i + 2] = z;
+  });
+  const fx = new Float32Array(n * 3);
+  for (let it = 0; it < 40; it++) {
+    fx.fill(0);
+    for (const ln of f.links) {
+      const k = ln.type === 'theme' ? 0.02 : 0.06;
+      for (let c = 0; c < 3; c++) { const e = (p[3 * ln.b + c] - p[3 * ln.a + c]) * k; fx[3 * ln.a + c] += e; fx[3 * ln.b + c] -= e; }
+    }
+    for (let i = 0; i < n * 3; i++) p[i] += fx[i] + (home[i] - p[i]) * 0.12;
+  }
+  return p;
+}
+
+/** Turns the ball (yaw about the vertical axis, then pitch) and projects it in perspective: x, y pairs into `out`, and each star's depth (−1 far … 1 near) into `depth`. */
+export function project(b: Float32Array, yaw: number, pitch: number, out: Float32Array, depth?: Float32Array) {
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch); const n = b.length / 3;
+  for (let i = 0; i < n; i++) {
+    const x0 = b[3 * i], y0 = b[3 * i + 1], z0 = b[3 * i + 2];
+    const x = cy * x0 + sy * z0, z1 = -sy * x0 + cy * z0;
+    const y = cp * y0 - sp * z1, z = sp * y0 + cp * z1;
+    const s = BALL.eye / (BALL.eye - z);
+    out[2 * i] = x * s; out[2 * i + 1] = y * s; if (depth) depth[i] = z / R;
+  }
+  return out;
+}
+
+export function layout(f: StarField, id: LayoutId) {
+  if (id === 'sphere') return project(ball(f), 0, BALL.tilt, new Float32Array(f.n * 2));
+  return id === 'force' ? force(f) : id === 'drum' ? drum(f) : clusters(f);
+}
