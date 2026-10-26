@@ -18,7 +18,7 @@
       "minWidth": 1100,
       "minHeight": 700,
       "decorations": false,
-      "backgroundColor": "#0C1117",
+      "backgroundColor": "#F1F0EB",
       "generalAutofillEnabled": false
     }, {
       "label": "overlay",
@@ -32,7 +32,7 @@
       "skipTaskbar": true,
       "center": true,
       "decorations": false,
-      "backgroundColor": "#0C1117",
+      "backgroundColor": "#F1F0EB",
       "generalAutofillEnabled": false
     }],
     "security": {

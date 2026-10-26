@@ -3,7 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0C1117" />
+    <meta name="theme-color" content="#F1F0EB" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F1C23" media="(prefers-color-scheme: dark)" />
+    <style>
+      html { background: #F1F0EB; }
+      @media (prefers-color-scheme: dark) { html { background: #0F1C23; } }
+    </style>
     <title>Enouia Runtime</title>
   </head>
   <body>

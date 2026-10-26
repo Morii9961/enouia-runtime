@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-10-26 · W3 原生启动底色
+
+- 决定：Tauri 创建窗口之前，通过现有 Windows Registry API 只读查询 `AppsUseLightTheme`，将主窗口和 Quick Search 的 `background_color` 设为黛蓝 `#0F1C23` 或宣纸 `#F1F0EB`；缺失/不可读时使用 Windows 默认浅色。JSON 留浅色保底。HTML 用两条带 `media` 的 `theme-color` 和极小的头部样式，在模块脚本运行前使用同样的纸色。这是 DESIGN.md §2 颜色集中规则的启动阶段例外。
+- 理由：首帧不能等 React 或 `.setup()` 再改变窗口底色；owner 已在本轮明确批准相关原生修改。
+- 影响：`src-tauri/src/appearance.rs`、`main.rs`、`tauri.conf.json` 与 `index.html`；无新依赖、权限或 Memory 路由变更。
+- 依据：锁定的 Tauri 2.12.0 / tauri-utils 2.10.1 源码、[WindowConfig](https://docs.rs/tauri-utils/2.10.1/tauri_utils/config/struct.WindowConfig.html#structfield.background_color)、[Context::config_mut](https://docs.rs/tauri/2.12.0/tauri/struct.Context.html#method.config_mut)、[RegGetValueW](https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew)、[HTML theme-color 媒体查询](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/theme-color)；[本机 W3 验证与测量边界](validation/UI-v2-W3-background-2026-10-26.md)。
+- 状态：定稿
+
 ## 2026-10-26 · 中日字体定稿；首页「I'm here.」不翻译
 
 - 决定：中文用 更纱等宽 Sarasa Mono SC（标签/标题）+ 霞鹜新晰黑 LXGW Neo XiHei（正文）；日文用 M PLUS 1 Code（标签/标题）+ Zen Kaku Gothic New（正文）。系统字体只作回退。首页的「I'm here.」与产品名一样在任何语言下都显示英文（浏览器演示与原生首页都改为 `lang="en"` 的固定文字，字典删去这一条，1,384 条）。具体栈与打包方式写入 DESIGN.md §3，落地步骤写入 HANDOFF_CODEX.md W4。替代了「界面三种语言」一条里「中文与日文的字体先用系统字体」的部分。

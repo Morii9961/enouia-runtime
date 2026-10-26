@@ -4,7 +4,7 @@
 
 | # | 问题 | 为什么重要 | 建议 | 需要谁 |
 | --- | --- | --- | --- | --- |
-| 1 | **原生窗口首帧底色写死。** `src-tauri/tauri.conf.json` 两个窗口 `backgroundColor: #0C1117`，`apps/desktop/index.html` 的 `theme-color` 也是 `#0C1117`。 | 浅色（宣纸）打开时先闪一下深色；深色黛蓝 `#0F1C23` 与它也有轻微色差。 | 原生按系统明暗设首帧底色（黛蓝 / 宣纸），`index.html` 同步。 | owner 授权改 `src-tauri` |
+| 1 | **已解决（2026-10-26 → 决定「W3 原生启动底色」）。** 在创建窗口前按 Windows 应用主题设置两个窗口的底色；HTML 首次解析也按媒体查询使用同一套纸色。详见 [W3 记录](../../validation/UI-v2-W3-background-2026-10-26.md)。 | 浅色系统的空白 WebView、脚本加载前 HTML 和完整界面均为宣纸；深色 HTML 与完整界面为黛蓝。 | 保留记录中的原生第一帧测量边界；不把 `about:blank` 的 Chromium 暗色默认底当成应用文档底色。 | 已获 owner 授权并实现 |
 | 2 | **测试断言了导出类名。** e2e 与 smoke 依赖 `button.qr43`、`.qr12 .qr10/.qr11`、`.qr31`、`.qr45`、`#quick-query` 等。 | 改名会让测试与原生 smoke 失效。 | 实现时只改外观；需要新结构就加新类名，旧类名保留。 | 实现者 |
 | 3 | **没有应用内明暗覆盖。** 现在只跟随系统（演示可用 `?theme=`）。 | 有人想白天用深色。 | 若要加，放在 Settings → Appearance → Theme 一行（Follow system / Tile Blue / Xuan Paper），状态只存本地偏好。 | owner 决定要不要 |
 | 4 | **1100–1279 宽的 Inspector。** Memory UI 规格建议 900–1279 改为抽屉；Runtime 最小窗口 1100，目前在 1100 仍是三栏（Inspector 336–400px）。 | 1100 下主列表偏窄，长正文换行多。 | 先在演示里各做一版（常驻 vs 抽屉）截图比较。 | owner 选 |
