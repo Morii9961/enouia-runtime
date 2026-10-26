@@ -8,8 +8,8 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 
 | 方面 | 状态 |
 | --- | --- |
-| 代码位置 | 分支 `redesign/v2`，已推送到 GitHub（origin）。星图、三语、后端文档与本交接原先在本地分支 `redesign/v2-starmap`，2026-10-26 已快进合入 `redesign/v2` 并推送。没有合并进 `main`，也没有开 PR。 |
-| 与 main 的关系 | 分叉点 `301a808`（PR #100）。之后 main 多了 6 个提交（到 PR #102），本分支多了 32 个提交。试合并有 4 个冲突：`AGENTS.md`、`memory/CandidateSource.tsx`、`memory/MemorySurface.tsx`、`tests/dom-fixtures.mjs`。 |
+| 代码位置 | `main`（经 PR 从分支 `ui-v2/merge-main` 合入；该分支 = `redesign/v2` + 合并最新 main）。PR 合并之前，以 `ui-v2/merge-main` 为准。 |
+| 与 main 的关系 | W1 已完成（2026-10-26）：合入 main 的 6 个提交（PR #101、#102，到 `39a6081`），4 个冲突已解决，main 新增的 20 条界面文字已补中日译文（1,404 条），§4 检查全部通过（node 124 / 3 跳过，DOM 77/77）。`src-tauri/tests/memory_core.rs` 来自 main，Rust 测试没有在这一步重跑。 |
 | 原生壳 | `src-tauri` **一行没改**（这一轮没有授权）。首帧底色仍是旧的 `#0C1117`（OPEN_ISSUES #1）。 |
 | 验证 | 只在浏览器演示与无头 Edge 里看过；**没有在原生 WebView2 里跑过**（OPEN_ISSUES #20）。node 测试 124 通过 / 3 跳过，DOM 75/75，build，两个仓库检查都通过。 |
 | 真实数据 | 原生里的 Memory、Context、Sessions 仍走 Memory 适配器（pin 的 Memory Core），这一轮只换了皮。合成预览（自动记忆、记忆星图）只在浏览器演示里出现，原生不显示，失败也不得回退到演示。 |
@@ -29,10 +29,10 @@ $1| 字体定稿提交 | 中日字体定稿与「I'm here.」不翻译（代码�
 
 ## 3. 落地顺序（每一片单独验证、单独提交；推送与开 PR 要 owner 同意）
 
-### W1 · 合并到最新 main
-- 从 `origin/redesign/v2` 开一个新分支，与 `origin/main` 合并，解决 4 个冲突。原则：**main 的行为与逻辑优先，UI v2 的外观与文案包装（`t()`）叠上去**。`AGENTS.md` 保留 main 的版本，再把「Runtime UI 只服务 Memory、六个表面」那段合进去。
-- main 新增的界面文字要按 §5 的方法补翻译，否则 `tests/i18n.test.mjs` 会失败（这是故意的）。
-- 验收：§4 的全部检查通过。
+### W1 · 合并到最新 main（已完成，2026-10-26）
+- 在 `ui-v2/merge-main` 上合并了 `origin/main`（`39a6081`）。冲突处理：`CandidateSource.tsx`、`MemorySurface.tsx` 以 main 的行为为准（上下文来源模式、P0 核心筛选），再包上 `t()`；`dom-fixtures.mjs` 保留 main 新增的两个 fixture、保留 UI v2 删除的 `usage-manual`；`AGENTS.md` 保留 main 的文字与项目状态快照一节，加上 UI v2 的「只服务 Memory」范围段落，删除已结束的设计探索流程一节。
+- 之后 main 若再有新提交：从 main 开分支照常开发即可；新增界面文字仍按 §5 补译文。
+- 验收：已通过（见上表）。
 
 ### W2 · 原生 WebView2 验证（只看，不改原生）
 在 `npm run tauri dev`（或现有的原生 smoke 方式）里逐项看，截图存档：
@@ -124,7 +124,7 @@ DOM 测试曾经偶发失败（OPEN_ISSUES #5，Runtime Inspector 那一项已�
 
 本机交付包（不在 Git 里，路径见本机私有说明）包含：
 - `START_HERE.md` 与 `CODEX_START.txt`（Codex 会话启动词）；
-- `runtime-ui-v2-starmap.bundle`：备用的 git bundle（含 `redesign/v2` 与 `redesign/v2-starmap`，前提提交 `301a808`）；分支已在 GitHub 上，正常用 `git fetch origin redesign/v2` 即可；
+- `runtime-ui-v2-starmap.bundle`：合并前的备用 git bundle（`redesign/v2`、`redesign/v2-starmap`）；合并后不再需要；
 - `runtime-ui-v2-src.zip`：分支上 `apps/desktop`、`docs/`、`DESIGN.md`、`AGENTS.md` 的快照（`git archive`，不含 node_modules）；
 - `design-exploration.zip`：探索树的 `.design`（方向比较、评审页、字体比较、星图录像与截图；不含 node_modules）；
 - `shots/`：最新的星图截图。
