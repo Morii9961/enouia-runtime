@@ -8,7 +8,7 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 
 | 方面 | 状态 |
 | --- | --- |
-| 代码位置 | 分支 `redesign/v2-starmap`（在 `redesign/v2` 之上，`redesign/v2` 已推送到 origin；`v2-starmap` 只在本地，见 §6 交付包里的 git bundle）。没有合并进 `main`。 |
+| 代码位置 | 分支 `redesign/v2`，已推送到 GitHub（origin）。星图、三语、后端文档与本交接原先在本地分支 `redesign/v2-starmap`，2026-10-26 已快进合入 `redesign/v2` 并推送。没有合并进 `main`，也没有开 PR。 |
 | 与 main 的关系 | 分叉点 `301a808`（PR #100）。之后 main 多了 6 个提交（到 PR #102），本分支多了 32 个提交。试合并有 4 个冲突：`AGENTS.md`、`memory/CandidateSource.tsx`、`memory/MemorySurface.tsx`、`tests/dom-fixtures.mjs`。 |
 | 原生壳 | `src-tauri` **一行没改**（这一轮没有授权）。首帧底色仍是旧的 `#0C1117`（OPEN_ISSUES #1）。 |
 | 验证 | 只在浏览器演示与无头 Edge 里看过；**没有在原生 WebView2 里跑过**（OPEN_ISSUES #20）。node 测试 124 通过 / 3 跳过，DOM 75/75，build，两个仓库检查都通过。 |
@@ -30,7 +30,7 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 ## 3. 落地顺序（每一片单独验证、单独提交；推送与开 PR 要 owner 同意）
 
 ### W1 · 合并到最新 main
-- 在新分支上把 `redesign/v2-starmap` 与 `origin/main` 合并，解决 4 个冲突。原则：**main 的行为与逻辑优先，UI v2 的外观与文案包装（`t()`）叠上去**。`AGENTS.md` 保留 main 的版本，再把「Runtime UI 只服务 Memory、六个表面」那段合进去。
+- 从 `origin/redesign/v2` 开一个新分支，与 `origin/main` 合并，解决 4 个冲突。原则：**main 的行为与逻辑优先，UI v2 的外观与文案包装（`t()`）叠上去**。`AGENTS.md` 保留 main 的版本，再把「Runtime UI 只服务 Memory、六个表面」那段合进去。
 - main 新增的界面文字要按 §5 的方法补翻译，否则 `tests/i18n.test.mjs` 会失败（这是故意的）。
 - 验收：§4 的全部检查通过。
 
@@ -108,7 +108,7 @@ DOM 测试曾经偶发失败（OPEN_ISSUES #5，Runtime Inspector 那一项已�
 
 本机交付包（不在 Git 里，路径见本机私有说明）包含：
 - `START_HERE.md` 与 `CODEX_START.txt`（Codex 会话启动词）；
-- `runtime-ui-v2-starmap.bundle`：`main..redesign/v2-starmap` 的 git bundle（`git fetch <bundle> redesign/v2-starmap` 即可取回分支）；
+- `runtime-ui-v2-starmap.bundle`：备用的 git bundle（含 `redesign/v2` 与 `redesign/v2-starmap`，前提提交 `301a808`）；分支已在 GitHub 上，正常用 `git fetch origin redesign/v2` 即可；
 - `runtime-ui-v2-src.zip`：分支上 `apps/desktop`、`docs/`、`DESIGN.md`、`AGENTS.md` 的快照（`git archive`，不含 node_modules）；
 - `design-exploration.zip`：探索树的 `.design`（方向比较、评审页、字体比较、星图录像与截图；不含 node_modules）；
 - `shots/`：最新的星图截图。

@@ -14,7 +14,7 @@
 
 ## 参考实现
 
-- 分支 `redesign/v2`（由 `redesign/08-negative` → `redesign/08-palettes` 收敛而来，已推送到 origin）与其上的 `redesign/v2-starmap`（星图、三语、后端文档；只在本地，交付包里有 git bundle）。都没有合并进 main。
+- 分支 `redesign/v2`（由 `redesign/08-negative` → `redesign/08-palettes` 收敛而来，已推送到 GitHub；星图、三语、后端文档与 Codex 交接也已合入）。没有合并进 main。
 - 记忆星图独立预览：开发服务器上的 `/starmap.html`（`?lang=zh|ja|en`）。界面语言：`?lang=` 或 Settings → Language。
 - 浏览器演示：`apps/desktop` 里 `npm ci && npm run dev`，打开开发服务器地址。`?theme=dark|light` 强制明暗（默认跟随系统）。
 - 自动记忆合成预览：Memory Vault 左栏「Automatic memory · synthetic preview」。
