@@ -1,0 +1,20 @@
+{
+  "environment": "Happy DOM 21.0.3; no real browser or native IPC",
+  "fixtures": 62,
+  "checks": 809,
+  "all_passed": true,
+  "new_fixtures": [
+    {
+      "fixture": "candidate-context",
+      "checks": 13,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "fixture": "candidate-core-filter",
+      "checks": 7,
+      "passed": true,
+      "failedChecks": []
+    }
+  ]
+}

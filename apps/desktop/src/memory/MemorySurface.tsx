@@ -346,6 +346,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   const [total, setTotal] = useState<number | null>(null);
   const [next, setNext] = useState<string | null>(null);
   const [readingMore, setReadingMore] = useState(false);
+  const [coreOnly, setCoreOnly] = useState(false);
   const [plan, setPlan] = useState<J>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
@@ -377,6 +378,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
     focusAfterRefresh.current = null;
   }, [items, reads.busy]);
   const actionsBlocked = action.busy || reads.busy || !!reads.error || !!plan;
+  const visibleItems = coreOnly ? items.filter(candidate => candidate.details?.priority === "P0") : items;
   const cannotAct = () => action.busy || reads.pending.current || !!reads.error || !!plan;
   // A held retry keeps its original arguments/key, but admission depends on
   // the current list observation and dialog owner, just like a fresh action.
@@ -402,16 +404,20 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   };
   return (
     <>
-      <Center title={TITLES.inbox} count={reads.error ? t("Candidates unavailable") : total == null ? t("Waiting for candidates") : t("{total} waiting · {n} shown", { total, n: items.length })}
+      <Center title={TITLES.inbox} count={reads.error ? t("Candidates unavailable") : total == null ? t("Waiting for candidates") : coreOnly ? t("{total} waiting · {loaded} loaded · {n} P0 shown", { total, loaded: items.length, n: visibleItems.length }) : t("{total} waiting · {n} shown", { total, n: items.length })}
         busy={action.busy || reads.busy || (total == null && !reads.error)}>
         <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan}
-          onClick={() => observe(null)}>{t("Refresh candidates")}</button></div>
+          onClick={() => observe(null)}>{t("Refresh candidates")}</button>
+          <label className="mem-row-meta"><input type="checkbox" aria-label={t("Show P0 core candidates")} checked={coreOnly} disabled={actionsBlocked}
+            onChange={event => setCoreOnly(event.target.checked)} />{t("P0 core from loaded candidates")}</label></div>
+        {coreOnly && <p className="mem-muted mem-pad">{t("P0 is a saved proposal priority, not approval. Only loaded candidates are filtered.")}</p>}
         <ErrorBox error={actionError} />
         <ErrorBox error={reads.error} />
-        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : readingMore ? "Reading more candidates…" : "Refreshing candidates…"}</p>}
+        {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? t("Reading candidates…") : readingMore ? t("Reading more candidates…") : t("Refreshing candidates…")}</p>}
         {reads.error && items.length > 0 && <p role="status" className="mem-muted mem-pad">{t("Previous candidate observation. Refresh candidates before reviewing or saving another candidate. Unsent edits are kept.")}</p>}
         {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">{t("Nothing waiting for review.")}</div>}
-        {items.map((c) => {
+        {coreOnly && !reads.busy && !reads.error && items.length > 0 && visibleItems.length === 0 && <p className="mem-muted mem-pad">{t("No P0 core candidates in the loaded rows.")}{next && " " + t("Load more candidates to continue checking.")}</p>}
+        {visibleItems.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
           return (
             <article key={c.candidateId} className="mem-candidate" aria-label={t('Candidate {id}', { id: c.candidateId })}>
@@ -419,7 +425,9 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 <code title={c.candidateId}>{shortId(c.candidateId)}</code><span>r{c.revision}</span>
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
                 <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
+                {["P0", "P1", "P2"].includes(c.details?.priority) && <Tag>Proposed priority {c.details.priority}</Tag>}
               </div>
+              {typeof c.details?.title === "string" && <h3 className="mem-h3">{c.details.title}</h3>}
               {typeof c.reason === "string" && c.reason.length > 0 && <details className="mem-stack mem-reason">
                 <summary>{t("Saved proposal reason")}</summary>
                 <p className="mem-muted">{t("A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.")}</p>
@@ -435,6 +443,16 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
               </p>
               <ul className="mem-list">{c.evidence.map((e: J, i: number) => <CandidateSource
                 key={`${c.revision}:${e.sourceId}:${e.sourceRevision}:${i}`} evidence={e} readPage={readPage} />)}</ul>
+              <section className="mem-stack" aria-label="Recorded context dependencies">
+                <h3 className="mem-h3">Recorded context dependencies</h3>
+                <p className="mem-muted">These sources were recorded as input context. They are not additional citations, corroboration or approval. This list does not establish complete reading history.</p>
+                {Array.isArray(c.contextSources) ? c.contextSources.length > 0 ? (
+                  <ul className="mem-list">{c.contextSources.map((source: J, i: number) => <CandidateSource
+                    key={`context:${c.revision}:${source.sourceId}:${source.sourceRevision}:${i}`}
+                    evidence={source} kind="context" readPage={readPage} />)}</ul>
+                ) : <p className="mem-muted">No context dependencies were recorded.</p>
+                  : <p className="mem-muted">This Core did not report context dependency information.</p>}
+              </section>
               {c.conflicts.length > 0 && <div className="mem-stack">
                 <h3 className="mem-h3">{t("Reported conflicts")}</h3>
                 <p className="mem-muted">{t("Read the current saved records before deciding. Reading does not merge, approve or resolve a conflict.")}</p>
