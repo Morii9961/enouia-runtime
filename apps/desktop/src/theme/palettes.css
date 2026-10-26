@@ -1,0 +1,24 @@
+/* 08-negative · the two palettes (DESIGN.md §2). Only colour lives here.
+   Dark: Tile Blue · 黛蓝 — the dark tile to Xuan Paper's white wall, leaning toward the azurite pen.
+   Light: Xuan Paper · 宣纸 — rice-paper grey that does not yellow, pine-soot ink, azurite pen.
+   main.tsx sets <html data-theme> from the system setting (the browser demo also takes ?theme=dark|light).
+   Before the script runs, prefers-color-scheme picks the same palette. */
+:root,:root[data-theme="dark"]{--paper:#0F1C23;--wash:#16232B;--wash-2:#1C2B32;--grid-minor:#1B2A31;--grid-major:#2B3A42;
+  --ink:#ECEDE8;--ink-2:#B7BBB6;--ink-3:#969B97;--ink-hi:#F8F9F5;--pen:#93B6DC;
+  --i-paper:#ECEDE8;--i-wash:#DFE0DC;--i-wash-2:#D4D6D2;--i-grid-minor:#CDD0CC;--i-grid-major:#B3B7B5;
+  --i-ink:#0F1C23;--i-ink-2:#374246;--i-ink-3:#485256;--i-pen:#22497A;
+  --backdrop:rgba(5,5,5,0.7);color-scheme:dark}
+@media (prefers-color-scheme: light){:root:not([data-theme]){--paper:#F1F0EB;--wash:#E7E5DF;--wash-2:#DDDAD3;--grid-minor:#DCD9D2;--grid-major:#C5C1B8;
+  --ink:#1D1C1A;--ink-2:#44423E;--ink-3:#5C5954;--ink-hi:#100F0D;--pen:#29528A;
+  --i-paper:#1D1C1A;--i-wash:#282622;--i-wash-2:#302D29;--i-grid-minor:#33302B;--i-grid-major:#4A463F;
+  --i-ink:#F1F0EB;--i-ink-2:#C6C1B7;--i-ink-3:#A6A196;--i-pen:#93B3D8;
+  --backdrop:rgba(20,20,18,0.42);color-scheme:light}}
+:root[data-theme="light"]{--paper:#F1F0EB;--wash:#E7E5DF;--wash-2:#DDDAD3;--grid-minor:#DCD9D2;--grid-major:#C5C1B8;
+  --ink:#1D1C1A;--ink-2:#44423E;--ink-3:#5C5954;--ink-hi:#100F0D;--pen:#29528A;
+  --i-paper:#1D1C1A;--i-wash:#282622;--i-wash-2:#302D29;--i-grid-minor:#33302B;--i-grid-major:#4A463F;
+  --i-ink:#F1F0EB;--i-ink-2:#C6C1B7;--i-ink-3:#A6A196;--i-pen:#93B3D8;
+  --backdrop:rgba(20,20,18,0.42);color-scheme:light}
+/* The Quick Search slip's trace is an inline SVG, so its pen colour is written per palette. */
+.quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2393B6DC' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2393B6DC'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}
+@media (prefers-color-scheme: light){:root:not([data-theme]) .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2329528A' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2329528A'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}}
+:root[data-theme="light"] .quick-search::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 56' preserveAspectRatio='none'%3E%3Cpath d='M0 38 C40 38 60 34 90 35 S150 40 190 37 S250 22 280 24 S320 36 347 30' fill='none' stroke='%2329528A' stroke-width='1.5'/%3E%3Cpath d='M337 26 L347 30 L337 34z' fill='%2329528A'/%3E%3C/svg%3E"),linear-gradient(to right,var(--grid-minor) 1px,transparent 1px)}

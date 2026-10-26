@@ -2,7 +2,6 @@
 import { createRoot } from "react-dom/client";
 import App from "../src/App";
 import { setTransport, type J } from "../src/memory/client";
-import { setTransport as setActivityTransport } from "../src/activity/client";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -37,10 +36,6 @@ setTransport(async (native, args) => {
     result = wrongIdentity ? { ...captured, operationId: "wrong-operation" } : captured;
   } else throw new Error(`Unexpected Memory command ${request.command}`);
   return { kind: "memory_page", result };
-});
-setActivityTransport(async (native, args) => {
-  if (native !== "activity_setup" || args.action !== "status") throw new Error("Unexpected Activity action");
-  return { configured: false };
 });
 root.render(<App startPage="runtime" memoryConnected breathing={false} />);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

@@ -13,6 +13,7 @@ import { suggestionObservation } from "./observationIdentity";
 import { holdProviderSend } from "./providerSend";
 import { holdProviderPreparation } from "./providerPreparation";
 
+import { t } from '../i18n/index.ts';
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
 export function ExtractionPanel({ range, onClose, onBusyChange, request = call }: { range: Range; onClose: () => void; onBusyChange?: (busy: boolean) => void; request?: typeof call }) {
@@ -46,12 +47,12 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
   }, [read.run, request]);
   useEffect(() => { void readSetup(); }, [readSetup]);
   const setupRecovery = !prepared && !operation && !job && !preparation && <button type="button" className="mem-button" disabled={read.busy || action.busy}
-    onClick={() => { if (!read.pending.current && !action.busy) void readSetup(); }}>Read provider status again</button>;
+    onClick={() => { if (!read.pending.current && !action.busy) void readSetup(); }}>{t("Read provider status again")}</button>;
 
   if (read.error) return <div className="mem-stack"><ErrorBox error={read.error} />
-    <p className="mem-muted">Provider status could not be read. Read it again before preparing a request. This does not reload settings, change a grant or send to a model.</p>
-    <div className="mem-actions">{setupRecovery}<button type="button" className="mem-button" onClick={onClose}>Close</button></div></div>;
-  if (!status) return <p role="status" className="mem-muted">Reading provider setup…</p>;
+    <p className="mem-muted">{t("Provider status could not be read. Read it again before preparing a request. This does not reload settings, change a grant or send to a model.")}</p>
+    <div className="mem-actions">{setupRecovery}<button type="button" className="mem-button" onClick={onClose}>{t("Close")}</button></div></div>;
+  if (!status) return <p role="status" className="mem-muted">{t("Reading provider setup…")}</p>;
   const destination = status.destinations.find((d: J) => d.api === api);
   const grant = (status.grants ?? []).find((g: J) => g.active && g.purposes.includes("extraction")
     && g.destinations.some((d: J) => d.provider === api && d.model === destination?.model));
@@ -61,36 +62,36 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
       setPreview(suggestionObservation(await request("extraction_preview", j), j.runId));
       setPreviewCurrent(true);
     });
-  const close = <button type="button" className="mem-button" disabled={action.busy || operation != null} onClick={onClose}>Close</button>;
+  const close = <button type="button" className="mem-button" disabled={action.busy || operation != null} onClick={onClose}>{t("Close")}</button>;
   const choiceHeld = owningWork || prepared != null || job != null;
   const providerChoice = status.configured && status.destinations.length > 0 && <>
-    <label className="mem-label" htmlFor={providerId}>Model for suggestions</label>
+    <label className="mem-label" htmlFor={providerId}>{t("Model for suggestions")}</label>
     <select id={providerId} className="mem-input" value={api} disabled={choiceHeld}
       onChange={(e) => { if (!choiceHeld) setApi(e.target.value); }}>
       {status.destinations.map((d: J) => <option key={d.api} value={d.api}>{d.api} · {d.model}</option>)}
     </select>
-    {choiceHeld && <p className="mem-muted">This suggestion flow keeps its selected model. Close it after work finishes to choose another model.</p>}
+    {choiceHeld && <p className="mem-muted">{t("This suggestion flow keeps its selected model. Close it after work finishes to choose another model.")}</p>}
   </>;
 
   if (!status.configured || !grant) {
     return (
-      <div className="mem-stack" role="group" aria-label="Suggest memories">
+      <div className="mem-stack" role="group" aria-label={t("Suggest memories")}>
         {providerChoice}
         <p className="mem-muted">{!status.configured
-          ? "External providers are off on this computer."
-          : "No grant allows extraction for this provider. Review a grant with extraction allowed in a session's External provider panel first."}</p>
+          ? t("External providers are off on this computer.")
+          : t("No grant allows extraction for this provider. Review a grant with extraction allowed in a session's External provider panel first.")}</p>
         <div className="mem-actions">{setupRecovery}{close}</div>
       </div>
     );
   }
   return (
-    <div className="mem-stack" role="group" aria-label="Suggest memories">
+    <div className="mem-stack" role="group" aria-label={t("Suggest memories")}>
       <ErrorBox error={action.error} />
       {providerChoice}
       {!prepared && !operation && !job && (
         <>
           <p className="mem-muted">Ask {api} ({destination.model}) to suggest facts from bytes {range.start}–{range.end} of this source. You see the exact request first; suggestions only enter the review queue.</p>
-          {preparation && <p role="status" className="mem-muted">Preparation was submitted. Its saved result is not confirmed here. Recover the original preparation, or close and read saved suggestion jobs from Sessions before preparing again. Preparing does not send to a model.</p>}
+          {preparation && <p role="status" className="mem-muted">{t("Preparation was submitted. Its saved result is not confirmed here. Recover the original preparation, or close and read saved suggestion jobs from Sessions before preparing again. Preparing does not send to a model.")}</p>}
           <div className="mem-actions">
             <button type="button" className="mem-button mem-primary" disabled={action.busy || (!!preparation && !!action.error && !action.error.retry)}
               onClick={() => {
@@ -103,16 +104,16 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                   setPrepared(holdProviderSend(await held.prepare(), request));
                   setPreparation(null);
                 });
-              }}>{preparation ? "Recover preparation" : "Prepare the request…"}</button>
+              }}>{preparation ? t("Recover preparation") : t("Prepare the request…")}</button>
             {close}
           </div>
         </>
       )}
       {prepared && (
         <>
-          <p>This exact request goes to <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens. It is sent once. Retry recovers this same call without sending again to the service.</p>
+          <p>{t("This exact request goes to")} <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens. It is sent once. Retry recovers this same call without sending again to the service.</p>
           <pre className="mem-pre" tabIndex={0}>{prepared.body}</pre>
-          {submitted && <p role="status" className="mem-muted">Send was submitted. The service may have received it. Recover this call, or leave and read this saved run from Sessions.</p>}
+          {submitted && <p role="status" className="mem-muted">{t("Send was submitted. The service may have received it. Recover this call, or leave and read this saved run from Sessions.")}</p>}
           <div className="mem-actions">
             <button type="button" className="mem-button mem-primary" disabled={action.busy || (submitted && !!action.error && !action.error.retry)}
               onClick={() => void action.run(async () => {
@@ -120,13 +121,13 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                 const started = await heldSend!.send();
                 setPrepared(null);
                 setOperation(started.operationId);
-              })}>{submitted ? "Recover this call" : "Send once"}</button>
+              })}>{submitted ? t("Recover this call") : t("Send once")}</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={onClose}>{submitted ? "Leave this request" : "Don't send"}</button>
           </div>
         </>
       )}
       {job && <p className="mem-muted" title={`${job.sessionId} · ${job.runId}`}>
-        Suggestion session {shortId(job.sessionId)} · run {shortId(job.runId)}. After leaving this page, read this saved run from Sessions.
+        {t("Suggestion session {session} · run {run}. After leaving this page, read this saved run from Sessions.", { session: shortId(job.sessionId), run: shortId(job.runId) })}
       </p>}
       {operation && <Operation id={operation} kind="external_send" request={request} onDone={(s) => {
         setCompletion(s);
@@ -135,15 +136,15 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
       }} />}
       {completion && <OperationFeedback status={completion} onCancel={() => {}} />}
       {job && !prepared && !operation && !preview && <div className="mem-actions">
-        <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Read saved suggestions</button>
+        <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>{t("Read saved suggestions")}</button>
         {close}
       </div>}
       {preview && job && !prepared && (
         <>
-          {!previewCurrent && <p role="status" className="mem-muted">Previous suggestion observation. Read saved suggestions again to check which items reached the review queue before starting another write.</p>}
+          {!previewCurrent && <p role="status" className="mem-muted">{t("Previous suggestion observation. Read saved suggestions again to check which items reached the review queue before starting another write.")}</p>}
           <SuggestionPreview preview={preview} />
           <div className="mem-actions">
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>Refresh saved suggestions</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => void showPreview(job)}>{t("Refresh saved suggestions")}</button>
             {preview.job.state !== "completed" && preview.job.state !== "paused" && preview.items.length > 0 && (
               <button type="button" className="mem-button mem-primary" disabled={action.busy || !previewCurrent}
                 onClick={() => {
@@ -152,7 +153,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                     const next = await applySavedSuggestions(request, job, preview.items.length, () => mounted.current);
                     if (next != null) { setPreview(next); setPreviewCurrent(true); }
                   });
-                }}>Add to the review queue</button>
+                }}>{t("Add to the review queue")}</button>
             )}
             {preview.job.state === "paused" && <>
               <p className="mem-muted">This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.</p>
@@ -164,7 +165,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                     const next = await resumeSavedSuggestions(request, job, () => mounted.current);
                     if (next != null) { setPreview(next); setPreviewCurrent(true); }
                   });
-                }}>Resume local queue</button>
+                }}>{t("Resume local queue")}</button>
             </>}
             {close}
           </div>

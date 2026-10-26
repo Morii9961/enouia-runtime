@@ -26,7 +26,7 @@ try {
   const sessions = rail("Sessions")!; sessions.focus(); sessions.click();
   await wait(() => label() === "Sessions content"); await sleep(30);
   check("rail_click_keeps_rail_focus", document.activeElement === sessions);
-  shortcut(sessions, "7"); await wait(() => label() === "Settings content"); await sleep(30);
+  shortcut(sessions, "6"); await wait(() => label() === "Settings content"); await sleep(30);
   check("shortcut_from_rail_keeps_rail_focus", document.activeElement === sessions);
   const field = document.createElement("input"); document.body.appendChild(field); field.focus();
   shortcut(field, "1"); await wait(() => label() === "Home content"); await sleep(30);

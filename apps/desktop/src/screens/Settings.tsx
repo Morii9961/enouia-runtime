@@ -1,35 +1,37 @@
 import React from "react";
 import type { DemoView } from "../App";
 
+import { LANG_NAMES, setLang, t, useLangPref } from '../i18n/index.ts';
 export default function Settings({ view }: { view: DemoView }) {
-  const { keyboardHint, memorySettings, motionOpts, paused, sw, togglePaused, shellSettings } = view;
+  const { keyboardHint, memorySettings, motionOpts, shellSettings } = view;
+  const pref = useLangPref();
   return (
 <section data-screen-label="Settings" className="qr187">
 <div className="qr219">
 <div className="qr149">
 <h1 className="qr18">
-Settings
+{t("Settings")}
 </h1>
 <div className="qr19">
-Only what the runtime supports today.
+{t("Only what the runtime supports today.")}
 </div>
 </div>
 <div className="qr65">
 <div className="qr198">
-Appearance
+{t("Appearance")}
 </div>
 <div className="qr213">
 <div className="qr135">
 <span className="qr211">
-Motion
+{t("Motion")}
 </span>
 <span className="qr108">
-The presence ring breathes on a 6-second cycle unless reduced.
+{t("The trace is drawn once on Home and the time map glides for 320 ms. Reduced makes both instant.")}
 </span>
 </div>
 <div className="qr173">
 {motionOpts.map((f, fIndex) => <React.Fragment key={f.label}>
-<button onClick={f.onClick} aria-pressed={f.active} className="qr212" style={{"background": f.bg, "color": f.fg}} type="button">
+<button onClick={f.onClick} aria-pressed={f.active} className="qr212" type="button">
 {f.label}
 </button>
 </React.Fragment>)}
@@ -38,63 +40,58 @@ The presence ring breathes on a 6-second cycle unless reduced.
 <div className="qr213">
 <div className="qr135">
 <span className="qr211">
-Theme
+{t("Language")}
 </span>
 <span className="qr108">
-Dark. A light theme is not designed yet.
+{t("The interface language. Memories and sessions keep the language they were written in.")}
 </span>
 </div>
-<span className="qr9">
-Dark
-</span>
+<div className="qr173" role="group" aria-label={t("Language")}>
+{LANG_NAMES.map((l) => <button key={l.pref} onClick={() => void setLang(l.pref)} aria-pressed={pref === l.pref} className="qr212" type="button" lang={l.pref === 'system' ? undefined : l.pref}>
+{l.pref === 'system' ? t('Follow system') : l.name}
+</button>)}
 </div>
-</div>
-<div className="qr65">
-<div className="qr198">
-Activity producer
 </div>
 <div className="qr213">
 <div className="qr135">
 <span className="qr211">
-Pause scheduled runs · demo
+{t("Theme")}
 </span>
-<span className="qr101">
-Demo switch only · scheduler is not connected
+<span className="qr108">
+{t("Tile Blue when the system is dark, Xuan Paper when it is light.")}
 </span>
 </div>
-<button role="switch" aria-checked={paused} aria-label="Pause scheduled runs" onClick={togglePaused} className="qr215" style={{"border": "1px solid " + (sw.border), "background": sw.bg}} type="button">
-<span className="qr214" style={{"left": sw.left, "background": sw.knob}}>
-
+<span className="qr9">
+{t("Negative")}
 </span>
-</button>
 </div>
 </div>
 {memorySettings ?? <>
 <div className="qr65">
 <div className="qr198">
-Vault
+{t("Vault")}
 </div>
 <div className="qr216">
 <span className="qr35">
-Location
+{t("Location")}
 </span>
 <span className="qr5">
-Not configured · Vault adapter pending
+{t("Not configured · Vault adapter pending")}
 </span>
 </div>
 <div className="qr216">
 <span className="qr35">
-Identity files
+{t("Identity files")}
 </span>
 <span className="qr217">
-core.md · runtime_rules.md
+{t("core.md · runtime_rules.md")}
 </span>
 </div>
 </div>
 </>}
 {shellSettings}
 <div className="qr218">
-{keyboardHint ?? 'Keyboard: Ctrl+1–7 switches surfaces · ↑ ↓ moves through memories and sessions.'}
+{keyboardHint ?? t('Keyboard: Ctrl+1–6 switches surfaces · ↑ ↓ moves through memories and sessions.')}
 </div>
 </div>
 </section>

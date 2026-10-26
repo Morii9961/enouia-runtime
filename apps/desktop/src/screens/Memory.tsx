@@ -1,21 +1,36 @@
 import React from "react";
 import type { DemoView } from "../App";
+import { AUTO_ENTRY } from "./automemory/entry";
+
+import { t } from '../i18n/index.ts';
+// The preview is a separate chunk: it only loads when someone opens it, which keeps the main script small.
+const AutoMemory = React.lazy(() => import("./automemory/AutoMemory"));
 
 export default function Memory({ view }: { view: DemoView }) {
+  // Browser demo only: a synthetic design preview of automatic memory. Local state, nothing stored.
+  const [auto, setAuto] = React.useState(false);
+  const entry = React.useRef<HTMLButtonElement>(null);
+  const wasAuto = React.useRef(false);
+  React.useEffect(() => { if (!auto && wasAuto.current) entry.current?.focus(); wasAuto.current = auto; }, [auto]);
   const { act, colCount, colTitle, collections, copyLabel, draft, editing, groups, hasNotice, noSel, notEditing, notice, onDraft, onQuery, q, sel, timelineEmpty } = view;
+  if (auto) return <React.Suspense fallback={<section data-screen-label="Memory Vault" className="am-loading" aria-busy="true"><p>{t("Loading the synthetic preview…")}</p></section>}><AutoMemory onExit={() => setAuto(false)} /></React.Suspense>;
   return (
 <section data-screen-label="Memory Vault" className="qr89">
 <aside className="qr28">
 <div className="qr20">
 <h1 className="qr18">
-Memory Vault
+{t("Memory Vault")}
 </h1>
 <div className="qr19">
-What I keep, and why.
+{t("What I keep, and why.")}
 </div>
 </div>
+<button type="button" className="am-entry" ref={entry} onClick={() => setAuto(true)} aria-describedby="am-entry-sub">
+<span className="am-entry-k">{t(AUTO_ENTRY)}</span>
+<span className="am-entry-s" id="am-entry-sub">{t("Invented data · not running · opens a design preview")}</span>
+</button>
 <label className="qr22">
-<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7F8D9A" strokeWidth="1.2">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ stroke: 'var(--ink-2)' }} strokeWidth="1.2">
 <circle cx="6" cy="6" r="4.2">
 
 </circle>
@@ -23,7 +38,7 @@ What I keep, and why.
 
 </path>
 </svg>
-<input value={q} onChange={onQuery} placeholder="Literal search" aria-label="Search memories" className="qr21" />
+<input value={q} onChange={onQuery} placeholder={t("Literal search")} aria-label={t("Search memories")} className="qr21" />
 </label>
 {collections.map((grp, grpIndex) => <React.Fragment key={grp.label}>
 <div className="qr27">
@@ -31,11 +46,11 @@ What I keep, and why.
 {grp.label}
 </div>
 {grp.items.map((c, cIndex) => <React.Fragment key={c.key}>
-<button onClick={c.onClick} aria-pressed={c.active} className="qr26" style={{"background": c.bg, "color": c.fg}} type="button">
+<button onClick={c.onClick} aria-pressed={c.active} className="qr26" type="button">
 <span className="qr24">
 {c.label}
 </span>
-<span className="qr25" style={{"color": c.countColor}}>
+<span className="qr25" data-waiting={c.key === 'candidates' && c.count > 0 ? 'true' : undefined}>
 {c.count}
 </span>
 </button>
@@ -55,13 +70,13 @@ What I keep, and why.
 
 </div>
 <div className="qr19">
-Newest first · ↑ ↓ to move
+{t("Newest first · ↑ ↓ to move")}
 </div>
 </div>
 <div className="qr44">
 {timelineEmpty ? <>
 <div className="qr32">
-Nothing here matches.
+{t("Nothing here matches. No reading on this strip for that text.")}
 </div>
 </> : null}
 {groups.map((g, gIndex) => <React.Fragment key={g.key}>
@@ -70,7 +85,7 @@ Nothing here matches.
 {g.label}
 </div>
 {g.items.map((m, mIndex) => <React.Fragment key={m.key}>
-<button onClick={m.onClick} aria-pressed={m.selected} className="qr43" style={{"background": m.bg}} type="button">
+<button onClick={m.onClick} aria-pressed={m.selected} className="qr43" data-status={m.showStatus ? m.statusLabel.toLowerCase() : 'canonical'} type="button">
 <span className="qr34">
 {m.time}
 </span>
@@ -85,15 +100,12 @@ Nothing here matches.
 </span>
 </> : null}
 {m.showStatus ? <>
-<span className="qr37" style={{"color": m.statusColor}}>
-<span className="qr36" style={{"background": m.statusColor}}>
-
-</span>
+<span className="qr37" data-status={m.statusLabel.toLowerCase()}>
 {m.statusLabel}
 </span>
 </> : null}
 </span>
-<span className="qr39" style={{"color": m.textColor}}>
+<span className="qr39">
 {m.content}
 </span>
 <span className="qr41">
@@ -121,20 +133,17 @@ conf {m.conf}
 </React.Fragment>)}
 </div>
 </div>
-<aside aria-label="Memory Inspector" className="qr88">
+<aside aria-label={t("Memory Inspector")} className="qr88">
 {noSel ? <>
 <div className="qr46">
-Select a memory to see where it came from.
+{t("Select a memory to see where it came from.")}
 </div>
 </> : null}
 {sel ? <>
 <div className="qr79">
 <div className="qr54">
 <div className="qr50">
-<span className="qr48" style={{"color": sel.statusColor}}>
-<span className="qr47" style={{"background": sel.statusColor}}>
-
-</span>
+<span className="qr48" data-status={sel.statusLabel.toLowerCase()}>
 {sel.statusLabel}
 </span>
 <span className="qr9">
@@ -156,7 +165,7 @@ Select a memory to see where it came from.
 </div>
 </> : null}
 {editing ? <>
-<textarea value={draft} onChange={onDraft} aria-label="Memory content" rows={5} className="qr53">
+<textarea value={draft} onChange={onDraft} aria-label={t("Memory content")} rows={5} className="qr53">
 
 </textarea>
 <div className="qr19">
@@ -167,7 +176,7 @@ Select a memory to see where it came from.
 {sel.hasDecisions ? <>
 <div className="qr15">
 <div className="qr55">
-Decisions
+{t("Decisions")}
 </div>
 {sel.decisions.map((d, dIndex) => <React.Fragment key={dIndex}>
 <div className="qr57">
@@ -184,7 +193,7 @@ Decisions
 {sel.isCheckpoint ? <>
 <div className="qr15">
 <div className="qr55">
-Last state · {sel.coveredText}
+{t('Last state')} · {sel.coveredText}
 </div>
 <div className="qr58">
 {sel.lastState}
@@ -194,7 +203,7 @@ Last state · {sel.coveredText}
 {sel.hasLoops ? <>
 <div className="qr15">
 <div className="qr55">
-Open loops
+{t("Open loops")}
 </div>
 {sel.openLoops.map((o, oIndex) => <React.Fragment key={oIndex}>
 <div className="qr57">
@@ -210,7 +219,7 @@ Open loops
 </> : null}
 <div className="qr66">
 <div className="qr55">
-Why I remember this
+{t("Why I remember this")}
 </div>
 <div className="qr60">
 {sel.why}
@@ -242,7 +251,7 @@ Why I remember this
 </div>
 <div className="qr66">
 <div className="qr55">
-Record
+{t("Record")}
 </div>
 <div className="qr65">
 {sel.recRows.map((r, rIndex) => <React.Fragment key={r.k}>
@@ -270,7 +279,7 @@ Record
 {sel.hasConf ? <>
 <div className="qr70">
 <span className="qr35">
-Confidence
+{t("Confidence")}
 </span>
 <span className="qr50">
 <span className="qr67">
@@ -288,7 +297,7 @@ Confidence
 </div>
 <div className="qr66">
 <div className="qr55">
-Lineage
+{t("Lineage")}
 </div>
 {sel.lineRows.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr64">
@@ -315,12 +324,12 @@ Lineage
 <div className="qr75">
 Related{' '}
 <span className="qr74">
-· shared project or tag
+{t("· shared project or tag")}
 </span>
 </div>
 {sel.noRelated ? <>
 <div className="qr76">
-No related records.
+{t("No related records.")}
 </div>
 </> : null}
 <div className="qr65">
@@ -359,17 +368,17 @@ No related records.
 {act.saveLabel}
 </button>
 <button onClick={act.onCancel} className="qr84" type="button">
-Cancel
+{t("Cancel")}
 </button>
 </> : null}
 {act.none ? <>
 <div className="qr85">
-Superseded records are kept, never deleted.
+{t("Superseded records are kept, never deleted.")}
 </div>
 </> : null}
 </div>
 <div className="qr40">
-Demo changes stay in this window · reload resets
+{t("Demo changes stay in this window · reload resets")}
 </div>
 </div>
 </> : null}

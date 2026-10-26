@@ -7,7 +7,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import { createServer } from 'vite';
 import { approveDemoCandidate, reviseDemoMemory } from '../src/demo-state.ts';
-import { overview as activityOverview } from './activity-fixtures.mjs';
 
 const server = await createServer({
   root: fileURLToPath(new URL('..', import.meta.url)),
@@ -26,7 +25,6 @@ const { ExtractionPanel } = await server.ssrLoadModule('/src/memory/ExtractionPa
 const { SessionEventBody, SessionEventMetadata } = await server.ssrLoadModule('/src/memory/SessionEventBody.tsx');
 const { MemoryStatusProvider, VaultLifecycleFeedback, vaultLabel } = await server.ssrLoadModule('/src/memory/status.tsx');
 const { Context: ConnectedContext } = await server.ssrLoadModule('/src/memory/ContextSurface.tsx');
-const { default: ActivitySurface, Gate: ActivityGate, StatusCards, RecordedDays, RunStatusCard } = await server.ssrLoadModule('/src/activity/ActivitySurface.tsx');
 const at = '2026-10-05T02:00:00.000Z';
 const appAt = (page, state = {}) => {
   const app = new App({ startPage: page, memoryConnected: false, breathing: false });
@@ -50,103 +48,9 @@ test('browser Settings keeps its fictional mode without a connected configuratio
   assert.doesNotMatch(html, /Model configuration draft|Generate settings draft|Loaded model settings|Reload model settings/);
 });
 
-test('native Activity waiting and connection gate retain a labelled keyboard surface', () => {
-  for (const node of [createElement(ActivitySurface), createElement(ActivityGate, { setup: { configured: false }, onSelect() {}, error: null })]) {
-    const html = renderToStaticMarkup(node);
-    assert.match(html, /data-screen-label="Activity"/);
-    assert.match(html, /<h1/);
-    assert.doesNotMatch(html, /install-activity\.ps1|install\.json|Fictional/);
-  }
-});
-
-test('Activity distinguishes a connected but unsaved package choice', () => {
-  const html=renderToStaticMarkup(createElement(ActivityGate,{setup:{configured:true,mode:'sandbox',folder:'package',taskName:'Enouia-Activity-Test',saved:false},onSelect(){},error:null}));
-  assert.match(html,/Package connected for this window/);
-  assert.match(html,/select it again after restarting/);
-  assert.doesNotMatch(html,/Retry forgetting package/);
-});
-
-test('Activity failed forgetting has a named retry while successful choices stay quiet', () => {
-  const props={onSelect(){},onClear(){},error:null};
-  const html=renderToStaticMarkup(createElement(ActivityGate,{...props,setup:{configured:false,saved:false},busy:true}));
-  assert.match(html,/The saved package choice could not be cleared/);
-  assert.match(html,/disabled=""[^>]*>Retry forgetting package/);
-  for(const setup of [{configured:false},{configured:false,saved:true}]) {
-    assert.doesNotMatch(renderToStaticMarkup(createElement(ActivityGate,{...props,setup})),/Retry forgetting package|could not be cleared|window only/);
-  }
-});
-
-test('recorded Activity days keep a compact default and an accessible full-history control', () => {
-  const days = Array.from({ length: 16 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, value: i === 15 ? 0 : i }));
-  const html = renderToStaticMarkup(createElement(RecordedDays, { id: 'github', days, total: 16 }));
-  assert.equal((html.match(/scope="row"/g) ?? []).length, 14);
-  assert.match(html, /Show all recorded days/);
-  assert.match(html, /aria-expanded="false" aria-controls="act-days-github"/);
-  assert.match(html, /GitHub daily contributions/);
-  assert.match(html, /2026-10-16<\/time><\/th><td>0/);
-  assert.doesNotMatch(html, /2026-10-01/);
-  const short = renderToStaticMarkup(createElement(RecordedDays, { id: 'claude', days: days.slice(-2), total: 2 }));
-  assert.equal((short.match(/scope="row"/g) ?? []).length, 2);
-  assert.doesNotMatch(short, /Show all recorded days/);
-  assert.match(short, /Claude Code daily tokens/);
-});
-
-test('an unobserved scheduler never invents a next trigger or registration', () => {
-  const overview = activityOverview();
-  const html = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
-  assert.match(html, /Not registered/);
-  assert.match(html, /Next trigger<\/dt><dd>Not observed/);
-  assert.doesNotMatch(html, /Hourly while logged in/);
-  overview.schedule.task = { registered: true, enabled: null };
-  overview.delivery.publicHash = 'a'.repeat(64);
-  const unknown = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
-  assert.match(unknown, /enablement unknown/);
-  assert.match(unknown, /observation time not recorded/);
-});
-
-test('Activity date-only observations do not invent local clock times', () => {
-  const overview = activityOverview();
-  overview.schedule.nextTriggerAt = '2026-10-12';
-  overview.delivery.lastTransportAt = '2026-10-07';
-  overview.delivery.publicationObservedAt = '2026-10-08';
-  overview.delivery.publicHash = 'a'.repeat(64);
-  overview.pending = { sequence: 1, createdAt: '2026-10-06', ageSeconds: 0, exactSha256: 'b'.repeat(64), failureCount: 0, nextEligibleAt: '2026-10-09', lastErrorCode: null };
-  const html = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
-  assert.match(html, /Next trigger<\/dt><dd>2026-10-12<\/dd>/);
-  assert.match(html, /Last transport<\/dt><dd>2026-10-07<\/dd>/);
-  assert.match(html, /Published<\/dt><dd>2026-10-08 · /);
-  assert.match(html, /Next retry<\/dt><dd>2026-10-09<\/dd>/);
-  assert.doesNotMatch(html, /2026-10-\d{2} \d{2}:\d{2}/);
-  overview.schedule.nextTriggerAt = '2026-10-12T01:23:00Z';
-  const instant = renderToStaticMarkup(createElement(StatusCards, { overview, folder: 'synthetic' }));
-  assert.match(instant, /Next trigger<\/dt><dd>\d{4}-\d{2}-\d{2} \d{2}:\d{2}<\/dd>/);
-});
-
-test('unknown Activity outcome text stays private and prototype names get a stable fallback', () => {
-  for(const state of ['C:/SYNTHETIC_PRIVATE/config.json','future_outcome','constructor','toString']) {
-    const run={schemaVersion:1,kind:'activity_run_status',runId:'run-1',stage:'completed',error:null,summary:{state}};
-    const html=renderToStaticMarkup(createElement(RunStatusCard,{run}));
-    assert.match(html,/Run outcome unavailable/);
-    assert.doesNotMatch(html,/SYNTHETIC_PRIVATE|future_outcome/);
-  }
-});
-
-test('Activity outcome counts represent only whole failures among the three sources', () => {
-  for(const sourceFailures of [1.5,4,9007199254740992,-1,0]) {
-    const run={schemaVersion:1,kind:'activity_run_status',runId:'run-1',stage:'completed',error:null,summary:{state:'delivery_disabled',sourceFailures}};
-    const html=renderToStaticMarkup(createElement(RunStatusCard,{run}));
-    assert.match(html,/New batch kept locally/);
-    assert.doesNotMatch(html,/source\(s\) failed/);
-  }
-  for(const sourceFailures of [1,2,3]) {
-    const run={schemaVersion:1,kind:'activity_run_status',runId:'run-1',stage:'completed',error:null,summary:{state:'delivery_unresolved',sourceFailures}};
-    assert.match(renderToStaticMarkup(createElement(RunStatusCard,{run})),new RegExp(`${sourceFailures} source\\(s\\) failed`));
-  }
-});
-
-test('all seven demo surfaces render exactly one screen and disclose demo mode', () => {
+test('all six demo surfaces render exactly one screen and disclose demo mode', () => {
   const screens = { home: 'Home', memory: 'Memory Vault', context: 'Context Surface',
-    sessions: 'Sessions', activity: 'Activity', runtime: 'Runtime Inspector', settings: 'Settings' };
+    sessions: 'Sessions', runtime: 'Runtime Inspector', settings: 'Settings' };
   for (const [page, label] of Object.entries(screens)) {
     const html = renderToStaticMarkup(appAt(page).render());
     assert.equal((html.match(/data-screen-label=/g) ?? []).length, 1, page);

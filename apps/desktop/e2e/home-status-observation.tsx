@@ -23,7 +23,7 @@ function Control() {
   const { refresh, status, error, vaultChanging } = useStatus();
   return <button id="fixture-refresh" data-status={status ? `${status.vault.state}:${vaultChanging}:${status.companion.exiting}:${status.pendingCandidates}` : error ? 'failed' : 'unknown'} onClick={() => void refresh()}>Fixture: read status</button>;
 }
-const nav = Object.fromEntries(['memory', 'sessions', 'context', 'activity'].map(name => [name, { go: () => navigations.push(name) }]));
+const nav = Object.fromEntries(['memory', 'sessions', 'context'].map(name => [name, { go: () => navigations.push(name) }]));
 root.render(<MemoryStatusProvider><Control /><ConnectedHome nav={nav} ring={null} /></MemoryStatusProvider>);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const home = () => fixture.querySelector<HTMLElement>('[data-screen-label="Home"]');
@@ -38,7 +38,7 @@ async function refresh() {
 try {
   await wait(() => release != null && !!home());
   check('unobserved_status_does_not_prompt_vault_creation', review() === 'Memory status unknown' && !text().includes('Open or create a Vault to begin'));
-  check('native_home_describes_separate_activity_producer', text().includes('Activity uses a separate producer') && !text().includes('Activity shows fictional examples'));
+  check('native_home_has_no_activity_entry', !text().includes('Activity'));
   fail = true; releasePending(); await wait(() => fixture.querySelector('#fixture-refresh')?.getAttribute('data-status') === 'failed');
   check('failed_status_stays_unknown_instead_of_no_vault', review() === 'Memory status unknown' && !text().includes('Open or create a Vault to begin'));
   fail = false; await refresh();
@@ -60,7 +60,7 @@ try {
   exiting = false; await refresh();
   check('fresh_open_status_recovers_queue_and_commit', review() === '2 candidates waiting for your review' && text().includes('Last commit'));
   for (const control of home()!.querySelectorAll<HTMLButtonElement>('.qr12')) control.click();
-  check('home_routes_remain_explicit_local_navigation', navigations.join(',') === 'memory,sessions,context,activity');
+  check('home_routes_remain_explicit_local_navigation', navigations.join(',') === 'memory,sessions,context');
   fail = true; await refresh();
   check('lost_status_drops_previous_open_details', review() === 'Memory status unknown' && !text().includes('Last commit') && !text().includes('2 candidates waiting'));
   check('home_only_observes_workspace_status', calls.every(command => command === 'workspace_status'));
