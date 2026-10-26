@@ -6,6 +6,7 @@ import { useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
 import { memoryObservation } from "./observationIdentity";
 
+import { t } from '../i18n/index.ts';
 export function CandidateConflict({ conflict, readPage = call }: { conflict: J; readPage?: typeof call }) {
   const [requested, setRequested] = useState(false);
   const [record, setRecord] = useState<J>(null);
@@ -40,18 +41,18 @@ export function CandidateConflict({ conflict, readPage = call }: { conflict: J; 
     } : undefined,
   };
   return <li className="mem-evidence" aria-busy={read.busy}>
-    <p className="mem-muted">Reported conflict: <code title={conflict.memory_id}>{shortId(conflict.memory_id)}</code> · r{conflict.revision}</p>
+    <p className="mem-muted">{t("Reported conflict:")} <code title={conflict.memory_id}>{shortId(conflict.memory_id)}</code> · r{conflict.revision}</p>
     <div className="mem-actions">
       <button ref={readControl} type="button" className="mem-link" onClick={observe}>{requested ? "Read conflicting memory again" : "Read current conflicting memory"}</button>
-      {requested && <button type="button" className="mem-link" onClick={hide}>Hide conflicting memory</button>}
+      {requested && <button type="button" className="mem-link" onClick={hide}>{t("Hide conflicting memory")}</button>}
     </div>
     <ErrorBox error={readError} />
-    {read.busy && <p role="status" className="mem-muted">Reading the conflicting memory…</p>}
+    {read.busy && <p role="status" className="mem-muted">{t("Reading the conflicting memory…")}</p>}
     {read.error && <p className="mem-muted">The current record could not be read. Its reported conflict remains in the candidate; read again to observe the saved record.</p>}
     {record && <div className="mem-stack">
       <p className="mem-muted">Current saved observation · r{record.revision} · <Tag>{record.status}</Tag></p>
       {record.revision !== conflict.revision && <p className="mem-warn">This record has changed since the reported conflict. The candidate reference above still names r{conflict.revision}; this read does not resolve that conflict.</p>}
-      <p ref={recordText} tabIndex={-1} aria-label="Current conflicting memory" className="mem-content">{record.content}</p>
+      <p ref={recordText} tabIndex={-1} aria-label={t("Current conflicting memory")} className="mem-content">{record.content}</p>
     </div>}
   </li>;
 }

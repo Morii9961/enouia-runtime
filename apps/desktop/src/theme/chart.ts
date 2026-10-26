@@ -4,6 +4,7 @@
 // Two frames share one trace: the week on the record strip
 // and the three-week domain behind Home's time map, where the chart pans.
 import { demoData as D } from '../demo-data';
+import { lang } from '../i18n/index.ts';
 
 const H = 36e5;
 const DAY = 24 * H;
@@ -31,20 +32,25 @@ export const pct = (x: number) => (Math.max(0, Math.min(1, x)) * 100).toFixed(3)
 export const domX = (iso: string | number) => (t(iso) - DOM_START) / DOM_MS;
 export const inDom = (iso: string | number) => { const x = domX(iso); return x >= 0 && x <= domX(DEMO_CLOCK) + 1e-9; };
 
-const DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const DOW_EN = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+// Weekday names in the interface language; dates read 28 SEP in English and 9月28日 in Chinese and Japanese.
+const DOW_ZH = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+const DOW_JA = ['日', '月', '火', '水', '木', '金', '土'];
+const dow = (i: number) => (lang() === 'zh-Hans' ? DOW_ZH : lang() === 'ja' ? DOW_JA : DOW_EN)[i];
+const monthDay = (d: Date) => (lang() === 'en' ? d.getUTCDate() + ' ' + MON[d.getUTCMonth()] : (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日');
 const parts = (ms: number) => new Date(ms + 8 * H);
 export const DAYS = Array.from({ length: 7 }, (_, i) => {
   const d = parts(WEEK_START + i * DAY);
-  return { key: i, dow: DOW[d.getUTCDay()], date: String(d.getUTCDate()), today: i === Math.floor(xOf(DEMO_CLOCK) * 7) };
+  return { key: i, get dow() { return dow(d.getUTCDay()); }, date: String(d.getUTCDate()), today: i === Math.floor(xOf(DEMO_CLOCK) * 7) };
 });
 /** The domain's days, one cell each. */
 export const DOM_CELLS = Array.from({ length: DOM_DAYS }, (_, i) => {
   const d = parts(DOM_START + i * DAY);
-  return { i, at: DOM_START + i * DAY, dow: DOW[d.getUTCDay()], date: d.getUTCDate(), month: MON[d.getUTCMonth()], today: DOM_START + (i + 1) * DAY > DEMO_CLOCK && DOM_START + i * DAY <= DEMO_CLOCK };
+  return { i, at: DOM_START + i * DAY, monday: d.getUTCDay() === 1, get dow() { return dow(d.getUTCDay()); }, get label() { return monthDay(d); }, date: d.getUTCDate(), month: MON[d.getUTCMonth()], today: DOM_START + (i + 1) * DAY > DEMO_CLOCK && DOM_START + i * DAY <= DEMO_CLOCK };
 });
 /** "28 SEP" style label for a timestamp (Asia/Shanghai). */
-export const dayShort = (ms: number) => { const d = parts(ms); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
+export const dayShort = (ms: number) => monthDay(parts(ms));
 
 // The trace: conversation intensity, a smoothed sum over every demo turn and
 // memory write, so the pen rises while we talk and settles between talks.
@@ -99,4 +105,4 @@ export const domTicks = events.filter((e) => e >= DOM_START && e <= DEMO_CLOCK).
 /** How many events fell on each day of the domain, scaled 0 to 1 (the time map's bars). */
 export const domBars = (() => { const c = Array.from({ length: DOM_DAYS }, () => 0); domTicks.forEach((x) => { c[Math.min(DOM_DAYS - 1, Math.floor(x * DOM_DAYS))]++; }); const m = Math.max(...c, 1); return c.map((n) => n / m); })();
 
-export const dayLabel = (iso: string) => { const d = parts(t(iso)); return DOW[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
+export const dayLabel = (iso: string) => { const d = parts(t(iso)); return lang() === 'en' ? DOW_EN[d.getUTCDay()] + ' ' + monthDay(d) : monthDay(d) + ' ' + dow(d.getUTCDay()); };

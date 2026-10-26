@@ -14,6 +14,7 @@ import './theme/automemory.css';
 import './theme/palettes.css';
 import './theme/motion.css';
 import { moveAlong } from './theme/motion';
+import { msg, ready, t, useLang } from './i18n/index.ts';
 
 type Scheme = 'system' | 'dark' | 'light';
 const system = matchMedia('(prefers-color-scheme: light)');
@@ -23,9 +24,10 @@ const applyTheme = () => { document.documentElement.dataset.theme = scheme === '
 applyTheme();
 system.addEventListener('change', () => { if (scheme === 'system') moveAlong('theme', applyTheme); });
 
-const NAMES: [Scheme, string][] = [['system', 'System'], ['dark', 'Tile Blue'], ['light', 'Xuan Paper']];
+const NAMES: [Scheme, string][] = [['system', msg('System')], ['dark', msg('Tile Blue')], ['light', msg('Xuan Paper')]];
 
 function Preview() {
+  useLang();
   const lent = useLentMap();
   const [chosen, setChosen] = useState<Scheme>(scheme);
   const pick = (s: Scheme) => { scheme = s; setChosen(s); moveAlong('theme', applyTheme); };
@@ -33,14 +35,14 @@ function Preview() {
     <div className="smp">
       <header className="bg-strip smp-head">
         <div className="bg-strip-head">
-          <h1 className="smp-name">Star map</h1>
-          <p className="smp-note">Standalone preview · generated sample of invented memories · nothing is read from a Vault</p>
-          <div className="am-views smp-theme" role="group" aria-label="Palette">
-            {NAMES.map(([id, name]) => <button key={id} type="button" className="am-view" aria-pressed={chosen === id} onClick={() => pick(id)}>{name}</button>)}
+          <h1 className="smp-name">{t("Star map")}</h1>
+          <p className="smp-note">{t("Standalone preview · generated sample of invented memories · nothing is read from a Vault")}</p>
+          <div className="am-views smp-theme" role="group" aria-label={t("Palette")}>
+            {NAMES.map(([id, name]) => <button key={id} type="button" className="am-view" aria-pressed={chosen === id} onClick={() => pick(id)}>{t(name)}</button>)}
           </div>
-          <a className="smp-back" href="/">Full preview</a>
+          <a className="smp-back" href="/">{t("Full preview")}</a>
         </div>
-        {lent ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>Time map</span></div>}
+        {lent ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>{t("Time map")}</span></div>}
       </header>
       <main className="am smp-stage" data-view="starmap">
         <div className="am-main sm-host"><StarMap /></div>
@@ -51,4 +53,5 @@ function Preview() {
 
 const root = document.getElementById('root');
 if (!root) throw new Error('The preview root element is missing.');
+await ready();
 createRoot(root).render(<React.StrictMode><Preview /></React.StrictMode>);

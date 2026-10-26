@@ -1,6 +1,7 @@
 import React from "react";
 import type { DemoView } from "../App";
 
+import { t } from '../i18n/index.ts';
 export default function Context({ view }: { view: DemoView }) {
   const { ctx, ctxScroll } = view;
   return (
@@ -8,10 +9,10 @@ export default function Context({ view }: { view: DemoView }) {
 <div className="qr99">
 <div className="qr90">
 <h1 className="qr18">
-Context Surface
+{t("Context Surface")}
 </h1>
 <span className="qr9">
-Fictional capsule snapshot · read only. No data is sent.
+{t("Fictional capsule snapshot · read only. No data is sent.")}
 </span>
 </div>
 <div className="qr93">
@@ -30,7 +31,7 @@ Compiled{' '}
 <span>
 Query{' '}
 <span className="qr91">
-"vault adapter rebuild trigger"
+{t("\"vault adapter rebuild trigger\"")}
 </span>
 </span>
 </div>
@@ -42,7 +43,7 @@ Query{' '}
 </span>
 </React.Fragment>)}
 </div>
-<div className="bg-scale" aria-hidden="true"><span>0</span><span>1,024</span><span>2,048</span><span>3,072</span><span>4,096 units</span></div>
+<div className="bg-scale" aria-hidden="true"><span>0</span><span>1,024</span><span>2,048</span><span>3,072</span><span>{t("4,096 units")}</span></div>
 <div className="qr98">
 <span>
 <span className="qr96">
@@ -55,10 +56,10 @@ of{' '}
 units
 </span>
 <span className="qr97">
-utf8_bytes_v1 · 2,171 B + 256 reserve
+{t("utf8_bytes_v1 · 2,171 B + 256 reserve")}
 </span>
 <span>
-Records admitted whole, never truncated
+{t("Records admitted whole, never truncated")}
 </span>
 </div>
 </div>
@@ -83,7 +84,7 @@ Records admitted whole, never truncated
 
 </span>
 <span>
-Excluded
+{t("Excluded")}
 </span>
 <span className="qr101">
 4
@@ -181,10 +182,10 @@ Excluded
 </React.Fragment>)}
 <div id="ctx-excluded" className="qr128">
 <h2 className="qr122">
-Excluded
+{t("Excluded")}
 </h2>
 <div className="qr108">
-Considered and left out, each with an explicit reason.
+{t("Considered and left out, each with an explicit reason.")}
 </div>
 <div className="qr120">
 {ctx.excluded.map((ex, exIndex) => <React.Fragment key={ex.ref}>

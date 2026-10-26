@@ -7,6 +7,7 @@ import { call, shell, type J } from "./client";
 import { useLatestRead } from "./hooks";
 import { ErrorBox, Tag } from "./ui";
 
+import { t } from '../i18n/index.ts';
 export default function QuickSearch({ readPage = call }: { readPage?: typeof call }) {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<J[]>([]);
@@ -46,13 +47,13 @@ export default function QuickSearch({ readPage = call }: { readPage?: typeof cal
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7F8D9A" strokeWidth="1.2" aria-hidden="true">
           <circle cx="6" cy="6" r="4.2" /><path d="M9.2 9.2L12.5 12.5" />
         </svg>
-        <label htmlFor="mem-q" className="mem-sr">Search memories</label>
+        <label htmlFor="mem-q" className="mem-sr">{t("Search memories")}</label>
         <input id="mem-q" ref={input} className="qr21" value={query} autoComplete="off" spellCheck={false}
           onChange={(e) => { if (!e.target.value.trim()) clear(); else setQuery(e.target.value); }}
-          placeholder="Search approved memories · Enter · Esc closes" />
+          placeholder={t("Search approved memories · Enter · Esc closes")} />
       </form>
       <ErrorBox error={reads.error} />
-      {reads.busy && <p role="status" className="mem-muted">Searching…</p>}
+      {reads.busy && <p role="status" className="mem-muted">{t("Searching…")}</p>}
       <ul className="mem-quick-results" aria-live="polite">
         {items.map((h) => (
           <li key={h.memoryId}>
@@ -61,7 +62,7 @@ export default function QuickSearch({ readPage = call }: { readPage?: typeof cal
         ))}
       </ul>
       <div className="mem-actions">
-        <button type="button" className="mem-link" onClick={() => void shell.showMain()}>Open Enouia Runtime</button>
+        <button type="button" className="mem-link" onClick={() => void shell.showMain()}>{t("Open Enouia Runtime")}</button>
       </div>
     </main>
   );

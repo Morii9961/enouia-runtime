@@ -6,6 +6,7 @@ import type { ViewProps } from './types';
 import { lendMap, type MapSpec } from '../../theme/TimeMap';
 import { clearViews, panTo, peekView, useTimeView } from '../../theme/timeview';
 
+import { msg, t } from '../../i18n/index.ts';
 // Timeline, the signature view. The whole sample (1 Jul to 31 Oct) is the time
 // map in the strip above the page; the chart shows six weeks of it, and the
 // frame in the map moves them. Each theme is a pen lane (model
@@ -22,13 +23,13 @@ const pct = (x: number) => (x * 100).toFixed(3) + '%';
 
 const SPEC: MapSpec = {
   key: 'timeline',
-  label: 'Time map of the sample, 1 July to 31 October 2026, one cell per day. The frame is the six weeks the Timeline shows.',
+  label: msg('Time map of the sample, 1 July to 31 October 2026, one cell per day. The frame is the six weeks the Timeline shows.'),
   cells: Math.round((D1 - D0) / DAY),
   ticks: [],
   bars: (() => { const n = Math.round((D1 - D0) / DAY); const c = Array.from({ length: n }, () => 0); AUTO_MEMORIES.forEach((m) => { const sp = spanOf(m.occurred); if (!sp) return; const a = Math.max(0, Math.floor(sp.a * n)), b = Math.min(n, Math.max(a + 1, Math.ceil(sp.b * n))); for (let i = a; i < b; i++) c[i]++; }); const mx = Math.max(...c, 1); return c.map((x) => x / mx); })(),
-  labels: MONTHS.map((mo) => ({ at: mo.a, text: mo.name })),
+  get labels() { return MONTHS.map((mo) => ({ at: mo.a, text: mo.name })); },
   step: 7 * DAY,
-  unit: 'week',
+  unit: msg('week'),
   readout: (start, span) => fmtDayShort(start) + ' – ' + fmtDayShort(start + span - 1) + ' 2026',
   init: () => ({ start: TL_START, span: TL_SPAN, domain: [D0, D1] as const }),
 };
@@ -45,7 +46,7 @@ const GRID: React.CSSProperties = (() => {
 })();
 
 interface Placed { m: AutoMemory; span: Span; side: 'r' | 'l' }
-const LANES = [...THEMES.map((t) => ({ id: t.id, name: t.name })), { id: '', name: 'No theme suggested' }];
+const LANES = [...THEMES.map((t) => ({ id: t.id, name: t.name })), { id: '', get name() { return t('No theme suggested'); } }];
 const laneItems = (id: string): Placed[] => AUTO_MEMORIES
   .filter((m) => (id ? m.themes.includes(id) : m.themes.length === 0))
   .flatMap((m) => { const span = spanOf(m.occurred); return span ? [{ m, span, side: 'r' as const }] : []; });
@@ -112,16 +113,16 @@ export default function Timeline({ sel, select }: ViewProps) {
   return (
     <div className="am-timeline">
       <div className="am-view-head am-tl-head">
-        <h2 className="am-vh">Timeline <span>when it happened · {fmtDayShort(v.start)} – {fmtDayShort(v.start + v.span - 1)} of 1 Jul – 31 Oct</span></h2>
-        <p className="am-fine am-tl-fine">{THEME_NOTE} Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see other weeks.</p>
+        <h2 className="am-vh">{t("Timeline")} <span>when it happened · {fmtDayShort(v.start)} – {fmtDayShort(v.start + v.span - 1)} of 1 Jul – 31 Oct</span></h2>
+        <p className="am-fine am-tl-fine">{t(THEME_NOTE)} {t('Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see other weeks.')}</p>
       </div>
 
-      <div className="am-tl" role="group" aria-label="Timeline, 1 July to 31 October 2026">
+      <div className="am-tl" role="group" aria-label={t("Timeline, 1 July to 31 October 2026")}>
         <div className="am-tl-gut" aria-hidden="false">
-          <div className="am-tl-corner"><b>Theme pens</b><span>model suggestion</span></div>
-          {LAYOUT.map((l) => { const o = off(l.id); return <div key={l.id || 'none'} className="am-lane-label" style={{ height: l.height }}><span>{l.name}</span>{l.packed.length === 0 ? <em>no dated memory</em> : o.before || o.after ? <em>{o.before ? `◂ ${o.before} earlier` : ''}{o.before && o.after ? ' · ' : ''}{o.after ? `${o.after} later ▸` : ''}</em> : null}</div>; })}
-          <div className="am-lane-label am-lane-recv" style={{ height: recvH }}><span>Received</span><em>pen 2 · when material arrived</em></div>
-          <div className="am-lane-label am-lane-form" style={{ height: FORMATION_H }}><span>Formation</span><em>selected memory</em></div>
+          <div className="am-tl-corner"><b>{t("Theme pens")}</b><span>{t("model suggestion")}</span></div>
+          {LAYOUT.map((l) => { const o = off(l.id); return <div key={l.id || 'none'} className="am-lane-label" style={{ height: l.height }}><span>{l.name}</span>{l.packed.length === 0 ? <em>{t("no dated memory")}</em> : o.before || o.after ? <em>{o.before ? `◂ ${o.before} earlier` : ''}{o.before && o.after ? ' · ' : ''}{o.after ? `${o.after} later ▸` : ''}</em> : null}</div>; })}
+          <div className="am-lane-label am-lane-recv" style={{ height: recvH }}><span>{t("Received")}</span><em>{t("pen 2 · when material arrived")}</em></div>
+          <div className="am-lane-label am-lane-form" style={{ height: FORMATION_H }}><span>{t("Formation")}</span><em>{t("selected memory")}</em></div>
         </div>
         <div className="am-tl-col" ref={col}>
           <div className="am-pan" data-by={v.by} style={{ width: (K * 100).toFixed(3) + '%', transform: `translateX(${(-startF * 100).toFixed(4)}%)` }}>
@@ -139,7 +140,7 @@ export default function Timeline({ sel, select }: ViewProps) {
                   return (
                     <button key={item.m.id} type="button" className="am-mk" aria-pressed={item.m.id === sel} data-shape={item.span.shape} data-soft-a={item.span.softA || undefined} data-soft-b={item.span.softB || undefined} data-open={item.span.open || undefined} data-side={item.side}
                       style={markerStyle(item.span, row)} onClick={() => select(item.m.id)}
-                      aria-label={`${item.m.title}. ${STATE_LABEL[item.m.state]}. Occurred ${o.text}, ${o.tag}. Theme ${l.name}, model suggestion.`}>
+                      aria-label={t('{title}. {state}. Occurred {when}, {precision}. Theme {theme}, model suggestion.', { title: item.m.title, state: STATE_LABEL[item.m.state], when: o.text, precision: o.tag, theme: l.name })}>
                       <i className="am-fill am-mk-bar" data-s={item.m.state} />
                       <span className="am-mk-label">{item.m.title}</span>
                     </button>
@@ -147,7 +148,7 @@ export default function Timeline({ sel, select }: ViewProps) {
                 })}
               </div>
             ))}
-            <div className="am-lane am-recv" style={{ ...GRID, height: recvH }} role="group" aria-label="Received pen: when the material arrived, not when it happened">
+            <div className="am-lane am-recv" style={{ ...GRID, height: recvH }} role="group" aria-label={t("Received pen: when the material arrived, not when it happened")}>
               <span className="am-pen-line" />
               {recv.map(({ item, row }) => (
                 <button key={item.x.id} type="button" className="am-rt" aria-pressed={item.x.id === sel} style={{ left: `calc(${pct(item.at)} - 5px)`, bottom: 12 + row * 11 }} onClick={() => select(item.x.id)}
@@ -169,9 +170,9 @@ export default function Timeline({ sel, select }: ViewProps) {
         </div>
       </div>
 
-      <section className="am-unknown" aria-label="Time not recorded">
-        <h3>Time not recorded <span className="am-tag">no occurred time</span></h3>
-        <p className="am-fine">The occurred time of these is unknown, so they are not placed on the axis. Their received time is still on the lower pen.</p>
+      <section className="am-unknown" aria-label={t("Time not recorded")}>
+        <h3>{t("Time not recorded")} <span className="am-tag">{t("no occurred time")}</span></h3>
+        <p className="am-fine">{t("The occurred time of these is unknown, so they are not placed on the axis. Their received time is still on the lower pen.")}</p>
         <ul>
           {unknown.map((u) => (
             <li key={u.id}><button type="button" className="am-ref" aria-pressed={u.id === sel} onClick={() => select(u.id)}><Glyph s={u.state} /><span className="am-ref-t">{u.title}</span><span className="am-mono am-ref-id">{u.id}</span></button></li>
@@ -180,28 +181,28 @@ export default function Timeline({ sel, select }: ViewProps) {
       </section>
 
       <section className="am-pen-notes" aria-label={`How ${m.title} formed`}>
-        <h3>Pen notes <span className="am-tag">how “{m.title}” formed</span></h3>
+        <h3>{t("Pen notes")} <span className="am-tag">how “{m.title}” formed</span></h3>
         <ol>
-          {trail.map((t) => (
-            <li key={t.n} data-yours={t.step === 'corrected' || undefined}>
-              <span className="am-note-n am-note-n-static">{t.n}</span>
-              <span className="am-mono am-pn-time">{fmtStamp(t.at)}</span>
-              <span className="am-pn-step">{t.step === 'extracted' ? 'Extracted' : STATE_LABEL[t.step]}{t.step === 'corrected' ? <i> · recorded as yours</i> : null}</span>
-              <span className="am-pn-note">{t.note}</span>
+          {trail.map((p) => (
+            <li key={p.n} data-yours={p.step === 'corrected' || undefined}>
+              <span className="am-note-n am-note-n-static">{p.n}</span>
+              <span className="am-mono am-pn-time">{fmtStamp(p.at)}</span>
+              <span className="am-pn-step">{p.step === 'extracted' ? t('Extracted') : STATE_LABEL[p.step]}{p.step === 'corrected' ? <i> {t("· recorded as yours")}</i> : null}</span>
+              <span className="am-pn-note">{p.note}</span>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="am-tl-key" aria-label="How to read the timeline">
-        <h3>Key</h3>
+      <section className="am-tl-key" aria-label={t("How to read the timeline")}>
+        <h3>{t("Key")}</h3>
         <ul className="am-prec">
-          <li><span className="am-mk-demo" data-shape="dot"><i className="am-fill am-mk-bar" data-s="adopted" /></span>instant</li>
-          <li><span className="am-mk-demo" data-shape="cell"><i className="am-fill am-mk-bar" data-s="adopted" /></span>day, time not recorded</li>
-          <li><span className="am-mk-demo am-wide" data-shape="month" data-soft-a data-soft-b><i className="am-fill am-mk-bar" data-s="adopted" /></span>whole month, day not recorded</li>
-          <li><span className="am-mk-demo am-wide" data-shape="range"><i className="am-fill am-mk-bar" data-s="adopted" /></span>range</li>
-          <li><span className="am-mk-demo am-wide" data-shape="range" data-open><i className="am-fill am-mk-bar" data-s="adopted" /></span>end open</li>
-          <li><span className="am-rt am-rt-demo" aria-hidden="true" />received</li>
+          <li><span className="am-mk-demo" data-shape="dot"><i className="am-fill am-mk-bar" data-s="adopted" /></span>{t("instant")}</li>
+          <li><span className="am-mk-demo" data-shape="cell"><i className="am-fill am-mk-bar" data-s="adopted" /></span>{t("day, time not recorded")}</li>
+          <li><span className="am-mk-demo am-wide" data-shape="month" data-soft-a data-soft-b><i className="am-fill am-mk-bar" data-s="adopted" /></span>{t("whole month, day not recorded")}</li>
+          <li><span className="am-mk-demo am-wide" data-shape="range"><i className="am-fill am-mk-bar" data-s="adopted" /></span>{t("range")}</li>
+          <li><span className="am-mk-demo am-wide" data-shape="range" data-open><i className="am-fill am-mk-bar" data-s="adopted" /></span>{t("end open")}</li>
+          <li><span className="am-rt am-rt-demo" aria-hidden="true" />{t("received")}</li>
         </ul>
         <StateKey />
       </section>

@@ -4,6 +4,7 @@ import { demoData as D } from "../demo-data";
 import { sessionSpec, sessionStretch } from "../theme/mapSpecs";
 import { clearViews, setWindow, useTimeView } from "../theme/timeview";
 
+import { t } from '../i18n/index.ts';
 // Turns sit on a time ruler: the space between two events is proportional to
 // the real interval (2 px per minute, capped at 48 px). A checkpoint is a
 // light bracket along the ruler over the turns it covers.
@@ -76,10 +77,10 @@ export default function Sessions({ view }: { view: DemoView }) {
 <aside className="qr136">
 <div className="qr20">
 <h1 className="qr18">
-Sessions
+{t("Sessions")}
 </h1>
 <div className="qr19">
-Append-only. Nothing is rewritten.
+{t("Append-only. Nothing is rewritten.")}
 </div>
 </div>
 <div className="qr135">
@@ -157,7 +158,7 @@ turn {ev.n} · {ev.turnShort}
 <div className="qr157">
 <div className="qr153">
 <span className="qr150">
-Checkpoint created
+{t("Checkpoint created")}
 </span>
 <span className="qr151">
 covers turns {ev.covered}
@@ -190,7 +191,7 @@ covers turns {ev.covered}
 <aside className="qr170">
 <div className="qr15">
 <div className="qr55">
-Session
+{t("Session")}
 </div>
 {ses.meta.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr162">
@@ -205,11 +206,11 @@ Session
 </div>
 <div className="qr164">
 <div className="qr55">
-Checkpoints
+{t("Checkpoints")}
 </div>
 {ses.noCheckpoints ? <>
 <div className="qr108">
-None yet.
+{t("None yet.")}
 </div>
 </> : null}
 {ses.checkpoints.map((c, cIndex) => <React.Fragment key={c.ref}>
@@ -225,11 +226,11 @@ Turns {c.covered}
 </div>
 <div className="qr164">
 <div className="qr55">
-Memory writes
+{t("Memory writes")}
 </div>
 {ses.noWrites ? <>
 <div className="qr108">
-None from this session.
+{t("None from this session.")}
 </div>
 </> : null}
 {ses.writes.map((w, wIndex) => <React.Fragment key={w.key}>
@@ -238,17 +239,17 @@ None from this session.
 {w.text}
 </span>
 <span className="qr166">
-{w.label} · turn {w.turn}
+{w.label} · {t('turn {n}', { n: w.turn ?? '' })}
 </span>
 </button>
 </React.Fragment>)}
 </div>
 <div className="qr169">
 <div className="qr55">
-Context snapshot
+{t("Context snapshot")}
 </div>
 <div className="qr85">
-Session v1 does not persist capsules. The last compiled capsule is on the Context Surface.
+{t("Session v1 does not persist capsules. The last compiled capsule is on the Context Surface.")}
 </div>
 {ses.hasCapsule ? <>
 <button onClick={nav.context.go} className="qr168" type="button">

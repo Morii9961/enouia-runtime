@@ -1,0 +1,24 @@
+/* Chinese and Japanese type, by interface language (DESIGN.md §3).
+   Latin keeps Geist and Martian Mono; Han characters, kana and CJK punctuation fall
+   through to the face for the page's language. <html lang> is zh-Hans or ja (i18n/index.ts),
+   so Chinese text gets Simplified Chinese glyph forms and Japanese text gets Japanese
+   ones — the same code point can differ between the two (Han unification).
+   Provisional: Windows system faces until the comparison in .design/review/fonts/ is chosen. */
+:root {
+  --cjk-sc: 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  --cjk-jp: 'Yu Gothic UI', 'Meiryo UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
+:root:lang(zh-Hans) {
+  --f-text: 'Geist', var(--cjk-sc);
+  --f-lab: 'Martian Mono', var(--cjk-sc);
+  --f-mono: 'Martian Mono', var(--cjk-sc);
+}
+:root:lang(ja) {
+  --f-text: 'Geist', var(--cjk-jp);
+  --f-lab: 'Martian Mono', var(--cjk-jp);
+  --f-mono: 'Martian Mono', var(--cjk-jp);
+}
+:root:lang(zh-Hans) body, :root:lang(ja) body { line-height: 1.6; }
+/* Content written in another language keeps its own glyph forms, whatever the interface language. */
+[lang|="zh"] { --f-text: 'Geist', var(--cjk-sc); }
+[lang|="ja"] { --f-text: 'Geist', var(--cjk-jp); }

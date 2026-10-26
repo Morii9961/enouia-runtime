@@ -6,6 +6,7 @@ import { useLatestRead } from "./hooks";
 import { operationListObservation } from "./observationIdentity";
 import { ErrorBox, Operation, OperationFeedback, shortId } from "./ui";
 
+import { t } from '../i18n/index.ts';
 export function WorkspaceProviderCalls({ excludeOperationId = null, request = call }: {
   excludeOperationId?: string | null; request?: typeof call;
 }) {
@@ -25,16 +26,16 @@ export function WorkspaceProviderCalls({ excludeOperationId = null, request = ca
     return () => { stopped = true; clearTimeout(timer); };
   }, [refresh]);
   const visible = items?.filter(op => op.operationId !== excludeOperationId);
-  return <section className="mem-stack" aria-label="Workspace model calls">
-    <h2 className="mem-h3">Workspace model calls</h2>
-    <p className="mem-muted">Calls from this open workspace, including other sessions and source suggestions. This list does not identify them as calls in the selected session.</p>
-    <button type="button" className="mem-button" disabled={read.busy} onClick={() => void refresh()}>Refresh workspace calls</button>
+  return <section className="mem-stack" aria-label={t("Workspace model calls")}>
+    <h2 className="mem-h3">{t("Workspace model calls")}</h2>
+    <p className="mem-muted">{t("Calls from this open workspace, including other sessions and source suggestions. This list does not identify them as calls in the selected session.")}</p>
+    <button type="button" className="mem-button" disabled={read.busy} onClick={() => void refresh()}>{t("Refresh workspace calls")}</button>
     <ErrorBox error={read.error} />
-    {read.busy && <p className="mem-muted" role="status">Reading workspace calls…</p>}
-    {read.error && items && <p className="mem-muted" role="status">The call list is from an earlier observation. Running calls continue to read their own status.</p>}
-    {items == null && !read.busy && !read.error && <p className="mem-muted" role="status">Workspace calls have not been read yet.</p>}
-    {items != null && !read.busy && !read.error && items.length === 0 && <p className="mem-muted">No model calls in the current operation list.</p>}
-    {excludeOperationId && items?.some(op => op.operationId === excludeOperationId) && <p className="mem-muted">The selected session's watched call is shown in its inspector.</p>}
+    {read.busy && <p className="mem-muted" role="status">{t("Reading workspace calls…")}</p>}
+    {read.error && items && <p className="mem-muted" role="status">{t("The call list is from an earlier observation. Running calls continue to read their own status.")}</p>}
+    {items == null && !read.busy && !read.error && <p className="mem-muted" role="status">{t("Workspace calls have not been read yet.")}</p>}
+    {items != null && !read.busy && !read.error && items.length === 0 && <p className="mem-muted">{t("No model calls in the current operation list.")}</p>}
+    {excludeOperationId && items?.some(op => op.operationId === excludeOperationId) && <p className="mem-muted">{t("The selected session's watched call is shown in its inspector.")}</p>}
     {visible?.map(op => <div key={op.operationId} className="mem-stack">
       <span className="mem-mono">Operation {shortId(op.operationId)}</span>
       {["queued", "running"].includes(op.state)

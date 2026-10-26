@@ -17,16 +17,17 @@ import { ImportReport } from "./ImportReport";
 import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
 import { AutomaticMemory } from "./AutomaticMemory";
 
+import { labels, msg, t, tn } from '../i18n/index.ts';
 type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated";
 
-const TITLES: Record<Collection, string> = {
-  automated: "Synthetic automatic memories",
-  inbox: "Candidate inbox",
-  current: "Current memories",
-  history: "Including history",
-  import: "Import",
-  vault: "Vault & recovery",
-};
+const TITLES: Record<Collection, string> = labels({
+  automated: msg("Synthetic automatic memories"),
+  inbox: msg("Candidate inbox"),
+  current: msg("Current memories"),
+  history: msg("Including history"),
+  import: msg("Import"),
+  vault: msg("Vault & recovery"),
+});
 
 function dayOf(iso: string): string {
   const d = new Date(iso);
@@ -44,18 +45,18 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   const open = status?.vault?.state === "open";
   const pending: number | null = status?.pendingCandidates ?? null;
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = [
-    { label: "Review", items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
-    { label: "Canonical", items: [["current", TITLES.current], ["history", TITLES.history]] },
-    { label: "Automatic", items: [["automated", TITLES.automated]] },
-    { label: "Vault", items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
+    { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
+    { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },
+    { label: t("Automatic"), items: [["automated", TITLES.automated]] },
+    { label: t("Vault"), items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
   return (
     <section data-screen-label="Memory Vault" className="qr89">
       <aside className="qr28">
         <div className="qr20">
-          <h1 className="qr18">Memory Vault</h1>
-          <div className="qr19">What I keep, and why.</div>
+          <h1 className="qr18">{t("Memory Vault")}</h1>
+          <div className="qr19">{t("What I keep, and why.")}</div>
         </div>
         <form role="search" className="qr22" onSubmit={(e) => {
           e.preventDefault();
@@ -65,7 +66,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7F8D9A" strokeWidth="1.2" aria-hidden="true">
             <circle cx="6" cy="6" r="4.2" /><path d="M9.2 9.2L12.5 12.5" />
           </svg>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Literal search · Enter" aria-label="Search memories" className="qr21" autoComplete="off" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("Literal search · Enter")} aria-label={t("Search memories")} className="qr21" autoComplete="off" />
         </form>
         {groups.map((g) => (
           <div className="qr27" key={g.label}>
@@ -93,7 +94,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
       ) : !open ? (
         <>
           <div className="qr45"><div className="mem-gate">{status ? <VaultConnect /> : <StatusPending />}</div></div>
-          <aside aria-label="Memory Inspector" className="qr88"><div className="qr46">Open a Vault to see its memories.</div></aside>
+          <aside aria-label={t("Memory Inspector")} className="qr88"><div className="qr46">{t("Open a Vault to see its memories.")}</div></aside>
         </>
       ) : explorer ? (
         <Explorer key={`${collection}:${submitted.seq}`} history={collection === "history"} submitted={submitted}
@@ -121,7 +122,7 @@ function Center({ title, count, children, busy }: { title: string; count?: strin
 }
 
 function Inspector({ children }: { children: ReactNode }) {
-  return <aside aria-label="Memory Inspector" className="qr88"><div className="qr79">{children}</div></aside>;
+  return <aside aria-label={t("Memory Inspector")} className="qr88"><div className="qr79">{children}</div></aside>;
 }
 
 export function Explorer({ history, submitted, onRefresh, readPage = call }: {
@@ -179,25 +180,25 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
   // are ranked by relevance and stay one flat group in rank order.
   const days: { label: string; items: J[] }[] = [];
   if (query) {
-    if (rows.length) days.push({ label: "Ranked by relevance", items: rows });
+    if (rows.length) days.push({ label: t("Ranked by relevance"), items: rows });
   } else {
     for (const row of rows) {
-      const label = row.updatedAt ? dayOf(row.updatedAt) : "Undated";
+      const label = row.updatedAt ? dayOf(row.updatedAt) : t("Undated");
       const last = days[days.length - 1];
       if (last && last.label === label) last.items.push(row); else days.push({ label, items: [row] });
     }
   }
-  const title = query ? `“${query}”${history ? " · with history" : ""}` : history ? TITLES.history : TITLES.current;
+  const title = query ? `“${query}”${history ? " · " + t("with history") : ""}` : history ? TITLES.history : TITLES.current;
   const count = loaded
-    ? `${rows.length}${total != null ? ` of ${total}` : ""} ${rows.length === 1 ? "record" : "records"}`
-    : read.error ? "Results unavailable" : "Waiting for memories";
+    ? (total != null ? tn(rows.length, "{n} of {total} record", "{n} of {total} records", { total }) : tn(rows.length, "{n} record", "{n} records"))
+    : read.error ? t("Results unavailable") : t("Waiting for memories");
   return (
     <>
       <Center title={title} count={count} busy={read.busy}>
-        <div className="mem-pad mem-actions"><button ref={refreshControl} type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>Refresh results</button></div>
+        <div className="mem-pad mem-actions"><button ref={refreshControl} type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>{t("Refresh results")}</button></div>
         {notice && <p role="status" className="mem-note mem-pad">{notice}</p>}
         <ErrorBox error={read.error} />
-        {read.busy && <p role="status" className="mem-muted mem-pad">Reading memories…</p>}
+        {read.busy && <p role="status" className="mem-muted mem-pad">{t("Reading memories…")}</p>}
         {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? "Nothing matches this search." : "No approved memories here yet."}</div>}
         <div onKeyDown={move}>
           {days.map((d, i) => (
@@ -212,9 +213,9 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
                       <span>{m.type}</span>
                       {m.status && m.status !== "active" && <Tag>{m.status}</Tag>}
                       {m.currency && m.currency !== "current" && <Tag>{m.currency}</Tag>}
-                      {m.expired && <Tag tone="warn">expired</Tag>}
-                      {m.conflicted && <Tag tone="warn">conflict</Tag>}
-                      {m.sourceMissing && <Tag tone="warn">source missing</Tag>}
+                      {m.expired && <Tag tone="warn">{t("expired")}</Tag>}
+                      {m.conflicted && <Tag tone="warn">{t("conflict")}</Tag>}
+                      {m.sourceMissing && <Tag tone="warn">{t("source missing")}</Tag>}
                     </span>
                     <span className="qr39">{m.snippet}</span>
                     <span className="qr41"><span className="qr25">{shortId(m.memoryId)}</span>{m.revision != null && <span>r{m.revision}</span>}</span>
@@ -227,15 +228,15 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
         {next && <div className="mem-pad"><button type="button" className="mem-button" disabled={read.busy} onClick={(e) => {
           focusAfterRead.current = { trigger: e.currentTarget, fallback: resultsTitle };
           load(next);
-        }}>Load more</button></div>}
+        }}>{t("Load more")}</button></div>}
       </Center>
       {selected
         ? <MemoryDetail key={selected} id={selected} onChanged={(purge) => {
-          setNotice(`${purge ? "Permanent purge" : "Forget"} confirmed by Memory.`);
+          setNotice(purge ? t("Permanent purge confirmed by Memory.") : t("Forget confirmed by Memory."));
           focusAfterRead.current = { trigger: null, fallback: resultsTitle };
           setSelected(null); load(null);
         }} />
-        : <aside aria-label="Memory Inspector" className="qr88"><div className="qr46">Select a memory to see where it came from.</div></aside>}
+        : <aside aria-label={t("Memory Inspector")} className="qr88"><div className="qr46">{t("Select a memory to see where it came from.")}</div></aside>}
     </>
   );
 }
@@ -265,14 +266,14 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
     void action.run(async (key) => setPlan(await readPage("forget_plan", { memoryId: id, mode, withDependents: false }, key)));
   };
   const copy = async () => {
-    try { await navigator.clipboard.writeText(id); setNote("ID copied."); }
-    catch { setNote("Could not copy. Select the ID and copy it manually."); }
+    try { await navigator.clipboard.writeText(id); setNote(t("ID copied.")); }
+    catch { setNote(t("Could not copy. Select the ID and copy it manually.")); }
   };
   const observation = <div className="mem-stack">
-    <button ref={readAgain} type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) { returnFocus(() => readAgain.current); load(); } }}>Read memory again</button>
+    <button ref={readAgain} type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) { returnFocus(() => readAgain.current); load(); } }}>{t("Read memory again")}</button>
     <ErrorBox error={reads.error} />
-    {reads.busy && <p role="status" className="mem-muted">Reading the memory…</p>}
-    {reads.error && <p className="mem-muted">This saved memory could not be read. Read it again before starting another correction or deletion. Unsent correction text is kept.</p>}
+    {reads.busy && <p role="status" className="mem-muted">{t("Reading the memory…")}</p>}
+    {reads.error && <p className="mem-muted">{t("This saved memory could not be read. Read it again before starting another correction or deletion. Unsent correction text is kept.")}</p>}
   </div>;
   if (!detail) return <Inspector>{observation}</Inspector>;
   const r = detail.record;
@@ -284,47 +285,47 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
         <div className="mem-row-meta">
           <Tag tone={s.status === "active" ? "ok" : "muted"}>{s.status}</Tag>
           <Tag>{s.type}</Tag>
-          {s.expired && <Tag tone="warn">expired</Tag>}
-          {s.conflicted && <Tag tone="warn">conflict</Tag>}
-          {s.sourceMissing && <Tag tone="warn">source missing</Tag>}
+          {s.expired && <Tag tone="warn">{t("expired")}</Tag>}
+          {s.conflicted && <Tag tone="warn">{t("conflict")}</Tag>}
+          {s.sourceMissing && <Tag tone="warn">{t("source missing")}</Tag>}
         </div>
         {r.title && <h3 className="mem-h3">{r.title}</h3>}
         <p className="mem-content">{r.content}</p>
         <dl className="mem-facts">
-          <dt>Memory</dt><dd><code title={r.memory_id}>{shortId(r.memory_id)}</code> <button type="button" className="mem-link" onClick={() => void copy()}>Copy ID</button></dd>
-          <dt>Revision</dt><dd>r{r.revision}</dd>
-          <dt>Approved</dt><dd>{when(r.approved_at)}</dd>
-          {r.supersedes.length > 0 && <><dt>Supersedes</dt><dd>{r.supersedes.map((x: J) => `${shortId(x.memory_id)} r${x.revision}`).join(", ")}</dd></>}
-          {detail.supersededBy.length > 0 && <><dt>Superseded by</dt><dd>{detail.supersededBy.map(shortId).join(", ")}</dd></>}
+          <dt>{t("Memory")}</dt><dd><code title={r.memory_id}>{shortId(r.memory_id)}</code> <button type="button" className="mem-link" onClick={() => void copy()}>{t("Copy ID")}</button></dd>
+          <dt>{t("Revision")}</dt><dd>r{r.revision}</dd>
+          <dt>{t("Approved")}</dt><dd>{when(r.approved_at)}</dd>
+          {r.supersedes.length > 0 && <><dt>{t("Supersedes")}</dt><dd>{r.supersedes.map((x: J) => `${shortId(x.memory_id)} r${x.revision}`).join(", ")}</dd></>}
+          {detail.supersededBy.length > 0 && <><dt>{t("Superseded by")}</dt><dd>{detail.supersededBy.map(shortId).join(", ")}</dd></>}
         </dl>
       </div>
       <div className="mem-stack">
-        <h4 className="mem-h4">Evidence</h4>
+        <h4 className="mem-h4">{t("Evidence")}</h4>
         <ul className="mem-list">{detail.evidence.map((e: J, i: number) => <Source key={i} evidence={e} readPage={readPage} />)}</ul>
       </div>
       <div className="mem-stack">
-        <h4 className="mem-h4">Correct</h4>
-        <label htmlFor="mem-fix" className="mem-sr">Corrected content</label>
+        <h4 className="mem-h4">{t("Correct")}</h4>
+        <label htmlFor="mem-fix" className="mem-sr">{t("Corrected content")}</label>
         <textarea ref={correctionInput} id="mem-fix" className="mem-textarea" value={correction} onChange={(e) => setCorrection(e.target.value)}
-          placeholder="Write the correct content. It becomes a candidate for review; the memory itself is not rewritten." />
+          placeholder={t("Write the correct content. It becomes a candidate for review; the memory itself is not rewritten.")} />
         <div className="mem-actions">
           <button type="button" className="mem-button" disabled={!correction.trim() || action.busy} onClick={() => { returnFocus(() => correctionInput.current); void action.run(async (key) => {
             if (reads.pending.current || reads.error) return;
             await readPage("correction_propose", { memoryId: id, revision: r.revision, text: correction }, key);
             setCorrection((current) => current === correction ? "" : current);
-            setNote("Correction proposed. Review it in the candidate inbox.");
-          }); }}>Propose correction</button>
+            setNote(t("Correction proposed. Review it in the candidate inbox."));
+          }); }}>{t("Propose correction")}</button>
           <button type="button" className="mem-button" disabled={action.busy}
-            onClick={() => { if (!reads.pending.current && !reads.error) { returnFocus(() => readAgain.current); void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); } }}>Delete impact</button>
-          <button type="button" className="mem-button" disabled={action.busy} onClick={() => forget("forget")}>Forget…</button>
-          <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>Purge…</button>
+            onClick={() => { if (!reads.pending.current && !reads.error) { returnFocus(() => readAgain.current); void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); } }}>{t("Delete impact")}</button>
+          <button type="button" className="mem-button" disabled={action.busy} onClick={() => forget("forget")}>{t("Forget…")}</button>
+          <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>{t("Purge…")}</button>
         </div>
         {note && <p role="status" className="mem-note">{note}</p>}
         {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the requested result…</p>}
         <ErrorBox error={action.error} />
         {impact && (
           <p className="mem-card">
-            A purge removes {impact.targets.length} record{impact.targets.length === 1 ? "" : "s"} and {impact.objectCount} object{impact.objectCount === 1 ? "" : "s"}; {impact.losingProvenance.length} other memor{impact.losingProvenance.length === 1 ? "y" : "ies"} would lose a recorded source (cited evidence or read context).
+            {t("A purge removes {records} and {objects}; {others} would lose a recorded source (cited evidence or read context).", { records: tn(impact.targets.length, "{n} record", "{n} records"), objects: tn(impact.objectCount, "{n} object", "{n} objects"), others: tn(impact.losingProvenance.length, "{n} other memory", "{n} other memories") })}
           </p>
         )}
       </div>
@@ -333,7 +334,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           setPlan(null);
           void refresh();
           if (done) onChanged(plan.purge === true);
-          else setNote("Confirmation cancelled. The deletion candidate remains in the candidate inbox.");
+          else setNote(t("Confirmation cancelled. The deletion candidate remains in the candidate inbox."));
         }} />}
     </Inspector>
   );
@@ -401,15 +402,15 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
   };
   return (
     <>
-      <Center title={TITLES.inbox} count={reads.error ? "Candidates unavailable" : total == null ? "Waiting for candidates" : `${total} waiting · ${items.length} shown`}
+      <Center title={TITLES.inbox} count={reads.error ? t("Candidates unavailable") : total == null ? t("Waiting for candidates") : t("{total} waiting · {n} shown", { total, n: items.length })}
         busy={action.busy || reads.busy || (total == null && !reads.error)}>
         <div className="mem-pad mem-actions"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan}
-          onClick={() => observe(null)}>Refresh candidates</button></div>
+          onClick={() => observe(null)}>{t("Refresh candidates")}</button></div>
         <ErrorBox error={actionError} />
         <ErrorBox error={reads.error} />
         {(reads.busy || (total == null && !reads.error)) && <p role="status" className="mem-muted mem-pad">{total == null ? "Reading candidates…" : readingMore ? "Reading more candidates…" : "Refreshing candidates…"}</p>}
-        {reads.error && items.length > 0 && <p role="status" className="mem-muted mem-pad">Previous candidate observation. Refresh candidates before reviewing or saving another candidate. Unsent edits are kept.</p>}
-        {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">Nothing waiting for review.</div>}
+        {reads.error && items.length > 0 && <p role="status" className="mem-muted mem-pad">{t("Previous candidate observation. Refresh candidates before reviewing or saving another candidate. Unsent edits are kept.")}</p>}
+        {total != null && !reads.busy && !reads.error && items.length === 0 && <div className="qr32">{t("Nothing waiting for review.")}</div>}
         {items.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
           return (
@@ -420,36 +421,36 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
               </div>
               {typeof c.reason === "string" && c.reason.length > 0 && <details className="mem-stack mem-reason">
-                <summary>Saved proposal reason</summary>
-                <p className="mem-muted">A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.</p>
+                <summary>{t("Saved proposal reason")}</summary>
+                <p className="mem-muted">{t("A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.")}</p>
                 <p className="mem-content">{c.reason}</p>
               </details>}
               {c.target && <p className="mem-old">Current fact (r{c.target.revision}): {c.target.content}</p>}
-              <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">Candidate content</label>
+              <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">{t("Candidate content")}</label>
               <textarea id={`mem-e-${c.candidateId}`} className="mem-textarea" value={draft}
                 onChange={(e) => setEdits({ ...edits, [c.candidateId]: e.target.value })} />
               <p className="mem-muted">
-                {c.evidence.length} evidence reference{c.evidence.length === 1 ? "" : "s"}
+                {tn(c.evidence.length, "{n} evidence reference", "{n} evidence references")}
                 {c.conflicts.length > 0 && <span className="mem-warn"> · {c.conflicts.length} conflict{c.conflicts.length === 1 ? "" : "s"}</span>}
               </p>
               <ul className="mem-list">{c.evidence.map((e: J, i: number) => <CandidateSource
                 key={`${c.revision}:${e.sourceId}:${e.sourceRevision}:${i}`} evidence={e} readPage={readPage} />)}</ul>
               {c.conflicts.length > 0 && <div className="mem-stack">
-                <h3 className="mem-h3">Reported conflicts</h3>
-                <p className="mem-muted">Read the current saved records before deciding. Reading does not merge, approve or resolve a conflict.</p>
+                <h3 className="mem-h3">{t("Reported conflicts")}</h3>
+                <p className="mem-muted">{t("Read the current saved records before deciding. Reading does not merge, approve or resolve a conflict.")}</p>
                 <ul className="mem-list">{c.conflicts.map((conflict: J, i: number) => <CandidateConflict
                   key={`${c.revision}:${conflict.memory_id}:${conflict.revision}:${i}`} conflict={conflict} readPage={readPage} />)}</ul>
               </div>}
               <div className="mem-actions">
                 <button type="button" className="mem-button mem-primary" disabled={actionsBlocked || draft === ""}
-                  onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? "Accept with edits…" : "Accept…"}</button>
-                <button type="button" className="mem-button" disabled={actionsBlocked} onClick={() => decide(c, "reject")}>Reject…</button>
+                  onClick={() => decide(c, draft !== c.content ? "edit_accept" : "accept")}>{draft !== c.content ? t("Accept with edits…") : t("Accept…")}</button>
+                <button type="button" className="mem-button" disabled={actionsBlocked} onClick={() => decide(c, "reject")}>{t("Reject…")}</button>
               </div>
             </article>
           );
         })}
         {next && <div className="mem-pad"><button type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan || !!reads.error}
-          onClick={() => observe(next)}>Load more candidates</button></div>}
+          onClick={() => observe(next)}>{t("Load more candidates")}</button></div>}
       </Center>
       <Inspector>
         <form className="mem-stack" onSubmit={(e) => {
@@ -463,14 +464,14 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
             await refresh();
           });
         }}>
-          <h3 className="mem-h3">Remember something</h3>
-          <p className="mem-muted">Your words are saved as a source first, then proposed as a candidate here. Nothing becomes a memory until you accept it.</p>
-          <label className="mem-label" htmlFor="mem-remember">Statement</label>
+          <h3 className="mem-h3">{t("Remember something")}</h3>
+          <p className="mem-muted">{t("Your words are saved as a source first, then proposed as a candidate here. Nothing becomes a memory until you accept it.")}</p>
+          <label className="mem-label" htmlFor="mem-remember">{t("Statement")}</label>
           <textarea id="mem-remember" className="mem-textarea" value={text} onChange={(e) => setText(e.target.value)} />
-          <label className="mem-label" htmlFor="mem-claim">Topic key</label>
-          <input id="mem-claim" className="mem-input" value={claim} onChange={(e) => setClaim(e.target.value)} placeholder="for example preference.reading" autoComplete="off" />
+          <label className="mem-label" htmlFor="mem-claim">{t("Topic key")}</label>
+          <input id="mem-claim" className="mem-input" value={claim} onChange={(e) => setClaim(e.target.value)} placeholder={t("for example preference.reading")} autoComplete="off" />
           <div className="mem-actions">
-            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || actionsBlocked}>Save as candidate</button>
+            <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || !claim.trim() || actionsBlocked}>{t("Save as candidate")}</button>
           </div>
         </form>
       </Inspector>
@@ -559,7 +560,7 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
   const original = listReady && report?.duplicateOf ? imports?.find(m => m.importId === report.duplicateOf) : undefined;
   return (
     <>
-      <Center title={TITLES.import} count={list.error ? "Imports unavailable" : imports == null ? "Waiting for imports" : `${imports.length} recorded`}
+      <Center title={TITLES.import} count={list.error ? t("Imports unavailable") : imports == null ? t("Waiting for imports") : t("{n} recorded", { n: imports.length })}
         busy={action.busy || list.busy || (imports == null && !list.error)}>
         <div className="mem-pad mem-stack">
           <p className="mem-muted">Choose an export file. The Core archives the original bytes and parses them; this page sees only the file name and size.</p>
@@ -575,27 +576,27 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
                 setSelection({ picked: p, preview: next });
                 refresh();
               });
-            }}>Choose file…</button>
+            }}>{t("Choose file…")}</button>
             <button type="button" className="mem-button" disabled={action.busy || list.busy} onClick={() => {
               if (!action.busy && !list.pending.current) { returnFocus(); refresh(); }
-            }}>{list.error ? "Read import list again" : "Refresh import list"}</button>
+            }}>{list.error ? t("Read import list again") : t("Refresh import list")}</button>
           </div>
           <ErrorBox error={actionError} />
           {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the import result…</p>}
           <ErrorBox error={list.error} />
-          {(list.busy || (imports == null && !list.error)) && <p role="status" className="mem-muted">Reading imports…</p>}
+          {(list.busy || (imports == null && !list.error)) && <p role="status" className="mem-muted">{t("Reading imports…")}</p>}
           {list.error && <p role="status" className="mem-muted">{imports == null ? "The import list could not be read. Its contents are still unknown." : "Previous import observation."} Read import list again before starting or resuming an import. The file preview and account alias are kept.</p>}
-          {listReady && imports?.length === 0 && <p className="mem-muted">No recorded imports yet.</p>}
+          {listReady && imports?.length === 0 && <p className="mem-muted">{t("No recorded imports yet.")}</p>}
           {selection && (
             <div className="mem-card">
-              <p><strong>{preview.displayName}</strong> · {preview.bytes} bytes · {preview.inputKind} · {preview.recognized ? `recognized, ${preview.units} units` : "unsupported format (still archived as is)"}</p>
+              <p><strong>{preview.displayName}</strong> · {t("{n} bytes", { n: preview.bytes })} · {preview.inputKind} · {preview.recognized ? t("recognized, {n} units", { n: preview.units }) : t("unsupported format (still archived as is)")}</p>
               {preview.duplicateOf && (duplicateUnknown
-                ? <p className="mem-warn">Identical content was reported, but the earlier import has not been observed in the current list. Read the import list before starting.</p>
+                ? <p className="mem-warn">{t("Identical content was reported, but the earlier import has not been observed in the current list. Read the import list before starting.")}</p>
                 : interrupted
                 ? <p className="mem-warn">Identical to import {preview.duplicateOf}, which was interrupted. Resume it from the list below instead of starting it again.</p>
                 : <p className="mem-warn">Identical to import {preview.duplicateOf}; it will be recorded as a duplicate.</p>)}
               {preview.warnings.length > 0 && <p className="mem-muted">Warnings: {preview.warnings.join(", ")}</p>}
-              <label className="mem-label" htmlFor="mem-alias">Account alias</label>
+              <label className="mem-label" htmlFor="mem-alias">{t("Account alias")}</label>
               <div className="mem-actions">
                 <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} maxLength={64}
                   aria-invalid={!aliasValid} aria-describedby="mem-alias-help" autoComplete="off" />
@@ -606,33 +607,33 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
                     operations.start("import", started.operationId);
                     setSelection(null);
                   });
-                }}>Start import</button>
+                }}>{t("Start import")}</button>
               </div>
-              <p id="mem-alias-help" className={aliasValid ? "mem-muted" : "mem-warn"}>Use 1–64 lowercase English letters, digits, _ or -. Start with a letter or digit.</p>
+              <p id="mem-alias-help" className={aliasValid ? "mem-muted" : "mem-warn"}>{t("Use 1–64 lowercase English letters, digits, _ or -. Start with a letter or digit.")}</p>
             </div>
           )}
           {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); refresh(); }} />)}
           <HistoryTasks tasks={historyTasks} openSession={openSession ? sessionId => openSession(status.vault.vaultId, sessionId) : undefined} />
-          <div className="mem-table-scroll" role="region" aria-label="Recorded imports" tabIndex={0}>
+          <div className="mem-table-scroll" role="region" aria-label={t("Recorded imports")} tabIndex={0}>
           <table className="mem-table">
-            <thead><tr><th>Status</th><th>Format</th><th>Sources</th><th>Missing attachments</th><th>Warnings</th><th /></tr></thead>
+            <thead><tr><th>{t("Status")}</th><th>{t("Format")}</th><th>{t("Sources")}</th><th>{t("Missing attachments")}</th><th>{t("Warnings")}</th><th /></tr></thead>
             <tbody>
               {imports?.map((m) => (
                 <tr key={m.importId}>
-                  <td>{m.status}{m.duplicateOf ? " (duplicate)" : ""}</td>
+                  <td>{m.status}{m.duplicateOf ? " " + t("(duplicate)") : ""}</td>
                   <td>{m.inputKind}</td>
                   <td>{m.counts.sources_created}</td>
                   <td>{m.counts.attachments_missing}</td>
                   <td>{m.warnings.join(", ")}</td>
                   <td><button id={`mem-import-report-${m.importId}`} type="button" className="mem-button" disabled={!listReady}
-                    aria-label={`Inspect import ${m.importId}`} aria-pressed={inspected === m.importId} onClick={(event) => {
+                    aria-label={t("Inspect import {id}", { id: m.importId })} aria-pressed={inspected === m.importId} onClick={(event) => {
                       if (!listReady) return;
                       const trigger = event.currentTarget;
                       setInspected(m.importId);
                       requestAnimationFrame(() => {
                         if (trigger.isConnected && (document.activeElement === trigger || document.activeElement === document.body)) document.getElementById("mem-import-report-title")?.focus();
                       });
-                    }}>Inspect</button>{(m.status === "parsing" || m.status === "archived") && (
+                    }}>{t("Inspect")}</button>{(m.status === "parsing" || m.status === "archived") && (
                     <button type="button" className="mem-button" disabled={action.busy || !listReady || !validImportAlias(m.accountScope ?? alias)} onClick={() => {
                       const accountAlias = m.accountScope ?? alias;
                       if (!validImportAlias(accountAlias)) return;
@@ -640,7 +641,7 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
                         operations.start("import", (await call("import_resume", { importId: m.importId, accountAlias }, key)).operationId);
                         setSelection(null);
                       });
-                    }}>Resume</button>
+                    }}>{t("Resume")}</button>
                   )}</td>
                 </tr>
               ))}
@@ -650,7 +651,7 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
         </div>
       </Center>
       <Inspector>
-        <h3 className="mem-h3">What an import does</h3>
+        <h3 className="mem-h3">{t("What an import does")}</h3>
         <p className="mem-muted">The original export is kept byte for byte. Conversations become sources; nothing becomes a memory without your review. An interrupted import can be resumed.</p>
         {inspected && <ImportReport selected={inspected} row={report} current={listReady} vaultId={status?.vault?.vaultId} vaultHead={status?.vault?.headCommitId}
           onCreateHistory={historyTasks.create} historyBusy={!historyTasks.ready}
@@ -686,53 +687,53 @@ function VaultPanel() {
       <Center title={TITLES.vault} count={v.rootName}>
         <div className="mem-pad mem-stack">
           <dl className="mem-facts">
-            <dt>Folder</dt><dd>{v.rootName}</dd>
-            <dt>Vault health</dt><dd>{v.health}</dd>
-            <dt>Latest commit</dt><dd>#{v.headSequence} · {when(v.lastCommitAt)}</dd>
-            <dt>Free space</dt><dd>{v.freeBytes != null ? `${(v.freeBytes / 2 ** 30).toFixed(1)} GiB` : "unknown"}</dd>
-            <dt>Owner-only access</dt><dd>{v.ownerOnlyAcl == null ? "unknown" : v.ownerOnlyAcl ? "yes" : "no (the Memory CLI can protect it)"}</dd>
-            <dt>Last backup</dt><dd>{status.lastBackup ? `${status.lastBackup.state} ${status.lastBackup.result?.commitId ?? ""}` : "none in this run; the Vault does not record backups"}</dd>
-            <dt>Last verified restore</dt><dd>not recorded (restore preview checks the backup only)</dd>
+            <dt>{t("Folder")}</dt><dd>{v.rootName}</dd>
+            <dt>{t("Vault health")}</dt><dd>{v.health}</dd>
+            <dt>{t("Latest commit")}</dt><dd>#{v.headSequence} · {when(v.lastCommitAt)}</dd>
+            <dt>{t("Free space")}</dt><dd>{v.freeBytes != null ? `${(v.freeBytes / 2 ** 30).toFixed(1)} GiB` : "unknown"}</dd>
+            <dt>{t("Owner-only access")}</dt><dd>{v.ownerOnlyAcl == null ? t("unknown") : v.ownerOnlyAcl ? t("yes") : t("no (the Memory CLI can protect it)")}</dd>
+            <dt>{t("Last backup")}</dt><dd>{status.lastBackup ? `${status.lastBackup.state} ${status.lastBackup.result?.commitId ?? ""}` : t("none in this run; the Vault does not record backups")}</dd>
+            <dt>{t("Last verified restore")}</dt><dd>not recorded (restore preview checks the backup only)</dd>
           </dl>
           <div className="mem-actions">
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => operations.start("index_rebuild", (await call("index_rebuild")).operationId))}>Rebuild index</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => operations.start("vault_verify", (await call("vault_verify")).operationId))}>Verify Vault</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => operations.start("index_rebuild", (await call("index_rebuild")).operationId))}>{t("Rebuild index")}</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => operations.start("vault_verify", (await call("vault_verify")).operationId))}>{t("Verify Vault")}</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => {
               const p = await pick("backup_destination");
               if (p) operations.start("backup_export", (await call("backup_export", { destinationToken: p.token })).operationId);
-            })}>Back up to an empty folder…</button>
+            })}>{t("Back up to an empty folder…")}</button>
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => {
               const p = await pick("export_folder");
               if (p) {
                 setRestore(null);
                 setRestore(await call("restore_preview", { exportToken: p.token }));
               }
-            })}>Preview a restore…</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={() => after(() => call("vault_lock"))}>Lock Vault</button>
+            })}>{t("Preview a restore…")}</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={() => after(() => call("vault_lock"))}>{t("Lock Vault")}</button>
           </div>
           {status.operationsRunning > 0 && (
             <p className="mem-muted" role="status">
-              {status.operationsRunning} operation{status.operationsRunning === 1 ? " is" : "s are"} running. Locking stops model calls locally, cancels import and index work at the next safe point, and waits for verify and backup to finish; progress stays visible meanwhile. The service may have received a model request. After unlocking, read saved session outcomes before sending again.
+              {tn(status.operationsRunning, "{n} operation is running.", "{n} operations are running.")} {t("Locking stops model calls locally, cancels import and index work at the next safe point, and waits for verify and backup to finish; progress stays visible meanwhile. The service may have received a model request. After unlocking, read saved session outcomes before sending again.")}
             </p>
           )}
           <ErrorBox error={action.error} />
           {operations.ops.map((op) => <Operation key={op.id} id={op.id} onDone={() => { operations.finish(op.id); void refresh(); }} />)}
           {restore && (
             <div className="mem-card"><p style={{ margin: 0 }}>
-              Backup is valid: commit #{restore.sequence} ({shortId(restore.commitId)}), {restore.files} files, {restore.sameVaultAsOpen ? "same Vault as the open one" : "from another Vault"}. An actual restore runs in the Memory CLI into an empty folder (<code>restore</code>).
+              {t("Backup is valid: commit #{seq} ({id}), {n} files, {which}. An actual restore runs in the Memory CLI into an empty folder", { seq: restore.sequence, id: shortId(restore.commitId), n: restore.files, which: restore.sameVaultAsOpen ? t("same Vault as the open one") : t("from another Vault") })} (<code>restore</code>).
             </p></div>
           )}
         </div>
       </Center>
       <Inspector>
-        <h3 className="mem-h3">Components</h3>
+        <h3 className="mem-h3">{t("Components")}</h3>
         <ComponentList status={status} />
-        <h3 className="mem-h3">Four different stops</h3>
+        <h3 className="mem-h3">{t("Four different stops")}</h3>
         <ul className="mem-list mem-muted">
-          <li><strong>Lock Vault</strong> stops model calls locally, cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Local stopping does not confirm remote cancellation. After unlocking, read saved session outcomes before sending again. Vault work is unavailable until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
-          <li><strong>Closing the window</strong> only hides it to the tray. Memory keeps running, and so does any operation.</li>
-          <li><strong>Exit</strong> (tray or Settings) does the same release, then ends Runtime.</li>
-          <li><strong>Pausing sync</strong> does not exist yet: Memory has no sync before its gateway stage.</li>
+          <li><strong>{t("Lock Vault")}</strong> stops model calls locally, cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Local stopping does not confirm remote cancellation. After unlocking, read saved session outcomes before sending again. Vault work is unavailable until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
+          <li><strong>{t("Closing the window")}</strong> {t("only hides it to the tray. Memory keeps running, and so does any operation.")}</li>
+          <li><strong>{t("Exit")}</strong> (tray or Settings) does the same release, then ends Runtime.</li>
+          <li><strong>{t("Pausing sync")}</strong> {t("does not exist yet: Memory has no sync before its gateway stage.")}</li>
         </ul>
       </Inspector>
     </>

@@ -8,6 +8,7 @@ import { shortId, when } from "./ui";
 import { HistoryTaskForm } from "./HistoryTaskForm";
 import type { HistoryTaskRequest } from "./historyTasks";
 
+import { t } from '../i18n/index.ts';
 const positive = (text: string, max: number) => /^\d+$/.test(text) && Number.isSafeInteger(Number(text)) && Number(text) > 0 && Number(text) <= max;
 
 export function HistoryPlan({ vaultId, importId, importRevision, request = call, onCreate, materializationBusy = false }: {
@@ -50,10 +51,10 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call,
   };
   const summary = plan?.summary;
   return <section className="mem-stack" aria-labelledby={`${id}-title`} style={{ minWidth: 0, overflowWrap: "anywhere" }}>
-    <h4 id={`${id}-title`} className="mem-h3">History planning</h4>
+    <h4 id={`${id}-title`} className="mem-h3">{t("History planning")}</h4>
     <p className="mem-muted">Plan the received archive with the Memory Core. This reads coverage and batch references only; it does not extract, send, create a task or approve a memory.</p>
     <fieldset disabled={read.busy} className="mem-stack" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-      <legend className="mem-label">Local planning bounds</legend>
+      <legend className="mem-label">{t("Local planning bounds")}</legend>
       <label className="mem-label" htmlFor={`${id}-messages`}>Messages per batch (1–15)</label>
       <input id={`${id}-messages`} className="mem-input" inputMode="numeric" autoComplete="off" value={messages}
         aria-invalid={!positive(messages, 15)} onChange={event => edit(event.target.value, "messages")} />
@@ -61,29 +62,29 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call,
       <input id={`${id}-references`} className="mem-input" inputMode="numeric" autoComplete="off" value={references}
         aria-invalid={!positive(references, 100000)} onChange={event => edit(event.target.value, "references")} />
     </fieldset>
-    <p className="mem-muted">Shared ancestors count again on each branch path. These are local planning bounds, not token or spending budgets. The Core limits received/decompressed input to 64 MiB and parsed messages/units to 100000.</p>
+    <p className="mem-muted">{t("Shared ancestors count again on each branch path. These are local planning bounds, not token or spending budgets. The Core limits received/decompressed input to 64 MiB and parsed messages/units to 100000.")}</p>
     <div className="mem-actions">
       <button ref={planControl} type="button" className="mem-button" disabled={read.busy || !valid}
-        onClick={event => refresh(null, event.currentTarget)}>{plan || read.error ? "Read history plan again" : "Plan archived history"}</button>
+        onClick={event => refresh(null, event.currentTarget)}>{plan || read.error ? t("Read history plan again") : t("Plan archived history")}</button>
       {plan && page && page.previous.length > 0 && <button type="button" className="mem-button" disabled={read.busy}
-        onClick={event => refresh(page.previous.at(-1)!, event.currentTarget, page.previous.slice(0, -1))}>Previous history batches</button>}
+        onClick={event => refresh(page.previous.at(-1)!, event.currentTarget, page.previous.slice(0, -1))}>{t("Previous history batches")}</button>}
       {plan?.nextCursor && page && <button type="button" className="mem-button" disabled={read.busy}
-        onClick={event => refresh(plan.nextCursor, event.currentTarget, [...page.previous, page.cursor])}>Next history batches</button>}
+        onClick={event => refresh(plan.nextCursor, event.currentTarget, [...page.previous, page.cursor])}>{t("Next history batches")}</button>}
     </div>
-    {read.busy && <p role="status" className="mem-muted">Reading the archive's history plan…</p>}
+    {read.busy && <p role="status" className="mem-muted">{t("Reading the archive's history plan…")}</p>}
     {read.error && <p role="alert" className="mem-error">{read.error.text} No plan is current. Read a fresh plan before using batch references.</p>}
     {plan && <>
       <p ref={pageSummary} tabIndex={-1} role="status" className="mem-muted">{plan.batches.length
-        ? `Showing batches ${plan.batches[0].batchIndex + 1}–${plan.batches.at(-1).batchIndex + 1} of ${summary.batches}`
-        : "No history batches on this page"}</p>
+        ? t("Showing batches {v0}–{v1} of {batches}", { v0: plan.batches[0].batchIndex + 1, v1: plan.batches.at(-1).batchIndex + 1, batches: summary.batches })
+        : t("No history batches on this page")}</p>
       <p className="mem-muted">Observed {when(observedAt)} · import revision {importRevision} · head <span className="mem-mono" title={plan.identity.commitId}>{shortId(plan.identity.commitId)}</span></p>
       <p className="mem-muted">This describes the received archive, not all platform history or extraction quality. Unknown dates stay unknown; export branch selection is not owner approval.</p>
       <dl className="mem-facts">
-        <dt>Parsed messages</dt><dd>{summary.messages}</dd><dt>Dated</dt><dd>{summary.dated}</dd><dt>Unknown time</dt><dd>{summary.undated}</dd>
-        <dt>Observed range</dt><dd>{when(summary.earliest)} — {when(summary.latest)}</dd>
-        <dt>Incomplete messages</dt><dd>{summary.incompleteMessages}</dd><dt>Unparseable items</dt><dd>{summary.unparseable}</dd>
-        <dt>Unavailable attachments</dt><dd>{summary.unavailableAttachments}</dd><dt>Total batches</dt><dd>{summary.batches}</dd>
-        <dt>Graph/time issues</dt><dd>{summary.issues}</dd>
+        <dt>{t("Parsed messages")}</dt><dd>{summary.messages}</dd><dt>{t("Dated")}</dt><dd>{summary.dated}</dd><dt>{t("Unknown time")}</dt><dd>{summary.undated}</dd>
+        <dt>{t("Observed range")}</dt><dd>{when(summary.earliest)} — {when(summary.latest)}</dd>
+        <dt>{t("Incomplete messages")}</dt><dd>{summary.incompleteMessages}</dd><dt>{t("Unparseable items")}</dt><dd>{summary.unparseable}</dd>
+        <dt>{t("Unavailable attachments")}</dt><dd>{summary.unavailableAttachments}</dd><dt>{t("Total batches")}</dt><dd>{summary.batches}</dd>
+        <dt>{t("Graph/time issues")}</dt><dd>{summary.issues}</dd>
       </dl>
       <p className="mem-mono">Plan {plan.planHash}</p>
       {plan.issues.length > 0 && <ul className="mem-list">{plan.issues.map((issue: J, index: number) => <li key={index}>Unit {issue.unitIndex + 1} · {issue.kind}</li>)}</ul>}
@@ -93,7 +94,7 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call,
           <summary className="mem-label">Batch {batch.batchIndex + 1} · {batch.messages.length} messages · {batch.selectedInExport ? "selected in export" : "other or unknown export selection"}</summary>
           {onCreate && <label className="mem-label"><input type="checkbox" checked={selected.includes(batch.batchIndex)}
             disabled={materializationBusy || read.busy || (!selected.includes(batch.batchIndex) && selected.length >= 32)}
-            onChange={event => { const checked = event.currentTarget.checked; setSelected(previous => checked ? [...previous, batch.batchIndex] : previous.filter(n => n !== batch.batchIndex)); }} /> Select batch {batch.batchIndex + 1} for local tasks</label>}
+            onChange={event => { const checked = event.currentTarget.checked; setSelected(previous => checked ? [...previous, batch.batchIndex] : previous.filter(n => n !== batch.batchIndex)); }} /> {t("Select batch {n} for local tasks", { n: batch.batchIndex + 1 })}</label>}
           <p className="mem-muted">Observed path start: {when(batch.observedPathStart)}. References do not approve a branch or create a model task.</p>
           <p className="mem-mono">Leaf: {batch.leaf.sourceId} · revision {batch.leaf.sourceRevision}</p>
           {batch.preceding && <p className="mem-mono">Preceding reference: {batch.preceding.sourceId} · revision {batch.preceding.sourceRevision}</p>}

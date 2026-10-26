@@ -7,6 +7,7 @@
 import React, { useId, useRef, useSyncExternalStore } from 'react';
 import { panTo, useTimeView, type TimeView } from './timeview';
 
+import { t } from '../i18n/index.ts';
 export interface MapSpec {
   key: string;
   /** Accessible name and short description of what the map covers. */
@@ -79,9 +80,9 @@ export default function TimeMap({ spec }: { spec: MapSpec }) {
   const frame = { left: ((v.start - d0) / len * 100).toFixed(3) + '%', width: (v.span / len * 100).toFixed(3) + '%' };
   return (
     <div className="tm" data-by={v.by} data-fixed={fixed || undefined}>
-      <button type="button" className="tm-btn" aria-label={`Show earlier time (one ${spec.unit})`} aria-disabled={fixed || atStart || undefined} data-end={atStart || undefined} onClick={() => go(v.start - spec.step)}><Tri dir="l" /></button>
-      <div ref={map} className="tm-map" role="slider" tabIndex={0} aria-label={spec.label} aria-describedby={id}
-        aria-valuemin={0} aria-valuemax={maxIdx} aria-valuenow={Math.round((v.start - d0) / cellMs)} aria-valuetext={text} aria-disabled={fixed || undefined} title="Left and right arrow keys move the frame; Shift moves a whole view"
+      <button type="button" className="tm-btn" aria-label={t('Show earlier time (one {unit})', { unit: t(spec.unit) })} aria-disabled={fixed || atStart || undefined} data-end={atStart || undefined} onClick={() => go(v.start - spec.step)}><Tri dir="l" /></button>
+      <div ref={map} className="tm-map" role="slider" tabIndex={0} aria-label={t(spec.label)} aria-describedby={id}
+        aria-valuemin={0} aria-valuemax={maxIdx} aria-valuenow={Math.round((v.start - d0) / cellMs)} aria-valuetext={text} aria-disabled={fixed || undefined} title={t("Left and right arrow keys move the frame; Shift moves a whole view")}
         style={{ backgroundSize: `calc(100% / ${spec.cells}) 100%` }}
         onKeyDown={onKey} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
         {spec.bars?.map((b, i) => b > 0 ? <span key={'b' + i} className="tm-bar" style={{ left: (i / spec.cells * 100).toFixed(3) + '%', width: (100 / spec.cells).toFixed(3) + '%', height: Math.round(3 + b * 7) }} aria-hidden="true" /> : null)}
@@ -90,10 +91,10 @@ export default function TimeMap({ spec }: { spec: MapSpec }) {
         {spec.now != null ? <span className="tm-now" style={{ left: (spec.now * 100).toFixed(3) + '%' }} aria-hidden="true" /> : null}
         <span className="tm-frame" style={frame} aria-hidden="true" />
       </div>
-      <button type="button" className="tm-btn" aria-label={`Show later time (one ${spec.unit})`} aria-disabled={fixed || atEnd || undefined} data-end={atEnd || undefined} onClick={() => go(v.start + spec.step)}><Tri dir="r" /></button>
+      <button type="button" className="tm-btn" aria-label={t('Show later time (one {unit})', { unit: t(spec.unit) })} aria-disabled={fixed || atEnd || undefined} data-end={atEnd || undefined} onClick={() => go(v.start + spec.step)}><Tri dir="r" /></button>
       <div className="tm-read" aria-hidden="true">{text}</div>
-      {spec.jump ? <button type="button" className="tm-jump" onClick={() => go(spec.jump!.start)}>{spec.jump.label}</button> : null}
-      <span id={id} className="mem-sr">{fixed ? 'The chart already shows the whole stretch, so there is nothing to move.' : `Left and right arrow keys move the frame by one ${spec.unit}. Hold Shift, or use Page Up and Page Down, to move by a whole view. Home and End go to the ends. The chart below follows the frame.`}</span>
+      {spec.jump ? <button type="button" className="tm-jump" onClick={() => go(spec.jump!.start)}>{t(spec.jump.label)}</button> : null}
+      <span id={id} className="mem-sr">{fixed ? t('The chart already shows the whole stretch, so there is nothing to move.') : t('Left and right arrow keys move the frame by one {unit}. Hold Shift, or use Page Up and Page Down, to move by a whole view. Home and End go to the ends. The chart below follows the frame.', { unit: t(spec.unit) })}</span>
     </div>
   );
 }

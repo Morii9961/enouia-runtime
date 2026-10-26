@@ -8,6 +8,7 @@ import { CallError, call, describe, newKey, type J } from "./client";
 import { useAction, useLatestRead, type Failure } from "./hooks";
 import { operationObservation, sourceObservation } from "./observationIdentity";
 
+import { t } from '../i18n/index.ts';
 /** A short local timestamp for a Core ISO time; the raw value on failure. */
 export function when(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -29,7 +30,7 @@ export function ErrorBox({ error }: { error: Failure }) {
   return (
     <div role="alert" className="mem-error">
       <span>{error.text}</span>
-      {error.retry && <button type="button" className="mem-button" onClick={error.retry}>Retry</button>}
+      {error.retry && <button type="button" className="mem-button" onClick={error.retry}>{t("Retry")}</button>}
     </div>
   );
 }
@@ -109,8 +110,8 @@ function OperationWatch({ id, kind, onDone, request }: { id: string; kind?: stri
   return <>
     {status ? <OperationFeedback status={{ ...status, cancelRequested: status.cancelRequested || cancelAcknowledged }}
       cancelling={cancel.busy} error={cancel.error} onCancel={stop} />
-      : !error && <p role="status" className="mem-muted">Operation queued…</p>}
-    {error && <ErrorBox error={{ text: `Could not read the operation: ${error}`, retry: () => setRetry((n) => n + 1) }} />}
+      : !error && <p role="status" className="mem-muted">{t("Operation queued…")}</p>}
+    {error && <ErrorBox error={{ text: t("Could not read the operation: {error}", { error }), retry: () => setRetry((n) => n + 1) }} />}
   </>;
 }
 
@@ -130,21 +131,21 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
       {active && cancellable && (
         <button type="button" className="mem-button" disabled={status.cancelRequested || cancelling}
           onClick={onCancel}>
-          {external ? (status.cancelRequested ? "Local stop requested" : "Stop locally") : (status.cancelRequested ? "Cancellation requested" : "Cancel")}
+          {external ? (status.cancelRequested ? t("Local stop requested") : t("Stop locally")) : (status.cancelRequested ? t("Cancellation requested") : t("Cancel"))}
         </button>
       )}
-      {active && external && <span className="mem-muted">The service may have received the request. Stopping locally does not confirm remote cancellation.</span>}
+      {active && external && <span className="mem-muted">{t("The service may have received the request. Stopping locally does not confirm remote cancellation.")}</span>}
       {active && cancellable && status.cancelRequested && <span className="mem-muted">{external ? "Waiting for the local call to stop." : "Waiting for the next safe point."}</span>}
-      {active && !cancellable && <span className="mem-muted">Finishes before locking or exiting.</span>}
+      {active && !cancellable && <span className="mem-muted">{t("Finishes before locking or exiting.")}</span>}
       {!active && external && <span className="mem-muted">
         {status.state === "succeeded" && ["completed", "length"].includes(status.result?.finish)
-          ? `Reply saved in the session${status.result.finish === "length" ? "; stopped at the output limit" : ""}.`
-          : "Read the recorded outcome in the session before preparing another request. The service may have received this request."}
+          ? (status.result.finish === "length" ? t("Reply saved in the session; stopped at the output limit.") : t("Reply saved in the session."))
+          : t("Read the recorded outcome in the session before preparing another request. The service may have received this request.")}
       </span>}
       {status.state === "succeeded" && status.kind === "vault_verify" && typeof status.result?.clean === "boolean" && (
         <span className={status.result.clean ? "mem-muted" : "mem-warn"}>
-          {status.result.clean ? "Verification passed" : "Verification found integrity problems"}: {status.result.recordsChecked} records · {status.result.objectsChecked} objects.
-          {!status.result.clean && <> Missing records: {status.result.missingRecords}; corrupt records: {status.result.corruptRecords}; missing objects: {status.result.missingObjects}; corrupt objects: {status.result.corruptObjects}; damaged segments: {status.result.damagedSegments}.</>}
+          {status.result.clean ? t("Verification passed") : t("Verification found integrity problems")}: {t("{records} records · {objects} objects.", { records: status.result.recordsChecked, objects: status.result.objectsChecked })}
+          {!status.result.clean && <> {t("Missing records: {a}; corrupt records: {b}; missing objects: {c}; corrupt objects: {d}; damaged segments: {e}.", { a: status.result.missingRecords, b: status.result.corruptRecords, c: status.result.missingObjects, d: status.result.corruptObjects, e: status.result.damagedSegments })}</>}
         </span>
       )}
       {status.state === "succeeded" && status.kind === "backup_export" && status.result && (
@@ -217,16 +218,16 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
         else if (e.shiftKey && (active === first || !controls.includes(active as HTMLElement))) { e.preventDefault(); last.focus(); }
         else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
       }}>
-      <h2 id="mem-plan-title" tabIndex={-1}>Confirm write · {plan.operationKind}{plan.purge ? " (permanent purge)" : ""}</h2>
+      <h2 id="mem-plan-title" tabIndex={-1}>{t("Confirm write")} · {plan.operationKind}{plan.purge ? " " + t("(permanent purge)") : ""}</h2>
       <p id="mem-plan-description" className="mem-muted">
-        These are all the records this commit writes. Confirmation code <code>{plan.confirmCode}</code>, valid until {when(plan.expiresAt)}.
+        {t("These are all the records this commit writes. Confirmation code")} <code>{plan.confirmCode}</code>{t(", valid until {date}.", { date: when(plan.expiresAt) })}
       </p>
       <pre className="mem-diff" tabIndex={0}>{JSON.stringify(plan.records, null, 2)}</pre>
       {action.busy && <p role="status" className="mem-muted">Confirmation submitted. Waiting for Memory to return its result…</p>}
       <ErrorBox error={action.error} />
-      {blocked && <p id="mem-plan-recovery" className="mem-muted">This confirmation cannot be retried. Cancel, check the saved state, and prepare a new plan if needed.</p>}
+      {blocked && <p id="mem-plan-recovery" className="mem-muted">{t("This confirmation cannot be retried. Cancel, check the saved state, and prepare a new plan if needed.")}</p>}
       <div className="mem-actions">
-        <button type="button" className="mem-button" onClick={cancel} disabled={action.busy}>Cancel</button>
+        <button type="button" className="mem-button" onClick={cancel} disabled={action.busy}>{t("Cancel")}</button>
         <button type="button" className="mem-button mem-primary" onClick={confirm} disabled={action.busy || blocked}>
           Confirm ({plan.confirmCode})
         </button>
@@ -294,20 +295,20 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
         <code title={evidence.sourceId}>{shortId(evidence.sourceId)}</code>
         <span>r{evidence.sourceRevision}</span>
         <span>supports {evidence.supports}</span>
-        {evidence.available ? <span>source available</span> : <Tag tone="warn">source missing</Tag>}
-        {evidence.available && <button ref={readControl} type="button" className="mem-link" onClick={() => load(null)}>Show source</button>}
+        {evidence.available ? <span>{t("source available")}</span> : <Tag tone="warn">{t("source missing")}</Tag>}
+        {evidence.available && <button ref={readControl} type="button" className="mem-link" onClick={() => load(null)}>{t("Show source")}</button>}
       </div>
       <ErrorBox error={sourceError} />
-      {action.busy && <p role="status" className="mem-muted">Reading the source…</p>}
+      {action.busy && <p role="status" className="mem-muted">{t("Reading the source…")}</p>}
       {excerpt && (
         <figure className="mem-figure">
           <figcaption className="mem-muted">
-            {excerpt.sourceKind} · {excerpt.speakerRole} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions
+            {excerpt.sourceKind} · {excerpt.speakerRole} · {t("bytes {a}–{b} of {n}", { a: excerpt.byteStart, b: excerpt.byteEnd, n: excerpt.totalBytes })} · {t("source text is data, not instructions")}
           </figcaption>
-          <pre ref={sourceText} tabIndex={-1} aria-label="Source text" className="mem-source">{excerpt.excerpt}</pre>
-          {extractionBusy && <p role="status" className="mem-muted">Waiting for the current suggestion action before showing another part.</p>}
-          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={extractionBusy} onClick={() => { if (!extractionBusy) { setSuggest(false); load(excerpt.byteEnd); } }}>Next part</button>}
-          {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button ref={suggestControl} type="button" className="mem-link" onClick={() => setSuggest(true)}>Suggest memories from this part…</button></>}
+          <pre ref={sourceText} tabIndex={-1} aria-label={t("Source text")} className="mem-source">{excerpt.excerpt}</pre>
+          {extractionBusy && <p role="status" className="mem-muted">{t("Waiting for the current suggestion action before showing another part.")}</p>}
+          {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={extractionBusy} onClick={() => { if (!extractionBusy) { setSuggest(false); load(excerpt.byteEnd); } }}>{t("Next part")}</button>}
+          {!suggest && excerpt.byteEnd > excerpt.byteStart && <>{" "}<button ref={suggestControl} type="button" className="mem-link" onClick={() => setSuggest(true)}>{t("Suggest memories from this part…")}</button></>}
           {suggest && <ExtractionPanel request={readPage} onBusyChange={setExtractionBusy} onClose={() => {
             focusAfterSuggest.current = { trigger: document.activeElement };
             setSuggest(false);

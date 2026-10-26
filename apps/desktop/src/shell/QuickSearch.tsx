@@ -7,6 +7,7 @@ import { useLatestRead } from '../memory/hooks';
 import { ErrorBox } from '../memory/ui';
 import './quick-search.css';
 
+import { t } from '../i18n/index.ts';
 type Hit = { memoryId: string; currency: string; snippet: string };
 type SearchPage = { items: Hit[] };
 
@@ -38,7 +39,7 @@ export default function QuickSearch() {
     window.addEventListener('blur', clear);
     const subscription = listen('overlay-clear', focus);
     void subscription.then((dispose) => { if (stopped) dispose(); else unlisten = dispose; }).catch(() => {
-      if (!stopped) setHostError('Quick Search window events are unavailable. Close and reopen Runtime.');
+      if (!stopped) setHostError(t('Quick Search window events are unavailable. Close and reopen Runtime.'));
     });
     focus();
     return () => {
@@ -51,7 +52,7 @@ export default function QuickSearch() {
   const windowAction = useCallback(async (command: 'shell_hide' | 'shell_show') => {
     clear();
     try { await invoke(command); }
-    catch { setHostError('The window action failed. Try again.'); }
+    catch { setHostError(t('The window action failed. Try again.')); }
   }, [clear]);
   useEffect(() => {
     // Escape belongs to this overlay even when focus has left its input.
@@ -83,32 +84,32 @@ export default function QuickSearch() {
   };
 
   return (
-    <main className="quick-search" aria-label="Quick Search" aria-busy={reads.busy}>
-      <header><h1>Quick Search</h1><span className="mem-muted">Approved Memory · read only</span></header>
+    <main className="quick-search" aria-label={t("Quick Search")} aria-busy={reads.busy}>
+      <header><h1>{t("Quick Search")}</h1><span className="mem-muted">{t("Approved Memory · read only")}</span></header>
       <form onSubmit={search} role="search">
-        <label className="mem-sr" htmlFor="quick-query">Search approved memories</label>
+        <label className="mem-sr" htmlFor="quick-query">{t("Search approved memories")}</label>
         <input id="quick-query" className="mem-input" ref={input} value={query} autoComplete="off" spellCheck={false}
-          placeholder="Search approved memories…" onChange={(event) => {
+          placeholder={t("Search approved memories…")} onChange={(event) => {
             // Editing invalidates any previous response, including delayed errors.
             focusAfterSearch.current = null;
             reads.clear(); setItems([]); setSearched(false); setQuery(event.target.value);
           }} />
-        <button className="mem-button mem-primary" type="submit" disabled={!query.trim() || reads.busy}>Search</button>
+        <button className="mem-button mem-primary" type="submit" disabled={!query.trim() || reads.busy}>{t("Search")}</button>
       </form>
       <div className="quick-results">
         <ErrorBox error={searchError} />
         {hostError && <p role="alert" className="mem-error">{hostError}</p>}
-        {reads.busy && <p role="status" className="mem-muted">Searching…</p>}
-        {searched && !items.length && <p role="status" className="mem-muted">No approved memories match.</p>}
-        {!searched && !reads.busy && !reads.error && <p className="mem-muted">Enter literal text and press Enter. Open the main window to inspect a memory.</p>}
+        {reads.busy && <p role="status" className="mem-muted">{t("Searching…")}</p>}
+        {searched && !items.length && <p role="status" className="mem-muted">{t("No approved memories match.")}</p>}
+        {!searched && !reads.busy && !reads.error && <p className="mem-muted">{t("Enter literal text and press Enter. Open the main window to inspect a memory.")}</p>}
         <ul aria-live="polite">
           {items.map((item) => <li key={item.memoryId}>
             <span className="mem-tag">{item.currency}</span><p className="mem-content">{item.snippet}</p>
           </li>)}
         </ul>
       </div>
-      <footer><span className="mem-muted">Esc to close · cleared when hidden</span>
-        <button type="button" className="mem-link" onClick={() => void windowAction('shell_show')}>Open main window</button></footer>
+      <footer><span className="mem-muted">{t("Esc to close · cleared when hidden")}</span>
+        <button type="button" className="mem-link" onClick={() => void windowAction('shell_show')}>{t("Open main window")}</button></footer>
     </main>
   );
 }

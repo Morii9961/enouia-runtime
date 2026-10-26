@@ -1,6 +1,7 @@
 import React from "react";
 import type { DemoView } from "../App";
 
+import { t } from '../i18n/index.ts';
 export default function Runtime({ view }: { view: DemoView }) {
   const { rt, rtList, rtStrip, rtSubtitle } = view;
   return (
@@ -8,10 +9,10 @@ export default function Runtime({ view }: { view: DemoView }) {
 <aside className="qr191">
 <div className="qr20">
 <h1 className="qr18">
-Runtime
+{t("Runtime")}
 </h1>
 <div className="qr101">
-{rtSubtitle ?? 'architecture v0.3 · documentation reference'}
+{rtSubtitle ?? t('architecture v0.3 · documentation reference')}
 </div>
 </div>
 <div className="qr27">
@@ -60,7 +61,7 @@ Runtime
 <div className="qr204">
 <div className="qr65">
 <div className="qr198">
-State
+{t("State")}
 </div>
 {rt.rows.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr199">
@@ -76,7 +77,7 @@ State
 <div className="qr203">
 <div className="qr65">
 <div className="qr198">
-Verification
+{t("Verification")}
 </div>
 {rt.checks.map((r, rIndex) => <React.Fragment key={r.k}>
 <div className="qr201">
@@ -91,7 +92,7 @@ Verification
 </div>
 <div className="qr65">
 <div className="qr198">
-Not yet
+{t("Not yet")}
 </div>
 {rt.limits.map((l, lIndex) => <React.Fragment key={lIndex}>
 <div className="qr202">
@@ -106,7 +107,7 @@ Not yet
 </div>
 <div className="qr65">
 <div className="qr198">
-Health
+{t("Health")}
 </div>
 <div className="qr207">
 {rtList.map((c, cIndex) => <React.Fragment key={c.code}>

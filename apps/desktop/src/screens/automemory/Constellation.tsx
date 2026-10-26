@@ -4,6 +4,7 @@ import { byId, relWords, relationsOf, type Rel } from './model';
 import { Glyph } from './parts';
 import type { ViewProps } from './types';
 
+import { t } from '../../i18n/index.ts';
 // Constellation: the selected memory and its bounded neighbourhood, plotted on
 // the negative. Every node has the same size; the five relations are five pen
 // line styles and each line carries its own word, so line style is never the
@@ -14,7 +15,7 @@ const ZOOM = [0.85, 1, 1.25, 1.5];
 const Z0 = 1;                  // index of 100%
 const NW = 206, NH = 50;       // node size in px, identical for every node
 const PLOT_H = 330;
-const relLabel = (t: RelType) => (t === 'suggestion' ? 'suggestion · unconfirmed' : t);
+const relLabel = (r: RelType) => t(r === 'suggestion' ? 'suggestion · unconfirmed' : r);
 
 /** One relation's line style in a 44 x 8 sample. */
 function Sample({ t }: { t: RelType }) {
@@ -63,13 +64,13 @@ export default function Constellation({ sel, select }: ViewProps) {
   return (
     <div className="am-stars">
       <div className="am-view-head">
-        <h2 className="am-vh">Constellation <span>{m.title} and what touches it, one step out</span></h2>
-        <p className="am-fine">Only the selected memory and its direct relations are plotted. A line is a link, never a cause, and nothing is scored.</p>
+        <h2 className="am-vh">{t("Constellation")} <span>{m.title} and what touches it, one step out</span></h2>
+        <p className="am-fine">{t("Only the selected memory and its direct relations are plotted. A line is a link, never a cause, and nothing is scored.")}</p>
       </div>
-      <div className="am-plot-bar" role="group" aria-label="Plot zoom">
-        <button type="button" className="am-zoom" aria-label="Zoom in (+)" disabled={zi === ZOOM.length - 1} onClick={() => setZi((z) => Math.min(ZOOM.length - 1, z + 1))}>+</button>
-        <button type="button" className="am-zoom" aria-label="Zoom out (−)" disabled={zi === 0} onClick={() => setZi((z) => Math.max(0, z - 1))}>−</button>
-        <button type="button" className="am-zoom am-zoom-reset" aria-label="Reset view" disabled={zi === Z0} onClick={() => setZi(Z0)}>Reset</button>
+      <div className="am-plot-bar" role="group" aria-label={t("Plot zoom")}>
+        <button type="button" className="am-zoom" aria-label={t("Zoom in (+)")} disabled={zi === ZOOM.length - 1} onClick={() => setZi((z) => Math.min(ZOOM.length - 1, z + 1))}>+</button>
+        <button type="button" className="am-zoom" aria-label={t("Zoom out (−)")} disabled={zi === 0} onClick={() => setZi((z) => Math.max(0, z - 1))}>−</button>
+        <button type="button" className="am-zoom am-zoom-reset" aria-label={t("Reset view")} disabled={zi === Z0} onClick={() => setZi(Z0)}>{t("Reset")}</button>
         <span className="am-fine am-mono" aria-live="polite">zoom {Math.round(zoom * 100)}%</span>
       </div>
       <div className="am-plot-frame" ref={frame}>
@@ -102,27 +103,27 @@ export default function Constellation({ sel, select }: ViewProps) {
         </button>
         {nodes.map(({ r, o, x, y }, i) => (
           <button key={r.other + r.type} type="button" className="am-node" style={{ left: x, top: y, width: NW, height: NH, '--vtn': nodes.findIndex((q) => q.o.id === o.id) === i && o.id !== m.id ? 'am-n-' + o.id : 'none' } as React.CSSProperties} onClick={() => select(o.id)}
-            aria-label={`${o.title}. ${STATE_LABEL[o.state]}. ${relWords(r)} of ${m.title}. Select to plot its neighbourhood.`}>
+            aria-label={t('{title}. {state}. {relation} of {other}. Select to plot its neighbourhood.', { title: o.title, state: STATE_LABEL[o.state], relation: relWords(r), other: m.title })}>
             <span className="am-node-top"><Glyph s={o.state} /><span className="am-node-t">{o.title}</span></span>
             <span className="am-node-sub"><span className="am-mono">{o.id}</span> · {STATE_LABEL[o.state]}</span>
           </button>
         ))}
-        {n === 0 ? <p className="am-plot-none">No relation in this sample for this memory. That is not a finding about the memory.</p> : null}
+        {n === 0 ? <p className="am-plot-none">{t("No relation in this sample for this memory. That is not a finding about the memory.")}</p> : null}
       </div>
       </div>
       </div>
       </div>
 
-      <section className="am-rels" aria-label="Relations as a list">
-        <h3>Relations <span className="am-tag">{n} direct</span></h3>
-        {n === 0 ? <p className="am-none">None recorded in the sample.</p> : (
+      <section className="am-rels" aria-label={t("Relations as a list")}>
+        <h3>{t("Relations")} <span className="am-tag">{n} direct</span></h3>
+        {n === 0 ? <p className="am-none">{t("None recorded in the sample.")}</p> : (
           <ul>
             {rels.map((r: Rel) => { const o = byId.get(r.other)!; return (
               <li key={r.other + r.type}>
                 <button type="button" className="am-rel-row" onClick={() => select(o.id)}>
                   <Sample t={r.type} />
                   <span className="am-rel-t">{o.title}</span>
-                  <span className="am-rel-w">{relLabel(r.type)}{r.type === 'supersedes' ? (r.dir === 'out' ? ' · this replaced it' : ' · replaced this') : ''}</span>
+                  <span className="am-rel-w">{relLabel(r.type)}{r.type === 'supersedes' ? ' · ' + (r.dir === 'out' ? t('this replaced it') : t('replaced this')) : ''}</span>
                   <span className="am-mono am-rel-id">{o.id}</span>
                 </button>
               </li>
@@ -130,7 +131,7 @@ export default function Constellation({ sel, select }: ViewProps) {
           </ul>
         )}
       </section>
-      <ul className="am-legend" aria-label="Line styles">
+      <ul className="am-legend" aria-label={t("Line styles")}>
         {TYPES.map((t) => <li key={t}><Sample t={t} /><span><b>{relLabel(t)}</b> {REL_NOTE[t]}</span></li>)}
       </ul>
     </div>

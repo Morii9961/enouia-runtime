@@ -2,11 +2,13 @@
 // Invented data for a design proposal. It is NOT a Memory contract, wire schema, state enum or
 // snapshot of any Vault, and nothing here is running. Do not import it from src/memory/*.
 // Copy this file verbatim to apps/desktop/src/screens/automemory/fixture.ts; do not edit the data.
+// Interface labels are wrapped for translation (msg / labels); the invented memories stay in English.
+import { labels, msg } from '../../i18n/index.ts';
 
-export const AUTO_LABEL = 'Synthetic preview · not running';
-export const AUTO_NOTE =
-  'Design proposal with invented data. Automatic memory does not run in this build: the real Vault still uses owner review, and nothing here is saved, sent or read from a Vault.';
-export const AUTO_ENTRY = 'Automatic memory · synthetic preview';
+export const AUTO_LABEL = msg('Synthetic preview · not running');
+export const AUTO_NOTE = msg(
+  'Design proposal with invented data. Automatic memory does not run in this build: the real Vault still uses owner review, and nothing here is saved, sent or read from a Vault.');
+export const AUTO_ENTRY = msg('Automatic memory · synthetic preview');
 
 /** Product narrative states for the preview. Not frozen enums. */
 export type AutoState =
@@ -14,35 +16,35 @@ export type AutoState =
   | 'conflict' | 'superseded' | 'fading' | 'archived' | 'corrected';
 
 /** Wording is fixed: machine adoption is never called "approved" or "confirmed". */
-export const STATE_LABEL: Record<AutoState, string> = {
-  received: 'Received · source only',
-  held: 'Held as hypothesis',
-  adopted: 'Adopted by system',
-  reevaluating: 'Re-evaluating',
-  consolidated: 'Consolidated',
-  conflict: 'In conflict · held',
-  superseded: 'Superseded',
-  fading: 'Surfacing less',
-  archived: 'Archived',
-  corrected: 'Corrected by you',
-};
-export const STATE_HINT: Record<AutoState, string> = {
-  received: 'Material arrived. Nothing has been formed from it yet.',
-  held: 'Kept aside until new evidence or a related moment. Not used for recall.',
-  adopted: 'The system admitted this on its own. You did not review it, and that is not an outside confirmation.',
-  reevaluating: 'New material touched this statement. The current revision stays in use until the check ends.',
-  consolidated: 'Several episodes were folded into one stable statement. The originals are kept.',
-  conflict: 'Two statements disagree. Both are kept and neither is used as current until it resolves.',
-  superseded: 'A newer statement replaced this one. It stays readable in history.',
-  fading: 'Still true, still kept. It is offered less often because it has not been relevant lately.',
-  archived: 'Kept for history and management. Literal search with history still leaves it out.',
-  corrected: 'You changed this. Your correction is recorded as yours, not as a system decision.',
-};
+export const STATE_LABEL: Record<AutoState, string> = labels({
+  received: msg('Received · source only'),
+  held: msg('Held as hypothesis'),
+  adopted: msg('Adopted by system'),
+  reevaluating: msg('Re-evaluating'),
+  consolidated: msg('Consolidated'),
+  conflict: msg('In conflict · held'),
+  superseded: msg('Superseded'),
+  fading: msg('Surfacing less'),
+  archived: msg('Archived'),
+  corrected: msg('Corrected by you'),
+});
+export const STATE_HINT: Record<AutoState, string> = labels({
+  received: msg('Material arrived. Nothing has been formed from it yet.'),
+  held: msg('Kept aside until new evidence or a related moment. Not used for recall.'),
+  adopted: msg('The system admitted this on its own. You did not review it, and that is not an outside confirmation.'),
+  reevaluating: msg('New material touched this statement. The current revision stays in use until the check ends.'),
+  consolidated: msg('Several episodes were folded into one stable statement. The originals are kept.'),
+  conflict: msg('Two statements disagree. Both are kept and neither is used as current until it resolves.'),
+  superseded: msg('A newer statement replaced this one. It stays readable in history.'),
+  fading: msg('Still true, still kept. It is offered less often because it has not been relevant lately.'),
+  archived: msg('Kept for history and management. Literal search with history still leaves it out.'),
+  corrected: msg('You changed this. Your correction is recorded as yours, not as a system decision.'),
+});
 
 export type Kind = 'preference' | 'fact' | 'episode' | 'project_state' | 'session_checkpoint';
-export const KIND_LABEL: Record<Kind, string> = {
-  preference: 'Preference', fact: 'Fact', episode: 'Episode', project_state: 'Project state', session_checkpoint: 'Checkpoint',
-};
+export const KIND_LABEL: Record<Kind, string> = labels({
+  preference: msg('Preference'), fact: msg('Fact'), episode: msg('Episode'), project_state: msg('Project state'), session_checkpoint: msg('Checkpoint'),
+});
 
 /** Occurred time keeps its precision. Unknown is never drawn as a date. */
 export type Occurred =
@@ -87,7 +89,7 @@ export const THEMES: { id: string; name: string }[] = [
   { id: 'trip', name: 'Hangzhou trip' },
   { id: 'interface', name: 'Interface taste' },
 ];
-export const THEME_NOTE = 'Themes are model suggestions. A memory can sit in more than one, and sharing a theme is not a relationship or a cause.';
+export const THEME_NOTE = msg('Themes are model suggestions. A memory can sit in more than one, and sharing a theme is not a relationship or a cause.');
 
 export const AUTO_MEMORIES: AutoMemory[] = [
   {
@@ -304,13 +306,13 @@ export const AUTO_MEMORIES: AutoMemory[] = [
 ];
 
 export type RelType = 'source' | 'supersedes' | 'shared theme' | 'context dependency' | 'suggestion';
-export const REL_NOTE: Record<RelType, string> = {
-  source: 'Cites the same source revision. Not independent confirmation.',
-  supersedes: 'The newer statement replaced the older one.',
-  'shared theme': 'Same suggested theme. Not a relationship or a cause.',
-  'context dependency': 'Was in the model’s context when this formed. Not support.',
-  suggestion: 'Semantic link suggested by a model. Unconfirmed.',
-};
+export const REL_NOTE: Record<RelType, string> = labels({
+  source: msg('Cites the same source revision. Not independent confirmation.'),
+  supersedes: msg('The newer statement replaced the older one.'),
+  'shared theme': msg('Same suggested theme. Not a relationship or a cause.'),
+  'context dependency': msg('Was in the model’s context when this formed. Not support.'),
+  suggestion: msg('Semantic link suggested by a model. Unconfirmed.'),
+});
 export const RELATIONS: { from: string; to: string; type: RelType }[] = [
   { from: 'am_01', to: 'am_02', type: 'supersedes' },
   { from: 'am_05', to: 'am_06', type: 'supersedes' },
@@ -384,4 +386,5 @@ export const STREAM = AUTO_MEMORIES.flatMap((m) => m.trail.map((t) => ({ ...t, i
   .sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
 
 /** Loaded-range wording: every count in the preview is about this fixture only. */
-export const RANGE_NOTE = `${AUTO_MEMORIES.length} invented memories loaded · counts cover this sample only`;
+/** Use with t(RANGE_NOTE, { n: AUTO_MEMORIES.length }). */
+export const RANGE_NOTE = msg('{n} invented memories loaded · counts cover this sample only');

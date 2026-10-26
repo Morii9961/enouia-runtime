@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AUTO_LABEL, AUTO_NOTE, RANGE_NOTE } from './fixture';
+import { AUTO_LABEL, AUTO_MEMORIES, AUTO_NOTE, RANGE_NOTE } from './fixture';
+const AUTO_COUNT = AUTO_MEMORIES.length;
 import { byId } from './model';
 import Formation from './Formation';
 import Grid from './Grid';
@@ -12,16 +13,17 @@ import type { ViewId } from './types';
 import { setAutoMode } from '../../theme/autoMode';
 import { moveAlong } from '../../theme/motion';
 
+import { msg, t } from '../../i18n/index.ts';
 // Automatic memory · synthetic preview (browser demo only, invented fixture).
 // Five views share one Inspector and one selection. Local state only: no IPC,
 // no fetch, no storage, nothing logged. The real Vault still uses owner review.
 const VIEWS: { id: ViewId; name: string; hint: string }[] = [
-  { id: 'formation', name: 'Formation', hint: 'what the system did' },
-  { id: 'grid', name: 'Memory grid', hint: 'one slip each' },
-  { id: 'timeline', name: 'Timeline', hint: 'when it happened' },
-  { id: 'stars', name: 'Constellation', hint: 'what touches it' },
-  { id: 'starmap', name: 'Star map', hint: 'the whole generated sample' },
-  { id: 'recall', name: 'Recall lab', hint: 'why offered' },
+  { id: 'formation', name: msg('Formation'), hint: msg('what the system did') },
+  { id: 'grid', name: msg('Memory grid'), hint: msg('one slip each') },
+  { id: 'timeline', name: msg('Timeline'), hint: msg('when it happened') },
+  { id: 'stars', name: msg('Constellation'), hint: msg('what touches it') },
+  { id: 'starmap', name: msg('Star map'), hint: msg('the whole generated sample') },
+  { id: 'recall', name: msg('Recall lab'), hint: msg('why offered') },
 ];
 
 export default function AutoMemory({ onExit }: { onExit: () => void }) {
@@ -46,21 +48,21 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
       onKeyDown={(e) => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') e.stopPropagation(); }}>
       <header className="am-head">
         <div className="am-head-row">
-          <h1 className="am-h1" tabIndex={-1} ref={head}>Automatic memory <span>synthetic preview</span></h1>
-          <p className="am-stamp bg-inv">{AUTO_LABEL}</p>
-          <button type="button" className="am-back" onClick={onExit}>Back to Vault · owner review</button>
+          <h1 className="am-h1" tabIndex={-1} ref={head}>{t("Automatic memory")} <span>{t("synthetic preview")}</span></h1>
+          <p className="am-stamp bg-inv">{t(AUTO_LABEL)}</p>
+          <button type="button" className="am-back" onClick={onExit}>{t("Back to Vault · owner review")}</button>
         </div>
-        <p className="am-note">{AUTO_NOTE}</p>
+        <p className="am-note">{t(AUTO_NOTE)}</p>
         <div className="am-head-row am-head-views">
-          <div className="am-views" role="group" aria-label="Automatic memory views">
+          <div className="am-views" role="group" aria-label={t("Automatic memory views")}>
             {VIEWS.map((v) => (
-              <button key={v.id} type="button" className="am-view" aria-pressed={view === v.id} title={v.hint} onClick={() => showView(v.id)}>
-                <span className="am-vn">{v.name}</span>
+              <button key={v.id} type="button" className="am-view" aria-pressed={view === v.id} title={t(v.hint)} onClick={() => showView(v.id)}>
+                <span className="am-vn">{t(v.name)}</span>
               </button>
             ))}
           </div>
-          <p className="am-range">{RANGE_NOTE}</p>
-          <a className="am-skip" href="#am-inspector" onClick={(e) => { e.preventDefault(); document.getElementById('am-inspector')?.focus(); }}>Skip to inspector</a>
+          <p className="am-range">{t(RANGE_NOTE, { n: AUTO_COUNT })}</p>
+          <a className="am-skip" href="#am-inspector" onClick={(e) => { e.preventDefault(); document.getElementById('am-inspector')?.focus(); }}>{t("Skip to inspector")}</a>
         </div>
       </header>
       {view === 'starmap' ? (

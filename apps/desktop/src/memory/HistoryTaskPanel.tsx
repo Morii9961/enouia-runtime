@@ -9,6 +9,7 @@ import { ErrorBox, Operation, shortId, when } from "./ui";
 import { historyBatchOwner } from "./historyBatch";
 import { HistoryBatchPanel } from "./HistoryBatchPanel";
 
+import { t } from '../i18n/index.ts';
 type Attempt = { command: "history_materialize" | "history_resume"; args: HistoryTaskRequest | { taskId: string }; key: string };
 export function useHistoryTasks(vaultId: string, request = call) {
   const batchOwner = historyBatchOwner(vaultId);
@@ -52,7 +53,7 @@ export function useHistoryTasks(vaultId: string, request = call) {
         setError(describe(err));
         // A typed final refusal differs from an uncertain/lost receipt.
         refused = err instanceof CallError && !err.error.retryable;
-        if (refused) { setAttempt(null); setNote("Memory refused this submission. Read a fresh plan and saved tasks before another action."); }
+        if (refused) { setAttempt(null); setNote(t("Memory refused this submission. Read a fresh plan and saved tasks before another action.")); }
       }
     }
     finally { pending.current = false; if (mounted.current) { setWaiting(false); if (refused) refresh(); } }
@@ -77,15 +78,15 @@ export function useHistoryTasks(vaultId: string, request = call) {
           ? { vaultId, request: operation.attempt.args as HistoryTaskRequest }
           : { vaultId, taskId: (operation.attempt.args as { taskId: string }).taskId };
         setDetail(historyTaskObservation(status.result, selection));
-        setNote("Operation receipt. Read the saved task again to observe its latest state.");
-      } catch { setDetail(null); setAttempt(operation.attempt); setError("The task receipt could not be confirmed. Read saved tasks before creating another submission."); }
-    } else setNote("Local task creation stopped. Saved admission or partial jobs may remain; read the saved task and explicitly resume missing jobs.");
+        setNote(t("Operation receipt. Read the saved task again to observe its latest state."));
+      } catch { setDetail(null); setAttempt(operation.attempt); setError(t("The task receipt could not be confirmed. Read saved tasks before creating another submission.")); }
+    } else setNote(t("Local task creation stopped. Saved admission or partial jobs may remain; read the saved task and explicitly resume missing jobs."));
     refresh();
   };
   const recoveredDone = (status: J) => {
     finished.current.add(status.operationId);
     setOperations(previous => previous?.filter(op => op.operationId !== status.operationId) ?? null);
-    setNote(`Recovered local task operation ${status.state}. Read its saved task to observe local jobs.`);
+    setNote(t("Recovered local task operation {state}. Read its saved task to observe local jobs.", { state: status.state }));
     refresh();
   };
   return { vaultId, batchOwner, page, detail, operations, operation, attempt, waiting, busy, ready, error, note, list, read,
@@ -97,53 +98,53 @@ export function HistoryTasks({ tasks, request = call, openSession }: {
 }) {
   const { page, detail } = tasks;
   const [selection, setSelection] = useState(tasks.batchOwner.selection);
-  return <section className="mem-card mem-stack" aria-label="Saved history tasks">
-    <h3 className="mem-h3">Saved history tasks</h3>
-    <p className="mem-muted">These are local job descriptors. Creating or resuming them does not call a model, add suggestions or approve memories.</p>
-    <button type="button" className="mem-button" disabled={tasks.waiting || tasks.list.busy} onClick={() => tasks.refresh()}>Read saved history tasks</button>
+  return <section className="mem-card mem-stack" aria-label={t("Saved history tasks")}>
+    <h3 className="mem-h3">{t("Saved history tasks")}</h3>
+    <p className="mem-muted">{t("These are local job descriptors. Creating or resuming them does not call a model, add suggestions or approve memories.")}</p>
+    <button type="button" className="mem-button" disabled={tasks.waiting || tasks.list.busy} onClick={() => tasks.refresh()}>{t("Read saved history tasks")}</button>
     <ErrorBox error={tasks.list.error} /><ErrorBox error={tasks.read.error} />
     {tasks.error && <p role="alert" className="mem-error">{tasks.error}</p>}
-    {tasks.attempt && !tasks.busy && <button type="button" className="mem-button" onClick={tasks.retry}>Retry original history submission</button>}
-    {tasks.waiting && <p role="status" className="mem-muted">Waiting for the local task operation receipt…</p>}
+    {tasks.attempt && !tasks.busy && <button type="button" className="mem-button" onClick={tasks.retry}>{t("Retry original history submission")}</button>}
+    {tasks.waiting && <p role="status" className="mem-muted">{t("Waiting for the local task operation receipt…")}</p>}
     {tasks.note && <p role="status" className="mem-muted">{tasks.note}</p>}
     {tasks.operation && <Operation id={tasks.operation.id} kind={tasks.operation.kind} request={request} onDone={tasks.done} />}
     {tasks.operations?.filter((op: J) => op.operationId !== tasks.operation?.id).map((op: J) => <Operation key={op.operationId}
       id={op.operationId} kind={op.kind} request={request} onDone={tasks.recoveredDone} />)}
-    {tasks.list.busy && <p role="status" className="mem-muted">Reading saved task descriptors and unfinished operations…</p>}
+    {tasks.list.busy && <p role="status" className="mem-muted">{t("Reading saved task descriptors and unfinished operations…")}</p>}
     {page && <>
       <p className="mem-muted">Descriptor observation · head {shortId(page.identity.commitId)}. Progress requires a separate task read.</p>
-      {page.items.length === 0 && <p className="mem-muted">No saved history tasks on this page.</p>}
+      {page.items.length === 0 && <p className="mem-muted">{t("No saved history tasks on this page.")}</p>}
       <ul className="mem-list">{page.items.map((row: J) => <li key={row.taskId}>
         <span className="mem-mono">{shortId(row.taskId)}</span> · {when(row.createdAt)} · {row.request.batchIndices.length} selected batches
         <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy} onClick={() => tasks.observe(row.taskId)}>Read task {shortId(row.taskId)}</button>
       </li>)}</ul>
-      {page.nextCursor && <button type="button" className="mem-button" disabled={tasks.waiting || tasks.list.busy} onClick={() => tasks.refresh(page.nextCursor)}>Next saved history tasks</button>}
+      {page.nextCursor && <button type="button" className="mem-button" disabled={tasks.waiting || tasks.list.busy} onClick={() => tasks.refresh(page.nextCursor)}>{t("Next saved history tasks")}</button>}
     </>}
     {detail && <div className="mem-stack">
-      <h4 className="mem-h3">Observed local task</h4>
+      <h4 className="mem-h3">{t("Observed local task")}</h4>
       <p className="mem-mono">{detail.taskId} · head {detail.identity.commitId}</p>
       <p className="mem-muted">{detail.request.api} · {detail.request.model} · selected order {detail.request.batchIndices.map((n: number) => n + 1).join(" → ")}</p>
       <dl className="mem-facts">
-        <dt>Original import</dt><dd>{shortId(detail.request.importId)} · revision {detail.request.importRevision}</dd>
-        <dt>Suggestions per batch</dt><dd>{detail.request.maxCandidates}</dd>
-        <dt>Pending candidate limit</dt><dd>{detail.request.maxPending}</dd>
-        <dt>Reserved token ceiling per batch</dt><dd>{detail.request.maxReservedTokens}</dd>
+        <dt>{t("Original import")}</dt><dd>{shortId(detail.request.importId)} · {t("revision {n}", { n: detail.request.importRevision })}</dd>
+        <dt>{t("Suggestions per batch")}</dt><dd>{detail.request.maxCandidates}</dd>
+        <dt>{t("Pending candidate limit")}</dt><dd>{detail.request.maxPending}</dd>
+        <dt>{t("Reserved token ceiling per batch")}</dt><dd>{detail.request.maxReservedTokens}</dd>
         <dt>Cost ceiling per batch (micro USD)</dt><dd>{detail.request.maxReservedCostMicrousd ?? "unknown"}</dd>
       </dl>
       <p role="status" className="mem-muted">{detail.materializationComplete ? "All selected local jobs exist. Model extraction and review are still separate." : `${detail.missingBatchIndices.length} local jobs are missing.`}</p>
       {openSession && detail.coordinatorSessionId && <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
-        onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(detail.coordinatorSessionId); }}>View coordinator session</button>}
+        onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(detail.coordinatorSessionId); }}>{t("View coordinator session")}</button>}
       <ul className="mem-list">{detail.batches.map((batch: J) => <li key={batch.batchIndex}>Batch {batch.batchIndex + 1} · {batch.state} · {batch.applied} applied · invocation {batch.invocationState ?? "none recorded"} · <span className="mem-mono">{batch.sessionId}</span>
         <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
           onClick={() => {
             const selected = { taskId: detail.taskId, index: batch.batchIndex };
             tasks.batchOwner.selection = selected; setSelection(selected);
-          }}>Inspect batch {batch.batchIndex + 1} request</button>
+          }}>{t("Inspect batch {n} request", { n: batch.batchIndex + 1 })}</button>
         {openSession && <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
-          onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(batch.sessionId); }}>View batch {batch.batchIndex + 1} session</button>}
+          onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(batch.sessionId); }}>{t("View batch {n} session", { n: batch.batchIndex + 1 })}</button>}
       </li>)}</ul>
-      <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy} onClick={() => tasks.observe(detail.taskId)}>Read this history task again</button>
-      {!detail.materializationComplete && <button type="button" className="mem-button" disabled={!tasks.ready || tasks.read.busy} onClick={tasks.resume}>Resume missing local jobs</button>}
+      <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy} onClick={() => tasks.observe(detail.taskId)}>{t("Read this history task again")}</button>
+      {!detail.materializationComplete && <button type="button" className="mem-button" disabled={!tasks.ready || tasks.read.busy} onClick={tasks.resume}>{t("Resume missing local jobs")}</button>}
     </div>}
     <HistoryBatchPanel vaultId={tasks.vaultId} task={detail?.taskId === selection?.taskId ? detail : null}
       index={selection?.index ?? null} owner={tasks.batchOwner} request={request} />

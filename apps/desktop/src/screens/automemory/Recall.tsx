@@ -4,6 +4,7 @@ import { byId } from './model';
 import { Glyph, Ref } from './parts';
 import type { ViewProps } from './types';
 
+import { t } from '../../i18n/index.ts';
 // Recall lab: one synthetic recall, drawn as a strip with five stations on one
 // pen line. Eligibility is written before ranking because it happens before
 // ranking. There are no sliders and no per-dimension scores; every row says why.
@@ -20,31 +21,31 @@ export default function Recall({ sel, select }: ViewProps) {
   return (
     <div className="am-recall">
       <div className="am-view-head">
-        <h2 className="am-vh">Recall lab <span>why each memory was or was not offered</span></h2>
-        <p className="am-stamp-line"><span className="am-stamp bg-inv">Synthetic · no IPC · nothing saved</span> <span className="am-fine">Two invented cases. Nothing is sent, read from a Vault or kept.</span></p>
+        <h2 className="am-vh">{t("Recall lab")} <span>{t("why each memory was or was not offered")}</span></h2>
+        <p className="am-stamp-line"><span className="am-stamp bg-inv">{t("Synthetic · no IPC · nothing saved")}</span> <span className="am-fine">{t("Two invented cases. Nothing is sent, read from a Vault or kept.")}</span></p>
       </div>
-      <div className="am-cases" role="group" aria-label="Recall case">
+      <div className="am-cases" role="group" aria-label={t("Recall case")}>
         {RECALL_CASES.map((rc, i) => (
           <button key={rc.id} type="button" className="am-chip am-case" aria-pressed={i === ci} onClick={() => setCi(i)}>
-            <b>Case {i + 1}</b> {rc.query}
+            <b>{t("Case {n}", { n: i + 1 })}</b> {rc.query}
           </button>
         ))}
       </div>
-      <p className="am-moment"><b>Moment</b> {c.moment}</p>
+      <p className="am-moment"><b>{t("Moment")}</b> {c.moment}</p>
 
-      <ol className="am-steps" aria-label="Recall pipeline, five steps">
+      <ol className="am-steps" aria-label={t("Recall pipeline, five steps")}>
         <li>
           <span className="am-step-n">1</span>
           <div className="am-step-b">
             <h3>{c.steps[0].label}</h3>
             <p>{c.steps[0].note}</p>
-            <p className="am-q"><b>Query</b> <span className="am-mono">“{c.query}”</span></p>
+            <p className="am-q"><b>{t("Query")}</b> <span className="am-mono">“{c.query}”</span></p>
           </div>
         </li>
         <li>
           <span className="am-step-n">2</span>
           <div className="am-step-b">
-            <h3>{c.steps[1].label} <span className="am-tag">before any ranking</span></h3>
+            <h3>{c.steps[1].label} <span className="am-tag">{t("before any ranking")}</span></h3>
             <p>{c.steps[1].note}</p>
             {eligibilityOut.length ? (
               <>
@@ -60,8 +61,8 @@ export default function Recall({ sel, select }: ViewProps) {
             <h3>{c.steps[2].label}</h3>
             <p>{c.steps[2].note}</p>
             <table className="am-rank">
-              <caption className="am-sr">Ranked memories and why each was included</caption>
-              <thead><tr><th scope="col">Rank</th><th scope="col">Memory</th><th scope="col">Reason</th><th scope="col">Cost</th><th scope="col">Source reachable</th></tr></thead>
+              <caption className="am-sr">{t("Ranked memories and why each was included")}</caption>
+              <thead><tr><th scope="col">{t("Rank")}</th><th scope="col">{t("Memory")}</th><th scope="col">{t("Reason")}</th><th scope="col">{t("Cost")}</th><th scope="col">{t("Source reachable")}</th></tr></thead>
               <tbody>
                 {c.included.map((r) => (
                   <tr key={r.id}>
@@ -85,7 +86,7 @@ export default function Recall({ sel, select }: ViewProps) {
               {c.included.map((r) => { const left = acc; acc += r.cost; return <span key={r.id} className="am-bseg" style={{ left: pctOf(left), width: pctOf(r.cost) }}><i>{r.rank}</i></span>; })}
               <span className="am-blimit">limit {c.budget.limit}</span>
             </div>
-            <p className="am-bline"><b>Used</b> <span className="am-mono">{c.budget.used} of {c.budget.limit} units</span> · <b>Truncated</b> {c.budget.truncated ? <span className="am-yes">yes · {cut.length} cut</span> : 'no'}</p>
+            <p className="am-bline"><b>{t("Used")}</b> <span className="am-mono">{c.budget.used} of {c.budget.limit} units</span> · <b>{t("Truncated")}</b> {c.budget.truncated ? <span className="am-yes">yes · {cut.length} cut</span> : 'no'}</p>
             {cut.length ? <ul className="am-out">{cut.map((e) => <li key={e.id}><Ref m={byId.get(e.id)!} onSelect={select} selected={e.id === sel} /><span className="am-why">{e.reason}</span></li>)}</ul> : null}
           </div>
         </li>
@@ -96,7 +97,7 @@ export default function Recall({ sel, select }: ViewProps) {
             <p>{c.steps[4].note}</p>
             <ul className="am-capsule">
               {c.included.map((r) => <li key={r.id}><Glyph s={byId.get(r.id)!.state} /><span>{byId.get(r.id)!.title}</span><span className="am-mono">{r.cost}</span></li>)}
-              <li className="am-cap-total"><span>Capsule, synthetic</span><span className="am-mono">{total} units</span></li>
+              <li className="am-cap-total"><span>{t("Capsule, synthetic")}</span><span className="am-mono">{total} units</span></li>
             </ul>
           </div>
         </li>

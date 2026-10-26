@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { labels, msg, t } from '../i18n/index.ts';
 
-export const admissionErrors: Record<string, string> = {
-  root_in_use: 'The requested Vault is already reserved by another Runtime. Exit that Runtime, then open the folder here.',
-  root_admission_failed: 'Runtime could not reserve the requested Vault folder. Check folder access and choose it again.',
-  root_open_failed: 'The requested Vault could not open. Choose a valid local Vault folder in Memory.',
-};
+export const admissionErrors: Record<string, string> = labels({
+  root_in_use: msg('The requested Vault is already reserved by another Runtime. Exit that Runtime, then open the folder here.'),
+  root_admission_failed: msg('Runtime could not reserve the requested Vault folder. Check folder access and choose it again.'),
+  root_open_failed: msg('The requested Vault could not open. Choose a valid local Vault folder in Memory.'),
+});
 
 /** Host admission is separate from canonical workspace status. Paths stay native. */
 export default function VaultAdmissionNotice() {
@@ -23,5 +24,5 @@ export default function VaultAdmissionNotice() {
     void refresh();
     return () => { stopped = true; clearTimeout(timer); };
   }, []);
-  return error ? <p role="alert" className="mem-error">{admissionErrors[error] ?? 'Runtime could not open the requested Vault.'}</p> : null;
+  return error ? <p role="alert" className="mem-error">{t(admissionErrors[error] ?? msg('Runtime could not open the requested Vault.'))}</p> : null;
 }

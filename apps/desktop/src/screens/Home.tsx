@@ -6,6 +6,7 @@ import { DEMO_CLOCK, DOM_CELLS, DOM_MS, DOM_START, domMarks, domPath, domPen, pc
 import { homeSpec } from "../theme/mapSpecs";
 import { clearViews, useTimeView } from "../theme/timeview";
 
+import { t } from '../i18n/index.ts';
 // The record chart, enlarged. The page shows four days of a three-week record;
 // the time map in the strip under the title bar moves the frame, and this
 // chart pans with it. Each status line is a note whose leader runs back to the
@@ -45,12 +46,12 @@ export default function Home({ view }: { view: DemoView }) {
 <div className="bg-home-head">
 <div className="bg-readout">
 <div className="qr1">
-Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">demo clock</span>
+Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">{t("demo clock")}</span>
 </div>
-<div className="bg-now" aria-label="Demo clock 14:44">14<span>:</span>44</div>
+<div className="bg-now" aria-label={t("Demo clock 14:44")}>14<span>:</span>44</div>
 </div>
 <div className="bg-home-sub">
-<span className="bg-recording">Recording.</span> {home.memoryLine}.
+<span className="bg-recording">{t("Recording.")}</span> {home.memoryLine}.
 </div>
 </div>
 <div className="bg-home-chart">
@@ -65,7 +66,7 @@ Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">demo clo
 </div>
 </div>
 <h1 className="qr2 bg-here" data-away={!penOn || undefined} style={{ right: pct(penOn ? 1 - penFrac + 0.04 : 0.03) }}>
-I'm here.
+{t("I'm here.")}
 </h1>
 </div>
 <svg className="bg-leaders" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" data-hidden={!showLeaders || undefined}>
@@ -75,22 +76,22 @@ I'm here.
 <button onClick={nav.memory.go} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[0]) }} type="button">
 <span className="bg-note-time">{D.tTime(lastWrite)}</span>
 <span className="qr9">
-Memory Vault
+{t("Memory Vault")}
 </span>
 <span className="qr10">
 {home.memoryLine}
 </span>
 <span className="qr11">
-model_only
+{t("model_only")}
 </span>
 </button>
 <button onClick={nav.context.go} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[1]) }} type="button">
 <span className="bg-note-time">{home.capTime}</span>
 <span className="qr9">
-Context
+{t("Context")}
 </span>
 <span className="qr10">
-Compiled at {home.capTime} for “vault adapter rebuild trigger”
+{t('Compiled at {time} for “{query}”', { time: home.capTime, query: 'vault adapter rebuild trigger' })}
 </span>
 <span className="qr11">
 {home.capShort}
@@ -99,10 +100,10 @@ Compiled at {home.capTime} for “vault adapter rebuild trigger”
 <button onClick={nav.sessions.go} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[2]) }} type="button">
 <span className="bg-note-time">{home.sesTime}</span>
 <span className="qr9">
-Current session
+{t("Current session")}
 </span>
 <span className="qr10">
-Vault adapter planning · 12 turns, last at {home.sesTime}
+Vault adapter planning · {t('{n} turns, last at {time}', { n: 12, time: home.sesTime })}
 </span>
 <span className="qr11">
 {home.sesShort}
@@ -111,10 +112,10 @@ Vault adapter planning · 12 turns, last at {home.sesTime}
 <button onClick={home.openCheckpoint} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[3]) }} type="button">
 <span className="bg-note-time">{home.cpTime}</span>
 <span className="qr9">
-Checkpoint
+{t("Checkpoint")}
 </span>
 <span className="qr10">
-Turns 1–8 covered at {home.cpTime}
+{t('Turns {a}–{b} covered at {time}', { a: 1, b: 8, time: home.cpTime })}
 </span>
 <span className="qr11">
 {home.cpShort}
@@ -125,42 +126,42 @@ Turns 1–8 covered at {home.cpTime}
 </div>
 <div className="bg-home-foot">
 <div className="qr6 bg-legend">
-<span className="bg-legend-k">Legend</span>
+<span className="bg-legend-k">{t("Legend")}</span>
 <span className="qr3">
 
 </span>
 <span>
-Fictional demo on this device
+{t("Fictional demo on this device")}
 </span>
 <span className="qr4">
 ·
 </span>
 <span>
-Core models v1
+{t("Core models v1")}
 </span>
 <span className="qr4">
 ·
 </span>
 <span>
-Mock provider
+{t("Mock provider")}
 </span>
 <span className="qr4">
 ·
 </span>
 <span className="qr5">
-Vault adapter not connected
+{t("Vault adapter not connected")}
 </span>
-<span className="bg-legend-key"><i data-kind="canonical" /> canonical write <i data-kind="candidate" /> candidate <i data-kind="checkpoint" /> checkpoint</span>
+<span className="bg-legend-key"><i data-kind="canonical" /> {t("canonical write")} <i data-kind="candidate" /> {t("candidate")} <i data-kind="checkpoint" /> {t("checkpoint")}</span>
 </div>
 <div className="qr15 bg-margin">
 <div className="qr9">
-Left open last time
+{t("Left open last time")}
 </div>
 <div className="qr14">
-Choose the index rebuild trigger.
+{t("Choose the index rebuild trigger.")}
 </div>
 <div className="qr14">
-Accept the first Windows port boundary.
+{t("Accept the first Windows port boundary.")}
 </div>
 </div>
 </div>

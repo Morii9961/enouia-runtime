@@ -2,6 +2,7 @@ import React from 'react';
 import { KIND_LABEL, STATE_LABEL, type AutoMemory, type AutoState } from './fixture';
 import { STATE_ORDER, occurredText } from './model';
 
+import { t } from '../../i18n/index.ts';
 /** One state, drawn as a mark on the chart paper. Always paired with its words. */
 export function Glyph({ s, className = '' }: { s: AutoState; className?: string }) {
   return <i className={'am-g am-fill ' + className} data-s={s} aria-hidden="true" />;
@@ -14,13 +15,13 @@ export const kindWord = (m: AutoMemory) => KIND_LABEL[m.kind];
 /** Time semantics on one line: which time, in which precision. */
 export function OccurredLine({ m }: { m: AutoMemory }) {
   const { text, tag } = occurredText(m.occurred);
-  return <span className="am-occ"><b>Occurred</b> <span className="am-mono">{text}</span> <em>{tag}</em></span>;
+  return <span className="am-occ"><b>{t("Occurred")}</b> <span className="am-mono">{text}</span> <em>{tag}</em></span>;
 }
 
 /** The ten states and their marks. Words are the primary reading; the mark is the second. */
 export function StateKey() {
   return (
-    <ul className="am-key" aria-label="State marks">
+    <ul className="am-key" aria-label={t("State marks")}>
       {STATE_ORDER.map((s) => <li key={s}><Glyph s={s} />{STATE_LABEL[s]}</li>)}
     </ul>
   );

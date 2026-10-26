@@ -9,6 +9,7 @@ import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 import { ProviderConfigDraft } from "./ProviderConfigDraft";
 import { ProviderSettingsStatus } from "./ProviderSettingsStatus";
 
+import { labels, msg, t, tn } from '../i18n/index.ts';
 type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void> };
 const StatusContext = createContext<StatusValue | null>(null);
 
@@ -23,26 +24,26 @@ export function useStatus(): StatusValue {
   return value;
 }
 
-const VAULT: Record<string, string> = { open: "Vault open", locked: "Vault locked", none: "No Vault open" };
+const VAULT: Record<string, string> = labels({ open: msg("Vault open"), locked: msg("Vault locked"), none: msg("No Vault open") });
 
 export function vaultLabel(status: J, vaultChanging = false): string {
-  if (!status) return "Memory status unknown";
-  if (exiting(status)) return "Exiting, finishing operations";
-  if (vaultChanging) return "Finishing Vault change";
+  if (!status) return t("Memory status unknown");
+  if (exiting(status)) return t("Exiting, finishing operations");
+  if (vaultChanging) return t("Finishing Vault change");
   return VAULT[status.vault?.state] ?? String(status.vault?.state);
 }
 
 /** The shell reports an Exit in progress (tray or Settings, ADR-026). */
 export const exiting = (status: J): boolean => status?.companion?.exiting === true;
 
-const EXITING = "Enouia Runtime is exiting. Memory is stopping model calls locally, cancelling imports and index work, letting a running verify or backup finish, and releasing the Vault. A local stop does not confirm remote cancellation. Reopen the Vault and read saved session outcomes before sending again.";
+const EXITING = msg("Enouia Runtime is exiting. Memory is stopping model calls locally, cancelling imports and index work, letting a running verify or backup finish, and releasing the Vault. A local stop does not confirm remote cancellation. Reopen the Vault and read saved session outcomes before sending again.");
 
 /** Waiting for, or unable to read, the Memory status. */
 export function StatusPending() {
   const { error } = useStatus();
   return (
     <p role="status" className="mem-muted">
-      {error ? "Memory status could not be read. It is retried every few seconds." : "Reading the Memory status…"}
+      {error ? t("Memory status could not be read. It is retried every few seconds.") : t("Reading the Memory status…")}
     </p>
   );
 }
@@ -51,13 +52,13 @@ export function StatusPending() {
 export function MemoryBadge() {
   const { status, error, vaultChanging } = useStatus();
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
-  const text = status ? `Memory · ${vaultLabel(status, vaultChanging)}` : error ? "Memory status unavailable" : "Memory · checking…";
+  const text = status ? `${t("Memory")} · ${vaultLabel(status, vaultChanging)}` : error ? t("Memory status unavailable") : t("Memory · checking…");
   return (
-    <div className="qr224" role="status" title="Memory, Context and Sessions use the pinned Enouia Memory Core. The Runtime Inspector shows observed component status.">
+    <div className="qr224" role="status" title={t("Memory, Context and Sessions use the pinned Enouia Memory Core. The Runtime Inspector shows observed component status.")}>
       <span className="qr223" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
       {text}
       <span className="qr4">·</span>
-      Connected workspace
+      {t("Connected workspace")}
     </div>
   );
 }
@@ -103,15 +104,15 @@ export function VaultConnect() {
       <VaultAdmissionNotice />
       <h2 ref={heading} tabIndex={-1} className="mem-h2">{v.state === "locked" ? `Vault locked · ${v.rootName}` : "No Vault open"}</h2>
       <p className="mem-muted">
-        Memory opens only a folder you choose here. Nothing is remembered between runs, and no default location is created.
+        {t("Memory opens only a folder you choose here. Nothing is remembered between runs, and no default location is created.")}
       </p>
       <div className="mem-actions">
         {v.state === "locked" && (
-          <button type="button" className="mem-button mem-primary" disabled={action.busy} onClick={() => after(() => call("vault_unlock"))}>Unlock</button>
+          <button type="button" className="mem-button mem-primary" disabled={action.busy} onClick={() => after(() => call("vault_unlock"))}>{t("Unlock")}</button>
         )}
         <button type="button" className="mem-button" disabled={action.busy}
           onClick={() => after(async () => { const p = await pick("vault_root"); if (p) await call("vault_open", { rootToken: p.token }); })}>
-          Open an existing Vault…
+          {t("Open an existing Vault…")}
         </button>
       </div>
       <label className="mem-label" htmlFor="mem-create-phrase">
@@ -121,10 +122,10 @@ export function VaultConnect() {
         <input id="mem-create-phrase" className="mem-input" value={phrase} onChange={(e) => setPhrase(e.target.value)} autoComplete="off" spellCheck={false} />
         <button type="button" className="mem-button" disabled={phrase !== "create new vault" || action.busy}
           onClick={() => after(async () => { const p = await pick("vault_root"); if (p) await call("vault_create", { rootToken: p.token, confirmPhrase: phrase }); })}>
-          Create Vault…
+          {t("Create Vault…")}
         </button>
       </div>
-      <p className="mem-muted">A Vault cannot sit inside a Git working tree, a sync folder such as OneDrive, Program Files or Windows, and it needs a local NTFS or ReFS disk.</p>
+      <p className="mem-muted">{t("A Vault cannot sit inside a Git working tree, a sync folder such as OneDrive, Program Files or Windows, and it needs a local NTFS or ReFS disk.")}</p>
       <ErrorBox error={action.error} />
     </div>
   );
@@ -136,7 +137,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
   if (!status) {
     return <div className="mem-gate"><ErrorBox error={error} /><StatusPending /></div>;
   }
-  if (exiting(status)) return <div className="mem-gate"><p role="status" className="mem-muted">{EXITING}</p></div>;
+  if (exiting(status)) return <div className="mem-gate"><p role="status" className="mem-muted">{t(EXITING)}</p></div>;
   if (vaultChanging) return <div className="mem-gate"><VaultLifecycleWait /></div>;
   if (status.vault?.state !== "open") return <div className="mem-gate"><VaultConnect /></div>;
   return <>{children}</>;
@@ -145,8 +146,8 @@ export function VaultGate({ children }: { children: ReactNode }) {
 /** Core's detached slot does not mean Runtime has finished releasing it. */
 export function VaultLifecycleFeedback({ children }: { children?: ReactNode }) {
   return <div className="mem-card mem-stack" aria-busy="true">
-    <h2 className="mem-h2">Finishing Vault change</h2>
-    <p role="status" className="mem-muted">Runtime is finishing Memory operations before releasing the Vault. Verify and backup cannot be cancelled. Wait for this to finish before unlocking or opening a Vault.</p>
+    <h2 className="mem-h2">{t("Finishing Vault change")}</h2>
+    <p role="status" className="mem-muted">{t("Runtime is finishing Memory operations before releasing the Vault. Verify and backup cannot be cancelled. Wait for this to finish before unlocking or opening a Vault.")}</p>
     <p className="mem-muted">Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.</p>
     {children}
   </div>;
@@ -166,7 +167,7 @@ export function VaultLifecycleWait() {
           setError(null);
         }
       } catch {
-        if (!stopped) setError({ text: "Operation progress could not be read. Runtime is still finishing the Vault change." });
+        if (!stopped) setError({ text: t("Operation progress could not be read. Runtime is still finishing the Vault change.") });
       } finally {
         if (!stopped) timer = setTimeout(poll, 400);
       }
@@ -188,20 +189,20 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
   const open = v?.state === "open" && !vaultChanging && !stopping;
   const pending: number | null = status?.pendingCandidates ?? null;
   const reviewLine = !status
-    ? "Memory status unknown"
+    ? t("Memory status unknown")
     : stopping
-      ? "Runtime is exiting · waiting for Memory operations"
+      ? t("Runtime is exiting · waiting for Memory operations")
       : vaultChanging
-      ? "Finishing Memory operations before releasing the Vault"
+      ? t("Finishing Memory operations before releasing the Vault")
       : v?.state === "locked"
-      ? "Vault locked · unlock it in Memory Vault"
+      ? t("Vault locked · unlock it in Memory Vault")
       : !open
-        ? "Open or create a Vault to begin"
+        ? t("Open or create a Vault to begin")
         : pending == null
-          ? "Review queue could not be read"
+          ? t("Review queue could not be read")
           : pending
-            ? `${pending} candidate${pending === 1 ? "" : "s"} waiting for your review`
-            : "Nothing waiting for review";
+            ? tn(pending, "{n} candidate waiting for your review", "{n} candidates waiting for your review")
+            : t("Nothing waiting for review");
   return (
     <section data-screen-label="Home" className="qr17">
       <div className="qr16">
@@ -210,35 +211,35 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
           {ring}
           <div className="qr7">
             <div className="qr1">Enouia Runtime</div>
-            <h1 className="qr2">I'm here.</h1>
+            <h1 className="qr2">{t("I'm here.")}</h1>
             <div className="qr6">
               <span className="qr3" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
               <span>{vaultLabel(status, vaultChanging)}{v?.rootName ? ` · ${v.rootName}` : ""}</span>
               <span className="qr4">·</span>
-              <span>Local Mock responses</span>
+              <span>{t("Local Mock responses")}</span>
             </div>
           </div>
         </div>
         <div className="qr13">
           <button onClick={nav.memory.go} className="qr12" type="button">
-            <span className="qr9">Memory Vault</span>
+            <span className="qr9">{t("Memory Vault")}</span>
             <span className="qr10">{reviewLine}</span>
             <span className="qr11">{stopping ? "exiting" : vaultChanging ? "waiting" : open ? `#${v.headSequence}` : v?.state ?? "—"}</span>
           </button>
           <button onClick={nav.sessions.go} className="qr12" type="button">
-            <span className="qr9">Sessions</span>
-            <span className="qr10">Use the local Mock, or inspect and authorize an external model request</span>
-            <span className="qr11">open</span>
+            <span className="qr9">{t("Sessions")}</span>
+            <span className="qr10">{t("Use the local Mock, or inspect and authorize an external model request")}</span>
+            <span className="qr11">{t("open")}</span>
           </button>
           <button onClick={nav.context.go} className="qr12" type="button">
-            <span className="qr9">Context</span>
-            <span className="qr10">Preview what a question would carry, and why</span>
-            <span className="qr11">inspect</span>
+            <span className="qr9">{t("Context")}</span>
+            <span className="qr10">{t("Preview what a question would carry, and why")}</span>
+            <span className="qr11">{t("inspect")}</span>
           </button>
         </div>
         {open && (
           <div className="qr15">
-            <div className="qr9">Last commit</div>
+            <div className="qr9">{t("Last commit")}</div>
             <div className="qr14">{when(v.lastCommitAt)}</div>
           </div>
         )}
@@ -257,21 +258,21 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
   const v = status?.vault ?? {};
   return (
     <><div className="qr65">
-      <div className="qr198">Memory Vault</div>
-      <Row k="State">{vaultLabel(status, vaultChanging)}</Row>
-      <Row k="Folder">{v.rootName ?? "—"}</Row>
+      <div className="qr198">{t("Memory Vault")}</div>
+      <Row k={t("State")}>{vaultLabel(status, vaultChanging)}</Row>
+      <Row k={t("Folder")}>{v.rootName ?? "—"}</Row>
       {v.state === "open" && !vaultChanging && !exiting(status) && (
         <>
-          <Row k="Health">{v.health}</Row>
-          <Row k="Last commit"><span className="qr217">#{v.headSequence} · {when(v.lastCommitAt)}</span></Row>
-          <Row k="Owner-only access">{v.ownerOnlyAcl == null ? "unknown" : v.ownerOnlyAcl ? "yes" : <Tag tone="warn">no</Tag>}</Row>
-          <Row k="Free space">{v.freeBytes != null ? `${(v.freeBytes / 2 ** 30).toFixed(1)} GiB` : "unknown"}</Row>
+          <Row k={t("Health")}>{v.health}</Row>
+          <Row k={t("Last commit")}><span className="qr217">#{v.headSequence} · {when(v.lastCommitAt)}</span></Row>
+          <Row k={t("Owner-only access")}>{v.ownerOnlyAcl == null ? t("unknown") : v.ownerOnlyAcl ? t("yes") : <Tag tone="warn">{t("no")}</Tag>}</Row>
+          <Row k={t("Free space")}>{v.freeBytes != null ? `${(v.freeBytes / 2 ** 30).toFixed(1)} GiB` : t("unknown")}</Row>
         </>
       )}
-      <Row k="Components"><ComponentList status={status} /></Row>
+      <Row k={t("Components")}><ComponentList status={status} /></Row>
       <div className="qr216">
-        <span className="qr35">Manage</span>
-        <span><button type="button" className="mem-link" onClick={openMemory}>Open the Memory Vault surface</button></span>
+        <span className="qr35">{t("Manage")}</span>
+        <span><button type="button" className="mem-link" onClick={openMemory}>{t("Open the Memory Vault surface")}</button></span>
       </div>
       <CompanionSettings status={status} />
     </div>
@@ -280,12 +281,12 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
   );
 }
 
-const HOTKEY: Record<string, string> = {
-  registered: "ready",
-  conflict: "taken by another program, so it is not registered",
-  unsupported: "not supported on this system",
-  absent: "not set up",
-};
+const HOTKEY: Record<string, string> = labels({
+  registered: msg("ready"),
+  conflict: msg("taken by another program, so it is not registered"),
+  unsupported: msg("not supported on this system"),
+  absent: msg("not set up"),
+});
 
 /** Window, quick search and login startup (ADR-026). */
 function CompanionSettings({ status }: { status: J }) {
@@ -303,14 +304,14 @@ function CompanionSettings({ status }: { status: J }) {
   const locked = !startup?.supported || startupRead.busy || !!startupRead.error || action.busy || leaving || startup?.state === "different_installation";
   return (
     <>
-      <div className="qr198 mem-section">Window and startup</div>
-      <Row k="Closing">Closing the window hides it to the tray; Memory keeps running. Exit from the tray or below.</Row>
-      <Row k="Quick search">
+      <div className="qr198 mem-section">{t("Window and startup")}</div>
+      <Row k={t("Closing")}>{t("Closing the window hides it to the tray; Memory keeps running. Exit from the tray or below.")}</Row>
+      <Row k={t("Quick search")}>
         {hotkey?.combo ? <span className="qr217">{hotkey.combo}</span> : "—"} {HOTKEY[hotkey?.state] ?? hotkey?.state ?? ""}
-        {hotkey?.state === "conflict" && <span className="mem-muted"> · start Runtime with --hotkey-key and another letter</span>}
+        {hotkey?.state === "conflict" && <span className="mem-muted"> {t("· start Runtime with --hotkey-key and another letter")}</span>}
       </Row>
       <div className="qr216">
-        <span className="qr35" id="mem-startup-label">Start at login</span>
+        <span className="qr35" id="mem-startup-label">{t("Start at login")}</span>
         <span className="mem-actions">
           <button type="button" role="switch" aria-checked={enabled} aria-labelledby="mem-startup-label" aria-describedby="mem-startup-description"
             disabled={locked} className="qr215 mem-switch"
@@ -323,36 +324,36 @@ function CompanionSettings({ status }: { status: J }) {
               void action.run(async () => {
                 const next = !enabled;
                 setStartup(await shell.startupSet(next));
-                setNote(next ? "Runtime will start in the tray when you sign in." : "Runtime will not start at sign-in.");
+                setNote(next ? t("Runtime will start in the tray when you sign in.") : t("Runtime will not start at sign-in."));
               });
             }}>
             <span className="qr214" style={{ left: enabled ? "23px" : "3px", background: enabled ? "#0C1117" : "#9BA9B6" }} />
           </button>
           <span id="mem-startup-description" className="mem-muted">
             Off by default. Starts only the tray; no Vault is opened.
-            {startup?.state === "different_installation" && " Another installation owns this setting; turn it off there first."}
-            {startup && !startup.supported && " Not supported on this system."}
+            {startup?.state === "different_installation" && " " + t("Another installation owns this setting; turn it off there first.")}
+            {startup && !startup.supported && " " + t("Not supported on this system.")}
           </span>
         </span>
       </div>
       <div className="mem-actions">
         <button type="button" className="mem-button" disabled={startupRead.busy || action.busy}
-          onClick={() => { if (!startupRead.pending.current && !action.busy) { setNote(""); void readStartup(); } }}>Read startup setting again</button>
+          onClick={() => { if (!startupRead.pending.current && !action.busy) { setNote(""); void readStartup(); } }}>{t("Read startup setting again")}</button>
       </div>
-      {startupRead.busy && <p role="status" className="mem-muted">Reading the startup setting…</p>}
+      {startupRead.busy && <p role="status" className="mem-muted">{t("Reading the startup setting…")}</p>}
       {startupRead.error && <p role="status" className="mem-muted">{startup ? "Previous startup observation." : "The startup setting is still unknown."} Read the setting again before changing it. Reading does not change login startup.</p>}
       <ErrorBox error={startupRead.error} />
       <p role="status" aria-atomic="true" className="mem-note">{note}</p>
       <ErrorBox error={action.error} />
       <div className="qr216">
-        <span className="qr35">Exit</span>
+        <span className="qr35">{t("Exit")}</span>
         <span>
           <button type="button" className="mem-button mem-danger" disabled={leaving}
-            onClick={() => void leave.run(async () => { await shell.exit(); await refresh(); })}>Exit Enouia Runtime</button>
-          <span className="mem-muted"> Stops model calls locally and releases the Vault first. Read saved session outcomes before sending again.</span>
+            onClick={() => void leave.run(async () => { await shell.exit(); await refresh(); })}>{t("Exit Enouia Runtime")}</button>
+          <span className="mem-muted"> {t("Stops model calls locally and releases the Vault first. Read saved session outcomes before sending again.")}</span>
         </span>
       </div>
-      {leaving && <p role="status" className="mem-note">{EXITING}</p>}
+      {leaving && <p role="status" className="mem-note">{t(EXITING)}</p>}
       <ErrorBox error={leave.error} />
     </>
   );

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { describe, providerReload, providerSetup } from "./client";
 import { when } from "./ui";
 
+import { t, tj } from '../i18n/index.ts';
 type Setup = { state: "absent" | "ready" } | { state: "invalid"; rule: string };
 type Observation = { setup: Setup; at: string };
 
@@ -37,14 +38,14 @@ export function ProviderSettingsStatus({ disabled = false, setup = providerSetup
       if (kind === "reload") {
         try { await reload(); }
         catch (error) {
-          if (current === generation.current) setReloadError(`Reload was not acknowledged. ${describe(error)}. The loaded state is read separately below.`);
+          if (current === generation.current) setReloadError(t("Reload was not acknowledged. {v0}. The loaded state is read separately below.", { v0: describe(error) }));
         }
       }
       if (current !== generation.current) return;
       const value = checked(await setup());
       if (current === generation.current) setObservation({ setup: value, at: new Date().toISOString() });
     } catch (error) {
-      if (current === generation.current) setError(`Loaded model settings are unknown. ${describe(error)}. Read the state again before reloading.`);
+      if (current === generation.current) setError(t("Loaded model settings are unknown. {v0}. Read the state again before reloading.", { v0: describe(error) }));
     } finally {
       if (current === generation.current) { pending.current = false; setBusy(null); }
     }
@@ -66,24 +67,24 @@ export function ProviderSettingsStatus({ disabled = false, setup = providerSetup
     void read(kind);
   };
   return <section className="qr65 mem-stack" aria-labelledby={`${id}-title`}>
-    <h2 id={`${id}-title`} className="qr198">Loaded model settings</h2>
-    <p className="mem-muted">This is the running host's last observed setup. Generating or saving a draft does not change it. Reload model settings explicitly reads the fixed configuration file and adopts or disables that setup.</p>
+    <h2 id={`${id}-title`} className="qr198">{t("Loaded model settings")}</h2>
+    <p className="mem-muted">{t("This is the running host's last observed setup. Generating or saving a draft does not change it. Reload model settings explicitly reads the fixed configuration file and adopts or disables that setup.")}</p>
     <p role="status" className="mem-muted">{disabled ? "Runtime is exiting; settings changes are unavailable."
-      : busy === "reload" ? "Reloading and reading loaded model settings…"
-      : busy ? "Reading loaded model settings…"
-      : state?.state === "ready" ? "Settings loaded. Key access, grants and requests are separate steps in Sessions."
-      : state?.state === "absent" ? "External providers are off: no settings file was loaded."
-      : state?.state === "invalid" ? `Settings refused; external providers are off. ${describe(state.rule)}.`
-      : "Loaded model settings are unknown."}</p>
+      : busy === "reload" ? t("Reloading and reading loaded model settings…")
+      : busy ? t("Reading loaded model settings…")
+      : state?.state === "ready" ? t("Settings loaded. Key access, grants and requests are separate steps in Sessions.")
+      : state?.state === "absent" ? t("External providers are off: no settings file was loaded.")
+      : state?.state === "invalid" ? t("Settings refused; external providers are off. {v0}.", { v0: describe(state.rule) })
+      : t("Loaded model settings are unknown.")}</p>
     {observation && !disabled && <p className="mem-muted">Observed {when(observation.at)}</p>}
     {error && <p role="alert" className="mem-error">{error}</p>}
     {reloadError && <p role="alert" className="mem-error">{reloadError}</p>}
     <div className="mem-actions">
       <button type="button" className="mem-button" disabled={disabled || busy != null}
-        onClick={event => act("read", event.currentTarget)}>Read loaded settings again</button>
+        onClick={event => act("read", event.currentTarget)}>{t("Read loaded settings again")}</button>
       <button type="button" className="mem-button" disabled={disabled || busy != null || !observation}
-        onClick={event => act("reload", event.currentTarget)}>Reload model settings</button>
+        onClick={event => act("reload", event.currentTarget)}>{t("Reload model settings")}</button>
     </div>
-    <p className="mem-muted">Only <span className="mem-mono">%APPDATA%\com.enouia.runtime\memory-providers.json</span> is read. A rejected or missing file turns providers off after the Core accepts the change; a running call can refuse it and keep the previous setup. Reloading does not send a request, enter a key or approve a grant.</p>
+    <p className="mem-muted">{tj("Only {path} is read. A rejected or missing file turns providers off after the Core accepts the change; a running call can refuse it and keep the previous setup. Reloading does not send a request, enter a key or approve a grant.", { path: <span className="mem-mono">%APPDATA%\com.enouia.runtime\memory-providers.json</span> })}</p>
   </section>;
 }

@@ -14,17 +14,20 @@ import { lendMap, type MapSpec } from '../../theme/TimeMap';
 import { clearViews, panTo, peekView, useTimeView } from '../../theme/timeview';
 import { motionReduced } from '../../theme/motion';
 
+import { dateFmt, labels, locale, msg, t, tn, useLang } from '../../i18n/index.ts';
 const SIZES = [200, 700, 1000, 5000];
 const LAYOUTS: { id: LayoutId; name: string; hint: string }[] = [
-  { id: 'force', name: 'Force', hint: 'links pull, memories push apart' },
-  { id: 'drum', name: 'Time drum', hint: 'one turn is the year; one ring per theme; the pen stays at the top' },
-  { id: 'clusters', name: 'Theme clusters', hint: 'one cluster per suggested theme, oldest at the centre' },
+  { id: 'force', name: msg('Force'), hint: msg('links pull, memories push apart') },
+  { id: 'drum', name: msg('Time drum'), hint: msg('one turn is the year; one ring per theme; the pen stays at the top') },
+  { id: 'clusters', name: msg('Theme clusters'), hint: msg('one cluster per suggested theme, oldest at the centre') },
 ];
-const STATE: Record<StarState, string> = { adopted: 'Adopted by system', consolidated: 'Consolidated', held: 'Held hypothesis', fading: 'Fading', superseded: 'Superseded', corrected: 'Corrected by you' };
-const LINK: Record<LinkType, string> = { source: 'Same conversation', supersedes: 'Supersedes', theme: 'Shared theme · algorithm suggestion' };
+const STATE: Record<StarState, string> = labels({ adopted: msg('Adopted by system'), consolidated: msg('Consolidated'), held: msg('Held hypothesis'), fading: msg('Fading'), superseded: msg('Superseded'), corrected: msg('Corrected by you') });
+const LINK: Record<LinkType, string> = labels({ source: msg('Same conversation'), supersedes: msg('Supersedes'), theme: msg('Shared theme · algorithm suggestion') });
 const DAY = 86_400_000, MONTH = 30 * DAY, KEY = 'starmap', TAU = Math.PI * 2;
-const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Shanghai', day: 'numeric', month: 'short', year: 'numeric' });
-const fmtMonth = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Shanghai', month: 'short' });
+// Dates in the interface language, on Asia/Shanghai calendar days.
+const fmt = { format: (ms: number) => dateFmt({ timeZone: 'Asia/Shanghai', day: 'numeric', month: 'short', year: 'numeric' }).format(ms) };
+const fmtMonth = { format: (ms: number) => dateFmt({ timeZone: 'Asia/Shanghai', month: 'short' }).format(ms) };
+const num = (n: number) => n.toLocaleString(locale());
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 
 // Motion (DESIGN.md §7 · star map). Springs act on each star's offset from its place in the layout.
@@ -47,16 +50,16 @@ function mapSpec(f: StarField): MapSpec {
   const labels: MapSpec['labels'] = [];
   for (let m = 0; m < 12; m++) { const at = Date.UTC(2025, 10 + m, 1) - 8 * 3_600_000; labels.push({ at: (at - d0) / (d1 - d0), text: fmtMonth.format(at + 1) }); }
   return {
-    key: KEY, label: `Star map replay, ${fmt.format(d0)} to ${fmt.format(d1 - 1)}. The frame's right edge is the moment shown: memories formed after it are hidden.`,
-    cells, ticks: [], bars: bars.map((b) => b / top), labels, step: 7 * DAY, page: MONTH, unit: 'day',
-    readout: (start, span) => 'formed by ' + fmt.format(start + span - 1),
-    jump: { label: 'Whole year', start: d1 - MONTH },
+    key: KEY, label: t('Star map replay, {from} to {to}. The frame’s right edge is the moment shown: memories formed after it are hidden.', { from: fmt.format(d0), to: fmt.format(d1 - 1) }),
+    cells, ticks: [], bars: bars.map((b) => b / top), labels, step: 7 * DAY, page: MONTH, unit: msg('day'),
+    readout: (start, span) => t('formed by {date}', { date: fmt.format(start + span - 1) }),
+    jump: { label: msg('Whole year'), start: d1 - MONTH },
     init: () => ({ start: d1 - MONTH, span: MONTH, domain: f.domain }),
   };
 }
 
-type Colors = { paper: string; ink: string; ink2: string; ink3: string; hi: string; minor: string; major: string; pen: string };
-const readColors = (): Colors => { const s = getComputedStyle(document.documentElement); const v = (k: string) => s.getPropertyValue(k).trim(); return { paper: v('--paper'), ink: v('--ink'), ink2: v('--ink-2'), ink3: v('--ink-3'), hi: v('--ink-hi'), minor: v('--grid-minor'), major: v('--grid-major'), pen: v('--pen') }; };
+type Colors = { paper: string; ink: string; ink2: string; ink3: string; hi: string; minor: string; major: string; pen: string; lab: string; text: string };
+const readColors = (): Colors => { const s = getComputedStyle(document.documentElement); const v = (k: string) => s.getPropertyValue(k).trim(); return { paper: v('--paper'), ink: v('--ink'), ink2: v('--ink-2'), ink3: v('--ink-3'), hi: v('--ink-hi'), minor: v('--grid-minor'), major: v('--grid-major'), pen: v('--pen'), lab: v('--f-lab') || '"Martian Mono", monospace', text: v('--f-text') || 'Geist, sans-serif' }; };
 const hash = (i: number) => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
 const wrap = (a: number) => a - TAU * Math.round(a / TAU);
 type Cam = { k: number; x: number; y: number };
@@ -89,7 +92,8 @@ export default function StarMap() {
   const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
   const field = useMemo(() => makeStarField(n, 7), [n]);
-  const spec = useMemo(() => mapSpec(field), [field]);
+  const uiLang = useLang();
+  const spec = useMemo(() => mapSpec(field), [field, uiLang]); // eslint-disable-line react-hooks/exhaustive-deps
   const view = useTimeView(KEY, spec.init);
   const cutoff = view.start + view.span;
 
@@ -130,7 +134,7 @@ export default function StarMap() {
     const X = (i: number) => cx0 + pos[2 * i] * k, Y = (i: number) => cy0 + pos[2 * i + 1] * k;
     const vis = (i: number) => f.stars[i].t <= cut && (th === null || f.stars[i].theme === th);
     // guides: the drum's rings, months and fixed pen, or the theme names
-    g.font = '600 12px "Martian Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '600 12px ' + col.lab; g.textAlign = 'center'; g.textBaseline = 'middle';
     if (l === 'drum') {
       g.strokeStyle = col.minor; g.lineWidth = 1;
       for (let r = 0; r < f.themes.length; r++) { g.beginPath(); g.arc(cx0, cy0, (130 + r * 38) * k, 0, TAU); g.stroke(); }
@@ -181,7 +185,7 @@ export default function StarMap() {
     // labels: the selection, its neighbours and the hovered star, knocked out of the ground
     const taken: [number, number, number, number][] = [];
     const label = (i: number, strong: boolean) => {
-      const x = X(i) + rad + 5, y = Y(i); g.font = (strong ? '500 ' : '400 ') + '12px Geist, "Microsoft YaHei UI", sans-serif'; g.textAlign = 'left';
+      const x = X(i) + rad + 5, y = Y(i); g.font = (strong ? '500 ' : '400 ') + '12px ' + col.text; g.textAlign = 'left';
       const bw = g.measureText(f.stars[i].title).width; const box: [number, number, number, number] = [x - 2, y - 9, x + bw + 2, y + 9];
       if (!strong && taken.some((q) => box[0] < q[2] && box[2] > q[0] && box[1] < q[3] && box[3] > q[1])) return;
       taken.push(box);
@@ -189,7 +193,7 @@ export default function StarMap() {
     };
     if (sl >= 0 && vis(sl)) {
       g.strokeStyle = col.pen; g.lineWidth = 2; g.beginPath(); g.arc(X(sl), Y(sl), rad + 4, 0, TAU); g.stroke();
-      const x0 = X(sl) + rad + 5; g.font = '500 12px Geist, sans-serif'; taken.push([x0 - 2, Y(sl) - 9, x0 + g.measureText(f.stars[sl].title).width + 2, Y(sl) + 9]);
+      const x0 = X(sl) + rad + 5; g.font = '500 12px ' + col.text; taken.push([x0 - 2, Y(sl) - 9, x0 + g.measureText(f.stars[sl].title).width + 2, Y(sl) + 9]);
       let shownLabels = 0; for (const j of near) if (vis(j) && shownLabels++ < 24) label(j, false);
       taken.shift(); label(sl, true);
     }
@@ -302,7 +306,7 @@ export default function StarMap() {
     const L = loop.current;
     const fitCam = () => { const r = c.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1; c.width = Math.max(1, Math.round(r.width * dpr)); c.height = Math.max(1, Math.round(r.height * dpr)); if (cam.current.k === 1 && cam.current.x === 0) cam.current.k = Math.min(r.width, r.height) / 1000; draw(); kick(); };
     const ro = new ResizeObserver(fitCam); ro.observe(c); fitCam();
-    const mo = new MutationObserver(() => { colors.current = null; kick(); }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    const mo = new MutationObserver(() => { colors.current = null; kick(); }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'lang'] });
     const io = typeof IntersectionObserver === 'undefined' ? null : new IntersectionObserver(([e]) => { L.seen = e.isIntersecting; if (L.seen) kick(); });
     io?.observe(c);
     const onShow = () => { if (!document.hidden) kick(); };
@@ -366,32 +370,32 @@ export default function StarMap() {
     <div className="sm" data-mode={mode}>
       <div className="sm-main">
         <div className="sm-bar">
-          <div className="am-views sm-seg" role="group" aria-label="Star map layout">
-            {LAYOUTS.map((l) => <button key={l.id} type="button" className="am-view" aria-pressed={lay === l.id} title={l.hint} onClick={() => setLay(l.id)}>{l.name}</button>)}
+          <div className="am-views sm-seg" role="group" aria-label={t("Star map layout")}>
+            {LAYOUTS.map((l) => <button key={l.id} type="button" className="am-view" aria-pressed={lay === l.id} title={t(l.hint)} onClick={() => setLay(l.id)}>{t(l.name)}</button>)}
           </div>
-          <div className="am-views sm-seg" role="group" aria-label="Show as">
-            <button type="button" className="am-view" aria-pressed={mode === 'map'} onClick={() => setMode('map')}>Map</button>
-            <button type="button" className="am-view" aria-pressed={mode === 'list'} onClick={() => setMode('list')}>List</button>
+          <div className="am-views sm-seg" role="group" aria-label={t("Show as")}>
+            <button type="button" className="am-view" aria-pressed={mode === 'map'} onClick={() => setMode('map')}>{t("Map")}</button>
+            <button type="button" className="am-view" aria-pressed={mode === 'list'} onClick={() => setMode('list')}>{t("List")}</button>
           </div>
-          <button type="button" className="am-back sm-play" aria-pressed={playing} onClick={() => setPlaying((p) => !p)}>{playing ? 'Stop replay' : 'Replay the year'}</button>
+          <button type="button" className="am-back sm-play" aria-pressed={playing} onClick={() => setPlaying((p) => !p)}>{playing ? t('Stop replay') : t('Replay the year')}</button>
           {mode === 'map' ? (
             <button type="button" className="am-back sm-still" aria-pressed={paused || reducedNow} disabled={reducedNow}
-              title={reducedNow ? 'Reduced motion is on, so the map holds still' : 'The drift and the turning clusters are decoration; this stops them'}
-              onClick={() => setPaused((p) => !p)}>{reducedNow ? 'Motion off' : paused ? 'Resume motion' : 'Pause motion'}</button>
+              title={reducedNow ? t('Reduced motion is on, so the map holds still') : t('The drift and the turning clusters are decoration; this stops them')}
+              onClick={() => setPaused((p) => !p)}>{reducedNow ? t('Motion off') : paused ? t('Resume motion') : t('Pause motion')}</button>
           ) : null}
-          <div className="sm-size" role="group" aria-label="Sample size, for the performance test">
-            <span className="am-lbl">Sample</span>
-            {SIZES.map((v) => <button key={v} type="button" className="am-chip" aria-pressed={n === v} onClick={() => setN(v)}>{v.toLocaleString('en')}</button>)}
+          <div className="sm-size" role="group" aria-label={t("Sample size, for the performance test")}>
+            <span className="am-lbl">{t("Sample")}</span>
+            {SIZES.map((v) => <button key={v} type="button" className="am-chip" aria-pressed={n === v} onClick={() => setN(v)}>{num(v)}</button>)}
           </div>
         </div>
-        <div className="sm-themes" role="group" aria-label="Suggested themes">
-          <button type="button" className="am-chip" aria-pressed={theme === null} onClick={() => setTheme(null)}>All themes</button>
+        <div className="sm-themes" role="group" aria-label={t("Suggested themes")}>
+          <button type="button" className="am-chip" aria-pressed={theme === null} onClick={() => setTheme(null)}>{t("All themes")}</button>
           {field.themes.map((t, k) => <button key={t} type="button" className="am-chip" aria-pressed={theme === k} onClick={() => setTheme(theme === k ? null : k)}>{t}</button>)}
         </div>
         {mode === 'map' ? (
           <div className="sm-stage">
             <canvas ref={canvas} className="sm-canvas" tabIndex={0} data-layout-ms={Math.round(layoutMs)} data-ready={ready ? n + ':' + lay : undefined} data-still={paused || reducedNow || undefined}
-              aria-label={`Star map of ${shownCount} generated memories in the ${LAYOUTS.find((l) => l.id === lay)!.name} layout. Use the list view or the panel to choose a memory with the keyboard; arrow keys pan, plus and minus zoom, Escape clears the selection. With a pointer, drag a star to pull the stars it links to.`}
+              aria-label={t('Star map of {n} generated memories in the {layout} layout. Use the list view or the panel to choose a memory with the keyboard; arrow keys pan, plus and minus zoom, Escape clears the selection. With a pointer, drag a star to pull the stars it links to.', { n: num(shownCount), layout: t(LAYOUTS.find((l) => l.id === lay)!.name) })}
               onPointerDown={(e) => {
                 if (e.button !== 0) return;
                 const h = pick(e), S = sim.current; let ox = 0, oy = 0;
@@ -426,16 +430,16 @@ export default function StarMap() {
                 if (m) { e.preventDefault(); cam.current.x += m[0]; cam.current.y += m[1]; kick(); }
                 else if (e.key === '+' || e.key === '=') zoom(1.25, 0, 0, true); else if (e.key === '-') zoom(0.8, 0, 0, true); else if (e.key === 'Escape') setSel(null);
               }} />
-            <div className="sm-zoom" role="group" aria-label="Zoom">
-              <button type="button" className="am-back" aria-label="Zoom in (+)" onClick={() => zoom(1.25, 0, 0, true)}>+</button>
-              <button type="button" className="am-back" aria-label="Zoom out (−)" onClick={() => zoom(0.8, 0, 0, true)}>−</button>
-              <button type="button" className="am-back" onClick={reset}>Reset view</button>
+            <div className="sm-zoom" role="group" aria-label={t("Zoom")}>
+              <button type="button" className="am-back" aria-label={t("Zoom in (+)")} onClick={() => zoom(1.25, 0, 0, true)}>+</button>
+              <button type="button" className="am-back" aria-label={t("Zoom out (−)")} onClick={() => zoom(0.8, 0, 0, true)}>−</button>
+              <button type="button" className="am-back" onClick={reset}>{t("Reset view")}</button>
             </div>
-            {firstN !== n ? <p className="sm-wait" role="status">Laying out {n.toLocaleString('en')} memories…</p> : null}
+            {firstN !== n ? <p className="sm-wait" role="status">{t('Laying out {n} memories…', { n: num(n) })}</p> : null}
           </div>
         ) : (
           <div className="sm-list">
-            <p className="am-fine">Newest first · {listRows.length < shownCount ? `first ${listRows.length} of ${shownCount}` : `${shownCount}`} memories formed by {fmt.format(cutoff - 1)}.</p>
+            <p className="am-fine">{listRows.length < shownCount ? t('Newest first · first {shown} of {n} memories formed by {date}.', { shown: num(listRows.length), n: num(shownCount), date: fmt.format(cutoff - 1) }) : t('Newest first · {n} memories formed by {date}.', { n: num(shownCount), date: fmt.format(cutoff - 1) })}</p>
             <ol>
               {listRows.map((x) => (
                 <li key={x.id}><button type="button" className="sm-row" aria-pressed={sel === x.i} onClick={() => setSel(x.i)}>
@@ -446,48 +450,48 @@ export default function StarMap() {
           </div>
         )}
         <p className="sm-legend am-fine">
-          <span><i className="sm-k sm-k-fill" /> adopted or consolidated</span><span><i className="sm-k sm-k-ring" /> held hypothesis</span><span><i className="sm-k sm-k-pen" /> corrected by you</span>
-          <span><i className="sm-l" /> same conversation</span><span><i className="sm-l sm-l-dash" /> shared theme · algorithm suggestion</span><span>Positions and drift mean nothing; dot size is the same for every memory.</span>
+          <span><i className="sm-k sm-k-fill" /> {t("adopted or consolidated")}</span><span><i className="sm-k sm-k-ring" /> {t("held hypothesis")}</span><span><i className="sm-k sm-k-pen" /> {t("corrected by you")}</span>
+          <span><i className="sm-l" /> {t("same conversation")}</span><span><i className="sm-l sm-l-dash" /> {t("shared theme · algorithm suggestion")}</span><span>{t('Positions and drift mean nothing; dot size is the same for every memory.')}</span>
         </p>
       </div>
-      <aside className="am-inspector sm-panel" aria-label="Star map details" tabIndex={-1}>
-        <p className="am-stamp bg-inv">Generated sample · invented memories</p>
+      <aside className="am-inspector sm-panel" aria-label={t("Star map details")} tabIndex={-1}>
+        <p className="am-stamp bg-inv">{t("Generated sample · invented memories")}</p>
         {s ? (
           <>
             <p className="am-mono">{s.id}</p>
             <h2 className="sm-title">{s.title}</h2>
             <dl className="sm-facts">
-              <div><dt>State</dt><dd>{STATE[s.state]}</dd></div>
-              <div><dt>Kind</dt><dd>{s.kind}</dd></div>
-              <div><dt>Theme</dt><dd>{field.themes[s.theme]} <span className="am-fine">model suggestion</span></dd></div>
-              <div><dt>Occurred</dt><dd>{fmt.format(s.t)} <span className="am-fine">Asia/Shanghai</span></dd></div>
+              <div><dt>{t("State")}</dt><dd>{STATE[s.state]}</dd></div>
+              <div><dt>{t("Kind")}</dt><dd>{s.kind}</dd></div>
+              <div><dt>{t("Theme")}</dt><dd>{field.themes[s.theme]} <span className="am-fine">{t("model suggestion")}</span></dd></div>
+              <div><dt>{t("Occurred")}</dt><dd>{fmt.format(s.t)} <span className="am-fine">{t("Asia/Shanghai")}</span></dd></div>
             </dl>
             {(['source', 'supersedes', 'theme'] as LinkType[]).map((type) => {
               const items = rel.filter((r) => r.type === type); if (!items.length) return null;
               return (
                 <section key={type} className="sm-rel">
-                  <h3 className="am-lbl">{type === 'supersedes' ? 'Supersedes / superseded by' : LINK[type]} · {items.length}</h3>
+                  <h3 className="am-lbl">{type === 'supersedes' ? t('Supersedes / superseded by') : LINK[type]} · {items.length}</h3>
                   <ul>{items.slice(0, 12).map((r) => { const o = field.stars[r.j]; return (
                     <li key={r.j + r.type}><button type="button" className="sm-row" onClick={() => choose(r.j)} disabled={!visible(r.j)}>
-                      <span className="sm-row-t">{r.dir === 'out' ? 'replaced by ' : r.dir === 'in' ? 'replaces ' : ''}{o.title}</span><span className="am-mono">{fmt.format(o.t)}</span>
+                      <span className="sm-row-t">{r.dir === 'out' ? t('replaced by') + ' ' : r.dir === 'in' ? t('replaces') + ' ' : ''}{o.title}</span><span className="am-mono">{fmt.format(o.t)}</span>
                     </button></li>); })}</ul>
-                  {items.length > 12 ? <p className="am-fine">and {items.length - 12} more</p> : null}
+                  {items.length > 12 ? <p className="am-fine">{t('and {n} more', { n: items.length - 12 })}</p> : null}
                 </section>
               );
             })}
-            {!rel.length ? <p className="am-fine">No link in this sample. That is not a finding about the memory.</p> : null}
-            <button type="button" className="am-back" onClick={() => setSel(null)}>Clear selection</button>
+            {!rel.length ? <p className="am-fine">{t("No link in this sample. That is not a finding about the memory.")}</p> : null}
+            <button type="button" className="am-back" onClick={() => setSel(null)}>{t("Clear selection")}</button>
           </>
         ) : (
           <>
-            <h2 className="sm-title">The whole sample</h2>
+            <h2 className="sm-title">{t("The whole sample")}</h2>
             <dl className="sm-facts">
-              <div><dt>Memories</dt><dd>{shownCount.toLocaleString('en')} of {field.n.toLocaleString('en')} shown</dd></div>
-              <div><dt>Same conversation</dt><dd>{linkCounts.source.toLocaleString('en')} links</dd></div>
-              <div><dt>Supersedes</dt><dd>{linkCounts.supersedes.toLocaleString('en')} links</dd></div>
-              <div><dt>Shared theme</dt><dd>{linkCounts.theme.toLocaleString('en')} shown · strongest {field.themeKept.toLocaleString('en')} of {field.themeCandidates.toLocaleString('en')} scored pairs kept</dd></div>
-              <div><dt>Formed by</dt><dd>{fmt.format(cutoff - 1)}</dd></div>
-              <div><dt>Layout</dt><dd>{ready ? `${Math.round(layoutMs)} ms of work in a worker` : 'settling…'}</dd></div>
+              <div><dt>{t("Memories")}</dt><dd>{t('{shown} of {n} shown', { shown: num(shownCount), n: num(field.n) })}</dd></div>
+              <div><dt>{t("Same conversation")}</dt><dd>{tn(linkCounts.source, '{n} link', '{n} links')}</dd></div>
+              <div><dt>{t("Supersedes")}</dt><dd>{tn(linkCounts.supersedes, '{n} link', '{n} links')}</dd></div>
+              <div><dt>{t("Shared theme")}</dt><dd>{t('{n} shown · strongest {kept} of {all} scored pairs kept', { n: num(linkCounts.theme), kept: num(field.themeKept), all: num(field.themeCandidates) })}</dd></div>
+              <div><dt>{t("Formed by")}</dt><dd>{fmt.format(cutoff - 1)}</dd></div>
+              <div><dt>{t("Layout")}</dt><dd>{ready ? t('{ms} ms of work in a worker', { ms: Math.round(layoutMs) }) : t('settling…')}</dd></div>
             </dl>
             <p className="am-fine">Choose a star, or a row in the list, to see what it touches. Drag a star to pull the stars it links to; let go and they return. Shared-theme links are co-occurrence: same suggested theme, close in time. They do not say how two memories relate, and a missing line is not a missing relation.</p>
           </>

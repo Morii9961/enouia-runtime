@@ -5,6 +5,7 @@ import { ComponentList, exiting, useStatus, vaultLabel } from "../memory/status"
 import { when } from "../memory/ui";
 import { WorkspaceOperations } from "./WorkspaceOperations";
 
+import { t } from '../i18n/index.ts';
 type Snapshot<T> = { value: T; observedAt: string };
 
 // One read at a time. Failed reads clear the previous observation, and an
@@ -57,7 +58,7 @@ function ReadStatus({ busy, error, observedAt, refresh, label }: {
       <button ref={button} type="button" className="mem-button" disabled={busy} onClick={() => {
         returnFocus.current = document.activeElement === button.current;
         void refresh();
-      }}>Read {label} again</button>
+      }}>{t("Read {what} again", { what: label })}</button>
       <span role="status" className="mem-muted">{busy ? `Reading ${label}…` : error ? "Status unavailable" : observedAt ? `Observed ${when(observedAt)}` : "Status unknown"}</span>
     </div>
     {error && <p role="alert" className="mem-error">{error}</p>}
@@ -71,37 +72,37 @@ export default function RuntimeSurface() {
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   return <section data-screen-label="Runtime Inspector" className="qr210">
     <aside className="qr191">
-      <div className="qr20"><h1 className="qr18">Runtime</h1><div className="qr101">Observed component status</div></div>
-      <p className="mem-muted">Memory and the Windows shell keep their own status. Each observation describes its own component.</p>
+      <div className="qr20"><h1 className="qr18">{t("Runtime")}</h1><div className="qr101">{t("Observed component status")}</div></div>
+      <p className="mem-muted">{t("Memory and the Windows shell keep their own status. Each observation describes its own component.")}</p>
       <p className="mem-muted">Memory refreshes every few seconds. The shell shows its last explicit read; read it again after a change.</p>
     </aside>
     <div className="qr209"><div className="qr208">
       <section className="mem-stack" aria-labelledby="runtime-memory-title">
-        <h2 id="runtime-memory-title" className="qr194">Memory Core</h2>
+        <h2 id="runtime-memory-title" className="qr194">{t("Memory Core")}</h2>
         <p role="status" className="mem-muted">{vaultLabel(status, vaultChanging)}</p>
-        <button type="button" className="mem-button" onClick={() => void refresh()}>Read Memory status again</button>
+        <button type="button" className="mem-button" onClick={() => void refresh()}>{t("Read Memory status again")}</button>
         {error && <p role="alert" className="mem-error">{error.text}</p>}
         {status && !exiting(status) && !vaultChanging && <>
           <ComponentList status={status} />
           {open && <>
-            <Fact name="Vault">{status.vault.rootName}</Fact>
-            <Fact name="Latest commit">#{status.vault.headSequence} · {when(status.vault.lastCommitAt)}</Fact>
-            <Fact name="Running operations">{status.operationsRunning ?? "unknown"}</Fact>
-            <Fact name="Pending candidates">{status.pendingCandidates ?? "unknown"}</Fact>
+            <Fact name={t("Vault")}>{status.vault.rootName}</Fact>
+            <Fact name={t("Latest commit")}>#{status.vault.headSequence} · {when(status.vault.lastCommitAt)}</Fact>
+            <Fact name={t("Running operations")}>{status.operationsRunning ?? "unknown"}</Fact>
+            <Fact name={t("Pending candidates")}>{status.pendingCandidates ?? "unknown"}</Fact>
           </>}
         </>}
       </section>
       {open && typeof status.vault.vaultId === "string" && status.vault.vaultId.length > 0 && <WorkspaceOperations key={status.vault.vaultId} />}
       <section className="mem-stack" aria-labelledby="runtime-shell-title">
-        <h2 id="runtime-shell-title" className="qr194">Windows shell</h2>
-        <ReadStatus {...host} observedAt={host.snapshot?.observedAt} label="shell status" />
+        <h2 id="runtime-shell-title" className="qr194">{t("Windows shell")}</h2>
+        <ReadStatus {...host} observedAt={host.snapshot?.observedAt} label={t("shell status")} />
         {hostStatus && <>
-          <Fact name="Lifecycle">{hostStatus.closing ? "Exiting, finishing operations" : hostStatus.locking ? "Finishing Vault lock" : hostStatus.vaultChanging ? "Finishing Vault change" : "Running"}</Fact>
-          <Fact name="System tray">{hostStatus.tray ?? "unknown"}</Fact>
-          <Fact name="Quick Search">{hostStatus.hotkey?.state ?? "unknown"}{hostStatus.hotkey?.combo ? ` · ${hostStatus.hotkey.combo}` : ""}</Fact>
-          <Fact name="Main window">{hostStatus.visible == null ? "unknown" : hostStatus.visible ? "visible" : "hidden"}</Fact>
-          {hostStatus.error && <Fact name="Last shell error">{hostStatus.error}</Fact>}
-          {hostStatus.vaultAdmissionError && <Fact name="Vault admission">{hostStatus.vaultAdmissionError}</Fact>}
+          <Fact name={t("Lifecycle")}>{hostStatus.closing ? t("Exiting, finishing operations") : hostStatus.locking ? t("Finishing Vault lock") : hostStatus.vaultChanging ? t("Finishing Vault change") : t("Running")}</Fact>
+          <Fact name={t("System tray")}>{hostStatus.tray ?? "unknown"}</Fact>
+          <Fact name={t("Quick Search")}>{hostStatus.hotkey?.state ?? "unknown"}{hostStatus.hotkey?.combo ? ` · ${hostStatus.hotkey.combo}` : ""}</Fact>
+          <Fact name={t("Main window")}>{hostStatus.visible == null ? "unknown" : hostStatus.visible ? "visible" : "hidden"}</Fact>
+          {hostStatus.error && <Fact name={t("Last shell error")}>{hostStatus.error}</Fact>}
+          {hostStatus.vaultAdmissionError && <Fact name={t("Vault admission")}>{hostStatus.vaultAdmissionError}</Fact>}
         </>}
       </section>
     </div></div>

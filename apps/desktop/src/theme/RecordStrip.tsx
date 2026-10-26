@@ -10,7 +10,8 @@ import { useAutoMode } from './autoMode';
 import TimeMap, { useLentMap } from './TimeMap';
 import { homeSpec, sessionSpec } from './mapSpecs';
 
-const MARK_LABEL = { canonical: 'canonical write', candidate: 'candidate proposed', checkpoint: 'checkpoint', superseded: 'superseded write' };
+import { msg, t } from '../i18n/index.ts';
+const MARK_LABEL = { canonical: msg('canonical write'), candidate: msg('candidate proposed'), checkpoint: msg('checkpoint'), superseded: msg('superseded write') };
 
 /** Day columns (the coarse grid only) and, when asked, day names; children are drawn on top. */
 export function Paper({ days = true, children, className = '' }: { days?: boolean; children?: React.ReactNode; className?: string }) {
@@ -31,7 +32,7 @@ export function Trace({ d = tracePath, marks: m = marks, penAt = pen, still, sho
           <path d={d} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
         </svg>
       </div>
-      {showMarks ? m.map((k) => <span key={k.key} className="bg-mark" data-kind={k.kind} title={MARK_LABEL[k.kind]} style={{ left: pct(k.x), top: pct(k.y) }} />) : null}
+      {showMarks ? m.map((k) => <span key={k.key} className="bg-mark" data-kind={k.kind} title={t(MARK_LABEL[k.kind])} style={{ left: pct(k.x), top: pct(k.y) }} />) : null}
       {tip ? <span className="bg-pen" data-still={still || undefined} data-draw={draw && !still ? 'on' : undefined} style={{ left: pct(penAt.x), top: pct(penAt.y) }} aria-hidden="true"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M0 0L10 4L0 8z" fill="currentColor" /></svg></span> : null}
     </>
   );
@@ -45,23 +46,23 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
   const lent = useLentMap();
   const meta = auto
     ? lent?.key === 'starmap'
-      ? <><b>Star map</b> · generated sample · its own sample time, Nov 2025 – Oct 2026</>
-      : <><b>Automatic memory</b> · synthetic preview · its own sample time, 1 Jul – 31 Oct 2026</>
-    : <><b>Week of 28 Sep 2026</b> · <span className="bg-clock">demo clock Thu 1 Oct, 14:44</span></>;
+      ? <><b>{t("Star map")}</b> {t("· generated sample · its own sample time, Nov 2025 – Oct 2026")}</>
+      : <><b>{t("Automatic memory")}</b> {t("· synthetic preview · its own sample time, 1 Jul – 31 Oct 2026")}</>
+    : <><b>{t("Week of 28 Sep 2026")}</b> · <span className="bg-clock">{t("demo clock Thu 1 Oct, 14:44")}</span></>;
   let overlay: React.ReactNode = null;
-  let summary = 'Fictional demo strip, week of 28 September 2026, drawn up to the demo clock, Thursday 1 October 14:44.';
+  let summary = t('Fictional demo strip, week of 28 September 2026, drawn up to the demo clock, Thursday 1 October 14:44.');
   if (page === 'memory' && selectedAt) {
-    if (onChart(selectedAt)) { overlay = <span className="bg-cursor" style={{ left: pct(xOf(selectedAt)) }}><span>{dayLabel(selectedAt)}</span></span>; summary += ' Selected record marked at ' + dayLabel(selectedAt) + '.'; }
-    else { overlay = <span className="bg-offchart">◂ selected record: {dayLabel(selectedAt)} · on an earlier strip</span>; summary += ' Selected record is on an earlier strip.'; }
+    if (onChart(selectedAt)) { overlay = <span className="bg-cursor" style={{ left: pct(xOf(selectedAt)) }}><span>{dayLabel(selectedAt)}</span></span>; summary += ' ' + t('Selected record marked at {day}.', { day: dayLabel(selectedAt) }); }
+    else { overlay = <span className="bg-offchart">◂ {t('selected record: {day} · on an earlier strip', { day: dayLabel(selectedAt) })}</span>; summary += ' ' + t('Selected record is on an earlier strip.'); }
   }
   if (page === 'sessions' && sessionSpan) {
-    if (onChart(sessionSpan[0])) { const a = xOf(sessionSpan[0]); const b = Math.max(xOf(sessionSpan[1]), a + 0.004); overlay = <span className="bg-band" style={{ left: pct(a), width: pct(b - a) }}><span>session</span></span>; }
-    else overlay = <span className="bg-offchart">◂ this session: {dayLabel(sessionSpan[0])} · on an earlier strip</span>;
+    if (onChart(sessionSpan[0])) { const a = xOf(sessionSpan[0]); const b = Math.max(xOf(sessionSpan[1]), a + 0.004); overlay = <span className="bg-band" style={{ left: pct(a), width: pct(b - a) }}><span>{t("session")}</span></span>; }
+    else overlay = <span className="bg-offchart">◂ {t('this session: {day} · on an earlier strip', { day: dayLabel(sessionSpan[0]) })}</span>;
   }
   // Which pages have a time axis, and so a map. The row is reserved in advance so nothing shifts when the map arrives.
   const map = page === 'home' ? <TimeMap spec={homeSpec} />
     : page === 'sessions' && sessionKey ? <TimeMap spec={sessionSpec(sessionKey)} />
-    : auto ? (lent ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>Time map · Timeline view · the other views have no time axis to move</span></div>)
+    : auto ? (lent ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>{t("Time map · Timeline view · the other views have no time axis to move")}</span></div>)
     : null;
   return (
     <div className="bg-strip" data-page={page} data-auto={auto || undefined}>
@@ -74,7 +75,7 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
           <Paper>
             <Trace still={still} showMarks tip />
             {overlay}
-            {earlier ? <span className="bg-earlier">{earlier} earlier records ◂</span> : null}
+            {earlier ? <span className="bg-earlier">{t('{n} earlier records', { n: earlier })} ◂</span> : null}
           </Paper>
         </div>
       )}
@@ -88,12 +89,12 @@ export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode })
   const { status, vaultChanging } = useStatus();
   const state = status?.vault?.state;
   const stopped = (!status || exiting(status) || vaultChanging || state !== 'open');
-  const why = !status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open';
+  const why = t(!status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open');
   return (
     <div className="bg-strip" data-page={page} data-drum={stopped ? 'stopped' : undefined}>
       <div className="bg-strip-head">
         {nav}
-        <div className="bg-strip-meta"><b>Live shell</b> · trace not plotted in this prototype</div>
+        <div className="bg-strip-meta"><b>{t("Live shell")}</b> {t("· trace not plotted in this prototype")}</div>
       </div>
       {page === 'home' ? null : (
         <div className="bg-strip-chart">

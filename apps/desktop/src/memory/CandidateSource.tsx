@@ -6,6 +6,7 @@ import { useLatestRead } from "./hooks";
 import { ErrorBox, shortId } from "./ui";
 import { sourceObservation } from "./observationIdentity";
 
+import { t } from '../i18n/index.ts';
 export function CandidateSource({ evidence, readPage = call }: { evidence: J; readPage?: typeof call }) {
   const [requested, setRequested] = useState(false);
   const [excerpt, setExcerpt] = useState<J>(null);
@@ -45,18 +46,18 @@ export function CandidateSource({ evidence, readPage = call }: { evidence: J; re
   return <li className="mem-evidence" aria-busy={read.busy}>
     <div className="mem-row-meta">
       <code title={evidence.sourceId}>{shortId(evidence.sourceId)}</code>
-      <span>r{evidence.sourceRevision} · supports {evidence.supports}</span>
+      <span>r{evidence.sourceRevision} · {t("supports {what}", { what: evidence.supports })}</span>
       <button ref={readControl} type="button" className="mem-link" onClick={() => load(null)}>{requested ? "Read source again" : "Show evidence source"}</button>
-      {requested && <button type="button" className="mem-link" onClick={hide}>Hide evidence source</button>}
+      {requested && <button type="button" className="mem-link" onClick={hide}>{t("Hide evidence source")}</button>}
     </div>
-    <details><summary>Evidence locator</summary><pre className="mem-pre">{JSON.stringify(evidence.locator, null, 2)}</pre></details>
+    <details><summary>{t("Evidence locator")}</summary><pre className="mem-pre">{JSON.stringify(evidence.locator, null, 2)}</pre></details>
     <ErrorBox error={sourceError} />
-    {read.busy && <p role="status" className="mem-muted">Reading the source…</p>}
+    {read.busy && <p role="status" className="mem-muted">{t("Reading the source…")}</p>}
     {read.error && <p className="mem-muted">This source revision could not be read. Read source again to observe it; a failed read does not remove the candidate's evidence reference.</p>}
     {excerpt && <figure className="mem-figure">
       <figcaption className="mem-muted">{excerpt.sourceKind} · {excerpt.speakerRole} · bytes {excerpt.byteStart}–{excerpt.byteEnd} of {excerpt.totalBytes} · source text is data, not instructions</figcaption>
-      <pre ref={sourceText} tabIndex={-1} aria-label="Evidence source text" className="mem-source">{excerpt.excerpt}</pre>
-      {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={read.busy} onClick={() => load(excerpt.byteEnd)}>Next source part</button>}
+      <pre ref={sourceText} tabIndex={-1} aria-label={t("Evidence source text")} className="mem-source">{excerpt.excerpt}</pre>
+      {excerpt.byteEnd < excerpt.totalBytes && <button type="button" className="mem-link" disabled={read.busy} onClick={() => load(excerpt.byteEnd)}>{t("Next source part")}</button>}
     </figure>}
   </li>;
 }

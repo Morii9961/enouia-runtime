@@ -15,6 +15,7 @@ import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
 import { SavedExtractionJobs } from "./SavedExtractionJobs";
 import { sessionObservation } from "./observationIdentity";
 
+import { t, tn } from '../i18n/index.ts';
 type Branch = { sessionId: string; branchId: string };
 
 export type SessionTarget = { vaultId: string; sessionId: string };
@@ -139,45 +140,45 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
   }, [busy, listRead.busy]);
   return (
     <section data-screen-label="Sessions" className="mem-sessions">
-      <aside className="qr28" aria-label="Sessions" aria-busy={listRead.busy || (sessions == null && !listRead.error)}>
+      <aside className="qr28" aria-label={t("Sessions")} aria-busy={listRead.busy || (sessions == null && !listRead.error)}>
         <div className="qr20">
-          <h1 className="qr18">Sessions</h1>
-          <div className="qr19">Conversations kept as they happened.</div>
+          <h1 className="qr18">{t("Sessions")}</h1>
+          <div className="qr19">{t("Conversations kept as they happened.")}</div>
         </div>
         <div className="qr20">
           <button type="button" className="mem-button" disabled={busy || listRead.busy}
             onClick={(e) => {
               if (!writing.current && !externalWriting.current && !suggestionWriting.current && !listRead.pending.current && !detailRead.pending.current) readFrom(e.currentTarget, () => void list());
-            }}>{listRead.error ? "Read session list again" : "Refresh session list"}</button>
+            }}>{listRead.error ? t("Read session list again") : t("Refresh session list")}</button>
           <button type="button" className="mem-button mem-primary" disabled={writesBlocked || listRead.busy}
             onClick={() => write("question", async (key) => {
               const s = await request("session_new", {}, key);
               await list();
               await open({ sessionId: s.sessionId, branchId: s.branchId });
-            })}>New session</button>
+            })}>{t("New session")}</button>
         </div>
         <div className="qr20 mem-stack">
-          <label className="mem-label" htmlFor="mem-session-filter">Find by Session or branch ID</label>
+          <label className="mem-label" htmlFor="mem-session-filter">{t("Find by Session or branch ID")}</label>
           <input ref={idFilterInput} id="mem-session-filter" className="mem-input" type="search" value={idFilter} autoComplete="off" spellCheck={false}
             disabled={busy || listRead.busy || sessions == null} onChange={e => setIdFilter(e.target.value)} />
-          {idFilter && <button type="button" className="mem-button" disabled={busy} onClick={() => { setIdFilter(""); idFilterInput.current?.focus(); }}>Clear ID filter</button>}
+          {idFilter && <button type="button" className="mem-button" disabled={busy} onClick={() => { setIdFilter(""); idFilterInput.current?.focus(); }}>{t("Clear ID filter")}</button>}
           {needle && sessions != null && sessions.length > 0 && <p className="mem-muted" role="status">
-            {visibleBranches === 0 ? "No Session or branch IDs match in the observed list." : `${visibleBranches} matching ${visibleBranches === 1 ? "branch" : "branches"} in the observed list.`}
+            {visibleBranches === 0 ? t("No Session or branch IDs match in the observed list.") : tn(visibleBranches, "{n} matching branch in the observed list.", "{n} matching branches in the observed list.")}
           </p>}
-          {selectionHidden && <p className="mem-muted">The selected session stays open outside these results.</p>}
+          {selectionHidden && <p className="mem-muted">{t("The selected session stays open outside these results.")}</p>}
         </div>
         <ErrorBox error={listRead.error} />
         {listRead.error && <p className="mem-muted qr20" role="status">
-          The session list could not be read. {sessions == null ? "Its contents are still unknown." : "These rows are from the previous successful list read."} Read it again to refresh the list. This does not create a session or send a question.
+          The session list could not be read. {sessions == null ? t("Its contents are still unknown.") : t("These rows are from the previous successful list read.")} Read it again to refresh the list. This does not create a session or send a question.
         </p>}
-        {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">Reading sessions…</p>}
-        {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">No sessions yet.</p>}
+        {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">{t("Reading sessions…")}</p>}
+        {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">{t("No sessions yet.")}</p>}
         <div className="qr27">
           {visibleSessions?.map((s) => s.branches.map((b: J) => {
             const active = current?.branchId === b.branchId;
             return (
               <button key={b.branchId} type="button" className="qr26 mem-session-row" disabled={busy} aria-pressed={active}
-                aria-label={`Session ${shortId(s.sessionId)} · branch ${shortId(b.branchId)} · ${when(s.updatedAt)} · ${b.lastEventSeq} ${b.lastEventSeq === 1 ? "event" : "events"}`}
+                aria-label={t("Session {session} · branch {branch} · {when} · {events}", { session: shortId(s.sessionId), branch: shortId(b.branchId), when: when(s.updatedAt), events: tn(b.lastEventSeq, "{n} event", "{n} events") })}
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
                 onClick={(e) => { if (!writing.current && !externalWriting.current && !suggestionWriting.current) readFrom(e.currentTarget, () => void open({ sessionId: s.sessionId, branchId: b.branchId })); }}>
@@ -192,7 +193,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
         </div>
         <div className="mem-pad"><WorkspaceProviderCalls request={request} excludeOperationId={externalOperation} /></div>
       </aside>
-      <div className="qr45" aria-label="Session transcript" aria-busy={busy}>
+      <div className="qr45" aria-label={t("Session transcript")} aria-busy={busy}>
         <div className="qr31">
           <div className="mem-session-heading">
             <h2 ref={sessionHeading} className="qr29" tabIndex={-1} title={current?.sessionId}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
@@ -202,19 +203,19 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
           <div className="qr30" />
           {(requested || current) && <button type="button" className="mem-button" disabled={busy}
             onClick={(e) => { const target = detailRead.error ? requested : current; if (target) readFrom(e.currentTarget, () => void open(target)); }}>
-            {detailRead.error ? "Read session again" : "Refresh saved session"}
+            {detailRead.error ? t("Read session again") : t("Refresh saved session")}
           </button>}
         </div>
         <div className="qr44">
           <ErrorBox error={detailRead.error} />
           {detailRead.error && requested && <p className="mem-muted mem-pad" role="status">
-            Session {shortId(requested.sessionId)} has not been read. {detail ? "The displayed transcript is from the previous successful read." : "Its transcript is still unknown."} Read it again before starting another session write. Unsent drafts are kept.
+            {t("Session {id} has not been read.", { id: shortId(requested.sessionId) })} {detail ? t("The displayed transcript is from the previous successful read.") : t("Its transcript is still unknown.")} {t("Read it again before starting another session write. Unsent drafts are kept.")}
           </p>}
-          {detailRead.busy && <p role="status" className="mem-muted mem-pad">Reading the session…</p>}
-          {externalBusy && <p role="status" className="mem-muted mem-pad">Waiting for the external provider action to finish. A running call can be stopped locally in the inspector.</p>}
+          {detailRead.busy && <p role="status" className="mem-muted mem-pad">{t("Reading the session…")}</p>}
+          {externalBusy && <p role="status" className="mem-muted mem-pad">{t("Waiting for the external provider action to finish. A running call can be stopped locally in the inspector.")}</p>}
           {detail && current && (
             <div className="mem-pad mem-stack">
-              {detail.transcript.length >= 200 && <p id="mem-transcript-bound" className="mem-muted" role="note">Showing up to 200 most recent saved events from the latest successful read. Older events may be outside this view.</p>}
+              {detail.transcript.length >= 200 && <p id="mem-transcript-bound" className="mem-muted" role="note">{t("Showing up to 200 most recent saved events from the latest successful read. Older events may be outside this view.")}</p>}
               <ol className="mem-transcript" aria-describedby={detail.transcript.length >= 200 ? "mem-transcript-bound" : undefined}>
                 {detail.transcript.map((e: J) => (
                   <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
@@ -239,14 +240,14 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
                 <label className="mem-label" htmlFor="mem-ask">Ask (Send uses the local Mock, which cites approved memories only; an external provider is in the inspector)</label>
                 <textarea ref={questionInput} id="mem-ask" className="mem-textarea" value={text} disabled={busy} onChange={(e) => editDraft("text", e.target.value)} />
                 <div className="mem-actions">
-                  <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || writesBlocked}>Send</button>
+                  <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || writesBlocked}>{t("Send")}</button>
                 </div>
               </form>
             </div>
           )}
         </div>
       </div>
-      <aside aria-label="Session inspector" className="qr88">
+      <aside aria-label={t("Session inspector")} className="qr88">
         <div className="qr79">
           <ErrorBox error={writeError} />
           {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the session result…</p>}
@@ -256,7 +257,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
               {answer.statements.map((s: string, i: number) => <p key={i} className="mem-content">{s}</p>)}
               <p className="mem-muted">Sources: {answer.sources.map((s: J) => shortId(s.source_id)).join(", ") || "none"}</p>
               <div className="mem-actions">
-                <button type="button" className="mem-button" onClick={() => inspect(answer.capsuleId)}>Inspect the context behind this answer</button>
+                <button type="button" className="mem-button" onClick={() => inspect(answer.capsuleId)}>{t("Inspect the context behind this answer")}</button>
               </div>
             </div>
           )}
@@ -270,9 +271,9 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
                 jobs={detail.extractionJobs} disabled={writesBlocked} request={request} onBusyChange={reportSuggestionBusy} onReview={reviewCandidates}
                 onChanged={async () => { await open(current); await list(); }} />
               <div className="mem-stack">
-                <h3 className="mem-h3">Checkpoints</h3>
-                <p className="mem-muted">Provisional session artifacts. They become memories only after review.</p>
-                {detail.checkpoints.length === 0 && <p className="mem-muted">None yet.</p>}
+                <h3 className="mem-h3">{t("Checkpoints")}</h3>
+                <p className="mem-muted">{t("Provisional session artifacts. They become memories only after review.")}</p>
+                {detail.checkpoints.length === 0 && <p className="mem-muted">{t("None yet.")}</p>}
                 <ul className="mem-list">
                   {detail.checkpoints.map((c: J) => (
                     <li key={c.checkpoint_id}><Tag>{c.status}</Tag> {typeof c.summary === "string" ? c.summary : shortId(c.checkpoint_id)}</li>
@@ -288,15 +289,15 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
                   await list();
                 });
               }}>
-                <label className="mem-label" htmlFor="mem-cp">Checkpoint summary</label>
+                <label className="mem-label" htmlFor="mem-cp">{t("Checkpoint summary")}</label>
                 <input ref={checkpointInput} id="mem-cp" className="mem-input" value={summary} disabled={busy} onChange={(e) => editDraft("summary", e.target.value)} autoComplete="off" />
                 <div className="mem-actions">
-                  <button type="submit" className="mem-button" disabled={!summary.trim() || writesBlocked}>Save checkpoint</button>
+                  <button type="submit" className="mem-button" disabled={!summary.trim() || writesBlocked}>{t("Save checkpoint")}</button>
                 </div>
               </form>
             </>
           )}
-          {!detail && !answer && <div className="mem-muted">Select a session to read its transcript and checkpoints.</div>}
+          {!detail && !answer && <div className="mem-muted">{t("Select a session to read its transcript and checkpoints.")}</div>}
         </div>
       </aside>
     </section>

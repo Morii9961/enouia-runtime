@@ -5,6 +5,7 @@ import { historyTaskObservation } from "./historyTasks";
 import { holdProviderSend } from "./providerSend";
 import { Operation, OperationFeedback } from "./ui";
 
+import { t } from '../i18n/index.ts';
 type Held = { token: string; generation: number; signature: string; args: BatchArgs; send: ReturnType<typeof holdProviderSend>; expires: number };
 export function HistoryBatchPanel({ vaultId, task, index, owner, request = call }: {
   vaultId: string; task: J; index: number | null; owner: HistoryBatchOwner; request?: typeof call;
@@ -44,7 +45,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
         if (!stopped) {
           if (statusRef.current && batchProviderSignature(statusRef.current) !== batchProviderSignature(next)) {
             current.current = { ...current.current, generation: current.current.generation + 1 };
-            setHeld(null); setConfirmed(false); setNotice("Provider settings or grants changed. Read the saved task and inspect a fresh request.");
+            setHeld(null); setConfirmed(false); setNotice(t("Provider settings or grants changed. Read the saved task and inspect a fresh request."));
           }
           statusRef.current = next; setStatus(next);
         }
@@ -75,7 +76,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
   useEffect(() => {
     if (!shown) return;
     const timer = setTimeout(() => {
-      setHeld(null); setConfirmed(false); setNotice("The request handle expired. Read saved state before recovering preparation; a new handle needs a new inspection.");
+      setHeld(null); setConfirmed(false); setNotice(t("The request handle expired. Read saved state before recovering preparation; a new handle needs a new inspection."));
     }, Math.max(0, shown.expires - Date.now()));
     return () => clearTimeout(timer);
   }, [shown]);
@@ -115,7 +116,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
       if (publishable(token)) {
         setError(describe(err));
         if (err instanceof CallError && !err.error.retryable) setMustReread(task);
-        setNotice("Preparation is not confirmed here. Read the saved task, then recover only these exact arguments with their original key. Do not create another task.");
+        setNotice(t("Preparation is not confirmed here. Read the saved task, then recover only these exact arguments with their original key. Do not create another task."));
       }
     } finally { pending.current = false; if (mounted.current) setBusy(false); }
   };
@@ -130,14 +131,14 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
       if (batchProviderSignature(next) !== shown.signature) {
         current.current = { ...current.current, generation: current.current.generation + 1 };
         statusRef.current = next; setStatus(next); setHeld(null); setConfirmed(false);
-        setNotice("Provider settings or grants changed. Inspect a fresh request before sending."); return;
+        setNotice(t("Provider settings or grants changed. Inspect a fresh request before sending.")); return;
       }
       if (!shown.send.submitted()) {
         const fresh = historyTaskObservation(await request("history_task_get", { taskId: task.taskId }), { vaultId, taskId: task.taskId, request: task.request });
         if (!publishable(token)) return;
         const child = fresh.batches.find((b: J) => b.batchIndex === index);
         if (!child || child.sessionId !== batch.sessionId || child.runId !== batch.runId || child.state !== "ready" || child.invocationState !== null) {
-          setHeld(null); setConfirmed(false); setNotice("The saved batch changed or already has an invocation. Read its saved outcome; do not resend."); return;
+          setHeld(null); setConfirmed(false); setNotice(t("The saved batch changed or already has an invocation. Read its saved outcome; do not resend.")); return;
         }
       }
       if (!publishable(token) || Date.now() >= shown.expires || batchProviderSignature(statusRef.current) !== shown.signature) return;
@@ -148,59 +149,59 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
       if (publishable(token)) {
         if (!shown.send.submitted()) {
           setHeld(null); setConfirmed(false); setMustReread(task); setError(describe(err));
-          setNotice("Saved state could not be confirmed. Read the task again before preparing and inspecting another request."); return;
+          setNotice(t("Saved state could not be confirmed. Read the task again before preparing and inspecting another request.")); return;
         }
         setError(describe(err)); setCanRecoverSend(retryable(err) || !(err instanceof CallError));
-        setNotice("Send outcome is not confirmed. The service may have received it. Recover only this same call, or read the saved task and workspace calls in Sessions.");
+        setNotice(t("Send outcome is not confirmed. The service may have received it. Recover only this same call, or read the saved task and workspace calls in Sessions."));
         if (err instanceof CallError && !err.error.retryable) {
           setHeld(null); setConfirmed(false); setMustReread(task);
           // These exact Core refusals occur before approval/invocation admission.
           // An uncertain prior send must never use this escape hatch.
           if (!recovering && err.error.rules.some(rule => ["provider.call_unknown", "provider.call_expired"].includes(rule))) {
             owner.forgetRefusedHandle(vaultId, shown.args);
-            setNotice("Memory refused the unavailable request handle before sending. Read this saved task again, then recover its original preparation and inspect the new handle.");
+            setNotice(t("Memory refused the unavailable request handle before sending. Read this saved task again, then recover its original preparation and inspect the new handle."));
           }
         }
       }
     } finally { pending.current = false; if (mounted.current) setBusy(false); }
   };
   const changeDraft = (draft: { policy: string; output: string }) => { owner.setDraft(vaultId, task.taskId, index, draft); renderDraft(n => n + 1); };
-  return <section className="mem-card mem-stack mem-history-request" aria-label="Saved batch request">
+  return <section className="mem-card mem-stack mem-history-request" aria-label={t("Saved batch request")}>
     <h4 className="mem-h3">Batch {index + 1} request</h4>
     <p className="mem-mono">{task.taskId} · {batch?.sessionId ?? "missing child"} · {batch?.runId ?? "missing run"}</p>
     <p className="mem-muted">{task.request.api} · {task.request.model}. Preparing may save local Context. It does not read credentials, send a request or approve memories.</p>
-    {!batch && <p role="status">Explicitly resume missing local jobs before preparing this batch.</p>}
-    {batch && (batch.state !== "ready" || invoked) && <p role="status">This batch is paused, completed or has an existing/submitted invocation. Read its saved outcome before continuing. It cannot be resent by preparing again.</p>}
-    {task === mustReread && <p role="status">Read this history task again before another preparation.</p>}
-    {!status && <p role="status">Provider status is unavailable or being read. Request controls wait for a current observation.</p>}
-    {status && !destination && <p role="status">Restore the saved task's exact configured model, then read the task again.</p>}
-    {status && !grants.length && <p role="status">An active extraction grant for the saved model is required. Review grants in Sessions.</p>}
-    <label className="mem-label" htmlFor={`${fieldId}-policy`}>Egress grant</label>
+    {!batch && <p role="status">{t("Explicitly resume missing local jobs before preparing this batch.")}</p>}
+    {batch && (batch.state !== "ready" || invoked) && <p role="status">{t("This batch is paused, completed or has an existing/submitted invocation. Read its saved outcome before continuing. It cannot be resent by preparing again.")}</p>}
+    {task === mustReread && <p role="status">{t("Read this history task again before another preparation.")}</p>}
+    {!status && <p role="status">{t("Provider status is unavailable or being read. Request controls wait for a current observation.")}</p>}
+    {status && !destination && <p role="status">{t("Restore the saved task's exact configured model, then read the task again.")}</p>}
+    {status && !grants.length && <p role="status">{t("An active extraction grant for the saved model is required. Review grants in Sessions.")}</p>}
+    <label className="mem-label" htmlFor={`${fieldId}-policy`}>{t("Egress grant")}</label>
     <select id={`${fieldId}-policy`} className="mem-input" value={policy} disabled={busy || !!shown || !!running} onChange={e => changeDraft({ policy: e.target.value, output })}>
-      <option value="">Choose a grant</option>{grants.map((g: J) => <option key={g.policyId} value={g.policyId}>{g.policyId} · {g.maxSensitivity}</option>)}
+      <option value="">{t("Choose a grant")}</option>{grants.map((g: J) => <option key={g.policyId} value={g.policyId}>{g.policyId} · {g.maxSensitivity}</option>)}
     </select>
     <label className="mem-label" htmlFor={`${fieldId}-tokens`}>Output token ceiling (1–{maxOutput})</label>
     <input id={`${fieldId}-tokens`} className="mem-input" inputMode="numeric" autoComplete="off" value={output} aria-invalid={!valid} aria-describedby={`${fieldId}-output-help`} disabled={busy || !!shown || !!running} onChange={e => changeDraft({ policy, output: e.target.value })} />
     <p id={`${fieldId}-output-help`} className="mem-muted">{valid ? "Use" : "Enter"} a whole number from 1 to {maxOutput}{destination ? ` for ${task.request.model}` : ""}. Your saved draft is kept until you edit it.</p>
     {error && <p role="alert" className="mem-error">{error}</p>}
     {notice && <p role="status" className="mem-muted">{notice}</p>}
-    {busy && <p role="status">Waiting for the batch request receipt…</p>}
-    {!shown && <button ref={prepareControl} type="button" className="mem-button" disabled={busy || !eligible || !permitted || !valid || !!running} onClick={() => void prepare()}>Prepare or recover this batch request</button>}
-    {shown && <div role="group" aria-label="Exact history request" className="mem-stack">
-      <p>Destination: <span className="mem-mono">{shown.send.prepared.endpoint}</span> · {shown.send.prepared.model} · about {shown.send.prepared.estimatedInputTokens} input tokens · at most {shown.send.prepared.outputTokens} output tokens.</p>
+    {busy && <p role="status">{t("Waiting for the batch request receipt…")}</p>}
+    {!shown && <button ref={prepareControl} type="button" className="mem-button" disabled={busy || !eligible || !permitted || !valid || !!running} onClick={() => void prepare()}>{t("Prepare or recover this batch request")}</button>}
+    {shown && <div role="group" aria-label={t("Exact history request")} className="mem-stack">
+      <p>{t("Destination:")} <span className="mem-mono">{shown.send.prepared.endpoint}</span> · {shown.send.prepared.model} · about {shown.send.prepared.estimatedInputTokens} input tokens · at most {shown.send.prepared.outputTokens} output tokens.</p>
       <p className="mem-mono">Call {shown.send.prepared.callId} · SHA-256 {shown.send.prepared.wireHash}</p>
-      <p className="mem-muted">Request body is source data. Review this handle again after every recovery.</p>
-      <pre ref={requestBody} className="mem-pre" tabIndex={0} aria-label="Exact history request body">{shown.send.prepared.body}</pre>
-      <label><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} /> I inspected this exact body, destination, model and hash.</label>
+      <p className="mem-muted">{t("Request body is source data. Review this handle again after every recovery.")}</p>
+      <pre ref={requestBody} className="mem-pre" tabIndex={0} aria-label={t("Exact history request body")}>{shown.send.prepared.body}</pre>
+      <label><input type="checkbox" checked={confirmed} disabled={busy} onChange={e => setConfirmed(e.target.checked)} /> {t("I inspected this exact body, destination, model and hash.")}</label>
       <button type="button" className="mem-button mem-primary" disabled={busy || !confirmed || (shown.send.submitted() && !canRecoverSend)} onClick={() => void send()}>{shown.send.submitted() ? "Recover this batch call" : "Send this batch once"}</button>
       <button type="button" className="mem-button" disabled={busy} onClick={() => {
         focusAfter.current = { token, generation, trigger: document.activeElement, target: "prepare" };
-        setHeld(null); setConfirmed(false); setNotice("Request withdrawn. Read saved state before preparing again.");
-      }}>Withdraw batch request</button>
+        setHeld(null); setConfirmed(false); setNotice(t("Request withdrawn. Read saved state before preparing again."));
+      }}>{t("Withdraw batch request")}</button>
     </div>}
     {running && <Operation id={running.id} kind="external_send" request={request} onDone={result => {
       if (publishable(running.token)) { setOperation(null); setCompletion(result); }
     }} />}
-    {completion && <><OperationFeedback status={completion} onCancel={() => {}} /><p className="mem-muted">Read this history task again for its saved outcome. Suggestions, queueing and human review are separate steps.</p></>}
+    {completion && <><OperationFeedback status={completion} onCancel={() => {}} /><p className="mem-muted">{t("Read this history task again for its saved outcome. Suggestions, queueing and human review are separate steps.")}</p></>}
   </section>;
 }

@@ -10,19 +10,20 @@ import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { capsuleObservation, dispatchObservation } from "./observationIdentity";
 
+import { labels, msg, t } from '../i18n/index.ts';
 /** The capsule budget in words when it has the usual fields; otherwise as recorded. */
 function budget(b: J): string {
   if (b && typeof b.estimated_tokens === "number" && typeof b.max_tokens === "number") {
-    const memory = typeof b.memory_budget_tokens === "number" ? ` · memory budget ${b.memory_budget_tokens}` : "";
-    return `${b.estimated_tokens} of ${b.max_tokens} units (${b.counting_method ?? "unknown method"})${memory}`;
+    const memory = typeof b.memory_budget_tokens === "number" ? t(" · memory budget {memory_budget_tokens}", { memory_budget_tokens: b.memory_budget_tokens }) : "";
+    return t("{estimated_tokens} of {max_tokens} units ({method})", { estimated_tokens: b.estimated_tokens, max_tokens: b.max_tokens, method: b.counting_method ?? t("unknown method") }) + memory;
   }
   return JSON.stringify(b);
 }
 
-const DELIVERY: Record<string, string> = {
-  preview_not_sent: "Preview only · nothing was sent anywhere",
-  dispatched: "Dispatched · actual request inspection available",
-};
+const DELIVERY: Record<string, string> = labels({
+  preview_not_sent: msg("Preview only · nothing was sent anywhere"),
+  dispatched: msg("Dispatched · actual request inspection available"),
+});
 
 export default function ContextSurface({ capsuleId }: { capsuleId: string | null }) {
   return (
@@ -41,9 +42,9 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
   const action = useAction();
   const reads = useLatestRead();
   const dispatchReads = useLatestRead();
-  const pending = action.busy ? "Preparing preview…"
-    : reads.busy || (id && !view && !reads.error) ? "Reading the saved capsule…"
-    : dispatchReads.busy ? "Reading the actual request…" : null;
+  const pending = action.busy ? t("Preparing preview…")
+    : reads.busy || (id && !view && !reads.error) ? t("Reading the saved capsule…")
+    : dispatchReads.busy ? t("Reading the actual request…") : null;
   const observeCapsule = useCallback((target: string) => {
     setView(null);
     setRequest(null);
@@ -64,14 +65,14 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
   const excluded = decisions.filter((d) => d.decision !== "included");
   const Rows = ({ rows }: { rows: J[] }) => (
     <table className="mem-table">
-      <thead><tr><th>Record</th><th>Reason</th><th>Rank</th><th>Source reachable</th></tr></thead>
+      <thead><tr><th>{t("Record")}</th><th>{t("Reason")}</th><th>{t("Rank")}</th><th>{t("Source reachable")}</th></tr></thead>
       <tbody>
         {rows.map((d, i) => (
           <tr key={i}>
             <td><code title={d.record_id}>{d.record_kind}:{shortId(d.record_id)}</code> r{d.revision}</td>
             <td>{d.reason}</td>
             <td>{d.rank ?? ""}</td>
-            <td>{d.source_reachable ? "yes" : <Tag tone="warn">no</Tag>}</td>
+            <td>{d.source_reachable ? "yes" : <Tag tone="warn">{t("no")}</Tag>}</td>
           </tr>
         ))}
       </tbody>
@@ -81,8 +82,8 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
     <section data-screen-label="Context Surface" className="mem-context" aria-busy={Boolean(pending)}>
       <div className="mem-context-main">
         <div className="qr20">
-          <h1 id="mem-context-title" className="qr18" tabIndex={-1}>Context Surface</h1>
-          <div className="qr19">What a request carries, and why. Saved capsules are read back, never recomputed.</div>
+          <h1 id="mem-context-title" className="qr18" tabIndex={-1}>{t("Context Surface")}</h1>
+          <div className="qr19">{t("What a request carries, and why. Saved capsules are read back, never recomputed.")}</div>
         </div>
         <form className="mem-actions" onSubmit={(e) => {
           e.preventDefault();
@@ -90,38 +91,38 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
           reads.clear(); dispatchReads.clear(); setId(null); setView(null); setRequest(null); setDispatchId(null);
           void action.run(async (key) => setId((await readPage("context_preview", { query, sessionId: null, branchId: null }, key)).capsuleId));
         }}>
-          <label htmlFor="mem-cq" className="mem-sr">Compile preview</label>
+          <label htmlFor="mem-cq" className="mem-sr">{t("Compile preview")}</label>
           <input id="mem-cq" className="mem-input mem-grow" value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask a question to see which memories it would carry" autoComplete="off" />
-          <button type="submit" className="mem-button mem-primary" disabled={!query.trim() || action.busy}>Preview</button>
+            placeholder={t("Ask a question to see which memories it would carry")} autoComplete="off" />
+          <button type="submit" className="mem-button mem-primary" disabled={!query.trim() || action.busy}>{t("Preview")}</button>
         </form>
         <ErrorBox error={action.error} />
         <ErrorBox error={reads.error} />
         <ErrorBox error={dispatchReads.error} />
         {id && <button type="button" className="mem-button" disabled={action.busy || reads.busy}
-          onClick={() => { if (!action.busy) observeCapsule(id); }}>Read saved capsule again</button>}
+          onClick={() => { if (!action.busy) observeCapsule(id); }}>{t("Read saved capsule again")}</button>}
         {reads.error && <p className="mem-muted">This saved capsule could not be read. Read it again; this does not prepare a preview or send a request.</p>}
         {pending && <p role="status" className="mem-muted">{pending}</p>}
-        {!id && !action.busy && <p className="mem-muted">Preview a question here, or open the context behind an answer from Sessions.</p>}
+        {!id && !action.busy && <p className="mem-muted">{t("Preview a question here, or open the context behind an answer from Sessions.")}</p>}
         {view && (
           <div className="mem-stack">
             <p className="mem-state-line">
-              <strong>{Object.hasOwn(DELIVERY, view.delivery) ? DELIVERY[view.delivery] : "Unknown saved delivery state"}</strong>
-              <span className="mem-muted"> · capsule <code title={id ?? ""}>{shortId(id)}</code> · destination {view.capsule.destination.kind} · {budget(view.capsule.budget)}</span>
+              <strong>{Object.hasOwn(DELIVERY, view.delivery) ? DELIVERY[view.delivery] : t("Unknown saved delivery state")}</strong>
+              <span className="mem-muted"> {t("· capsule")} <code title={id ?? ""}>{shortId(id)}</code> · destination {view.capsule.destination.kind} · {budget(view.capsule.budget)}</span>
             </p>
-            <h3 className="mem-h3">Saved question</h3>
+            <h3 className="mem-h3">{t("Saved question")}</h3>
             <p className="mem-content mem-saved-query">{view.capsule.query}</p>
             <h3 className="mem-h3">Included ({included.length})</h3>
-            {included.length ? <Rows rows={included} /> : <p className="mem-muted">Nothing was included.</p>}
+            {included.length ? <Rows rows={included} /> : <p className="mem-muted">{t("Nothing was included.")}</p>}
             <h3 className="mem-h3">Excluded ({excluded.length})</h3>
-            {excluded.length ? <Rows rows={excluded} /> : <p className="mem-muted">Nothing was excluded.</p>}
+            {excluded.length ? <Rows rows={excluded} /> : <p className="mem-muted">{t("Nothing was excluded.")}</p>}
           </div>
         )}
       </div>
-      <aside aria-label="Dispatches" className="qr88">
+      <aside aria-label={t("Dispatches")} className="qr88">
         <div className="qr79">
-          <h3 className="mem-h3">Dispatches</h3>
-          {view && view.dispatches.length === 0 && <p className="mem-muted">This capsule was never sent.</p>}
+          <h3 className="mem-h3">{t("Dispatches")}</h3>
+          {view && view.dispatches.length === 0 && <p className="mem-muted">{t("This capsule was never sent.")}</p>}
           {!view && <p className="mem-muted">{action.busy ? "Preparing preview…" : !id ? "No capsule selected." : reads.error ? "Capsule unavailable. Read saved capsule again to inspect it." : "Reading capsule…"}</p>}
           {view?.dispatches.map((d: J) => (
             <div key={d.dispatchId} className="mem-stack">
@@ -130,17 +131,17 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
                 <span className="mem-muted"> · prepared {when(d.preparedAt)}{d.sentAt ? ` · sent ${when(d.sentAt)}` : " · not sent"}{d.completedAt ? ` · completed ${when(d.completedAt)}` : ""}</span>
               </p>
               <div className="mem-actions">
-                <button type="button" className="mem-button" disabled={action.busy || reads.busy} onClick={() => observeDispatch(d)}>Show the actual request</button>
+                <button type="button" className="mem-button" disabled={action.busy || reads.busy} onClick={() => observeDispatch(d)}>{t("Show the actual request")}</button>
               </div>
             </div>
           ))}
           {selectedDispatch && <button type="button" className="mem-button" disabled={action.busy || reads.busy || dispatchReads.busy}
-            onClick={() => observeDispatch(selectedDispatch)}>Read actual request again</button>}
+            onClick={() => observeDispatch(selectedDispatch)}>{t("Read actual request again")}</button>}
           {request && (
             <div className="mem-stack">
               <p>
                 Actual request <code title={dispatchId ?? ""}>{shortId(dispatchId)}</code> ·{" "}
-                {request.verified ? <Tag tone="ok">re-rendered from the saved records and hash-checked</Tag> : <Tag tone="warn">hash mismatch</Tag>}
+                {request.verified ? <Tag tone="ok">{t("re-rendered from the saved records and hash-checked")}</Tag> : <Tag tone="warn">{t("hash mismatch")}</Tag>}
               </p>
               <p className="mem-muted">{request.tools} tools · {request.destination.kind}</p>
               {request.messages.map((m: J, i: number) => (
