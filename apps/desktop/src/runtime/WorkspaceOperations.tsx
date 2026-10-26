@@ -41,7 +41,7 @@ export function WorkspaceOperations({ request = call }: { request?: typeof call 
       <p className="mem-muted">List observed {when(page.readAt)} · showing {Math.min(limit, items.length)} of {items.length}</p>
       {items.length === 0 && <p className="mem-muted">{t("No operations in the current list.")}</p>}
       <ul className="mem-list">{items.slice(0, limit).map(item => <li key={item.operationId}>
-        <button type="button" className="mem-link" aria-label={`Inspect operation ${item.operationId}`} aria-pressed={selected?.id === item.operationId}
+        <button type="button" className="mem-link" aria-label={t('Inspect operation {id}', { id: item.operationId })} aria-pressed={selected?.id === item.operationId}
           onClick={() => setSelected({ id: item.operationId, kind: item.kind })}>{kindName(item.kind)} · {shortId(item.operationId)}</button>
         {" "}<span>{STATES[item.state]}</span>
       </li>)}</ul>

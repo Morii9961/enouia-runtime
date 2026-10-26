@@ -132,7 +132,7 @@ export default function Timeline({ sel, select }: ViewProps) {
           </div>
           <div className="am-lanes">
             {LAYOUT.map((l) => (
-              <div key={l.id || 'none'} className="am-lane" style={{ ...GRID, height: l.height }} role="group" aria-label={`Theme pen: ${l.name}, model suggestion`}>
+              <div key={l.id || 'none'} className="am-lane" style={{ ...GRID, height: l.height }} role="group" aria-label={t('Theme pen: {name}, model suggestion', { name: l.name })}>
                 <span className="am-base" aria-hidden="true" />
                 {l.packed.map(({ item }) => <span key={"t" + item.m.id} className="am-tick" aria-hidden="true" data-span={item.span.b > item.span.a || undefined} data-soft={item.span.softA || undefined} style={{ left: pct(item.span.a), width: item.span.b > item.span.a ? `max(${pct(item.span.b - item.span.a)}, 3px)` : undefined }} />)}
                 {l.packed.map(({ item, row }) => {
@@ -152,12 +152,12 @@ export default function Timeline({ sel, select }: ViewProps) {
               <span className="am-pen-line" />
               {recv.map(({ item, row }) => (
                 <button key={item.x.id} type="button" className="am-rt" aria-pressed={item.x.id === sel} style={{ left: `calc(${pct(item.at)} - 5px)`, bottom: 12 + row * 11 }} onClick={() => select(item.x.id)}
-                  aria-label={`Received ${fmtStamp(item.x.received)}. ${item.x.title}.`} />
+                  aria-label={t('Received {time}. {title}.', { time: fmtStamp(item.x.received), title: item.x.title })} />
               ))}
               {span && lag !== null && lag >= 1 ? <span className="am-lag" style={{ left: pct(Math.min(span.b, rx)), width: pct(Math.abs(rx - span.b)) }}><span>received {lag} {lag === 1 ? 'day' : 'days'} after it happened</span></span> : null}
               <span className="am-rt-label" data-side={(rx - startF) / (endF - startF) > 0.7 ? 'l' : 'r'} style={{ left: pct(rx), top: 5 }}>received {fmtDayShort(toMs(m.received))}, {fmtClock(toMs(m.received))}</span>
             </div>
-            <div className="am-lane am-form" style={{ ...GRID, height: FORMATION_H }} role="group" aria-label={`Formation notes for ${m.title}`}>
+            <div className="am-lane am-form" style={{ ...GRID, height: FORMATION_H }} role="group" aria-label={t('Formation notes for {title}', { title: m.title })}>
               <svg className="am-leaders" viewBox={`0 0 1000 ${FORMATION_H}`} preserveAspectRatio="none" aria-hidden="true">
                 {notes.map((t) => <path key={t.n} d={`M${(t.x * 1000).toFixed(2)} 0 L${(t.x * 1000).toFixed(2)} 6 L${(t.cx * 1000).toFixed(2)} 24`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
               </svg>
@@ -180,7 +180,7 @@ export default function Timeline({ sel, select }: ViewProps) {
         </ul>
       </section>
 
-      <section className="am-pen-notes" aria-label={`How ${m.title} formed`}>
+      <section className="am-pen-notes" aria-label={t('How {title} formed', { title: m.title })}>
         <h3>{t("Pen notes")} <span className="am-tag">how “{m.title}” formed</span></h3>
         <ol>
           {trail.map((p) => (

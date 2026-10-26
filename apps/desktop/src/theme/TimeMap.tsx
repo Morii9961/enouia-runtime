@@ -4,7 +4,7 @@
 // Keyboard: the map is a slider (← → move by a step, Shift or PageUp/PageDown by
 // a whole view, Home / End to the ends) and two buttons do the same; the pointer
 // can click to jump or drag. Presentation only: no data is read or written.
-import React, { useId, useRef, useSyncExternalStore } from 'react';
+import React, { useId, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { panTo, useTimeView, type TimeView } from './timeview';
 
 import { t } from '../i18n/index.ts';
@@ -74,6 +74,24 @@ export default function TimeMap({ spec }: { spec: MapSpec }) {
   };
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => { if (grab.current !== null) go(msAt(e.clientX) - grab.current, 'drag'); };
   const onUp = (e: React.PointerEvent<HTMLDivElement>) => { grab.current = null; if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); };
+
+  // A label that would run into the one before it (a narrow window, or a longer month name in
+  // Chinese or Japanese) is hidden, so the strip never prints labels on top of each other.
+  const labelKey = spec.labels.map((l) => l.text).join('|');
+  useLayoutEffect(() => {
+    const el = map.current; if (!el) return;
+    const thin = () => {
+      let right = -Infinity;
+      for (const n of el.querySelectorAll<HTMLElement>('.tm-lab')) {
+        n.style.visibility = '';
+        if (n.offsetLeft < right + 4) n.style.visibility = 'hidden'; else right = n.offsetLeft + n.offsetWidth;
+      }
+    };
+    thin();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(thin); ro.observe(el);
+    return () => ro.disconnect();
+  }, [labelKey]);
 
   const text = spec.readout(v.start, v.span);
   const maxIdx = Math.max(0, Math.round((len - v.span) / cellMs));

@@ -4,7 +4,7 @@ import { byId, relWords, relationsOf, type Rel } from './model';
 import { Glyph } from './parts';
 import type { ViewProps } from './types';
 
-import { t } from '../../i18n/index.ts';
+import { t, tn } from '../../i18n/index.ts';
 // Constellation: the selected memory and its bounded neighbourhood, plotted on
 // the negative. Every node has the same size; the five relations are five pen
 // line styles and each line carries its own word, so line style is never the
@@ -74,7 +74,7 @@ export default function Constellation({ sel, select }: ViewProps) {
         <span className="am-fine am-mono" aria-live="polite">zoom {Math.round(zoom * 100)}%</span>
       </div>
       <div className="am-plot-frame" ref={frame}>
-      <div className="am-plot" ref={plot} style={{ height: PLOT_H }} role="group" tabIndex={zoom > 1 ? 0 : undefined} aria-label={`Neighbourhood of ${m.title}: ${n} direct relation${n === 1 ? '' : 's'}`}>
+      <div className="am-plot" ref={plot} style={{ height: PLOT_H }} role="group" tabIndex={zoom > 1 ? 0 : undefined} aria-label={tn(n, 'Neighbourhood of {title}: {n} direct relation', 'Neighbourhood of {title}: {n} direct relations', { title: m.title })}>
       <div className="am-plot-wrap" style={{ width: Math.max(w, w * zoom), height: Math.max(PLOT_H, PLOT_H * zoom) }}>
       <div className="am-plot-stage" style={{ width: w, height: PLOT_H, transform: `scale(${zoom})`, transformOrigin: '0 0', left: Math.max(0, (w * Math.max(1, zoom) - w * zoom) / 2), top: Math.max(0, (PLOT_H * Math.max(1, zoom) - PLOT_H * zoom) / 2) }}>
         <svg className="am-plot-lines" width={w} height={PLOT_H} viewBox={`0 0 ${w} ${PLOT_H}`} aria-hidden="true">

@@ -46,7 +46,7 @@ export default function Home({ view }: { view: DemoView }) {
 <div className="bg-home-head">
 <div className="bg-readout">
 <div className="qr1">
-Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">{t("demo clock")}</span>
+Enouia Runtime · {t("Thursday 1 October 2026")} · <span className="bg-clock">{t("demo clock")}</span>
 </div>
 <div className="bg-now" aria-label={t("Demo clock 14:44")}>14<span>:</span>44</div>
 </div>
@@ -60,7 +60,7 @@ Enouia Runtime · Thursday 1 October 2026 · <span className="bg-clock">{t("demo
 <div className="bg-pan bg-pan-grid" style={layer} aria-hidden="true">
 {DOM_CELLS.map((c) => <span key={c.i} className="bg-day" data-today={c.today || undefined} style={{ left: pct(c.i / DOM_CELLS.length) }}>{c.dow} <b>{c.date}</b></span>)}
 </div>
-<div className="bg-draw" data-draw={!still ? 'on' : undefined} role="img" aria-label={`Fictional demo trace of the conversation, four days at a time, drawn up to the demo clock, Thursday 1 October 14:44. The frame in the time map above shows which four days are on screen.`}>
+<div className="bg-draw" data-draw={!still ? 'on' : undefined} role="img" aria-label={t("Fictional demo trace of the conversation, four days at a time, drawn up to the demo clock, Thursday 1 October 14:44. The frame in the time map above shows which four days are on screen.")}>
 <div className="bg-pan bg-pan-ink" style={layer}>
 <Trace d={domPath} marks={domMarks} penAt={domPen} still={!!still} draw={false} />
 </div>

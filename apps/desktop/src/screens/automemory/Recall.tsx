@@ -82,7 +82,7 @@ export default function Recall({ sel, select }: ViewProps) {
           <div className="am-step-b">
             <h3>{c.steps[3].label}</h3>
             <p>{c.steps[3].note}</p>
-            <div className="am-budget" role="img" aria-label={`Budget: ${c.budget.used} of ${c.budget.limit} units used. ${c.budget.truncated ? 'Truncated.' : 'Not truncated.'}`}>
+            <div className="am-budget" role="img" aria-label={t('Budget: {used} of {limit} units used. {state}', { used: c.budget.used, limit: c.budget.limit, state: c.budget.truncated ? t('Truncated.') : t('Not truncated.') })}>
               {c.included.map((r) => { const left = acc; acc += r.cost; return <span key={r.id} className="am-bseg" style={{ left: pctOf(left), width: pctOf(r.cost) }}><i>{r.rank}</i></span>; })}
               <span className="am-blimit">limit {c.budget.limit}</span>
             </div>

@@ -193,7 +193,7 @@ conf {m.conf}
 {sel.isCheckpoint ? <>
 <div className="qr15">
 <div className="qr55">
-Last state · {sel.coveredText}
+{t('Last state')} · {sel.coveredText}
 </div>
 <div className="qr58">
 {sel.lastState}

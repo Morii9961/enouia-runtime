@@ -414,7 +414,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
         {items.map((c) => {
           const draft = edits[c.candidateId] ?? c.content;
           return (
-            <article key={c.candidateId} className="mem-candidate" aria-label={`Candidate ${c.candidateId}`}>
+            <article key={c.candidateId} className="mem-candidate" aria-label={t('Candidate {id}', { id: c.candidateId })}>
               <div className="mem-row-meta">
                 <code title={c.candidateId}>{shortId(c.candidateId)}</code><span>r{c.revision}</span>
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
