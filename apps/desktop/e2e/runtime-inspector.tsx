@@ -49,7 +49,8 @@ async function rereadMemory() {
 }
 try {
   mount();
-  await wait(() => releaseShell != null && text().includes("Observed component status"));
+  // the shell read has started; wait for React to commit its busy state before checking it
+  await wait(() => releaseShell != null && text().includes("Observed component status") && section("runtime-shell-title").includes("Reading shell status"));
   check("app_routes_to_observed_inspector", text().includes("Observed component status") && !text().includes("Inspector demo") && !text().includes("frozen Runtime-local design"));
   check("unobserved_shell_is_not_healthy", section("runtime-shell-title").includes("Reading shell status") && !section("runtime-shell-title").includes("Running"));
   check("inspector_has_no_activity_section", !text().includes("Activity"));
