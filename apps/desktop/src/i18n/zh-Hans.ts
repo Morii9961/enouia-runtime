@@ -912,7 +912,6 @@ const dict: Record<string, string> = {
   "Open or create a Vault to begin": "打开或新建一个记忆库来开始",
   "Review queue could not be read": "无法读取审阅队列",
   "Nothing waiting for review": "没有等待审阅的",
-  "I'm here.": "我在。",
   "Local Mock responses": "本地模拟回答",
   "Use the local Mock, or inspect and authorize an external model request": "使用本地模拟，或检查并授权一次外部模型请求",
   "Preview what a question would carry, and why": "预览一个问题会带上什么，以及为什么",

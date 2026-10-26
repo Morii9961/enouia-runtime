@@ -912,7 +912,6 @@ const dict: Record<string, string> = {
   "Open or create a Vault to begin": "保管庫を開くか作成して始めましょう",
   "Review queue could not be read": "レビューの待ち行列を読めませんでした",
   "Nothing waiting for review": "レビュー待ちはありません",
-  "I'm here.": "ここにいます。",
   "Local Mock responses": "ローカルのモック応答",
   "Use the local Mock, or inspect and authorize an external model request": "ローカルのモックを使うか、外部モデルへのリクエストを確認して許可します",
   "Preview what a question would carry, and why": "質問が何を運ぶのか、その理由をプレビュー",

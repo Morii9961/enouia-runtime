@@ -65,8 +65,8 @@ Enouia Runtime · {t("Thursday 1 October 2026")} · <span className="bg-clock">{
 <Trace d={domPath} marks={domMarks} penAt={domPen} still={!!still} draw={false} />
 </div>
 </div>
-<h1 className="qr2 bg-here" data-away={!penOn || undefined} style={{ right: pct(penOn ? 1 - penFrac + 0.04 : 0.03) }}>
-{t("I'm here.")}
+<h1 className="qr2 bg-here" lang="en" data-away={!penOn || undefined} style={{ right: pct(penOn ? 1 - penFrac + 0.04 : 0.03) }}>
+I'm here.
 </h1>
 </div>
 <svg className="bg-leaders" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" data-hidden={!showLeaders || undefined}>

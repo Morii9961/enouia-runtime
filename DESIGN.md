@@ -52,9 +52,14 @@
 | 展示/标题（拉丁） | Martian Mono 可变（wdth 75–112.5） | OFL-1.1；`@fontsource-variable/martian-mono` 5.3.0；npm `license` 字段 2026-10-17 核实；LICENSE 随字体放置 | 300（首页时刻）、400、500、600 | 自托管 woff2，`font-display: swap`，38,492 B |
 | 正文（拉丁） | Geist 可变 | OFL-1.1；`@fontsource/geist` 5.3.0；同上 | 400、500 | 自托管 woff2，29,400 B |
 | 数据/等宽 | Martian Mono（同上） | 同上 | 500、600 | 同上 |
-| 中文（汉字与中文标点） | **待定（系统字体已被否决）**：Morii 2026-10-26 认为雅黑、游ゴシック「太常规，没有英文字体那种特点」；第二轮候选见 OPEN_ISSUES #19。现在仍临时用系统 Microsoft YaHei UI → Microsoft YaHei；候选比较见 `.design/review/fonts/` | 系统字体，不打包 | 系统 300 / 400 / 700 | 不加载；`theme/cjk-fonts.css` 按 `<html lang="zh-Hans">` 放在 Geist / Martian 之后 |
-| 日文（假名、汉字与日文标点） | **待定（同上）**：临时用系统 Yu Gothic UI → Meiryo UI；候选同上 | 系统字体，不打包 | 系统 300 / 350 / 400 / 600 / 700 | 同上，按 `<html lang="ja">`；同一个汉字在中文与日文里取各自的字形 |
+| 中文 · 标签/标题（Martian 的位置） | **更纱等宽 Sarasa Mono SC** v1.0.43（be5invis/Sarasa-Gothic） | OFL-1.1 | 300 Light、400 Regular（也用于 500）、600 SemiBold | 只打包界面字典里出现的汉字与中文标点（按 `zh-Hans.ts` 生成子集），woff2；不在子集里的字（如用户起的主题名）落到正文字体 |
+| 中文 · 正文（Geist 的位置） | **霞鹜新晰黑 LXGW Neo XiHei** v1.308（lxgw/LxgwNeoXiHei） | IPA 字体授权 v1.0（随软件分发前核对改名与派生条款，见 HANDOFF_CODEX W4） | 只有 400；不做伪粗体，强调靠颜色与反相 | 全字符，woff2 按 `unicode-range` 切片按需加载（记忆正文可能是任何字） |
+| 日文 · 标签/标题 | **M PLUS 1 Code**（google/fonts） | OFL-1.1 | 可变 100–700，用 300 / 400 / 500 / 600 | 只打包界面字典里出现的假名、汉字与日文标点，woff2 |
+| 日文 · 正文 | **Zen Kaku Gothic New**（google/fonts） | OFL-1.1 | 300 / 400 / 500 / 700 | 全字符，woff2 切片按需加载 |
+| 中日回退 | 系统字体：中文 Microsoft YaHei UI → Microsoft YaHei；日文 Yu Gothic UI → Meiryo UI | 系统 | — | 打包字体加载前与缺字时 |
 | 点缀 | 无 | — | — | — |
+
+- 中日字体 2026-10-26 定稿（Morii 选第二轮的「中 2」与「日 1」，比较页 `.design/review/fonts2/`）。按 `<html lang>` 分开取字形；栈：中文标签 `'Martian Mono', 'Sarasa Mono SC', 'LXGW Neo XiHei', 'Microsoft YaHei UI', sans-serif`，中文正文 `'Geist', 'LXGW Neo XiHei', 'Microsoft YaHei UI', sans-serif`；日文标签 `'Martian Mono', 'M PLUS 1 Code', 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif`，日文正文 `'Geist', 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif`。上面「合计 67,892 B」只算拉丁字体；中日字体按需加载，不计入首屏预算，打包后的实际体积写进决定记录。
 
 - 合计 67,892 B（预算 ≤ 150 KB）。CSP `font-src 'self'` 不变。字体说明在 `apps/desktop/src/assets/fonts/README.md`。
 - Martian 宽度三档：`--w-sm: 75%`（小标签、行内读数）、`--w-nav: 87.5%`（导航、注记时刻）、`--w-display: 112.5%`（首页时刻、页标题）。
@@ -147,7 +152,7 @@
 
 - 声线：**仪器读数 + 一点人声。** 短、具体、写清范围与后果；不用感叹号；先说事实再说动作。
 - 界面三种语言：English、简体中文、日本語（`src/i18n/`）。英文原文就是键，中文与日文各一份字典，缺项退回英文；`tests/i18n.test.mjs` 检查每个界面字符串都有两种译文、占位符一致、没有多余条目。Settings → Language 选「跟随系统 / English / 中文 / 日本語」，只存在这个浏览器（本机）里；浏览器演示可用 `?lang=en|zh|ja`。只加载当前语言的字典。
-- 不翻译的：产品名「Enouia Runtime」（`lang="en"`，保持大写与字距）、ID、哈希、文件名与路径、命令名、模型与服务商名、记忆与会话的正文（按原来的语言显示）。演示数据里的虚构记忆与对话也保持英文。
+- 不翻译的：产品名「Enouia Runtime」（`lang="en"`，保持大写与字距）、首页的「I'm here.」（任何语言下都用英文，`lang="en"`，Morii 2026-10-26 指定）、ID、哈希、文件名与路径、命令名、模型与服务商名、记忆与会话的正文（按原来的语言显示）。演示数据里的虚构记忆与对话也保持英文。
 - 中文用「你」，不用「您」；日文用です・ます，标签用名词。中文标点全角，日文引号用「」，中文引号用“”。用语对照：Vault 记忆库 / 保管庫，canonical 正式，candidate 候选 / 候補，session 会话 / セッション，capsule 胶囊 / カプセル，provider 模型服务商 / プロバイダー，evidence 证据 / 根拠，grant 授权 / 許可，Adopted by system 系统已采用 / システムが採用，Corrected by you 你纠正过 / あなたが訂正，Star map 记忆星图 / 記憶の星図，Tile Blue 黛蓝 / タイルブルー，Xuan Paper 宣纸 / 宣紙。
 - 日期：英文保持原格式（「1 Oct 2026」「THU 1 OCT」）；中文与日文用 Intl（zh-CN / ja-JP），记录带写「10月1日 周四」/「10月1日 木」，日历日仍按 Asia/Shanghai。
 - 示例：

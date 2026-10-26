@@ -211,7 +211,7 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
           {ring}
           <div className="qr7">
             <div className="qr1">Enouia Runtime</div>
-            <h1 className="qr2">{t("I'm here.")}</h1>
+            <h1 className="qr2" lang="en">I'm here.</h1>
             <div className="qr6">
               <span className="qr3" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
               <span>{vaultLabel(status, vaultChanging)}{v?.rootName ? ` · ${v.rootName}` : ""}</span>
