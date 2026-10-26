@@ -16,6 +16,22 @@
 
 ---
 
+## 2026-10-27 · W4 中日字体打包与按需加载
+
+- 决定：更纱三字重与 M PLUS 可变 300–600 使用字典 CJK 子集；Enouia Text SC、Zen 四字重保留完整字符映射及 UVS，各字重 100 片。CJK 共 504 个 WOFF2、9,691,652 B。定义 CSS 随中日字典加载，不进入英文首屏；切片不内联。Settings 的完整授权文本另包加载，并提供原始 IPAexGothic 的本机恢复选择。
+- 理由：保留选定字形、任意正文覆盖与 IPA 恢复权利，同时让英文启动仍只加载原有 67,892 B 拉丁字体。中文无库首页实测 474,908 B，日文 313,536 B（均含拉丁）。
+- 影响：生成脚本、字体与 manifest、语言加载器、CJK 栈及 Settings；无新产品依赖、Memory pin 或原生权限变更。M PLUS 缺少的全角「／」「：」由 Zen 正文覆盖。
+- 依据：[W4 原生/浏览器验证](validation/UI-v2-W4-fonts-2026-10-27.md)，完整来源、内部版本差异及生成方法见字体 README。
+- 状态：定稿（实现与本地验证；不代表 owner 人工验收）
+
+## 2026-10-26 · W4 IPA 字体派生、改名与恢复入口
+
+- 决定：按 IPA 授权与官方 FAQ，将子集化和 TTF → WOFF2 都视为派生；中文正文字体的打包 family、PostScript 名和文件名改为 `Enouia Text SC`，对应 LXGW Neo XiHei v1.308 的字形，不沿用包含原名的派生名称。四条栈中原 `LXGW Neo XiHei` 的位置使用这个打包名称。附完整授权、来源、生成脚本与说明；Settings 提供可读授权及切换到用户自行安装的原始 IPAexGothic 的入口，不增加原生权限或自动下载。
+- 理由：IPA 官方 FAQ §3.1 明确格式转换也是派生；§2.4、§3.3.2 要求内置字体的授权可读及恢复原始字体的方法。仅保留所有字形再转 WOFF2 并不能免除这些条件。
+- 影响：CJK 字体包、四条字体栈、Settings 字体说明；原始 TTF 不提交。其余三款按 OFL 分发，Sarasa 的保留名 `Source` 不用于派生主名称，M PLUS / Zen 授权未声明保留名。
+- 依据：打包前阅读的 [IPA 授权](https://moji.or.jp/ipafont/license/)、[官方 FAQ](https://moji.or.jp/ipafont/faq/)、[字体作者的说明](https://github.com/lxgw/lxgw/blob/main/documents/xizhi_embedding_instructions.md)与三款 OFL 全文；详细实施条件见 `apps/desktop/src/assets/fonts/README.md`。
+- 状态：定稿（本轮已授权的字体打包所必需；恢复操作的实测边界另记验证记录）
+
 ## 2026-10-26 · W3 原生启动底色
 
 - 决定：Tauri 创建窗口之前，通过现有 Windows Registry API 只读查询 `AppsUseLightTheme`，将主窗口和 Quick Search 的 `background_color` 设为黛蓝 `#0F1C23` 或宣纸 `#F1F0EB`；缺失/不可读时使用 Windows 默认浅色。JSON 留浅色保底。HTML 用两条带 `media` 的 `theme-color` 和极小的头部样式，在模块脚本运行前使用同样的纸色。这是 DESIGN.md §2 颜色集中规则的启动阶段例外。

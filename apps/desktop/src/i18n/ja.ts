@@ -1,6 +1,16 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Fonts and licences": "フォントとライセンス",
+  "Chinese body text uses Enouia Text SC, derived from LXGW Neo XiHei under IPA Font License 1.0.": "中国語の本文には、LXGW Neo XiHei から IPA フォントライセンス 1.0 に基づき派生した Enouia Text SC を使用します。",
+  "To use the original font, download IPAexGothic from the original publisher, install it through Windows, then restart Runtime and select it below.": "元のフォントを使うには、配布元から IPAexGothic をダウンロードして Windows にインストールし、Runtime を再起動して下から選択してください。",
+  "Chinese body font": "中国語の本文フォント",
+  "Bundled font": "内蔵フォント",
+  "Use installed IPAexGothic": "インストール済みの IPAexGothic を使用",
+  "Using the installed original. If it is removed, Windows fallback fonts are used until it is installed again.": "インストール済みの元のフォントを使用しています。削除された場合は、再インストールされるまで Windows の代替フォントを使用します。",
+  "IPAexGothic is unavailable. Install the original font and restart Runtime before selecting it.": "IPAexGothic を利用できません。元のフォントをインストールして Runtime を再起動してから選択してください。",
+  "Loading font licences…": "フォントライセンスを読み込み中…",
+  "Font licences are reproduced verbatim in their original languages. Use of Enouia Text SC is subject to IPA Font License 1.0.": "以下にフォントライセンスを原文のまま掲載します。Enouia Text SC の使用には IPA フォントライセンス 1.0 が適用されます。",
   "ID copied.": "ID をコピーしました。",
   "Could not copy. Select the ID and copy it manually.": "コピーできませんでした。ID を選択して手動でコピーしてください。",
   "Window control failed. Try again.": "ウィンドウ操作に失敗しました。もう一度お試しください。",

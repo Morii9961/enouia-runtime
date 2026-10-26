@@ -2,18 +2,18 @@
 
 写给接手把 UI v2 做进真正 Windows 软件的人（预计是 Codex）。先读 [README.md](README.md) 列的五份文档，这一页只讲**现在在哪、还差什么、按什么顺序做、做完怎么验收**。
 
-## 1. 现在的状态（2026-10-26）
+## 1. 现在的状态（2026-10-27）
 
 UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这就是 Tauri 应用的 WebView 前端本身**，原生壳 `apps/desktop/src-tauri` 加载的就是它。但它还没有成为「正式的 Windows 软件」，因为：
 
 | 方面 | 状态 |
 | --- | --- |
-| 代码位置 | `main`（经 PR 从分支 `ui-v2/merge-main` 合入；该分支 = `redesign/v2` + 合并最新 main）。PR 合并之前，以 `ui-v2/merge-main` 为准。 |
+| 代码位置 | UI v2 基线已通过 PR #103 合入 `main`（`4dc502b`）。后续 W2、W3、W4 在逐片推送的堆叠 `codex/ui-v2-*` 分支，尚未因此合入 main；各片证据见 validation。 |
 | 与 main 的关系 | W1 已完成（2026-10-26）：合入 main 的 6 个提交（PR #101、#102，到 `39a6081`），4 个冲突已解决，main 新增的 20 条界面文字已补中日译文（1,404 条），§4 检查全部通过（node 124 / 3 跳过，DOM 77/77）。`src-tauri/tests/memory_core.rs` 来自 main，Rust 测试没有在这一步重跑。 |
-| 原生壳 | `src-tauri` **一行没改**（这一轮没有授权）。首帧底色仍是旧的 `#0C1117`（OPEN_ISSUES #1）。 |
-| 验证 | 只在浏览器演示与无头 Edge 里看过；**没有在原生 WebView2 里跑过**（OPEN_ISSUES #20）。node 测试 124 通过 / 3 跳过，DOM 75/75，build，两个仓库检查都通过。 |
+| 原生壳 | W3 已获授权并实现系统明暗对应的启动底色（`65e6e3a`）；见 [W3 验证](../../validation/UI-v2-W3-background-2026-10-26.md)与首帧测量边界。 |
+| 验证 | W2 已完成三语、两尺寸、两主题、实机 100/125/150% DPI 验证并记录发现；见 [W2](../../validation/UI-v2-W2-native-2026-10-26.md)。W4 Node 127 通过 / 3 跳过、DOM 77/77、build、两个根检查通过；真实原始 IPA 字体恢复成功、个人数据及 owner 验收仍未完成。 |
 | 真实数据 | 原生里的 Memory、Context、Sessions 仍走 Memory 适配器（pin 的 Memory Core），这一轮只换了皮。合成预览（自动记忆、记忆星图）只在浏览器演示里出现，原生不显示，失败也不得回退到演示。 |
-| 字体 | 全部定稿。拉丁：Geist + Martian Mono（已自托管）。中文：更纱等宽 Sarasa Mono SC（标签/标题）+ 霞鹜新晰黑（正文）；日文：M PLUS 1 Code（标签/标题）+ Zen Kaku Gothic New（正文）。**中日字体还没打包进应用**，现在仍落到系统字体，见 W4。 |
+| 字体 | W4 已打包 504 个 CJK WOFF2，保留定稿字形；IPA 派生中文正文改名 Enouia Text SC，并附完整授权与恢复入口。中日定义及切片按需加载，英文字体流量仍为 67,892 B。见 [W4 验证](../../validation/UI-v2-W4-fonts-2026-10-27.md)。 |
 
 ## 2. 这一轮做进去的东西（按提交）
 

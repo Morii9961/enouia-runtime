@@ -1,6 +1,16 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Fonts and licences": "字体与授权",
+  "Chinese body text uses Enouia Text SC, derived from LXGW Neo XiHei under IPA Font License 1.0.": "中文正文使用 Enouia Text SC，由霞鹜新晰黑依照 IPA 字体授权 1.0 派生。",
+  "To use the original font, download IPAexGothic from the original publisher, install it through Windows, then restart Runtime and select it below.": "如需使用原始字体，请从原发布方下载 IPAexGothic，通过 Windows 安装后重启 Runtime，再在下方选择。",
+  "Chinese body font": "中文正文字体",
+  "Bundled font": "内置字体",
+  "Use installed IPAexGothic": "使用已安装的 IPAexGothic",
+  "Using the installed original. If it is removed, Windows fallback fonts are used until it is installed again.": "正在使用已安装的原始字体。若将其移除，将使用 Windows 回退字体，直到重新安装。",
+  "IPAexGothic is unavailable. Install the original font and restart Runtime before selecting it.": "无法使用 IPAexGothic。请先安装原始字体并重启 Runtime，再选择它。",
+  "Loading font licences…": "正在加载字体授权…",
+  "Font licences are reproduced verbatim in their original languages. Use of Enouia Text SC is subject to IPA Font License 1.0.": "以下保留字体授权的原文。使用 Enouia Text SC 须遵守 IPA 字体授权 1.0。",
   "ID copied.": "ID 已复制。",
   "Could not copy. Select the ID and copy it manually.": "无法复制。请选中 ID 手动复制。",
   "Window control failed. Try again.": "窗口操作失败，请重试。",

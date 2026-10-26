@@ -1,5 +1,6 @@
 import React from "react";
 import type { DemoView } from "../App";
+import FontSettings from './FontSettings';
 
 import { LANG_NAMES, setLang, t, useLangPref } from '../i18n/index.ts';
 export default function Settings({ view }: { view: DemoView }) {
@@ -65,6 +66,7 @@ export default function Settings({ view }: { view: DemoView }) {
 {t("Negative")}
 </span>
 </div>
+<FontSettings />
 </div>
 {memorySettings ?? <>
 <div className="qr65">
