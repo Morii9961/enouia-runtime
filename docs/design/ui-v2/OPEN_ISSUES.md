@@ -12,7 +12,7 @@
 | 6 | **记忆星图的规模与技术。** 已有合成原型（`redesign/v2`）：Canvas 绘制；球体一次算好（5,000 条 28ms），星系在 Worker 里用自写的 Barnes–Hut 收敛（5,000 条约 460ms）；以下为旧力导向的数据：生产构建实测 5,000 节点布局约 0.5 s、每帧 JS 绘制 < 1 ms（无头 Edge，未在 WebView2 实测）。全库星图仍需要后端授权的图投影（MEMORY_DATA_REQUIREMENTS §3）。 | 节点到几百上千时 SVG 会慢。 | 按 Memory UI 规格：先用合成规模样例（如 200 / 1,000 / 5,000 节点）测帧率与布局时间，再在 SVG / Canvas / Web Worker 布局间选；需要新依赖时另记决定。 | 实现者 + owner（依赖） |
 | 7 | **已解决（2026-10-27 → 决定「W6 #7 视图模型传状态，CSS 决定皮肤」）。** 旧 Quiet 色值与未用圆环已移除，Context 传 section，Memory/Sessions/Runtime 传稳定状态；CSS 管外观。 | 本地化标签不再参与推导样式状态。 | [验证与 30 张截图](../../validation/UI-v2-W6-07-view-state-2026-10-27.md)，六项检查通过。 | 已实现 |
 | 8 | **已解决（2026-10-27 → 决定「W6 #8 Inspector 的完整 ID 可换行」）。** 链接型 ID 限宽并可任意断行，保留全文。 | Session ID 不再撑出右侧裁切角。 | [24 张截图与边界测量](../../validation/UI-v2-W6-08-inspector-ids-2026-10-27.md)，六项检查通过；既有 DOM 偶发失败过程保留。 | 已实现 |
-| 9 | **11.5px 文字。** `memory/memory.css` 的 `.mem-tag` 写 11.5px（原生表面旧样式）。 | 低于 12px 下限。 | 改 12px，检查标签高度 20px 是否还放得下。 | 实现者 |
+| 9 | **已解决（2026-10-27 → 决定「W6 #9 标签基础字号统一为 12px」）。** `.mem-tag` 基础值改为 12px，与主题一致。 | CSS 高度仍 20px，现有 content-box 含边框为 22px；三语文字边界容纳通过。 | [18 组探针与检查](../../validation/UI-v2-W6-09-tag-size-2026-10-27.md)，六项检查通过。 | 已实现 |
 | 10 | **全局 ↑/↓ 作用于看不见的列表。** 浏览器演示在 Memory 页对输入框与导航之外的 ↑/↓ 选择 Vault 演示记录并 `preventDefault`。 | 任何自带列表的新视图都会和它抢方向键。 | 只在焦点位于列表内时处理方向键。 | 实现者（改 `App.tsx` 键盘逻辑需谨慎，有测试） |
 | 11 | **Quick Search 没有「虚构/真实」标注。** 原生里显示真实记忆；浏览器里不渲染。 | 截图只能靠桩，容易误认。 | 原生保持现状；截图桩里加「Fictional」水印即可。 | 实现者 |
 | 12 | **已解决（2026-10-25，`AGENTS.md` 范围段落已改为六个表面、只服务 Memory）。** 原问题：仓库说明仍写七个表面与 Activity 页。 `AGENTS.md`「Current user scope」写 seven surfaces 与 ADR-028 的 Activity 页面；`docs/FRONTEND_IMPLEMENTATION_v1.md` 同。 | 后来的人（含 Codex）可能照着把 Activity 加回来。 | owner 更新 `AGENTS.md` 的范围段落；旧文档顶部已加一行指向决定记录。 | owner |

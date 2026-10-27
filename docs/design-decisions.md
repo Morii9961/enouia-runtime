@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-10-27 · W6 #9 标签基础字号统一为 12px
+
+- 决定：`.mem-tag` 的基础字号从 11.5px 改为 12px，保留 CSS 20px 高度与现有盒模型。
+- 理由：基础样式也满足 12px 下限，与 UI v2 已有覆盖值一致。
+- 影响：仅 `memory/memory.css` 的一处字号。
+- 依据：[W6 #9 记录](validation/UI-v2-W6-09-tag-size-2026-10-27.md)，三语、两主题、三档 DPR 的 18 组 CSS 探针，文字边界在标签内。
+- 状态：定稿（实现记录）
+
 ## 2026-10-27 · W6 #8 Inspector 的完整 ID 可换行
 
 - 决定：Memory Inspector 链接型 ID 限于当前列宽，使用 `overflow-wrap:anywhere`；保留完整 ID 与原点击行为。
