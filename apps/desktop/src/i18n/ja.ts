@@ -1,6 +1,7 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Loading panel…": "パネルを読み込み中…",
   "Fonts and licences": "フォントとライセンス",
   "Chinese body text uses Enouia Text SC, derived from LXGW Neo XiHei under IPA Font License 1.0.": "中国語の本文には、LXGW Neo XiHei から IPA フォントライセンス 1.0 に基づき派生した Enouia Text SC を使用します。",
   "To use the original font, download IPAexGothic from the original publisher, install it through Windows, then restart Runtime and select it below.": "元のフォントを使うには、配布元から IPAexGothic をダウンロードして Windows にインストールし、Runtime を再起動して下から選択してください。",

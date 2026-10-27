@@ -8,10 +8,10 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 
 | 方面 | 状态 |
 | --- | --- |
-| 代码位置 | UI v2 基线已通过 PR #103 合入 `main`（`4dc502b`）。后续 W2、W3、W4 在逐片推送的堆叠 `codex/ui-v2-*` 分支，尚未因此合入 main；各片证据见 validation。 |
+| 代码位置 | UI v2 基线已通过 PR #103 合入 `main`（`4dc502b`）。后续 W2–W6 在逐片推送的堆叠 `codex/ui-v2-*` 分支，尚未因此合入 main；完整前端改动位于 `codex/ui-v2-w6-18-lazy-panels`，各片证据见 validation。 |
 | 与 main 的关系 | W1 已完成（2026-10-26）：合入 main 的 6 个提交（PR #101、#102，到 `39a6081`），4 个冲突已解决，main 新增的 20 条界面文字已补中日译文（1,404 条），§4 检查全部通过（node 124 / 3 跳过，DOM 77/77）。`src-tauri/tests/memory_core.rs` 来自 main，Rust 测试没有在这一步重跑。 |
 | 原生壳 | W3 已获授权并实现系统明暗对应的启动底色（`65e6e3a`）；见 [W3 验证](../../validation/UI-v2-W3-background-2026-10-26.md)与首帧测量边界。 |
-| 验证 | W2 已完成三语、两尺寸、两主题、实机 100/125/150% DPI 验证并记录发现；见 [W2](../../validation/UI-v2-W2-native-2026-10-26.md)。W4 Node 127 通过 / 3 跳过、DOM 77/77、build、两个根检查通过；真实原始 IPA 字体恢复成功、个人数据及 owner 验收仍未完成。 |
+| 验证 | W2 已完成三语、两尺寸、两主题、实机 100/125/150% DPI 验证并记录发现；见 [W2](../../validation/UI-v2-W2-native-2026-10-26.md)。W6 最终 Node 127 通过 / 3 跳过、DOM 78/78、build、两个根检查通过；真实原始 IPA 字体恢复成功、个人数据及 owner 验收仍未完成。W5 的 5,000 条性能缺口见 #24。 |
 | 真实数据 | 原生里的 Memory、Context、Sessions 仍走 Memory 适配器（pin 的 Memory Core），这一轮只换了皮。合成预览（自动记忆、记忆星图）只在浏览器演示里出现，原生不显示，失败也不得回退到演示。 |
 | 字体 | W4 已打包 504 个 CJK WOFF2，保留定稿字形；IPA 派生中文正文改名 Enouia Text SC，并附完整授权与恢复入口。中日定义及切片按需加载，英文字体流量仍为 67,892 B。见 [W4 验证](../../validation/UI-v2-W4-fonts-2026-10-27.md)。 |
 
@@ -78,6 +78,19 @@ $1| 字体定稿提交 | 中日字体定稿与「I'm here.」不翻译（代码�
 
 ### W6 · 小修（OPEN_ISSUES 里标「实现者」的）
 #7 皮肤值写在视图模型里、#8 Inspector 长 ID 越界、#9 11.5px 文字、#10 全局 ↑/↓、#16 Runtime Inspector 组件名、#18 主 JS 500 kB（历史任务与 Provider 面板懒加载）。各自一片。
+
+W6 已完成（2026-10-27），每片独立分支、验证、提交并推送，尚未合入 main：
+
+| 片 | 提交 / 分支 | 证据 |
+| --- | --- | --- |
+| #7 | `07bb196` | [状态替代皮肤值](../../validation/UI-v2-W6-07-view-state-2026-10-27.md) |
+| #8 | `b3b048f` | [长 ID 换行](../../validation/UI-v2-W6-08-inspector-ids-2026-10-27.md) |
+| #9 | `a917a25` | [基础字号 12px](../../validation/UI-v2-W6-09-tag-size-2026-10-27.md) |
+| #10 | `c185f8e` | [列表键盘范围与 13 项回归](../../validation/UI-v2-W6-10-list-keys-2026-10-27.md) |
+| #16 | `39b6a81` | [组件名与状态分行](../../validation/UI-v2-W6-16-component-labels-2026-10-27.md) |
+| #18 | `codex/ui-v2-w6-18-lazy-panels` | [懒加载、436.15 kB 主包及 502,123 B 全部首页 JS](../../validation/UI-v2-W6-18-lazy-panels-2026-10-27.md) |
+
+#5 的 DOM 偶发失败仍未宣称修好；#21–23 及 #24 保留为后续范围，W7 仍需 owner 单独排期。
 
 ### W7 · 以后（owner 排期）
 托盘、全局热键、悬浮窗、开机启动、安装包（AGENTS.md：每个 Runtime 集成切片等 owner 开口才开始）。这些表面也要接入 i18n（窗口标题、托盘菜单）。

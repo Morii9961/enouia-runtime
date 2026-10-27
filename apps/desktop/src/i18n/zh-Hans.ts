@@ -1,6 +1,7 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Loading panel…": "正在加载面板…",
   "Fonts and licences": "字体与授权",
   "Chinese body text uses Enouia Text SC, derived from LXGW Neo XiHei under IPA Font License 1.0.": "中文正文使用 Enouia Text SC，由霞鹜新晰黑依照 IPA 字体授权 1.0 派生。",
   "To use the original font, download IPAexGothic from the original publisher, install it through Windows, then restart Runtime and select it below.": "如需使用原始字体，请从原发布方下载 IPAexGothic，通过 Windows 安装后重启 Runtime，再在下方选择。",

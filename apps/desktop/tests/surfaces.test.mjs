@@ -3,7 +3,7 @@
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderToReadableStream, renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
 import { createServer } from 'vite';
 import { approveDemoCandidate, reviseDemoMemory } from '../src/demo-state.ts';
@@ -32,14 +32,17 @@ const appAt = (page, state = {}) => {
   return app;
 };
 
-test('native Settings exposes a non-secret configuration draft even before opening a Vault', () => {
-  const html = renderToStaticMarkup(createElement(App, { startPage: 'settings', memoryConnected: true, breathing: false }));
+test('native Settings exposes a non-secret configuration draft even before opening a Vault', async () => {
+  const stream = await renderToReadableStream(createElement(App, { startPage: 'settings', memoryConnected: true, breathing: false }));
+  await stream.allReady;
+  const html = await new Response(stream).text();
   assert.match(html, /Model configuration draft/);
   assert.match(html, /Generate settings draft/);
   assert.match(html, /Loaded model settings/);
   assert.match(html, /Reload model settings/);
   assert.match(html, /Generating and copying do not save the file, reload settings or activate/);
   assert.doesNotMatch(html, /type="password"|Draft memory-providers\.json|Copy settings draft/);
+  assert.doesNotMatch(html, /Loading panel…/);
 });
 
 test('browser Settings keeps its fictional mode without a connected configuration form', () => {
