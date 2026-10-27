@@ -142,6 +142,7 @@
 @media (max-width:1240px){.am-body::after{width:calc(336px - 12px)}}
 
 /* ---- Memory: status glyphs instead of coloured dots ---- */
+.qr88 .qr63{min-width:0;max-width:100%;overflow-wrap:anywhere}
 [data-status] > .qr36,.qr37 > .qr36,.qr48 > .qr47{display:none}
 .qr37::before,.qr48::before{content:"";display:inline-block;width:5px;height:9px;box-sizing:border-box;background:var(--ink)}
 .qr37[data-status="candidate"]::before,.qr48[data-status="candidate"]::before{background:transparent;border:1px solid var(--ink)}

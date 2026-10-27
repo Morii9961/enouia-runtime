@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-10-27 · W6 #8 Inspector 的完整 ID 可换行
+
+- 决定：Memory Inspector 链接型 ID 限于当前列宽，使用 `overflow-wrap:anywhere`；保留完整 ID 与原点击行为。
+- 理由：普通 ID 已有断行，而链接缺少约束，长 Session ID 会撑出裁切角。
+- 影响：仅 `.qr88 .qr63` 的 CSS，不改变结构或契约。
+- 依据：[W6 #8 记录](validation/UI-v2-W6-08-inspector-ids-2026-10-27.md)，两尺寸、三语、两主题、两类记录共 24 张浏览器截图及边界测量。
+- 状态：定稿（实现记录）
+
 ## 2026-10-27 · W6 #7 视图模型传状态，CSS 决定皮肤
 
 - 决定：移除 `renderVals()` 和 Context fixture 的旧 Quiet 色值；保留 active/selected/tone/status/section/speaker，由现有 CSS token 与状态属性绘制。去掉不再使用的呼吸圆环模型与对应行内样式覆盖。
