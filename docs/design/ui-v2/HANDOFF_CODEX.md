@@ -74,6 +74,7 @@ $1| 字体定稿提交 | 中日字体定稿与「I'm here.」不翻译（代码�
 - 在 WebView2 里测 200 / 700 / 1,000 / 5,000 条的帧时间（页面有 `window.__starPerf`），与无头 Edge 的数字比较（DESIGN.md / 决定记录里有）。
 - 接真实数据要等后端的图投影（`backend/01-BACKEND_GAPS.md` 的相关条目、`MEMORY_DATA_REQUIREMENTS.md` §3）。在那之前**不得**把合成星图放进原生。
 - 验收：帧时间记录；暂停、减少动画、画布离屏时停止都成立。
+- W5 已执行（2026-10-27）：独立临时 WebView2 浏览器壳和无头 Edge 各测四布局 × 四规模，停止/恢复通过；5,000 条球体与聚类的慢绘制间隔记为 #24。详见 [W5 记录](../../validation/UI-v2-W5-starmap-2026-10-27.md)。合成星图未接入 Runtime 原生应用。
 
 ### W6 · 小修（OPEN_ISSUES 里标「实现者」的）
 #7 皮肤值写在视图模型里、#8 Inspector 长 ID 越界、#9 11.5px 文字、#10 全局 ↑/↓、#16 Runtime Inspector 组件名、#18 主 JS 500 kB（历史任务与 Provider 面板懒加载）。各自一片。
