@@ -13,7 +13,7 @@
 | 7 | **已解决（2026-10-27 → 决定「W6 #7 视图模型传状态，CSS 决定皮肤」）。** 旧 Quiet 色值与未用圆环已移除，Context 传 section，Memory/Sessions/Runtime 传稳定状态；CSS 管外观。 | 本地化标签不再参与推导样式状态。 | [验证与 30 张截图](../../validation/UI-v2-W6-07-view-state-2026-10-27.md)，六项检查通过。 | 已实现 |
 | 8 | **已解决（2026-10-27 → 决定「W6 #8 Inspector 的完整 ID 可换行」）。** 链接型 ID 限宽并可任意断行，保留全文。 | Session ID 不再撑出右侧裁切角。 | [24 张截图与边界测量](../../validation/UI-v2-W6-08-inspector-ids-2026-10-27.md)，六项检查通过；既有 DOM 偶发失败过程保留。 | 已实现 |
 | 9 | **已解决（2026-10-27 → 决定「W6 #9 标签基础字号统一为 12px」）。** `.mem-tag` 基础值改为 12px，与主题一致。 | CSS 高度仍 20px，现有 content-box 含边框为 22px；三语文字边界容纳通过。 | [18 组探针与检查](../../validation/UI-v2-W6-09-tag-size-2026-10-27.md)，六项检查通过。 | 已实现 |
-| 10 | **全局 ↑/↓ 作用于看不见的列表。** 浏览器演示在 Memory 页对输入框与导航之外的 ↑/↓ 选择 Vault 演示记录并 `preventDefault`。 | 任何自带列表的新视图都会和它抢方向键。 | 只在焦点位于列表内时处理方向键。 | 实现者（改 `App.tsx` 键盘逻辑需谨慎，有测试） |
+| 10 | **已解决（2026-10-27 → 决定「W6 #10 全局方向键限于当前列表」）。** App 仅在 Memory/Sessions 各自列表内处理 ↑/↓。 | 列表外不改选择、不抢默认行为，导航/输入/原生处理保留。 | [13 项新增交互检查与 12 条浏览器旅程](../../validation/UI-v2-W6-10-list-keys-2026-10-27.md)，六项检查通过，DOM 78/78。 | 已实现 |
 | 11 | **Quick Search 没有「虚构/真实」标注。** 原生里显示真实记忆；浏览器里不渲染。 | 截图只能靠桩，容易误认。 | 原生保持现状；截图桩里加「Fictional」水印即可。 | 实现者 |
 | 12 | **已解决（2026-10-25，`AGENTS.md` 范围段落已改为六个表面、只服务 Memory）。** 原问题：仓库说明仍写七个表面与 Activity 页。 `AGENTS.md`「Current user scope」写 seven surfaces 与 ADR-028 的 Activity 页面；`docs/FRONTEND_IMPLEMENTATION_v1.md` 同。 | 后来的人（含 Codex）可能照着把 Activity 加回来。 | owner 更新 `AGENTS.md` 的范围段落；旧文档顶部已加一行指向决定记录。 | owner |
 | 13 | **合成预览的入口位置。** 现在是 Memory Vault 左栏的一个入口，挤进首屏。 | 自动化后端到来后，五个工作区才是 Memory 的主结构。 | 实现前定 Memory 区域的信息架构：五个工作区作为 Memory 内的二级导航，旧 pin 的 Vault 列表作为「记忆」工作区的兼容视图。 | owner 选 |

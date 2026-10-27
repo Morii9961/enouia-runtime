@@ -65,6 +65,8 @@ export default class App extends React.Component<AppProps, AppState> {
       const d = e.key === 'ArrowDown' ? 1 : -1;
       const page = this.page();
       if (this.connected() && (page === 'memory' || page === 'sessions')) return;
+      if (page === 'memory' && !target?.closest('.qr44')) return;
+      if (page === 'sessions' && !target?.closest('.qr135')) return;
       if (page === 'memory') { const list = this._visible || []; const i = this._selectedKey ? list.indexOf(this._selectedKey) : -1; const n = list[Math.max(0, Math.min(list.length - 1, i + d))]; if (n) { e.preventDefault(); this.select(n); } }
       if (page === 'sessions') { const keys = App.D.SESS.map((s) => s.key); const i = keys.indexOf(this.state.sessionKey); const n = keys[Math.max(0, Math.min(keys.length - 1, i + d))]; e.preventDefault(); this.setState({ sessionKey: n }); }
     };
