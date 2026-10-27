@@ -173,6 +173,9 @@
 .qr150{padding:0 6px;line-height:18px}
 
 /* ---- Runtime tone glyphs ---- */
+.qr190{grid-template-columns:minmax(0,1fr);gap:3px}
+.qr188,.qr189{min-width:0;overflow-wrap:anywhere}
+.qr189{flex-wrap:wrap}
 [data-tone] > .qr36{display:none}
 .qr189[data-tone]::before,.qr206[data-tone]::before{content:"";display:inline-block;width:5px;height:9px;box-sizing:border-box;background:var(--ink)}
 .qr206[data-tone]::before{grid-column:1}
