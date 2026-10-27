@@ -8,7 +8,7 @@ export type DemoSession = {
   checkpoints: { after: number; mem: string; at: string }[];
 };
 export type ContextSection = {
-  key: string; label: string; field: string; c: string; note: string;
+  key: string; label: string; field: string; note: string;
   items: { key: string; bytes: number; reason: string; text?: string; file?: string;
     mem?: string; rank?: number | null; turn?: [string, number];
     loop?: string; from?: string[]; policy?: boolean }[];
@@ -21,15 +21,15 @@ export type DetailRow = {
   k: string; v: string; sub?: string; n?: string;
   isPlain: boolean; isMono: boolean; isLink: boolean; onClick?: () => void;
 };
-export type SessionWrite = { key: string; label: string; ref: string; color: string; onClick: () => void };
+export type SessionWrite = { key: string; label: string; ref: string; status: DemoMemory['status']; onClick: () => void };
 export type SessionEvent = {
   isTurn: true; isCheckpoint: false; seq: string; time: string; n: number;
-  role: string; roleColor: string; textColor: string; text: string;
-  turnShort: string; dot: string; dotColor: string; writes: SessionWrite[];
+  role: string; speaker: 'user' | 'assistant'; text: string;
+  turnShort: string; writes: SessionWrite[];
 } | {
   isTurn: false; isCheckpoint: true; seq: string; time: string;
   covered: string; lastState: string; loops: string[]; ref: string;
-  dot: string; dotColor: string; onClick: () => void;
+  onClick: () => void;
 };
 export type CollectionDefinition = { label: string; items: [key: string, label: string, filter: (m: DemoMemory) => boolean][] };
 export type MemoryActions = {

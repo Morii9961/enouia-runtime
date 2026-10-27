@@ -13,6 +13,7 @@ import './theme/negative.css';
 import './theme/automemory.css';
 import './theme/palettes.css';
 import './theme/motion.css';
+import './theme/cjk-fonts.css';
 import { moveAlong } from './theme/motion';
 import { msg, ready, t, useLang } from './i18n/index.ts';
 

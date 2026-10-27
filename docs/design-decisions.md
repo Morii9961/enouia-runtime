@@ -16,6 +16,86 @@
 
 ---
 
+## 2026-10-27 · W6 #18 延后面板视图，保留历史任务 owner
+
+- 决定：历史任务视图、Provider 配置、Provider 状态用 React.lazy/Suspense 独立加载；历史 owner hook 继续留在 Import 的原位置，不把请求生命周期绑到视图下载。
+- 理由：主包从 503.47 kB 降为 436.15 kB，保持已有请求、重试与批次选择边界。生产冷首页不请求这三个面板；全部首屏 JS 含共享包仍为 502,123 B，不等同于主包大小。
+- 影响：新增 HistoryTaskView、两个 lazy 入口、一条三语加载提示；Settings 渲染检查等待异步内容完成，保留原有安全断言。字体重生成内容不变，不改依赖或警告阈值。
+- 依据：[W6 #18 记录](validation/UI-v2-W6-18-lazy-panels-2026-10-27.md)，完整六项检查、重点 owner/请求/退出检查、12 张 mock 截图及生产首屏请求。
+- 状态：定稿（实现与本地验证，不代表 owner 人工验收）
+
+## 2026-10-27 · W6 #16 Runtime 组件状态放到下一行
+
+- 决定：Runtime 左栏组件按钮采用单列，名称下方显示状态，间隔 3px，内容可换行并自然增高。
+- 理由：让 Context Compiler 等长组件名与状态读数各有完整宽度。
+- 影响：三条 CSS 规则，保留选择、状态图形、键盘与结构契约。
+- 依据：[W6 #16 记录](validation/UI-v2-W6-16-component-labels-2026-10-27.md)，两尺寸、三语、两主题共 12 组边界测量与截图。
+- 状态：定稿（实现记录）
+
+## 2026-10-27 · W6 #10 全局方向键限于当前列表
+
+- 决定：App 只在 Memory `.qr44`、Sessions `.qr135` 内处理 ↑/↓；列表外保留默认行为，原生处理与其他键盘契约不变。
+- 理由：页面处于 Memory/Sessions 不足以说明方向键应移动那份列表选择。
+- 影响：两项键盘范围判断，新增实际 App 的 13 项 DOM 交互检查。
+- 依据：[W6 #10 记录](validation/UI-v2-W6-10-list-keys-2026-10-27.md)，旧逻辑复现 4 项失败，修复后通过；浏览器三语两主题共 12 条键盘旅程。
+- 状态：定稿（实现记录）
+
+## 2026-10-27 · W6 #9 标签基础字号统一为 12px
+
+- 决定：`.mem-tag` 的基础字号从 11.5px 改为 12px，保留 CSS 20px 高度与现有盒模型。
+- 理由：基础样式也满足 12px 下限，与 UI v2 已有覆盖值一致。
+- 影响：仅 `memory/memory.css` 的一处字号。
+- 依据：[W6 #9 记录](validation/UI-v2-W6-09-tag-size-2026-10-27.md)，三语、两主题、三档 DPR 的 18 组 CSS 探针，文字边界在标签内。
+- 状态：定稿（实现记录）
+
+## 2026-10-27 · W6 #8 Inspector 的完整 ID 可换行
+
+- 决定：Memory Inspector 链接型 ID 限于当前列宽，使用 `overflow-wrap:anywhere`；保留完整 ID 与原点击行为。
+- 理由：普通 ID 已有断行，而链接缺少约束，长 Session ID 会撑出裁切角。
+- 影响：仅 `.qr88 .qr63` 的 CSS，不改变结构或契约。
+- 依据：[W6 #8 记录](validation/UI-v2-W6-08-inspector-ids-2026-10-27.md)，两尺寸、三语、两主题、两类记录共 24 张浏览器截图及边界测量。
+- 状态：定稿（实现记录）
+
+## 2026-10-27 · W6 #7 视图模型传状态，CSS 决定皮肤
+
+- 决定：移除 `renderVals()` 和 Context fixture 的旧 Quiet 色值；保留 active/selected/tone/status/section/speaker，由现有 CSS token 与状态属性绘制。去掉不再使用的呼吸圆环模型与对应行内样式覆盖。
+- 理由：主题不应被视图模型携带的旧颜色覆盖；样式状态也不能从翻译后的标签推导。
+- 影响：App、demo fixture/type、Memory/Context/Sessions/Runtime JSX 与三处 CSS 优先级；现有类名/data 属性及键盘行为保留。
+- 依据：[W6 #7 记录](validation/UI-v2-W6-07-view-state-2026-10-27.md)，三语两主题共 30 张浏览器截图。
+- 状态：定稿（实现记录，不代表 owner 人工验收）
+
+## 2026-10-27 · W5 星图性能以完整绘制间隔记录
+
+- 决定：在独立临时 WebView2 浏览器壳测 `/starmap.html`，不把合成星图放入 Runtime 原生应用；记录 Worker 布局、主线程绘制/计算中位与 P95，并补 draw 间隔。保留 5,000 条球体/聚类的慢数据为 #24，不因 CPU 帧成本较低宣称通过流畅性验收。
+- 理由：WebView2 的球体/聚类在 5,000 条时 draw 间隔约 129/96 ms，无头 Edge 同条件亦能复现；CPU 数据不覆盖 GPU 与合成。
+- 影响：仅验证记录与未决问题；暂停、媒体/应用减少动画、离屏停止已实测，后端图投影与原生接入边界不变。
+- 依据：[W5 验证与数值](validation/UI-v2-W5-starmap-2026-10-27.md)，本机截图 `.design/w5-browser/shots/`。
+- 状态：定稿（测量口径；5,000 条性能问题待处理）
+
+## 2026-10-27 · W4 中日字体打包与按需加载
+
+- 决定：更纱三字重与 M PLUS 可变 300–600 使用字典 CJK 子集；Enouia Text SC、Zen 四字重保留完整字符映射及 UVS，各字重 100 片。CJK 共 504 个 WOFF2、9,691,652 B。定义 CSS 随中日字典加载，不进入英文首屏；切片不内联。Settings 的完整授权文本另包加载，并提供原始 IPAexGothic 的本机恢复选择。
+- 理由：保留选定字形、任意正文覆盖与 IPA 恢复权利，同时让英文启动仍只加载原有 67,892 B 拉丁字体。中文无库首页实测 474,908 B，日文 313,536 B（均含拉丁）。
+- 影响：生成脚本、字体与 manifest、语言加载器、CJK 栈及 Settings；无新产品依赖、Memory pin 或原生权限变更。M PLUS 缺少的全角「／」「：」由 Zen 正文覆盖。
+- 依据：[W4 原生/浏览器验证](validation/UI-v2-W4-fonts-2026-10-27.md)，完整来源、内部版本差异及生成方法见字体 README。
+- 状态：定稿（实现与本地验证；不代表 owner 人工验收）
+
+## 2026-10-26 · W4 IPA 字体派生、改名与恢复入口
+
+- 决定：按 IPA 授权与官方 FAQ，将子集化和 TTF → WOFF2 都视为派生；中文正文字体的打包 family、PostScript 名和文件名改为 `Enouia Text SC`，对应 LXGW Neo XiHei v1.308 的字形，不沿用包含原名的派生名称。四条栈中原 `LXGW Neo XiHei` 的位置使用这个打包名称。附完整授权、来源、生成脚本与说明；Settings 提供可读授权及切换到用户自行安装的原始 IPAexGothic 的入口，不增加原生权限或自动下载。
+- 理由：IPA 官方 FAQ §3.1 明确格式转换也是派生；§2.4、§3.3.2 要求内置字体的授权可读及恢复原始字体的方法。仅保留所有字形再转 WOFF2 并不能免除这些条件。
+- 影响：CJK 字体包、四条字体栈、Settings 字体说明；原始 TTF 不提交。其余三款按 OFL 分发，Sarasa 的保留名 `Source` 不用于派生主名称，M PLUS / Zen 授权未声明保留名。
+- 依据：打包前阅读的 [IPA 授权](https://moji.or.jp/ipafont/license/)、[官方 FAQ](https://moji.or.jp/ipafont/faq/)、[字体作者的说明](https://github.com/lxgw/lxgw/blob/main/documents/xizhi_embedding_instructions.md)与三款 OFL 全文；详细实施条件见 `apps/desktop/src/assets/fonts/README.md`。
+- 状态：定稿（本轮已授权的字体打包所必需；恢复操作的实测边界另记验证记录）
+
+## 2026-10-26 · W3 原生启动底色
+
+- 决定：Tauri 创建窗口之前，通过现有 Windows Registry API 只读查询 `AppsUseLightTheme`，将主窗口和 Quick Search 的 `background_color` 设为黛蓝 `#0F1C23` 或宣纸 `#F1F0EB`；缺失/不可读时使用 Windows 默认浅色。JSON 留浅色保底。HTML 用两条带 `media` 的 `theme-color` 和极小的头部样式，在模块脚本运行前使用同样的纸色。这是 DESIGN.md §2 颜色集中规则的启动阶段例外。
+- 理由：首帧不能等 React 或 `.setup()` 再改变窗口底色；owner 已在本轮明确批准相关原生修改。
+- 影响：`src-tauri/src/appearance.rs`、`main.rs`、`tauri.conf.json` 与 `index.html`；无新依赖、权限或 Memory 路由变更。
+- 依据：锁定的 Tauri 2.12.0 / tauri-utils 2.10.1 源码、[WindowConfig](https://docs.rs/tauri-utils/2.10.1/tauri_utils/config/struct.WindowConfig.html#structfield.background_color)、[Context::config_mut](https://docs.rs/tauri/2.12.0/tauri/struct.Context.html#method.config_mut)、[RegGetValueW](https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew)、[HTML theme-color 媒体查询](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/theme-color)；[本机 W3 验证与测量边界](validation/UI-v2-W3-background-2026-10-26.md)。
+- 状态：定稿
+
 ## 2026-10-26 · 中日字体定稿；首页「I'm here.」不翻译
 
 - 决定：中文用 更纱等宽 Sarasa Mono SC（标签/标题）+ 霞鹜新晰黑 LXGW Neo XiHei（正文）；日文用 M PLUS 1 Code（标签/标题）+ Zen Kaku Gothic New（正文）。系统字体只作回退。首页的「I'm here.」与产品名一样在任何语言下都显示英文（浏览器演示与原生首页都改为 `lang="en"` 的固定文字，字典删去这一条，1,384 条）。具体栈与打包方式写入 DESIGN.md §3，落地步骤写入 HANDOFF_CODEX.md W4。替代了「界面三种语言」一条里「中文与日文的字体先用系统字体」的部分。

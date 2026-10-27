@@ -11,6 +11,8 @@
 //! the owner's settings file, and keys are entered only in the native Windows
 //! credential prompt (ADR-032).
 
+#[cfg(windows)]
+mod appearance;
 mod companion;
 mod hotkey;
 mod memory;
@@ -39,6 +41,8 @@ fn main() {
         host.open_root(&root);
     }
     let mut context = tauri::generate_context!();
+    #[cfg(windows)]
+    appearance::apply(context.config_mut());
     // Login startup (`--autostart`) starts in the tray: the main window is
     // hidden before it is created, and no Vault is opened.
     if autostart {

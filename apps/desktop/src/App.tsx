@@ -65,6 +65,8 @@ export default class App extends React.Component<AppProps, AppState> {
       const d = e.key === 'ArrowDown' ? 1 : -1;
       const page = this.page();
       if (this.connected() && (page === 'memory' || page === 'sessions')) return;
+      if (page === 'memory' && !target?.closest('.qr44')) return;
+      if (page === 'sessions' && !target?.closest('.qr135')) return;
       if (page === 'memory') { const list = this._visible || []; const i = this._selectedKey ? list.indexOf(this._selectedKey) : -1; const n = list[Math.max(0, Math.min(list.length - 1, i + d))]; if (n) { e.preventDefault(); this.select(n); } }
       if (page === 'sessions') { const keys = App.D.SESS.map((s) => s.key); const i = keys.indexOf(this.state.sessionKey); const n = keys[Math.max(0, Math.min(keys.length - 1, i + d))]; e.preventDefault(); this.setState({ sessionKey: n }); }
     };
@@ -180,8 +182,7 @@ export default class App extends React.Component<AppProps, AppState> {
     const mems = this.mems();
     const reduced = S.motionPref === 'reduced' || (this._mq ? this._mq.matches : false) || this.props.breathing === false;
     const showIds = this.props.showIds ?? false;
-    const TONE = { ok: '#9DBFA0', model: '#9FC2D2', pending: '#D8BC8A', err: '#DDA0A0' };
-    const STATUS = { active: [t('Canonical'), '#9FC2D2'], candidate: [t('Candidate'), '#EEE7DC'], superseded: [t('Superseded'), '#7F8D9A'], archived: [t('Archived'), '#7F8D9A'] };
+    const STATUS = { active: t('Canonical'), candidate: t('Candidate'), superseded: t('Superseded'), archived: t('Archived') };
     const KIND = { fact: t('Fact'), preference: t('Preference'), episode: t('Episode'), project_state: t('Project state'), session_checkpoint: t('Checkpoint') };
     const SRC = { conversation: t('Conversation'), import: t('Imported'), manual_save: t('Manual save'), explicit_remember: t('Asked to remember') };
     const sess = (k: string) => { const session = D.SESS.find((s) => s.key === k); if (!session) throw new Error('Unknown demo session.'); return session; };
@@ -189,20 +190,13 @@ export default class App extends React.Component<AppProps, AppState> {
     const srcRef = (m: DemoMemory) => m.src.kind === 'import' ? m.src.importer : m.src.s ? D.short(sess(m.src.s).id) + ' · ' + t('turn {n}', { n: m.src.t ?? '' }) : D.short(D.ID('src', m.key));
 
     const titles = { home: t('Presence'), memory: t('Memory Vault'), context: t('Context Surface'), sessions: t('Sessions'), runtime: t('Runtime Inspector'), settings: t('Settings') };
-    const nav = {} as Record<Page, { go: () => void; bg: string; fg: string; ind: number; cur: 'page' | undefined }>;
-    this.PAGES.forEach((p) => { const a = p === page; nav[p] = { go: () => this.go(p), bg: a ? '#17212B' : 'transparent', fg: a ? '#E7EDF2' : '#9BA9B6', ind: a ? 1 : 0, cur: a ? 'page' : undefined }; });
+    const nav = {} as Record<Page, { go: () => void; ind: number; cur: 'page' | undefined }>;
+    this.PAGES.forEach((p) => { const a = p === page; nav[p] = { go: () => this.go(p), ind: a ? 1 : 0, cur: a ? 'page' : undefined }; });
     const railKey = (e: React.KeyboardEvent<HTMLElement>) => {
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
       const btns = Array.from(e.currentTarget.querySelectorAll('button')); const i = btns.findIndex(button => button === document.activeElement);
       const n = btns[(i + (e.key === 'ArrowDown' ? 1 : -1) + btns.length) % btns.length]; if (n) { e.preventDefault(); n.focus(); }
     };
-
-    const anim = (delay: number) => reduced ? {} : { animation: 'enouiaBreath 6s ease-in-out ' + delay + 's infinite' };
-    const h = React.createElement;
-    const ring = h('div', { 'aria-hidden': true, style: { position: 'relative', width: 72, height: 72 } },
-      h('div', { style: { position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(159,194,210,0.22)', ...anim(-1.5) } }),
-      h('div', { style: { position: 'absolute', inset: 13, borderRadius: '50%', border: '1px solid rgba(159,194,210,0.5)', ...anim(0) } }),
-      h('div', { style: { position: 'absolute', left: 33, top: 33, width: 6, height: 6, borderRadius: 3, background: '#EEE7DC' } }));
 
     // Memory
     const active = mems.filter((m) => m.status === 'active');
@@ -219,7 +213,7 @@ export default class App extends React.Component<AppProps, AppState> {
     const collections = colDefs.map((g) => ({ label: g.label, items: g.items.map(([k, label, f]) => {
       const a = S.collection === k; if (a) { curFilter = f; colTitle = label; }
       const n = mems.filter(f).length;
-      return { key: k, label, count: n, active: a, bg: a ? '#17212B' : 'transparent', fg: a ? '#E7EDF2' : '#9BA9B6', countColor: k === 'candidates' && n > 0 ? '#EEE7DC' : '#61707D', onClick: () => this.setState({ collection: k, editing: false, notice: '' }) };
+      return { key: k, label, count: n, active: a, onClick: () => this.setState({ collection: k, editing: false, notice: '' }) };
     }) }));
     const visible = mems.filter(curFilter).filter((m) => !q || m.content.toLowerCase().includes(q)).sort((a, b) => b.created.localeCompare(a.created));
     this._visible = visible.map((m) => m.key);
@@ -227,7 +221,7 @@ export default class App extends React.Component<AppProps, AppState> {
     this._selectedKey = selectedKey;
     const memoryRow = (m: DemoMemory) => {
       const sel = m.key === selectedKey; const st = STATUS[m.status];
-      return { key: m.key, time: D.tTime(m.created), kindLabel: KIND[m.kind], hasProject: !!m.project, projectName: m.project ? D.PRJ[m.project].name : '', showStatus: m.status !== 'active', statusLabel: st[0], statusColor: st[1], content: m.content, textColor: m.status === 'superseded' ? '#9BA9B6' : '#E7EDF2', sourceLabel: SRC[m.src.kind], sourceRef: srcRef(m), hasConf: m.conf != null, conf: m.conf != null ? m.conf.toFixed(2) : '', showId: showIds, idShort: D.short(m.status === 'candidate' ? D.ID('cand', m.key) : memId(m)), selected: sel, bg: sel ? '#17212B' : 'transparent', onClick: () => this.select(m.key) };
+      return { key: m.key, time: D.tTime(m.created), kindLabel: KIND[m.kind], hasProject: !!m.project, projectName: m.project ? D.PRJ[m.project].name : '', showStatus: m.status !== 'active', status: m.status === 'active' ? 'canonical' : m.status, statusLabel: st, content: m.content, sourceLabel: SRC[m.src.kind], sourceRef: srcRef(m), hasConf: m.conf != null, conf: m.conf != null ? m.conf.toFixed(2) : '', showId: showIds, idShort: D.short(m.status === 'candidate' ? D.ID('cand', m.key) : memId(m)), selected: sel, onClick: () => this.select(m.key) };
     };
     type MemoryGroup = { key: string; label: string; items: ReturnType<typeof memoryRow>[] };
     const gmap: Record<string, MemoryGroup> = {}; const groups: MemoryGroup[] = [];
@@ -270,7 +264,7 @@ export default class App extends React.Component<AppProps, AppState> {
       const related = mems.filter((o) => o.key !== m.key && o.key !== m.supersedes && o.key !== m.supersededBy && o.status !== 'superseded')
         .map((o) => { const shared = (o.tags || []).filter((t) => (m.tags || []).includes(t)); const sameP = m.project && o.project === m.project; return { o, why: sameP ? t('same project') : shared.length ? t('tag') + ' · ' + shared[0] : null }; })
         .filter((x) => x.why).slice(0, 4).map((x) => ({ key: x.o.key, text: x.o.content, why: x.why, onClick: () => this.openMemory(x.o.key) }));
-      sel = { id: isC ? D.ID('cand', m.key) : memId(m), statusLabel: st[0], statusColor: st[1], kindLabel: KIND[m.kind], content: m.content, hasDecisions: !!(m.decisions && m.decisions.length), decisions: m.decisions || [], hasLoops: !!(m.openLoops && m.openLoops.length), openLoops: m.openLoops || [], isCheckpoint: m.kind === 'session_checkpoint', coveredText: m.covered ? t('turns {a}–{b}', { a: m.covered[0], b: m.covered[1] }) : '', lastState: m.lastState || '', why, provRows: prov, recRows: rec, hasConf: m.conf != null, conf: m.conf != null ? m.conf.toFixed(2) : '', confPct: Math.round((m.conf || 0) * 100) + '%', lineRows: line, related, noRelated: !related.length,
+      sel = { id: isC ? D.ID('cand', m.key) : memId(m), status: m.status === 'active' ? 'canonical' : m.status, statusLabel: st, kindLabel: KIND[m.kind], content: m.content, hasDecisions: !!(m.decisions && m.decisions.length), decisions: m.decisions || [], hasLoops: !!(m.openLoops && m.openLoops.length), openLoops: m.openLoops || [], isCheckpoint: m.kind === 'session_checkpoint', coveredText: m.covered ? t('turns {a}–{b}', { a: m.covered[0], b: m.covered[1] }) : '', lastState: m.lastState || '', why, provRows: prov, recRows: rec, hasConf: m.conf != null, conf: m.conf != null ? m.conf.toFixed(2) : '', confPct: Math.round((m.conf || 0) * 100) + '%', lineRows: line, related, noRelated: !related.length,
         editHint: isC ? t('Approval keeps this candidate’s memory ID, kind, source and creation time.') : t('Saving creates a new canonical record that supersedes this one.'),
         copy: () => this.copyId(isC ? D.ID('cand', m.key) : memId(m)) };
       const ed = S.editing;
@@ -296,32 +290,32 @@ export default class App extends React.Component<AppProps, AppState> {
         else if (it.file) { srcLabel = t('Identity file'); ref = it.file; trace = [T(msg('File'), it.file, 'm'), T(msg('Allowlist'), 'core.md · runtime_rules.md', 'm'), T(msg('Inclusion reason'), t(it.reason), 'p'), T(msg('Admitted'), t('whole file') + ' · ' + it.bytes + ' B', 'm')]; }
         else { srcLabel = t('Capsule budget'); ref = 'budget.max_tokens'; trace = [T(msg('Field'), 'budget.max_tokens = 4096', 'm'), T(msg('Policy'), 'utf8_bytes_v1 · ' + t('one unit per compact UTF-8 byte'), 'm'), T(msg('Reserve'), t('{n} framing units', { n: 256 }), 'm'), T(msg('Note'), t('A local sizing rule, not a provider tokenizer bound'), 'p')]; }
         trace = trace.map((t, i) => ({ ...t, n: String(i + 1).padStart(2, '0') }));
-        return { key: sec.key + it.key, text, srcLabel, ref, reason: t(it.reason), rank: it.rank != null ? '#' + it.rank : '—', bytes: it.bytes ? it.bytes + ' B' : t('meta'), open, bg: open ? '#111820' : 'transparent', chev: open ? 'rotate(90deg)' : 'none', trace, toggle: () => this.setState({ ctxOpen: open ? null : sec.key + it.key }) };
+        return { key: sec.key + it.key, text, srcLabel, ref, reason: t(it.reason), rank: it.rank != null ? '#' + it.rank : '—', bytes: it.bytes ? it.bytes + ' B' : t('meta'), open, chev: open ? 'rotate(90deg)' : 'none', trace, toggle: () => this.setState({ ctxOpen: open ? null : sec.key + it.key }) };
       });
       const bytes = sec.items.reduce((a, b) => a + b.bytes, 0);
-      segs.push({ w: (bytes / totalUnits * 100).toFixed(2) + '%', c: sec.c, label: t(sec.label) });
+      segs.push({ w: (bytes / totalUnits * 100).toFixed(2) + '%', section: sec.key, label: t(sec.label) });
       const domId = 'ctx-' + sec.key;
-      return { label: t(sec.label), field: sec.field, note: t(sec.note), c: sec.c, count: sec.items.length, bytes: bytes ? bytes + ' B' : t('meta'), domId, items, bg: 'transparent',
+      return { label: t(sec.label), field: sec.field, note: t(sec.note), section: sec.key, count: sec.items.length, bytes: bytes ? bytes + ' B' : t('meta'), domId, items,
         jump: () => { const c = this.ctxScroll.current; const el = c && c.querySelector<HTMLElement>('#' + domId); if (c && el) c.scrollTo({ top: el.offsetTop - 8, behavior: reduced ? 'auto' : 'smooth' }); } };
     });
-    segs.push({ w: (282 / totalUnits * 100).toFixed(2) + '%', c: '#3A4958', label: t('Metadata + provenance') });
-    segs.push({ w: (256 / totalUnits * 100).toFixed(2) + '%', c: '#283542', label: t('Framing reserve') });
+    segs.push({ w: (282 / totalUnits * 100).toFixed(2) + '%', section: 'metadata', label: t('Metadata + provenance') });
+    segs.push({ w: (256 / totalUnits * 100).toFixed(2) + '%', section: 'reserve', label: t('Framing reserve') });
     const ctx = { capId: D.CAP, capShort: D.short(D.CAP), at: D.tFull('2026-10-01T06:44:02.318Z'), hash: D.CAPHASH, segs, sections: ctxSections,
       excluded: D.EXCL.map((x) => { const mm = this.requireMemory(x.mem); const live = mm.status; const reason = x.mem.startsWith('c') && live === 'active' ? t('promoted after compile · next capsule') : t(x.reason); return { text: mm.content, ref: D.short(x.mem.startsWith('c') ? D.ID('cand', x.mem) : memId(mm)), reason, onClick: () => this.openMemory(mm.key) }; }),
       jumpExcl: () => { const c = this.ctxScroll.current; const el = c && c.querySelector<HTMLElement>('#ctx-excluded'); if (c && el) c.scrollTo({ top: el.offsetTop - 8, behavior: reduced ? 'auto' : 'smooth' }); } };
 
     // Sessions
-    const sessList = D.SESS.map((s) => ({ key: s.key, selected: s.key === S.sessionKey, title: s.title, meta: D.tDate(s.created) + ' · ' + tn(s.turns.length, '{n} turn', '{n} turns') + (s.checkpoints.length ? ' · ' + tn(s.checkpoints.length, '{n} checkpoint', '{n} checkpoints') : ''), bg: s.key === S.sessionKey ? '#17212B' : 'transparent', onClick: () => this.setState({ sessionKey: s.key }) }));
+    const sessList = D.SESS.map((s) => ({ key: s.key, selected: s.key === S.sessionKey, title: s.title, meta: D.tDate(s.created) + ' · ' + tn(s.turns.length, '{n} turn', '{n} turns') + (s.checkpoints.length ? ' · ' + tn(s.checkpoints.length, '{n} checkpoint', '{n} checkpoints') : ''), onClick: () => this.setState({ sessionKey: s.key }) }));
     const cs = sess(S.sessionKey);
     const writesFor = (t: number) => mems.filter((x) => x.src.s === cs.key && x.src.t === t && x.kind !== 'session_checkpoint');
     const events: SessionEvent[] = []; let seq = 0;
     cs.turns.forEach((turn, i) => {
       const n = i + 1; seq++;
       const isU = turn[0] === 'user';
-      events.push({ isTurn: true, isCheckpoint: false, seq: String(seq), time: D.tTime(turn[2]), n, role: isU ? t('You') : 'Enouia', roleColor: isU ? '#9BA9B6' : '#9FC2D2', textColor: isU ? '#E7EDF2' : '#EEE7DC', text: turn[1], turnShort: D.short(D.ID('turn', cs.key + n)), dot: '7px', dotColor: isU ? '#4A5866' : '#9FC2D2',
-        writes: writesFor(n).map((w) => ({ key: w.key, label: w.status === 'candidate' ? t('Candidate proposed') : w.src.kind === 'explicit_remember' ? t('Memory saved') : w.status === 'superseded' ? t('Memory written · since superseded') : t('Memory written'), ref: D.short(w.status === 'candidate' ? D.ID('cand', w.key) : memId(w)), color: STATUS[w.status][1], onClick: () => this.openMemory(w.key) })) });
+      events.push({ isTurn: true, isCheckpoint: false, seq: String(seq), time: D.tTime(turn[2]), n, role: isU ? t('You') : 'Enouia', speaker: turn[0], text: turn[1], turnShort: D.short(D.ID('turn', cs.key + n)),
+        writes: writesFor(n).map((w) => ({ key: w.key, label: w.status === 'candidate' ? t('Candidate proposed') : w.src.kind === 'explicit_remember' ? t('Memory saved') : w.status === 'superseded' ? t('Memory written · since superseded') : t('Memory written'), ref: D.short(w.status === 'candidate' ? D.ID('cand', w.key) : memId(w)), status: w.status, onClick: () => this.openMemory(w.key) })) });
       cs.checkpoints.filter((c) => c.after === n).forEach((c) => { seq++; const cm = this.checkpoint(c.mem);
-        events.push({ isTurn: false, isCheckpoint: true, seq: String(seq), time: D.tTime(c.at), covered: cm.covered[0] + '–' + cm.covered[1], lastState: cm.lastState, loops: cm.openLoops, ref: D.short(memId(cm)), dot: '9px', dotColor: '#EEE7DC', onClick: () => this.openMemory(cm.key) }); });
+        events.push({ isTurn: false, isCheckpoint: true, seq: String(seq), time: D.tTime(c.at), covered: cm.covered[0] + '–' + cm.covered[1], lastState: cm.lastState, loops: cm.openLoops, ref: D.short(memId(cm)), onClick: () => this.openMemory(cm.key) }); });
     });
     const allWrites = mems.filter((x) => x.src.s === cs.key && x.kind !== 'session_checkpoint').sort((a, b) => (a.src.t ?? 0) - (b.src.t ?? 0));
     const lastAt = cs.checkpoints.length && cs.checkpoints[cs.checkpoints.length - 1].at > cs.turns[cs.turns.length - 1][2] ? cs.checkpoints[cs.checkpoints.length - 1].at : cs.turns[cs.turns.length - 1][2];
@@ -329,24 +323,24 @@ export default class App extends React.Component<AppProps, AppState> {
       meta: [{ k: t('session'), v: cs.id }, { k: t('created'), v: D.tFull(cs.created) }, { k: t('updated'), v: D.tFull(lastAt) }, { k: t('events'), v: String(seq) }, { k: t('turns'), v: String(cs.turns.length) }, { k: t('checkpoints'), v: String(cs.checkpoints.length) }],
       checkpoints: cs.checkpoints.map((c) => { const cm = this.checkpoint(c.mem); return { covered: cm.covered[0] + '–' + cm.covered[1], ref: D.short(memId(cm)), onClick: () => this.openMemory(cm.key) }; }),
       noCheckpoints: !cs.checkpoints.length,
-      writes: allWrites.map((w) => ({ key: w.key, text: w.content, turn: w.src.t, label: STATUS[w.status][0], onClick: () => this.openMemory(w.key) })), noWrites: !allWrites.length, hasCapsule: cs.key === 's1' };
+      writes: allWrites.map((w) => ({ key: w.key, text: w.content, turn: w.src.t, label: STATUS[w.status], onClick: () => this.openMemory(w.key) })), noWrites: !allWrites.length, hasCapsule: cs.key === 's1' };
 
     // Runtime
-    const rtList = D.RT.map((c) => ({ name: t(c.name), code: c.code, state: t(c.state), tone: c.tone, color: TONE[c.tone], bg: c.k === S.rtKey ? '#17212B' : 'transparent', onClick: () => this.setState({ rtKey: c.k }) }));
+    const rtList = D.RT.map((c) => ({ name: t(c.name), code: c.code, state: t(c.state), tone: c.tone, onClick: () => this.setState({ rtKey: c.k }) }));
     const rc = D.RT.find((c) => c.k === S.rtKey) ?? D.RT[0];
-    const rt = { name: t(rc.name), state: t(rc.state), color: TONE[rc.tone], desc: t(rc.desc),
+    const rt = { name: t(rc.name), state: t(rc.state), tone: rc.tone, desc: t(rc.desc),
       rows: rc.rows.map(([k, v]) => ({ k: t(k), v: t(v) })), checks: rc.checks.map(([k, v]) => ({ k: t(k), v: t(v) })), limits: rc.limits.map((l) => t(l)) };
     const rtStrip = [['memory', 'v1'], ['session', 'v1'], ['capsule', 'v1'], ['core ipc', 'v1'], ['schemaVersion', '1'], ['mutation result', 'model_only'], ['toolchain', 'rust 1.98.1 · gnu']].map(([k, v]) => ({ k, v }));
 
     const cp = this.checkpoint('m7');
     return {
-      pageTitle: titles[page], nav, railKey, ring,
+      pageTitle: titles[page], nav, railKey,
       isHome: page === 'home', isMemory: page === 'memory', isContext: page === 'context', isSessions: page === 'sessions', isRuntime: page === 'runtime', isSettings: page === 'settings',
       home: { memoryLine: cands.length ? t('{n} canonical memories, {c} waiting for your review', { n: active.length, c: cands.length }) : t('{n} canonical memories, nothing waiting for review', { n: active.length }), capTime: D.tTime('2026-10-01T06:44:02.318Z'), capShort: D.short(D.CAP), sesTime: D.tTime(D.SESS[0].turns[11][2]), sesShort: D.short(sess('s1').id), cpTime: D.tTime(cp.created), cpShort: D.short(D.ID('mem', 'm7')), openCheckpoint: () => this.openMemory('m7') },
       q: S.q, onQuery: (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ q: e.target.value }), collections, colTitle, colCount: tn(visible.length, '{n} record', '{n} records'), groups, timelineEmpty: !visible.length,
       sel, hasSel: !!sel, noSel: !sel, act, editing: S.editing, notEditing: !S.editing, draft: S.draft, onDraft: (e: React.ChangeEvent<HTMLTextAreaElement>) => this.setState({ draft: e.target.value }), notice: S.notice, hasNotice: !!S.notice, copyLabel: S.copied ? t('Copied') : t('Copy ID'),
       ctx, ctxScroll: this.ctxScroll, sessList, ses, rtList, rt, rtStrip,
-      motionOpts: [['system', msg('Follow system')], ['reduced', msg('Reduced')]].map(([k, label]) => { const a = S.motionPref === k; return { label: t(label), active: a, bg: a ? '#17212B' : 'transparent', fg: a ? '#E7EDF2' : '#9BA9B6', onClick: () => this.setState({ motionPref: k }) }; }),
+      motionOpts: [['system', msg('Follow system')], ['reduced', msg('Reduced')]].map(([k, label]) => { const a = S.motionPref === k; return { label: t(label), active: a, onClick: () => this.setState({ motionPref: k }) }; }),
     };
   }
 

@@ -121,7 +121,7 @@ export default function Sessions({ view }: { view: DemoView }) {
 <span className="qr140">
 
 </span>
-<span className="qr141" style={{"width": ev.dot, "height": ev.dot, "background": ev.dotColor}}>
+<span className="qr141">
 
 </span>
 </span>
@@ -129,19 +129,19 @@ export default function Sessions({ view }: { view: DemoView }) {
 {ev.isTurn ? <>
 <div className="qr149">
 <div className="qr145">
-<span className="qr143" style={{"color": ev.roleColor}}>
+<span className="qr143" data-speaker={ev.speaker}>
 {ev.role}
 </span>
 <span className="qr144">
 turn {ev.n} · {ev.turnShort}
 </span>
 </div>
-<div className="qr146" style={{"color": ev.textColor}}>
+<div className="qr146" data-speaker={ev.speaker}>
 {ev.text}
 </div>
 {ev.writes.map((w, wIndex) => <React.Fragment key={w.key}>
-<button onClick={w.onClick} className="qr148" data-kind={w.label.startsWith('Candidate') ? 'candidate' : 'canonical'} type="button">
-<span className="qr36" style={{"background": w.color}}>
+<button onClick={w.onClick} className="qr148" data-kind={w.status === 'candidate' ? 'candidate' : 'canonical'} type="button">
+<span className="qr36">
 
 </span>
 <span>

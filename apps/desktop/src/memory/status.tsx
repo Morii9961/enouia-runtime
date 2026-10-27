@@ -1,15 +1,16 @@
 // Memory status shared by the connected surfaces: one serial poll of
 // `workspace_status`, the header badge, the Home and Settings panels, and the
 // gate that keeps Vault-dependent surfaces closed until a Vault is open.
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { call, pick, shell, type J } from "./client";
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
-import { ProviderConfigDraft } from "./ProviderConfigDraft";
-import { ProviderSettingsStatus } from "./ProviderSettingsStatus";
 
 import { labels, msg, t, tn } from '../i18n/index.ts';
+const ProviderConfigDraft = lazy(() => import("./ProviderConfigDraft").then(module => ({ default: module.ProviderConfigDraft })));
+const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").then(module => ({ default: module.ProviderSettingsStatus })));
+
 type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void> };
 const StatusContext = createContext<StatusValue | null>(null);
 
@@ -276,8 +277,12 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
       </div>
       <CompanionSettings status={status} />
     </div>
-    <ProviderConfigDraft disabled={exiting(status)} />
-    <ProviderSettingsStatus disabled={exiting(status)} /></>
+    <Suspense fallback={<p role="status" className="mem-muted">{t("Loading panel…")}</p>}>
+      <ProviderConfigDraft disabled={exiting(status)} />
+    </Suspense>
+    <Suspense fallback={<p role="status" className="mem-muted">{t("Loading panel…")}</p>}>
+      <ProviderSettingsStatus disabled={exiting(status)} />
+    </Suspense></>
   );
 }
 

@@ -18,7 +18,17 @@ export type Lang = 'en' | 'zh-Hans' | 'ja';
 export type LangPref = 'system' | Lang;
 const DICTS: Partial<Record<Lang, Record<string, string>>> = {};
 const LOADERS: Record<Exclude<Lang, 'en'>, () => Promise<{ default: Record<string, string> }>> = { 'zh-Hans': () => import('./zh-Hans.ts'), ja: () => import('./ja.ts') };
-async function load(l: Lang) { if (l !== 'en' && !DICTS[l]) DICTS[l] = (await LOADERS[l]()).default; }
+async function load(l: Lang) {
+  if (l === 'en') return;
+  // CJK face declarations stay out of the English entry stylesheet. Load them
+  // with the dictionary before switching; actual WOFF2 slices remain on demand.
+  const cached = DICTS[l];
+  const [dictionary] = await Promise.all([
+    cached ? Promise.resolve({ default: cached }) : LOADERS[l](),
+    import('../theme/cjk-faces.css'),
+  ]);
+  DICTS[l] = dictionary.default;
+}
 /** Resolves once the dictionary for the starting language is loaded. */
 export const ready = () => load(current);
 const KEY = 'enouia.lang';

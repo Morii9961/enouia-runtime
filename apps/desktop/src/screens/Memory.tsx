@@ -85,7 +85,7 @@ export default function Memory({ view }: { view: DemoView }) {
 {g.label}
 </div>
 {g.items.map((m, mIndex) => <React.Fragment key={m.key}>
-<button onClick={m.onClick} aria-pressed={m.selected} className="qr43" data-status={m.showStatus ? m.statusLabel.toLowerCase() : 'canonical'} type="button">
+<button onClick={m.onClick} aria-pressed={m.selected} className="qr43" data-status={m.status} type="button">
 <span className="qr34">
 {m.time}
 </span>
@@ -100,7 +100,7 @@ export default function Memory({ view }: { view: DemoView }) {
 </span>
 </> : null}
 {m.showStatus ? <>
-<span className="qr37" data-status={m.statusLabel.toLowerCase()}>
+<span className="qr37" data-status={m.status}>
 {m.statusLabel}
 </span>
 </> : null}
@@ -143,7 +143,7 @@ conf {m.conf}
 <div className="qr79">
 <div className="qr54">
 <div className="qr50">
-<span className="qr48" data-status={sel.statusLabel.toLowerCase()}>
+<span className="qr48" data-status={sel.status}>
 {sel.statusLabel}
 </span>
 <span className="qr9">

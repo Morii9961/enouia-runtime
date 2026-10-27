@@ -1,6 +1,6 @@
 /* 08-negative · self-hosted Latin subsets (OFL-1.1). See assets/fonts/README.md.
    Martian Mono is variable in width (75%–112.5%) and weight; Geist is variable in weight.
-   CJK text falls back to the system Microsoft YaHei UI; nothing is fetched remotely. */
+   CJK faces are separately declared in cjk-fonts.css; nothing is fetched remotely. */
 @font-face {
   font-family: 'Martian Mono';
   font-style: normal;
