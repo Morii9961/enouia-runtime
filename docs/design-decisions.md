@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-10-27 · W6 #7 视图模型传状态，CSS 决定皮肤
+
+- 决定：移除 `renderVals()` 和 Context fixture 的旧 Quiet 色值；保留 active/selected/tone/status/section/speaker，由现有 CSS token 与状态属性绘制。去掉不再使用的呼吸圆环模型与对应行内样式覆盖。
+- 理由：主题不应被视图模型携带的旧颜色覆盖；样式状态也不能从翻译后的标签推导。
+- 影响：App、demo fixture/type、Memory/Context/Sessions/Runtime JSX 与三处 CSS 优先级；现有类名/data 属性及键盘行为保留。
+- 依据：[W6 #7 记录](validation/UI-v2-W6-07-view-state-2026-10-27.md)，三语两主题共 30 张浏览器截图。
+- 状态：定稿（实现记录，不代表 owner 人工验收）
+
 ## 2026-10-27 · W5 星图性能以完整绘制间隔记录
 
 - 决定：在独立临时 WebView2 浏览器壳测 `/starmap.html`，不把合成星图放入 Runtime 原生应用；记录 Worker 布局、主线程绘制/计算中位与 P95，并补 draw 间隔。保留 5,000 条球体/聚类的慢数据为 #24，不因 CPU 帧成本较低宣称通过流畅性验收。

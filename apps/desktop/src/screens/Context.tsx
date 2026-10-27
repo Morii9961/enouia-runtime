@@ -38,7 +38,7 @@ Query{' '}
 <div className="qr15">
 <div className="qr95">
 {ctx.segs.map((sg, sgIndex) => <React.Fragment key={sg.label}>
-<span title={sg.label} className="qr94" data-i={sgIndex} style={{"width": sg.w}}>
+<span title={sg.label} className="qr94" data-i={sgIndex} data-section={sg.section} style={{"width": sg.w}}>
 
 </span>
 </React.Fragment>)}
@@ -68,7 +68,7 @@ units
 <div className="qr105">
 {ctx.sections.map((s, sIndex) => <React.Fragment key={s.domId}>
 <button onClick={s.jump} className="qr102" type="button">
-<span className="qr100" data-i={sIndex}>
+<span className="qr100" data-i={sIndex} data-section={s.section}>
 
 </span>
 <span>

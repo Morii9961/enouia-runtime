@@ -10,7 +10,7 @@
 | 4 | **1100–1279 宽的 Inspector。** Memory UI 规格建议 900–1279 改为抽屉；Runtime 最小窗口 1100，目前在 1100 仍是三栏（Inspector 336–400px）。 | 1100 下主列表偏窄，长正文换行多。 | 先在演示里各做一版（常驻 vs 抽屉）截图比较。 | owner 选 |
 | 5 | **DOM 测试在基线就不稳定。** 3 次全量 `npm test` 曾有 2 次失败，失败的 fixture 不固定（如 `inspector-action-focus`、`operation-cancel`），单独重跑通过。 | 会把真实回归和偶发失败混在一起。 | 单独查时序；在那之前失败的 fixture 单独重跑确认。 | 实现者 |
 | 6 | **记忆星图的规模与技术。** 已有合成原型（`redesign/v2`）：Canvas 绘制；球体一次算好（5,000 条 28ms），星系在 Worker 里用自写的 Barnes–Hut 收敛（5,000 条约 460ms）；以下为旧力导向的数据：生产构建实测 5,000 节点布局约 0.5 s、每帧 JS 绘制 < 1 ms（无头 Edge，未在 WebView2 实测）。全库星图仍需要后端授权的图投影（MEMORY_DATA_REQUIREMENTS §3）。 | 节点到几百上千时 SVG 会慢。 | 按 Memory UI 规格：先用合成规模样例（如 200 / 1,000 / 5,000 节点）测帧率与布局时间，再在 SVG / Canvas / Web Worker 布局间选；需要新依赖时另记决定。 | 实现者 + owner（依赖） |
-| 7 | **皮肤值写在视图模型里。** `App.tsx renderVals()` 仍输出旧 Quiet 颜色（`bg`、`fg`、`TONE`、`STATUS`、开关颜色），`demo-data.ts` 的 Context 分区也带色值；现在靠 CSS `!important` 覆盖。 | 改主题时容易漏；`!important` 越积越多。 | 实现时把这些字段改成状态名（如 `data-tone`），颜色只在 CSS。 | 实现者 |
+| 7 | **已解决（2026-10-27 → 决定「W6 #7 视图模型传状态，CSS 决定皮肤」）。** 旧 Quiet 色值与未用圆环已移除，Context 传 section，Memory/Sessions/Runtime 传稳定状态；CSS 管外观。 | 本地化标签不再参与推导样式状态。 | [验证与 30 张截图](../../validation/UI-v2-W6-07-view-state-2026-10-27.md)，六项检查通过。 | 已实现 |
 | 8 | **Inspector 里的长 ID 越界。** Memory Vault 的 Session ID 超出右侧裁切角（截图 `dark-memory-1440`）。 | 破坏唯一的框。 | ID 用 `overflow-wrap: anywhere` 或中间省略 + Copy。 | 实现者 |
 | 9 | **11.5px 文字。** `memory/memory.css` 的 `.mem-tag` 写 11.5px（原生表面旧样式）。 | 低于 12px 下限。 | 改 12px，检查标签高度 20px 是否还放得下。 | 实现者 |
 | 10 | **全局 ↑/↓ 作用于看不见的列表。** 浏览器演示在 Memory 页对输入框与导航之外的 ↑/↓ 选择 Vault 演示记录并 `preventDefault`。 | 任何自带列表的新视图都会和它抢方向键。 | 只在焦点位于列表内时处理方向键。 | 实现者（改 `App.tsx` 键盘逻辑需谨慎，有测试） |

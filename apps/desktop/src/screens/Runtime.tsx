@@ -22,7 +22,7 @@ export default function Runtime({ view }: { view: DemoView }) {
 {c.name}
 </span>
 <span className="qr189" data-tone={c.tone}>
-<span className="qr36" style={{"background": c.color}}>
+<span className="qr36">
 
 </span>
 {c.state}
@@ -112,7 +112,7 @@ export default function Runtime({ view }: { view: DemoView }) {
 <div className="qr207">
 {rtList.map((c, cIndex) => <React.Fragment key={c.code}>
 <div className="qr206" data-tone={c.tone}>
-<span className="qr36" style={{"background": c.color}}>
+<span className="qr36">
 
 </span>
 <span className="qr61">
