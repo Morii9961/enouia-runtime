@@ -1,6 +1,7 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "finishing Memory operations": "正在完成记忆操作",
   "Show Enouia Runtime": "显示 Enouia Runtime",
   "Lock Memory Vault": "锁定记忆库",
   "Loading panel…": "正在加载面板…",

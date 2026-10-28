@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-10-28 · W7 双窗口共用语言偏好，主窗口管理原生标题
+
+- 决定：主窗口与 Quick Search 使用现有同源 localStorage 偏好；接收事件只应用 `newValue`，不回写。原生标题由 main-only 的固定命令设置，产品名保持英文，overlay 无标题写权限。
+- 理由：不同 WebView 的 JS store 需要同步；将收到的旧事件再次持久化会覆盖后来的选择。语言切换应保留检索草稿，不附带搜索或 Memory 动作。
+- 影响：语言 store、窗口标题发布器、原生退出等待文字；不改布局、键盘、Memory pin 或任何真实数据启用。
+- 依据：[双窗口验证](validation/UI-v2-W7-window-language-2026-10-28.md)，真实连续切换的失败与修复、三语/系统/重启、六项检查与 Rust 定向检查。
+- 状态：定稿（实现与隔离验证；OS 标题/长操作和 owner 验收边界见记录）
+
 ## 2026-10-27 · W6 #18 延后面板视图，保留历史任务 owner
 
 - 决定：历史任务视图、Provider 配置、Provider 状态用 React.lazy/Suspense 独立加载；历史 owner hook 继续留在 Import 的原位置，不把请求生命周期绑到视图下载。

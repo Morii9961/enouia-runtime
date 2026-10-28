@@ -4,6 +4,7 @@ import App from './App.tsx';
 import { isTauri } from '@tauri-apps/api/core';
 import QuickSearch from './shell/QuickSearch';
 import TrayLanguage from './shell/TrayLanguage';
+import WindowLanguage from './shell/WindowLanguage';
 import './theme/negative-fonts.css';
 import './quiet-runtime.css';
 import './memory/memory.css';
@@ -45,7 +46,7 @@ if (!root) throw new Error('The desktop root element is missing.');
 // The root follows the interface language, so a change re-renders the whole tree in place.
 function Root() {
   useLang();
-  return isTauri() && new URLSearchParams(location.search).get('view') === 'overlay' ? <QuickSearch /> : <><TrayLanguage /><App /></>;
+  return isTauri() && new URLSearchParams(location.search).get('view') === 'overlay' ? <QuickSearch /> : <><TrayLanguage /><WindowLanguage /><App /></>;
 }
 await ready();
 createRoot(root).render(

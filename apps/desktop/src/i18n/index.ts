@@ -45,9 +45,9 @@ const systemLang = (): Lang => {
   for (const tag of (typeof navigator !== 'undefined' ? navigator.languages ?? [navigator.language] : [])) { const l = fromTag(tag); if (l) return l; }
   return 'en';
 };
+const storedPref = (value: string | null): LangPref => value === 'en' || value === 'zh-Hans' || value === 'ja' ? value : 'system';
 const readPref = (): LangPref => {
-  try { const v = localStorage.getItem(KEY); if (v === 'en' || v === 'zh-Hans' || v === 'ja') return v; } catch { /* storage unavailable: follow the system */ }
-  return 'system';
+  try { return storedPref(localStorage.getItem(KEY)); } catch { return 'system'; }
 };
 const asked = typeof location !== 'undefined' ? fromTag(new URLSearchParams(location.search).get('lang')) : null;
 
@@ -59,9 +59,8 @@ apply();
 
 export const lang = () => current;
 export const langPref = () => pref;
-export async function setLang(next: LangPref) {
+async function applyLang(next: LangPref) {
   pref = next;
-  try { if (next === 'system') localStorage.removeItem(KEY); else localStorage.setItem(KEY, next); } catch { /* not kept: still applies now */ }
   const target = next === 'system' ? systemLang() : next;
   listeners.forEach((f) => f()); // the choice shows at once; the text follows when its dictionary is in
   await load(target);
@@ -70,7 +69,19 @@ export async function setLang(next: LangPref) {
   if (current !== was) { apply(); fmtCache.clear(); }
   listeners.forEach((f) => f());
 }
-if (typeof window !== 'undefined') window.addEventListener('languagechange', () => { if (pref === 'system' && !asked) void setLang('system'); });
+export async function setLang(next: LangPref) {
+  try { if (next === 'system') localStorage.removeItem(KEY); else localStorage.setItem(KEY, next); } catch { /* not kept: still applies now */ }
+  await applyLang(next);
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('languagechange', () => { if (pref === 'system' && !asked) void setLang('system'); });
+  // Main and Quick Search share local preferences, but have separate JS stores.
+  window.addEventListener('storage', (event) => {
+    // Receiving another window's choice must not write it back: queued older
+    // events could otherwise overwrite a newer choice and bounce between views.
+    if (!asked && event.storageArea === localStorage && (event.key === KEY || event.key === null)) void applyLang(storedPref(event.newValue));
+  });
+}
 /** Re-render on a language change. The app root subscribes, so the whole tree follows. */
 export const useLang = () => useSyncExternalStore((cb) => { listeners.add(cb); return () => { listeners.delete(cb); }; }, () => current, () => current);
 export const useLangPref = () => useSyncExternalStore((cb) => { listeners.add(cb); return () => { listeners.delete(cb); }; }, () => pref, () => pref);

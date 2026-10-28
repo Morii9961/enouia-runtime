@@ -1,6 +1,7 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "finishing Memory operations": "記憶の処理を終了しています",
   "Show Enouia Runtime": "Enouia Runtime を表示",
   "Lock Memory Vault": "記憶の保管庫をロック",
   "Loading panel…": "パネルを読み込み中…",
