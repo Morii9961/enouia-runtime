@@ -11,6 +11,7 @@ fn main() {
             "memory_provider_save_draft",
             "memory_provider_key",
             "shell_status",
+            "shell_set_tray_labels",
             "shell_show",
             "shell_exit",
             "shell_search",

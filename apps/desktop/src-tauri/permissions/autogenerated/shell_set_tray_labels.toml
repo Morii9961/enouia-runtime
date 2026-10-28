@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-shell-set-tray-labels"
+description = "Enables the shell_set_tray_labels command without any pre-configured scope."
+commands.allow = ["shell_set_tray_labels"]
+
+[[permission]]
+identifier = "deny-shell-set-tray-labels"
+description = "Denies the shell_set_tray_labels command without any pre-configured scope."
+commands.deny = ["shell_set_tray_labels"]
