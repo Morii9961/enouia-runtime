@@ -64,6 +64,7 @@ fn main() {
             provider::memory_provider_save_draft,
             provider::memory_provider_key,
             shell::shell_status,
+            shell::shell_set_tray_labels,
             shell::shell_show,
             shell::shell_search,
             shell::shell_hide,

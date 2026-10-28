@@ -3,7 +3,7 @@ use crate::hotkey::Hotkey;
 use crate::memory::MemoryHost;
 use serde_json::{Value, json};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Mutex, PoisonError};
+use std::sync::{Mutex, OnceLock, PoisonError};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, State, WebviewWindow};
@@ -16,6 +16,17 @@ pub struct ShellState {
     error: Mutex<Option<&'static str>>,
     hotkey: Mutex<Option<Hotkey>>,
     hotkey_status: Mutex<Value>,
+    tray_items: OnceLock<[MenuItem<tauri::Wry>; 4]>,
+}
+
+/// Presentation only. Menu IDs and their native actions never come from IPC.
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TrayLabels {
+    show: String,
+    search: String,
+    lock: String,
+    exit: String,
 }
 
 impl ShellState {
@@ -200,6 +211,11 @@ pub fn install(app: &tauri::App) -> tauri::Result<()> {
     let search = MenuItem::with_id(app, "search", "Quick Search", true, None::<&str>)?;
     let exit = MenuItem::with_id(app, "exit", "Exit Enouia Runtime", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show, &search, &lock, &exit])?;
+    // Setup completes before the webview's IPC is handled, including hidden startup.
+    let _ = app
+        .state::<ShellState>()
+        .tray_items
+        .set([show, search, lock, exit]);
     TrayIconBuilder::with_id("runtime")
         .icon(tray_icon())
         .tooltip("Enouia Runtime")
@@ -257,6 +273,25 @@ pub fn install(app: &tauri::App) -> tauri::Result<()> {
         .lock()
         .unwrap_or_else(PoisonError::into_inner) = status;
     publish_companion(app.handle());
+    Ok(())
+}
+
+#[tauri::command]
+pub fn shell_set_tray_labels(
+    state: State<'_, ShellState>,
+    window: WebviewWindow,
+    labels: TrayLabels,
+) -> Result<(), String> {
+    if !allows_shell(window.label()) {
+        return Err("permission_denied".into());
+    }
+    let items = state.tray_items.get().ok_or("tray_unavailable")?;
+    for (item, text) in items
+        .iter()
+        .zip([labels.show, labels.search, labels.lock, labels.exit])
+    {
+        item.set_text(text).map_err(|_| "tray_update_failed")?;
+    }
     Ok(())
 }
 
