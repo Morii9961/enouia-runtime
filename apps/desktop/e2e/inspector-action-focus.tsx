@@ -2,6 +2,7 @@
 // control that becomes disabled to the document (Keyboard-journey-v1); Happy DOM does not, so this
 // fixture applies only that platform focus fixup while an action is pending.
 import { createRoot } from "react-dom/client";
+import { act } from "react";
 import { MemoryDetail } from "../src/memory/MemorySurface";
 import { MemoryStatusProvider } from "../src/memory/status";
 import { setTransport } from "../src/memory/client";
@@ -32,7 +33,16 @@ setTransport(async (native, args) => {
   return { kind: "memory_page", result };
 });
 const root = createRoot(fixture);
-root.render(<MemoryStatusProvider><MemoryDetail id="synthetic-memory" onChanged={() => {}} /></MemoryStatusProvider>);
+// Flush initial read effects before the first synthetic click can arm focus
+// restoration. DOM readiness alone can precede those passive effects.
+const reactTest = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
+const previousActEnvironment = reactTest.IS_REACT_ACT_ENVIRONMENT;
+reactTest.IS_REACT_ACT_ENVIRONMENT = true;
+try {
+  await act(async () => {
+    root.render(<MemoryStatusProvider><MemoryDetail id="synthetic-memory" onChanged={() => {}} /></MemoryStatusProvider>);
+  });
+} finally { reactTest.IS_REACT_ACT_ENVIRONMENT = previousActEnvironment; }
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b => b.textContent === label);
 const correction = () => fixture.querySelector<HTMLTextAreaElement>("#mem-fix");
