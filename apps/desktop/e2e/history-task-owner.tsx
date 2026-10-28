@@ -59,7 +59,10 @@ try {
   render(); await ready();
   check("reopening_discovers_tasks_and_active_operations_before_new_writes", calls.some(c => c.command === "history_task_list") && calls.some(c => c.command === "operation_list") && writes().length === 0);
   click("Submit synthetic selection"); button("Submit synthetic selection")!.click(); await wait(() => release !== null);
-  click("Refresh and close report"); await sleep();
+  click("Refresh and close report");
+  // The owner is ready before its deferred view. Wait for that view to commit,
+  // keeping the receipt held while asserting the exact write count below.
+  await wait(() => text().includes("Waiting for the local task operation receipt") && !text().includes("History planning"));
   check("held_admission_survives_report_close_without_duplicate_write", writes().length === 1 && text().includes("Waiting for the local task operation receipt") && !text().includes("History planning"));
   releasePending(); await wait(() => !!button("Retry original history submission"));
   check("uncertain_receipt_blocks_new_submission", button("Submit synthetic selection")!.disabled);
