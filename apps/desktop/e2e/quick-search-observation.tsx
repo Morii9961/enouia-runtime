@@ -4,6 +4,7 @@ import { mockIPC, clearMocks } from '@tauri-apps/api/mocks';
 import { emit } from '@tauri-apps/api/event';
 import QuickSearch from '../src/shell/QuickSearch';
 import { setTransport } from '../src/memory/client';
+import { lang, useLang } from '../src/i18n';
 import '../src/quiet-runtime.css';
 import '../src/memory/memory.css';
 
@@ -27,7 +28,9 @@ setTransport(async (native, args) => {
   if (fail) return { kind: 'memory_error', error: { code: 'busy', retryable: true, rules: [] } };
   return { kind: 'memory_page', result: { items: query === 'No matches' ? [] : [{ memoryId: 'mem_synthetic', snippet: `Saved match for ${query}`, currency: 'current' }], nextCursor: null } };
 });
-const root = createRoot(fixture); root.render(<QuickSearch />);
+// Match main.tsx's language subscription for this separate window.
+function OverlayRoot() { useLang(); return <QuickSearch />; }
+const root = createRoot(fixture); root.render(<OverlayRoot />);
 const text = () => fixture.textContent ?? '';
 const input = () => fixture.querySelector<HTMLInputElement>('#quick-query')!;
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>('button')].find(b => b.textContent === label);
@@ -94,6 +97,15 @@ try {
   check('focus_reopens_with_an_empty_focused_input', input().value === '' && document.activeElement === input());
   await edit('Before clear event'); await start(button('Search')); await emit('overlay-clear'); await frame(); outside().focus(); releasePending(); await frame(); await frame();
   check('host_clear_event_invalidates_pending_focus_and_results', input().value === '' && document.activeElement === outside() && fixture.querySelectorAll('li').length === 0);
+  await edit('Language draft');
+  const beforeLanguage = calls.length;
+  localStorage.setItem('enouia.lang', 'ja');
+  window.dispatchEvent(new StorageEvent('storage', { key: 'enouia.lang', newValue: 'ja', storageArea: localStorage }));
+  await wait(() => lang() === 'ja' && text().includes('クイック検索'));
+  check('another_window_language_change_keeps_draft_and_does_not_search', input().value === 'Language draft' && calls.length === beforeLanguage);
+  localStorage.setItem('enouia.lang', 'en');
+  window.dispatchEvent(new StorageEvent('storage', { key: 'enouia.lang', newValue: 'en', storageArea: localStorage }));
+  await wait(() => lang() === 'en' && text().includes('Quick Search'));
   await edit('Before Escape'); window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   await wait(() => hidden === 1 && input().value === '' && fixture.querySelectorAll('li').length === 0);
   check('escape_clears_and_uses_existing_hide_command', hidden === 1 && input().value === '' && fixture.querySelectorAll('li').length === 0);

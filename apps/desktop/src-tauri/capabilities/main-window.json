@@ -18,6 +18,7 @@
     "allow-memory-provider-key",
     "allow-shell-status",
     "allow-shell-set-tray-labels",
+    "allow-shell-set-window-labels",
     "allow-shell-show",
     "allow-shell-search",
     "allow-shell-exit",

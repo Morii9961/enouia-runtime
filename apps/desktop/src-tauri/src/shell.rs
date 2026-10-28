@@ -17,6 +17,7 @@ pub struct ShellState {
     hotkey: Mutex<Option<Hotkey>>,
     hotkey_status: Mutex<Value>,
     tray_items: OnceLock<[MenuItem<tauri::Wry>; 4]>,
+    window_labels: Mutex<WindowLabels>,
 }
 
 /// Presentation only. Menu IDs and their native actions never come from IPC.
@@ -29,7 +30,33 @@ pub struct TrayLabels {
     exit: String,
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WindowLabels {
+    quick_search: String,
+    finishing_memory_operations: String,
+}
+
+impl Default for WindowLabels {
+    fn default() -> Self {
+        Self {
+            quick_search: "Quick Search".into(),
+            finishing_memory_operations: "finishing Memory operations".into(),
+        }
+    }
+}
+
 impl ShellState {
+    fn finishing_title(&self) -> String {
+        format!(
+            "Enouia Runtime · {}",
+            self.window_labels
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .finishing_memory_operations
+        )
+    }
+
     pub fn tray_ready(&self) -> bool {
         self.tray_ready.load(Ordering::SeqCst)
     }
@@ -111,7 +138,7 @@ pub fn request_exit(app: &AppHandle) {
     }
     let _ = show_main(app);
     if let Some(window) = app.get_webview_window("main") {
-        let _ = window.set_title("Enouia Runtime · finishing Memory operations");
+        let _ = window.set_title(&app.state::<ShellState>().finishing_title());
     }
     app.state::<ShellState>().error(None);
     let app = app.clone();
@@ -273,6 +300,34 @@ pub fn install(app: &tauri::App) -> tauri::Result<()> {
         .lock()
         .unwrap_or_else(PoisonError::into_inner) = status;
     publish_companion(app.handle());
+    Ok(())
+}
+
+#[tauri::command]
+pub fn shell_set_window_labels(
+    host: State<'_, MemoryHost>,
+    state: State<'_, ShellState>,
+    window: WebviewWindow,
+    labels: WindowLabels,
+) -> Result<(), String> {
+    if !allows_shell(window.label()) {
+        return Err("permission_denied".into());
+    }
+    let overlay_title = format!("Enouia Runtime · {}", labels.quick_search);
+    *state
+        .window_labels
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner) = labels;
+    if let Some(overlay) = window.app_handle().get_webview_window("overlay") {
+        overlay
+            .set_title(&overlay_title)
+            .map_err(|_| "window_failed")?;
+    }
+    if host.is_closing() {
+        window
+            .set_title(&state.finishing_title())
+            .map_err(|_| "window_failed")?;
+    }
     Ok(())
 }
 
