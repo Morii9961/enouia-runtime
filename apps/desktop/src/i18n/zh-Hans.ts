@@ -1,6 +1,10 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Off by default. Starts only the tray; no Vault is opened.": "默认关闭。登录后只启动托盘，不打开记忆库。",
+  "Previous startup observation.": "这是上一次读取的启动设置。",
+  "The startup setting is still unknown.": "启动设置尚未读取成功。",
+  "Read the setting again before changing it. Reading does not change login startup.": "修改前请重新读取设置。读取不会改变登录启动选项。",
   "finishing Memory operations": "正在完成记忆操作",
   "Show Enouia Runtime": "显示 Enouia Runtime",
   "Lock Memory Vault": "锁定记忆库",

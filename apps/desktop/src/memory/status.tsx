@@ -329,13 +329,13 @@ function CompanionSettings({ status }: { status: J }) {
               void action.run(async () => {
                 const next = !enabled;
                 setStartup(await shell.startupSet(next));
-                setNote(next ? t("Runtime will start in the tray when you sign in.") : t("Runtime will not start at sign-in."));
+                setNote(next ? msg("Runtime will start in the tray when you sign in.") : msg("Runtime will not start at sign-in."));
               });
             }}>
             <span className="qr214" style={{ left: enabled ? "23px" : "3px", background: enabled ? "#0C1117" : "#9BA9B6" }} />
           </button>
           <span id="mem-startup-description" className="mem-muted">
-            Off by default. Starts only the tray; no Vault is opened.
+            {t("Off by default. Starts only the tray; no Vault is opened.")}
             {startup?.state === "different_installation" && " " + t("Another installation owns this setting; turn it off there first.")}
             {startup && !startup.supported && " " + t("Not supported on this system.")}
           </span>
@@ -346,9 +346,9 @@ function CompanionSettings({ status }: { status: J }) {
           onClick={() => { if (!startupRead.pending.current && !action.busy) { setNote(""); void readStartup(); } }}>{t("Read startup setting again")}</button>
       </div>
       {startupRead.busy && <p role="status" className="mem-muted">{t("Reading the startup setting…")}</p>}
-      {startupRead.error && <p role="status" className="mem-muted">{startup ? "Previous startup observation." : "The startup setting is still unknown."} Read the setting again before changing it. Reading does not change login startup.</p>}
+      {startupRead.error && <p role="status" className="mem-muted">{startup ? t("Previous startup observation.") : t("The startup setting is still unknown.")} {t("Read the setting again before changing it. Reading does not change login startup.")}</p>}
       <ErrorBox error={startupRead.error} />
-      <p role="status" aria-atomic="true" className="mem-note">{note}</p>
+      <p role="status" aria-atomic="true" className="mem-note">{note && t(note)}</p>
       <ErrorBox error={action.error} />
       <div className="qr216">
         <span className="qr35">{t("Exit")}</span>

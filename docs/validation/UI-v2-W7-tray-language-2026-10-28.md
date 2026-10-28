@@ -51,4 +51,6 @@ Error: unobserved_list_does_not_claim_empty
 
 ## 留下的验收边界
 
-本次桌面会话没有 Explorer 通知区域进程，Computer Use 只返回应用窗口，无法做物理托盘左键/右键菜单截图与点击。保留为 OPEN_ISSUES #25，不能用命令回执或 Settings 截图替代。真实锁库、系统登录、完整 Windows shell 与 owner 验收仍待后续；本片仅完成菜单本地化实现和上述隔离验证。
+本次 Computer Use 未返回可操作的通知区域，无法做物理托盘左键/右键菜单截图与点击。保留为 OPEN_ISSUES #25，不能用命令回执或 Settings 截图替代。真实锁库、系统登录、完整 Windows shell 与 owner 验收仍待后续；本片仅完成菜单本地化实现和上述隔离验证。
+
+2026-10-28 证据更正：此前根据受限进程查询未返回 Explorer，误写为没有 Explorer 进程。后续完整权限查询已发现 Explorer；已知限制是窗口工具没有暴露通知区域，不是已证明操作系统不存在托盘。物理验收仍未完成。

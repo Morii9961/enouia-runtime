@@ -1,6 +1,10 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Off by default. Starts only the tray; no Vault is opened.": "既定ではオフです。サインイン時はトレイだけを起動し、保管庫は開きません。",
+  "Previous startup observation.": "前回読み取った起動設定です。",
+  "The startup setting is still unknown.": "起動設定はまだ確認できていません。",
+  "Read the setting again before changing it. Reading does not change login startup.": "変更する前に設定を読み直してください。読み取りではログイン時の起動設定は変わりません。",
   "finishing Memory operations": "記憶の処理を終了しています",
   "Show Enouia Runtime": "Enouia Runtime を表示",
   "Lock Memory Vault": "記憶の保管庫をロック",
