@@ -255,6 +255,17 @@ async function connect(overlay = false, port = PORT) {
         // The native window label, not the URL, identifies the window.
         if ((await s.evaluate('window.__TAURI_INTERNALS__.metadata.currentWindow.label')) === want) {
           await s.evaluate(HELPERS);
+          // This focused English journey owns fresh profiles. Use existing UI
+          // controls, keeping translated accessible names in the application.
+          if (process.argv[6] === '--quick-only') {
+            if (!overlay) {
+              await s.evaluate("document.querySelectorAll('.bg-nav-item')[5].click()");
+              await waitFor(s, "!!document.querySelector('button[lang=en]')", 'fixture language controls');
+              await s.evaluate("document.querySelector('button[lang=en]').click()");
+            }
+            await waitFor(s, "document.documentElement.lang==='en'", 'English quick-search fixture');
+            if (!overlay) await s.evaluate("document.querySelectorAll('.bg-nav-item')[0].click()");
+          }
           return s;
         }
         s.close();
@@ -337,7 +348,7 @@ public class RuntimeKeys {
     // Native show/focus completion can precede Windows foreground ownership.
     // Observe the prerequisite; never send input to a different process.
     uint current = 0;
-    for (int attempt=0; attempt<100; attempt++) {
+    for (int attempt=0; attempt<600; attempt++) {
       GetWindowThreadProcessId(GetForegroundWindow(), out current);
       if (current == expected) break;
       System.Threading.Thread.Sleep(50);
@@ -352,12 +363,13 @@ public class RuntimeKeys {
 }
 '@
 [RuntimeKeys]::Press(${pid})`;
-  execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: 15000, windowsHide: true });
+  execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: 45000, windowsHide: true });
 }
 
 async function quickSearch(main, app) {
   let status = await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
   check('Q.hotkey_registered', status.hotkey.state === 'registered' && status.hotkey.combo === 'Ctrl+Alt+Q', JSON.stringify(status.hotkey));
+  if (status.hotkey.state !== 'registered' || status.hotkey.combo !== 'Ctrl+Alt+Q') throw new Error('test hotkey is not owned; no OS input sent');
   await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_show')");
   pressHotkey(app.pid);
   await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s => s.overlayVisible)", 'OS hotkey opened overlay');
@@ -380,7 +392,13 @@ async function quickSearch(main, app) {
   const reopen = async () => {
     const clears=await overlay.evaluate("window.__focusTrace.filter(e=>e.name==='overlay-clear').length");
     await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_search')");
-    await waitFor(overlay, `window.__focusTrace.filter(e=>e.name==='overlay-clear').length>${clears} && document.hasFocus() && document.activeElement?.id==='quick-query' && document.querySelector('#quick-query').value===''`, 'reopened overlay consumed clear and focused input');
+    try { await waitFor(overlay, `window.__focusTrace.filter(e=>e.name==='overlay-clear').length>${clears} && document.hasFocus() && document.activeElement?.id==='quick-query' && document.querySelector('#quick-query').value===''`, 'reopened overlay consumed clear and focused input'); }
+    catch (error) {
+      check('Q.reopen_focus_diagnostic', false, JSON.stringify(await overlay.evaluate("({focused:document.hasFocus(),active:document.activeElement?.id,query:document.querySelector('#quick-query').value,trace:window.__focusTrace})")));
+      check('Q.reopen_main_diagnostic', false, JSON.stringify(await main.evaluate("({focused:document.hasFocus(),active:document.activeElement?.outerHTML,status:__t.text().slice(0,500)})")));
+      check('Q.reopen_window_diagnostic', false, JSON.stringify(await main.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')")));
+      throw error;
+    }
     await waitFor(main, "window.__TAURI_INTERNALS__.invoke('shell_status').then(s=>s.overlayVisible)", 'reopened overlay visible');
   };
   await search('paper sketchbook');
@@ -401,7 +419,7 @@ async function quickSearch(main, app) {
     const result = await overlay.evaluate(`__t.invoke('memory_call', { request: {...__t.request(${JSON.stringify(command)}, {}), window:'main', surface:'workspace'} })`);
     check(`Q.scope_${command}`, result.err === 'permission_denied', JSON.stringify(result));
   }
-  for (const command of ['memory_pick', 'shell_status', 'shell_search', 'shell_exit']) {
+  for (const command of ['memory_pick', 'shell_status', 'shell_search', 'shell_exit', 'shell_set_tray_labels', 'shell_set_window_labels']) {
     const result = await overlay.evaluate(`__t.invoke(${JSON.stringify(command)}, {kind:'vault_root'})`);
     check(`Q.acl_${command}`, !!result.err && /not allowed|permission_denied/.test(result.err), JSON.stringify(result));
   }
@@ -470,7 +488,7 @@ async function quickSearch(main, app) {
   const rivalPort = await unusedPort();
   const rival = launch(['--memory-vault', vault], { port: rivalPort, profile: 'conflict-webview2' });
   const other = await connect(false, rivalPort);
-  await waitFor(other, has('Memory · No Vault open'), 'second process refused occupied Vault');
+  await waitFor(other, "__t.memory('workspace_status',{}).then(r=>r.result.vault.state==='none')", 'second process refused occupied Vault');
   check('W03.second_process_cannot_open_same_vault', true);
   await waitFor(other, has('already reserved by another Runtime'), 'occupied Vault explanation');
   const admission = await other.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
@@ -2557,9 +2575,14 @@ async function main() {
     return;
   }
   if (process.argv[6] === '--quick-only') {
+    const fixture = resolve(out, '..');
+    if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-quick-')
+      || vault !== join(fixture, 'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()
+      || readFileSync(join(fixture, 'SYNTHETIC_QUICK_FIXTURE'), 'utf8') !== 'Runtime Quick Search synthetic fixture v1\n')
+      throw new Error('quick-only requires its marked temporary synthetic fixture');
     const app = launch(['--memory-vault', vault]);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'quick fixture open');
+    await waitFor(s, "__t.memory('workspace_status',{}).then(r=>r.result.vault.state==='open')", 'quick fixture open');
     await s.evaluate(`(async()=>{
       const send=async(command,args,write=false)=>{
         const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
@@ -2586,6 +2609,14 @@ async function main() {
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
     await app.exited;
     s.close();
+    const reboundPort = await unusedPort();
+    const rebound = launch(['--memory-vault', vault], { port: reboundPort, profile: 'quick-rebound-webview2' });
+    const reopened = await connect(false, reboundPort);
+    const reboundStatus = await reopened.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
+    check('Q.hotkey_released_and_registered_after_exit', reboundStatus.hotkey.state === 'registered' && reboundStatus.hotkey.combo === 'Ctrl+Alt+Q', JSON.stringify(reboundStatus.hotkey));
+    void reopened.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(() => 0);
+    check('Q.rebound_process_exits', await waitForExit(rebound, 20000) === 0);
+    reopened.close();
     return;
   }
   // No default root: without --memory-vault nothing is opened.
