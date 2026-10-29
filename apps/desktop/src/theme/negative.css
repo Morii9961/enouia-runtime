@@ -203,7 +203,7 @@
 .mem-h2{font-family:var(--f-lab);font-size:18px;line-height:26px;font-weight:500;font-stretch:var(--w-nav);color:var(--ink)}
 .mem-h3,.mem-h4{font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-2)}
 .mem-muted{font-size:12.5px;color:var(--ink-3)}
-.mem-button{height:30px;border:1px solid var(--ink-3);border-radius:0;background:transparent;color:var(--ink);font-family:var(--f-lab);font-size:12px;font-weight:500}
+.mem-button{height:auto;min-height:30px;border:1px solid var(--ink-3);border-radius:0;background:transparent;color:var(--ink);font-family:var(--f-lab);font-size:12px;font-weight:500}
 .mem-button:hover:not(:disabled){background:var(--wash)}
 .mem-button:disabled{opacity:1;color:var(--ink-3);border-style:dashed}
 .mem-primary{border-color:var(--ink)}
