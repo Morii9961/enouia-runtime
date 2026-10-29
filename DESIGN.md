@@ -54,13 +54,13 @@
 | 数据/等宽 | Martian Mono（同上） | 同上 | 500、600 | 同上 |
 | 中文 · 标签/标题（Martian 的位置） | **更纱等宽 Sarasa Mono SC** v1.0.43（be5invis/Sarasa-Gothic） | OFL-1.1 | 300 Light、400 Regular（也用于 500）、600 SemiBold | 字典 CJK 子集，3 个 woff2 共 **453,100 B**；子集之外的字落到正文 |
 | 中文 · 正文（Geist 的位置） | **霞鹜新晰黑 LXGW Neo XiHei** v1.308 字形；派生打包名 **Enouia Text SC** | IPA 字体授权 v1.0；已改名、随附全文与原始字体恢复入口 | 只有 400；不做伪粗体，强调靠颜色与反相 | 保留全部 27,687 个字符映射及原有 UVS，100 片 woff2 共 **3,986,136 B** |
-| 日文 · 标签/标题 | **M PLUS 1 Code**（google/fonts，内部版本 1.100） | OFL-1.1 | 可变范围收窄至 300–600 | 字典 CJK 子集，1 个 woff2，**157,668 B**；缺少的全角「／」「：」由正文承接 |
-| 日文 · 正文 | **Zen Kaku Gothic New**（google/fonts，内部版本 1.002） | OFL-1.1 | 300 / 400 / 500 / 700 | 每字重保留全部 7,737 个字符映射、100 片，共 400 个 woff2，**5,094,748 B** |
+| 日文 · 标签/标题 | **M PLUS 1 Code**（google/fonts，内部版本 1.100） | OFL-1.1 | 可变范围收窄至 300–600 | 字典 CJK 子集，1 个 woff2，**158,120 B**（2026-10-29 字典更新）；缺少的全角「／」「：」由正文承接 |
+| 日文 · 正文 | **Zen Kaku Gothic New**（google/fonts，内部版本 1.002） | OFL-1.1 | 300 / 400 / 500 / 700 | 每字重保留全部 7,737 个字符映射、100 片，共 400 个 woff2，**5,094,468 B**（同次切片更新） |
 | 中日回退 | 系统字体：中文 Microsoft YaHei UI → Microsoft YaHei；日文 Yu Gothic UI → Meiryo UI | 系统 | — | 打包字体加载前与缺字时 |
 | 点缀 | 无 | — | — | — |
 
 - 中日字体 2026-10-26 定稿（Morii 选「中 2」与「日 1」），2026-10-27 完成 W4。按 `<html lang>` 分开取字形；中文标签 `'Martian Mono', 'Sarasa Mono SC', 'Enouia Text SC', 'Microsoft YaHei UI', sans-serif`，中文正文 `'Geist', 'Enouia Text SC', 'Microsoft YaHei UI', sans-serif`；日文标签 `'Martian Mono', 'M PLUS 1 Code', 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif`，日文正文 `'Geist', 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif`。中文正文依 IPA 授权改打包名，字形选择不变。原始 IPA 恢复选择仅将中文正文位置换为本机 IPAexGothic。
-- CJK 共 **9,691,652 B**，定义 CSS 随中日字典加载，切片按需请求、不内联进英文 CSS。原生无库 Home 冷启动实测字体：英文 **67,892 B**（不请求 CJK 定义或字体）、中文 **474,908 B**、日文 **313,536 B**，均包含拉丁字体。完整边界见 [W4 验证](docs/validation/UI-v2-W4-fonts-2026-10-27.md)。
+- CJK 当前共 **9,691,824 B**（2026-10-29 字典更新；W4 时为 9,691,652 B），定义 CSS 随中日字典加载，切片按需请求、不内联进英文 CSS。W4 的原生无库 Home 冷启动实测字体：英文 **67,892 B**（不请求 CJK 定义或字体）、中文 **474,908 B**、日文 **313,536 B**，均包含拉丁字体；这是当时子集的实测值，不视为本次更新后的流量。完整边界见 [W4 验证](docs/validation/UI-v2-W4-fonts-2026-10-27.md)。
 
 - 合计 67,892 B（预算 ≤ 150 KB）。CSP `font-src 'self'` 不变。字体说明在 `apps/desktop/src/assets/fonts/README.md`。
 - Martian 宽度三档：`--w-sm: 75%`（小标签、行内读数）、`--w-nav: 87.5%`（导航、注记时刻）、`--w-display: 112.5%`（首页时刻、页标题）。

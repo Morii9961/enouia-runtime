@@ -199,7 +199,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
         {notice && <p role="status" className="mem-note mem-pad">{notice}</p>}
         <ErrorBox error={read.error} />
         {read.busy && <p role="status" className="mem-muted mem-pad">{t("Reading memories…")}</p>}
-        {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? "Nothing matches this search." : "No approved memories here yet."}</div>}
+        {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? t("Nothing matches this search.") : t("No approved memories here yet.")}</div>}
         <div onKeyDown={move}>
           {days.map((d, i) => (
             <div key={`${i}:${d.label}`}>

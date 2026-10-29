@@ -101,7 +101,7 @@ export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode })
           <Paper days={false} />
         </div>
       )}
-      {stopped ? <div className="tm tm-stopped" role="img" aria-label={'No strip loaded: ' + why}><span className="bg-inv" aria-hidden="true">No strip loaded · {why}</span></div> : null}
+      {stopped ? <div className="tm tm-stopped" role="img" aria-label={t('No strip loaded: {why}', { why })}><span className="bg-inv" aria-hidden="true">{t('No strip loaded · {why}', { why })}</span></div> : null}
     </div>
   );
 }

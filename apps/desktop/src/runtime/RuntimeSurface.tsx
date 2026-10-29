@@ -59,7 +59,7 @@ function ReadStatus({ busy, error, observedAt, refresh, label }: {
         returnFocus.current = document.activeElement === button.current;
         void refresh();
       }}>{t("Read {what} again", { what: label })}</button>
-      <span role="status" className="mem-muted">{busy ? `Reading ${label}…` : error ? "Status unavailable" : observedAt ? `Observed ${when(observedAt)}` : "Status unknown"}</span>
+      <span role="status" className="mem-muted">{busy ? t("Reading {what}…", { what: label }) : error ? t("Status unavailable") : observedAt ? t("Observed {when}", { when: when(observedAt) }) : t("Status unknown")}</span>
     </div>
     {error && <p role="alert" className="mem-error">{error}</p>}
   </>;
@@ -74,7 +74,7 @@ export default function RuntimeSurface() {
     <aside className="qr191">
       <div className="qr20"><h1 className="qr18">{t("Runtime")}</h1><div className="qr101">{t("Observed component status")}</div></div>
       <p className="mem-muted">{t("Memory and the Windows shell keep their own status. Each observation describes its own component.")}</p>
-      <p className="mem-muted">Memory refreshes every few seconds. The shell shows its last explicit read; read it again after a change.</p>
+      <p className="mem-muted">{t("Memory refreshes every few seconds. The shell shows its last explicit read; read it again after a change.")}</p>
     </aside>
     <div className="qr209"><div className="qr208">
       <section className="mem-stack" aria-labelledby="runtime-memory-title">
