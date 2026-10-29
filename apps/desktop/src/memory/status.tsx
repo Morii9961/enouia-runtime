@@ -7,7 +7,7 @@ import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
-import { labels, msg, t, tn } from '../i18n/index.ts';
+import { labels, msg, t, tj, tn } from '../i18n/index.ts';
 const ProviderConfigDraft = lazy(() => import("./ProviderConfigDraft").then(module => ({ default: module.ProviderConfigDraft })));
 const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").then(module => ({ default: module.ProviderSettingsStatus })));
 
@@ -103,7 +103,7 @@ export function VaultConnect() {
   return (
     <div className="mem-card">
       <VaultAdmissionNotice />
-      <h2 ref={heading} tabIndex={-1} className="mem-h2">{v.state === "locked" ? `Vault locked · ${v.rootName}` : "No Vault open"}</h2>
+      <h2 ref={heading} tabIndex={-1} className="mem-h2">{v.state === "locked" ? `${t("Vault locked")} · ${v.rootName}` : t("No Vault open")}</h2>
       <p className="mem-muted">
         {t("Memory opens only a folder you choose here. Nothing is remembered between runs, and no default location is created.")}
       </p>
@@ -117,7 +117,7 @@ export function VaultConnect() {
         </button>
       </div>
       <label className="mem-label" htmlFor="mem-create-phrase">
-        New Vault in an empty folder. Type <code>create new vault</code> to confirm.
+        {tj("New Vault in an empty folder. Type {phrase} to confirm.", { phrase: <code lang="en">create new vault</code> })}
       </label>
       <div className="mem-actions">
         <input id="mem-create-phrase" className="mem-input" value={phrase} onChange={(e) => setPhrase(e.target.value)} autoComplete="off" spellCheck={false} />

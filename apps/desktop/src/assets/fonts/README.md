@@ -33,16 +33,16 @@ The Sarasa licence reserves **Source**, which our primary family names do not
 use; the supplied M PLUS and Zen licences declare no Reserved Font Name.
 The dictionary subsets retain their selected family names; none is sold alone.
 
-## Generated CJK package (2026-10-27)
+## Generated CJK package (updated 2026-10-29)
 
 | Family / source | Scope | WOFF2 files | Bytes |
 | --- | --- | ---: | ---: |
 | Sarasa Mono SC v1.0.43 | dictionary CJK; Light 300, Regular 400–500, SemiBold 600 | 3 | 453,100 |
-| M PLUS 1 Code 1.100 | dictionary CJK; variable 300–600 | 1 | 157,668 |
+| M PLUS 1 Code 1.100 | dictionary CJK; variable 300–600 | 1 | 158,120 |
 | Enouia Text SC, derived from LXGW Neo XiHei release v1.308 | all 27,687 mapped characters and original UVS; 400 | 100 | 3,986,136 |
-| Zen Kaku Gothic New 1.002 | all 7,737 mapped characters per weight; 300/400/500/700 | 400 | 5,094,748 |
+| Zen Kaku Gothic New 1.002 | all 7,737 mapped characters per weight; 300/400/500/700 | 400 | 5,094,468 |
 
-CJK total: **9,691,652 bytes**. Fonts use `font-display: swap`; body fonts have
+CJK total: **9,691,824 bytes** after the native-copy dictionary update (1,437 keys per language). Fonts use `font-display: swap`; body fonts have
 one interface-character slice and 99 remaining Unicode slices per weight.
 Original hinting, layout features, copyright and licence metadata are retained.
 The label dictionaries are `zh-Hans.ts` and `ja.ts`; characters outside their

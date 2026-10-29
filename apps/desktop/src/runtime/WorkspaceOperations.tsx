@@ -32,13 +32,13 @@ export function WorkspaceOperations({ request = call }: { request?: typeof call 
   const items = [...(page?.items ?? [])].sort((a, b) => Number(active(b)) - Number(active(a)) || a.operationId.localeCompare(b.operationId));
   return <section className="mem-stack" aria-label={t("Memory operations")}>
     <h2 className="qr194">{t("Memory operations")}</h2>
-    <p className="mem-muted">Operations retained for this currently open Vault in this Runtime process. Closing the Vault clears this list; it is not a durable task history.</p>
+    <p className="mem-muted">{t("Operations retained for this currently open Vault in this Runtime process. Closing the Vault clears this list; it is not a durable task history.")}</p>
     <button type="button" className="mem-button" aria-disabled={list.busy} onClick={refresh}>{t("Read Memory operations again")}</button>
     <ErrorBox error={list.error} />
     {list.busy && <p className="mem-muted" role="status">{t("Reading Memory operations…")}</p>}
     {!page && !list.busy && !list.error && <p className="mem-muted" role="status">{t("Operations have not been observed.")}</p>}
     {page && !list.busy && !list.error && <>
-      <p className="mem-muted">List observed {when(page.readAt)} · showing {Math.min(limit, items.length)} of {items.length}</p>
+      <p className="mem-muted">{t("List observed {when} · showing {shown} of {total}", { when: when(page.readAt), shown: Math.min(limit, items.length), total: items.length })}</p>
       {items.length === 0 && <p className="mem-muted">{t("No operations in the current list.")}</p>}
       <ul className="mem-list">{items.slice(0, limit).map(item => <li key={item.operationId}>
         <button type="button" className="mem-link" aria-label={t('Inspect operation {id}', { id: item.operationId })} aria-pressed={selected?.id === item.operationId}
@@ -81,7 +81,7 @@ function OperationRead({ operationId, kind, request }: { operationId: string; ki
     {read.busy && <p role="status" className="mem-muted">{t("Reading operation progress…")}</p>}
     {operation && <>
       <p role="status">{STATES[operation.state]} · {t("reported progress {n}", { n: count(operation.progress.done) })}{operation.progress.total == null ? " · " + t("total unknown") : " / " + count(operation.progress.total)}</p>
-      <p className="mem-muted">Progress observed {when(observation.readAt)}. Execution state does not establish a clean verification, a saved backup, a completed model answer or an approved memory; inspect the result in its owning Memory or Sessions flow.</p>
+      <p className="mem-muted">{t("Progress observed {when}. Execution state does not establish a clean verification, a saved backup, a completed model answer or an approved memory; inspect the result in its owning Memory or Sessions flow.", { when: when(observation.readAt) })}</p>
       {operation.cancelRequested && <p className="mem-muted">{t("Local cancellation was requested. This does not establish completion or remote cancellation.")}</p>}
     </>}
   </section>;

@@ -196,7 +196,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
       <div className="qr45" aria-label={t("Session transcript")} aria-busy={busy}>
         <div className="qr31">
           <div className="mem-session-heading">
-            <h2 ref={sessionHeading} className="qr29" tabIndex={-1} title={current?.sessionId}>{current ? `Session ${shortId(current.sessionId)}` : "Choose a session"}</h2>
+            <h2 ref={sessionHeading} className="qr29" tabIndex={-1} title={current?.sessionId}>{current ? t("Session {id}", { id: shortId(current.sessionId) }) : t("Choose a session")}</h2>
             {current && <div className="mem-muted mem-mono" title={current.branchId}>Branch {shortId(current.branchId)}</div>}
           </div>
           {detail && <div className="qr19">last saved event {detail.lastSavedEventId ? shortId(detail.lastSavedEventId) : "none"}</div>}
