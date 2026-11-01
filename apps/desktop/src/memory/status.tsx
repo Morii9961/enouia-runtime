@@ -6,17 +6,30 @@ import { call, pick, shell, type J } from "./client";
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
+import NativeHome from './NativeHome';
+import { nativeHomeSpec } from '../theme/nativeTime';
+import type { MapSpec } from '../theme/TimeMap';
 
 import { labels, msg, t, tj, tn } from '../i18n/index.ts';
 const ProviderConfigDraft = lazy(() => import("./ProviderConfigDraft").then(module => ({ default: module.ProviderConfigDraft })));
 const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").then(module => ({ default: module.ProviderSettingsStatus })));
 
-type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void> };
+type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void>; now: number; timeline: MapSpec };
 const StatusContext = createContext<StatusValue | null>(null);
 
 export function MemoryStatusProvider({ children }: { children: ReactNode }) {
   const value = useMemoryStatus();
-  return <StatusContext.Provider value={value}>{children}</StatusContext.Provider>;
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(timer);
+  }, []);
+  // Separate view keys prevent an old Vault's time window from leaking across
+  // lock, status loss, host transition or opening another Vault.
+  const scope = !value.vaultChanging && !exiting(value.status) && value.status?.vault?.state === 'open'
+    ? value.status.vault.vaultId ?? value.status.vault.rootName : 'unavailable';
+  const timeline = nativeHomeSpec(now, scope);
+  return <StatusContext.Provider value={{ ...value, now, timeline }}>{children}</StatusContext.Provider>;
 }
 
 export function useStatus(): StatusValue {
@@ -183,8 +196,8 @@ export function VaultLifecycleWait() {
 }
 
 /** Home in the native shell: real Memory status and plain routes. */
-export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
-  const { status, vaultChanging } = useStatus();
+export function ConnectedHome({ nav }: { nav: J; ring: ReactNode }) {
+  const { status, vaultChanging, now, timeline } = useStatus();
   const v = status?.vault;
   const stopping = exiting(status);
   const open = v?.state === "open" && !vaultChanging && !stopping;
@@ -204,49 +217,9 @@ export function ConnectedHome({ nav, ring }: { nav: J; ring: ReactNode }) {
           : pending
             ? tn(pending, "{n} candidate waiting for your review", "{n} candidates waiting for your review")
             : t("Nothing waiting for review");
-  return (
-    <section data-screen-label="Home" className="qr17">
-      <div className="qr16">
-        <VaultAdmissionNotice />
-        <div className="qr8">
-          {ring}
-          <div className="qr7">
-            <div className="qr1">Enouia Runtime</div>
-            <h1 className="qr2" lang="en">I'm here.</h1>
-            <div className="qr6">
-              <span className="qr3" style={{ background: open ? "var(--ok)" : "var(--pending)" }} />
-              <span>{vaultLabel(status, vaultChanging)}{v?.rootName ? ` · ${v.rootName}` : ""}</span>
-              <span className="qr4">·</span>
-              <span>{t("Local Mock responses")}</span>
-            </div>
-          </div>
-        </div>
-        <div className="qr13">
-          <button onClick={nav.memory.go} className="qr12" type="button">
-            <span className="qr9">{t("Memory Vault")}</span>
-            <span className="qr10">{reviewLine}</span>
-            <span className="qr11">{stopping ? "exiting" : vaultChanging ? "waiting" : open ? `#${v.headSequence}` : v?.state ?? "—"}</span>
-          </button>
-          <button onClick={nav.sessions.go} className="qr12" type="button">
-            <span className="qr9">{t("Sessions")}</span>
-            <span className="qr10">{t("Use the local Mock, or inspect and authorize an external model request")}</span>
-            <span className="qr11">{t("open")}</span>
-          </button>
-          <button onClick={nav.context.go} className="qr12" type="button">
-            <span className="qr9">{t("Context")}</span>
-            <span className="qr10">{t("Preview what a question would carry, and why")}</span>
-            <span className="qr11">{t("inspect")}</span>
-          </button>
-        </div>
-        {open && (
-          <div className="qr15">
-            <div className="qr9">{t("Last commit")}</div>
-            <div className="qr14">{when(v.lastCommitAt)}</div>
-          </div>
-        )}
-      </div>
-    </section>
-  );
+  return <NativeHome nav={nav} timeline={timeline} now={now} open={open} vault={v}
+    label={vaultLabel(status, vaultChanging)} reviewLine={reviewLine}
+    phase={stopping ? "exiting" : vaultChanging ? "waiting" : open ? `#${v.headSequence}` : v?.state ?? "—"} />;
 }
 
 function Row({ k, children }: { k: string; children: ReactNode }) {

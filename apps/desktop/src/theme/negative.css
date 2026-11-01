@@ -129,6 +129,21 @@
 .qr15.bg-margin{gap:2px;padding:8px 0 0;border:0;border-top:1px solid var(--grid-major)}
 .bg-margin .qr9{color:var(--ink)}
 
+/* Native Home keeps the selected composition without inventing missing events. */
+.qr17.bg-native-home{grid-template-rows:auto minmax(320px,1fr) auto;overflow:auto}
+.bg-native-home .bg-readout{min-width:0;max-width:75%}
+.bg-native-home .bg-home-sub{min-width:0;overflow-wrap:anywhere}
+.bg-native-home .bg-here{right:3%}
+.bg-native-home .bg-pane{background-image:none}
+.bg-native-trace-note{position:absolute;left:16px;right:16px;top:68%;margin:0;font-size:13px;line-height:20px;color:var(--ink-2)}
+.bg-native-home .bg-paper[data-unavailable] .bg-pane{background-image:repeating-linear-gradient(135deg,var(--grid-minor) 0 1px,transparent 1px 7px)}
+.bg-native-home .bg-notes{display:grid;grid-template-rows:repeat(4,minmax(min-content,1fr));gap:8px;padding:12px 0;overflow:auto}
+.bg-native-home .bg-notes .bg-note{position:relative;align-content:start;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"time label id" "line line line";min-width:0}
+.bg-native-home .bg-note .qr9{white-space:normal;overflow-wrap:anywhere}
+.bg-native-home .bg-note .qr10{white-space:normal;overflow-wrap:anywhere}
+.bg-native-home .bg-paper[data-by="map"] .bg-native-leader{animation:nativeLeaderIn 360ms step-end both}
+@keyframes nativeLeaderIn{from{opacity:0}to{opacity:1}}
+
 /* ---- the enlarged insert: four crop corners round the Inspector, as on a film frame (05) ---- */
 .qr88{position:relative}
 .qr88::after,.am-body::after{content:"";position:absolute;pointer-events:none;z-index:3;
@@ -257,5 +272,5 @@
 /* minimum window: the strip stays, the meta line yields first */
 @media (max-width:1240px){.bg-strip-meta{font-size:12px}.bg-nav-item{padding:0 7px}.bg-notes .qr12.bg-note{column-gap:8px}.tm-read{padding:0 8px}}
 @media (max-height:760px){:root{--strip-chart:40px}}
-@media (prefers-reduced-motion:reduce){.bg-pen,.bg-trace-clip,.bg-draw,.bg-pan,.tm-frame{animation:none !important;transition:none !important}}
-[data-motion="reduced"] .bg-pen,[data-motion="reduced"] .bg-trace-clip,[data-motion="reduced"] .bg-draw,[data-motion="reduced"] .bg-pan,[data-motion="reduced"] .tm-frame,[data-motion="reduced"] .bg-here{animation:none !important;transition:none !important}
+@media (prefers-reduced-motion:reduce){.bg-pen,.bg-trace-clip,.bg-draw,.bg-pan,.tm-frame,.bg-native-leader{animation:none !important;transition:none !important}}
+[data-motion="reduced"] .bg-pen,[data-motion="reduced"] .bg-trace-clip,[data-motion="reduced"] .bg-draw,[data-motion="reduced"] .bg-pan,[data-motion="reduced"] .tm-frame,[data-motion="reduced"] .bg-here,[data-motion="reduced"] .bg-native-leader{animation:none !important;transition:none !important}

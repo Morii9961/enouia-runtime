@@ -34,7 +34,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 | # | 表面 | `data-screen-label` | 浏览器演示 | 原生 | 截图 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Home / Presence | `Home` | 已做 | 部分（原生 ConnectedHome 走同样的类名，未截图） | `dark-home-1440` `dark-home-1100` `light-home-1440` |
+| 1 | Home / Presence | `Home` | 已做 | 部分（2026-11-01 恢复大时刻、记录纸、四注记和日历小地图；仅标示真实最新 Vault 提交，见验证记录） | `dark-home-1440` `dark-home-1100` `light-home-1440` |
 | 2 | Memory Vault | `Memory Vault` | 已做 | 部分（`src/memory/MemorySurface.tsx` 只换了皮，未截图） | `dark-memory-1440` `dark-memory-1100` `dark-memory-candidate-1440` `light-memory-1440` |
 | 3 | Context Surface | `Context Surface` | 已做 | 部分（同上） | `dark-context-1440` |
 | 4 | Sessions | `Sessions` | 已做 | 部分（同上） | `dark-sessions-1440` `light-sessions-1440` |
@@ -48,6 +48,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - 底部：一行图例；右侧「LEFT OPEN LAST TIME」两行。
 - 时间小地图：整三周，取景框 = 主图显示的 4 天；平移时引线淡出，停稳再出现。
 - 状态：Vault 未连接时注记写「Vault adapter not connected」（演示）；锁定见 §1.8。
+
+原生落地（2026-11-01）：设备时钟明确标 UTC+8；纸面/日历只绘制已观察的最新 Vault 提交标记与一条引线，没有连续波形。其余注记是读取入口，不声明已知最近会话、Capsule 或检查点。无库、锁库、切库、退出、读取失败时仍保留首页结构，撤下提交和交互地图。[证据与未完成项](../../validation/UI-v2-native-home-2026-11-01.md)。
 
 ### 1.2 Memory Vault（演示：owner 审阅语义）
 
