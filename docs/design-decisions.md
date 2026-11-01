@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-11-01 · 原生 Inspector 按组件选择，观察 owner 不随选择重建
+
+- 决定：左侧提供 Memory Core / Memory operations / Windows shell 三个组件入口，右侧保留各组件既有观察与显式读取。顶部只汇总现有回执，不复制浏览器演示中的虚构健康、验证或缺口状态。
+- 所有权：选择只改变可见面板，三个观察 owner 保持挂载；不会丢失选中操作、重启轮询或重复请求。Vault 生命周期仍按原规则卸载 Vault 依赖操作。无 Vault 时操作面板明确显示不可用。
+- 影响：原生 Runtime Inspector 的信息层级与布局；不改变后端、IPC、读取范围或 Activity 退休边界。
+- 依据：选定 UI v2 左侧组件选择/右侧状态结构、当前 `RuntimeSurface` 与 `WorkspaceOperations` 观察语义。
+- 状态：定稿
+
 ## 2026-11-01 · 原生 Sessions 使用已保存事件的时间尺
 
 - 决定：沿用每分钟 2px、最多 48px 的间隔；不排序、不补造事件时间。左侧时间尺使用 UTC+8，语义 time/title 保留原始 ISO 值。检查点事件仅画自己的括号，不推断未获证明的覆盖范围。

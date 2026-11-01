@@ -143,6 +143,9 @@
 .bg-native-home .bg-note .qr10{white-space:normal;overflow-wrap:anywhere}
 .bg-native-home .bg-paper[data-by="map"] .bg-native-leader{animation:nativeLeaderIn 360ms step-end both}
 @keyframes nativeLeaderIn{from{opacity:0}to{opacity:1}}
+.runtime-panel[hidden]{display:none}
+.runtime-observation-summary .qr192{min-width:0;overflow-wrap:anywhere}
+.runtime-observation-summary .qr61{white-space:normal}
 
 /* ---- the enlarged insert: four crop corners round the Inspector, as on a film frame (05) ---- */
 .qr88{position:relative}

@@ -76,6 +76,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - 原生：「Observed component status」——Memory Core（Vault、最新提交、运行中的操作、待审候选、组件健康）、Memory 操作列表与详情、Windows shell（生命周期、托盘、Quick Search 热键、主窗口）。每块有「Read … again」，失败时清掉旧观察。没有 Activity 一节。
 - 原生 Memory 里另有 main 带来的视图，外观只继承 `.mem-*` 换皮、还没有专门设计：历史任务（计划、批次、结果、比较、简报）、Provider 配置草稿与设置状态、导入报告、「Synthetic automatic memories」集合。它们归入 §3 的「形成」「召回」工作区一起设计。
 
+2026-11-01：原生 Inspector 已恢复左侧三组件选择、顶部观察摘要和右侧详情；切换保持观察 owner 与待返回请求。内容仍来自原有显式观察，不抄录演示的虚构验证状态。[验证记录](../../validation/UI-v2-native-inspector-2026-11-01.md)。
+
 ### 1.6 Settings
 
 - APPEARANCE：Motion（Follow system / Reduced）；Theme（陈述句「Tile Blue when the system is dark, Xuan Paper when it is light.」+「NEGATIVE」）。

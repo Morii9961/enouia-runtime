@@ -54,6 +54,11 @@ function click(control: HTMLButtonElement | undefined | null) { if (!control || 
 async function refreshList() { click(button("Read Memory operations again")); await sleep(25); }
 try {
   await wait(() => releaseList != null && !!list());
+  check("component_panels_keep_only_core_visible_initially", !fixture.querySelector<HTMLElement>('#runtime-memory-panel')!.hidden && fixture.querySelector<HTMLElement>('#runtime-operations-panel')!.hidden && fixture.querySelector<HTMLElement>('#runtime-shell-panel')!.hidden);
+  const choose = (key: string) => { const control = fixture.querySelector<HTMLButtonElement>(`button[aria-controls="runtime-${key}-panel"]`)!; control.focus(); control.click(); };
+  const beforeSelection = calls.length;
+  choose('operations'); await sleep(20);
+  check("component_selection_is_local_and_accessible", !fixture.querySelector<HTMLElement>('#runtime-operations-panel')!.hidden && fixture.querySelector<HTMLElement>('#runtime-memory-panel')!.hidden && fixture.querySelector('button[aria-controls="runtime-operations-panel"]')?.getAttribute('aria-pressed') === 'true' && calls.length === beforeSelection);
   check("unobserved_list_does_not_claim_empty", text().includes("Reading Memory operations") && !text().includes("No operations"));
   releaseListRead(); await wait(() => choices().length === 20);
   check("list_is_bounded_and_active_tasks_come_first", text().includes("showing 20 of 26") && choices()[0].getAttribute("aria-label") === "Inspect operation operation-active");
@@ -63,6 +68,11 @@ try {
   holdGet = true; click(inspect("operation-active")); await wait(() => releaseGet != null);
   check("selected_progress_waits_for_its_own_observation", detail()!.textContent!.includes("Reading operation progress") && !detail()!.textContent!.includes("reported progress"));
   const gets = calls.filter(c => c.command === "operation_get").length;
+  const pendingDetail = detail();
+  choose('shell'); await sleep(20);
+  check("switching_component_hides_without_unmounting_pending_owner", fixture.querySelector<HTMLElement>('#runtime-operations-panel')!.hidden && !fixture.querySelector<HTMLElement>('#runtime-shell-panel')!.hidden && detail() === pendingDetail && calls.filter(c => c.command === 'operation_get').length === gets);
+  choose('operations'); await sleep(20);
+  check("returning_component_retains_selection_and_local_paging", detail() === pendingDetail && choices().length === 26 && calls.filter(c => c.command === 'operation_get').length === gets);
   click(button("Read operation progress again")); await sleep(20);
   check("held_progress_read_is_not_duplicated", calls.filter(c => c.command === "operation_get").length === gets);
   releaseOperationRead(); await wait(() => detail()!.textContent!.includes("Running · reported progress 1 / 10"));

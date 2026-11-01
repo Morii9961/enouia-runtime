@@ -15,14 +15,14 @@ import '../src/theme/cjk-fonts.css';
 const params = new URLSearchParams(location.search);
 document.documentElement.dataset.theme = params.get('theme') === 'light' ? 'light' : 'dark';
 const state = params.get('state') ?? 'open';
-const page = params.get('page') === 'sessions' ? 'sessions' : 'home';
+const page = params.get('page') === 'sessions' ? 'sessions' : params.get('page') === 'runtime' ? 'runtime' : 'home';
 const transcript = params.get('transcript') ?? 'known';
 setTransport(async (command, args) => {
-  if (command === 'shell_status') return { vaultChanging: state === 'changing' };
+  if (command === 'shell_status') return { vaultChanging: state === 'changing', closing: state === 'exiting', locking: false, tray: 'present', visible: true, hotkey: { state: 'conflict', combo: 'Ctrl+Alt+M' } };
   if (command === 'memory_provider_setup') return { state: 'absent' };
   if (command !== 'memory_call') throw new Error('visual_fixture_read_only');
   const request = args.request as { command: string; arguments: { sessionId: string; branchId: string } };
-  if (request.command === 'operation_list') return { kind: 'memory_page', result: { items: [] } };
+  if (request.command === 'operation_list') return { kind: 'memory_page', result: { items: [{ operationId: 'fictional-verify', kind: 'vault_verify', state: 'succeeded', progress: { done: 12, total: 12 }, cancelRequested: false }] } };
   if (request.command === 'provider_status') return { kind: 'memory_page', result: { configured: false, destinations: [], grants: [] } };
   if (request.command === 'session_list') return { kind: 'memory_page', result: { items: ['one', 'two'].map(name => ({ sessionId: `fictional-session-${name}`, updatedAt: '2026-11-01T05:00:00Z', branches: [{ branchId: `fictional-branch-${name}`, lastEventSeq: 24 }] })) } };
   if (request.command === 'session_detail') {
@@ -36,7 +36,7 @@ setTransport(async (command, args) => {
   }
   if (request.command !== 'workspace_status') throw new Error('visual_fixture_read_only');
   if (state === 'error') return { kind: 'memory_error', error: { code: 'storage_failed', retryable: false, rules: [] } };
-  return { kind: 'memory_page', result: { vault: { state: state === 'changing' ? 'open' : state, vaultId: 'fictional-preview', rootName: 'Fictional Vault · not a personal library', headSequence: 7, lastCommitAt: new Date(Date.now() - 3_600_000).toISOString() }, pendingCandidates: 2, companion: { exiting: state === 'exiting' } } };
+  return { kind: 'memory_page', result: { vault: { state: state === 'changing' ? 'open' : state, vaultId: 'fictional-preview', rootName: 'Fictional Vault · not a personal library', headSequence: 7, lastCommitAt: new Date(Date.now() - 3_600_000).toISOString() }, pendingCandidates: 2, operationsRunning: 0, components: [{ component: 'memory_index', state: 'healthy', mode: 'local' }], companion: { exiting: state === 'exiting' } } };
 });
 await ready();
 createRoot(document.getElementById('fixture')!).render(<>

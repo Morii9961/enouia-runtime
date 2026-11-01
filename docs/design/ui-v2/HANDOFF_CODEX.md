@@ -19,6 +19,8 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 
 2026-11-01 Sessions 续作：时间尺、按已保存事件时间的间距、检查点事件标记及选中转录地图已实现；不补造时间或覆盖范围，读取失败撤下地图。见[本片验证](../../validation/UI-v2-native-sessions-2026-11-01.md)。Inspector 与 Memory/Context 其余结构仍未标为完成。
 
+2026-11-01 Inspector 续作：已移植左侧组件选择/右侧详情与顶部观察摘要，原有观察 owner 在面板切换时保持。见[本片验证](../../validation/UI-v2-native-inspector-2026-11-01.md)。Memory/Context 的结构与字段缺口仍保留。
+
 ## 2. 这一轮做进去的东西（按提交）
 
 | 提交 | 内容 |

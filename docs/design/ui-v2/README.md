@@ -29,10 +29,10 @@
 | `apps/desktop/src/theme/automemory.css` | 自动记忆合成预览 |
 | `apps/desktop/src/memory/memory.css`、`shell/quick-search.css` | 原生 Memory 表面与 Quick Search 的旧样式（由上面几份覆盖） |
 | `apps/desktop/src/theme/negative-fonts.css`、`assets/fonts/` | Martian Mono + Geist，自托管，授权说明在 `assets/fonts/README.md` |
-| `apps/desktop/src/theme/RecordStrip.tsx`、`TimeMap.tsx`、`chart.ts`、`timeview.ts`、`mapSpecs.ts` | 记录带、笔迹、时间小地图与平移状态（只在浏览器演示画迹线；原生是空白带） |
+| `apps/desktop/src/theme/RecordStrip.tsx`、`TimeMap.tsx`、`chart.ts`、`timeview.ts`、`mapSpecs.ts` | 记录带、笔迹、时间小地图与平移状态（浏览器画虚构迹线；原生标示最新 Vault 提交及已读取会话的时间地图） |
 | `apps/desktop/src/screens/*.tsx` | 六个表面的浏览器演示 |
 | `apps/desktop/src/screens/automemory/*` | 合成预览（`fixture.ts` 是 15 条虚构记忆；预览懒加载） |
-| `apps/desktop/src/memory/*`、`src/shell/*` | 原生路径（真实 Memory pin）；这一轮只换皮，不改逻辑 |
+| `apps/desktop/src/memory/*`、`src/shell/*` | 原生路径（固定 Memory pin）；沿用领域契约，呈现实际回执与生命周期 |
 
 ## 不能动的契约
 
