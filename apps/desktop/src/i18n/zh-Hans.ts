@@ -1439,5 +1439,9 @@ const dict: Record<string, string> = {
   "Read saved conversations in Sessions": "在会话中读取已保存的对话",
   "Read saved checkpoints in Sessions": "在会话中读取已保存的检查点",
   "Latest Vault commit only; continuous trace unavailable": "仅标示记忆库最新提交；尚无连续迹线数据",
+  "Time map of loaded session events": "已读取会话事件的时间地图",
+  "Saved event spacing · 2 px per minute, capped at 48 px · UTC+8": "已保存事件间距 · 每分钟 2px，最多 48px · UTC+8",
+  "A time map needs known event times in recorded order. The transcript stays in its saved order.": "事件时间完整且按记录顺序向前时，才能显示时间地图。转录保持原有顺序。",
+  "Time map unavailable · select a saved session with known event times": "时间地图不可用 · 请选择事件时间已知的已保存会话",
 };
 export default dict;

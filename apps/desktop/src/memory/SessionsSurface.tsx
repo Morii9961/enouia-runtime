@@ -9,7 +9,7 @@ import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate, useStatus } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
-import { SessionEventBody, SessionEventMetadata } from "./SessionEventBody";
+import SessionTranscript from './SessionTranscript';
 import { ExternalPanel } from "./ExternalPanel";
 import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
 import { SavedExtractionJobs } from "./SavedExtractionJobs";
@@ -62,6 +62,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
   const questionInput = useRef<HTMLTextAreaElement>(null);
   const idFilterInput = useRef<HTMLInputElement>(null);
   const checkpointInput = useRef<HTMLInputElement>(null);
+  const transcriptScroller = useRef<HTMLDivElement>(null);
   const focusAfterWrite = useRef<{ target: "question" | "checkpoint"; trigger: Element | null } | null>(null);
   // Reads disable their controls, which can blur them to the document.
   // Return to the control that started the read once reads settle.
@@ -206,7 +207,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
             {detailRead.error ? t("Read session again") : t("Refresh saved session")}
           </button>}
         </div>
-        <div className="qr44">
+        <div className="qr44" ref={transcriptScroller}>
           <ErrorBox error={detailRead.error} />
           {detailRead.error && requested && <p className="mem-muted mem-pad" role="status">
             {t("Session {id} has not been read.", { id: shortId(requested.sessionId) })} {detail ? t("The displayed transcript is from the previous successful read.") : t("Its transcript is still unknown.")} {t("Read it again before starting another session write. Unsent drafts are kept.")}
@@ -216,14 +217,8 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
           {detail && current && (
             <div className="mem-pad mem-stack">
               {detail.transcript.length >= 200 && <p id="mem-transcript-bound" className="mem-muted" role="note">{t("Showing up to 200 most recent saved events from the latest successful read. Older events may be outside this view.")}</p>}
-              <ol className="mem-transcript" aria-describedby={detail.transcript.length >= 200 ? "mem-transcript-bound" : undefined}>
-                {detail.transcript.map((e: J) => (
-                  <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
-                    <span className="mem-muted mem-mono"><SessionEventMetadata kind={e.kind} deliveryState={e.deliveryState} occurredAt={e.occurredAt} /></span>
-                    {e.text != null && <SessionEventBody kind={e.kind} text={e.text} context={{ ...current, disabled: writesBlocked, inspect, request }} />}
-                  </li>
-                ))}
-              </ol>
+              <SessionTranscript key={branchKey(current)} detail={detail} branch={current} disabled={writesBlocked}
+                mapUnavailable={detailRead.busy || !!detailRead.error} inspect={inspect} request={request} scroller={transcriptScroller} />
               {detail.turns.filter((t: J) => t.state !== "completed").map((t: J) => (
                 <p key={t.turnId} className="mem-warn">Turn {shortId(t.turnId)}: {t.state} (last persisted event {shortId(t.last_persisted_event_id ?? t.lastPersistedEventId)})</p>
               ))}

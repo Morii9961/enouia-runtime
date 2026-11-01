@@ -1439,5 +1439,9 @@ const dict: Record<string, string> = {
   "Read saved conversations in Sessions": "セッションで保存済みの会話を確認",
   "Read saved checkpoints in Sessions": "セッションで保存済みチェックポイントを確認",
   "Latest Vault commit only; continuous trace unavailable": "保管庫の最新コミットのみ表示。連続した軌跡データは未取得",
+  "Time map of loaded session events": "読み込み済みセッションイベントの時間マップ",
+  "Saved event spacing · 2 px per minute, capped at 48 px · UTC+8": "保存済みイベントの間隔 · 1 分 2px、上限 48px · UTC+8",
+  "A time map needs known event times in recorded order. The transcript stays in its saved order.": "時間マップには、すべてのイベントの時刻があり、記録順に時間が進む必要があります。会話記録は保存時の順序を保ちます。",
+  "Time map unavailable · select a saved session with known event times": "時間マップは利用できません · 時刻が記録された保存済みセッションを選択してください",
 };
 export default dict;

@@ -183,6 +183,17 @@
 .bg-gap{position:absolute;left:0;width:82px;top:0;height:var(--gap,0px);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;box-sizing:border-box;font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--ink-3);background:repeating-linear-gradient(to bottom,transparent 0 3px,var(--grid-major) 3px 4px) right 0 / 1px 100% no-repeat}
 .qr137{flex-wrap:wrap;row-gap:2px}
 .bg-ruler-note{margin-left:auto;font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
+
+/* Native events keep their saved order; only known adjacent times add space. */
+.mem-native-transcript{gap:12px}
+.mem-native-transcript>.mem-event{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;margin-top:var(--event-gap,0px);padding:0;border-left:0}
+.native-event-clock{position:relative;align-self:stretch;padding-right:12px;border-right:1px solid var(--grid-major);font-family:var(--f-mono);font-size:12px;line-height:20px;color:var(--ink-3);overflow-wrap:anywhere}
+.native-event-clock::after{content:"";position:absolute;right:-4px;top:9px;width:7px;height:2px;background:var(--ink)}
+.native-event-gap{position:absolute;top:calc(-1 * var(--event-gap));left:0;right:12px;font-size:12px;line-height:16px}
+.native-event-body{min-width:0;display:flex;flex-direction:column;gap:4px}
+.mem-native-transcript>[data-checkpoint] .native-event-clock{border-right:2px solid var(--ink)}
+.mem-native-transcript>[data-checkpoint] .native-event-clock::before{content:"";position:absolute;right:-6px;top:0;bottom:0;width:6px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.mem-native-transcript>[data-checkpoint] .native-event-body>.mem-mono{align-self:flex-start;background:var(--i-paper);color:var(--i-ink);padding:0 4px}
 .qr148[data-kind="candidate"] .qr36{background:transparent;border:1px solid var(--ink);box-sizing:border-box}
 .qr148 .qr36{width:4px;height:9px}
 .qr150{padding:0 6px;line-height:18px}

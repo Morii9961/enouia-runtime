@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { readSavedMockContext, type SavedMockReference } from "./savedMockContext";
 
 import { labels, msg, t } from '../i18n/index.ts';
+import { savedEventTime } from './sessionTime';
 const EVENT: Record<string, string> = labels({
   user_message: msg("User message"), assistant_chunk: msg("Assistant response part"), assistant_completed: msg("Assistant response"),
   tool_request: msg("Tool request"), tool_result: msg("Tool result"), turn_cancelled: msg("Turn cancelled"), turn_failed: msg("Turn failed"),
@@ -16,12 +17,11 @@ const DELIVERY: Record<string, string> = labels({
   not_applicable: msg("recorded"), partial: msg("partial"), completed: msg("complete"), interrupted: msg("interrupted"), failed: msg("failed"),
 });
 
-export function SessionEventMetadata({ kind, deliveryState, occurredAt }: { kind: unknown; deliveryState: unknown; occurredAt?: unknown }) {
+export function SessionEventMetadata({ kind, deliveryState, occurredAt, showTime = true }: { kind: unknown; deliveryState: unknown; occurredAt?: unknown; showTime?: boolean }) {
   const event = typeof kind === "string" && Object.hasOwn(EVENT, kind) ? EVENT[kind] : t("Recorded event");
   const delivery = typeof deliveryState === "string" && Object.hasOwn(DELIVERY, deliveryState) ? DELIVERY[deliveryState] : t("delivery unavailable");
-  const time = typeof occurredAt === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(occurredAt)
-    && !Number.isNaN(Date.parse(occurredAt)) ? occurredAt : null;
-  return <>{event} · {delivery} · {time ? <time dateTime={time} title={time}>{when(time)}</time> : t("time unavailable")}</>;
+  const time = savedEventTime(occurredAt) != null ? occurredAt as string : null;
+  return <>{event} · {delivery}{showTime && <> · {time ? <time dateTime={time} title={time}>{when(time)}</time> : t("time unavailable")}</>}</>;
 }
 
 const STATUS: Record<string, string> = labels({

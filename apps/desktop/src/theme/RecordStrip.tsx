@@ -88,6 +88,7 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
 /** Native strip: a real commit marker, never a fabricated continuous trace. */
 export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode }) {
   const { status, vaultChanging, timeline, now } = useStatus();
+  const lent = useLentMap();
   const state = status?.vault?.state;
   const stopped = (!status || exiting(status) || vaultChanging || state !== 'open');
   const why = t(!status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open');
@@ -109,7 +110,10 @@ export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode })
           </Paper>
         </div>
       )}
-      {stopped ? <div className="tm tm-stopped" role="img" aria-label={t('No strip loaded: {why}', { why })}><span className="bg-inv" aria-hidden="true">{t('No strip loaded · {why}', { why })}</span></div> : page === 'home' ? <TimeMap spec={spec} /> : null}
+      {stopped ? <div className="tm tm-stopped" role="img" aria-label={t('No strip loaded: {why}', { why })}><span className="bg-inv" aria-hidden="true">{t('No strip loaded · {why}', { why })}</span></div>
+        : page === 'home' ? <TimeMap spec={spec} />
+        : page === 'sessions' ? lent?.key.startsWith('native-session:') ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>{t('Time map unavailable · select a saved session with known event times')}</span></div>
+        : null}
     </div>
   );
 }
