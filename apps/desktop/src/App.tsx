@@ -357,10 +357,10 @@ export default class App extends React.Component<AppProps, AppState> {
     const sessionSpan: [string, string] | undefined = strSession ? [strSession.created, strSession.turns[strSession.turns.length - 1][2]] : undefined;
     const NAV_LABEL: Record<string, string> = { home: t('Home'), memory: t('Memory'), context: t('Context'), sessions: t('Sessions'), runtime: t('Runtime'), settings: t('Settings') };
     const navEl = (
-<nav aria-label={t("Primary")} onKeyDown={railKey} className="qr231 bg-nav">
+<nav data-runtime-nav="primary" aria-label={t("Primary")} onKeyDown={railKey} className="qr231 bg-nav">
 {this.PAGES.map((p, i) => <React.Fragment key={p}>
 {p === 'settings' ? <span className="bg-nav-gap" aria-hidden="true" /> : null}
-<button aria-label={NAV_LABEL[p]} aria-current={nav[p].cur} onClick={nav[p].go} className="qr230 bg-nav-item" type="button">
+<button data-runtime-page={p} aria-label={NAV_LABEL[p]} aria-current={nav[p].cur} onClick={nav[p].go} className="qr230 bg-nav-item" type="button">
 <span className="bg-nav-n" aria-hidden="true">{i + 1}</span>
 <span className="qr229">{NAV_LABEL[p]}</span>
 </button>

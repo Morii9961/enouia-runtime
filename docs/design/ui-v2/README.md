@@ -36,7 +36,7 @@
 
 ## 不能动的契约
 
-- 接口类名与属性：`.qr*`、`.mem-*`、`#quick-query`、`data-screen-label`、`nav[aria-label="Primary"]`、`role="switch"` 等都被测试、smoke 脚本或原生表面使用。只改外观，不改名。
+- 接口类名与属性：`.qr*`、`.mem-*`、`#quick-query`、`data-screen-label`、`nav[data-runtime-nav="primary"]` / `button[data-runtime-page]`（aria-label 继续本地化）、`role="switch"` 等都被测试、smoke 脚本或原生表面使用。只改外观，不改名。
 - 行为：浏览器演示的虚构标注（「Demo · local only」「Fictional」）、原生里 Memory/Context/Sessions 走 Memory 适配器、Quick Search 的独立窗口与权限、1100×700 最小窗口、CSP、键盘（Ctrl+1…6、↑↓）、减少动画（系统设置与 `data-motion="reduced"`）。
 - 三种状态分开（SCREENS.md 开头）：旧 pin 真实能力 / 合成预览 / 以后的受控采用。合成内容只在浏览器演示里出现，原生失败不得回退到演示。
 - Activity / Usage 界面已移除，不要加回；它的后端与原生命令暂留，前端不调用。

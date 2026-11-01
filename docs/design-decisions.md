@@ -16,6 +16,13 @@
 
 ---
 
+## 2026-11-01 · 主导航的稳定测试挂钩与本地化名称分开
+
+- 决定：新增 `data-runtime-nav="primary"` 和按钮的 `data-runtime-page`（六个固定页面键）。保留原有本地化 aria-label、aria-current 与键盘处理，不把可访问名称锁回英文。
+- 影响：共享主导航、原生 smoke 中两处英文导航选择器和文档；不改导航行为或原生代码。对应 OPEN_ISSUES #21。
+- 依据：W2 的中日导航可访问名称记录、当前 `App.tsx` 和 `memory-smoke.mjs`。
+- 状态：定稿
+
 ## 2026-11-01 · 原生 Inspector 按组件选择，观察 owner 不随选择重建
 
 - 决定：左侧提供 Memory Core / Memory operations / Windows shell 三个组件入口，右侧保留各组件既有观察与显式读取。顶部只汇总现有回执，不复制浏览器演示中的虚构健康、验证或缺口状态。

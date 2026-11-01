@@ -22,7 +22,7 @@
 | 部件 | 规格 | 状态 | 接口挂钩（不能改名） |
 | --- | --- | --- | --- |
 | 标题栏 34px | logo（笔迹 + 笔尖）· ENOUIA RUNTIME · 「Negative No. 40 · week of …」· 当前页名；右侧反相小牌「DEMO · LOCAL ONLY」（原生里写已连接状态）、最小化/最大化/关闭 | 已做 | `.qr227` `.qr222`；`data-tauri-drag-region` |
-| 记录带 80px | 头 34px：`<nav aria-label="Primary">` 6 个按钮（`1 HOME` … `6 SETTINGS`，Settings 前有分隔），当前项 `aria-current="page"` 反相；右侧周与 demo 时钟。图 46px：7 日列、笔迹、写入记号、笔尖 | 已做 | `nav[aria-label="Primary"]`；Ctrl+1…6；↑↓ 在导航内移动焦点 |
+| 记录带 80px | 头 34px：`<nav aria-label="Primary">` 6 个按钮（`1 HOME` … `6 SETTINGS`，Settings 前有分隔），当前项 `aria-current="page"` 反相；右侧周与 demo 时钟。图 46px：7 日列、笔迹、写入记号、笔尖 | 已做 | `nav[data-runtime-nav="primary"]` / `button[data-runtime-page]`；aria-label 本地化；Ctrl+1…6；↑↓ 在导航内移动焦点 |
 | 时间小地图 20px | 只在 Home、Sessions、自动记忆 Timeline；◂ / ▸ 按钮、可拖动取景框（`role="slider"`，← → / PageUp / PageDown / Home / End）、范围读数、NOW | 已做 | `theme/TimeMap.tsx`、`theme/timeview.ts`（平移状态不进 App state、不持久化） |
 | 跳到内容 | 第一个 Tab 停在「Skip to current surface」 | 已做 | `.runtime-skip-link` |
 | 焦点 | 2px 墨色实线 + 2px 底色外圈 | 已做 | 截图 `dark-focus-1440` |
