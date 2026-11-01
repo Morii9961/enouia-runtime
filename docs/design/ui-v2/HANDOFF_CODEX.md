@@ -21,6 +21,8 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 
 2026-11-01 Inspector 续作：已移植左侧组件选择/右侧详情与顶部观察摘要，原有观察 owner 在面板切换时保持。见[本片验证](../../validation/UI-v2-native-inspector-2026-11-01.md)。Memory/Context 的结构与字段缺口仍保留。
 
+2026-11-01 Context 续作：已恢复当前保存 Capsule 的分区导航、实际预算刻度和三栏结构，未补造完整索引或分类。见[本片验证](../../validation/UI-v2-native-context-2026-11-01.md)。Memory 的种类/项目/来源导航仍需对照可用契约，不能用当前一页数据冒充全库统计。
+
 ## 2. 这一轮做进去的东西（按提交）
 
 | 提交 | 内容 |

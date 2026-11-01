@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-11-01 · Context 只为当前已读取 Capsule 恢复分区与预算刻度
+
+- 决定：左侧导航只指向当前保存对象的预算、问题、纳入/排除和 dispatch 分区，数量取实际读取结果；不伪造全库 Capsule 列表、分类或计数。
+- 预算：依据已保存的 estimated_tokens / max_tokens 和 counting_method 画单段刻度，文字仍称原有 units；仅在已用值非负、上限为正且两者有限时画比例。超过上限只截断填充，不改写原数值；未知预算不画零或虚构分项。
+- 影响：原生 Context 三栏与当前对象导航、预算、表格滚动；不新增 IPC，不自动准备 preview，不改回执、请求哈希与 dispatch 所有权。
+- 依据：`SCREENS.md` §1.3、当前 `ContextSurface` 的保存字段及 Context 观察回归。
+- 状态：定稿（现有字段可表达部分；完整分类/历史列表待领域契约）
+
 ## 2026-11-01 · 主导航的稳定测试挂钩与本地化名称分开
 
 - 决定：新增 `data-runtime-nav="primary"` 和按钮的 `data-runtime-page`（六个固定页面键）。保留原有本地化 aria-label、aria-current 与键盘处理，不把可访问名称锁回英文。

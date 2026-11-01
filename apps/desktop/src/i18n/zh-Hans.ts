@@ -1443,5 +1443,12 @@ const dict: Record<string, string> = {
   "Saved event spacing · 2 px per minute, capped at 48 px · UTC+8": "已保存事件间距 · 每分钟 2px，最多 48px · UTC+8",
   "A time map needs known event times in recorded order. The transcript stays in its saved order.": "事件时间完整且按记录顺序向前时，才能显示时间地图。转录保持原有顺序。",
   "Time map unavailable · select a saved session with known event times": "时间地图不可用 · 请选择事件时间已知的已保存会话",
+  "Saved capsule": "已保存的胶囊",
+  "Budget": "预算",
+  "Included ({n})": "已纳入（{n}）",
+  "Excluded ({n})": "已排除（{n}）",
+  "No capsule selected.": "尚未选择胶囊。",
+  "Capsule unavailable. Read saved capsule again to inspect it.": "胶囊不可用。请重新读取已保存的胶囊以查看。",
+  "Reading capsule…": "正在读取胶囊…",
 };
 export default dict;

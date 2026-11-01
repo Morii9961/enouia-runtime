@@ -146,6 +146,11 @@
 .runtime-panel[hidden]{display:none}
 .runtime-observation-summary .qr192{min-width:0;overflow-wrap:anywhere}
 .runtime-observation-summary .qr61{white-space:normal}
+.mem-context.mem-context-indexed{grid-template-columns:180px minmax(0,1fr) minmax(320px,400px)}
+.mem-context-nav{min-width:0;overflow-wrap:anywhere}
+.mem-context-nav a.qr26{text-decoration:none;box-sizing:border-box;height:auto;min-height:36px;white-space:normal;overflow-wrap:anywhere}
+.mem-context-nav code{display:block;overflow-wrap:anywhere}
+.native-budget-fill{background:var(--ink)}
 
 /* ---- the enlarged insert: four crop corners round the Inspector, as on a film frame (05) ---- */
 .qr88{position:relative}
