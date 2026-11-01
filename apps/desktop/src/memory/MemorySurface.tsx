@@ -325,7 +325,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>{t("Purge…")}</button>
         </div>
         {note && <p role="status" className="mem-note">{note}</p>}
-        {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the requested result…</p>}
+        {action.busy && <p role="status" className="mem-muted">{t("Waiting for Memory to return the requested result…")}</p>}
         <ErrorBox error={action.error} />
         {impact && (
           <p className="mem-card">
@@ -443,19 +443,19 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 onChange={(e) => setEdits({ ...edits, [c.candidateId]: e.target.value })} />
               <p className="mem-muted">
                 {tn(c.evidence.length, "{n} evidence reference", "{n} evidence references")}
-                {c.conflicts.length > 0 && <span className="mem-warn"> · {c.conflicts.length} conflict{c.conflicts.length === 1 ? "" : "s"}</span>}
+                {c.conflicts.length > 0 && <span className="mem-warn"> · {tn(c.conflicts.length, "{n} conflict", "{n} conflicts")}</span>}
               </p>
               <ul className="mem-list">{c.evidence.map((e: J, i: number) => <CandidateSource
                 key={`${c.revision}:${e.sourceId}:${e.sourceRevision}:${i}`} evidence={e} readPage={readPage} />)}</ul>
-              <section className="mem-stack" aria-label="Recorded context dependencies">
-                <h3 className="mem-h3">Recorded context dependencies</h3>
-                <p className="mem-muted">These sources were recorded as input context. They are not additional citations, corroboration or approval. This list does not establish complete reading history.</p>
+              <section className="mem-stack" aria-label={t("Recorded context dependencies")}>
+                <h3 className="mem-h3">{t("Recorded context dependencies")}</h3>
+                <p className="mem-muted">{t("These sources were recorded as input context. They are not additional citations, corroboration or approval. This list does not establish complete reading history.")}</p>
                 {Array.isArray(c.contextSources) ? c.contextSources.length > 0 ? (
                   <ul className="mem-list">{c.contextSources.map((source: J, i: number) => <CandidateSource
                     key={`context:${c.revision}:${source.sourceId}:${source.sourceRevision}:${i}`}
                     evidence={source} kind="context" readPage={readPage} />)}</ul>
-                ) : <p className="mem-muted">No context dependencies were recorded.</p>
-                  : <p className="mem-muted">This Core did not report context dependency information.</p>}
+                ) : <p className="mem-muted">{t("No context dependencies were recorded.")}</p>
+                  : <p className="mem-muted">{t("This Core did not report context dependency information.")}</p>}
               </section>
               {c.conflicts.length > 0 && <div className="mem-stack">
                 <h3 className="mem-h3">{t("Reported conflicts")}</h3>

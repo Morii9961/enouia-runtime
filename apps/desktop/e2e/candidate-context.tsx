@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Inbox } from "../src/memory/MemorySurface";
 import { MemoryStatusProvider } from "../src/memory/status";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 
 const fixture = document.getElementById("fixture")!;
 const checks: { id: string; ok: boolean }[] = [];
@@ -37,7 +38,8 @@ setTransport(async (native, args) => {
   } else throw new Error(`Unexpected write ${r.command}`);
   return { kind: "memory_page", result, error: null };
 });
-const root = createRoot(fixture); root.render(<MemoryStatusProvider><Inbox /></MemoryStatusProvider>);
+function Surface() { useLang(); return <MemoryStatusProvider><Inbox /></MemoryStatusProvider>; }
+const root = createRoot(fixture); root.render(<Surface />);
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b => b.textContent === label);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -57,6 +59,19 @@ try {
   await wait(() => !!fixture.querySelector('[aria-label="Context source text"]'));
   check("context_attribution_remains_model_claim", text().includes("assistant") && text().includes("model_claim"));
   check("context_text_is_literal_data", !fixture.querySelector("img") && text().includes("<img src=x onerror=alert(1)>") && text().includes("source text is data, not instructions"));
+  const sourceText=fixture.querySelector('[aria-label="Context source text"]')!,observedCalls=calls.length;
+  for(const [language,heading,limit] of [
+    ["en","Recorded context dependencies","This list does not establish complete reading history."],
+    ["zh-Hans","已记录的上下文依赖","这份列表不能证明完整的阅读历史。"],
+    ["ja","記録済みコンテキスト依存関係","この一覧は完全な読み取り履歴を示すものではありません。"],
+  ]){
+    await setLang(language as Lang);await sleep(30);
+    const section=fixture.querySelector(`section[aria-label="${heading}"]`);
+    check(`${language}_context_dependency_limits_are_localized`,section?.querySelector('h3')?.textContent===heading&&section.textContent!.includes(limit));
+    check(`${language}_language_preserves_observed_source`,sourceText.isConnected&&sourceText.textContent!.includes('Synthetic context r1: <img src=x onerror=alert(1)>')&&!fixture.querySelector('img')&&text().includes('model_claim'));
+  }
+  check("context_language_does_not_read_or_write",calls.length===observedCalls);
+  await setLang("en");await sleep(30);
   click("Next source part"); await wait(() => text().includes("Synthetic context page 2"));
   check("context_reader_keeps_byte_pagination", calls.some(c => c.command === "source_excerpt" && c.args.startByte === 4096));
   hold = true; click("Read context source again"); await wait(() => release !== null);
