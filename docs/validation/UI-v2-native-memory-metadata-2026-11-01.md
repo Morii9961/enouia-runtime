@@ -1,5 +1,7 @@
 # UI v2 · 已保存记忆行元数据，2026-11-01
 
+2026-11-02 补正：浏览器语言/焦点检查新增真实导航译文变化的条件，复用实际已加载模块后重跑12/12通过，替代热更新下不足的旧驱动条件；本机截图/JSON已重生成。见[原因与证据](UI-v2-browser-language-harness-2026-11-02.md)。其余原有检查仍只适用于所记基线。
+
 基线 `d045096`。先核对固定 pin `bf6bfd10…` 的[记忆行输出](https://github.com/Morii9961/enouia-memory/blob/bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327/crates/enouia-memory-workspace/src/views.rs#L21-L37)：已有 title、projectId、evidenceCount。检索的[输出](https://github.com/Morii9961/enouia-memory/blob/bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327/crates/enouia-memory-workspace/src/lib.rs#L967-L992)有 projectId/evidenceCount，但没有 title。
 
 ## 改动

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import MemorySurface from '../src/memory/MemorySurface';
 import { MemoryStatusProvider } from '../src/memory/status';
 import { setTransport } from '../src/memory/client';
+import { setLang, useLang, type Lang } from '../src/i18n';
 import '../src/quiet-runtime.css';
 import '../src/memory/memory.css';
 
@@ -48,8 +49,9 @@ async function wait(test: () => boolean) { for (let n = 0; n < 250; n++) { if (t
 function click(control: HTMLButtonElement | undefined) { if (!control || control.disabled) throw new Error('Unavailable control'); control.click(); }
 function check(id: string, ok: boolean) { checks.push({ id, ok }); }
 async function editAlias(value: string) { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(alias(), value); alias().dispatchEvent(new Event('input', { bubbles: true })); await sleep(30); }
+function Surface() { useLang(); return <MemoryStatusProvider><MemorySurface /></MemoryStatusProvider>; }
 async function mount(key: string) {
-  root.render(<div key={key} data-case={key}><MemoryStatusProvider><MemorySurface /></MemoryStatusProvider></div>);
+  root.render(<div key={key} data-case={key}><Surface /></div>);
   await wait(() => fixture.firstElementChild?.getAttribute('data-case') === key && !!button('Import'));
   click(button('Import')); await wait(() => !!button('Choose file…'));
 }
@@ -74,6 +76,19 @@ try {
   releasePending(); await wait(() => !!fixture.querySelector('[role="alert"]'));
   await editAlias('fixture-later');
   check('failed_refresh_retains_rows_preview_and_alias_but_blocks_start', fixture.querySelectorAll('tbody tr').length === 1 && text().includes('Previous import observation') && text().includes('Synthetic.md') && alias().value === 'fixture-later' && button('Start import')!.disabled);
+  const heldAlias=alias(),heldStart=button('Start import')!,heldCalls=calls.length,heldPicks=picks;
+  heldAlias.focus();
+  for(const [language,previous,explanation] of [
+    ['en','Previous import observation.','The file preview and account alias are kept.'],
+    ['zh-Hans','上一次读取的导入信息。','文件预览与账户别名会保留。'],
+    ['ja','前回読み取ったインポート情報です。','ファイルのプレビューとアカウントの別名は保持されます。'],
+  ]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_failed_import_recovery_is_localized`,text().includes(previous)&&text().includes(explanation));
+    check(`${language}_language_keeps_preview_alias_and_blocked_start`,alias()===heldAlias&&heldAlias.value==='fixture-later'&&document.activeElement===heldAlias&&heldStart.isConnected&&heldStart.disabled&&text().includes('Synthetic.md')&&fixture.querySelectorAll('tbody tr').length===1);
+  }
+  check('import_language_does_not_pick_read_start_or_resume',calls.length===heldCalls&&picks===heldPicks);
+  await setLang('en');await sleep(30);
   if (refresh()) {
     status = 'archived'; await recover();
     check('fresh_interrupted_record_requires_resume', button('Start import')!.disabled && button('Resume')?.disabled === false && text().includes('which was interrupted'));

@@ -585,7 +585,7 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
       <Center title={TITLES.import} count={list.error ? t("Imports unavailable") : imports == null ? t("Waiting for imports") : t("{n} recorded", { n: imports.length })}
         busy={action.busy || list.busy || (imports == null && !list.error)}>
         <div className="mem-pad mem-stack">
-          <p className="mem-muted">Choose an export file. The Core archives the original bytes and parses them; this page sees only the file name and size.</p>
+          <p className="mem-muted">{t("Choose an export file. The Core archives the original bytes and parses them; this page sees only the file name and size.")}</p>
           <div className="mem-actions">
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => {
               returnFocus();
@@ -604,10 +604,10 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
             }}>{list.error ? t("Read import list again") : t("Refresh import list")}</button>
           </div>
           <ErrorBox error={actionError} />
-          {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the import result…</p>}
+          {action.busy && <p role="status" className="mem-muted">{t("Waiting for Memory to return the import result…")}</p>}
           <ErrorBox error={list.error} />
           {(list.busy || (imports == null && !list.error)) && <p role="status" className="mem-muted">{t("Reading imports…")}</p>}
-          {list.error && <p role="status" className="mem-muted">{imports == null ? "The import list could not be read. Its contents are still unknown." : "Previous import observation."} Read import list again before starting or resuming an import. The file preview and account alias are kept.</p>}
+          {list.error && <p role="status" className="mem-muted">{imports == null ? t("The import list could not be read. Its contents are still unknown.") : t("Previous import observation.")}{" "}{t("Read import list again before starting or resuming an import. The file preview and account alias are kept.")}</p>}
           {listReady && imports?.length === 0 && <p className="mem-muted">{t("No recorded imports yet.")}</p>}
           {selection && (
             <div className="mem-card">
@@ -615,9 +615,9 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
               {preview.duplicateOf && (duplicateUnknown
                 ? <p className="mem-warn">{t("Identical content was reported, but the earlier import has not been observed in the current list. Read the import list before starting.")}</p>
                 : interrupted
-                ? <p className="mem-warn">Identical to import {preview.duplicateOf}, which was interrupted. Resume it from the list below instead of starting it again.</p>
-                : <p className="mem-warn">Identical to import {preview.duplicateOf}; it will be recorded as a duplicate.</p>)}
-              {preview.warnings.length > 0 && <p className="mem-muted">Warnings: {preview.warnings.join(", ")}</p>}
+                ? <p className="mem-warn">{t("Identical to import {id}, which was interrupted. Resume it from the list below instead of starting it again.", { id: preview.duplicateOf })}</p>
+                : <p className="mem-warn">{t("Identical to import {id}; it will be recorded as a duplicate.", { id: preview.duplicateOf })}</p>)}
+              {preview.warnings.length > 0 && <p className="mem-muted">{t("Warnings:")} {preview.warnings.join(", ")}</p>}
               <label className="mem-label" htmlFor="mem-alias">{t("Account alias")}</label>
               <div className="mem-actions">
                 <input id="mem-alias" className="mem-input" value={alias} onChange={(e) => setAlias(e.target.value)} maxLength={64}
@@ -674,7 +674,7 @@ function Import({ openSession }: { openSession?: (vaultId: string, sessionId: st
       </Center>
       <Inspector>
         <h3 className="mem-h3">{t("What an import does")}</h3>
-        <p className="mem-muted">The original export is kept byte for byte. Conversations become sources; nothing becomes a memory without your review. An interrupted import can be resumed.</p>
+        <p className="mem-muted">{t("The original export is kept byte for byte. Conversations become sources; nothing becomes a memory without your review. An interrupted import can be resumed.")}</p>
         {inspected && <ImportReport selected={inspected} row={report} current={listReady} vaultId={status?.vault?.vaultId} vaultHead={status?.vault?.headCommitId}
           onCreateHistory={historyTasks.create} historyBusy={!historyTasks.ready}
           inspectOriginal={original ? () => setInspected(original.importId) : undefined} close={() => {
@@ -712,10 +712,10 @@ function VaultPanel() {
             <dt>{t("Folder")}</dt><dd>{v.rootName}</dd>
             <dt>{t("Vault health")}</dt><dd>{v.health}</dd>
             <dt>{t("Latest commit")}</dt><dd>#{v.headSequence} · {when(v.lastCommitAt)}</dd>
-            <dt>{t("Free space")}</dt><dd>{v.freeBytes != null ? `${(v.freeBytes / 2 ** 30).toFixed(1)} GiB` : "unknown"}</dd>
+            <dt>{t("Free space")}</dt><dd>{v.freeBytes != null ? `${(v.freeBytes / 2 ** 30).toFixed(1)} GiB` : t("unknown")}</dd>
             <dt>{t("Owner-only access")}</dt><dd>{v.ownerOnlyAcl == null ? t("unknown") : v.ownerOnlyAcl ? t("yes") : t("no (the Memory CLI can protect it)")}</dd>
             <dt>{t("Last backup")}</dt><dd>{status.lastBackup ? `${status.lastBackup.state} ${status.lastBackup.result?.commitId ?? ""}` : t("none in this run; the Vault does not record backups")}</dd>
-            <dt>{t("Last verified restore")}</dt><dd>not recorded (restore preview checks the backup only)</dd>
+            <dt>{t("Last verified restore")}</dt><dd>{t("not recorded (restore preview checks the backup only)")}</dd>
           </dl>
           <div className="mem-actions">
             <button type="button" className="mem-button" disabled={action.busy} onClick={() => act(async () => operations.start("index_rebuild", (await call("index_rebuild")).operationId))}>{t("Rebuild index")}</button>
@@ -752,9 +752,9 @@ function VaultPanel() {
         <ComponentList status={status} />
         <h3 className="mem-h3">{t("Four different stops")}</h3>
         <ul className="mem-list mem-muted">
-          <li><strong>{t("Lock Vault")}</strong> stops model calls locally, cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Local stopping does not confirm remote cancellation. After unlocking, read saved session outcomes before sending again. Vault work is unavailable until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.</li>
+          <li><strong>{t("Lock Vault")}</strong>{" "}{t("stops model calls locally, cancels import and index work, waits for verify and backup (they cannot be cancelled), then releases the Vault and its index. Local stopping does not confirm remote cancellation. After unlocking, read saved session outcomes before sending again. Vault work is unavailable until you unlock. Runtime keeps the folder reserved until you exit or switch Vaults.")}</li>
           <li><strong>{t("Closing the window")}</strong> {t("only hides it to the tray. Memory keeps running, and so does any operation.")}</li>
-          <li><strong>{t("Exit")}</strong> (tray or Settings) does the same release, then ends Runtime.</li>
+          <li><strong>{t("Exit")}</strong>{" "}{t("(tray or Settings) does the same release, then ends Runtime.")}</li>
           <li><strong>{t("Pausing sync")}</strong> {t("does not exist yet: Memory has no sync before its gateway stage.")}</li>
         </ul>
       </Inspector>

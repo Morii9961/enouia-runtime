@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import MemorySurface from "../src/memory/MemorySurface";
 import { MemoryStatusProvider } from "../src/memory/status";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -32,7 +33,8 @@ setTransport(async (native, args) => {
   return { kind: "memory_page", result, error: null };
 });
 const root = createRoot(fixture);
-root.render(<MemoryStatusProvider><MemorySurface /></MemoryStatusProvider>);
+function Surface() { useLang(); return <MemoryStatusProvider><MemorySurface /></MemoryStatusProvider>; }
+root.render(<Surface />);
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b => b.textContent === label);
 const shown = () => [...fixture.querySelectorAll(".mem-operation")].map(o => `${o.querySelector(".mem-mono")?.textContent}:${o.querySelector(".mem-state")?.textContent}`);
@@ -50,6 +52,17 @@ try {
   click("Rebuild index"); await wait(() => shown().includes("index_rebuild:running"));
   check("second_operation_keeps_first_visible", shown().includes("vault_verify:running") && shown().length === 2);
   check("running_rebuild_keeps_cancel", !!button("Cancel"));
+  const heldOperation=fixture.querySelector('.mem-operation');
+  for(const [language,restore,stop] of [
+    ['en','not recorded (restore preview checks the backup only)','Local stopping does not confirm remote cancellation.'],
+    ['zh-Hans','未记录（还原预览只检查备份）','本地停止不代表远端已取消。'],
+    ['ja','未記録（復元プレビューはバックアップだけを検査します）','ローカルの停止はサービス側のキャンセルを確認するものではありません。'],
+  ]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_vault_restore_and_local_stop_limits_are_localized`,text().includes(restore)&&text().includes(stop));
+    check(`${language}_language_keeps_running_operation_owners`,fixture.querySelector('.mem-operation')===heldOperation&&fixture.querySelectorAll('.mem-operation').length===2&&started===2);
+  }
+  await setLang('en');await sleep(30);
   finish("synthetic-op-1", verdict); await wait(() => shown().includes("vault_verify:succeeded") || text().includes("integrity problems"));
   check("earlier_verify_result_is_not_hidden", text().includes("Verification found integrity problems: 3 records · 4 objects.") && shown().includes("index_rebuild:running"));
   click("Verify Vault"); await wait(() => started === 3); await sleep(50);
