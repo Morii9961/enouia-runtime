@@ -69,7 +69,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("Literal search · Enter")} aria-label={t("Search memories")} className="qr21" autoComplete="off" />
         </form>
         {groups.map((g) => (
-          <div className="qr27" key={g.label}>
+          <div className="qr27" key={g.items[0][0]}>
             <div className="qr23">{g.label}</div>
             {g.items.map(([key, label, count]) => {
               const active = collection === key;
