@@ -1474,5 +1474,6 @@ const dict: Record<string, string> = {
   "Actual request": "实际请求",
   "{n} tool": "{n} 个工具",
   "{n} tools": "{n} 个工具",
+  "The time map moves the calendar or loaded transcript. Reduced makes movement instant.": "时间地图会平移日历或已读取的转录。减少动画会直接完成移动。",
 };
 export default dict;

@@ -86,6 +86,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - VAULT：Location、Identity files（原生里换成 Memory 设置与 Windows shell 设置）。底部一行键盘说明「Ctrl+1–6 switches surfaces」。
 - 缺：Vault 与恢复的管理入口（Memory UI 规格 §1 把它放在设置/管理）；高级召回参数分层（ref-05，只借「普通/高级分层」，不做前端凭据输入）——**未做**。
 
+2026-11-01：原生 Settings 动效说明只描述现有的日历/转录平移，不再承诺绘制连续迹线；浏览器演示说明保留。[检查记录](../../validation/UI-v2-native-settings-copy-2026-11-01.md)。
+
 ### 1.7 原生门：Vault 锁定 / 未连接
 
 - `dark-edge-vaultlocked-1440`：记录带与小地图盖斜线，「NO STRIP LOADED · Vault locked」+ 门卡片（显式解锁，不自动开库）。已做（通过截图桩渲染真实组件）。
