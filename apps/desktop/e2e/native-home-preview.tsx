@@ -19,6 +19,7 @@ const state = params.get('state') ?? 'open';
 const page = params.get('page') === 'sessions' ? 'sessions' : params.get('page') === 'runtime' ? 'runtime' : params.get('page') === 'context' ? 'context' : 'home';
 const transcript = params.get('transcript') ?? 'known';
 const capsule = params.get('capsule') ?? 'normal';
+const loaded = params.has('loaded');
 setTransport(async (command, args) => {
   if (command === 'shell_status') return { vaultChanging: state === 'changing', closing: state === 'exiting', locking: false, tray: 'present', visible: true, hotkey: { state: 'conflict', combo: 'Ctrl+Alt+M' } };
   if (command === 'memory_provider_setup') return { state: 'absent' };
@@ -26,6 +27,7 @@ setTransport(async (command, args) => {
   const request = args.request as { command: string; arguments: { sessionId: string; branchId: string } };
   if (request.command === 'operation_list') return { kind: 'memory_page', result: { items: [{ operationId: 'fictional-verify', kind: 'vault_verify', state: 'succeeded', progress: { done: 12, total: 12 }, cancelRequested: false }] } };
   if (request.command === 'provider_status') return { kind: 'memory_page', result: { configured: false, destinations: [], grants: [] } };
+  if (request.command === 'dispatch_inspect') return { kind: 'memory_page', result: { dispatchId: 'dsp_fictional', capsuleId: 'cap_fictional', verified: true, requestHash: 'a'.repeat(64), tools: 1, destination: { kind: 'local_mock' }, messages: [{ role: 'user', text: 'Fictional saved request. These exact bytes are not interface copy: <example> 中文と日本語。' }] } };
   if (request.command === 'context_inspect') {
     if (capsule === 'error') return { kind: 'memory_error', error: { code: 'storage_failed', retryable: false, rules: [] } };
     return { kind: 'memory_page', result: {
@@ -33,7 +35,7 @@ setTransport(async (command, args) => {
         budget: capsule === 'unknown' ? null : { estimated_tokens: capsule === 'over' ? 150 : 50, max_tokens: capsule === 'zero' ? 0 : 100, counting_method: 'utf8_bytes_v1' } },
       inspection: { capsule_id: 'cap_fictional', decisions: Array.from({ length: 18 }, (_, i) => ({ record_id: `fictional-record-${i}`, record_kind: 'memory', revision: 1,
         decision: i < 12 ? 'included' : 'excluded', reason: 'Fictional saved reason · literal source text · 中文与日本語の確認。', rank: i, source_reachable: true })) },
-      delivery: 'preview_not_sent', dispatches: [],
+      delivery: loaded ? 'dispatched' : 'preview_not_sent', dispatches: loaded ? [{ dispatchId: 'dsp_fictional', requestHash: 'a'.repeat(64), state: 'completed', preparedAt: '2026-11-01T02:00:00Z', sentAt: '2026-11-01T02:01:00Z', completedAt: '2026-11-01T02:02:00Z' }] : [],
     } };
   }
   if (request.command === 'session_list') return { kind: 'memory_page', result: { items: ['one', 'two'].map(name => ({ sessionId: `fictional-session-${name}`, updatedAt: '2026-11-01T05:00:00Z', branches: [{ branchId: `fictional-branch-${name}`, lastEventSeq: 24 }] })) } };
@@ -42,7 +44,7 @@ setTransport(async (command, args) => {
     const events = Array.from({ length: transcript === 'empty' ? 0 : 24 }, (_, i) => ({
       eventId: `fictional-event-${i}`, kind: i === 8 || i === 19 ? 'checkpoint_created' : i % 2 ? 'assistant_completed' : 'user_message', deliveryState: i % 2 ? 'completed' : 'not_applicable',
       occurredAt: transcript === 'unknown' && i === 4 ? null : new Date(Date.parse('2026-11-01T02:00:00Z') + (transcript === 'reversed' && i === 4 ? 0 : i) * 180_000).toISOString(),
-      text: `${request.arguments.sessionId} · Fictional saved event ${i + 1}. This is a browser fixture, not a personal conversation.\nSynthetic text is kept literal: <example>, 中文与日本語の確認。`,
+      text: loaded && i === 1 ? JSON.stringify({ status: 'no_supported_evidence', dispatch_id: 'dsp_fictional', request_hash: 'a'.repeat(64), statements: ['Fictional saved answer. These exact bytes are not interface copy: <example> 中文と日本語。'], sources: [], memories: [] }) : `${request.arguments.sessionId} · Fictional saved event ${i + 1}. This is a browser fixture, not a personal conversation.\nSynthetic text is kept literal: <example>, 中文与日本語の確認。`,
     }));
     return { kind: 'memory_page', result: { ...request.arguments, transcript: events, turns: [], checkpoints: [], invocations: [], extractionJobs: [], lastSavedEventId: events.at(-1)?.eventId ?? null } };
   }

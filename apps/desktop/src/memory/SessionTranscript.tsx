@@ -41,7 +41,7 @@ export default function SessionTranscript({ detail, branch, disabled, mapUnavail
       {detail.transcript.map((event: J, i: number) => <li key={event.eventId} className={`mem-event mem-event-${event.kind}`}
         data-checkpoint={event.kind === 'checkpoint_created' || undefined} style={{ '--event-gap': `${ruler.gaps[i].pixels}px` } as CSSProperties}>
         <div className="native-event-clock">
-          {ruler.gaps[i].minutes >= 4 && <span className="native-event-gap" aria-hidden="true">+{ruler.gaps[i].minutes} min</span>}
+          {ruler.gaps[i].minutes >= 4 && <span className="native-event-gap" aria-hidden="true">{t('+{n} min', { n: ruler.gaps[i].minutes })}</span>}
           {ruler.times[i] == null ? <span>{t('time unavailable')}</span> : <time dateTime={event.occurredAt} title={event.occurredAt}>{nativeDate(ruler.times[i]!, { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })}</time>}
         </div>
         <div className="native-event-body">

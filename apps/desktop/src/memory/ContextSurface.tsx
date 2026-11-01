@@ -10,7 +10,7 @@ import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { capsuleObservation, dispatchObservation } from "./observationIdentity";
 
-import { labels, locale, msg, t } from '../i18n/index.ts';
+import { labels, locale, msg, t, tn } from '../i18n/index.ts';
 /** The capsule budget in words when it has the usual fields; otherwise as recorded. */
 function budget(b: J): string {
   if (b && typeof b.estimated_tokens === "number" && typeof b.max_tokens === "number") {
@@ -76,7 +76,7 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
             <td><code title={d.record_id}>{d.record_kind}:{shortId(d.record_id)}</code> r{d.revision}</td>
             <td>{d.reason}</td>
             <td>{d.rank ?? ""}</td>
-            <td>{d.source_reachable ? "yes" : <Tag tone="warn">{t("no")}</Tag>}</td>
+            <td>{d.source_reachable ? t("yes") : <Tag tone="warn">{t("no")}</Tag>}</td>
           </tr>
         ))}
       </tbody>
@@ -117,14 +117,14 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
         <ErrorBox error={dispatchReads.error} />
         {id && <button type="button" className="mem-button" disabled={action.busy || reads.busy}
           onClick={() => { if (!action.busy) observeCapsule(id); }}>{t("Read saved capsule again")}</button>}
-        {reads.error && <p className="mem-muted">This saved capsule could not be read. Read it again; this does not prepare a preview or send a request.</p>}
+        {reads.error && <p className="mem-muted">{t('This saved capsule could not be read. Read it again; this does not prepare a preview or send a request.')}</p>}
         {pending && <p role="status" className="mem-muted">{pending}</p>}
         {!id && !action.busy && <p className="mem-muted">{t("Preview a question here, or open the context behind an answer from Sessions.")}</p>}
         {view && (
           <div className="mem-stack">
             <p className="mem-state-line">
               <strong>{Object.hasOwn(DELIVERY, view.delivery) ? DELIVERY[view.delivery] : t("Unknown saved delivery state")}</strong>
-              <span className="mem-muted"> {t("· capsule")} <code title={id ?? ""}>{shortId(id)}</code> · destination {view.capsule.destination.kind}</span>
+              <span className="mem-muted"> {t("· capsule")} <code title={id ?? ""}>{shortId(id)}</code> · {t('destination')} {view.capsule.destination.kind}</span>
             </p>
             <h3 id="mem-context-budget" tabIndex={-1} className="mem-h3">{t('Budget')}</h3>
             {budgetRatio != null ? <figure className="mem-figure">
@@ -150,7 +150,7 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
             <div key={d.dispatchId} className="mem-stack">
               <p>
                 <code title={d.dispatchId}>{shortId(d.dispatchId)}</code> · {d.state}
-                <span className="mem-muted"> · prepared {when(d.preparedAt)}{d.sentAt ? ` · sent ${when(d.sentAt)}` : " · not sent"}{d.completedAt ? ` · completed ${when(d.completedAt)}` : ""}</span>
+                <span className="mem-muted">{t(' · prepared {when}', { when: when(d.preparedAt) })}{d.sentAt ? t(' · sent {when}', { when: when(d.sentAt) }) : t(' · not sent')}{d.completedAt ? t(' · completed {when}', { when: when(d.completedAt) }) : ''}</span>
               </p>
               <div className="mem-actions">
                 <button type="button" className="mem-button" disabled={action.busy || reads.busy} onClick={() => observeDispatch(d)}>{t("Show the actual request")}</button>
@@ -162,10 +162,10 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
           {request && (
             <div className="mem-stack">
               <p>
-                Actual request <code title={dispatchId ?? ""}>{shortId(dispatchId)}</code> ·{" "}
+                {t('Actual request')} <code title={dispatchId ?? ""}>{shortId(dispatchId)}</code> ·{" "}
                 {request.verified ? <Tag tone="ok">{t("re-rendered from the saved records and hash-checked")}</Tag> : <Tag tone="warn">{t("hash mismatch")}</Tag>}
               </p>
-              <p className="mem-muted">{request.tools} tools · {request.destination.kind}</p>
+              <p className="mem-muted">{tn(request.tools, '{n} tool', '{n} tools')} · {request.destination.kind}</p>
               {request.messages.map((m: J, i: number) => (
                 <div key={i} className="mem-stack">
                   <span className="mem-mono mem-muted">{m.role}</span>

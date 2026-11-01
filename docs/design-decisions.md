@@ -16,6 +16,13 @@
 
 ---
 
+## 2026-11-01 · 已加载 Sessions / Context 文案沿用既有 i18n
+
+- 决定：将有内容分支的会话/分支标签、事件数、已保存事件、发送说明与读取反馈，及 Context 的来源可达性、destination 和 dispatch 时间标签接入现有字典。保留 ID、原始正文、请求文本、状态代码和计数方法，不把保存内容当界面文案翻译。
+- 影响：SessionsSurface、SessionEventBody、SessionTranscript 与 ContextSurface 的显示字符串；不改请求、写入、确认、草稿或状态机。
+- 依据：本轮有内容合成截图暴露的英文残留、OPEN_ISSUES #22 的已知分支限制。
+- 状态：定稿（仅所列分支；不声称全应用动态文案审计完成）
+
 ## 2026-11-01 · Context 只为当前已读取 Capsule 恢复分区与预算刻度
 
 - 决定：左侧导航只指向当前保存对象的预算、问题、纳入/排除和 dispatch 分区，数量取实际读取结果；不伪造全库 Capsule 列表、分类或计数。
