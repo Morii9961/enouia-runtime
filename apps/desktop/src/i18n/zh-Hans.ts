@@ -446,7 +446,6 @@ const dict: Record<string, string> = {
   "Preparation has not sent a model request. Read the saved session before preparing another question.": "准备没有发出模型请求。准备下一个问题前请读取已保存的会话。",
   "Leave preparation and read saved state": "离开准备并读取已保存的状态",
   "Request to send": "要发送的请求",
-  "This exact request goes to": "这份请求原样发往",
   "Send was submitted. The service may have received it. Recover this call, or leave this request and read the saved session and workspace calls.": "已提交发送，服务方可能已经收到。请恢复这次调用，或离开这份请求并读取已保存的会话和工作区调用。",
   "Recover this call": "恢复这次调用",
   "Send once": "发送一次",
@@ -1480,5 +1479,14 @@ const dict: Record<string, string> = {
   "{n} covered event is outside this loaded transcript.": "有 {n} 个覆盖事件不在当前已读取的转录中。",
   "{n} covered events are outside this loaded transcript.": "有 {n} 个覆盖事件不在当前已读取的转录中。",
   "Project {id}": "项目 {id}",
+  "Recorded error: {error}": "已记录错误：{error}",
+  "Reload settings after editing. Remove the file and reload to turn external providers off. Keys belong only in the native Set key prompt. A loaded configuration still needs a key and a reviewed grant; you inspect each request before Send once. Session token limits are estimates, not a spending cap.": "编辑后重载设置。删除文件并重载可关闭外部服务商。密钥只在原生“设置密钥”提示框中输入。加载配置后，仍需设置密钥并审阅授权；每次“发送一次”前都要检查请求。会话 token 上限是估算值，不是费用上限。",
+  "Working…": "处理中…",
+  "Reload settings": "重载设置",
+  "Allowed by grant {id} (up to {sensitivity}).": "授权 {id} 允许发送（保密级别上限：{sensitivity}）。",
+  "No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.": "还没有授权允许向 {api} 发送。授权后，这个服务商可以接收你放入请求的保密记忆与会话文本。",
+  "This exact request goes to": "这份请求原样发往",
+  "Also allow suggesting memories from sources you select (extraction)": "同时允许从你选择的来源中提出记忆建议（提取）",
+  "This exact request goes to {endpoint} ({model}), about {input} input tokens and at most {output} output tokens. It is sent once. Retry recovers this same call without sending again to the service.": "这份请求原样发往 {endpoint}（{model}），输入约 {input} token，输出最多 {output} token。只发送一次。重试会恢复同一次调用，不会再次发送到服务商。",
 };
 export default dict;

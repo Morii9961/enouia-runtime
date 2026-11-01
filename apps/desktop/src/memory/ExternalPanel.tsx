@@ -111,7 +111,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
             <Tag tone={i.state === "completed" ? "ok" : "warn"}>{saved.outcome}</Tag>{" "}
             <span title={i.dispatch_id}>{shortId(i.dispatch_id)}</span> · {t("reserved {n} tokens", { n: i.reserved_tokens })}
             {i.input_tokens != null && " · " + t("reported {input} in / {output} out", { input: i.input_tokens, output: i.output_tokens ?? "?" })}
-            {saved.error && <p className="mem-muted">Recorded error: {saved.error}</p>}
+            {saved.error && <p className="mem-muted">{t("Recorded error: {error}", { error: saved.error })}</p>}
             {i.state === "outcome_unknown" && !operation && (
               <>{" "}<button type="button" className="mem-link" disabled={setupBusy}
                 onClick={() => holdPlan("external_interrupt_plan", { inputEventId: i.input_event_id, dispatchId: i.dispatch_id })}>{t("Close locally…")}</button></>
@@ -138,9 +138,9 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
     <details className="mem-stack">
       <summary className="mem-label">{t("Model setup steps")}</summary>
       <p className="mem-muted">{tj("Create or edit {path} with the exact model and limits you verified. Set schemaVersion to 1; each destination needs api (openai or anthropic), model, contextWindowTokens, maxOutputTokens, streaming and verifiedAt (an ISO timestamp). Also set maxAttemptsPerSession and maxReservedTokensPerSession. No values are inferred.", { path: <span className="mem-mono">%APPDATA%\com.enouia.runtime\memory-providers.json</span> })}</p>
-      <p className="mem-muted">Reload settings after editing. Remove the file and reload to turn external providers off. Keys belong only in the native Set key prompt. A loaded configuration still needs a key and a reviewed grant; you inspect each request before Send once. Session token limits are estimates, not a spending cap.</p>
+      <p className="mem-muted">{t("Reload settings after editing. Remove the file and reload to turn external providers off. Keys belong only in the native Set key prompt. A loaded configuration still needs a key and a reviewed grant; you inspect each request before Send once. Session token limits are estimates, not a spending cap.")}</p>
     </details>
-    <div className="mem-actions"><button type="button" className="mem-button" disabled={busy || !!plan || !!prepared || !!preparation} onClick={reload}>{action.busy ? "Working…" : "Reload settings"}</button></div>
+    <div className="mem-actions"><button type="button" className="mem-button" disabled={busy || !!plan || !!prepared || !!preparation} onClick={reload}>{action.busy ? t("Working…") : t("Reload settings")}</button></div>
     {operation && <p className="mem-muted">{t("Wait for the current call to finish before reloading settings.")}</p>}
     {(plan || prepared || preparation) && <p className="mem-muted">{t("Finish or cancel the current review before reloading settings.")}</p>}
   </>;
@@ -194,12 +194,12 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
       </div>
 
       {grant
-        ? <p className="mem-muted">Allowed by grant {shortId(grant.policyId)} (up to {grant.maxSensitivity}).{" "}
+        ? <p className="mem-muted">{t("Allowed by grant {id} (up to {sensitivity}).", { id: shortId(grant.policyId), sensitivity: grant.maxSensitivity })}{" "}
             <button type="button" className="mem-link" disabled={setupBusy} onClick={() => holdPlan("egress_revoke_plan", { policyId: grant.policyId })}>{t("Revoke…")}</button></p>
         : <div className="mem-stack">
-            <p className="mem-muted">No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.</p>
+            <p className="mem-muted">{t("No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.", { api })}</p>
             <label className="mem-muted"><input type="checkbox" checked={extraction} disabled={setupBusy} onChange={(e) => setExtraction(e.target.checked)} />{" "}
-              Also allow suggesting memories from sources you select (extraction)</label>
+              {t("Also allow suggesting memories from sources you select (extraction)")}</label>
             <div className="mem-actions">
               <button type="button" className="mem-button" disabled={setupBusy}
                 onClick={() => holdPlan("egress_grant_plan", { apis: [api], maxSensitivity: "private", extraction })}>{t("Review a grant…")}</button>
@@ -241,7 +241,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
 
       {prepared && (
         <div className="mem-stack" role="group" aria-label={t("Request to send")}>
-          <p>{t("This exact request goes to")} <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens and at most {prepared.outputTokens} output tokens. It is sent once. Retry recovers this same call without sending again to the service.</p>
+          <p>{tj("This exact request goes to {endpoint} ({model}), about {input} input tokens and at most {output} output tokens. It is sent once. Retry recovers this same call without sending again to the service.", { endpoint: <span className="mem-mono">{prepared.endpoint}</span>, model: prepared.model, input: prepared.estimatedInputTokens, output: prepared.outputTokens })}</p>
           <pre className="mem-pre" tabIndex={0}>{prepared.body}</pre>
           {submitted && <p role="status" className="mem-muted">{t("Send was submitted. The service may have received it. Recover this call, or leave this request and read the saved session and workspace calls.")}</p>}
           <div className="mem-actions">

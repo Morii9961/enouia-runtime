@@ -2,6 +2,7 @@
 import { createRoot } from "react-dom/client";
 import { Sessions } from "../src/memory/SessionsSurface";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -43,7 +44,8 @@ setTransport(async (command, args) => {
   return {kind: "memory_page", result, error: null};
 });
 const root = createRoot(fixture);
-root.render(<Sessions inspect={() => {}} />);
+function Surface() { useLang(); return <Sessions inspect={() => {}} />; }
+root.render(<Surface />);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 async function wait(condition: () => boolean) {
   for (let n = 0; n < 250; n++) {if (condition()) return; await sleep(20);}
@@ -73,6 +75,18 @@ try {
   check("disabled_branch_does_not_request_other_detail", !calls.some(c => c.command === "session_detail" && c.args.sessionId === "session-two"));
   releasePrepare();
   await wait(() => button("Send once")?.disabled === false && !question().disabled);
+  const sendButton = button("Send once")!, preparedCalls = calls.length;
+  for (const [language, label, review] of [
+    ["en", "Send once", "about 10 input tokens and at most 128 output tokens"],
+    ["zh-Hans", "发送一次", "输入约 10 token，输出最多 128 token"],
+    ["ja", "1 回送信", "入力は約 10 トークン、出力は最大 128 トークン"],
+  ]) {
+    await setLang(language as Lang); await sleep(30);
+    check(`${language}_prepared_request_explanation_is_localized`, fixture.textContent!.includes(review) && sendButton.textContent === label && fixture.textContent!.includes("private"));
+    check(`${language}_language_keeps_original_request_and_send_control`, button(label) === sendButton && !sendButton.disabled && [...fixture.querySelectorAll("pre")].some(pre => pre.textContent === "Submitted first question") && fixture.textContent!.includes("synthetic endpoint") && fixture.textContent!.includes("synthetic-model"));
+  }
+  check("prepared_language_changes_do_not_read_prepare_or_send", calls.length === preparedCalls);
+  await setLang("en"); await sleep(30);
   edit("Next unsent question");
   click("Send once");
   await wait(() => rows().every(b => b.disabled));

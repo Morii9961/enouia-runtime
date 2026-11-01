@@ -446,7 +446,6 @@ const dict: Record<string, string> = {
   "Preparation has not sent a model request. Read the saved session before preparing another question.": "準備ではモデルへのリクエストを送っていません。次の質問を準備する前に保存済みのセッションを読んでください。",
   "Leave preparation and read saved state": "準備を離れて保存済みの状態を読む",
   "Request to send": "送信するリクエスト",
-  "This exact request goes to": "このリクエストをそのまま送る宛先",
   "Send was submitted. The service may have received it. Recover this call, or leave this request and read the saved session and workspace calls.": "送信を行いました。サービスが受け取っている可能性があります。この呼び出しを復旧するか、このリクエストを離れて保存済みのセッションとワークスペースの呼び出しを読んでください。",
   "Recover this call": "この呼び出しを復旧",
   "Send once": "1 回送信",
@@ -1480,5 +1479,14 @@ const dict: Record<string, string> = {
   "{n} covered event is outside this loaded transcript.": "対象イベント {n} 件は、この読み込み済みの会話記録の外にあります。",
   "{n} covered events are outside this loaded transcript.": "対象イベント {n} 件は、この読み込み済みの会話記録の外にあります。",
   "Project {id}": "プロジェクト {id}",
+  "Recorded error: {error}": "記録済みエラー：{error}",
+  "Reload settings after editing. Remove the file and reload to turn external providers off. Keys belong only in the native Set key prompt. A loaded configuration still needs a key and a reviewed grant; you inspect each request before Send once. Session token limits are estimates, not a spending cap.": "編集後に設定を再読み込みしてください。外部プロバイダーをオフにするには、ファイルを削除して再読み込みします。キーはネイティブの「キーを設定」画面だけで入力します。設定を読み込んでも、キーの設定と許可のレビューが必要です。「1 回送信」の前にリクエストを確認します。セッションのトークン上限は推定値であり、費用の上限ではありません。",
+  "Working…": "処理中…",
+  "Reload settings": "設定を再読み込み",
+  "Allowed by grant {id} (up to {sensitivity}).": "許可 {id} により送信できます（機密性は {sensitivity} まで）。",
+  "No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.": "{api} への送信はまだ許可されていません。許可すると、リクエストに含めたプライベートなメモリとセッションのテキストをこのプロバイダーが受け取れます。",
+  "This exact request goes to": "このリクエストをそのまま送る宛先",
+  "Also allow suggesting memories from sources you select (extraction)": "選択したソースからメモリを提案することも許可する（抽出）",
+  "This exact request goes to {endpoint} ({model}), about {input} input tokens and at most {output} output tokens. It is sent once. Retry recovers this same call without sending again to the service.": "このリクエストをそのまま {endpoint}（{model}）に送ります。入力は約 {input} トークン、出力は最大 {output} トークンです。送信は一度だけです。再試行では同じ呼び出しを復元し、サービスに再送信しません。",
 };
 export default dict;
