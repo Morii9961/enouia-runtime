@@ -1475,5 +1475,9 @@ const dict: Record<string, string> = {
   "{n} tool": "{n} 個のツール",
   "{n} tools": "{n} 個のツール",
   "The time map moves the calendar or loaded transcript. Reduced makes movement instant.": "時間マップでカレンダーや読み込み済みの会話記録を移動します。モーションを減らすと、すぐに移動します。",
+  "Show saved checkpoint coverage": "保存済みチェックポイントの対象イベントを表示",
+  "Only saved covered events in this loaded transcript are bracketed.": "対象の線は、読み込み済みの会話記録にある保存済みイベントだけに表示します。",
+  "{n} covered event is outside this loaded transcript.": "対象イベント {n} 件は、この読み込み済みの会話記録の外にあります。",
+  "{n} covered events are outside this loaded transcript.": "対象イベント {n} 件は、この読み込み済みの会話記録の外にあります。",
 };
 export default dict;

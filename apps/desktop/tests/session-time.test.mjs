@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { savedEventTime, sessionRuler } from '../src/memory/sessionTime.ts';
+import { checkpointCoverage, savedEventTime, sessionRuler } from '../src/memory/sessionTime.ts';
 
 test('session ruler scales known adjacent intervals and caps long gaps', () => {
   const ruler = sessionRuler(['00:00:00', '00:02:30', '01:02:30'].map(time => ({ occurredAt: `2026-11-01T${time}Z` })));
@@ -31,4 +31,22 @@ test('equal instants with different ISO offsets are ordered without a gap', () =
   assert.equal(ruler.times[0], ruler.times[1]);
   assert.equal(ruler.gaps[1].pixels, 0);
   assert.equal(sessionRuler([]).ordered, false);
+});
+
+test('checkpoint coverage brackets separate visible runs without bridging uncovered events', () => {
+  assert.deepEqual(checkpointCoverage(['a', 'b', 'c', 'd', 'e', 'f'], ['a', 'b', 'd', 'e', 'f']).segments, ['start', 'end', null, 'start', 'mid', 'end']);
+});
+
+test('checkpoint coverage counts unique off-page IDs without extending the visible range', () => {
+  const result = checkpointCoverage(['b', 'c', 'd'], ['a', 'b', 'd', 'z', 'z']);
+  assert.equal(result.known, true);
+  assert.equal(result.outside, 2);
+  assert.deepEqual(result.segments, ['only', null, 'only']);
+});
+
+test('unavailable or malformed coverage cannot create a bracket', () => {
+  for (const value of [null, undefined, {}, ['a', 1], ['']]) {
+    assert.deepEqual(checkpointCoverage(['a'], value), { known: false, segments: [null], outside: 0 });
+  }
+  assert.deepEqual(checkpointCoverage(['a'], []), { known: true, segments: [null], outside: 0 });
 });

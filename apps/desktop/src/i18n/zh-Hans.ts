@@ -1475,5 +1475,9 @@ const dict: Record<string, string> = {
   "{n} tool": "{n} 个工具",
   "{n} tools": "{n} 个工具",
   "The time map moves the calendar or loaded transcript. Reduced makes movement instant.": "时间地图会平移日历或已读取的转录。减少动画会直接完成移动。",
+  "Show saved checkpoint coverage": "显示已保存检查点的覆盖范围",
+  "Only saved covered events in this loaded transcript are bracketed.": "括号只标示当前已读取转录中已保存的覆盖事件。",
+  "{n} covered event is outside this loaded transcript.": "有 {n} 个覆盖事件不在当前已读取的转录中。",
+  "{n} covered events are outside this loaded transcript.": "有 {n} 个覆盖事件不在当前已读取的转录中。",
 };
 export default dict;

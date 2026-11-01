@@ -17,3 +17,16 @@ export function sessionRuler(events: { occurredAt?: unknown }[]) {
     }),
   };
 }
+
+export type CoverageSegment = 'start' | 'mid' | 'end' | 'only' | null;
+
+/** Coverage is membership in saved IDs, independent of timestamps or summaries. */
+export function checkpointCoverage(eventIds: string[], value: unknown) {
+  const valid = Array.isArray(value) && value.every(id => typeof id === 'string' && id.length > 0);
+  const covered = new Set<string>(valid ? value : []);
+  const visible = new Set(eventIds);
+  const flags = eventIds.map(id => covered.has(id));
+  const segments: CoverageSegment[] = flags.map((on, i) => !on ? null : !flags[i - 1]
+    ? flags[i + 1] ? 'start' : 'only' : flags[i + 1] ? 'mid' : 'end');
+  return { known: valid, segments, outside: [...covered].filter(id => !visible.has(id)).length };
+}

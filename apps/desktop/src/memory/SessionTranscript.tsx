@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, type CSSProperties, type RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { call, type J } from './client';
 import { SessionEventBody, SessionEventMetadata } from './SessionEventBody';
-import { sessionRuler } from './sessionTime';
+import { checkpointCoverage, sessionRuler } from './sessionTime';
 import { lendMap, type MapSpec } from '../theme/TimeMap';
 import { clearViews, setWindow, useTimeView } from '../theme/timeview';
 import { nativeDate } from '../theme/nativeTime';
 import { motionReduced } from '../theme/motion';
-import { msg, t } from '../i18n/index';
+import { msg, t, tn } from '../i18n/index';
+import { shortId } from './ui';
 
 type Props = {
   detail: J; branch: { sessionId: string; branchId: string }; disabled: boolean; mapUnavailable: boolean;
@@ -17,6 +18,13 @@ type Anchor = { y: number; at: number };
 export default function SessionTranscript({ detail, branch, disabled, mapUnavailable, inspect, request, scroller }: Props) {
   const track = useRef<HTMLOListElement>(null);
   const ruler = useMemo(() => sessionRuler(detail.transcript), [detail]);
+  const [coverageId, setCoverageId] = useState('');
+  const checkpoints = useMemo(() => {
+    const eventIds = detail.transcript.map((event: J) => event.eventId);
+    return detail.checkpoints.map((record: J) => ({ record, coverage: checkpointCoverage(eventIds, record.covered_event_ids) }))
+      .filter((entry: { record: J; coverage: ReturnType<typeof checkpointCoverage> }) => typeof entry.record.checkpoint_id === 'string' && entry.coverage.known);
+  }, [detail]);
+  const selectedCoverage = !mapUnavailable ? checkpoints.find((entry: { record: J }) => entry.record.checkpoint_id === coverageId) : null;
   const key = `native-session:${branch.sessionId}:${branch.branchId}`;
   const spec = useMemo<MapSpec | null>(() => {
     if (!ruler.ordered) return null;
@@ -36,10 +44,22 @@ export default function SessionTranscript({ detail, branch, disabled, mapUnavail
   return <>
     {spec && !mapUnavailable && <TranscriptTimeMap spec={spec} times={ruler.times as number[]} scroller={scroller} track={track} />}
     <p className="bg-ruler-note">{t('Saved event spacing · 2 px per minute, capped at 48 px · UTC+8')}</p>
+    {checkpoints.length > 0 && <label className="mem-label" htmlFor="mem-checkpoint-coverage">
+      {t('Show saved checkpoint coverage')}
+      <select id="mem-checkpoint-coverage" className="mem-input" aria-controls="mem-saved-transcript" value={selectedCoverage?.record.checkpoint_id ?? ''}
+        disabled={disabled || mapUnavailable} onChange={event => setCoverageId(event.target.value)}>
+        <option value="">{t('none')}</option>
+        {checkpoints.map((entry: { record: J }) => <option key={entry.record.checkpoint_id} value={entry.record.checkpoint_id} title={entry.record.checkpoint_id}>{shortId(entry.record.checkpoint_id)}</option>)}
+      </select>
+    </label>}
+    {selectedCoverage && <p id="mem-checkpoint-coverage-note" className="mem-muted" role="note">
+      {t('Only saved covered events in this loaded transcript are bracketed.')}
+      {selectedCoverage.coverage.outside > 0 && <> {tn(selectedCoverage.coverage.outside, '{n} covered event is outside this loaded transcript.', '{n} covered events are outside this loaded transcript.')}</>}
+    </p>}
     {!ruler.ordered && <p className="mem-muted" role="note">{t('A time map needs known event times in recorded order. The transcript stays in its saved order.')}</p>}
-    <ol ref={track} className="mem-transcript mem-native-transcript" aria-describedby={detail.transcript.length >= 200 ? 'mem-transcript-bound' : undefined}>
+    <ol id="mem-saved-transcript" ref={track} className="mem-transcript mem-native-transcript" aria-describedby={[detail.transcript.length >= 200 ? 'mem-transcript-bound' : '', selectedCoverage ? 'mem-checkpoint-coverage-note' : ''].filter(Boolean).join(' ') || undefined}>
       {detail.transcript.map((event: J, i: number) => <li key={event.eventId} className={`mem-event mem-event-${event.kind}`}
-        data-checkpoint={event.kind === 'checkpoint_created' || undefined} style={{ '--event-gap': `${ruler.gaps[i].pixels}px` } as CSSProperties}>
+        data-checkpoint={event.kind === 'checkpoint_created' || undefined} data-coverage={selectedCoverage?.coverage.segments[i] ?? undefined} style={{ '--event-gap': `${ruler.gaps[i].pixels}px` } as CSSProperties}>
         <div className="native-event-clock">
           {ruler.gaps[i].minutes >= 4 && <span className="native-event-gap" aria-hidden="true">{t('+{n} min', { n: ruler.gaps[i].minutes })}</span>}
           {ruler.times[i] == null ? <span>{t('time unavailable')}</span> : <time dateTime={event.occurredAt} title={event.occurredAt}>{nativeDate(ruler.times[i]!, { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })}</time>}
@@ -96,6 +116,7 @@ function TranscriptTimeMap({ spec, times, scroller, track }: {
     window.addEventListener('resize', schedule);
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule);
     observer?.observe(sc); if (track.current) observer?.observe(track.current);
+    if (track.current?.parentElement) observer?.observe(track.current.parentElement);
     return () => { cancelAnimationFrame(frame); observer?.disconnect(); sc.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, [scroller, spec, key, anchors]);
   useEffect(() => {

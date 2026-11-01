@@ -202,6 +202,10 @@
 .mem-native-transcript>[data-checkpoint] .native-event-clock{border-right:2px solid var(--ink)}
 .mem-native-transcript>[data-checkpoint] .native-event-clock::before{content:"";position:absolute;right:-6px;top:0;bottom:0;width:6px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
 .mem-native-transcript>[data-checkpoint] .native-event-body>.mem-mono{align-self:flex-start;background:var(--i-paper);color:var(--i-ink);padding:0 4px}
+.mem-native-transcript>[data-coverage] .native-event-clock::before{content:"";position:absolute;right:-6px;top:calc(-12px - var(--event-gap,0px));bottom:0;width:6px;border-right:2px solid var(--ink);border-top:0;border-bottom:0}
+.mem-native-transcript>[data-coverage="start"] .native-event-clock::before{top:0;border-top:2px solid var(--ink)}
+.mem-native-transcript>[data-coverage="end"] .native-event-clock::before{border-bottom:2px solid var(--ink)}
+.mem-native-transcript>[data-coverage="only"] .native-event-clock::before{top:0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
 .qr148[data-kind="candidate"] .qr36{background:transparent;border:1px solid var(--ink);box-sizing:border-box}
 .qr148 .qr36{width:4px;height:9px}
 .qr150{padding:0 6px;line-height:18px}

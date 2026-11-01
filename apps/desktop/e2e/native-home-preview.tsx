@@ -22,6 +22,7 @@ const page: Page = pageValue && ['home', 'memory', 'context', 'sessions', 'runti
 const transcript = params.get('transcript') ?? 'known';
 const capsule = params.get('capsule') ?? 'normal';
 const loaded = params.has('loaded');
+const coverage = params.has('coverage');
 setTransport(async (command, args) => {
   if (command === 'shell_status') return { vaultChanging: state === 'changing', closing: state === 'exiting', locking: false, tray: 'present', visible: true, hotkey: { state: 'conflict', combo: 'Ctrl+Alt+M' } };
   if (command === 'memory_provider_setup') return { state: 'absent' };
@@ -41,15 +42,15 @@ setTransport(async (command, args) => {
       delivery: loaded ? 'dispatched' : 'preview_not_sent', dispatches: loaded ? [{ dispatchId: 'dsp_fictional', requestHash: 'a'.repeat(64), state: 'completed', preparedAt: '2026-11-01T02:00:00Z', sentAt: '2026-11-01T02:01:00Z', completedAt: '2026-11-01T02:02:00Z' }] : [],
     } };
   }
-  if (request.command === 'session_list') return { kind: 'memory_page', result: { items: ['one', 'two'].map(name => ({ sessionId: `fictional-session-${name}`, updatedAt: '2026-11-01T05:00:00Z', branches: [{ branchId: `fictional-branch-${name}`, lastEventSeq: 24 }] })) } };
+  if (request.command === 'session_list') return { kind: 'memory_page', result: { items: ['one', 'two'].map(name => ({ sessionId: `fictional-session-${name}`, updatedAt: '2026-11-01T05:00:00Z', branches: [{ branchId: `fictional-branch-${name}`, lastEventSeq: coverage ? 220 : 24 }] })) } };
   if (request.command === 'session_detail') {
     if (transcript === 'error') return { kind: 'memory_error', error: { code: 'storage_failed', retryable: false, rules: [] } };
-    const events = Array.from({ length: transcript === 'empty' ? 0 : 24 }, (_, i) => ({
+    const events = Array.from({ length: transcript === 'empty' ? 0 : coverage ? 200 : 24 }, (_, i) => ({
       eventId: `fictional-event-${i}`, kind: i === 8 || i === 19 ? 'checkpoint_created' : i % 2 ? 'assistant_completed' : 'user_message', deliveryState: i % 2 ? 'completed' : 'not_applicable',
       occurredAt: transcript === 'unknown' && i === 4 ? null : new Date(Date.parse('2026-11-01T02:00:00Z') + (transcript === 'reversed' && i === 4 ? 0 : i) * 180_000).toISOString(),
       text: loaded && i === 1 ? JSON.stringify({ status: 'no_supported_evidence', dispatch_id: 'dsp_fictional', request_hash: 'a'.repeat(64), statements: ['Fictional saved answer. These exact bytes are not interface copy: <example> 中文と日本語。'], sources: [], memories: [] }) : `${request.arguments.sessionId} · Fictional saved event ${i + 1}. This is a browser fixture, not a personal conversation.\nSynthetic text is kept literal: <example>, 中文与日本語の確認。`,
     }));
-    return { kind: 'memory_page', result: { ...request.arguments, transcript: events, turns: [], checkpoints: [], invocations: [], extractionJobs: [], lastSavedEventId: events.at(-1)?.eventId ?? null } };
+    return { kind: 'memory_page', result: { ...request.arguments, transcript: events, turns: [], checkpoints: coverage ? [{ checkpoint_id: 'checkpoint_fictional', status: 'provisional', summary: 'Fictional saved checkpoint summary', covered_event_ids: ['outside-loaded-page', ...Array.from({ length: 8 }, (_, i) => `fictional-event-${i}`)], coverage_hash: 'a'.repeat(64), created_at: '2026-11-01T02:24:00Z' }] : [], invocations: [], extractionJobs: [], lastSavedEventId: events.at(-1)?.eventId ?? null } };
   }
   if (request.command !== 'workspace_status') throw new Error('visual_fixture_read_only');
   if (state === 'error') return { kind: 'memory_error', error: { code: 'storage_failed', retryable: false, rules: [] } };

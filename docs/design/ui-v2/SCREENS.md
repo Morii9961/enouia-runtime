@@ -74,6 +74,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 原生落地（2026-11-01）：已保存事件时间尺、2px/分钟（上限48px）间距、检查点事件括号与本次加载范围的时间地图已移植。正文顺序、草稿和显式读取保持原语义；未知/倒序时间停用地图，不画未知覆盖区间。见[验证与边界](../../validation/UI-v2-native-sessions-2026-11-01.md)。
 
+2026-11-01 后续：复核固定 pin 源码后，已用 `covered_event_ids` 增加保存检查点覆盖选择与分段括号，页外事件不画延伸；不是根据时间或创建事件猜测覆盖。[验证与来源](../../validation/UI-v2-native-session-coverage-2026-11-01.md)。
+
 ### 1.5 Runtime Inspector
 
 - 浏览器演示：顶部一行契约读数（memory / session / capsule / core ipc / schemaVersion / mutation result / toolchain）；左：组件列表（Core、Vault、Index、Context Compiler、Provider、Gateway），状态用竖块形状；右：选中组件的 STATE / VERIFICATION / NOT YET / HEALTH。内容是文档参考，不是实时探测（`dark-runtime-1440`）。
