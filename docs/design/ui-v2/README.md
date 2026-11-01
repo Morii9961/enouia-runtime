@@ -2,6 +2,8 @@
 
 给接手实现的人（Claude 或 Codex）。先读这一页，再按顺序读。**要把 UI v2 落地进 Windows 应用，先读 [HANDOFF_CODEX.md](HANDOFF_CODEX.md)**：现状、落地顺序、验收与交付包。
 
+2026-11-01–02 的原生前端续作、逐片提交与尚未验收的边界见 [当前接续记录](CONTINUATION_2026-11-02.md)。它是本地开发交接，不是发布、安装或人工验收结论。
+
 1. [DESIGN.md](../../../DESIGN.md)：视觉的每个具体值（颜色、字体、间距、布局、动效、文案、禁区）。
 2. [docs/design-decisions.md](../../design-decisions.md)：已经定下的决定。已记录的不重新讨论；要推翻就新增一条。
 3. [SCREENS.md](SCREENS.md)：有哪些屏幕、每屏放什么、做到哪一步（已做 / 部分 / 未做 / 需后端）。

@@ -11,11 +11,12 @@
 | **未做** | 还没有设计稿；先在浏览器演示里用虚构数据设计、截图、过 `docs/design-kit/critique.md`，再实现 |
 | **需后端** | 只能做成标明的合成预览；真实数据要等 Memory 仓库交付契约（见 Memory 交接包 `CONTRACT_READINESS.md`） |
 
-## 三种状态必须分开
+## 数据与预览边界
 
-1. **旧 pin 的真实能力**：`docs/integration/memory-pin.json` 的 Memory Workspace（56bc5eb，47 个命令）。原生里 Memory / Context / Sessions 只显示这些能力，仍是 owner 审阅语义。
+1. **当前 pin 的常规能力**：`docs/integration/memory-pin.json` 固定的 Memory Workspace `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`，Workspace IPC v1 / schema 1 / 58 命令。常规记忆列表/审阅、Context 与 Sessions 使用该契约，仍是 owner 审阅语义；本轮没有升级 pin 或采用新的 Owner Vault。
 2. **合成预览**：「Automatic memory · synthetic preview」，只在浏览器演示（`connected === false`）里出现，固定标「Synthetic preview · not running」，数据是 `screens/automemory/fixture.ts` 的 15 条虚构记忆。不调用 IPC、不写存储。
-3. **以后的受控采用**：Memory 仓库交付自动化契约后，由指定的集成负责人一次一处地把合成预览换成真实数据（Memory UI 规格 §11 的 UI-D / UI-E）。在那之前，原生界面不得出现合成状态，也不得静默回退到演示。
+3. **既有隔离原生样本**：左栏「Synthetic automatic memories」是已合入的 `memory/AutomaticMemory.tsx`，使用独立 `memory_automation` / `memory-native-read-1`，只服务显式 `--memory-synthetic` 创建的隔离样本。它的 schema-2 请求封装与原生样本不代表生产采用，见[原 ADR](../../adr/037-synthetic-native-memory-adoption.md)。本轮未修改或启动该模式。
+4. **以后的受控采用**：Memory 仓库交付生产自动化契约后，由指定的集成负责人一次一处地采用真实数据（Memory UI 规格 §11 的 UI-D / UI-E）。失败或未激活时不得静默回退到浏览器演示；既有隔离原生样本始终保留其合成标签与独立边界。
 
 ## 0. 通用骨架（所有主窗口屏幕）
 
@@ -30,15 +31,15 @@
 
 ## 1. 六个主表面
 
-Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity / Usage 界面」）：不加回导航、页面、统计卡、状态或链接，不做占位页，不加 tokens.ci 面板。它的后端与原生命令暂留，前端不调用。
+Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity / Usage 界面」）：不加回导航、页面、统计卡、状态或链接，不做占位页，不加 tokens.ci 面板。[ADR-037](../../adr/037-activity-usage-desktop-retirement.md) 已退役桌面原生命令与 grants；独立生产者、任务和数据保留，不由本轮前端工作清理。
 
 | # | 表面 | `data-screen-label` | 浏览器演示 | 原生 | 截图 |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Home / Presence | `Home` | 已做 | 部分（2026-11-01 恢复大时刻、记录纸、四注记和日历小地图；仅标示真实最新 Vault 提交，见验证记录） | `dark-home-1440` `dark-home-1100` `light-home-1440` |
-| 2 | Memory Vault | `Memory Vault` | 已做 | 部分（`src/memory/MemorySurface.tsx` 只换了皮，未截图） | `dark-memory-1440` `dark-memory-1100` `dark-memory-candidate-1440` `light-memory-1440` |
-| 3 | Context Surface | `Context Surface` | 已做 | 部分（同上） | `dark-context-1440` |
-| 4 | Sessions | `Sessions` | 已做 | 部分（同上） | `dark-sessions-1440` `light-sessions-1440` |
-| 5 | Runtime Inspector | `Runtime Inspector` | 已做 | 部分（原生是 `src/runtime/RuntimeSurface.tsx` 的观察页：Memory Core、Memory 操作、Windows shell；只换了皮，未截图） | `dark-runtime-1440` |
+| 2 | Memory Vault | `Memory Vault` | 已做 | 部分（2026-11-01 已补保存行字段、三语日期与焦点保持；全库项目/来源分类仍缺，见 §1.2） | `dark-memory-1440` `dark-memory-1100` `dark-memory-candidate-1440` `light-memory-1440` |
+| 3 | Context Surface | `Context Surface` | 已做 | 部分（2026-11-01 已补当前保存对象的分区导航与预算刻度；完整 Capsule 索引仍缺，见 §1.3） | `dark-context-1440` |
+| 4 | Sessions | `Sessions` | 已做 | 部分（2026-11-01 已补时间尺、加载范围地图与保存检查点覆盖；见 §1.4） | `dark-sessions-1440` `light-sessions-1440` |
+| 5 | Runtime Inspector | `Runtime Inspector` | 已做 | 部分（2026-11-01 已补组件导航、观察摘要与右侧详情；切换保留读取/操作归属，见 §1.5） | `dark-runtime-1440` |
 | 6 | Settings | `Settings` | 已做 | 部分 | `dark-settings-1440` `light-settings-1440` |
 
 ### 1.1 Home
