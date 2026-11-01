@@ -61,6 +61,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 2026-11-01：原生日期标题已随界面语言显示，切换语言保留行节点与焦点；项目/来源导航仍未补造。[验证记录](../../validation/UI-v2-native-memory-dates-2026-11-01.md)。
 
+2026-11-01 后续：根据固定 pin 已有字段，记忆行显示保存标题、逻辑项目 ID 和证据引用数；缺字段不补造，检索不借用列表标题。没有全库分类或项目名称推断。[来源与验证](../../validation/UI-v2-native-memory-metadata-2026-11-01.md)。
+
 ### 1.3 Context Surface
 
 - 一次召回的 Capsule：纳入/排除列表，每项 rank、reason、字节、来源可达；展开看 trace。预算条只用墨色阶。

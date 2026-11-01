@@ -1479,5 +1479,6 @@ const dict: Record<string, string> = {
   "Only saved covered events in this loaded transcript are bracketed.": "括号只标示当前已读取转录中已保存的覆盖事件。",
   "{n} covered event is outside this loaded transcript.": "有 {n} 个覆盖事件不在当前已读取的转录中。",
   "{n} covered events are outside this loaded transcript.": "有 {n} 个覆盖事件不在当前已读取的转录中。",
+  "Project {id}": "项目 {id}",
 };
 export default dict;

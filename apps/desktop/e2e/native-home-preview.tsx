@@ -23,6 +23,7 @@ const transcript = params.get('transcript') ?? 'known';
 const capsule = params.get('capsule') ?? 'normal';
 const loaded = params.has('loaded');
 const coverage = params.has('coverage');
+const metadata = params.has('metadata');
 setTransport(async (command, args) => {
   if (command === 'shell_status') return { vaultChanging: state === 'changing', closing: state === 'exiting', locking: false, tray: 'present', visible: true, hotkey: { state: 'conflict', combo: 'Ctrl+Alt+M' } };
   if (command === 'memory_provider_setup') return { state: 'absent' };
@@ -30,7 +31,9 @@ setTransport(async (command, args) => {
   const request = args.request as { command: string; arguments: { sessionId: string; branchId: string } };
   if (request.command === 'operation_list') return { kind: 'memory_page', result: { items: [{ operationId: 'fictional-verify', kind: 'vault_verify', state: 'succeeded', progress: { done: 12, total: 12 }, cancelRequested: false }] } };
   if (request.command === 'provider_status') return { kind: 'memory_page', result: { configured: false, destinations: [], grants: [] } };
-  if (request.command === 'memory_list') return { kind: 'memory_page', result: { items: ['2026-11-01T10:00:00Z', '2026-10-31T10:00:00Z'].map((updatedAt, i) => ({ memoryId: `mem_fictional_${i}`, type: 'fact', status: 'active', currency: 'current', snippet: `Fictional saved memory ${i}. These exact bytes are not interface copy: <example> 中文と日本語。`, revision: 1, updatedAt })), nextCursor: null, total: 2 } };
+  if (request.command === 'memory_list') return { kind: 'memory_page', result: { items: ['2026-11-01T10:00:00Z', '2026-10-31T10:00:00Z'].map((updatedAt, i) => ({ memoryId: `mem_fictional_${i}`, type: 'fact', status: 'active', currency: 'current', snippet: `Fictional saved memory ${i}. These exact bytes are not interface copy: <example> 中文と日本語。`, revision: 1, updatedAt,
+    ...(metadata ? { title: i === 0 ? 'Fictional saved title · 这是保存的标题・保存された見出し' : null, projectId: 'prj_fictional_project_identity', evidenceCount: i === 0 ? 0 : 2 } : {}),
+  })), nextCursor: null, total: 2 } };
   if (request.command === 'dispatch_inspect') return { kind: 'memory_page', result: { dispatchId: 'dsp_fictional', capsuleId: 'cap_fictional', verified: true, requestHash: 'a'.repeat(64), tools: 1, destination: { kind: 'local_mock' }, messages: [{ role: 'user', text: 'Fictional saved request. These exact bytes are not interface copy: <example> 中文と日本語。' }] } };
   if (request.command === 'context_inspect') {
     if (capsule === 'error') return { kind: 'memory_error', error: { code: 'storage_failed', retryable: false, rules: [] } };

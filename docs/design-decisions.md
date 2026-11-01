@@ -16,6 +16,13 @@
 
 ---
 
+## 2026-11-01 · Memory 行展示当前 pin 已返回的保存元数据
+
+- 决定：按原样显示可用保存标题、逻辑项目 ID 和每条记忆的证据引用数；没有标题时继续用已有片段，不从正文生成标题。不把项目 ID 当显示名，也不把 evidenceCount 当不同来源数或全库统计。
+- 依据：固定 pin `bf6bfd10…` 的 `views.rs` 21–37 行返回 title/projectId/evidenceCount；`lib.rs` memory_search 同样返回 projectId/evidenceCount，但没有 title。Workspace v1 的 MemoryListArgs / SearchArgs 拒绝未知字段，不支持加入项目/种类筛选参数。
+- 影响：只改当前加载行的呈现；不新增查询、回退、过滤或写入，搜索结果不借用先前列表标题。
+- 状态：定稿（F5 的可用行字段，不代表全库分类完成）
+
 ## 2026-11-01 · 检查点覆盖按当前 pin 的已保存事件 ID 绘制
 
 - 决定：在转录中提供检查点覆盖选择；只对该检查点 `covered_event_ids` 中确实存在于本次加载页的事件画括号，按连续可见片段分段，不能跨越未覆盖事件。默认不选，页外覆盖明确计数，不画未知延伸。

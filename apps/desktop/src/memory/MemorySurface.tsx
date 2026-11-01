@@ -211,14 +211,18 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
                   <span className="qr42">
                     <span className="qr38">
                       <span>{m.type}</span>
+                      {typeof m.projectId === 'string' && m.projectId && <span className="mem-row-project" title={m.projectId}>{t('Project {id}', { id: shortId(m.projectId) })}</span>}
                       {m.status && m.status !== "active" && <Tag>{m.status}</Tag>}
                       {m.currency && m.currency !== "current" && <Tag>{m.currency}</Tag>}
                       {m.expired && <Tag tone="warn">{t("expired")}</Tag>}
                       {m.conflicted && <Tag tone="warn">{t("conflict")}</Tag>}
                       {m.sourceMissing && <Tag tone="warn">{t("source missing")}</Tag>}
                     </span>
+                    {typeof m.title === 'string' && m.title.trim() && <span className="mem-row-title" title={m.title}>{m.title}</span>}
                     <span className="qr39">{m.snippet}</span>
-                    <span className="qr41"><span className="qr25">{shortId(m.memoryId)}</span>{m.revision != null && <span>r{m.revision}</span>}</span>
+                    <span className="qr41"><span className="qr25">{shortId(m.memoryId)}</span>{m.revision != null && <span>r{m.revision}</span>}
+                      {typeof m.evidenceCount === 'number' && <span className="mem-row-evidence">{tn(m.evidenceCount, '{n} evidence reference', '{n} evidence references')}</span>}
+                    </span>
                   </span>
                 </button>
               ))}

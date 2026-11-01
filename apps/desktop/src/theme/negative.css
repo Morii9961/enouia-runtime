@@ -151,6 +151,8 @@
 .mem-context-nav a.qr26{text-decoration:none;box-sizing:border-box;height:auto;min-height:36px;white-space:normal;overflow-wrap:anywhere}
 .mem-context-nav code{display:block;overflow-wrap:anywhere}
 .native-budget-fill{background:var(--ink)}
+.mem-row-title{font-family:var(--f-text);font-size:14px;line-height:20px;font-weight:500;color:var(--ink);overflow-wrap:anywhere}
+.mem-row-project,.mem-row-evidence{overflow-wrap:anywhere}
 
 /* ---- the enlarged insert: four crop corners round the Inspector, as on a film frame (05) ---- */
 .qr88{position:relative}

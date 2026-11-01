@@ -1479,5 +1479,6 @@ const dict: Record<string, string> = {
   "Only saved covered events in this loaded transcript are bracketed.": "対象の線は、読み込み済みの会話記録にある保存済みイベントだけに表示します。",
   "{n} covered event is outside this loaded transcript.": "対象イベント {n} 件は、この読み込み済みの会話記録の外にあります。",
   "{n} covered events are outside this loaded transcript.": "対象イベント {n} 件は、この読み込み済みの会話記録の外にあります。",
+  "Project {id}": "プロジェクト {id}",
 };
 export default dict;
