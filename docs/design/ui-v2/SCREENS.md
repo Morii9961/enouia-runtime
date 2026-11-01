@@ -59,6 +59,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - Candidate inbox（`dark-memory-candidate-1440`）：候选行用空心竖块，Inspector 给接受/编辑/拒绝（演示）。
 - 缺：Inspector 里过长的 Session ID 越过右侧裁切角（OPEN_ISSUES #8）。
 
+2026-11-01：原生日期标题已随界面语言显示，切换语言保留行节点与焦点；项目/来源导航仍未补造。[验证记录](../../validation/UI-v2-native-memory-dates-2026-11-01.md)。
+
 ### 1.3 Context Surface
 
 - 一次召回的 Capsule：纳入/排除列表，每项 rank、reason、字节、来源可达；展开看 trace。预算条只用墨色阶。

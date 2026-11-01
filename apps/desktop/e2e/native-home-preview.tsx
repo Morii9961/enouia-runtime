@@ -4,7 +4,8 @@ import { createRoot } from 'react-dom/client';
 import { createRef } from 'react';
 import App from '../src/App';
 import { setTransport } from '../src/memory/client';
-import { ready } from '../src/i18n/index';
+import { ready, useLang } from '../src/i18n/index';
+import type { Page } from '../src/demo-types';
 import '../src/theme/negative-fonts.css';
 import '../src/quiet-runtime.css';
 import '../src/memory/memory.css';
@@ -16,7 +17,8 @@ import '../src/theme/cjk-fonts.css';
 const params = new URLSearchParams(location.search);
 document.documentElement.dataset.theme = params.get('theme') === 'light' ? 'light' : 'dark';
 const state = params.get('state') ?? 'open';
-const page = params.get('page') === 'sessions' ? 'sessions' : params.get('page') === 'runtime' ? 'runtime' : params.get('page') === 'context' ? 'context' : 'home';
+const pageValue = params.get('page');
+const page: Page = pageValue && ['home', 'memory', 'context', 'sessions', 'runtime', 'settings'].includes(pageValue) ? pageValue as Page : 'home';
 const transcript = params.get('transcript') ?? 'known';
 const capsule = params.get('capsule') ?? 'normal';
 const loaded = params.has('loaded');
@@ -27,6 +29,7 @@ setTransport(async (command, args) => {
   const request = args.request as { command: string; arguments: { sessionId: string; branchId: string } };
   if (request.command === 'operation_list') return { kind: 'memory_page', result: { items: [{ operationId: 'fictional-verify', kind: 'vault_verify', state: 'succeeded', progress: { done: 12, total: 12 }, cancelRequested: false }] } };
   if (request.command === 'provider_status') return { kind: 'memory_page', result: { configured: false, destinations: [], grants: [] } };
+  if (request.command === 'memory_list') return { kind: 'memory_page', result: { items: ['2026-11-01T10:00:00Z', '2026-10-31T10:00:00Z'].map((updatedAt, i) => ({ memoryId: `mem_fictional_${i}`, type: 'fact', status: 'active', currency: 'current', snippet: `Fictional saved memory ${i}. These exact bytes are not interface copy: <example> 中文と日本語。`, revision: 1, updatedAt })), nextCursor: null, total: 2 } };
   if (request.command === 'dispatch_inspect') return { kind: 'memory_page', result: { dispatchId: 'dsp_fictional', capsuleId: 'cap_fictional', verified: true, requestHash: 'a'.repeat(64), tools: 1, destination: { kind: 'local_mock' }, messages: [{ role: 'user', text: 'Fictional saved request. These exact bytes are not interface copy: <example> 中文と日本語。' }] } };
   if (request.command === 'context_inspect') {
     if (capsule === 'error') return { kind: 'memory_error', error: { code: 'storage_failed', retryable: false, rules: [] } };
@@ -54,10 +57,14 @@ setTransport(async (command, args) => {
 });
 await ready();
 const app = createRef<App>();
-createRoot(document.getElementById('fixture')!).render(<>
+function Preview() {
+  useLang();
+  return <>
   <div style={{ position: 'fixed', right: 16, bottom: 2, zIndex: 100, background: 'var(--paper)', color: 'var(--ink)', fontSize: 12 }}>FICTIONAL FIXTURE · NO NATIVE CONNECTION</div>
   <App ref={app} memoryConnected startPage={page} />
-</>);
+  </>;
+}
+createRoot(document.getElementById('fixture')!).render(<Preview />);
 // Exercise App's existing saved-Capsule route, not a special product prop or a
 // preview write. This keeps the real shell's grid and Vault gate in the capture.
 if (page === 'context' && capsule !== 'empty') {

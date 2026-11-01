@@ -17,7 +17,7 @@ import { ImportReport } from "./ImportReport";
 import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
 import { AutomaticMemory } from "./AutomaticMemory";
 
-import { labels, msg, t, tn } from '../i18n/index.ts';
+import { labels, locale, msg, t, tn } from '../i18n/index.ts';
 type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated";
 
 const TITLES: Record<Collection, string> = labels({
@@ -32,7 +32,7 @@ const TITLES: Record<Collection, string> = labels({
 function dayOf(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  return d.toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
 export default function MemorySurface({ initialCollection = "current", openSession }: {
@@ -201,8 +201,8 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
         {read.busy && <p role="status" className="mem-muted mem-pad">{t("Reading memories…")}</p>}
         {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? t("Nothing matches this search.") : t("No approved memories here yet.")}</div>}
         <div onKeyDown={move}>
-          {days.map((d, i) => (
-            <div key={`${i}:${d.label}`}>
+          {days.map((d) => (
+            <div key={d.items[0].memoryId}>
               <div className="qr33">{d.label}</div>
               {d.items.map((m) => (
                 <button key={m.memoryId} type="button" className="qr43" aria-pressed={selected === m.memoryId}
