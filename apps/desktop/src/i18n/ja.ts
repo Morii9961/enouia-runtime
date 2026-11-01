@@ -1485,7 +1485,10 @@ const dict: Record<string, string> = {
   "Reload settings": "設定を再読み込み",
   "Allowed by grant {id} (up to {sensitivity}).": "許可 {id} により送信できます（機密性は {sensitivity} まで）。",
   "No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.": "{api} への送信はまだ許可されていません。許可すると、リクエストに含めたプライベートなメモリとセッションのテキストをこのプロバイダーが受け取れます。",
-  "This exact request goes to": "このリクエストをそのまま送る宛先",
+  "Ask {api} ({model}) to suggest facts from bytes {start}–{end} of this source. You see the exact request first; suggestions only enter the review queue.": "{api}（{model}）に、このソースの {start}–{end} バイトから事実の提案を依頼します。先に実際のリクエストを確認できます。提案はレビューキューに入るだけです。",
+  "This exact request goes to {endpoint} ({model}), about {input} input tokens. It is sent once. Retry recovers this same call without sending again to the service.": "このリクエストをそのまま {endpoint}（{model}）に送ります。入力は約 {input} トークンです。送信は一度だけです。再試行では同じ呼び出しを復元し、サービスに再送信しません。",
+  "Leave this request": "このリクエストを離れる",
+  "This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.": "このローカルキューは一時停止中です。再開してもモデルへの送信や提案の追加は行いません。保存済みの状態を読んでから、残りの項目を追加するか選んでください。",
   "Also allow suggesting memories from sources you select (extraction)": "選択したソースからメモリを提案することも許可する（抽出）",
   "This exact request goes to {endpoint} ({model}), about {input} input tokens and at most {output} output tokens. It is sent once. Retry recovers this same call without sending again to the service.": "このリクエストをそのまま {endpoint}（{model}）に送ります。入力は約 {input} トークン、出力は最大 {output} トークンです。送信は一度だけです。再試行では同じ呼び出しを復元し、サービスに再送信しません。",
 };

@@ -1485,7 +1485,10 @@ const dict: Record<string, string> = {
   "Reload settings": "重载设置",
   "Allowed by grant {id} (up to {sensitivity}).": "授权 {id} 允许发送（保密级别上限：{sensitivity}）。",
   "No grant allows sending to {api} yet. A grant lets this provider receive private memories and session text you include in a request.": "还没有授权允许向 {api} 发送。授权后，这个服务商可以接收你放入请求的保密记忆与会话文本。",
-  "This exact request goes to": "这份请求原样发往",
+  "Ask {api} ({model}) to suggest facts from bytes {start}–{end} of this source. You see the exact request first; suggestions only enter the review queue.": "请 {api}（{model}）从这个来源的第 {start}–{end} 字节提出事实建议。你会先看到实际请求；建议只进入审阅队列。",
+  "This exact request goes to {endpoint} ({model}), about {input} input tokens. It is sent once. Retry recovers this same call without sending again to the service.": "这份请求原样发往 {endpoint}（{model}），输入约 {input} token。只发送一次。重试会恢复同一次调用，不会再次发送到服务商。",
+  "Leave this request": "离开这份请求",
+  "This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.": "这个本地队列已暂停。恢复不会发送到模型或添加建议；读取保存状态后，再决定是否添加剩余项目。",
   "Also allow suggesting memories from sources you select (extraction)": "同时允许从你选择的来源中提出记忆建议（提取）",
   "This exact request goes to {endpoint} ({model}), about {input} input tokens and at most {output} output tokens. It is sent once. Retry recovers this same call without sending again to the service.": "这份请求原样发往 {endpoint}（{model}），输入约 {input} token，输出最多 {output} token。只发送一次。重试会恢复同一次调用，不会再次发送到服务商。",
 };

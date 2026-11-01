@@ -13,7 +13,7 @@ import { suggestionObservation } from "./observationIdentity";
 import { holdProviderSend } from "./providerSend";
 import { holdProviderPreparation } from "./providerPreparation";
 
-import { t } from '../i18n/index.ts';
+import { t, tj } from '../i18n/index.ts';
 type Range = { sourceId: string; revision: number; start: number; end: number };
 
 export function ExtractionPanel({ range, onClose, onBusyChange, request = call }: { range: Range; onClose: () => void; onBusyChange?: (busy: boolean) => void; request?: typeof call }) {
@@ -90,7 +90,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
       {providerChoice}
       {!prepared && !operation && !job && (
         <>
-          <p className="mem-muted">Ask {api} ({destination.model}) to suggest facts from bytes {range.start}–{range.end} of this source. You see the exact request first; suggestions only enter the review queue.</p>
+          <p className="mem-muted">{t("Ask {api} ({model}) to suggest facts from bytes {start}–{end} of this source. You see the exact request first; suggestions only enter the review queue.", { api, model: destination.model, start: range.start, end: range.end })}</p>
           {preparation && <p role="status" className="mem-muted">{t("Preparation was submitted. Its saved result is not confirmed here. Recover the original preparation, or close and read saved suggestion jobs from Sessions before preparing again. Preparing does not send to a model.")}</p>}
           <div className="mem-actions">
             <button type="button" className="mem-button mem-primary" disabled={action.busy || (!!preparation && !!action.error && !action.error.retry)}
@@ -111,7 +111,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
       )}
       {prepared && (
         <>
-          <p>{t("This exact request goes to")} <span className="mem-mono">{prepared.endpoint}</span> ({prepared.model}), about {prepared.estimatedInputTokens} input tokens. It is sent once. Retry recovers this same call without sending again to the service.</p>
+          <p>{tj("This exact request goes to {endpoint} ({model}), about {input} input tokens. It is sent once. Retry recovers this same call without sending again to the service.", { endpoint: <span className="mem-mono">{prepared.endpoint}</span>, model: prepared.model, input: prepared.estimatedInputTokens })}</p>
           <pre className="mem-pre" tabIndex={0}>{prepared.body}</pre>
           {submitted && <p role="status" className="mem-muted">{t("Send was submitted. The service may have received it. Recover this call, or leave and read this saved run from Sessions.")}</p>}
           <div className="mem-actions">
@@ -122,7 +122,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                 setPrepared(null);
                 setOperation(started.operationId);
               })}>{submitted ? t("Recover this call") : t("Send once")}</button>
-            <button type="button" className="mem-button" disabled={action.busy} onClick={onClose}>{submitted ? "Leave this request" : "Don't send"}</button>
+            <button type="button" className="mem-button" disabled={action.busy} onClick={onClose}>{submitted ? t("Leave this request") : t("Don't send")}</button>
           </div>
         </>
       )}
@@ -156,7 +156,7 @@ export function ExtractionPanel({ range, onClose, onBusyChange, request = call }
                 }}>{t("Add to the review queue")}</button>
             )}
             {preview.job.state === "paused" && <>
-              <p className="mem-muted">This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.</p>
+              <p className="mem-muted">{t("This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.")}</p>
               <button type="button" className="mem-button" disabled={action.busy || !previewCurrent}
                 onClick={() => {
                   if (action.busy || !previewCurrent) return;

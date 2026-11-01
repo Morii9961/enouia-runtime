@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { ExtractionPanel } from "../src/memory/ExtractionPanel";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -20,7 +21,7 @@ setTransport(async(native,args)=>{
       {active:true,policyId:"conversation-only",purposes:["conversation"],destinations:[{provider:"openai",model:"synthetic-openai"}]},
       {active:true,policyId:"extraction-grant",purposes:["extraction"],destinations:[{provider:"anthropic",model:"synthetic-anthropic"}]},
     ]};break;
-    case "extraction_prepare":await new Promise<void>(resolve=>{releasePrepare=resolve;});result={callId:"synthetic-call",wireHash:"synthetic-hash",sessionId:"synthetic-session",runId:"synthetic-run",model:"synthetic-anthropic",endpoint:"Synthetic Anthropic endpoint (unused)",body:"Synthetic Anthropic body"};break;
+    case "extraction_prepare":await new Promise<void>(resolve=>{releasePrepare=resolve;});result={callId:"synthetic-call",wireHash:"synthetic-hash",sessionId:"synthetic-session",runId:"synthetic-run",model:"synthetic-anthropic",endpoint:"Synthetic Anthropic endpoint (unused)",body:"Synthetic Anthropic body",estimatedInputTokens:14};break;
     case "external_send":result={operationId:"synthetic-operation",kind:"external_send"};break;
     case "operation_get":result={operationId:"synthetic-operation",kind:"external_send",state:finished?"succeeded":"running",progress:{done:0,total:null},cancelRequested:false,result:finished?{finish:"completed"}:null};break;
     case "extraction_preview":result={job:{run_id:r.arguments.runId,state:"completed"},items:[]};break;
@@ -29,7 +30,8 @@ setTransport(async(native,args)=>{
   return {kind:"memory_page",result,error:null};
 });
 const root=createRoot(fixture);
-root.render(<ExtractionPanel range={{sourceId:"synthetic-source",revision:3,start:20,end:40}} onClose={()=>{closed=true;}}/>);
+function Surface() { useLang(); return <ExtractionPanel range={{sourceId:"synthetic-source",revision:3,start:20,end:40}} onClose={()=>{closed=true;}}/>; }
+root.render(<Surface />);
 const text=()=>fixture.textContent??"";
 const choice=()=>fixture.querySelector<HTMLSelectElement>("select");
 const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent===label);
@@ -45,12 +47,36 @@ try{
   await wait(()=>!!button("Prepare the request…"));
   check("chosen_provider_and_model_are_named",text().includes("anthropic (synthetic-anthropic)"));
   check("selection_does_not_send_or_grant",calls.every(c=>c.command==="provider_status"));
+  const chosenCalls=calls.length,chosenSelect=choice();
+  for(const [language,rangeCopy,queueCopy] of [
+    ["en","bytes 20–40","suggestions only enter the review queue"],
+    ["zh-Hans","第 20–40 字节","建议只进入审阅队列"],
+    ["ja","20–40 バイト","提案はレビューキューに入るだけです"],
+  ]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_selected_source_range_is_localized`,text().includes(rangeCopy)&&text().includes(queueCopy)&&text().includes("synthetic-anthropic"));
+    check(`${language}_language_keeps_selected_destination`,choice()===chosenSelect&&choice()!.value==="anthropic"&&!choice()!.disabled);
+  }
+  check("source_language_changes_do_not_read_prepare_or_send",calls.length===chosenCalls);
+  await setLang("en");await sleep(30);
   click("Prepare the request…");await wait(()=>releasePrepare!=null);await sleep(50);
   check("selection_is_held_during_prepare",choice()!.disabled);
   const prepared=calls.find(c=>c.command==="extraction_prepare")!.args;
   check("prepare_uses_selected_destination_and_grant",prepared.api==="anthropic"&&prepared.policyId==="extraction-grant"&&prepared.startByte===20&&prepared.endByte===40&&prepared.sourceRevision===3);
   releasePending();await wait(()=>!!button("Send once"));
   check("prepared_body_keeps_its_destination",choice()!.disabled&&choice()!.value==="anthropic"&&text().includes("Synthetic Anthropic body"));
+  const sendButton=button("Send once")!,preparedCalls=calls.length;
+  for(const [language,label,requestCopy] of [
+    ["en","Send once","about 14 input tokens"],
+    ["zh-Hans","发送一次","输入约 14 token"],
+    ["ja","1 回送信","入力は約 14 トークン"],
+  ]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_prepared_extraction_explanation_is_localized`,text().includes(requestCopy)&&sendButton.textContent===label);
+    check(`${language}_language_preserves_held_extraction_request`,button(label)===sendButton&&!sendButton.disabled&&choice()===chosenSelect&&choice()!.disabled&&choice()!.value==="anthropic"&&fixture.querySelector("pre")!.textContent==="Synthetic Anthropic body"&&text().includes("Synthetic Anthropic endpoint (unused)"));
+  }
+  check("prepared_extraction_language_changes_do_not_read_prepare_or_send",calls.length===preparedCalls);
+  await setLang("en");await sleep(30);
   click("Send once");await wait(()=>!!button("Stop locally"));
   check("running_call_keeps_its_destination",choice()!.disabled&&choice()!.value==="anthropic");
   finished=true;await wait(()=>text().includes("0 suggestions"));
