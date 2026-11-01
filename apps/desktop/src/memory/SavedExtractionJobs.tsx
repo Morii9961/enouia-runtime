@@ -73,9 +73,9 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
     <ErrorBox error={read.error} />
     <ErrorBox error={action.error} />
     {requested && <div className="mem-stack">
-      <p className="mem-muted" title={requested}>Suggestion run {shortId(requested)} · session {shortId(sessionId)}.</p>
+      <p className="mem-muted" title={requested}>{t("Suggestion run {run} · session {session}.", { run: shortId(requested), session: shortId(sessionId) })}</p>
       {read.busy && <p className="mem-muted" role="status">{t("Reading saved suggestions…")}</p>}
-      {action.busy && <p className="mem-muted" role="status">{mutation === "resume" ? "Resuming the local queue." : "Adding remaining suggestions locally."} Waiting for the saved result…</p>}
+      {action.busy && <p className="mem-muted" role="status">{mutation === "resume" ? t("Resuming the local queue. Waiting for the saved result…") : t("Adding remaining suggestions locally. Waiting for the saved result…")}</p>}
       {read.error && <p className="mem-muted">{t("The current saved suggestions could not be read. Read again to observe their saved state.")}</p>}
       {loaded?.runId === requested && !loaded.current && <p className="mem-muted" role="status">{t("Previous suggestion observation. Read saved suggestions again before starting another write.")}</p>}
       {loaded?.runId === requested && <SuggestionPreview preview={loaded.preview} />}
@@ -84,7 +84,7 @@ export function SavedExtractionJobs({ sessionId, jobs, disabled = false, onBusyC
         {loaded?.runId === requested && loaded.preview.job.state !== "completed" && loaded.preview.job.state !== "paused" && loaded.preview.items.length > 0 &&
           <button type="button" className="mem-button mem-primary" disabled={disabled || read.busy || action.busy || !loaded.current} onClick={() => changeQueue("apply")}>{t("Add remaining suggestions to the review queue")}</button>}
         {loaded?.runId === requested && loaded.preview.job.state === "paused" && <>
-          <p className="mem-muted">This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.</p>
+          <p className="mem-muted">{t("This local queue is paused. Resuming it does not send to a model or add suggestions; choose whether to add the remaining items after reading its saved state.")}</p>
           <button type="button" className="mem-button" disabled={disabled || read.busy || action.busy || !loaded.current} onClick={() => changeQueue("resume")}>{t("Resume local queue")}</button>
         </>}
         {onReview && loaded?.runId === requested && loaded.preview.items.some((item: J) => item.candidate?.status === "pending") && <>
