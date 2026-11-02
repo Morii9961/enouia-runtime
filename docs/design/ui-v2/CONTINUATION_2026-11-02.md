@@ -4,7 +4,7 @@
 
 本地分支 `codex/native-home-time-structure` 从 PR #112 的合并提交 `d0208eb` 开始。本页记录本分支开发证据，不声称远端没有更新。以下提交均未推送、开 PR 或合并；没有生成新的原生可执行文件或安装包。
 
-当前已验证的本地代码基线为 `347230e`。本轮只修改前端呈现、合成场景及交接记录；未改 Memory pin、Rust/native shell、安装器或正式项目状态快照。新增截图都是带 `FICTIONAL FIXTURE · NO NATIVE CONNECTION` 水印的隔离浏览器 fixture，不是原生或人工验收。
+当前已验证的本地代码基线为 `147f0d6`，共18个功能/修复切片。本轮只修改前端呈现、合成场景及交接记录；未改 Memory pin、Rust/native shell、安装器或正式项目状态快照。新增截图都是带 `FICTIONAL FIXTURE · NO NATIVE CONNECTION` 水印的隔离浏览器 fixture，不是原生或人工验收。
 
 ## 已完成切片
 
@@ -26,8 +26,10 @@
 | `03fcc2d` | 候选上下文依赖的证据/完整性边界、冲突数与等待提示三语化；保留已读来源。[验证](../../validation/UI-v2-native-candidate-copy-2026-11-02.md) |
 | `2614f6f` | 导入恢复、重复提示和 Vault 作用范围三语化；保留草稿/焦点与操作归属。[验证](../../validation/UI-v2-native-import-recovery-copy-2026-11-02.md) |
 | `347230e` | Memory 集合分组使用稳定集合 ID，修复语言切换后左侧按钮重建/焦点丢失。[失败复现与验证](../../validation/UI-v2-native-memory-nav-focus-2026-11-02.md) |
+| `7f15d8c` | 历史任务观察视图的定义、批次顺序/数量及额度三语化；保留原批次会话链接。[验证](../../validation/UI-v2-native-history-task-copy-2026-11-02.md) |
+| `147f0d6` | 保存批次结果、来源/时间与恢复说明三语化；保留原引文、确认勾选和焦点。[验证](../../validation/UI-v2-native-history-result-copy-2026-11-02.md) |
 
-最近一次完整前端检查：Node 134通过、3跳过、0失败；DOM 86场景/1221项断言通过。`npm test` 已内含 DOM；build 内含类型检查，主 JS 451.24 kB。两个根检查通过，pin 一致、桌面 Activity/Usage 退役边界保留。各片原始数字、失败与必要重跑、截图范围见各自 validation；没有把历史原生测试计入本轮。
+最近一次完整前端检查：Node 134通过、3跳过、0失败；DOM 86场景/1235项断言通过。`npm test` 已内含 DOM；build 内含类型检查，主 JS 451.24 kB。两个根检查通过，pin 一致、桌面 Activity/Usage 退役边界保留。各片原始数字、失败与必要重跑、截图范围见各自 validation；没有把历史原生测试计入本轮。
 
 浏览器语言驱动曾重复导入 Vite 热更新后的 i18n 模块，旧的单一 `html lang` 条件不足以证明页面刷新。已修正并以实际可见译文重跑日期12组、行元数据12组、Provider18组及新增Vault12组，见[证据补正](../../validation/UI-v2-browser-language-harness-2026-11-02.md)。产品的 DOM 场景使用同一模块，不受该驱动问题影响。
 
