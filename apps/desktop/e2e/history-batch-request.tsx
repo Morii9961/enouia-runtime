@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { HistoryTasks, useHistoryTasks } from "../src/memory/HistoryTaskPanel";
 import { call, setTransport, type J } from "../src/memory/client";
 import { historyTask } from "../tests/history-task-fixture";
+import { setLang, useLang, type Lang } from "../src/i18n";
 
 const fixture = document.getElementById("fixture")!, root = createRoot(fixture), checks: { id: string; ok: boolean }[] = [];
 const calls: { command: string; args: J; key: string }[] = [];
@@ -47,7 +48,7 @@ setTransport(async (native, envelope) => {
   }
   return { kind: "synthetic", result };
 });
-function Harness() { const tasks = useHistoryTasks(vaultId); return <div data-head={head} data-owner={`${vaultId}:${instance}`}>{panelVisible && <HistoryTasks tasks={tasks} />}</div>; }
+function Harness() { useLang(); const tasks = useHistoryTasks(vaultId); return <div data-head={head} data-owner={`${vaultId}:${instance}`}>{panelVisible && <HistoryTasks tasks={tasks} />}</div>; }
 const render = () => root.render(visible ? <Harness key={`${vaultId}:${instance}`} /> : null);
 const text = () => fixture.textContent ?? "", sleep = () => new Promise(resolve => setTimeout(resolve, 20));
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b => b.textContent === label);
@@ -78,6 +79,20 @@ try {
   check("head_commit_retains_one_preparation_original_batch_and_exact_body", prepares().length === 1 && prepares()[0].args.batchIndex === 1 && text().includes("SYNTHETIC BODY 1"));
   check("inspection_displays_destination_model_handle_hash_and_output", text().includes("example.invalid/synthetic") && text().includes("synthetic-model") && text().includes("synthetic-call-1") && text().includes("a".repeat(64)) && text().includes("1024 output tokens"));
   check("send_requires_separate_exact_inspection", button("Send this batch once")!.disabled && sends().length === 0);
+  const exactGroup=fixture.querySelector('[aria-label="Exact history request"]')!,body=exactGroup.querySelector('pre')!,literalBody=body.textContent,confirmation=exactGroup.querySelector<HTMLInputElement>('input')!,sendControl=button('Send this batch once')!;
+  const preparedCount=prepares().length,sendCount=sends().length,providerReads=calls.filter(c=>c.command==='provider_status').length;
+  confirmation.focus();
+  for(const [language,label,estimate] of [
+    ['en','Send this batch once','about 50 input tokens · at most 1024 output tokens.'],
+    ['zh-Hans','发送这个批次一次','输入约 50 token · 输出最多 1024 token。'],
+    ['ja','このバッチを 1 回送信','入力は約 50 トークン · 出力は最大 1024 トークン。'],
+  ]){
+    await setLang(language as Lang);await sleep();await sleep();
+    check(`${language}_batch_request_estimate_and_send_label_are_localized`,exactGroup.textContent!.includes(estimate)&&sendControl.textContent===label);
+    check(`${language}_language_keeps_exact_body_and_unconfirmed_send`,body.isConnected&&body.textContent===literalBody&&confirmation.isConnected&&!confirmation.checked&&document.activeElement===confirmation&&sendControl.isConnected&&sendControl.disabled&&exactGroup.textContent!.includes('synthetic-call-1')&&exactGroup.textContent!.includes('a'.repeat(64)));
+  }
+  check('batch_language_does_not_prepare_send_or_read_models',prepares().length===preparedCount&&sends().length===sendCount&&calls.filter(c=>c.command==='provider_status').length===providerReads);
+  await setLang('en');await sleep();await sleep();
   click("Withdraw batch request"); await wait(() => !!button(prepareLabel) && !button(prepareLabel)!.disabled); failPrepare = true; click(prepareLabel); await wait(() => text().includes("Preparation is not confirmed"));
   const original = prepares().at(-1)!;
   click("Read this history task again"); await sleep(); await wait(() => !!button(prepareLabel) && !button(prepareLabel)!.disabled);
