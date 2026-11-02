@@ -64,33 +64,33 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
   const ready = preview?.job.state === "ready";
   const canRecover = held && ready && preview.responseHash === held.args.responseHash && preview.job.cursor >= held.args.cursor;
   return <section className="mem-stack mem-history-request" aria-label={t("Saved history batch results")} aria-busy={busy}>
-    <h3 className="mem-h3">Saved batch {index + 1} results</h3>
+    <h3 className="mem-h3">{t("Saved batch {n} results", { n: index + 1 })}</h3>
     <p className="mem-muted">{t("Inspect the saved response, then confirm one local step into the review queue. This does not send to a model or approve a memory.")}</p>
     {error && <p className="mem-error" role="alert">{error}</p>}
     {notice && <p className="mem-muted" role="status">{notice}</p>}
     <div className="mem-actions"><button ref={inspectControl} type="button" className="mem-button" disabled={busy || !view}
       onClick={() => void perform("inspect")}>{t("Inspect saved batch results")}</button></div>
     {busy && <p className="mem-muted" role="status">{t("Observing this local step…")}</p>}
-    {held && <p className="mem-muted" role="status">{held.acknowledged ? "A matching receipt was observed." : "The previous local step outcome is unconfirmed."} Inspect saved results first. If the same step remains, explicitly recover that original request.</p>}
+    {held && <p className="mem-muted" role="status">{held.acknowledged ? t("A matching receipt was observed.") : t("The previous local step outcome is unconfirmed.")}{" "}{t("Inspect saved results first. If the same step remains, explicitly recover that original request.")}</p>}
     {pausePending && <p className="mem-muted" role="status">{t("The local pause-state decision needs a fresh observation. Inspect saved results before making another explicit pause or resume decision.")}</p>}
     {preview && <>
-      <h4 ref={previewTitle} tabIndex={-1} className="mem-label">Saved response · {preview.job.cursor} / {preview.items.length} processed · {preview.job.state}</h4>
-      <p className="mem-muted">Quotes establish source correspondence, not truth. Original proposals and current candidates are separate records; approved content belongs in Memory Vault.</p>
+      <h4 ref={previewTitle} tabIndex={-1} className="mem-label">{t("Saved response · {processed} / {total} processed · {state}", { processed: preview.job.cursor, total: preview.items.length, state: preview.job.state })}</h4>
+      <p className="mem-muted">{t("Quotes establish source correspondence, not truth. Original proposals and current candidates are separate records; approved content belongs in Memory Vault.")}</p>
       {preview.items.length === 0 && <p className="mem-muted">{t("The saved response contains no suggestions. Completing its local job adds no candidate.")}</p>}
       <ul className="mem-list">{preview.items.map((item: J) => <li key={item.responseIndex} className="mem-stack">
-        <span className="mem-label">Result {item.responseIndex + 1} · {item.proposedType} · {item.application}</span>
-        <p className="mem-content">Original proposal: {item.content}</p>
+        <span className="mem-label">{t("Result {n} · {type} · {application}", { n: item.responseIndex + 1, type: item.proposedType, application: item.application })}</span>
+        <p className="mem-content">{t("Original proposal:")} {item.content}</p>
         <blockquote className="mem-content">{item.quote}</blockquote>
-        <p className="mem-content">Full selected context: {item.selectedText}</p>
-        <p className="mem-muted">Source {item.sourceId} · r{item.sourceRevision} · speaker {item.speakerRole} · evidence {item.evidenceClass}</p>
-        <p className="mem-muted">Occurred: {item.occurredAt ?? "Unknown"} · captured: {item.capturedAt}</p>
+        <p className="mem-content">{t("Full selected context:")} {item.selectedText}</p>
+        <p className="mem-muted">{t("Source {id} · r{revision} · speaker {speaker} · evidence {evidence}", { id: item.sourceId, revision: item.sourceRevision, speaker: item.speakerRole, evidence: item.evidenceClass })}</p>
+        <p className="mem-muted">{t("Occurred: {occurred} · captured: {captured}", { occurred: item.occurredAt ?? t("Unknown"), captured: item.capturedAt })}</p>
         {item.candidate && <div className="mem-stack">
-          <span className="mem-label">Current candidate · {item.candidate.status} · r{item.candidate.revision} · {item.candidate.candidateId}</span>
+          <span className="mem-label">{t("Current candidate")} · {item.candidate.status} · r{item.candidate.revision} · {item.candidate.candidateId}</span>
           <p className="mem-content">{item.candidate.content}</p>
         </div>}
         {item.application === "suppressed" && <p className="mem-muted">{t("No candidate recorded for this proposal.")}</p>}
       </li>)}</ul>
-      {preview.job.state === "paused" && <p className="mem-muted" role="status">This local job is paused. Resuming only changes its local state; inspect and confirm separately before adding any result.</p>}
+      {preview.job.state === "paused" && <p className="mem-muted" role="status">{t("This local job is paused. Resuming only changes its local state; inspect and confirm separately before adding any result.")}</p>}
       {preview.job.state === "completed" && <p className="mem-muted" role="status">{t("Saved local processing is complete. Candidate status and approved memories require their own review.")}</p>}
       {(ready || preview.job.state === "paused") && !pausePending && <div className="mem-stack">
         <label className="mem-muted"><input type="checkbox" checked={confirmed} disabled={busy}
