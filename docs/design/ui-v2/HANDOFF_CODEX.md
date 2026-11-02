@@ -4,7 +4,7 @@
 
 ## 1. 当前接续（2026-11-02）
 
-本地续作分支为 `codex/native-home-time-structure`，起点为 PR #112 / `d0208eb`；未推送、开 PR 或合并。本轮已经恢复 Home、Sessions、Inspector、Context 的前端结构，并补齐保存行字段与多处动态文案。逐片提交、验证和剩余边界见 [2026-11-02 接续记录](CONTINUATION_2026-11-02.md)。
+续作起点为 PR #112 / `d0208eb`；21 个功能/修复切片（24 个原始提交）及交付记录现已通过 [PR #113](https://github.com/Morii9961/enouia-runtime/pull/113) 合入 main / `a06e042`。原续作分支已归档清理，后续从 main 开始。本轮已经恢复 Home、Sessions、Inspector、Context 的前端结构，并补齐保存行字段与多处动态文案。逐片提交、验证和剩余边界见 [2026-11-02 接续记录](CONTINUATION_2026-11-02.md)。
 
 当前 pin 仍为 `bf6bfd10…`，Workspace IPC v1 / schema 1 / 58命令；未采用新 Owner Vault。保存记录、请求与技术值保持原样，无法读取时不回退到演示。新增截图都是带虚构水印的浏览器 fixture，不代表原生 WebView2、安装/升级、物理托盘、默认热键、登录启动或 owner 验收。
 

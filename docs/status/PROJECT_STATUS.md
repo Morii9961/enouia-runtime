@@ -1,22 +1,15 @@
 # Enouia Runtime 项目状态
 
-快照：`2026-10-17T16:33:15+08:00`；代码基线：`main@3e6f161`（完整 SHA 见 [标准导入 JSON](project-status.json)），已核对与远端一致。本快照只整理保存证据，`tests_rerun=false`，未重跑测试、构建或部署；文档交付后停止。
+快照：2026-11-02T17:54:36+08:00；主线代码基线 `a06e042`，对应 [PR #113](https://github.com/Morii9961/enouia-runtime/pull/113)。阶段：集成中；整体进度不估算，人工验收仍待完成。
 
-当前处于集成阶段。沿用 v0.3 路线、已采用 ADR 和固定 Memory 集成；总体工程进度沿用 **约65%** 的临时 `self_report`，判断区间60–70%。范围为现有本地路线，权重与判断得分为功能实现45/50、局部联调20/25、真实验收与生产启用0/25；不含后续 MCP、网关和副本。口径未获 Morii 确认，不是实测验收率或剩余工时；本轮未按提交数量上调。
+最新首页大时刻/日历、已保存会话时间尺与检查点覆盖、Inspector 组件导航、Context 分区/预算、三语和焦点修复，共 21 个功能切片、24 个原始提交，已推送并合入 main。主目录原先落后远端 139 提交，本次交付后同步。主线合并与实际安装版本分别记录，旧候选包不能代表本批界面。
 
-七个页面、托盘、快捷搜索及记忆审阅、导入、会话、检查点、上下文本地闭环已有实现与合成证据。Memory 仍固定 `8186aed`、47条命令，领域归独立 Memory 仓库；Activity 独立，浏览器预览与 Runtime Inspector 保持虚构标识。
+[本批交付验证](../validation/UI-v2-integration-2026-11-02.md)实际运行：Node 134 通过、3 跳过；Happy DOM 86 场景、1,268 断言通过；前端构建（含类型检查）、Memory pin 和 Activity 退役检查通过。都是合成/本地证据，没有重新执行原生或人工验收。快照自身只整理这些证据，`tests_rerun=false`。
 
-| 里程碑 | 状态 | Morii 验收 |
-| --- | --- | --- |
-| 桌面启动与基础功能（合成范围） | 完成 | 待验收 |
-| Memory 会话与上下文本地闭环（合成范围） | 完成 | 待验收 |
-| Memory MV-7 接入及局部回归 | 完成 | 待验收 |
-| 真实模型对话与来源提取 | 进行中 | 待验收 |
-| 通用工具执行与实际体验 | 未知 | 未知 |
-| Windows W01–W05 与正式分发 | 进行中 | 待验收 |
-| Activity J1/B4 | 进行中 | 待验收 |
-| Activity B5 生产切换 | 受阻 | 待验收 |
+现有 Memory pin 仍为 `bf6bfd1`，Workspace v1 保留 58 命令；本批未改 Rust、安装器、Provider 或后端契约，也未采用新 Owner Vault。Activity/Usage 已退出桌面，不重启旧 B5 路线。独立生产者、已安装任务、账本和个人数据继续保留。
 
-PR #65–68 已合并并清理各自分支。保存的[最新回归](../validation/Frontend-dom-regressions-v1.md)为98项前端测试、48个DOM用例共677项断言；[最近产品构建](../validation/Candidate-conflict-focus-v1.md)与边界检查通过。两者均保留原基线和限制，不等于当前完整原生验收。[旧版冒烟](../validation/Desktop-stack-integration-2026-10-07.md)101/101仍只属于其历史版本。
+本地工程准则与历史交接文档一并保存交付。清理已归档的旧分支、闲置工作树、旧构建和明确标记的合成测试资料；保留未选设计的恢复包、原始设计资料、有修改的其他项目工作树及用途未确认的临时目录。两个空目录仍被 Windows 占用，未终止其他应用来删除。
 
-主要缺口仍是真实 Provider/凭据/HTTPS、个人工作流、Windows/Narrator及签名；通用工具体验未知。[J1/B4尚未签收](../validation/B4-coverage.md)，C01–C18全部partial，B5未激活。后续至多三项：获单独授权后完成真实模型与Memory闭环、补齐Windows验收和分发、补齐Activity链路及持久性回滚证据。Morii需确定v1清单、工具范围和这些授权时机；[Claude交接](../PROVIDER_RUNTIME_HANDOFF_2026-10-17.md)不自动启动下一阶段。两份状态文件供手动导入Dashboard，不建立同步服务。
+仍有两类缺口：Home 连续真实迹线/近期摘要、全库分类和完整 Capsule 索引需要 Memory 读取契约；原生候选未刷新，安装/升级、物理托盘、默认热键冲突、登录启动、Narrator、真实模型质量与个人工作流仍待验收。5,000 条深色星图性能问题也未关闭，不能宣称全部设计保真或正式可用。
+
+下一步：刷新原生候选并安排独立 Windows 验收；由 Morii 选择新 Owner 后端的首个合成接线切片；单独定位大规模星图成本，视觉取舍另确认。Morii 仍需确定验收环境和允许的测试资料。完整事项见 [JSON](project-status.json)，交付与归档边界见[清理记录](../validation/Repository-delivery-cleanup-2026-11-02.md)。本次未连接 Dashboard 或建立同步。
