@@ -54,7 +54,7 @@ export function HistoryTaskForm({ vaultId, plan, selected, busy, onCreate, reque
   return <section className="mem-card mem-stack" aria-labelledby={`${id}-title`}>
     <h4 id={`${id}-title`} className="mem-h3">{t("Create local history tasks")}</h4>
     <p className="mem-muted">{t("Save your selected batches as pending local jobs. Model calls and memory review are separate actions.")}</p>
-    <p className="mem-muted">Selected order: {selected.length ? selected.map(index => index + 1).join(" → ") : "Choose batches above"} · {selected.length}/32</p>
+    <p className="mem-muted">{t("Selected order: {order} · {count}/32", { order: selected.length ? selected.map(index => index + 1).join(" → ") : t("Choose batches above"), count: selected.length })}</p>
     <ErrorBox error={read.error} />
     <button type="button" className="mem-button" disabled={busy || read.busy} onClick={refresh}>{t("Read configured history models")}</button>
     {read.busy && <p role="status" className="mem-muted">{t("Reading configured models…")}</p>}
@@ -68,15 +68,15 @@ export function HistoryTaskForm({ vaultId, plan, selected, busy, onCreate, reque
       </select>
       {([["candidates", t("Maximum suggestions per batch (1–32)"), candidates, setCandidates, 32],
         ["pending", t("Maximum pending candidates (1–500)"), pending, setPending, 500],
-        ["tokens", "Maximum reserved tokens per batch", tokens, setTokens, Number.MAX_SAFE_INTEGER]] as const).map(([field, label, value, edit, max]) => <div key={field} className="mem-stack">
+        ["tokens", t("Maximum reserved tokens per batch"), tokens, setTokens, Number.MAX_SAFE_INTEGER]] as const).map(([field, label, value, edit, max]) => <div key={field} className="mem-stack">
           <label className="mem-label" htmlFor={`${id}-${field}`}>{label}</label>
           <input id={`${id}-${field}`} className="mem-input" inputMode="numeric" autoComplete="off" value={value} aria-invalid={!count(value, max)} onChange={event => edit(event.target.value)} />
         </div>)}
-      <label className="mem-label" htmlFor={`${id}-cost`}>Cost ceiling per batch (USD, optional)</label>
+      <label className="mem-label" htmlFor={`${id}-cost`}>{t("Cost ceiling per batch (USD, optional)")}</label>
       <input id={`${id}-cost`} className="mem-input" inputMode="decimal" autoComplete="off" value={cost} aria-invalid={parsedCost === undefined}
         aria-describedby={`${id}-cost-help`} onChange={event => setCost(event.target.value)} />
       <p id={`${id}-cost-help`} className="mem-muted">{t("Blank keeps cost unknown. Zero is a zero ceiling. Use up to six decimal places. Saving a limit does not reserve tokens or money.")}</p>
     </fieldset>
-    <button type="button" className="mem-button mem-primary" disabled={busy || read.busy || !valid} onClick={submit}>Create {selected.length} local batch tasks</button>
+    <button type="button" className="mem-button mem-primary" disabled={busy || read.busy || !valid} onClick={submit}>{t("Create {n} local batch tasks", { n: selected.length })}</button>
   </section>;
 }
