@@ -40,7 +40,7 @@ export default function Memory({ view }: { view: DemoView }) {
 </svg>
 <input value={q} onChange={onQuery} placeholder={t("Literal search")} aria-label={t("Search memories")} className="qr21" />
 </label>
-{collections.map((grp, grpIndex) => <React.Fragment key={grp.label}>
+{collections.map((grp, grpIndex) => <React.Fragment key={grpIndex}>
 <div className="qr27">
 <div className="qr23">
 {grp.label}

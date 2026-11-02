@@ -340,7 +340,7 @@ export default class App extends React.Component<AppProps, AppState> {
       q: S.q, onQuery: (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ q: e.target.value }), collections, colTitle, colCount: tn(visible.length, '{n} record', '{n} records'), groups, timelineEmpty: !visible.length,
       sel, hasSel: !!sel, noSel: !sel, act, editing: S.editing, notEditing: !S.editing, draft: S.draft, onDraft: (e: React.ChangeEvent<HTMLTextAreaElement>) => this.setState({ draft: e.target.value }), notice: S.notice, hasNotice: !!S.notice, copyLabel: S.copied ? t('Copied') : t('Copy ID'),
       ctx, ctxScroll: this.ctxScroll, sessList, ses, rtList, rt, rtStrip,
-      motionOpts: [['system', msg('Follow system')], ['reduced', msg('Reduced')]].map(([k, label]) => { const a = S.motionPref === k; return { label: t(label), active: a, onClick: () => this.setState({ motionPref: k }) }; }),
+      motionOpts: [['system', msg('Follow system')], ['reduced', msg('Reduced')]].map(([k, label]) => { const a = S.motionPref === k; return { key: k, label: t(label), active: a, onClick: () => this.setState({ motionPref: k }) }; }),
     };
   }
 
@@ -357,10 +357,10 @@ export default class App extends React.Component<AppProps, AppState> {
     const sessionSpan: [string, string] | undefined = strSession ? [strSession.created, strSession.turns[strSession.turns.length - 1][2]] : undefined;
     const NAV_LABEL: Record<string, string> = { home: t('Home'), memory: t('Memory'), context: t('Context'), sessions: t('Sessions'), runtime: t('Runtime'), settings: t('Settings') };
     const navEl = (
-<nav aria-label={t("Primary")} onKeyDown={railKey} className="qr231 bg-nav">
+<nav data-runtime-nav="primary" aria-label={t("Primary")} onKeyDown={railKey} className="qr231 bg-nav">
 {this.PAGES.map((p, i) => <React.Fragment key={p}>
 {p === 'settings' ? <span className="bg-nav-gap" aria-hidden="true" /> : null}
-<button aria-label={NAV_LABEL[p]} aria-current={nav[p].cur} onClick={nav[p].go} className="qr230 bg-nav-item" type="button">
+<button data-runtime-page={p} aria-label={NAV_LABEL[p]} aria-current={nav[p].cur} onClick={nav[p].go} className="qr230 bg-nav-item" type="button">
 <span className="bg-nav-n" aria-hidden="true">{i + 1}</span>
 <span className="qr229">{NAV_LABEL[p]}</span>
 </button>

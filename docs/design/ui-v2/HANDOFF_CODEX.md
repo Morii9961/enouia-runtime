@@ -2,7 +2,17 @@
 
 写给接手把 UI v2 做进真正 Windows 软件的人（预计是 Codex）。先读 [README.md](README.md) 列的五份文档，这一页只讲**现在在哪、还差什么、按什么顺序做、做完怎么验收**。
 
-## 1. 现在的状态（2026-10-29）
+## 1. 当前接续（2026-11-02）
+
+本地续作分支为 `codex/native-home-time-structure`，起点为 PR #112 / `d0208eb`；未推送、开 PR 或合并。本轮已经恢复 Home、Sessions、Inspector、Context 的前端结构，并补齐保存行字段与多处动态文案。逐片提交、验证和剩余边界见 [2026-11-02 接续记录](CONTINUATION_2026-11-02.md)。
+
+当前 pin 仍为 `bf6bfd10…`，Workspace IPC v1 / schema 1 / 58命令；未采用新 Owner Vault。保存记录、请求与技术值保持原样，无法读取时不回退到演示。新增截图都是带虚构水印的浏览器 fixture，不代表原生 WebView2、安装/升级、物理托盘、默认热键、登录启动或 owner 验收。
+
+另保留既有显式 `--memory-synthetic` 的隔离原生 AutomaticMemory 能力（独立 schema-2 封装）；它与浏览器设计预览、常规 Workspace 及 Owner Vault 分开，见接续记录。本轮没有修改、启动或生产激活该能力。
+
+以下为 W1–W7 的历史落地记录；其中测试数字、候选包和原生结论只适用于各自原报告的 revision，后续工作以接续记录与逐片 validation 为准。
+
+### 1.1 历史基线（2026-10-29）
 
 UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这就是 Tauri 应用的 WebView 前端本身**，原生壳 `apps/desktop/src-tauri` 加载的就是它。但它还没有成为「正式的 Windows 软件」，因为：
 
@@ -25,7 +35,7 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 | `4f9cac2`、`674ee7c` | 三语界面（English / 简体中文 / 日本語，1,385 条），Settings → Language；时间小地图标签防重叠；星图在矮窗口里保底 240px |
 | `bd858a1` | Runtime Inspector DOM 测试的时序修复 |
 | `585a716` | 星图默认改为三维球体，新增螺旋星系；删除旧力导向 |
-$1| 字体定稿提交 | 中日字体定稿与「I'm here.」不翻译（代码、DESIGN.md、决定记录、本页 W4） |
+| 字体定稿提交 | 中日字体定稿与「I'm here.」不翻译（代码、DESIGN.md、决定记录、本页 W4） |
 
 ## 3. 落地顺序（每一片单独验证、单独提交；推送与开 PR 要 owner 同意）
 
@@ -144,6 +154,8 @@ node scripts/check-activity-retirement.mjs
 ```
 
 DOM 测试曾经偶发失败（OPEN_ISSUES #5，Runtime Inspector 那一项已修）；失败时先单独重跑那一个 fixture 确认。
+
+当前 `apps/desktop/package.json` 的 `npm test` 已串联 Node 与 `npm run test:dom`。逐片记录应说明实际运行的命令与结果；单独的 `test:dom` 用于定位或必要重跑，不把同一次内含执行写成两次独立验证。
 
 ## 5. 三语界面的维护方法
 

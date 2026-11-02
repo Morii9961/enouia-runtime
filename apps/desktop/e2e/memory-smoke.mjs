@@ -2125,10 +2125,10 @@ async function main() {
     await click(s, 'button', 'New session');
     await waitFor(s, 'window.__operationHeld', 'new session receipt held');
     check('W02.session_creation_wait_explained', await s.evaluate(waiting));
-    await s.evaluate("document.querySelector('nav[aria-label=\"Primary\"] button[aria-label=\"Sessions\"]').focus()");
+    await s.evaluate("document.querySelector('nav[data-runtime-nav=\"primary\"] button[data-runtime-page=\"sessions\"]').focus()");
     await s.evaluate('window.__releaseOperation()');
     await waitFor(s, editable, 'created session ready');
-    check('W05.session_acknowledgement_respects_moved_focus',await s.evaluate("document.activeElement===document.querySelector('nav[aria-label=\"Primary\"] button[aria-label=\"Sessions\"]')"));
+    check('W05.session_acknowledgement_respects_moved_focus',await s.evaluate("document.activeElement===document.querySelector('nav[data-runtime-nav=\"primary\"] button[data-runtime-page=\"sessions\"]')"));
     const title = await s.evaluate("document.querySelector('.mem-session-row[aria-pressed=true]').title");
     const [sessionId, branchId] = title.split(' · ');
     const selected = {sessionId, branchId};

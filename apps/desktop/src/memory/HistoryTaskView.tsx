@@ -26,29 +26,29 @@ export function HistoryTasks({ tasks, request = call, openSession }: HistoryTask
       id={op.operationId} kind={op.kind} request={request} onDone={tasks.recoveredDone} />)}
     {tasks.list.busy && <p role="status" className="mem-muted">{t("Reading saved task descriptors and unfinished operations…")}</p>}
     {page && <>
-      <p className="mem-muted">Descriptor observation · head {shortId(page.identity.commitId)}. Progress requires a separate task read.</p>
+      <p className="mem-muted">{t("Descriptor observation · head {id}. Progress requires a separate task read.", { id: shortId(page.identity.commitId) })}</p>
       {page.items.length === 0 && <p className="mem-muted">{t("No saved history tasks on this page.")}</p>}
       <ul className="mem-list">{page.items.map((row: J) => <li key={row.taskId}>
-        <span className="mem-mono">{shortId(row.taskId)}</span> · {when(row.createdAt)} · {row.request.batchIndices.length} selected batches
-        <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy} onClick={() => tasks.observe(row.taskId)}>Read task {shortId(row.taskId)}</button>
+        <span className="mem-mono">{shortId(row.taskId)}</span> · {when(row.createdAt)} · {t("{n} selected batches", { n: row.request.batchIndices.length })}
+        <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy} onClick={() => tasks.observe(row.taskId)}>{t("Read task {id}", { id: shortId(row.taskId) })}</button>
       </li>)}</ul>
       {page.nextCursor && <button type="button" className="mem-button" disabled={tasks.waiting || tasks.list.busy} onClick={() => tasks.refresh(page.nextCursor)}>{t("Next saved history tasks")}</button>}
     </>}
     {detail && <div className="mem-stack">
       <h4 className="mem-h3">{t("Observed local task")}</h4>
-      <p className="mem-mono">{detail.taskId} · head {detail.identity.commitId}</p>
-      <p className="mem-muted">{detail.request.api} · {detail.request.model} · selected order {detail.request.batchIndices.map((n: number) => n + 1).join(" → ")}</p>
+      <p className="mem-mono">{t("{task} · head {head}", { task: detail.taskId, head: detail.identity.commitId })}</p>
+      <p className="mem-muted">{detail.request.api} · {detail.request.model} · {t("selected order {order}", { order: detail.request.batchIndices.map((n: number) => n + 1).join(" → ") })}</p>
       <dl className="mem-facts">
         <dt>{t("Original import")}</dt><dd>{shortId(detail.request.importId)} · {t("revision {n}", { n: detail.request.importRevision })}</dd>
         <dt>{t("Suggestions per batch")}</dt><dd>{detail.request.maxCandidates}</dd>
         <dt>{t("Pending candidate limit")}</dt><dd>{detail.request.maxPending}</dd>
         <dt>{t("Reserved token ceiling per batch")}</dt><dd>{detail.request.maxReservedTokens}</dd>
-        <dt>Cost ceiling per batch (micro USD)</dt><dd>{detail.request.maxReservedCostMicrousd ?? "unknown"}</dd>
+        <dt>{t("Cost ceiling per batch (micro USD)")}</dt><dd>{detail.request.maxReservedCostMicrousd ?? t("unknown")}</dd>
       </dl>
-      <p role="status" className="mem-muted">{detail.materializationComplete ? "All selected local jobs exist. Model extraction and review are still separate." : `${detail.missingBatchIndices.length} local jobs are missing.`}</p>
+      <p role="status" className="mem-muted">{detail.materializationComplete ? t("All selected local jobs exist. Model extraction and review are still separate.") : t("{n} local jobs are missing.", { n: detail.missingBatchIndices.length })}</p>
       {openSession && detail.coordinatorSessionId && <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
         onClick={() => { if (!tasks.busy && !tasks.read.busy) openSession(detail.coordinatorSessionId); }}>{t("View coordinator session")}</button>}
-      <ul className="mem-list">{detail.batches.map((batch: J) => <li key={batch.batchIndex}>Batch {batch.batchIndex + 1} · {batch.state} · {batch.applied} applied · invocation {batch.invocationState ?? "none recorded"} · <span className="mem-mono">{batch.sessionId}</span>
+      <ul className="mem-list">{detail.batches.map((batch: J) => <li key={batch.batchIndex}>{t("Batch {n} · {state} · {applied} applied · invocation {invocation}", { n: batch.batchIndex + 1, state: batch.state, applied: batch.applied, invocation: batch.invocationState ?? t("none recorded") })} · <span className="mem-mono">{batch.sessionId}</span>
         <button type="button" className="mem-button" disabled={tasks.busy || tasks.read.busy}
           onClick={() => {
             const selected = { taskId: detail.taskId, index: batch.batchIndex };

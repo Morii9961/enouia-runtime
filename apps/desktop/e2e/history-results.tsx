@@ -4,6 +4,7 @@ import { HistoryResultPanel } from "../src/memory/HistoryResultPanel";
 import { call, setTransport, type J } from "../src/memory/client";
 import { historyTask } from "../tests/history-task-fixture";
 import { historyResult } from "../tests/history-results-fixture";
+import { setLang, useLang, type Lang } from "../src/i18n";
 const fixture=document.getElementById("fixture")!,root=createRoot(fixture),outside=document.createElement("input");
 document.body.appendChild(outside);
 const checks:{id:string;ok:boolean}[]=[],calls:J[]=[];
@@ -29,7 +30,8 @@ setTransport(async(native,envelope)=>{
   if(r.command==="history_batch_preview")return{kind:"extraction_preview",result:observed};
   const {items,dispatchId,...receipt}=observed;void items;void dispatchId;return{kind:"extraction_job",result:receipt};
 });
-const render=()=>root.render(<HistoryResultPanel vaultId={vault} task={task()} index={index} enabled={enabled} request={call}/>);
+function Surface(){useLang();return <HistoryResultPanel vaultId={vault} task={task()} index={index} enabled={enabled} request={call}/>;}
+const render=()=>root.render(<Surface/>);
 const text=()=>fixture.textContent??"",sleep=()=>new Promise(resolve=>setTimeout(resolve,20));
 const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent===label);
 const checkbox=()=>fixture.querySelector<HTMLInputElement>('input[type="checkbox"]');
@@ -49,6 +51,19 @@ try{
   await wait(()=>document.activeElement===fixture.querySelector("h4"));
   check("inspection_moves_owned_focus_without_confirming",!checkbox()!.checked&&writes().length===0);
   await confirm();render();await sleep();check("equivalent_task_copy_does_not_reset_review",!!checkbox()?.checked);
+  const confirmation=checkbox()!,quote=fixture.querySelector('blockquote')!,literalQuote=quote.textContent,observedCalls=calls.length;
+  confirmation.focus();
+  for(const [language,response,occurred] of [
+    ['en','Saved response','Occurred: Unknown'],
+    ['zh-Hans','已保存响应','发生时间：未知'],
+    ['ja','保存済みレスポンス','発生：不明'],
+  ]){
+    await setLang(language as Lang);await sleep();await sleep();
+    check(`${language}_saved_result_labels_are_localized`,fixture.querySelector('h4')!.textContent!.startsWith(response)&&text().includes(occurred));
+    check(`${language}_language_keeps_exact_review_and_confirmation`,checkbox()===confirmation&&confirmation.checked&&!confirmation.disabled&&document.activeElement===confirmation&&fixture.querySelector('blockquote')===quote&&quote.textContent===literalQuote&&text().includes('Synthetic original proposal 0')&&text().includes('synthetic-source')&&text().includes('user_statement'));
+  }
+  check('result_language_changes_do_not_inspect_apply_or_pause',calls.length===observedCalls);
+  await setLang('en');await sleep();await sleep();
   await inspectSaved();check("refresh_withdraws_old_checkbox_confirmation",!checkbox()!.checked&&!!button(apply)?.disabled);
   await confirm();click("Pause local result processing");await wait(()=>text().includes("Local pause-state receipt observed"));
   check("pause_is_only_the_observed_original_child_and_never_advances_cursor",cursor===0&&writes().length===0&&JSON.stringify(controls()[0].arguments)===JSON.stringify({sessionId:"synthetic-child-1",runId:"synthetic-run-1",paused:true})&&!checkbox());

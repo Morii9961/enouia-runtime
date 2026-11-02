@@ -10,14 +10,14 @@ import { VaultGate } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { capsuleObservation, dispatchObservation } from "./observationIdentity";
 
-import { labels, msg, t } from '../i18n/index.ts';
+import { labels, locale, msg, t, tn } from '../i18n/index.ts';
 /** The capsule budget in words when it has the usual fields; otherwise as recorded. */
 function budget(b: J): string {
   if (b && typeof b.estimated_tokens === "number" && typeof b.max_tokens === "number") {
     const memory = typeof b.memory_budget_tokens === "number" ? t(" · memory budget {memory_budget_tokens}", { memory_budget_tokens: b.memory_budget_tokens }) : "";
     return t("{estimated_tokens} of {max_tokens} units ({method})", { estimated_tokens: b.estimated_tokens, max_tokens: b.max_tokens, method: b.counting_method ?? t("unknown method") }) + memory;
   }
-  return JSON.stringify(b);
+  return b == null ? t('unknown') : JSON.stringify(b);
 }
 
 const DELIVERY: Record<string, string> = labels({
@@ -63,8 +63,12 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
   const decisions: J[] = view?.inspection?.decisions ?? [];
   const included = decisions.filter((d) => d.decision === "included");
   const excluded = decisions.filter((d) => d.decision !== "included");
+  const savedBudget = view?.capsule?.budget;
+  const budgetRatio = savedBudget && typeof savedBudget.estimated_tokens === 'number' && Number.isFinite(savedBudget.estimated_tokens) && savedBudget.estimated_tokens >= 0
+    && typeof savedBudget.max_tokens === 'number' && Number.isFinite(savedBudget.max_tokens) && savedBudget.max_tokens > 0
+    ? Math.min(100, savedBudget.estimated_tokens / savedBudget.max_tokens * 100) : null;
   const Rows = ({ rows }: { rows: J[] }) => (
-    <table className="mem-table">
+    <div className="mem-table-scroll"><table className="mem-table">
       <thead><tr><th>{t("Record")}</th><th>{t("Reason")}</th><th>{t("Rank")}</th><th>{t("Source reachable")}</th></tr></thead>
       <tbody>
         {rows.map((d, i) => (
@@ -72,14 +76,26 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
             <td><code title={d.record_id}>{d.record_kind}:{shortId(d.record_id)}</code> r{d.revision}</td>
             <td>{d.reason}</td>
             <td>{d.rank ?? ""}</td>
-            <td>{d.source_reachable ? "yes" : <Tag tone="warn">{t("no")}</Tag>}</td>
+            <td>{d.source_reachable ? t("yes") : <Tag tone="warn">{t("no")}</Tag>}</td>
           </tr>
         ))}
       </tbody>
-    </table>
+    </table></div>
   );
   return (
-    <section data-screen-label="Context Surface" className="mem-context" aria-busy={Boolean(pending)}>
+    <section data-screen-label="Context Surface" className="mem-context mem-context-indexed" aria-busy={Boolean(pending)}>
+      <aside className="qr28 mem-context-nav">
+        <div className="qr20"><h2 className="qr18">{t('Saved capsule')}</h2>
+          {id && <code className="mem-muted" title={id}>{shortId(id)}</code>}
+        </div>
+        {view ? <nav className="qr27" aria-label={t('Saved capsule')}>
+          <a className="qr26" href="#mem-context-budget">{t('Budget')}</a>
+          <a className="qr26" href="#mem-context-question">{t('Saved question')}</a>
+          <a className="qr26" href="#mem-context-included">{t('Included ({n})', { n: included.length })}</a>
+          <a className="qr26" href="#mem-context-excluded">{t('Excluded ({n})', { n: excluded.length })}</a>
+          <a className="qr26" href="#mem-context-dispatches">{t('Dispatches')}</a>
+        </nav> : <p className="mem-muted mem-pad">{pending ?? (reads.error ? t('Capsule unavailable. Read saved capsule again to inspect it.') : t('No capsule selected.'))}</p>}
+      </aside>
       <div className="mem-context-main">
         <div className="qr20">
           <h1 id="mem-context-title" className="qr18" tabIndex={-1}>{t("Context Surface")}</h1>
@@ -101,34 +117,40 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
         <ErrorBox error={dispatchReads.error} />
         {id && <button type="button" className="mem-button" disabled={action.busy || reads.busy}
           onClick={() => { if (!action.busy) observeCapsule(id); }}>{t("Read saved capsule again")}</button>}
-        {reads.error && <p className="mem-muted">This saved capsule could not be read. Read it again; this does not prepare a preview or send a request.</p>}
+        {reads.error && <p className="mem-muted">{t('This saved capsule could not be read. Read it again; this does not prepare a preview or send a request.')}</p>}
         {pending && <p role="status" className="mem-muted">{pending}</p>}
         {!id && !action.busy && <p className="mem-muted">{t("Preview a question here, or open the context behind an answer from Sessions.")}</p>}
         {view && (
           <div className="mem-stack">
             <p className="mem-state-line">
               <strong>{Object.hasOwn(DELIVERY, view.delivery) ? DELIVERY[view.delivery] : t("Unknown saved delivery state")}</strong>
-              <span className="mem-muted"> {t("· capsule")} <code title={id ?? ""}>{shortId(id)}</code> · destination {view.capsule.destination.kind} · {budget(view.capsule.budget)}</span>
+              <span className="mem-muted"> {t("· capsule")} <code title={id ?? ""}>{shortId(id)}</code> · {t('destination')} {view.capsule.destination.kind}</span>
             </p>
-            <h3 className="mem-h3">{t("Saved question")}</h3>
+            <h3 id="mem-context-budget" tabIndex={-1} className="mem-h3">{t('Budget')}</h3>
+            {budgetRatio != null ? <figure className="mem-figure">
+              <div className="qr95 native-capsule-budget" role="img" aria-label={budget(savedBudget)}><span className="qr94 native-budget-fill" style={{ width: `${budgetRatio}%` }} /></div>
+              <div className="bg-scale" aria-hidden="true">{[0, savedBudget.max_tokens / 2, savedBudget.max_tokens].map((n, i) => <span key={i}>{n.toLocaleString(locale())}</span>)}</div>
+              <figcaption className="mem-muted">{budget(savedBudget)}</figcaption>
+            </figure> : <p className="mem-muted">{budget(savedBudget)}</p>}
+            <h3 id="mem-context-question" tabIndex={-1} className="mem-h3">{t("Saved question")}</h3>
             <p className="mem-content mem-saved-query">{view.capsule.query}</p>
-            <h3 className="mem-h3">Included ({included.length})</h3>
+            <h3 id="mem-context-included" tabIndex={-1} className="mem-h3">{t('Included ({n})', { n: included.length })}</h3>
             {included.length ? <Rows rows={included} /> : <p className="mem-muted">{t("Nothing was included.")}</p>}
-            <h3 className="mem-h3">Excluded ({excluded.length})</h3>
+            <h3 id="mem-context-excluded" tabIndex={-1} className="mem-h3">{t('Excluded ({n})', { n: excluded.length })}</h3>
             {excluded.length ? <Rows rows={excluded} /> : <p className="mem-muted">{t("Nothing was excluded.")}</p>}
           </div>
         )}
       </div>
       <aside aria-label={t("Dispatches")} className="qr88">
         <div className="qr79">
-          <h3 className="mem-h3">{t("Dispatches")}</h3>
+          <h3 id="mem-context-dispatches" tabIndex={-1} className="mem-h3">{t("Dispatches")}</h3>
           {view && view.dispatches.length === 0 && <p className="mem-muted">{t("This capsule was never sent.")}</p>}
-          {!view && <p className="mem-muted">{action.busy ? "Preparing preview…" : !id ? "No capsule selected." : reads.error ? "Capsule unavailable. Read saved capsule again to inspect it." : "Reading capsule…"}</p>}
+          {!view && <p className="mem-muted">{action.busy ? t("Preparing preview…") : !id ? t("No capsule selected.") : reads.error ? t("Capsule unavailable. Read saved capsule again to inspect it.") : t("Reading capsule…")}</p>}
           {view?.dispatches.map((d: J) => (
             <div key={d.dispatchId} className="mem-stack">
               <p>
                 <code title={d.dispatchId}>{shortId(d.dispatchId)}</code> · {d.state}
-                <span className="mem-muted"> · prepared {when(d.preparedAt)}{d.sentAt ? ` · sent ${when(d.sentAt)}` : " · not sent"}{d.completedAt ? ` · completed ${when(d.completedAt)}` : ""}</span>
+                <span className="mem-muted">{t(' · prepared {when}', { when: when(d.preparedAt) })}{d.sentAt ? t(' · sent {when}', { when: when(d.sentAt) }) : t(' · not sent')}{d.completedAt ? t(' · completed {when}', { when: when(d.completedAt) }) : ''}</span>
               </p>
               <div className="mem-actions">
                 <button type="button" className="mem-button" disabled={action.busy || reads.busy} onClick={() => observeDispatch(d)}>{t("Show the actual request")}</button>
@@ -140,10 +162,10 @@ export function Context({ capsuleId, readPage = call }: { capsuleId: string | nu
           {request && (
             <div className="mem-stack">
               <p>
-                Actual request <code title={dispatchId ?? ""}>{shortId(dispatchId)}</code> ·{" "}
+                {t('Actual request')} <code title={dispatchId ?? ""}>{shortId(dispatchId)}</code> ·{" "}
                 {request.verified ? <Tag tone="ok">{t("re-rendered from the saved records and hash-checked")}</Tag> : <Tag tone="warn">{t("hash mismatch")}</Tag>}
               </p>
-              <p className="mem-muted">{request.tools} tools · {request.destination.kind}</p>
+              <p className="mem-muted">{tn(request.tools, '{n} tool', '{n} tools')} · {request.destination.kind}</p>
               {request.messages.map((m: J, i: number) => (
                 <div key={i} className="mem-stack">
                   <span className="mem-mono mem-muted">{m.role}</span>

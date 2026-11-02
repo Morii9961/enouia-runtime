@@ -11,18 +11,19 @@
 | **未做** | 还没有设计稿；先在浏览器演示里用虚构数据设计、截图、过 `docs/design-kit/critique.md`，再实现 |
 | **需后端** | 只能做成标明的合成预览；真实数据要等 Memory 仓库交付契约（见 Memory 交接包 `CONTRACT_READINESS.md`） |
 
-## 三种状态必须分开
+## 数据与预览边界
 
-1. **旧 pin 的真实能力**：`docs/integration/memory-pin.json` 的 Memory Workspace（56bc5eb，47 个命令）。原生里 Memory / Context / Sessions 只显示这些能力，仍是 owner 审阅语义。
+1. **当前 pin 的常规能力**：`docs/integration/memory-pin.json` 固定的 Memory Workspace `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`，Workspace IPC v1 / schema 1 / 58 命令。常规记忆列表/审阅、Context 与 Sessions 使用该契约，仍是 owner 审阅语义；本轮没有升级 pin 或采用新的 Owner Vault。
 2. **合成预览**：「Automatic memory · synthetic preview」，只在浏览器演示（`connected === false`）里出现，固定标「Synthetic preview · not running」，数据是 `screens/automemory/fixture.ts` 的 15 条虚构记忆。不调用 IPC、不写存储。
-3. **以后的受控采用**：Memory 仓库交付自动化契约后，由指定的集成负责人一次一处地把合成预览换成真实数据（Memory UI 规格 §11 的 UI-D / UI-E）。在那之前，原生界面不得出现合成状态，也不得静默回退到演示。
+3. **既有隔离原生样本**：左栏「Synthetic automatic memories」是已合入的 `memory/AutomaticMemory.tsx`，使用独立 `memory_automation` / `memory-native-read-1`，只服务显式 `--memory-synthetic` 创建的隔离样本。它的 schema-2 请求封装与原生样本不代表生产采用，见[原 ADR](../../adr/037-synthetic-native-memory-adoption.md)。本轮未修改或启动该模式。
+4. **以后的受控采用**：Memory 仓库交付生产自动化契约后，由指定的集成负责人一次一处地采用真实数据（Memory UI 规格 §11 的 UI-D / UI-E）。失败或未激活时不得静默回退到浏览器演示；既有隔离原生样本始终保留其合成标签与独立边界。
 
 ## 0. 通用骨架（所有主窗口屏幕）
 
 | 部件 | 规格 | 状态 | 接口挂钩（不能改名） |
 | --- | --- | --- | --- |
 | 标题栏 34px | logo（笔迹 + 笔尖）· ENOUIA RUNTIME · 「Negative No. 40 · week of …」· 当前页名；右侧反相小牌「DEMO · LOCAL ONLY」（原生里写已连接状态）、最小化/最大化/关闭 | 已做 | `.qr227` `.qr222`；`data-tauri-drag-region` |
-| 记录带 80px | 头 34px：`<nav aria-label="Primary">` 6 个按钮（`1 HOME` … `6 SETTINGS`，Settings 前有分隔），当前项 `aria-current="page"` 反相；右侧周与 demo 时钟。图 46px：7 日列、笔迹、写入记号、笔尖 | 已做 | `nav[aria-label="Primary"]`；Ctrl+1…6；↑↓ 在导航内移动焦点 |
+| 记录带 80px | 头 34px：`<nav aria-label="Primary">` 6 个按钮（`1 HOME` … `6 SETTINGS`，Settings 前有分隔），当前项 `aria-current="page"` 反相；右侧周与 demo 时钟。图 46px：7 日列、笔迹、写入记号、笔尖 | 已做 | `nav[data-runtime-nav="primary"]` / `button[data-runtime-page]`；aria-label 本地化；Ctrl+1…6；↑↓ 在导航内移动焦点 |
 | 时间小地图 20px | 只在 Home、Sessions、自动记忆 Timeline；◂ / ▸ 按钮、可拖动取景框（`role="slider"`，← → / PageUp / PageDown / Home / End）、范围读数、NOW | 已做 | `theme/TimeMap.tsx`、`theme/timeview.ts`（平移状态不进 App state、不持久化） |
 | 跳到内容 | 第一个 Tab 停在「Skip to current surface」 | 已做 | `.runtime-skip-link` |
 | 焦点 | 2px 墨色实线 + 2px 底色外圈 | 已做 | 截图 `dark-focus-1440` |
@@ -30,15 +31,15 @@
 
 ## 1. 六个主表面
 
-Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity / Usage 界面」）：不加回导航、页面、统计卡、状态或链接，不做占位页，不加 tokens.ci 面板。它的后端与原生命令暂留，前端不调用。
+Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity / Usage 界面」）：不加回导航、页面、统计卡、状态或链接，不做占位页，不加 tokens.ci 面板。[ADR-037](../../adr/037-activity-usage-desktop-retirement.md) 已退役桌面原生命令与 grants；独立生产者、任务和数据保留，不由本轮前端工作清理。
 
 | # | 表面 | `data-screen-label` | 浏览器演示 | 原生 | 截图 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Home / Presence | `Home` | 已做 | 部分（原生 ConnectedHome 走同样的类名，未截图） | `dark-home-1440` `dark-home-1100` `light-home-1440` |
-| 2 | Memory Vault | `Memory Vault` | 已做 | 部分（`src/memory/MemorySurface.tsx` 只换了皮，未截图） | `dark-memory-1440` `dark-memory-1100` `dark-memory-candidate-1440` `light-memory-1440` |
-| 3 | Context Surface | `Context Surface` | 已做 | 部分（同上） | `dark-context-1440` |
-| 4 | Sessions | `Sessions` | 已做 | 部分（同上） | `dark-sessions-1440` `light-sessions-1440` |
-| 5 | Runtime Inspector | `Runtime Inspector` | 已做 | 部分（原生是 `src/runtime/RuntimeSurface.tsx` 的观察页：Memory Core、Memory 操作、Windows shell；只换了皮，未截图） | `dark-runtime-1440` |
+| 1 | Home / Presence | `Home` | 已做 | 部分（2026-11-01 恢复大时刻、记录纸、四注记和日历小地图；仅标示真实最新 Vault 提交，见验证记录） | `dark-home-1440` `dark-home-1100` `light-home-1440` |
+| 2 | Memory Vault | `Memory Vault` | 已做 | 部分（2026-11-01 已补保存行字段、三语日期与焦点保持；全库项目/来源分类仍缺，见 §1.2） | `dark-memory-1440` `dark-memory-1100` `dark-memory-candidate-1440` `light-memory-1440` |
+| 3 | Context Surface | `Context Surface` | 已做 | 部分（2026-11-01 已补当前保存对象的分区导航与预算刻度；完整 Capsule 索引仍缺，见 §1.3） | `dark-context-1440` |
+| 4 | Sessions | `Sessions` | 已做 | 部分（2026-11-01 已补时间尺、加载范围地图与保存检查点覆盖；见 §1.4） | `dark-sessions-1440` `light-sessions-1440` |
+| 5 | Runtime Inspector | `Runtime Inspector` | 已做 | 部分（2026-11-01 已补组件导航、观察摘要与右侧详情；切换保留读取/操作归属，见 §1.5） | `dark-runtime-1440` |
 | 6 | Settings | `Settings` | 已做 | 部分 | `dark-settings-1440` `light-settings-1440` |
 
 ### 1.1 Home
@@ -49,6 +50,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - 时间小地图：整三周，取景框 = 主图显示的 4 天；平移时引线淡出，停稳再出现。
 - 状态：Vault 未连接时注记写「Vault adapter not connected」（演示）；锁定见 §1.8。
 
+原生落地（2026-11-01）：设备时钟明确标 UTC+8；纸面/日历只绘制已观察的最新 Vault 提交标记与一条引线，没有连续波形。其余注记是读取入口，不声明已知最近会话、Capsule 或检查点。无库、锁库、切库、退出、读取失败时仍保留首页结构，撤下提交和交互地图。[证据与未完成项](../../validation/UI-v2-native-home-2026-11-01.md)。
+
 ### 1.2 Memory Vault（演示：owner 审阅语义）
 
 - 三栏 `220 | 主列表 | 360–400`：左栏「Memory Vault / What I keep, and why.」、自动记忆预览入口（反相边框块，名称含「Automatic memory」）、字面检索框（写「Literal search」）、REVIEW（Candidate inbox + 数量）、CANONICAL 按种类、PROJECTS、SOURCES。
@@ -57,14 +60,26 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - Candidate inbox（`dark-memory-candidate-1440`）：候选行用空心竖块，Inspector 给接受/编辑/拒绝（演示）。
 - 缺：Inspector 里过长的 Session ID 越过右侧裁切角（OPEN_ISSUES #8）。
 
+2026-11-01：原生日期标题已随界面语言显示，切换语言保留行节点与焦点；项目/来源导航仍未补造。[验证记录](../../validation/UI-v2-native-memory-dates-2026-11-01.md)。
+
+2026-11-01 后续：根据固定 pin 已有字段，记忆行显示保存标题、逻辑项目 ID 和证据引用数；缺字段不补造，检索不借用列表标题。没有全库分类或项目名称推断。[来源与验证](../../validation/UI-v2-native-memory-metadata-2026-11-01.md)。
+
+2026-11-02：原生集合导航分组使用稳定集合 ID，语言切换保留按钮/焦点；候选依赖、导入恢复、Vault 作用范围，以及历史规划/表单/任务/请求/保存结果文案继续接入三语。浏览器示例集合导航也保留语言切换焦点。原保存内容、确认与操作归属保留，见[接续记录](CONTINUATION_2026-11-02.md)。其他动态分支仍需检查，不代表全部文案或 Windows 验收完成。
+
 ### 1.3 Context Surface
 
 - 一次召回的 Capsule：纳入/排除列表，每项 rank、reason、字节、来源可达；展开看 trace。预算条只用墨色阶。
 - 这是**旧 pin 的召回解释**（Memory UI 规格 §8「已保存召回的解释」）的演示版。不显示可调权重或逐项评分。
 
+2026-11-01：原生 Context 已恢复当前保存对象的三栏分区导航、实际预算单段刻度、纳入/排除表格与 dispatch 检查；没有完整 Capsule 列表或未知分类。未知/零上限预算不画比例，超限保留原数值。[验证与限制](../../validation/UI-v2-native-context-2026-11-01.md)。
+
 ### 1.4 Sessions
 
 - 左：会话列表；中：转录，行距按真实时间间隔，左侧时间尺，`You` / `Enouia` 角色标签，检查点 = 墨色竖括号 + 反相标签，写入在行尾标注；右：会话信息。时间小地图覆盖整段会话。
+
+原生落地（2026-11-01）：已保存事件时间尺、2px/分钟（上限48px）间距、检查点事件括号与本次加载范围的时间地图已移植。正文顺序、草稿和显式读取保持原语义；未知/倒序时间停用地图，不画未知覆盖区间。见[验证与边界](../../validation/UI-v2-native-sessions-2026-11-01.md)。
+
+2026-11-01 后续：复核固定 pin 源码后，已用 `covered_event_ids` 增加保存检查点覆盖选择与分段括号，页外事件不画延伸；不是根据时间或创建事件猜测覆盖。[验证与来源](../../validation/UI-v2-native-session-coverage-2026-11-01.md)。
 
 ### 1.5 Runtime Inspector
 
@@ -72,11 +87,17 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - 原生：「Observed component status」——Memory Core（Vault、最新提交、运行中的操作、待审候选、组件健康）、Memory 操作列表与详情、Windows shell（生命周期、托盘、Quick Search 热键、主窗口）。每块有「Read … again」，失败时清掉旧观察。没有 Activity 一节。
 - 原生 Memory 里另有 main 带来的视图，外观只继承 `.mem-*` 换皮、还没有专门设计：历史任务（计划、批次、结果、比较、简报）、Provider 配置草稿与设置状态、导入报告、「Synthetic automatic memories」集合。它们归入 §3 的「形成」「召回」工作区一起设计。
 
+2026-11-01：原生 Inspector 已恢复左侧三组件选择、顶部观察摘要和右侧详情；切换保持观察 owner 与待返回请求。内容仍来自原有显式观察，不抄录演示的虚构验证状态。[验证记录](../../validation/UI-v2-native-inspector-2026-11-01.md)。
+
 ### 1.6 Settings
 
 - APPEARANCE：Motion（Follow system / Reduced）；Theme（陈述句「Tile Blue when the system is dark, Xuan Paper when it is light.」+「NEGATIVE」）。
 - VAULT：Location、Identity files（原生里换成 Memory 设置与 Windows shell 设置）。底部一行键盘说明「Ctrl+1–6 switches surfaces」。
 - 缺：Vault 与恢复的管理入口（Memory UI 规格 §1 把它放在设置/管理）；高级召回参数分层（ref-05，只借「普通/高级分层」，不做前端凭据输入）——**未做**。
+
+2026-11-01：原生 Settings 动效说明只描述现有的日历/转录平移，不再承诺绘制连续迹线；浏览器演示说明保留。[检查记录](../../validation/UI-v2-native-settings-copy-2026-11-01.md)。
+
+2026-11-02：共享动效选项按 `system/reduced` 偏好 ID 保持节点，语言切换保留 Reduced 状态和焦点；没有改变动效值或系统设置。[验证记录](../../validation/UI-v2-shared-language-focus-2026-11-02.md)。
 
 ### 1.7 原生门：Vault 锁定 / 未连接
 

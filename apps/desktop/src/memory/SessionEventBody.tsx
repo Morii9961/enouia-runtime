@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { readSavedMockContext, type SavedMockReference } from "./savedMockContext";
 
 import { labels, msg, t } from '../i18n/index.ts';
+import { savedEventTime } from './sessionTime';
 const EVENT: Record<string, string> = labels({
   user_message: msg("User message"), assistant_chunk: msg("Assistant response part"), assistant_completed: msg("Assistant response"),
   tool_request: msg("Tool request"), tool_result: msg("Tool result"), turn_cancelled: msg("Turn cancelled"), turn_failed: msg("Turn failed"),
@@ -16,12 +17,11 @@ const DELIVERY: Record<string, string> = labels({
   not_applicable: msg("recorded"), partial: msg("partial"), completed: msg("complete"), interrupted: msg("interrupted"), failed: msg("failed"),
 });
 
-export function SessionEventMetadata({ kind, deliveryState, occurredAt }: { kind: unknown; deliveryState: unknown; occurredAt?: unknown }) {
+export function SessionEventMetadata({ kind, deliveryState, occurredAt, showTime = true }: { kind: unknown; deliveryState: unknown; occurredAt?: unknown; showTime?: boolean }) {
   const event = typeof kind === "string" && Object.hasOwn(EVENT, kind) ? EVENT[kind] : t("Recorded event");
   const delivery = typeof deliveryState === "string" && Object.hasOwn(DELIVERY, deliveryState) ? DELIVERY[deliveryState] : t("delivery unavailable");
-  const time = typeof occurredAt === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(occurredAt)
-    && !Number.isNaN(Date.parse(occurredAt)) ? occurredAt : null;
-  return <>{event} · {delivery} · {time ? <time dateTime={time} title={time}>{when(time)}</time> : t("time unavailable")}</>;
+  const time = savedEventTime(occurredAt) != null ? occurredAt as string : null;
+  return <>{event} · {delivery}{showTime && <> · {time ? <time dateTime={time} title={time}>{when(time)}</time> : t("time unavailable")}</>}</>;
 }
 
 const STATUS: Record<string, string> = labels({
@@ -76,12 +76,12 @@ function SavedMockContext({ reference, disabled, inspect, request }: { reference
   };
   return <div className="mem-stack" aria-label={t("Saved answer context")} aria-busy={reads.busy}>
     <div className="mem-actions">
-      <button ref={readButton} type="button" className="mem-button" disabled={disabled || reads.busy} onClick={read}>{reads.error || capsuleId ? "Read saved answer context again" : "Read saved answer context"}</button>
+      <button ref={readButton} type="button" className="mem-button" disabled={disabled || reads.busy} onClick={read}>{reads.error || capsuleId ? t("Read saved answer context again") : t("Read saved answer context")}</button>
       {capsuleId && <button ref={inspectButton} type="button" className="mem-button" disabled={disabled || reads.busy} onClick={() => { if (!disabled && !reads.pending.current) inspect(capsuleId); }}>{t("Inspect saved answer context")}</button>}
     </div>
     {reads.busy && <p role="status" className="mem-muted">{t("Reading this answer's saved context…")}</p>}
     <ErrorBox error={reads.error && { ...reads.error, retry: !disabled && reads.error.retry ? read : undefined }} />
-    {reads.error && <p className="mem-muted">This answer's saved context could not be verified. Read it again; this does not generate another answer.</p>}
+    {reads.error && <p className="mem-muted">{t("This answer's saved context could not be verified. Read it again; this does not generate another answer.")}</p>}
   </div>;
 }
 
@@ -90,12 +90,12 @@ export function SessionEventBody({ kind, text, context }: { kind: string; text: 
   if (!response) return kind.startsWith("assistant") ? <pre className="mem-source">{text}</pre> : <p className="mem-content">{text}</p>;
   return (
     <div className="mem-stack">
-      <p className="mem-muted mem-response-status">Local Mock · {STATUS[response.status]}</p>
+      <p className="mem-muted mem-response-status">{t('Local Mock')} · {STATUS[response.status]}</p>
       {response.statements.map((statement, index) => <p key={index} className="mem-content">{statement}</p>)}
       <p className="mem-muted mem-response-sources">
-        Sources: {response.sources.length ? response.sources.map((source, index) => (
+        {t('Sources:')} {response.sources.length ? response.sources.map((source, index) => (
           <span key={`${source.source_id}:${source.source_revision}`}>{index > 0 && ", "}<code title={source.source_id}>{shortId(source.source_id)}</code> r{source.source_revision}</span>
-        )) : "none"}
+        )) : t('none')}
       </p>
       <details className="mem-recorded-response">
         <summary className="mem-muted">{t("Recorded response")}</summary>

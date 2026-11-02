@@ -1,7 +1,7 @@
 // 08-negative · the record strip that heads every surface, the chart it draws and
 // the time map under it. Presentation only. The demo trace is fictional and drawn
-// against a fixed demo clock; the native shell gets a blank strip (no fabricated
-// trace) and, when the Vault is not open, a strip with no film loaded.
+// against a fixed demo clock; the native shell marks only its latest Vault
+// commit and covers the calendar when no Vault can be observed.
 import React from 'react';
 import type { Page } from '../demo-types';
 import { DAYS, DEMO_CLOCK, earlier, marks, onChart, pct, pen, tracePath, xOf, yAt, dayLabel, type Mark } from './chart';
@@ -9,6 +9,7 @@ import { useStatus, exiting } from '../memory/status';
 import { useAutoMode } from './autoMode';
 import TimeMap, { useLentMap } from './TimeMap';
 import { homeSpec, sessionSpec } from './mapSpecs';
+import { DAY, nativeDate, nativeDay, observedCommit } from './nativeTime';
 
 import { msg, t } from '../i18n/index.ts';
 const MARK_LABEL = { canonical: msg('canonical write'), candidate: msg('candidate proposed'), checkpoint: msg('checkpoint'), superseded: msg('superseded write') };
@@ -84,24 +85,35 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
   );
 }
 
-/** Native strip: blank, never a fabricated trace; with no Vault open it says no strip is loaded and its time map is covered too. */
+/** Native strip: a real commit marker, never a fabricated continuous trace. */
 export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode }) {
-  const { status, vaultChanging } = useStatus();
+  const { status, vaultChanging, timeline, now } = useStatus();
+  const lent = useLentMap();
   const state = status?.vault?.state;
   const stopped = (!status || exiting(status) || vaultChanging || state !== 'open');
   const why = t(!status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open');
+  const commit = stopped ? null : observedCommit(status.vault);
+  const { domain: [start, end] } = timeline.init();
+  const spec = { ...timeline, ticks: commit != null && commit >= start && commit < end ? [{ at: (commit - start) / (end - start), tall: true }] : [] };
+  const weekEnd = nativeDay(now) + DAY, weekStart = weekEnd - 7 * DAY;
   return (
     <div className="bg-strip" data-page={page} data-drum={stopped ? 'stopped' : undefined}>
       <div className="bg-strip-head">
         {nav}
-        <div className="bg-strip-meta"><b>{t("Live shell")}</b> {t("· trace not plotted in this prototype")}</div>
+        <div className="bg-strip-meta"><b>{t("Live shell")}</b> · {t('Latest Vault commit only; continuous trace unavailable')}</div>
       </div>
       {page === 'home' ? null : (
         <div className="bg-strip-chart">
-          <Paper days={false} />
+          <Paper days={false}>
+            {!stopped ? Array.from({ length: 7 }, (_, i) => <span key={i} className="bg-day" style={{ left: pct(i / 7) }}>{nativeDate(weekStart + i * DAY, { month: 'short', day: 'numeric' })}</span>) : null}
+            {commit != null && commit >= weekStart && commit < weekEnd ? <span className="bg-mark" data-kind="vault-commit" style={{ left: pct((commit - weekStart) / (weekEnd - weekStart)), top: '80%' }} /> : null}
+          </Paper>
         </div>
       )}
-      {stopped ? <div className="tm tm-stopped" role="img" aria-label={t('No strip loaded: {why}', { why })}><span className="bg-inv" aria-hidden="true">{t('No strip loaded · {why}', { why })}</span></div> : null}
+      {stopped ? <div className="tm tm-stopped" role="img" aria-label={t('No strip loaded: {why}', { why })}><span className="bg-inv" aria-hidden="true">{t('No strip loaded · {why}', { why })}</span></div>
+        : page === 'home' ? <TimeMap spec={spec} />
+        : page === 'sessions' ? lent?.key.startsWith('native-session:') ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>{t('Time map unavailable · select a saved session with known event times')}</span></div>
+        : null}
     </div>
   );
 }

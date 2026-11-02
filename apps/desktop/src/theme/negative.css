@@ -129,6 +129,31 @@
 .qr15.bg-margin{gap:2px;padding:8px 0 0;border:0;border-top:1px solid var(--grid-major)}
 .bg-margin .qr9{color:var(--ink)}
 
+/* Native Home keeps the selected composition without inventing missing events. */
+.qr17.bg-native-home{grid-template-rows:auto minmax(320px,1fr) auto;overflow:auto}
+.bg-native-home .bg-readout{min-width:0;max-width:75%}
+.bg-native-home .bg-home-sub{min-width:0;overflow-wrap:anywhere}
+.bg-native-home .bg-here{right:3%}
+.bg-native-home .bg-pane{background-image:none}
+.bg-native-trace-note{position:absolute;left:16px;right:16px;top:68%;margin:0;font-size:13px;line-height:20px;color:var(--ink-2)}
+.bg-native-home .bg-paper[data-unavailable] .bg-pane{background-image:repeating-linear-gradient(135deg,var(--grid-minor) 0 1px,transparent 1px 7px)}
+.bg-native-home .bg-notes{display:grid;grid-template-rows:repeat(4,minmax(min-content,1fr));gap:8px;padding:12px 0;overflow:auto}
+.bg-native-home .bg-notes .bg-note{position:relative;align-content:start;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"time label id" "line line line";min-width:0}
+.bg-native-home .bg-note .qr9{white-space:normal;overflow-wrap:anywhere}
+.bg-native-home .bg-note .qr10{white-space:normal;overflow-wrap:anywhere}
+.bg-native-home .bg-paper[data-by="map"] .bg-native-leader{animation:nativeLeaderIn 360ms step-end both}
+@keyframes nativeLeaderIn{from{opacity:0}to{opacity:1}}
+.runtime-panel[hidden]{display:none}
+.runtime-observation-summary .qr192{min-width:0;overflow-wrap:anywhere}
+.runtime-observation-summary .qr61{white-space:normal}
+.mem-context.mem-context-indexed{grid-template-columns:180px minmax(0,1fr) minmax(320px,400px)}
+.mem-context-nav{min-width:0;overflow-wrap:anywhere}
+.mem-context-nav a.qr26{text-decoration:none;box-sizing:border-box;height:auto;min-height:36px;white-space:normal;overflow-wrap:anywhere}
+.mem-context-nav code{display:block;overflow-wrap:anywhere}
+.native-budget-fill{background:var(--ink)}
+.mem-row-title{font-family:var(--f-text);font-size:14px;line-height:20px;font-weight:500;color:var(--ink);overflow-wrap:anywhere}
+.mem-row-project,.mem-row-evidence{overflow-wrap:anywhere}
+
 /* ---- the enlarged insert: four crop corners round the Inspector, as on a film frame (05) ---- */
 .qr88{position:relative}
 .qr88::after,.am-body::after{content:"";position:absolute;pointer-events:none;z-index:3;
@@ -168,6 +193,21 @@
 .bg-gap{position:absolute;left:0;width:82px;top:0;height:var(--gap,0px);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;box-sizing:border-box;font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--ink-3);background:repeating-linear-gradient(to bottom,transparent 0 3px,var(--grid-major) 3px 4px) right 0 / 1px 100% no-repeat}
 .qr137{flex-wrap:wrap;row-gap:2px}
 .bg-ruler-note{margin-left:auto;font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
+
+/* Native events keep their saved order; only known adjacent times add space. */
+.mem-native-transcript{gap:12px}
+.mem-native-transcript>.mem-event{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;margin-top:var(--event-gap,0px);padding:0;border-left:0}
+.native-event-clock{position:relative;align-self:stretch;padding-right:12px;border-right:1px solid var(--grid-major);font-family:var(--f-mono);font-size:12px;line-height:20px;color:var(--ink-3);overflow-wrap:anywhere}
+.native-event-clock::after{content:"";position:absolute;right:-4px;top:9px;width:7px;height:2px;background:var(--ink)}
+.native-event-gap{position:absolute;top:calc(-1 * var(--event-gap));left:0;right:12px;font-size:12px;line-height:16px}
+.native-event-body{min-width:0;display:flex;flex-direction:column;gap:4px}
+.mem-native-transcript>[data-checkpoint] .native-event-clock{border-right:2px solid var(--ink)}
+.mem-native-transcript>[data-checkpoint] .native-event-clock::before{content:"";position:absolute;right:-6px;top:0;bottom:0;width:6px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.mem-native-transcript>[data-checkpoint] .native-event-body>.mem-mono{align-self:flex-start;background:var(--i-paper);color:var(--i-ink);padding:0 4px}
+.mem-native-transcript>[data-coverage] .native-event-clock::before{content:"";position:absolute;right:-6px;top:calc(-12px - var(--event-gap,0px));bottom:0;width:6px;border-right:2px solid var(--ink);border-top:0;border-bottom:0}
+.mem-native-transcript>[data-coverage="start"] .native-event-clock::before{top:0;border-top:2px solid var(--ink)}
+.mem-native-transcript>[data-coverage="end"] .native-event-clock::before{border-bottom:2px solid var(--ink)}
+.mem-native-transcript>[data-coverage="only"] .native-event-clock::before{top:0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
 .qr148[data-kind="candidate"] .qr36{background:transparent;border:1px solid var(--ink);box-sizing:border-box}
 .qr148 .qr36{width:4px;height:9px}
 .qr150{padding:0 6px;line-height:18px}
@@ -257,5 +297,5 @@
 /* minimum window: the strip stays, the meta line yields first */
 @media (max-width:1240px){.bg-strip-meta{font-size:12px}.bg-nav-item{padding:0 7px}.bg-notes .qr12.bg-note{column-gap:8px}.tm-read{padding:0 8px}}
 @media (max-height:760px){:root{--strip-chart:40px}}
-@media (prefers-reduced-motion:reduce){.bg-pen,.bg-trace-clip,.bg-draw,.bg-pan,.tm-frame{animation:none !important;transition:none !important}}
-[data-motion="reduced"] .bg-pen,[data-motion="reduced"] .bg-trace-clip,[data-motion="reduced"] .bg-draw,[data-motion="reduced"] .bg-pan,[data-motion="reduced"] .tm-frame,[data-motion="reduced"] .bg-here{animation:none !important;transition:none !important}
+@media (prefers-reduced-motion:reduce){.bg-pen,.bg-trace-clip,.bg-draw,.bg-pan,.tm-frame,.bg-native-leader{animation:none !important;transition:none !important}}
+[data-motion="reduced"] .bg-pen,[data-motion="reduced"] .bg-trace-clip,[data-motion="reduced"] .bg-draw,[data-motion="reduced"] .bg-pan,[data-motion="reduced"] .tm-frame,[data-motion="reduced"] .bg-here,[data-motion="reduced"] .bg-native-leader{animation:none !important;transition:none !important}

@@ -9,7 +9,7 @@ import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate, useStatus } from "./status";
 import { ErrorBox, Tag, shortId, when } from "./ui";
-import { SessionEventBody, SessionEventMetadata } from "./SessionEventBody";
+import SessionTranscript from './SessionTranscript';
 import { ExternalPanel } from "./ExternalPanel";
 import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
 import { SavedExtractionJobs } from "./SavedExtractionJobs";
@@ -62,6 +62,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
   const questionInput = useRef<HTMLTextAreaElement>(null);
   const idFilterInput = useRef<HTMLInputElement>(null);
   const checkpointInput = useRef<HTMLInputElement>(null);
+  const transcriptScroller = useRef<HTMLDivElement>(null);
   const focusAfterWrite = useRef<{ target: "question" | "checkpoint"; trigger: Element | null } | null>(null);
   // Reads disable their controls, which can blur them to the document.
   // Return to the control that started the read once reads settle.
@@ -169,7 +170,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
         </div>
         <ErrorBox error={listRead.error} />
         {listRead.error && <p className="mem-muted qr20" role="status">
-          The session list could not be read. {sessions == null ? t("Its contents are still unknown.") : t("These rows are from the previous successful list read.")} Read it again to refresh the list. This does not create a session or send a question.
+            {t('The session list could not be read.')} {sessions == null ? t("Its contents are still unknown.") : t("These rows are from the previous successful list read.")} {t('Read it again to refresh the list. This does not create a session or send a question.')}
         </p>}
         {(listRead.busy || (sessions == null && !listRead.error)) && <p role="status" className="mem-muted qr20">{t("Reading sessions…")}</p>}
         {sessions != null && !listRead.busy && !listRead.error && sessions.length === 0 && <p className="mem-muted qr20">{t("No sessions yet.")}</p>}
@@ -182,10 +183,10 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
                 style={{ background: active ? "#17212B" : "transparent", color: active ? "#E7EDF2" : "#9BA9B6" }}
                 title={`${s.sessionId} · ${b.branchId}`}
                 onClick={(e) => { if (!writing.current && !externalWriting.current && !suggestionWriting.current) readFrom(e.currentTarget, () => void open({ sessionId: s.sessionId, branchId: b.branchId })); }}>
-                <span className="mem-session-identity mem-mono">Session {shortId(s.sessionId)} · Branch {shortId(b.branchId)}</span>
+                <span className="mem-session-identity mem-mono">{t('Session {session} · Branch {branch}', { session: shortId(s.sessionId), branch: shortId(b.branchId) })}</span>
                 <span className="mem-session-row-meta">
                   <span className="qr24">{when(s.updatedAt)}</span>
-                  <span className="qr25">{b.lastEventSeq} {b.lastEventSeq === 1 ? "event" : "events"}</span>
+                  <span className="qr25">{tn(b.lastEventSeq, '{n} event', '{n} events')}</span>
                 </span>
               </button>
             );
@@ -197,16 +198,16 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
         <div className="qr31">
           <div className="mem-session-heading">
             <h2 ref={sessionHeading} className="qr29" tabIndex={-1} title={current?.sessionId}>{current ? t("Session {id}", { id: shortId(current.sessionId) }) : t("Choose a session")}</h2>
-            {current && <div className="mem-muted mem-mono" title={current.branchId}>Branch {shortId(current.branchId)}</div>}
+            {current && <div className="mem-muted mem-mono" title={current.branchId}>{t('Branch {id}', { id: shortId(current.branchId) })}</div>}
           </div>
-          {detail && <div className="qr19">last saved event {detail.lastSavedEventId ? shortId(detail.lastSavedEventId) : "none"}</div>}
+          {detail && <div className="qr19">{t('last saved event {id}', { id: detail.lastSavedEventId ? shortId(detail.lastSavedEventId) : t('none') })}</div>}
           <div className="qr30" />
           {(requested || current) && <button type="button" className="mem-button" disabled={busy}
             onClick={(e) => { const target = detailRead.error ? requested : current; if (target) readFrom(e.currentTarget, () => void open(target)); }}>
             {detailRead.error ? t("Read session again") : t("Refresh saved session")}
           </button>}
         </div>
-        <div className="qr44">
+        <div className="qr44" ref={transcriptScroller}>
           <ErrorBox error={detailRead.error} />
           {detailRead.error && requested && <p className="mem-muted mem-pad" role="status">
             {t("Session {id} has not been read.", { id: shortId(requested.sessionId) })} {detail ? t("The displayed transcript is from the previous successful read.") : t("Its transcript is still unknown.")} {t("Read it again before starting another session write. Unsent drafts are kept.")}
@@ -216,16 +217,10 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
           {detail && current && (
             <div className="mem-pad mem-stack">
               {detail.transcript.length >= 200 && <p id="mem-transcript-bound" className="mem-muted" role="note">{t("Showing up to 200 most recent saved events from the latest successful read. Older events may be outside this view.")}</p>}
-              <ol className="mem-transcript" aria-describedby={detail.transcript.length >= 200 ? "mem-transcript-bound" : undefined}>
-                {detail.transcript.map((e: J) => (
-                  <li key={e.eventId} className={`mem-event mem-event-${e.kind}`}>
-                    <span className="mem-muted mem-mono"><SessionEventMetadata kind={e.kind} deliveryState={e.deliveryState} occurredAt={e.occurredAt} /></span>
-                    {e.text != null && <SessionEventBody kind={e.kind} text={e.text} context={{ ...current, disabled: writesBlocked, inspect, request }} />}
-                  </li>
-                ))}
-              </ol>
-              {detail.turns.filter((t: J) => t.state !== "completed").map((t: J) => (
-                <p key={t.turnId} className="mem-warn">Turn {shortId(t.turnId)}: {t.state} (last persisted event {shortId(t.last_persisted_event_id ?? t.lastPersistedEventId)})</p>
+              <SessionTranscript key={branchKey(current)} detail={detail} branch={current} disabled={writesBlocked}
+                mapUnavailable={detailRead.busy || !!detailRead.error} inspect={inspect} request={request} scroller={transcriptScroller} />
+              {detail.turns.filter((turn: J) => turn.state !== "completed").map((turn: J) => (
+                <p key={turn.turnId} className="mem-warn">{t('Turn {id}: {state} (last persisted event {event})', { id: shortId(turn.turnId), state: turn.state, event: shortId(turn.last_persisted_event_id ?? turn.lastPersistedEventId) })}</p>
               ))}
               <form className="mem-stack" onSubmit={(e) => {
                 e.preventDefault();
@@ -237,7 +232,7 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
                   await list();
                 });
               }}>
-                <label className="mem-label" htmlFor="mem-ask">Ask (Send uses the local Mock, which cites approved memories only; an external provider is in the inspector)</label>
+                <label className="mem-label" htmlFor="mem-ask">{t('Ask (Send uses the local Mock, which cites approved memories only; an external provider is in the inspector)')}</label>
                 <textarea ref={questionInput} id="mem-ask" className="mem-textarea" value={text} disabled={busy} onChange={(e) => editDraft("text", e.target.value)} />
                 <div className="mem-actions">
                   <button type="submit" className="mem-button mem-primary" disabled={!text.trim() || writesBlocked}>{t("Send")}</button>
@@ -250,12 +245,12 @@ export function Sessions({ inspect, reviewCandidates, request = call, initialIdF
       <aside aria-label={t("Session inspector")} className="qr88">
         <div className="qr79">
           <ErrorBox error={writeError} />
-          {action.busy && <p role="status" className="mem-muted">Waiting for Memory to return the session result…</p>}
+          {action.busy && <p role="status" className="mem-muted">{t('Waiting for Memory to return the session result…')}</p>}
           {answer && (
             <div className="mem-stack" aria-live="polite">
-              <h3 className="mem-h3">Answer · {answer.status}</h3>
+              <h3 className="mem-h3">{t('Answer · {status}', { status: answer.status })}</h3>
               {answer.statements.map((s: string, i: number) => <p key={i} className="mem-content">{s}</p>)}
-              <p className="mem-muted">Sources: {answer.sources.map((s: J) => shortId(s.source_id)).join(", ") || "none"}</p>
+              <p className="mem-muted">{t('Sources:')} {answer.sources.map((s: J) => shortId(s.source_id)).join(", ") || t('none')}</p>
               <div className="mem-actions">
                 <button type="button" className="mem-button" onClick={() => inspect(answer.capsuleId)}>{t("Inspect the context behind this answer")}</button>
               </div>

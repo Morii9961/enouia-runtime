@@ -3,6 +3,7 @@
 import { createRoot } from "react-dom/client";
 import { ExternalPanel } from "../src/memory/ExternalPanel";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -30,8 +31,12 @@ setTransport(async (command, args) => {
   throw new Error(`Unexpected synthetic call: ${command}`);
 });
 const root = createRoot(document.getElementById("fixture")!);
-root.render(<ExternalPanel branch={{ sessionId: "synthetic-session", branchId: "synthetic-branch" }}
-  text="Unsent synthetic question" invocations={[]} onChanged={async () => {}} consumeText={() => {}} />);
+function Surface() {
+  useLang();
+  return <ExternalPanel branch={{ sessionId: "synthetic-session", branchId: "synthetic-branch" }}
+    text="Unsent synthetic question" invocations={[]} onChanged={async () => {}} consumeText={() => {}} />;
+}
+root.render(<Surface />);
 const checks: { id: string; ok: boolean }[] = [];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const text = () => document.getElementById("fixture")!.textContent ?? "";
@@ -51,6 +56,17 @@ try {
   await sleep(250);
   check("initial_status_read_once", sent.filter(c => c === "provider_status").length === 1);
   check("initial_native_read_once", sent.filter(c => c === "memory_provider_setup").length === 1);
+  const initialCalls = sent.length;
+  for (const [language, reload, help] of [
+    ["en", "Reload settings", "Session token limits are estimates, not a spending cap."],
+    ["zh-Hans", "重载设置", "会话 token 上限是估算值，不是费用上限。"],
+    ["ja", "設定を再読み込み", "セッションのトークン上限は推定値であり、費用の上限ではありません。"],
+  ]) {
+    await setLang(language as Lang); await sleep(30);
+    check(`${language}_setup_help_and_reload_are_localized`, text().includes(help) && [...document.querySelectorAll("#fixture button")].some(b => b.textContent === reload));
+  }
+  check("setup_language_changes_do_not_reload_or_read", sent.length === initialCalls);
+  await setLang("en"); await sleep(30);
   click("Reload settings");
   await wait(() => text().includes("synthetic-model"));
   check("reload_ready", mode === "ready");

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { ImportReport } from "../src/memory/ImportReport";
 import { setTransport, type J } from "../src/memory/client";
 import { historyPage, historySelection, PLAN_HASH } from "../tests/history-fixture";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -23,9 +24,10 @@ setTransport(async (native, args) => {
   if (fail) return { kind: "memory_error", error: { code: "revision_conflict", retryable: true, rules: ["history.plan_stale"] } };
   return { kind: "history_plan", result: reply };
 });
-const render = () => root.render(<ImportReport selected={historySelection.importId} current={current} vaultId={vaultId} vaultHead={vaultHead}
+function Surface(){useLang();return <ImportReport selected={historySelection.importId} current={current} vaultId={vaultId} vaultHead={vaultHead}
   row={{ importId: historySelection.importId, revision, status, duplicateOf: duplicate ? "synthetic-original" : null,
-    inputKind: "chatgpt_conversations_json", warnings: [], counts: {} }} close={() => { current = false; render(); }} />);
+    inputKind: "chatgpt_conversations_json", warnings: [], counts: {} }} close={() => { current = false; render(); }} />;}
+const render = () => root.render(<Surface/>);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent === label);
@@ -47,6 +49,15 @@ try {
   check("explicit_planning_uses_only_observed_archive_revision_and_bounds", calls[0].args.importId === historySelection.importId && calls[0].args.importRevision === 7 && calls[0].args.messagesPerBatch === 15 && calls[0].args.maxPathReferences === 10000 && calls[0].args.cursor === null);
   check("coverage_unknowns_and_nonapproval_are_explicit", text().includes("Unknown time") && text().includes("Unparseable items") && text().includes("not all platform history") && text().includes("not owner approval"));
   check("source_roles_and_evidence_are_not_promoted", text().includes("assistant / model_claim") && text().includes("synthetic-source-1") && !button("Send once") && !button("Confirm"));
+  const messages=fixture.querySelector<HTMLInputElement>('input[id$="-messages"]')!,firstBatch=details()[0] as HTMLDetailsElement,observedCalls=calls.length;
+  messages.focus();firstBatch.open=true;
+  for(const [language,label] of [['en','Messages per batch (1–15)'],['zh-Hans','每批消息数（1–15）'],['ja','バッチあたりのメッセージ数（1–15）']] as [Lang,string][]){
+    await setLang(language);await sleep(30);
+    check(`${language}_planning_bounds_label_is_localized`,fixture.querySelector(`label[for="${messages.id}"]`)!.textContent===label);
+    check(`${language}_language_keeps_plan_references_and_focus`,messages.isConnected&&messages.value==='15'&&document.activeElement===messages&&details()[0]===firstBatch&&firstBatch.open&&details().length===10&&text().includes(PLAN_HASH)&&text().includes('assistant / model_claim'));
+  }
+  check('planning_language_does_not_replan_or_create_tasks',calls.length===observedCalls);
+  await setLang('en');await sleep(30);
   click(button("Next history batches")); await wait(() => details().length === 2);
   check("next_page_uses_only_the_core_cursor_and_replaces_old_batches", calls[1].args.cursor === `${PLAN_HASH}:10` && [...details()].some(item => item.textContent?.includes("Batch 11")) && ![...details()].some(item => item.textContent?.startsWith("Batch 1 ·")) && !button("Next history batches"));
   await edit("Path reference budget (1–100000)","20000");

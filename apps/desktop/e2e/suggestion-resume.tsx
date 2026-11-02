@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { SavedExtractionJobs } from "../src/memory/SavedExtractionJobs";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -20,7 +21,7 @@ setTransport(async(native,args)=>{
   const r=args.request as {command:string;arguments:Record<string,unknown>};calls.push({command:r.command,args:r.arguments});
   const run=String(r.arguments.runId);let result:unknown;
   if(r.arguments.sessionId!=="synthetic-session")throw new Error("Wrong saved session");
-  if(r.command==="extraction_preview")result={job:job(run),items:[{responseIndex:0,proposedType:"fact",content:`Saved ${run} proposal`,quote:"Synthetic quote",selectedText:"Synthetic source",application:"awaiting_cursor",candidate:null}]};
+  if(r.command==="extraction_preview")result={job:job(run),items:[{responseIndex:0,proposedType:"fact",content:`Saved ${run} proposal`,quote:"Synthetic quote <example>",selectedText:"Synthetic source 中文と日本語",application:"awaiting_cursor",candidate:null}]};
   else if(r.command==="extraction_pause"){
     if(r.arguments.paused!==false)throw new Error("Wrong resume command");
     await new Promise<void>(resolve=>{releaseResume=resolve;});paused.set(run,false);
@@ -29,7 +30,9 @@ setTransport(async(native,args)=>{
   }else throw new Error(`Unexpected command ${r.command}`);
   return {kind:"memory_page",result,error:null};
 });
-const root=createRoot(fixture);root.render(<SavedExtractionJobs sessionId="synthetic-session" jobs={[job("job-one"),job("job-two")]} onBusyChange={reportBusy} onChanged={async()=>{refreshed++;}}/>);
+const savedJobs=[job("job-one"),job("job-two")];
+function Surface(){useLang();return <SavedExtractionJobs sessionId="synthetic-session" jobs={savedJobs} onBusyChange={reportBusy} onChanged={async()=>{refreshed++;}}/>;}
+const root=createRoot(fixture);root.render(<Surface/>);
 const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent===label);
 const readJob=(run:string)=>fixture.querySelector<HTMLButtonElement>(`button[aria-label="Read saved suggestions for job ${run}"]`);
 const text=()=>fixture.textContent??"";
@@ -40,8 +43,32 @@ function click(label:string){const b=button(label);if(!b||b.disabled)throw new E
 try{
   await wait(()=>!!readJob("job-one"));readJob("job-one")!.click();await wait(()=>text().includes("Saved job-one proposal"));
   check("observed_paused_job_has_explicit_resume",!!button("Resume local queue")&&!button("Add remaining suggestions to the review queue"));
+  const observedCalls=calls.length;
+  for(const [language,count,quote,inText,pausedCopy] of [
+    ["en","1 suggestion.","Quote:","In:","This local queue is paused."],
+    ["zh-Hans","1 条建议。","引文：","所在文本：","这个本地队列已暂停。"],
+    ["ja","提案 1 件。","引用：","元のテキスト：","このローカルキューは一時停止中です。"],
+  ]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_saved_suggestion_labels_are_localized`,text().includes(count)&&text().includes(quote)&&text().includes(inText)&&text().includes(pausedCopy));
+    check(`${language}_saved_suggestion_content_stays_literal`,text().includes("Saved job-one proposal")&&text().includes("Synthetic quote <example>")&&text().includes("Synthetic source 中文と日本語")&&!fixture.querySelector("example"));
+  }
+  check("saved_suggestion_language_does_not_read_or_write",calls.length===observedCalls);
+  await setLang("en");await sleep(30);
   click("Resume local queue");await wait(()=>releaseResume!=null);await sleep(50);
   check("resume_holds_job_and_dismissal",busy&&readJob("job-two")!.disabled&&button("Close saved suggestions")!.disabled);
+  const heldCalls=calls.length,heldJob=readJob("job-two")!,heldClose=button("Close saved suggestions")!;
+  for(const [language,pending] of [
+    ["en","Resuming the local queue. Waiting for the saved result…"],
+    ["zh-Hans","正在恢复本地队列。等待保存结果…"],
+    ["ja","ローカルキューを再開しています。保存結果を待っています…"],
+  ]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_resuming_status_is_localized`,text().includes(pending));
+    check(`${language}_language_keeps_resume_ownership`,busy&&heldJob.isConnected&&heldJob.disabled&&heldClose.isConnected&&heldClose.disabled);
+  }
+  check("pending_resume_language_does_not_read_or_replay",calls.length===heldCalls);
+  await setLang("en");await sleep(30);
   releasePending();await wait(()=>!!fixture.querySelector('[role="alert"]'));
   check("lost_resume_receipt_requires_observation",!button("Retry")&&button("Resume local queue")?.disabled===true&&text().includes("Previous suggestion observation"));
   click("Read saved suggestions again");await wait(()=>!!button("Add remaining suggestions to the review queue"));

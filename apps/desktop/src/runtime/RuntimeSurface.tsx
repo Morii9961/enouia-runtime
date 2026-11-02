@@ -66,18 +66,39 @@ function ReadStatus({ busy, error, observedAt, refresh, label }: {
 }
 
 export default function RuntimeSurface() {
+  const [selected, setSelected] = useState('memory');
   const { status, error, vaultChanging, refresh } = useStatus();
   const host = useSnapshot<J>(shell.lifecycleStatus, describe);
   const hostStatus = host.snapshot?.value;
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
+  const operationsAvailable = open && typeof status.vault.vaultId === 'string' && status.vault.vaultId.length > 0;
+  const memoryState = vaultLabel(status, vaultChanging);
+  const operationsState = open ? `${t('Running operations')} · ${status.operationsRunning ?? t('unknown')}` : memoryState;
+  const shellState = host.busy ? t('Reading {what}…', { what: t('shell status') }) : host.error ? t('Status unavailable')
+    : host.snapshot ? t('Observed {when}', { when: when(host.snapshot.observedAt) }) : t('Status unknown');
+  const components = [
+    { key: 'memory', label: t('Memory Core'), state: memoryState },
+    { key: 'operations', label: t('Memory operations'), state: operationsState },
+    { key: 'shell', label: t('Windows shell'), state: shellState },
+  ];
   return <section data-screen-label="Runtime Inspector" className="qr210">
     <aside className="qr191">
       <div className="qr20"><h1 className="qr18">{t("Runtime")}</h1><div className="qr101">{t("Observed component status")}</div></div>
+      <nav className="qr27" aria-label={t('Observed component status')}>
+        {components.map(component => <button key={component.key} type="button" className="qr190"
+          aria-labelledby={`runtime-nav-${component.key}`} aria-pressed={selected === component.key} aria-controls={`runtime-${component.key}-panel`}
+          data-selected={selected === component.key || undefined} onClick={() => setSelected(component.key)}>
+          <span id={`runtime-nav-${component.key}`} className="qr188">{component.label}</span><span className="qr189">{component.state}</span>
+        </button>)}
+      </nav>
       <p className="mem-muted">{t("Memory and the Windows shell keep their own status. Each observation describes its own component.")}</p>
       <p className="mem-muted">{t("Memory refreshes every few seconds. The shell shows its last explicit read; read it again after a change.")}</p>
     </aside>
     <div className="qr209"><div className="qr208">
-      <section className="mem-stack" aria-labelledby="runtime-memory-title">
+      <div className="qr193 runtime-observation-summary" aria-label={t('Observed component status')}>
+        {components.map(component => <div key={component.key} className="qr192"><span className="qr56">{component.label}</span><span className="qr61">{component.state}</span></div>)}
+      </div>
+      <section id="runtime-memory-panel" className="mem-stack runtime-panel" hidden={selected !== 'memory'} aria-labelledby="runtime-memory-title">
         <h2 id="runtime-memory-title" className="qr194">{t("Memory Core")}</h2>
         <p role="status" className="mem-muted">{vaultLabel(status, vaultChanging)}</p>
         <button type="button" className="mem-button" onClick={() => void refresh()}>{t("Read Memory status again")}</button>
@@ -92,8 +113,12 @@ export default function RuntimeSurface() {
           </>}
         </>}
       </section>
-      {open && typeof status.vault.vaultId === "string" && status.vault.vaultId.length > 0 && <WorkspaceOperations key={status.vault.vaultId} />}
-      <section className="mem-stack" aria-labelledby="runtime-shell-title">
+      <div id="runtime-operations-panel" className="runtime-panel" hidden={selected !== 'operations'}>
+        {operationsAvailable ? <WorkspaceOperations key={status.vault.vaultId} /> : <section className="mem-stack" aria-labelledby="runtime-operations-title">
+          <h2 id="runtime-operations-title" className="qr194">{t('Memory operations')}</h2><p role="status" className="mem-muted">{memoryState}</p>
+        </section>}
+      </div>
+      <section id="runtime-shell-panel" className="mem-stack runtime-panel" hidden={selected !== 'shell'} aria-labelledby="runtime-shell-title">
         <h2 id="runtime-shell-title" className="qr194">{t("Windows shell")}</h2>
         <ReadStatus {...host} observedAt={host.snapshot?.observedAt} label={t("shell status")} />
         {hostStatus && <>

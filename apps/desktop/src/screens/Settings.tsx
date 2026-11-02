@@ -27,11 +27,11 @@ export default function Settings({ view }: { view: DemoView }) {
 {t("Motion")}
 </span>
 <span className="qr108">
-{t("The trace is drawn once on Home and the time map glides for 320 ms. Reduced makes both instant.")}
+{memorySettings ? t('The time map moves the calendar or loaded transcript. Reduced makes movement instant.') : t("The trace is drawn once on Home and the time map glides for 320 ms. Reduced makes both instant.")}
 </span>
 </div>
 <div className="qr173">
-{motionOpts.map((f, fIndex) => <React.Fragment key={f.label}>
+{motionOpts.map((f) => <React.Fragment key={f.key}>
 <button onClick={f.onClick} aria-pressed={f.active} className="qr212" type="button">
 {f.label}
 </button>

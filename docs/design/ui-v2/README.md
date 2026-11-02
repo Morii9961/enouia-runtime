@@ -2,6 +2,8 @@
 
 给接手实现的人（Claude 或 Codex）。先读这一页，再按顺序读。**要把 UI v2 落地进 Windows 应用，先读 [HANDOFF_CODEX.md](HANDOFF_CODEX.md)**：现状、落地顺序、验收与交付包。
 
+2026-11-01–02 的原生前端续作、逐片提交与尚未验收的边界见 [当前接续记录](CONTINUATION_2026-11-02.md)。它是本地开发交接，不是发布、安装或人工验收结论。
+
 1. [DESIGN.md](../../../DESIGN.md)：视觉的每个具体值（颜色、字体、间距、布局、动效、文案、禁区）。
 2. [docs/design-decisions.md](../../design-decisions.md)：已经定下的决定。已记录的不重新讨论；要推翻就新增一条。
 3. [SCREENS.md](SCREENS.md)：有哪些屏幕、每屏放什么、做到哪一步（已做 / 部分 / 未做 / 需后端）。
@@ -29,14 +31,14 @@
 | `apps/desktop/src/theme/automemory.css` | 自动记忆合成预览 |
 | `apps/desktop/src/memory/memory.css`、`shell/quick-search.css` | 原生 Memory 表面与 Quick Search 的旧样式（由上面几份覆盖） |
 | `apps/desktop/src/theme/negative-fonts.css`、`assets/fonts/` | Martian Mono + Geist，自托管，授权说明在 `assets/fonts/README.md` |
-| `apps/desktop/src/theme/RecordStrip.tsx`、`TimeMap.tsx`、`chart.ts`、`timeview.ts`、`mapSpecs.ts` | 记录带、笔迹、时间小地图与平移状态（只在浏览器演示画迹线；原生是空白带） |
+| `apps/desktop/src/theme/RecordStrip.tsx`、`TimeMap.tsx`、`chart.ts`、`timeview.ts`、`mapSpecs.ts` | 记录带、笔迹、时间小地图与平移状态（浏览器画虚构迹线；原生标示最新 Vault 提交及已读取会话的时间地图） |
 | `apps/desktop/src/screens/*.tsx` | 六个表面的浏览器演示 |
 | `apps/desktop/src/screens/automemory/*` | 合成预览（`fixture.ts` 是 15 条虚构记忆；预览懒加载） |
-| `apps/desktop/src/memory/*`、`src/shell/*` | 原生路径（真实 Memory pin）；这一轮只换皮，不改逻辑 |
+| `apps/desktop/src/memory/*`、`src/shell/*` | 原生路径（固定 Memory pin）；沿用领域契约，呈现实际回执与生命周期 |
 
 ## 不能动的契约
 
-- 接口类名与属性：`.qr*`、`.mem-*`、`#quick-query`、`data-screen-label`、`nav[aria-label="Primary"]`、`role="switch"` 等都被测试、smoke 脚本或原生表面使用。只改外观，不改名。
+- 接口类名与属性：`.qr*`、`.mem-*`、`#quick-query`、`data-screen-label`、`nav[data-runtime-nav="primary"]` / `button[data-runtime-page]`（aria-label 继续本地化）、`role="switch"` 等都被测试、smoke 脚本或原生表面使用。只改外观，不改名。
 - 行为：浏览器演示的虚构标注（「Demo · local only」「Fictional」）、原生里 Memory/Context/Sessions 走 Memory 适配器、Quick Search 的独立窗口与权限、1100×700 最小窗口、CSP、键盘（Ctrl+1…6、↑↓）、减少动画（系统设置与 `data-motion="reduced"`）。
 - 三种状态分开（SCREENS.md 开头）：旧 pin 真实能力 / 合成预览 / 以后的受控采用。合成内容只在浏览器演示里出现，原生失败不得回退到演示。
 - Activity / Usage 界面已移除，不要加回；它的后端与原生命令暂留，前端不调用。

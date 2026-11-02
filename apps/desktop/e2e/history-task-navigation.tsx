@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "../src/App";
 import { setTransport, type J } from "../src/memory/client";
 import { historyTask } from "../tests/history-task-fixture";
+import { setLang, useLang, type Lang } from "../src/i18n";
 
 const fixture = document.getElementById("fixture")!, root = createRoot(fixture), checks: { id: string; ok: boolean }[] = [];
 const calls: { command: string; args: J; key: unknown }[] = [];
@@ -48,9 +49,23 @@ async function task() {
   await wait(() => !!button("View batch 2 session"));
 }
 try {
-  root.render(<App memoryConnected startPage="memory" breathing={false} />);
+  function Surface(){useLang();return <App memoryConnected startPage="memory" breathing={false}/>;}
+  root.render(<Surface />);
   await wait(() => !!button("Import")); await task();
   check("task_links_come_from_observed_core_children", !!button("View coordinator session") && !!button("View batch 1 session"));
+  const batchControl=button("View batch 2 session")!,beforeLanguage=calls.length;
+  batchControl.focus();
+  for(const [language,order,complete] of [
+    ['en','selected order 2 → 1','All selected local jobs exist. Model extraction and review are still separate.'],
+    ['zh-Hans','所选顺序 2 → 1','所选本地任务都已创建。模型提取与审阅仍需另外进行。'],
+    ['ja','選択順序 2 → 1','選択したローカルジョブはすべて作成済みです。モデルによる抽出とレビューは別の操作です。'],
+  ]){
+    await setLang(language as Lang);await sleep();await sleep();
+    check(`${language}_observed_task_explanation_is_localized`,text().includes(order)&&text().includes(complete)&&text().includes('synthetic-model')&&text().includes('synthetic-task-head'));
+    check(`${language}_language_preserves_saved_batch_link_and_focus`,batchControl.isConnected&&document.activeElement===batchControl&&!batchControl.disabled&&text().includes('synthetic-child-1')&&text().includes('synthetic-child-0'));
+  }
+  check('task_language_changes_do_not_reobserve_or_materialize',calls.slice(beforeLanguage).every(c=>['workspace_status','operation_list'].includes(c.command)));
+  await setLang('en');await sleep();await sleep();
   button("View batch 2 session")!.focus(); click(button("View batch 2 session")); await wait(() => filter()?.value === "synthetic-child-1" && rows().length === 1 && !filter()!.disabled);
   check("batch_navigation_only_filters_the_exact_saved_session", rows()[0].title.startsWith("synthetic-child-1 · ") && !calls.some(c => c.command === "session_detail"));
   check("removed_task_control_continues_focus_in_sessions", document.activeElement === document.getElementById("runtime-content"));
