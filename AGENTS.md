@@ -8,6 +8,16 @@ Current user scope (2026-10-25, latest update): the Runtime frontend serves Enou
 
 The user explicitly requested continuous work across backend design slices. Verify, commit and push each completed slice, then proceed to the next backend design boundary without stopping for a routine continuation prompt. This supersedes earlier per-milestone stopping preferences within the current design scope. Since ADR-025, Memory-domain backend design continues in the Memory repository, not here. Each Runtime integration slice (a Memory pin bump, or porting tray, hotkey and overlay, login startup or the installer) starts only when the owner asks for it.
 
+## Code implementation principles
+
+Where these principles conflict with existing design or implementation guidance, follow these principles.
+
+- Keep code in one function unless it needs to be composable or reusable.
+- Validate unknown values once at the boundary that owns them. Pass typed values inward instead of repeating `typeof value === "object"` and property-existence checks. Do not defensively revalidate values already guaranteed by a schema, constructor, or internal type.
+- Do not extract single-use helpers preemptively. Keep logic at the call site unless a helper is reused, hides a genuinely complex boundary, or has a clear independent name that improves the caller.
+- Before adding complexity for a speculative or vanishingly unlikely race or security edge case, explain the concrete failure mode, likelihood, and complexity cost to Morii and get buy-in. Do not silently expand scope for theoretical robustness.
+- Avoid `try`/`catch` where possible.
+
 When Codex materially contributes to a commit in this repository, include this exact trailer after a blank line in the commit message:
 
 ```text
