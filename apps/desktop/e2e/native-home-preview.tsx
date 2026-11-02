@@ -66,7 +66,7 @@ function Preview() {
   useLang();
   return <>
   <div data-fixture-watermark style={{ position: 'fixed', right: 16, bottom: 2, zIndex: 100, background: 'var(--paper)', color: 'var(--ink)', fontSize: 12 }}>FICTIONAL FIXTURE · NO NATIVE CONNECTION</div>
-  <App ref={app} memoryConnected startPage={page} />
+  <App ref={app} memoryConnected={!params.has('demo')} startPage={page} />
   </>;
 }
 createRoot(document.getElementById('fixture')!).render(<Preview />);

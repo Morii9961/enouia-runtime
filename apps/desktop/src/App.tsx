@@ -340,7 +340,7 @@ export default class App extends React.Component<AppProps, AppState> {
       q: S.q, onQuery: (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ q: e.target.value }), collections, colTitle, colCount: tn(visible.length, '{n} record', '{n} records'), groups, timelineEmpty: !visible.length,
       sel, hasSel: !!sel, noSel: !sel, act, editing: S.editing, notEditing: !S.editing, draft: S.draft, onDraft: (e: React.ChangeEvent<HTMLTextAreaElement>) => this.setState({ draft: e.target.value }), notice: S.notice, hasNotice: !!S.notice, copyLabel: S.copied ? t('Copied') : t('Copy ID'),
       ctx, ctxScroll: this.ctxScroll, sessList, ses, rtList, rt, rtStrip,
-      motionOpts: [['system', msg('Follow system')], ['reduced', msg('Reduced')]].map(([k, label]) => { const a = S.motionPref === k; return { label: t(label), active: a, onClick: () => this.setState({ motionPref: k }) }; }),
+      motionOpts: [['system', msg('Follow system')], ['reduced', msg('Reduced')]].map(([k, label]) => { const a = S.motionPref === k; return { key: k, label: t(label), active: a, onClick: () => this.setState({ motionPref: k }) }; }),
     };
   }
 

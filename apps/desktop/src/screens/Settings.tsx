@@ -31,7 +31,7 @@ export default function Settings({ view }: { view: DemoView }) {
 </span>
 </div>
 <div className="qr173">
-{motionOpts.map((f, fIndex) => <React.Fragment key={f.label}>
+{motionOpts.map((f) => <React.Fragment key={f.key}>
 <button onClick={f.onClick} aria-pressed={f.active} className="qr212" type="button">
 {f.label}
 </button>
