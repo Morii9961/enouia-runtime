@@ -2,25 +2,23 @@
   "schema_version": "1.0",
   "project_id": "enouia.runtime",
   "project_name": "Enouia Runtime",
-  "snapshot_at": "2026-11-02T17:02:10+08:00",
+  "snapshot_at": "2026-11-02T17:54:36+08:00",
   "source": {
     "branch": "main",
-    "commit_sha": "b8254d8a8a88d67cd92e7f0d8ce72964a62f344e",
+    "commit_sha": "a06e0422d27459824826b8fa1635abb7bfe957ff",
     "tests_rerun": false,
     "basis": [
-      "2026-11-02 读取主目录 main@b8254d8a8a88d67cd92e7f0d8ce72964a62f344e；另核对主线 d0208eb60e75f05d283b0866fe528b1b47080786。本地主目录、已合并主线和开发分支分别记录，不同步或重置代码。",
-      "2026-11-02 GitHub 只读 API 核对 main 和开启 PR；开发分支另列，不以代码或 CI 代替正式部署/主人验收。",
-      "保留上一份快照的事项 ID 与历史验证证据；本次不重跑项目测试、构建、私人数据或真实 Provider 验收。",
-      "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/integration/memory-pin.json",
-      "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/design/ui-v2/OPEN_ISSUES.md",
-      "git:codex/native-home-time-structure@a054fddffacf55e0098c136dc18fd6cb1bb4fd6f",
-      "该本地工作树 docs/design/ui-v2/CONTINUATION_2026-11-02.md、HANDOFF_CODEX.md",
-      "该本地工作树 docs/validation/UI-v2-native-history-request-copy-2026-11-02.md：保存 134 Node 通过/3 跳过、DOM 86 场景/1256 断言；仅对应历史切片的合成证据，未重跑。",
-      "该接续明确：21 个切片未推送/开 PR/合并，无新原生 exe 或安装包，Memory pin 不变；新截图是带水印浏览器 fixture。"
+      "2026-11-02 核对并交付本地 21 个 UI 功能/修复切片（24 个原始提交）；PR #113 已合入 main@a06e0422d27459824826b8fa1635abb7bfe957ff。主目录此前落后远端 139 提交，本次交付后同步；不能据此推断安装版本。",
+      "https://github.com/Morii9961/enouia-runtime/pull/113",
+      "docs/design/ui-v2/CONTINUATION_2026-11-02.md：原始切片与开发阶段证据；未推送描述已由文末交付复核更新。",
+      "docs/validation/UI-v2-integration-2026-11-02.md：独立交付验证实际运行 npm test（134 Node 通过、3 跳过；86 DOM 场景/1268 断言）、前端 build（含类型检查）和两项集成根检查，均通过。",
+      "本快照自身只整理证据，不重跑测试，tests_rerun=false；上述检查属于单独的 UI 交付验证。未刷新原生候选、安装或部署，未访问个人 Vault、凭据或真实 Provider。",
+      "保留既有里程碑 ID、原始版本的验证范围和人工验收状态；既有 58 命令 Core 与 schema-1 路径不变，未采用新的 Owner 后端。",
+      "docs/validation/Repository-delivery-cleanup-2026-11-02.md：本地未提交文档、历史探索归档及分支/工作树清理记录。"
     ]
   },
   "stage": "integration",
-  "summary": "主线已有 UI v2 和 58 命令 Core；11 月 1～2 日又完成 21 个首页/会话/Inspector/Context、三语和焦点切片，保存在本地 a054fdd，未推送或合并，也未刷新原生候选。新 Owner 后端采用、安装/托盘/默认热键与真实日常使用仍待完成。",
+  "summary": "21 个首页/会话/Inspector/Context、三语和焦点切片已由 PR #113 合入 main；前端合成回归与构建通过。全设计保真仍受现有后端能力限制；原生候选未刷新，安装/托盘/默认热键、个人工作流及新 Owner 后端采用待完成。",
   "overall_progress": null,
   "milestones": [
     {
@@ -157,52 +155,50 @@
     },
     {
       "id": "native_frontend_continuation",
-      "title": "首页/会话/Inspector/Context 与三语/焦点 21 切片（本地未推送）",
-      "status": "in_progress",
-      "evidence_level": "repository",
+      "title": "首页/会话/Inspector/Context 与三语/焦点 21 切片交付",
+      "status": "done",
+      "evidence_level": "existing_test",
       "evidence_refs": [
-        "git:a054fddffacf55e0098c136dc18fd6cb1bb4fd6f",
-        "本地工作树 docs/design/ui-v2/CONTINUATION_2026-11-02.md"
+        "https://github.com/Morii9961/enouia-runtime/pull/113",
+        "docs/validation/UI-v2-integration-2026-11-02.md",
+        "docs/design/ui-v2/CONTINUATION_2026-11-02.md"
       ],
       "human_acceptance": "pending"
     }
   ],
   "blockers": [
     {
-      "title": "最新界面尚在本地分支",
-      "impact": "21 个切片未推送或主线整合，浏览器 fixture 不等于当前 Windows 候选已更新或验收。"
+      "title": "全设计呈现受现有读取能力限制",
+      "impact": "Home 连续真实迹线/近期摘要、全库分类、完整 Capsule 索引需要 Memory 领域契约；不能用当前页或虚构内容冒充。"
     },
     {
       "title": "原生与新后端采用仍有缺口",
-      "impact": "安装/升级、物理托盘、默认热键冲突、登录启动、真实质量和个人资料验收仍未闭环；新 Owner 后端没有采用。"
+      "impact": "原生候选尚未包含本批 UI；安装/升级、物理托盘、默认热键冲突、登录启动、真实质量和个人资料验收未闭环；新 Owner 后端没有采用。"
     }
   ],
   "next_actions": [
     {
-      "title": "评审并交付本地 21 个界面切片",
-      "priority": "P1",
-      "result": "按接续记录核对差异和对应证据，在明确授权范围内推送/开 PR/整合，不把本地提交当成主线完成。"
-    },
-    {
       "title": "刷新候选并完成 Windows 验收",
       "priority": "P1",
-      "result": "界面整合后再单独安排原生包、安装/托盘/默认热键和日常工作流验收。"
+      "result": "从已合并 UI 基线生成原生候选，在明确验收环境补安装/托盘/默认热键和日常工作流证据。"
     },
     {
       "title": "选择新 Owner 后端的首个采用切片",
       "priority": "P1",
-      "result": "对齐 Memory 精确契约；保留旧 v1 根与当前 pin，先用合成数据接线。"
+      "result": "与 Memory 的实际已交付精确契约对齐；保留当前 pin 和 v1 根，先用合成数据接线，再补依赖这些契约的设计呈现。"
+    },
+    {
+      "title": "定位大规模星图的整条渲染成本",
+      "priority": "P2",
+      "result": "按 OPEN_ISSUES #24 单独测量 5000 条深色球体/聚类；视觉取舍由 Morii 确认，小规模截图不等于规模验收。"
     }
   ],
   "needs_morii": [
     {
-      "decision": "是否优先评审和交付当前本地 21 个界面切片，再刷新 Windows 候选？"
+      "decision": "Windows 实际验收使用什么独立环境，何时安排安装/托盘/默认热键和真实日常工作流？"
     },
     {
-      "decision": "何时安排安装/托盘/默认热键与真实日常工作流验收？"
-    },
-    {
-      "decision": "新 Owner/采集后端先采用哪一条链，允许使用哪些测试资料？"
+      "decision": "新 Owner/采集后端先采用哪条链，允许使用哪些测试资料？"
     }
   ]
 }
