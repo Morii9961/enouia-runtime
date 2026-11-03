@@ -1644,5 +1644,18 @@ const dict: Record<string, string> = {
   "Observed {time}": "観測日時：{time}",
   "Operation {id}": "操作 {id}",
   "Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.": "モデルの呼び出しはローカルで停止します。サービスがリクエストを受け取っている可能性があります。再度開いたら、再送信する前に保存済みのセッションの結果を読んでください。",
+  "Segmented synthetic catalog": "分割形式の合成カタログ",
+  "Isolated synthetic read-2": "隔離された合成 read-2",
+  "This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.": "このライブラリには固定の架空レコードが含まれます。Owner Vault を開いたり、記憶を継続的に形成したりしません。",
+  "No segmented synthetic library is enabled in this session.": "このセッションでは分割形式の合成ライブラリが有効になっていません。",
+  "Literal catalog search": "カタログの文字列検索",
+  "Search catalog": "カタログを検索",
+  "Refresh catalog": "カタログを更新",
+  "Next catalog page": "カタログの次のページ",
+  "{shown} shown · {matched} matching authorized records": "{shown} 件表示 · 権限内の一致レコード {matched} 件",
+  "Counts cover currently authorized machine revisions for this selection.": "件数は、この選択で現在閲覧できる機械記憶のリビジョンのみを対象とします。",
+  "{unknown} records have unknown event dates in this filter scope.": "この絞り込み範囲では {unknown} 件の出来事の日付が不明です。",
+  "Page statistics were read for the same selection.": "ページと統計は同じ選択に基づいています。",
+  "No catalog page is currently observed.": "現在読み取られたカタログページはありません。",
 };
 export default dict;

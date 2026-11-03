@@ -26,8 +26,13 @@ fn load<T: serde::de::DeserializeOwned>(text: &str) -> Result<T, &'static str> {
     serde_json::from_str(text).map_err(|_| "catalog_fixture_invalid")
 }
 pub(super) fn create(stop: &AtomicBool) -> Result<Fixture, &'static str> {
+    create_with_clock(stop, Arc::new(SystemClock))
+}
+pub(super) fn create_with_clock(
+    stop: &AtomicBool,
+    clock: Arc<dyn Clock + Send + Sync>,
+) -> Result<Fixture, &'static str> {
     let ids = Arc::new(OsIdSource);
-    let clock = Arc::new(SystemClock);
     let now_ms = clock.now_unix_ms();
     let now = Timestamp::from_unix_ms(now_ms).ok_or("catalog_fixture_invalid")?;
     let mut descriptor: AutomationDescriptor =

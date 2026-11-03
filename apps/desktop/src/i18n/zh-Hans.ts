@@ -1644,5 +1644,18 @@ const dict: Record<string, string> = {
   "Observed {time}": "观察时间：{time}",
   "Operation {id}": "操作 {id}",
   "Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.": "模型调用只在本地停止。服务方可能已经收到请求；重新打开后，请先读取保存的会话结果，再决定是否发送。",
+  "Segmented synthetic catalog": "分段合成目录",
+  "Isolated synthetic read-2": "隔离合成 read-2",
+  "This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.": "此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。",
+  "No segmented synthetic library is enabled in this session.": "本次会话未启用分段合成库。",
+  "Literal catalog search": "按原文搜索目录",
+  "Search catalog": "搜索目录",
+  "Refresh catalog": "刷新目录",
+  "Next catalog page": "下一页目录",
+  "{shown} shown · {matched} matching authorized records": "显示 {shown} 条 · 授权范围内匹配 {matched} 条",
+  "Counts cover currently authorized machine revisions for this selection.": "计数仅涵盖本次选择中当前获授权的机器记忆修订。",
+  "{unknown} records have unknown event dates in this filter scope.": "此筛选范围内有 {unknown} 条记录的事件日期未知。",
+  "Page statistics were read for the same selection.": "页面与统计来自同一次选择。",
+  "No catalog page is currently observed.": "当前没有已读取的目录页面。",
 };
 export default dict;

@@ -268,7 +268,7 @@ async function connect(overlay = false, port = PORT) {
           await s.evaluate(HELPERS);
           // This focused English journey owns fresh profiles. Use existing UI
           // controls, keeping translated accessible names in the application.
-          if (['--quick-only', '--automatic-only'].includes(process.argv[6])) {
+          if (['--quick-only', '--automatic-only', '--catalog-only'].includes(process.argv[6])) {
             if (!overlay) {
               await s.evaluate("document.querySelectorAll('.bg-nav-item')[5].click()");
               await waitFor(s, "!!document.querySelector('button[lang=en]')", 'fixture language controls');
@@ -1087,6 +1087,19 @@ async function catalogMemoryChecks() {
   check('CATALOG.changed_filter_cannot_reuse_cursor_or_counts', stale.every(r=>r.err && !r.ok));
   const filtered = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(changed)},cursor:null,limit:1}).then(r=>r.ok)`);
   check('CATALOG.literal_chinese_filter_reads_actual_record', filtered.matched_in_scope === 1 && filtered.items[0].title === '调试偏好');
+  await s.evaluate("document.querySelector('button[data-runtime-page=memory]').click()");
+  await rail(s,'Segmented synthetic catalog');
+  await waitFor(s,has('2 shown · 3 matching authorized records'),'read-2 panel and same-selection stats');
+  check('CATALOG.native_panel_is_explicitly_synthetic_and_scoped',await s.evaluate(`${has('Isolated synthetic read-2')} && ${has('Counts cover currently authorized machine revisions for this selection.')} && ${has('Page statistics were read for the same selection.')}`));
+  await shot(s,'catalog-01-list');
+  await click(s,'button','Next catalog page');
+  await waitFor(s,has('1 shown · 3 matching authorized records'),'read-2 next page');
+  check('CATALOG.native_panel_pages_actual_records',await s.evaluate("document.querySelectorAll('.qr44 .mem-list li').length===1"));
+  await set(s,'.qr44 form input','调试');
+  await click(s,'button','Search catalog');
+  await waitFor(s,has('1 shown · 1 matching authorized records'),'read-2 filtered count');
+  check('CATALOG.native_panel_filters_without_changing_record_language',await s.evaluate(`${has('调试偏好')} && ${has('合成示例：我喜欢详细的调试说明。')}`));
+  await shot(s,'catalog-02-filter');
   const version = await s.evaluate("__t.invoke('memory_catalog',{request:{schema_version:99,capability:'memory-native-read-2',query:{operation:'malformed'}}})");
   check('CATALOG.version_refused_before_query_decode', version.err === 'catalog_version_unsupported');
   const authority = await s.evaluate("__t.invoke('memory_catalog',{request:{schema_version:2,capability:'memory-native-read-2',root:'forbidden',query:{operation:'status'}}})");
@@ -1098,6 +1111,8 @@ async function catalogMemoryChecks() {
   await s.evaluate("__t.catalog({operation:'lock'})");
   const locked = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:1})`);
   check('CATALOG.lock_refuses_reads', locked.err === 'catalog_locked');
+  await waitFor(s,has('Library: locked'),'read-2 panel observes native lock');
+  check('CATALOG.native_panel_withdraws_rows_but_retains_search_draft',await s.evaluate("!document.querySelector('.qr44 .mem-list li') && document.querySelector('.qr44 form input').value==='调试'"));
   await s.evaluate("__t.catalog({operation:'unlock'})");
   const unlocked = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:1}).then(r=>r.ok)`);
   check('CATALOG.unlock_reads_same_root_without_commit', JSON.stringify(unlocked.selection.snapshot) === JSON.stringify(first.selection.snapshot));
