@@ -1598,5 +1598,12 @@ const dict: Record<string, string> = {
   "The current record could not be read. Its reported conflict remains in the candidate; read again to observe the saved record.": "无法读取当前记录。候选中报告的冲突仍然保留；请重新读取保存的记录。",
   "Current saved observation · r{revision}": "当前保存记录的观察 · r{revision}",
   "This record has changed since the reported conflict. The candidate reference above still names r{revision}; this read does not resolve that conflict.": "报告冲突后，这条记录已更改。上方候选引用仍指向 r{revision}；本次读取不会解决这项冲突。",
+  "progress {done} / {total}": "进度 {done} / {total}",
+  "progress {done}": "进度 {done}",
+  "Waiting for the local call to stop.": "正在等待本地调用停止。",
+  "Waiting for the next safe point.": "正在等待下一个安全停止点。",
+  "Backup saved: commit #{sequence} · {files} files · {destination}.": "备份已保存：提交 #{sequence} · {files} 个文件 · {destination}。",
+  "Confirmation submitted. Waiting for Memory to return its result…": "确认已提交，正在等待 Memory 返回结果…",
+  "Confirm ({code})": "确认（{code}）",
 };
 export default dict;

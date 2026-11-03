@@ -127,7 +127,7 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
     <div className="mem-operation" role="status" aria-live="polite" aria-atomic="true">
       <span className="mem-mono">{status.kind}</span>
       <span className={`mem-state mem-state-${status.state}`}>{status.state}</span>
-      <span className="mem-muted">progress {done}{total != null ? ` / ${total}` : ""}</span>
+      <span className="mem-muted">{total != null ? t("progress {done} / {total}", { done, total }) : t("progress {done}", { done })}</span>
       {active && cancellable && (
         <button type="button" className="mem-button" disabled={status.cancelRequested || cancelling}
           onClick={onCancel}>
@@ -135,7 +135,7 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
         </button>
       )}
       {active && external && <span className="mem-muted">{t("The service may have received the request. Stopping locally does not confirm remote cancellation.")}</span>}
-      {active && cancellable && status.cancelRequested && <span className="mem-muted">{external ? "Waiting for the local call to stop." : "Waiting for the next safe point."}</span>}
+      {active && cancellable && status.cancelRequested && <span className="mem-muted">{t(external ? "Waiting for the local call to stop." : "Waiting for the next safe point.")}</span>}
       {active && !cancellable && <span className="mem-muted">{t("Finishes before locking or exiting.")}</span>}
       {!active && external && <span className="mem-muted">
         {status.state === "succeeded" && ["completed", "length"].includes(status.result?.finish)
@@ -149,7 +149,7 @@ export function OperationFeedback({ status, cancelling = false, error = null, on
         </span>
       )}
       {status.state === "succeeded" && status.kind === "backup_export" && status.result && (
-        <span className="mem-muted">Backup saved: commit #{status.result.sequence} · {status.result.files} files · {status.result.destinationName}.</span>
+        <span className="mem-muted">{t("Backup saved: commit #{sequence} · {files} files · {destination}.", { sequence: status.result.sequence, files: status.result.files, destination: status.result.destinationName })}</span>
       )}
       {status.error && <span className="mem-warn">{describe(new CallError(status.error))}</span>}
       {/* A later observed acknowledgement or terminal result supersedes a stop
@@ -223,13 +223,13 @@ export function PlanDialog({ plan, returnFocus, onClose, request = call }: {
         {t("These are all the records this commit writes. Confirmation code")} <code>{plan.confirmCode}</code>{t(", valid until {date}.", { date: when(plan.expiresAt) })}
       </p>
       <pre className="mem-diff" tabIndex={0}>{JSON.stringify(plan.records, null, 2)}</pre>
-      {action.busy && <p role="status" className="mem-muted">Confirmation submitted. Waiting for Memory to return its result…</p>}
+      {action.busy && <p role="status" className="mem-muted">{t("Confirmation submitted. Waiting for Memory to return its result…")}</p>}
       <ErrorBox error={action.error} />
       {blocked && <p id="mem-plan-recovery" className="mem-muted">{t("This confirmation cannot be retried. Cancel, check the saved state, and prepare a new plan if needed.")}</p>}
       <div className="mem-actions">
         <button type="button" className="mem-button" onClick={cancel} disabled={action.busy}>{t("Cancel")}</button>
         <button type="button" className="mem-button mem-primary" onClick={confirm} disabled={action.busy || blocked}>
-          Confirm ({plan.confirmCode})
+          {t("Confirm ({code})", { code: plan.confirmCode })}
         </button>
       </div>
     </dialog>
@@ -294,7 +294,7 @@ export function Source({ evidence, readPage = call }: { evidence: J; readPage?: 
       <div className="mem-row-meta">
         <code title={evidence.sourceId}>{shortId(evidence.sourceId)}</code>
         <span>r{evidence.sourceRevision}</span>
-        <span>supports {evidence.supports}</span>
+        <span>{t("supports {what}", { what: evidence.supports })}</span>
         {evidence.available ? <span>{t("source available")}</span> : <Tag tone="warn">{t("source missing")}</Tag>}
         {evidence.available && <button ref={readControl} type="button" className="mem-link" onClick={() => load(null)}>{t("Show source")}</button>}
       </div>

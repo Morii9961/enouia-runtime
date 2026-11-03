@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Explorer } from "../src/memory/MemorySurface";
 import { MemoryStatusProvider } from "../src/memory/status";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -45,7 +46,8 @@ setTransport(async (native, args) => {
   return { kind: "memory_page", result, error: null };
 });
 const root = createRoot(fixture);
-root.render(<MemoryStatusProvider><Explorer history={false} submitted={{ text: "", seq: 0 }} onRefresh={() => {}} /></MemoryStatusProvider>);
+function Surface(){useLang();return <MemoryStatusProvider><Explorer history={false} submitted={{ text: "", seq: 0 }} onRefresh={() => {}} /></MemoryStatusProvider>;}
+root.render(<Surface/>);
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b => b.textContent === label);
 const row = (id: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button.qr43")].find(b => b.textContent?.includes(snippets[id]));
@@ -77,6 +79,15 @@ try {
   check("confirmed_purge_is_announced_as_permanent", notices().some(n => n === "Permanent purge confirmed by Memory."));
   await select("synthetic-three"); await openPlan("Forget…");
   holdConfirm = true; click(button("Confirm (SYNTHETIC)"), "Confirm"); await wait(() => release != null);
+  const dialog=fixture.querySelector('dialog'),records=dialog!.querySelector('pre')!.textContent,confirmCalls=calls.filter(c=>c.command==='review_confirm').length;
+  for(const [language,label,waiting] of [
+    ['zh-Hans','确认（SYNTHETIC）','确认已提交，正在等待 Memory 返回结果…'],
+    ['ja','確認（SYNTHETIC）','確認を送信しました。Memory からの結果を待っています…'],
+    ['en','Confirm (SYNTHETIC)','Confirmation submitted. Waiting for Memory to return its result…'],
+  ]){
+    await setLang(language as Lang);await wait(()=>text().includes(waiting)&&!!button(label));
+    check(`${language}_pending_confirmation_keeps_plan_and_single_write`,fixture.querySelector('dialog[open]')===dialog&&dialog!.querySelector('pre')!.textContent===records&&button(label)!.disabled&&calls.filter(c=>c.command==='review_confirm').length===confirmCalls&&release!==null);
+  }
   outside.focus(); root.unmount(); releasePending(); await sleep(50);
   check("unmount_discards_pending_focus", document.activeElement === outside);
   const plans = calls.filter(c => c.command === "forget_plan").map(c => `${c.args.memoryId}:${c.args.mode}`);

@@ -1598,5 +1598,12 @@ const dict: Record<string, string> = {
   "The current record could not be read. Its reported conflict remains in the candidate; read again to observe the saved record.": "現在の記録を読み込めませんでした。報告された競合は候補に残っています。保存済みの記録を再読み込みしてください。",
   "Current saved observation · r{revision}": "現在の保存済み記録の観測 · r{revision}",
   "This record has changed since the reported conflict. The candidate reference above still names r{revision}; this read does not resolve that conflict.": "競合の報告後にこの記録が変更されています。上の候補の参照先は引き続き r{revision} です。今回の読み込みで競合が解決するわけではありません。",
+  "progress {done} / {total}": "進捗 {done} / {total}",
+  "progress {done}": "進捗 {done}",
+  "Waiting for the local call to stop.": "ローカル呼び出しの停止を待っています。",
+  "Waiting for the next safe point.": "次の安全な停止点を待っています。",
+  "Backup saved: commit #{sequence} · {files} files · {destination}.": "バックアップを保存しました：コミット #{sequence} · {files} ファイル · {destination}。",
+  "Confirmation submitted. Waiting for Memory to return its result…": "確認を送信しました。Memory からの結果を待っています…",
+  "Confirm ({code})": "確認（{code}）",
 };
 export default dict;
