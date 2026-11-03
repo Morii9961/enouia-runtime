@@ -1,6 +1,6 @@
 // Isolated, fictional browser diagnostics for UI v2 issue #24. No native IPC.
 // Probes temporarily omit drawing operations to locate cost; they are NOT visual fixes.
-// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target>
+// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes]
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -68,18 +68,41 @@ try {
   await evaluate('document.fonts.ready.then(()=>true)');
   await evaluate(`(() => {
     const canvas=document.querySelector('.sm-canvas'),ctx=canvas.getContext('2d');
-    const drawImage=ctx.drawImage,stroke=ctx.stroke;
+    const drawImage=ctx.drawImage,stroke=ctx.stroke,beginPath=ctx.beginPath,moveTo=ctx.moveTo,lineTo=ctx.lineTo,setLineDash=ctx.setLineDash;
     const composite=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'globalCompositeOperation');
     const probe=window.__starDiagnostic={mode:'baseline',times:[],draws:[],steps:[]};
+    let dash=[],segments=[],last=null;
     ctx.drawImage=function(...args){if(!['no_glow','no_glow_or_blend'].includes(probe.mode))return drawImage.apply(this,args);};
-    ctx.stroke=function(...args){if(!(probe.mode==='no_theme_links'&&this.getLineDash().length))return stroke.apply(this,args);};
+    ctx.beginPath=function(){segments=[];last=null;return beginPath.call(this);};
+    ctx.moveTo=function(x,y){last=[x,y];return moveTo.call(this,x,y);};
+    ctx.lineTo=function(x,y){
+      if(last&&dash.length){
+        const [x0,y0]=last;segments.push([x0,y0,x,y]);
+        if(probe.mode==='manual_theme_dashes'){
+          const dx=x-x0,dy=y-y0,length=Math.hypot(dx,dy);
+          for(let start=0;start<length;start+=6){const end=Math.min(start+3,length);
+            moveTo.call(this,x0+dx*start/length,y0+dy*start/length);lineTo.call(this,x0+dx*end/length,y0+dy*end/length);}
+          last=[x,y];return;
+        }
+      }
+      last=[x,y];return lineTo.call(this,x,y);
+    };
+    ctx.setLineDash=function(value){dash=value;return setLineDash.call(this,['solid_theme_links','manual_theme_dashes'].includes(probe.mode)?[]:value);};
+    ctx.stroke=function(...args){
+      if(dash.length)probe.path={segments:segments.slice(),stroke:this.strokeStyle,width:this.lineWidth,alpha:this.globalAlpha,
+        transform:[this.getTransform().a,this.getTransform().b,this.getTransform().c,this.getTransform().d,this.getTransform().e,this.getTransform().f]};
+      if(!(probe.mode==='no_theme_links'&&dash.length))return stroke.apply(this,args);
+    };
     Object.defineProperty(ctx,'globalCompositeOperation',{configurable:true,get(){return composite.get.call(this);},
       set(value){composite.set.call(this,probe.mode==='no_glow_or_blend'&&value==='lighter'?'source-over':value);}});
     window.__starPerf.draws.push=function(value){probe.times.push(performance.now());probe.draws.push(value);return Array.prototype.push.call(this,value);};
     window.__starPerf.steps.push=function(value){probe.steps.push(value);return Array.prototype.push.call(this,value);};
   })()`);
   const rows = [];
-  const cases = [
+  const cases = process.argv.includes('--dashes') ? [
+    ['Sphere', 5000, ['baseline', 'solid_theme_links', 'manual_theme_dashes', 'baseline']],
+    ['Theme clusters', 5000, ['baseline', 'solid_theme_links', 'manual_theme_dashes', 'baseline']],
+  ] : [
     ['Sphere', 200, ['baseline']],
     ['Sphere', 5000, ['baseline', 'no_glow', 'no_glow_or_blend', 'baseline']],
     ['Theme clusters', 5000, ['baseline', 'no_theme_links', 'baseline']],
@@ -104,6 +127,25 @@ try {
       })()`);
       if (row.hidden || row.draw.n === 0) throw Error('Hidden or empty diagnostic sample');
       rows.push(row); console.log(JSON.stringify(row));
+      if(mode==='manual_theme_dashes'){
+        row.pixelComparison=await evaluate(`(() => {
+          const p=window.__starDiagnostic.path,w=document.querySelector('.sm-canvas').width,h=document.querySelector('.sm-canvas').height;
+          const images=[false,true].map(manual=>{
+            const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const g=canvas.getContext('2d');
+            g.setTransform(...p.transform);g.strokeStyle=p.stroke;g.lineWidth=p.width;g.globalAlpha=p.alpha;g.setLineDash(manual?[]:[3,3]);g.beginPath();
+            for(const [x0,y0,x1,y1] of p.segments){
+              if(!manual){g.moveTo(x0,y0);g.lineTo(x1,y1);continue;}
+              const dx=x1-x0,dy=y1-y0,length=Math.hypot(dx,dy);
+              for(let start=0;start<length;start+=6){const end=Math.min(start+3,length);g.moveTo(x0+dx*start/length,y0+dy*start/length);g.lineTo(x0+dx*end/length,y0+dy*end/length);}
+            }
+            g.stroke();return g.getImageData(0,0,w,h).data;
+          });
+          let different=0,maxDelta=0,totalDelta=0;
+          for(let i=0;i<images[0].length;i+=4){let changed=false;for(let j=0;j<4;j++){const delta=Math.abs(images[0][i+j]-images[1][i+j]);maxDelta=Math.max(maxDelta,delta);totalDelta+=delta;changed ||= delta>0;}if(changed)different++;}
+          return {segments:p.segments.length,pixels:w*h,different,maxChannelDelta:maxDelta,meanChannelDelta:totalDelta/images[0].length};
+        })()`);
+        console.log(JSON.stringify({layout,n,pixelComparison:row.pixelComparison}));
+      }
       writeFileSync(join(out, 'report.json'), JSON.stringify({ browser: version.Browser, scope: 'Isolated headless browser, fictional star map; probes change pixels, not product behavior. Draw intervals are not presentation timestamps.', rows }, null, 2));
     }
   }
