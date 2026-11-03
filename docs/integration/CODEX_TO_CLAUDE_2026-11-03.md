@@ -2,6 +2,19 @@
 
 Morii 最新要求：完成手头 read-2 前端切片后停止开发，整理交接及新 session 启动提示词，在周限额耗尽前交付。本次已收尾；下面的待办交给 Claude，不由本 session 继续展开。没有等待中的构建或测试。
 
+## Claude 接续进度（截至 `d6d8dd4`）
+
+以下切片已在 `codex/read2-synthetic-surface` 上逐片验证、提交并推送，随草稿 PR #118 更新，均未合并。逐片记录见 [当日接续表](../design/ui-v2/CONTINUATION_2026-11-03.md)。
+
+- `678f475`：read-2 原生三语 × 双主题 × 1100×700 矩阵；修复英文标签越框（`.mem-tag` 改用 min-height）和 read-2 新增文案的 CJK 字形覆盖（`3a5dc33` 起 `cjk-fonts` 失败）。
+- `a619013`：`i18n.test.mjs` 新增解析守卫（Vite `parseSync`），覆盖 JSX 字面文字、可访问名称和子表达式字面量；52 处改为整句翻译。
+- `4ed0b3d`：`operation-stop-observation` 改为等终态渲染再断言（OPEN_ISSUES #5 同类）。
+- `233571b`：#24 CDP 追踪。成本在 GPU 进程光栅反序列化，不在 JS；虚线主题线约占每帧 GPU 光栅 80%。产品绘制不变。
+- `0442ff0`：演示记忆库区分空分组与无匹配。
+- `d6d8dd4`：read-1 也接入同一原生矩阵（共用 `surfaceMatrix`）。
+
+待 Morii 决定：合成面板的库状态 / 枚举 / 时间是否翻译（现按 `413d318` 保持原样）；#24 降成本的视觉取舍；#13 / #3 / #4 / #15 等既有 owner 项。#14 的整屏空库等状态需要一套演示状态，尚未开始。物理托盘、热键冲突、登录启动与安装仍是独立验收项。
+
 ## 从哪里开始
 
 - **继续代码所在工作树**：`E:\Enouia Runtime\.worktrees\read2-pin-compatibility`，当前分支 `codex/read2-synthetic-surface`。目录名是最初 pin 切片名称，当前分支已向下推进，**不要切回旧分支**。
