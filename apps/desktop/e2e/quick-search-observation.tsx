@@ -13,9 +13,9 @@ const checks: { id: string; ok: boolean }[] = [];
 const calls: { command: string; args: Record<string, unknown>; key: unknown }[] = [];
 let release: (() => void) | null = null;
 const releasePending = () => { const resolve = release; release = null; resolve?.(); };
-let fail = false, hidden = 0, holdNext = false, mounted = true;
+let fail = false, hidden = 0, holdNext = false, mounted = true, failHide = false;
 mockIPC(async native => {
-  if (native === 'shell_hide') { hidden++; return null; }
+  if (native === 'shell_hide') { hidden++; if(failHide)throw new Error('Synthetic hide failure'); return null; }
   throw new Error(`Unexpected host action ${native}`);
 }, { shouldMockEvents: true });
 setTransport(async (native, args) => {
@@ -109,6 +109,16 @@ try {
   await edit('Before Escape'); window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   await wait(() => hidden === 1 && input().value === '' && fixture.querySelectorAll('li').length === 0);
   check('escape_clears_and_uses_existing_hide_command', hidden === 1 && input().value === '' && fixture.querySelectorAll('li').length === 0);
+  failHide=true;window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+  await wait(()=>text().includes('The window action failed. Try again.'));
+  await edit('Host recovery draft');const retainedInput=input(),failedSearches=calls.length,failedHides=hidden;retainedInput.focus();
+  for(const [language,error] of [['zh-Hans','窗口操作失败。请重试。'],['ja','ウィンドウの操作に失敗しました。もう一度お試しください。'],['en','The window action failed. Try again.']]){
+    localStorage.setItem('enouia.lang',language);
+    window.dispatchEvent(new StorageEvent('storage',{key:'enouia.lang',newValue:language,storageArea:localStorage}));
+    await wait(()=>lang()===language);await frame();
+    check(`${language}_host_failure_follows_language_without_window_or_search_retry`,text().includes(error)&&input()===retainedInput&&retainedInput.value==='Host recovery draft'&&document.activeElement===retainedInput&&calls.length===failedSearches&&hidden===failedHides);
+  }
+  failHide=false;
   await edit('Before unmount'); await start(button('Search')); root.unmount(); mounted = false; outside().focus(); releasePending(); await frame(); await frame();
   check('unmounted_search_cannot_return_focus_or_publish', document.activeElement === outside() && !fixture.querySelector('main'));
   check('search_keeps_existing_read_only_scope_and_limit', calls.every(c => c.command === 'memory_search' && c.key === null && c.args.includeHistorical === false && c.args.cursor === null && c.args.limit === 8));
