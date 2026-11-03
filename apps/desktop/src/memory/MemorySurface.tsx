@@ -270,8 +270,8 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
     void action.run(async (key) => setPlan(await readPage("forget_plan", { memoryId: id, mode, withDependents: false }, key)));
   };
   const copy = async () => {
-    try { await navigator.clipboard.writeText(id); setNote(t("ID copied.")); }
-    catch { setNote(t("Could not copy. Select the ID and copy it manually.")); }
+    try { await navigator.clipboard.writeText(id); setNote(msg("ID copied.")); }
+    catch { setNote(msg("Could not copy. Select the ID and copy it manually.")); }
   };
   const observation = <div className="mem-stack">
     <button ref={readAgain} type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) { returnFocus(() => readAgain.current); load(); } }}>{t("Read memory again")}</button>
@@ -317,14 +317,14 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
             if (reads.pending.current || reads.error) return;
             await readPage("correction_propose", { memoryId: id, revision: r.revision, text: correction }, key);
             setCorrection((current) => current === correction ? "" : current);
-            setNote(t("Correction proposed. Review it in the candidate inbox."));
+            setNote(msg("Correction proposed. Review it in the candidate inbox."));
           }); }}>{t("Propose correction")}</button>
           <button type="button" className="mem-button" disabled={action.busy}
             onClick={() => { if (!reads.pending.current && !reads.error) { returnFocus(() => readAgain.current); void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); } }}>{t("Delete impact")}</button>
           <button type="button" className="mem-button" disabled={action.busy} onClick={() => forget("forget")}>{t("Forget…")}</button>
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>{t("Purge…")}</button>
         </div>
-        {note && <p role="status" className="mem-note">{note}</p>}
+        {note && <p role="status" className="mem-note">{t(note)}</p>}
         {action.busy && <p role="status" className="mem-muted">{t("Waiting for Memory to return the requested result…")}</p>}
         <ErrorBox error={action.error} />
         {impact && (
@@ -338,7 +338,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           setPlan(null);
           void refresh();
           if (done) onChanged(plan.purge === true);
-          else setNote(t("Confirmation cancelled. The deletion candidate remains in the candidate inbox."));
+          else setNote(msg("Confirmation cancelled. The deletion candidate remains in the candidate inbox."));
         }} />}
     </Inspector>
   );

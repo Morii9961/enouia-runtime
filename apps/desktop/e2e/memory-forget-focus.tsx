@@ -77,6 +77,11 @@ try {
   check("new_selection_retires_deletion_notice", !notices().some(n => n.includes("confirmed by Memory")));
   await openPlan("Forget…"); click(button("Cancel"), "Cancel"); await wait(() => !fixture.querySelector("dialog[open]")); await sleep(30);
   check("cancelled_plan_keeps_trigger_focus_and_note", document.activeElement === button("Forget…") && text().includes("Confirmation cancelled.") && !notices().some(n => n.includes("confirmed by Memory")));
+  const cancelledWrites=calls.filter(c=>['review_confirm','forget_plan','review_discard'].includes(c.command)).length,forgetControl=button('Forget…')!;
+  for(const [language,note] of [['zh-Hans','已取消确认。删除候选仍在候选收件箱中。'],['ja','確認をキャンセルしました。削除の候補は候補の受信箱に残っています。'],['en','Confirmation cancelled. The deletion candidate remains in the candidate inbox.']]){
+    await setLang(language as Lang);await wait(()=>text().includes(note));
+    check(`${language}_cancelled_plan_notice_keeps_memory_focus_and_no_confirmation`,forgetControl.isConnected&&document.activeElement===forgetControl&&calls.filter(c=>['review_confirm','forget_plan','review_discard'].includes(c.command)).length===cancelledWrites&&remaining.has('synthetic-two'));
+  }
   await openPlan("Purge…");
   holdList = true; click(button("Confirm (SYNTHETIC)"), "Confirm"); await wait(() => release != null && !fixture.querySelector("dialog[open]"));
   outside.focus(); releasePending(); await wait(() => !row("synthetic-two") && !!row("synthetic-three")); await sleep(30);
