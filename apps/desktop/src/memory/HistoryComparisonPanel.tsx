@@ -79,7 +79,7 @@ function BoundComparison({ vaultId, choices, request }: {
     <div><button type="button" className="mem-button" disabled={busy} onClick={() => void inspect()}>{t("Read comparison")}</button></div>
     {error && <p className="mem-error" role="alert">{error}</p>}
     {view && <div className="mem-stack">
-      <p className="mem-muted">Snapshot {view.base.commitId} · {view.batches.length} selected batches · refresh explicitly after changes</p>
+      <p className="mem-muted">{t("Snapshot {commit} · {batches} selected batches · refresh explicitly after changes", { commit: view.base.commitId, batches: view.batches.length })}</p>
       <HistoryBriefPanel vaultId={vaultId} choices={selected} comparison={view} request={request}/>
       {view.topics.length === 0 && <p>{t("No suggestions in the selected saved responses.")}</p>}
       {view.topics.length > 0 && <div className="mem-stack">
@@ -98,35 +98,35 @@ function BoundComparison({ vaultId, choices, request }: {
             {topic.key.kind} · {topic.key.label} · {t("subjects:")} {topic.key.subjects.join(", ")}
           </option>)}
         </select>
-        <p className="mem-muted">Showing {displayedTopics.length} of {view.topics.length} topics. Local display filter only; the brief and source coverage retain all selected responses.</p>
+        <p className="mem-muted">{t("Showing {shown} of {total} topics. Local display filter only; the brief and source coverage retain all selected responses.", { shown: displayedTopics.length, total: view.topics.length })}</p>
         {displayedTopics.length === 0 && <p>{t("No topics match this local selection. Source coverage remains below.")}</p>}
       </div>}
       {displayedTopics.map(({ topic, index }) => <article className="mem-card mem-stack" key={index}>
         <h4 className="mem-h3">{topic.key.kind} · {topic.key.label}</h4>
-        <p className="mem-muted">Subjects: {topic.key.subjects.join(", ")} · project: {topic.key.project ?? "None"}</p>
+        <p className="mem-muted">{t("Subjects: {subjects} · project: {project}", { subjects: topic.key.subjects.join(", "), project: topic.key.project ?? t("None") })}</p>
         <ol className="mem-list">{topic.entries.map((entry: J, i: number) => <li className="mem-stack" key={i}>
-          <span className="mem-label">Entry {i + 1} · {entry.application}</span>
-          <p className="mem-content">Original proposal: {entry.content}</p>
-          <p className="mem-content">Original details: {JSON.stringify(entry.details)}</p>
+          <span className="mem-label">{t("Entry {n} · {application}", { n: i + 1, application: entry.application })}</span>
+          <p className="mem-content">{t("Original proposal: {content}", { content: entry.content })}</p>
+          <p className="mem-content">{t("Original details: {details}", { details: JSON.stringify(entry.details) })}</p>
           <blockquote className="mem-content">{entry.quote}</blockquote>
-          <p className="mem-content">Full selected context: {entry.selectedText}</p>
-          <p className="mem-muted">Source {entry.sourceId} · r{entry.sourceRevision} · {entry.speakerRole} · {entry.evidenceClass}</p>
+          <p className="mem-content">{t("Full selected context: {text}", { text: entry.selectedText })}</p>
+          <p className="mem-muted">{t("Source {source} · r{revision} · {role} · {evidence}", { source: entry.sourceId, revision: entry.sourceRevision, role: entry.speakerRole, evidence: entry.evidenceClass })}</p>
           <div><button type="button" className="mem-button" onClick={() => showSource(entry)}>{t("View linked source span")}</button></div>
-          <p className="mem-muted">Occurred: {entry.occurredAt ?? "Unknown"} · captured: {entry.capturedAt}</p>
-          <p className="mem-muted">{entry.flags.map((f: string) => hints[f]).join(" · ") || "No review flags"}</p>
+          <p className="mem-muted">{t("Occurred: {occurred} · captured: {captured}", { occurred: entry.occurredAt ?? t("Unknown"), captured: entry.capturedAt })}</p>
+          <p className="mem-muted">{entry.flags.map((f: string) => hints[f]).join(" · ") || t("No review flags")}</p>
           {entry.candidate && <div className="mem-stack">
-            <span className="mem-label">Current candidate · {entry.candidate.status} · r{entry.candidate.revision}</span>
+            <span className="mem-label">{t("Current candidate · {status} · r{revision}", { status: entry.candidate.status, revision: entry.candidate.revision })}</span>
             <p className="mem-content">{entry.candidate.content}</p>
-            <p className="mem-content">Current details: {JSON.stringify(entry.candidate.details)}</p>
+            <p className="mem-content">{t("Current details: {details}", { details: JSON.stringify(entry.candidate.details) })}</p>
           </div>}
         </li>)}</ol>
         <ul className="mem-list">{topic.comparisons.map((pair: J) => <li key={[pair.left, pair.right].join(":")}>
-          Entries {pair.left + 1} / {pair.right + 1}: {hints[pair.difference]} · {hints[pair.branches]}
+          {t("Entries {left} / {right}: {difference} · {branches}", { left: pair.left + 1, right: pair.right + 1, difference: hints[pair.difference], branches: hints[pair.branches] })}
         </li>)}</ul>
       </article>)}
       <section className="mem-stack" aria-label={t("Selected response coverage")} tabIndex={-1} ref={coverageRef}>
         <h4 className="mem-h3">{t("Selected source coverage")}</h4>
-        <p className="mem-muted">{view.runs.length} saved responses · {spans.length} span occurrences · {uniqueSpans} unique spans · {uncitedSpans} uncited occurrences · {zeroResponses} zero-suggestion responses</p>
+        <p className="mem-muted">{t("{responses} saved responses · {spans} span occurrences · {unique} unique spans · {uncited} uncited occurrences · {zero} zero-suggestion responses", { responses: view.runs.length, spans: spans.length, unique: uniqueSpans, uncited: uncitedSpans, zero: zeroResponses })}</p>
         <p className="mem-muted">{t("Only the selected saved responses are covered. Uncited text and zero suggestions are review gaps, not proof of irrelevance or complete history.")}</p>
         <label className="mem-label" htmlFor={fieldId + "-coverage"}>{t("Source navigation")}</label>
         <select id={fieldId + "-coverage"} className="mem-input" value={coverageMode} onChange={e => { setCoverageMode(e.target.value); setFocusedSource(null); }}>
@@ -138,11 +138,11 @@ function BoundComparison({ vaultId, choices, request }: {
           <option value="non_user">{t("Non-user evidence")}</option>
         </select>
         {coverageRuns.length === 0 && <p>{t("No selected source spans match this view. This does not describe unselected history.")}</p>}
-        <details className="mem-card" open={coverageMode !== "all" || undefined}><summary>{coverageMode === "all" ? "All selected source coverage, including uncited slices" : "Source spans matching the current navigation view"}</summary>
+        <details className="mem-card" open={coverageMode !== "all" || undefined}><summary>{t(coverageMode === "all" ? "All selected source coverage, including uncited slices" : "Source spans matching the current navigation view")}</summary>
         {coverageRuns.map(({ run, sources }) => <div className="mem-stack" key={run.selection.run_id}>
-          <p className="mem-muted">Run {run.selection.run_id} · {run.state} · {run.applied}/{run.suggestions} applied · response {run.response_hash}</p>
+          <p className="mem-muted">{t("Run {run} · {state} · {applied}/{suggestions} applied · response {hash}", { run: run.selection.run_id, state: run.state, applied: run.applied, suggestions: run.suggestions, hash: run.response_hash })}</p>
           {sources.map((source: J, i: number) => <div className="mem-stack" key={i}>
-            <p className="mem-muted">Source {source.slice.source.source_id} · r{source.slice.source.source_revision} · bytes {source.slice.start}–{source.slice.end}
+            <p className="mem-muted">{t("Source {source} · r{revision} · bytes {start}–{end}", { source: source.slice.source.source_id, revision: source.slice.source.source_revision, start: source.slice.start, end: source.slice.end })}
               {" · "}{source.context.speaker_role} · {source.context.evidence_class}
               {t(" · occurred: ")}{source.context.source_context.occurred_at ?? t("Unknown")}
               {t(" · captured: ")}{source.context.source_context.captured_at}

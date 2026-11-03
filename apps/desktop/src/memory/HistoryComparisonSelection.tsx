@@ -38,7 +38,7 @@ function LoadedSelection({ vaultId, tasks, request }: {
   return <section className="mem-stack" aria-label={t("Saved batch comparison selection")}>
     <h3 className="mem-h3">{t("Choose saved batches for review")}</h3>
     <p id={fieldId + "-help"} className="mem-muted">{t("Choose from the loaded task snapshots, then read the comparison explicitly. A new task snapshot or changed selection clears the old comparison. No batch is created, resumed or sent.")}</p>
-    <p className="mem-muted">Selected {choices.length}/32 saved batches · {readyCount} available in these loaded tasks</p>
+    <p className="mem-muted">{t("Selected {selected}/32 saved batches · {available} available in these loaded tasks", { selected: choices.length, available: readyCount })}</p>
     {observed.length === 0 && <p>{t("Read saved task details first.")}</p>}
     {observed.length > 0 && readyCount === 0 && <p>{t("No saved completed responses are available in these task snapshots.")}</p>}
     {observed.map(task => <details className="mem-card" key={task.taskId}>
