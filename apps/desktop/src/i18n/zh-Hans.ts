@@ -1592,5 +1592,6 @@ const dict: Record<string, string> = {
   "Source spans matching the current navigation view": "符合当前导航条件的来源片段",
   "Run {run} · {state} · {applied}/{suggestions} applied · response {hash}": "运行 {run} · {state} · 已入队 {applied}/{suggestions} · 响应 {hash}",
   "Source {source} · r{revision} · bytes {start}–{end}": "来源 {source} · r{revision} · 字节 {start}–{end}",
+  "Snapshot {commit} · SHA-256 {hash}": "快照 {commit} · SHA-256 {hash}",
 };
 export default dict;

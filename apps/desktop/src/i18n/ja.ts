@@ -1592,5 +1592,6 @@ const dict: Record<string, string> = {
   "Source spans matching the current navigation view": "現在のナビゲーションの選択内容に一致するソース区間",
   "Run {run} · {state} · {applied}/{suggestions} applied · response {hash}": "実行 {run} · {state} · キューに追加済み {applied}/{suggestions} · 応答 {hash}",
   "Source {source} · r{revision} · bytes {start}–{end}": "ソース {source} · r{revision} · バイト {start}–{end}",
+  "Snapshot {commit} · SHA-256 {hash}": "スナップショット {commit} · SHA-256 {hash}",
 };
 export default dict;

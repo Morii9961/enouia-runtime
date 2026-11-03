@@ -34,7 +34,7 @@ function BoundBrief({ vaultId, choices, comparison, request }: {
     <div><button type="button" className="mem-button" disabled={busy} onClick={()=>void read()}>{t("Read source navigation brief")}</button></div>
     {error&&<p role="alert" className="mem-error">{error}</p>}
     {view&&<div className="mem-stack">
-      <p className="mem-muted">Snapshot {view.base.commitId} · SHA-256 {view.contentHash}</p>
+      <p className="mem-muted">{t("Snapshot {commit} · SHA-256 {hash}", { commit: view.base.commitId, hash: view.contentHash })}</p>
       <pre className="mem-content" aria-label={t("History brief plain text")}>{view.markdown}</pre>
     </div>}
   </section>;
