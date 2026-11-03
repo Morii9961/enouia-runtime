@@ -162,7 +162,7 @@ export function VaultLifecycleFeedback({ children }: { children?: ReactNode }) {
   return <div className="mem-card mem-stack" aria-busy="true">
     <h2 className="mem-h2">{t("Finishing Vault change")}</h2>
     <p role="status" className="mem-muted">{t("Runtime is finishing Memory operations before releasing the Vault. Verify and backup cannot be cancelled. Wait for this to finish before unlocking or opening a Vault.")}</p>
-    <p className="mem-muted">Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.</p>
+    <p className="mem-muted">{t("Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.")}</p>
     {children}
   </div>;
 }

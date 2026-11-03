@@ -1638,5 +1638,11 @@ const dict: Record<string, string> = {
   "Supporting citation": "支持性引用",
   "Analysis dependency · not corroboration": "分析依赖 · 不代表证据",
   "Authorized historical dependency": "授权范围内的历史依赖",
+  "Proposed priority {priority}": "建议优先级 {priority}",
+  "Current fact (r{revision}): {content}": "当前事实（r{revision}）：{content}",
+  "Runtime is exiting; settings changes are unavailable.": "Runtime 正在退出，无法更改设置。",
+  "Observed {time}": "观察时间：{time}",
+  "Operation {id}": "操作 {id}",
+  "Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.": "模型调用只在本地停止。服务方可能已经收到请求；重新打开后，请先读取保存的会话结果，再决定是否发送。",
 };
 export default dict;

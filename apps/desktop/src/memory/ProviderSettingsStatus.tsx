@@ -69,14 +69,14 @@ export function ProviderSettingsStatus({ disabled = false, setup = providerSetup
   return <section className="qr65 mem-stack" aria-labelledby={`${id}-title`}>
     <h2 id={`${id}-title`} className="qr198">{t("Loaded model settings")}</h2>
     <p className="mem-muted">{t("This is the running host's last observed setup. Generating or saving a draft does not change it. Reload model settings explicitly reads the fixed configuration file and adopts or disables that setup.")}</p>
-    <p role="status" className="mem-muted">{disabled ? "Runtime is exiting; settings changes are unavailable."
+    <p role="status" className="mem-muted">{disabled ? t("Runtime is exiting; settings changes are unavailable.")
       : busy === "reload" ? t("Reloading and reading loaded model settings…")
       : busy ? t("Reading loaded model settings…")
       : state?.state === "ready" ? t("Settings loaded. Key access, grants and requests are separate steps in Sessions.")
       : state?.state === "absent" ? t("External providers are off: no settings file was loaded.")
       : state?.state === "invalid" ? t("Settings refused; external providers are off. {v0}.", { v0: describe(state.rule) })
       : t("Loaded model settings are unknown.")}</p>
-    {observation && !disabled && <p className="mem-muted">Observed {when(observation.at)}</p>}
+    {observation && !disabled && <p className="mem-muted">{t("Observed {time}", { time: when(observation.at) })}</p>}
     {error && <p role="alert" className="mem-error">{error}</p>}
     {reloadError && <p role="alert" className="mem-error">{reloadError}</p>}
     <div className="mem-actions">

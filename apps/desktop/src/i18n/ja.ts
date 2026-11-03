@@ -1638,5 +1638,11 @@ const dict: Record<string, string> = {
   "Supporting citation": "裏付けの引用",
   "Analysis dependency · not corroboration": "分析の依存関係 · 裏付けではありません",
   "Authorized historical dependency": "許可範囲内の履歴の依存関係",
+  "Proposed priority {priority}": "提案された優先度 {priority}",
+  "Current fact (r{revision}): {content}": "現在の事実（r{revision}）：{content}",
+  "Runtime is exiting; settings changes are unavailable.": "Runtime は終了処理中です。設定は変更できません。",
+  "Observed {time}": "観測日時：{time}",
+  "Operation {id}": "操作 {id}",
+  "Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.": "モデルの呼び出しはローカルで停止します。サービスがリクエストを受け取っている可能性があります。再度開いたら、再送信する前に保存済みのセッションの結果を読んでください。",
 };
 export default dict;

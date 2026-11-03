@@ -429,7 +429,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 <code title={c.candidateId}>{shortId(c.candidateId)}</code><span>r{c.revision}</span>
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
                 <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
-                {["P0", "P1", "P2"].includes(c.details?.priority) && <Tag>Proposed priority {c.details.priority}</Tag>}
+                {["P0", "P1", "P2"].includes(c.details?.priority) && <Tag>{t("Proposed priority {priority}", { priority: c.details.priority })}</Tag>}
               </div>
               {typeof c.details?.title === "string" && <h3 className="mem-h3">{c.details.title}</h3>}
               {typeof c.reason === "string" && c.reason.length > 0 && <details className="mem-stack mem-reason">
@@ -437,7 +437,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 <p className="mem-muted">{t("A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.")}</p>
                 <p className="mem-content">{c.reason}</p>
               </details>}
-              {c.target && <p className="mem-old">Current fact (r{c.target.revision}): {c.target.content}</p>}
+              {c.target && <p className="mem-old">{t("Current fact (r{revision}): {content}", { revision: c.target.revision, content: c.target.content })}</p>}
               <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">{t("Candidate content")}</label>
               <textarea id={`mem-e-${c.candidateId}`} className="mem-textarea" value={draft}
                 onChange={(e) => setEdits({ ...edits, [c.candidateId]: e.target.value })} />
