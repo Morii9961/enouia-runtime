@@ -343,6 +343,35 @@ const set = (s, sel, value) => s.evaluate(`__t.set(${JSON.stringify(sel)}, ${JSO
 const dialogClosed = "!document.querySelector('dialog[open]')";
 const statusOf = (s) => s.evaluate("__t.memory('workspace_status', {}).then((r) => r.result)");
 
+// Owned minimum window, the real cross-window language path (Quick Search writes the
+// shared preference) and emulated system colour. `observed` must read the same before
+// and after each switch: the surface keeps what it read without rereading.
+async function surfaceMatrix(s, app, id, prefix, titles, observed) {
+  ownedWindowMetrics(app,{width:1100,height:700});
+  await waitFor(s,'innerWidth===1100 && innerHeight===700',prefix+' minimum window');
+  const before = await s.evaluate(observed);
+  const langWindow = await connect(true);
+  for (const lang of ['zh-Hans','ja','en']) {
+    await langWindow.evaluate(`localStorage.setItem('enouia.lang',${JSON.stringify(lang)})`);
+    await waitFor(s,`document.documentElement.lang===${JSON.stringify(lang)} && ${has(titles[lang])}`,prefix+' language '+lang);
+    for (const theme of ['dark','light']) {
+      const media = await s.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
+      if (media.error) throw new Error(media.error.message);
+      await waitFor(s,`document.documentElement.dataset.theme===${JSON.stringify(theme)}`,prefix+' theme '+theme);
+      await sleep(900);
+      const fit = await s.evaluate(`(()=>{const r=document.documentElement;return {root:[r.scrollWidth,r.clientWidth,r.scrollHeight,r.clientHeight],panes:[...document.querySelectorAll('.qr45,.qr44,.qr88,.qr79')].filter(n=>n.clientWidth>0&&n.scrollWidth>n.clientWidth+1).map(n=>n.className+':'+n.scrollWidth+'>'+n.clientWidth)}})()`);
+      check(`${id}.matrix_${lang}_${theme}_fits_minimum_window`,fit.root[0]<=fit.root[1]+1 && fit.root[2]<=fit.root[3]+1 && fit.panes.length===0,JSON.stringify(fit));
+      const tags = await s.evaluate(`[...document.querySelectorAll('.qr45 .mem-tag')].map(tag=>{const range=document.createRange();range.selectNodeContents(tag);const text=range.getBoundingClientRect(),box=tag.getBoundingClientRect();return {text:tag.textContent,within:text.top>=box.top&&text.bottom<=box.bottom&&text.left>=box.left&&text.right<=box.right,box:[box.width,box.height],range:[text.width,text.height]}})`);
+      check(`${id}.matrix_${lang}_${theme}_tag_text_inside_border`,tags.length>0 && tags.every(tag=>tag.within),JSON.stringify(tags));
+      check(`${id}.matrix_${lang}_${theme}_keeps_observed_page`,(await s.evaluate(observed))===before);
+      await shot(s,`${prefix}-matrix-${lang}-${theme}`);
+    }
+  }
+  langWindow.close();
+  const media = await s.send('Emulation.setEmulatedMedia',{features:[]});
+  if (media.error) throw new Error(media.error.message);
+}
+
 // Actual Windows input to this test process; CDP key events cannot trigger
 // RegisterHotKey. Refuse input unless the foreground window belongs to it.
 function pressHotkey(pid) {
@@ -1024,6 +1053,8 @@ async function automaticMemoryChecks() {
   const after = await s.evaluate("__t.automatic({operation:'status'}).then(r=>r.ok)");
   check('CORE8.simulation_does_not_advance_current', JSON.stringify(after.snapshot) === JSON.stringify(initial.snapshot));
   await shot(s, 'core8-03-read-only-recall');
+  await surfaceMatrix(s,app,'CORE8','core8',{'zh-Hans':'自动记忆',ja:'自動記憶',en:'Automatic memories'},
+    "[document.querySelectorAll('.qr44 .mem-list li').length,...[...document.querySelectorAll('pre')].map(p=>p.textContent)].join('|')");
   await click(s, 'button', 'Lock synthetic library');
   await waitFor(s, has('Library: locked'), 'synthetic lock');
   const locked = await s.evaluate("__t.automatic({operation:'page',filter:{form:null,adoption:null,event_window:null,include_unknown_event_time:false},cursor:null,limit:1})");
@@ -1092,32 +1123,8 @@ async function catalogMemoryChecks() {
   await waitFor(s,has('2 shown · 3 matching authorized records'),'read-2 panel and same-selection stats');
   check('CATALOG.native_panel_is_explicitly_synthetic_and_scoped',await s.evaluate(`${has('Isolated synthetic read-2')} && ${has('Counts cover currently authorized machine revisions for this selection.')} && ${has('Page statistics were read for the same selection.')}`));
   await shot(s,'catalog-01-list');
-  // Owned minimum window, the real cross-window language path and emulated
-  // system colour. The observed page must stay as read, without rereading.
-  ownedWindowMetrics(app,{width:1100,height:700});
-  await waitFor(s,'innerWidth===1100 && innerHeight===700','catalog minimum window');
-  const rows = "[...document.querySelectorAll('.qr44 .mem-list li')].map(n=>[n.querySelector('h3').textContent,n.querySelector('p').textContent,n.querySelector('.mem-row-meta').textContent].join(' / ')).join('|')";
-  const listed = await s.evaluate(rows);
-  const langWindow = await connect(true);
-  for (const [lang,title] of [['zh-Hans','分段合成目录'],['ja','分割形式の合成カタログ'],['en','Segmented synthetic catalog']]) {
-    await langWindow.evaluate(`localStorage.setItem('enouia.lang',${JSON.stringify(lang)})`);
-    await waitFor(s,`document.documentElement.lang===${JSON.stringify(lang)} && ${has(title)}`,'catalog language '+lang);
-    for (const theme of ['dark','light']) {
-      const media = await s.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
-      if (media.error) throw new Error(media.error.message);
-      await waitFor(s,`document.documentElement.dataset.theme===${JSON.stringify(theme)}`,'catalog theme '+theme);
-      await sleep(900);
-      const fit = await s.evaluate(`(()=>{const r=document.documentElement;return {root:[r.scrollWidth,r.clientWidth,r.scrollHeight,r.clientHeight],panes:[...document.querySelectorAll('.qr45,.qr44,.qr88,.qr79')].filter(n=>n.clientWidth>0&&n.scrollWidth>n.clientWidth+1).map(n=>n.className+':'+n.scrollWidth+'>'+n.clientWidth)}})()`);
-      check(`CATALOG.matrix_${lang}_${theme}_fits_minimum_window`,fit.root[0]<=fit.root[1]+1 && fit.root[2]<=fit.root[3]+1 && fit.panes.length===0,JSON.stringify(fit));
-      const tags = await s.evaluate(`[...document.querySelectorAll('.qr45 .mem-tag')].map(tag=>{const range=document.createRange();range.selectNodeContents(tag);const text=range.getBoundingClientRect(),box=tag.getBoundingClientRect();return {text:tag.textContent,within:text.top>=box.top&&text.bottom<=box.bottom&&text.left>=box.left&&text.right<=box.right,box:[box.width,box.height],range:[text.width,text.height]}})`);
-      check(`CATALOG.matrix_${lang}_${theme}_tag_text_inside_border`,tags.length>0 && tags.every(tag=>tag.within),JSON.stringify(tags));
-      check(`CATALOG.matrix_${lang}_${theme}_keeps_observed_page`,await s.evaluate(rows)===listed && await s.evaluate("document.querySelectorAll('.qr44 .mem-list li').length===2"));
-      await shot(s,`catalog-matrix-${lang}-${theme}`);
-    }
-  }
-  langWindow.close();
-  const media = await s.send('Emulation.setEmulatedMedia',{features:[]});
-  if (media.error) throw new Error(media.error.message);
+  await surfaceMatrix(s,app,'CATALOG','catalog',{'zh-Hans':'分段合成目录',ja:'分割形式の合成カタログ',en:'Segmented synthetic catalog'},
+    "[...document.querySelectorAll('.qr44 .mem-list li')].map(n=>[n.querySelector('h3').textContent,n.querySelector('p').textContent,n.querySelector('.mem-row-meta').textContent].join(' / ')).join('|')");
   await click(s,'button','Next catalog page');
   await waitFor(s,has('1 shown · 3 matching authorized records'),'read-2 next page');
   check('CATALOG.native_panel_pages_actual_records',await s.evaluate("document.querySelectorAll('.qr44 .mem-list li').length===1"));
