@@ -16,23 +16,23 @@ function BoundBrief({ vaultId, choices, comparison, request }: {
 }) {
   const [owner] = useState(()=>new HistoryBriefOwner(vaultId));
   const [selected] = useState(()=>({ choices: structuredClone(choices), comparison: structuredClone(comparison) }));
-  const [view,setView] = useState<J>(null),[busy,setBusy] = useState(false),[error,setError] = useState("");
+  const [view,setView] = useState<J>(null),[busy,setBusy] = useState(false),[error,setError] = useState<{ cause: unknown } | null>(null);
   useEffect(()=>{
     owner.select(selected.choices,selected.comparison);
     return ()=>owner.invalidate();
   },[owner,selected]);
   async function read() {
     if(owner.snapshot.reading)return;
-    setView(null);setBusy(true);setError("");
+    setView(null);setBusy(true);setError(null);
     try{const result=await owner.read(request);if(owner.snapshot.selected)setView(result);}
-    catch(e){if(owner.snapshot.selected)setError(describe(e));}
+    catch(e){if(owner.snapshot.selected)setError({ cause: e });}
     finally{if(owner.snapshot.selected)setBusy(false);}
   }
   return <section className="mem-stack" aria-label={t("Source-linked history brief")} aria-busy={busy}>
     <h4 className="mem-h3">{t("Local source navigation brief")}</h4>
     <p className="mem-muted">{t("All selected completed responses only. This deterministic dossier is not a generated summary, Canonical memory or proof that history is complete. No file is saved or sent.")}</p>
     <div><button type="button" className="mem-button" disabled={busy} onClick={()=>void read()}>{t("Read source navigation brief")}</button></div>
-    {error&&<p role="alert" className="mem-error">{error}</p>}
+    {error&&<p role="alert" className="mem-error">{describe(error.cause)}</p>}
     {view&&<div className="mem-stack">
       <p className="mem-muted">{t("Snapshot {commit} · SHA-256 {hash}", { commit: view.base.commitId, hash: view.contentHash })}</p>
       <pre className="mem-content" aria-label={t("History brief plain text")}>{view.markdown}</pre>

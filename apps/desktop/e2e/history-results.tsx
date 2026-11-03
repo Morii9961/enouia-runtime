@@ -100,6 +100,11 @@ try{
   const beforeRefresh=writes().length;await inspectSaved();check("read_after_lost_commit_observes_progress_without_replaying",cursor===1&&writes().length===beforeRefresh&&!button(recover)&&!!button(apply)?.disabled);
   state="paused";await inspectSaved();check("paused_observation_cannot_authorize_candidate_application",text().includes("This local job is paused")&&!button(apply)&&!!button("Resume local result processing")?.disabled);
   refusal=true;click(inspect);await wait(()=>!!fixture.querySelector('[role="alert"]')&&!button(inspect)?.disabled);check("source_refusal_withdraws_previous_text_and_authority",!text().includes("Synthetic original proposal")&&!checkbox());
+  const failedCalls=calls.length;
+  for(const [language,error] of [['zh-Hans','当前策略不允许为规划预览读取这些来源'],['ja','現在のポリシーでは、計画のプレビューのためにこれらのソースを読むことはできません'],['en','The current policy does not allow reading these sources for a planning preview']]){
+    await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));
+    check(`${language}_result_error_cannot_restore_text_confirmation_or_write`,calls.length===failedCalls&&!text().includes('Synthetic original proposal')&&!checkbox());
+  }
   refusal=false;state="ready";hold=true;click(inspect);await wait(()=>release!==null);outside.focus();releasePending();await wait(()=>!!fixture.querySelector("h4"));await sleep();check("late_read_respects_outside_focus",document.activeElement===outside);
   hold=true;click(inspect);await wait(()=>release!==null);index=0;render();await wait(()=>text().includes("Saved batch 1 results"));index=1;render();await sleep();releasePending();await sleep();check("batch_round_trip_cannot_restore_old_preview",!fixture.querySelector("h4")&&!checkbox());
   hold=true;click(inspect);await wait(()=>release!==null);enabled=false;render();await wait(()=>fixture.childElementCount===0);releasePending();await sleep();enabled=true;render();await wait(()=>!!button(inspect)&&!button(inspect)!.disabled);check("lifecycle_disable_reenable_drops_late_text_and_confirmation",!fixture.querySelector("h4")&&!checkbox());

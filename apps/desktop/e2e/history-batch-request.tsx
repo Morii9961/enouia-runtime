@@ -145,6 +145,13 @@ try {
     ["history.source_read", "does not allow reading"], ["history.batch_missing", "Explicitly resume"], ["history.batch_not_selected", "not selected"]]) {
     refusal = rule; click(prepareLabel); await wait(() => text().includes(expected));
     check(`${rule}_refusal_offers_saved_state_recovery_without_send`, !button("Send this batch once") && text().includes("Read the saved task"));
+    if(rule==='history.model_changed'){
+      const failedPrepares=prepares().length,failedSends=sends().length;
+      for(const [language,error] of [['zh-Hans','配置的模型与已保存任务不同。'],['ja','設定したモデルが保存済みのタスクと異なります。'],['en','The configured model differs from the saved task.']]){
+        await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));
+        check(`${language}_batch_error_does_not_reprepare_or_send`,prepares().length===failedPrepares&&sends().length===failedSends&&!text().includes('SYNTHETIC BODY'));
+      }
+    }
     click("Read this history task again"); await sleep(); await wait(() => !!button(prepareLabel) && !button(prepareLabel)!.disabled);
   }
   refusal = null; hold = true; click(prepareLabel); await wait(() => release !== null);

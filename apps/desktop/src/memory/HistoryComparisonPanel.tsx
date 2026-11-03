@@ -24,7 +24,7 @@ function BoundComparison({ vaultId, choices, request }: {
 }) {
   const [owner] = useState(() => new HistoryComparisonOwner(vaultId));
   const [selected] = useState(() => structuredClone(choices));
-  const [view, setView] = useState<J>(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [view, setView] = useState<J>(null), [busy, setBusy] = useState(false), [error, setError] = useState<{ cause: unknown } | null>(null);
   const fieldId = useId();
   const [project, setProject] = useState("all"), [topicIndex, setTopicIndex] = useState("");
   const [coverageMode, setCoverageMode] = useState("all");
@@ -52,16 +52,16 @@ function BoundComparison({ vaultId, choices, request }: {
   const projects: string[] = [...new Set<string>(topics.flatMap(({ topic }) => topic.key.project === null ? [] : [topic.key.project]))];
 
   useEffect(() => {
-    owner.select(selected); setView(null); setBusy(false); setError("");
+    owner.select(selected); setView(null); setBusy(false); setError(null);
     return () => owner.invalidate();
   }, [owner, selected]);
   async function inspect() {
     if (owner.snapshot.reading) return;
-    setBusy(true); setView(null); setError(""); setProject("all"); setTopicIndex(""); setCoverageMode("all"); setFocusedSource(null);
+    setBusy(true); setView(null); setError(null); setProject("all"); setTopicIndex(""); setCoverageMode("all"); setFocusedSource(null);
     try {
       const result = await owner.read(request);
       if (owner.snapshot.bindings) setView(result);
-    } catch (e) { if (owner.snapshot.bindings) setError(describe(e)); }
+    } catch (e) { if (owner.snapshot.bindings) setError({ cause: e }); }
     finally { if (owner.snapshot.bindings) setBusy(false); }
   }
   function showSource(entry: J) {
@@ -77,7 +77,7 @@ function BoundComparison({ vaultId, choices, request }: {
     <h3 className="mem-h3">{t("Compare selected saved batches")}</h3>
     <p className="mem-muted">{t("Read-only review hints. Dates do not choose a current truth. This does not send, approve, apply or supersede.")}</p>
     <div><button type="button" className="mem-button" disabled={busy} onClick={() => void inspect()}>{t("Read comparison")}</button></div>
-    {error && <p className="mem-error" role="alert">{error}</p>}
+    {error && <p className="mem-error" role="alert">{describe(error.cause)}</p>}
     {view && <div className="mem-stack">
       <p className="mem-muted">{t("Snapshot {commit} · {batches} selected batches · refresh explicitly after changes", { commit: view.base.commitId, batches: view.batches.length })}</p>
       <HistoryBriefPanel vaultId={vaultId} choices={selected} comparison={view} request={request}/>

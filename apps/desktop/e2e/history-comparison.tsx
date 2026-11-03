@@ -48,6 +48,11 @@ try{
   await setLang('en');await wait(()=>text().includes('Original proposal:'));
   refusal=true;button()!.click();await wait(()=>!!fixture.querySelector('[role="alert"]')&&!button()?.disabled);
   check("failed_refresh_withdraws_previous_source_text",!text().includes("Original synthetic proposal")&&!fixture.querySelector("details"));
+  const failedCalls=calls.length,errorControl=button()!;errorControl.focus();
+  for(const [language,error] of [['zh-Hans','当前策略不允许为规划预览读取这些来源'],['ja','現在のポリシーでは、計画のプレビューのためにこれらのソースを読むことはできません'],['en','The current policy does not allow reading these sources for a planning preview']]){
+    await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));
+    check(`${language}_comparison_error_keeps_withdrawal_and_manual_recovery`,calls.length===failedCalls&&button()===errorControl&&document.activeElement===errorControl&&!fixture.querySelector('details'));
+  }
   refusal=false;hold=true;button()!.click();await wait(()=>release!==null);
   data=historyComparisonFixture();data.choices.reverse();render();await sleep();pendingRelease();await sleep();
   check("selection_change_discards_late_view",!text().includes("Original synthetic proposal"));

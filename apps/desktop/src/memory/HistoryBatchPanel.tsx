@@ -13,7 +13,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
   const [observedStatus, setStatus] = useState<J>(null), [held, setHeld] = useState<Held | null>(null);
   const [, renderDraft] = useState(0);
   const { policy, output } = task && index !== null ? owner.draft(vaultId, task.taskId, index) : { policy: "", output: "1024" };
-  const [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false), [error, setError] = useState<{ cause: unknown } | null>(null);
   const [notice, setNotice] = useState<string | null>(null), [confirmed, setConfirmed] = useState(false);
   const [operation, setOperation] = useState<{ token: string; id: string } | null>(null), [completion, setCompletion] = useState<J>(null);
   const [canRecoverSend, setCanRecoverSend] = useState(false);
@@ -52,7 +52,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
       } catch (err) {
         if (!stopped) {
           current.current = { ...current.current, generation: current.current.generation + 1 };
-          statusRef.current = null; setStatus(null); setHeld(null); setConfirmed(false); setError(describe(err));
+          statusRef.current = null; setStatus(null); setHeld(null); setConfirmed(false); setError({ cause: err });
         }
       }
       if (!stopped) timer = setTimeout(poll, 3000);
@@ -114,7 +114,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
       setHeld({ token, generation, signature, args, send: holdProviderSend(result, request), expires: startedAt + result.expiresInMs });
     } catch (err) {
       if (publishable(token)) {
-        setError(describe(err));
+        setError({ cause: err });
         if (err instanceof CallError && !err.error.retryable) setMustReread(task);
         setNotice(msg("Preparation is not confirmed here. Read the saved task, then recover only these exact arguments with their original key. Do not create another task."));
       }
@@ -148,10 +148,10 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
     } catch (err) {
       if (publishable(token)) {
         if (!shown.send.submitted()) {
-          setHeld(null); setConfirmed(false); setMustReread(task); setError(describe(err));
+          setHeld(null); setConfirmed(false); setMustReread(task); setError({ cause: err });
           setNotice(msg("Saved state could not be confirmed. Read the task again before preparing and inspecting another request.")); return;
         }
-        setError(describe(err)); setCanRecoverSend(retryable(err) || !(err instanceof CallError));
+        setError({ cause: err }); setCanRecoverSend(retryable(err) || !(err instanceof CallError));
         setNotice(msg("Send outcome is not confirmed. The service may have received it. Recover only this same call, or read the saved task and workspace calls in Sessions."));
         if (err instanceof CallError && !err.error.retryable) {
           setHeld(null); setConfirmed(false); setMustReread(task);
@@ -183,7 +183,7 @@ export function HistoryBatchPanel({ vaultId, task, index, owner, request = call 
     <label className="mem-label" htmlFor={`${fieldId}-tokens`}>{t("Output token ceiling (1–{max})", { max: maxOutput })}</label>
     <input id={`${fieldId}-tokens`} className="mem-input" inputMode="numeric" autoComplete="off" value={output} aria-invalid={!valid} aria-describedby={`${fieldId}-output-help`} disabled={busy || !!shown || !!running} onChange={e => changeDraft({ policy, output: e.target.value })} />
     <p id={`${fieldId}-output-help`} className="mem-muted">{valid ? t("Use a whole number from 1 to {max}{model}. Your saved draft is kept until you edit it.", { max: maxOutput, model: destination ? t(" for {model}", { model: task.request.model }) : "" }) : t("Enter a whole number from 1 to {max}{model}. Your saved draft is kept until you edit it.", { max: maxOutput, model: destination ? t(" for {model}", { model: task.request.model }) : "" })}</p>
-    {error && <p role="alert" className="mem-error">{error}</p>}
+    {error && <p role="alert" className="mem-error">{describe(error.cause)}</p>}
     {notice && <p role="status" className="mem-muted">{t(notice)}</p>}
     {busy && <p role="status">{t("Waiting for the batch request receipt…")}</p>}
     {!shown && <button ref={prepareControl} type="button" className="mem-button" disabled={busy || !eligible || !permitted || !valid || !!running} onClick={() => void prepare()}>{t("Prepare or recover this batch request")}</button>}

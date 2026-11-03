@@ -43,6 +43,11 @@ try{
   check('brief_language_changes_do_not_read_or_save',calls.length===languageCalls);
   stage="refusal";refusal=true;button()!.click();await wait(()=>!!fixture.querySelector('[role="alert"]')&&!button()?.disabled);
   check("failed_refresh_removes_old_brief",!fixture.querySelector("pre"));
+  const failedCalls=calls.length,errorControl=button()!;errorControl.focus();
+  for(const [language,error] of [['zh-Hans','当前策略不允许为规划预览读取这些来源'],['ja','現在のポリシーでは、計画のプレビューのためにこれらのソースを読むことはできません'],['en','The current policy does not allow reading these sources for a planning preview']]){
+    await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));
+    check(`${language}_brief_error_keeps_text_withdrawn_and_read_focus`,calls.length===failedCalls&&!fixture.querySelector('pre')&&button()===errorControl&&document.activeElement===errorControl);
+  }
   stage="bad-hash";refusal=false;badHash=true;button()!.click();await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes("The Memory call failed")&&!button()?.disabled);
   check("bad_hash_never_displays_text",!fixture.querySelector("pre"));
   stage="selection-hold";badHash=false;hold=true;button()!.click();await wait(()=>release!==null);
