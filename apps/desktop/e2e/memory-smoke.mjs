@@ -30,11 +30,21 @@ if (inputs.length !== 4) throw new Error('usage: memory-smoke.mjs <exe> <vault-r
 const [exe, vault, importFile, out] = inputs.map(path => resolve(path));
 mkdirSync(out, { recursive: true });
 async function unusedPort() {
-  const listener = createServer();
-  await new Promise((resolve, reject) => { listener.once('error', reject); listener.listen(0, '127.0.0.1', resolve); });
-  const port = listener.address().port;
-  await new Promise((resolve, reject) => listener.close(error => error ? reject(error) : resolve()));
-  return port;
+  // Windows may assign port 1720 for listen(0), which Fetch refuses before
+  // connecting. Use the dynamic range, above Fetch's bad-port table.
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const listener = createServer();
+    const port = 49152 + Math.floor(Math.random() * 16384);
+    try {
+      await new Promise((resolve, reject) => { listener.once('error', reject); listener.listen(port, '127.0.0.1', resolve); });
+    } catch (error) {
+      if (error.code === 'EADDRINUSE') continue;
+      throw error;
+    }
+    await new Promise((resolve, reject) => listener.close(error => error ? reject(error) : resolve()));
+    return port;
+  }
+  throw new Error('no free loopback debug port in the dynamic range');
 }
 const PORT = await unusedPort();
 const HOTKEY = 'Q';
@@ -55,7 +65,8 @@ const check = (id, ok, detail = '') => {
 };
 
 function launch(args, { port = PORT, profile = 'webview2' } = {}) {
-  const nativeLog = args.includes('--memory-synthetic') ? openSync(join(out, 'core8-native-process.log'), 'a') : null;
+  const synthetic = args.includes('--memory-synthetic') || args.includes('--memory-catalog-synthetic');
+  const nativeLog = synthetic ? openSync(join(out, args.includes('--memory-catalog-synthetic') ? 'catalog-native-process.log' : 'core8-native-process.log'), 'a') : null;
   const child = spawn(exe, [...args, '--hotkey-key', 'Q', '--activity-settings', join(out, 'activity-install.json')], {
     env: {
       ...process.env,
@@ -63,7 +74,7 @@ function launch(args, { port = PORT, profile = 'webview2' } = {}) {
       WEBVIEW2_USER_DATA_FOLDER: join(out, profile),
     },
     stdio: nativeLog === null ? 'ignore' : ['ignore', nativeLog, nativeLog],
-    windowsHide: args.includes('--memory-synthetic'),
+    windowsHide: synthetic,
   });
   if (nativeLog !== null) closeSync(nativeLog);
   children.add(child);
@@ -1045,7 +1056,77 @@ async function automaticMemoryChecks() {
   }
 }
 
+async function catalogMemoryChecks() {
+  const fixture = resolve(out, '..');
+  if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-catalog-smoke-') || lstatSync(fixture).isSymbolicLink()) throw new Error('Catalog smoke requires its dedicated temporary fixture');
+  let app = launch(['--memory-catalog-synthetic']);
+  let s = await connect();
+  const helpers = `__t.catalog = query => __t.invoke('memory_catalog',{request:{schema_version:2,capability:'memory-native-read-2',query}})`;
+  await s.evaluate(helpers);
+  await waitFor(s,"__t.catalog({operation:'status'}).then(r=>r.ok?.state==='open')",'synthetic segmented root');
+  const status = await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
+  check('CATALOG.explicit_synthetic_read2', status.mode === 'synthetic_segmented_only' && status.effect === 'native_read' && status.available);
+  check('CATALOG.workspace_and_read1_do_not_adopt_segmented_root', (await statusOf(s)).vault.state === 'none' && (await s.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}}).then(r=>r.ok?.state)")) === 'disabled');
+  const filter = {text:'',form:null,state:null,knowledge:null,adoption:null,validity:null,attention:null,entity:null,project:null,theme:null,time_axis:null,time_window:null,include_unknown_time:false};
+  const first = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:1}).then(r=>r.ok)`);
+  check('CATALOG.system_records_and_frozen_fields', first.matched_in_scope === 3 && first.items.length === 1 && first.selection.algorithm === 'owner-qualified-catalog-4' && first.selection.version === 4 && first.items[0].title && first.items[0].base.system_actor.actor_type === 'system' && first.items[0].base.receipt);
+  const ids = new Set();
+  let page = first;
+  let sameSelection = true;
+  for (let i = 0; i < 4; i++) {
+    for (const row of page.items) ids.add(row.base.memory.memory_id);
+    sameSelection &&= JSON.stringify(page.selection) === JSON.stringify(first.selection);
+    if (!page.next) break;
+    page = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:${JSON.stringify(page.next)},limit:1}).then(r=>r.ok)`);
+  }
+  check('CATALOG.cursor_completes_same_selection_without_duplicate', ids.size === 3 && sameSelection && page.complete_in_scope && !page.next);
+  const stats = await s.evaluate(`__t.catalog({operation:'stats',filter:${JSON.stringify(filter)},selection:${JSON.stringify(first.selection)}}).then(r=>r.ok)`);
+  check('CATALOG.stats_bound_to_page_selection', stats.matched_in_scope === 3 && JSON.stringify(stats.selection) === JSON.stringify(first.selection));
+  const changed = {...filter,text:'调试'};
+  const stale = await s.evaluate(`Promise.all([__t.catalog({operation:'page',filter:${JSON.stringify(changed)},cursor:${JSON.stringify(first.next)},limit:1}),__t.catalog({operation:'stats',filter:${JSON.stringify(changed)},selection:${JSON.stringify(first.selection)}})])`);
+  check('CATALOG.changed_filter_cannot_reuse_cursor_or_counts', stale.every(r=>r.err && !r.ok));
+  const filtered = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(changed)},cursor:null,limit:1}).then(r=>r.ok)`);
+  check('CATALOG.literal_chinese_filter_reads_actual_record', filtered.matched_in_scope === 1 && filtered.items[0].title === '调试偏好');
+  const version = await s.evaluate("__t.invoke('memory_catalog',{request:{schema_version:99,capability:'memory-native-read-2',query:{operation:'malformed'}}})");
+  check('CATALOG.version_refused_before_query_decode', version.err === 'catalog_version_unsupported');
+  const authority = await s.evaluate("__t.invoke('memory_catalog',{request:{schema_version:2,capability:'memory-native-read-2',root:'forbidden',query:{operation:'status'}}})");
+  check('CATALOG.page_cannot_bind_root_or_principal', authority.err === 'catalog_invalid_request');
+  const quick = await connect(true);
+  const denied = await quick.evaluate("__t.invoke('memory_catalog',{request:{schema_version:2,capability:'memory-native-read-2',query:{operation:'status'}}})");
+  check('CATALOG.overlay_has_no_read2_permission', !!denied.err && !denied.ok);
+  quick.close();
+  await s.evaluate("__t.catalog({operation:'lock'})");
+  const locked = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:1})`);
+  check('CATALOG.lock_refuses_reads', locked.err === 'catalog_locked');
+  await s.evaluate("__t.catalog({operation:'unlock'})");
+  const unlocked = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:1}).then(r=>r.ok)`);
+  check('CATALOG.unlock_reads_same_root_without_commit', JSON.stringify(unlocked.selection.snapshot) === JSON.stringify(first.selection.snapshot));
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+  check('CATALOG.exit_releases_native_root', (await waitForExit(app,20000)) === 0);
+  s.close();
+  const restartPort = await unusedPort();
+  app = launch(['--memory-catalog-synthetic'],{port:restartPort,profile:'catalog-fresh'});
+  s = await connect(false,restartPort);
+  await s.evaluate(helpers);
+  await waitFor(s,"__t.catalog({operation:'status'}).then(r=>r.ok?.state==='open')",'fresh segmented restart');
+  const fresh = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:1}).then(r=>r.ok)`);
+  check('CATALOG.restart_creates_new_root', fresh.selection.snapshot.vault_id !== first.selection.snapshot.vault_id && (await statusOf(s)).vault.state === 'none');
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+  check('CATALOG.restarted_exit', (await waitForExit(app,20000)) === 0);
+  s.close();
+  const autostartPort = await unusedPort();
+  app = launch(['--autostart','--memory-catalog-synthetic'],{port:autostartPort,profile:'catalog-autostart'});
+  s = await connect(false,autostartPort);
+  await s.evaluate(helpers);
+  const ignored = await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
+  check('CATALOG.autostart_does_not_initialize_example', ignored.state === 'disabled' && !ignored.available && (await statusOf(s)).vault.state === 'none');
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+  check('CATALOG.autostart_exit', (await waitForExit(app,20000)) === 0);
+  s.close();
+}
+
 async function main() {
+  if (process.argv[6] === '--catalog-only') return catalogMemoryChecks();
   if (process.argv[6] === '--automatic-only') return automaticMemoryChecks();
   if (['--history-only', '--history-tasks-only', '--history-batch-only'].includes(process.argv[6])) {
     const batchMode = process.argv[6] === '--history-batch-only';

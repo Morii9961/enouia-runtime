@@ -27,6 +27,7 @@
     "allow-exit-app",
     "allow-startup-status",
     "allow-startup-set",
-    "allow-memory-automation"
+    "allow-memory-automation",
+    "allow-memory-catalog"
   ]
 }
