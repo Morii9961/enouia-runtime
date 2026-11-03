@@ -1698,5 +1698,6 @@ const dict: Record<string, string> = {
   "Eligibility": "対象の判定",
   "Retrieval and ranking": "検索と順位付け",
   "Budget and completeness": "予算と完全性",
+  "No records here yet.": "ここにはまだ記録がありません。",
 };
 export default dict;

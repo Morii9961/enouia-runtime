@@ -76,7 +76,7 @@ export default function Memory({ view }: { view: DemoView }) {
 <div className="qr44">
 {timelineEmpty ? <>
 <div className="qr32">
-{t("Nothing here matches. No reading on this strip for that text.")}
+{q ? t("Nothing here matches. No reading on this strip for that text.") : t("No records here yet.")}
 </div>
 </> : null}
 {groups.map((g, gIndex) => <React.Fragment key={g.key}>

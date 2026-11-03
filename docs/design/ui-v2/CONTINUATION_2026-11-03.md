@@ -31,7 +31,8 @@
 | `678f475` | [read-2 原生三语 × 双主题 × 最小窗口矩阵、标签越框与 CJK 覆盖修复](../../validation/UI-v2-read2-native-matrix-2026-11-03.md) |
 | `a619013` | [JSX 字面文字、可访问名称及拼接句改为整句翻译，并加解析守卫](../../validation/UI-v2-jsx-literal-copy-2026-11-03.md) |
 | `4ed0b3d` | [`operation-stop-observation` 等终态渲染再断言](../../validation/UI-v2-stop-observation-wait-2026-11-03.md) |
-| （Claude 接续） | [#24 CDP 追踪：GPU 进程光栅为主、虚线主题线约占八成；产品绘制不变](../../validation/UI-v2-starmap-trace-2026-11-03.md) |
+| `233571b` | [#24 CDP 追踪：GPU 进程光栅为主、虚线主题线约占八成；产品绘制不变](../../validation/UI-v2-starmap-trace-2026-11-03.md) |
+| （Claude 接续） | [演示记忆库空分组与无匹配分开说明](../../validation/UI-v2-empty-collection-copy-2026-11-03.md) |
 
 在 `4b16992` 上运行累计前端门禁：`npm test` 的 Node 部分 134 通过、3 跳过、0 失败；Happy DOM 86 场景、1,346 项断言通过。`npm run build`（含类型检查）通过，主 JS 452.19 kB；Memory pin 与 Activity 退役检查通过。此前各片按受影响范围运行定向检查，没有每片重复全套。保存日志位于忽略的 `apps/desktop/target/ui-v2-continuation/`。
 

@@ -1698,5 +1698,6 @@ const dict: Record<string, string> = {
   "Eligibility": "符合条件",
   "Retrieval and ranking": "检索与排名",
   "Budget and completeness": "预算与完整性",
+  "No records here yet.": "这里还没有记录。",
 };
 export default dict;
