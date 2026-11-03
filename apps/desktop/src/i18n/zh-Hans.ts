@@ -1605,5 +1605,7 @@ const dict: Record<string, string> = {
   "Backup saved: commit #{sequence} · {files} files · {destination}.": "备份已保存：提交 #{sequence} · {files} 个文件 · {destination}。",
   "Confirmation submitted. Waiting for Memory to return its result…": "确认已提交，正在等待 Memory 返回结果…",
   "Confirm ({code})": "确认（{code}）",
+  "{api} · Streaming supported": "{api} · 支持流式输出",
+  "Attempts per session (1–1000)": "每会话尝试次数（1–1000）",
 };
 export default dict;

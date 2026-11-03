@@ -1605,5 +1605,7 @@ const dict: Record<string, string> = {
   "Backup saved: commit #{sequence} · {files} files · {destination}.": "バックアップを保存しました：コミット #{sequence} · {files} ファイル · {destination}。",
   "Confirmation submitted. Waiting for Memory to return its result…": "確認を送信しました。Memory からの結果を待っています…",
   "Confirm ({code})": "確認（{code}）",
+  "{api} · Streaming supported": "{api} · ストリーミング対応",
+  "Attempts per session (1–1000)": "セッションごとの試行回数（1–1000）",
 };
 export default dict;
