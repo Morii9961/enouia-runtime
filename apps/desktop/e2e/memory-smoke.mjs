@@ -257,13 +257,13 @@ async function connect(overlay = false, port = PORT) {
           await s.evaluate(HELPERS);
           // This focused English journey owns fresh profiles. Use existing UI
           // controls, keeping translated accessible names in the application.
-          if (process.argv[6] === '--quick-only') {
+          if (['--quick-only', '--automatic-only'].includes(process.argv[6])) {
             if (!overlay) {
               await s.evaluate("document.querySelectorAll('.bg-nav-item')[5].click()");
               await waitFor(s, "!!document.querySelector('button[lang=en]')", 'fixture language controls');
               await s.evaluate("document.querySelector('button[lang=en]').click()");
             }
-            await waitFor(s, "document.documentElement.lang==='en'", 'English quick-search fixture');
+            await waitFor(s, "document.documentElement.lang==='en'", 'English synthetic fixture');
             if (!overlay) await s.evaluate("document.querySelectorAll('.bg-nav-item')[0].click()");
           }
           return s;
@@ -989,7 +989,7 @@ async function automaticMemoryChecks() {
   const denied = await quick.evaluate("__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}})");
   check('CORE8.overlay_cannot_reach_new_native_capability', !!denied.err && !denied.ok);
   quick.close();
-  await nav(s, 'Memory');
+  await s.evaluate("document.querySelector('button[data-runtime-page=memory]').click()");
   await rail(s, 'Synthetic automatic memories');
   await waitFor(s, has('3 currently authorized memories'), 'automatic Memory list');
   check('CORE8.real_panel_labels_synthetic_system_adoption', (await s.evaluate('document.body.innerText')).includes('Isolated synthetic library') && (await s.evaluate('document.body.innerText')).includes('System adopted'));
