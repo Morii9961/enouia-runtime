@@ -48,7 +48,7 @@ export function Operation({ id, kind, onDone, request = call }: { id: string; ki
 
 function OperationWatch({ id, kind, onDone, request }: { id: string; kind?: string; onDone?: (status: J) => void; request: typeof call }) {
   const [status, setStatus] = useState<J>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ cause: unknown } | null>(null);
   const [retry, setRetry] = useState(0);
   const [cancelAcknowledged, setCancelAcknowledged] = useState(false);
   const terminal = useRef(false);
@@ -85,7 +85,7 @@ function OperationWatch({ id, kind, onDone, request }: { id: string; kind?: stri
       } catch (err) {
         if (stopped) return;
         if (started === observation.current && !terminal.current) {
-          setError(describe(err));
+          setError({ cause: err });
           return;
         }
       }
@@ -111,7 +111,7 @@ function OperationWatch({ id, kind, onDone, request }: { id: string; kind?: stri
     {status ? <OperationFeedback status={{ ...status, cancelRequested: status.cancelRequested || cancelAcknowledged }}
       cancelling={cancel.busy} error={cancel.error} onCancel={stop} />
       : !error && <p role="status" className="mem-muted">{t("Operation queued…")}</p>}
-    {error && <ErrorBox error={{ text: t("Could not read the operation: {error}", { error }), retry: () => setRetry((n) => n + 1) }} />}
+    {error && <ErrorBox error={{ text: t("Could not read the operation: {error}", { error: describe(error.cause) }), retry: () => setRetry((n) => n + 1) }} />}
   </>;
 }
 
