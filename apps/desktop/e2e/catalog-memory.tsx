@@ -91,7 +91,9 @@ try{
   check('successful_status_restores_same_held_page_without_replay',reads()===busyReads);
   holdStats=true;expired=true;scope='e'.repeat(64);
   await wait(()=>releaseStats!==null);
-  check('changed_authorized_scope_withdraws_old_rows_before_new_stats',!fixture.querySelector('li')&&!text().includes('matching authorized records')&&input.value==='调试');
+  // The stats request can precede React's commit of the withdrawal; it stays held here.
+  await wait(()=>!fixture.querySelector('li')&&!text().includes('matching authorized records'));
+  check('changed_authorized_scope_withdraws_old_rows_before_new_stats',releaseStats!==null&&input.value==='调试');
   releaseStats!();releaseStats=null;
   await wait(()=>text().includes('0 shown · 0 matching authorized records'));
   check('scope_change_can_be_empty_without_a_new_commit_or_draft_loss',!fixture.querySelector('li')&&input.value==='调试');
