@@ -7,6 +7,8 @@ import { call, describe, newKey, retryable, shell, type J } from "./client";
 
 export type Failure = { text: string; retry?: () => void } | null;
 
+// Retained failures resolve text on access so language changes keep the same retry.
+
 /** Run an async action with a visible busy state, error and retry. */
 export function useAction() {
   const [busy, setBusy] = useState(false);
@@ -19,7 +21,7 @@ export function useAction() {
       try {
         return await action(key);
       } catch (err) {
-        setError({ text: describe(err), retry: retryable(err) ? () => void execute() : undefined });
+        setError({ get text() { return describe(err); }, retry: retryable(err) ? () => void execute() : undefined });
         return undefined;
       } finally {
         setBusy(false);
@@ -51,7 +53,7 @@ export function useLatestRead() {
       } catch (err) {
         if (generation.current === current) {
           failed?.();
-          setError({ text: describe(err), retry: retryable(err) ? () => void execute() : undefined });
+          setError({ get text() { return describe(err); }, retry: retryable(err) ? () => void execute() : undefined });
         }
       } finally {
         if (generation.current === current) { pending.current = false; setBusy(false); }

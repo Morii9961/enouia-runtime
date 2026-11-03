@@ -55,13 +55,14 @@ try {
   failure = 'permanent'; await begin('Read conflicting memory again'); await finish();
   check('permanent_error_keeps_manual_recovery_focus', document.activeElement === button('Read conflicting memory again') && !button('Retry'));
   const recovery=button('Read conflicting memory again')!,errorCalls=calls.length;
-  for(const [language,label,explanation] of [
-    ['zh-Hans','重新读取冲突记忆','候选中报告的冲突仍然保留'],
-    ['ja','競合するメモリを再読み込み','報告された競合は候補に残っています'],
-    ['en','Read conflicting memory again','Its reported conflict remains in the candidate'],
+  for(const [language,label,explanation,errorText] of [
+    ['zh-Hans','重新读取冲突记忆','候选中报告的冲突仍然保留','找不到。它可能已被删除，或令牌已过期'],
+    ['ja','競合するメモリを再読み込み','報告された競合は候補に残っています','見つかりません。削除されたか、トークンの期限が切れた可能性があります'],
+    ['en','Read conflicting memory again','Its reported conflict remains in the candidate','Not found. It may have been deleted, or its token expired'],
   ]){
     await setLang(language as Lang);await wait(()=>!!button(label)&&text().includes(explanation));
     check(`${language}_error_keeps_recovery_control_and_focus`,button(label)===recovery&&document.activeElement===recovery&&!!fixture.querySelector('[role="alert"]')&&!content()&&calls.length===errorCalls);
+    check(`${language}_retained_read_error_follows_language`,fixture.querySelector('[role="alert"]')!.textContent!.includes(errorText));
   }
   failure = 'retry'; await begin('Read conflicting memory again'); await finish(); const original = calls.at(-1);
   failure = 'none'; await begin('Retry'); await finish();
