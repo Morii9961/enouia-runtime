@@ -100,6 +100,11 @@ try {
   check("uncertain_receipt_and_task_reread_reuse_exact_key_and_args", prepares().at(-1)!.key === original.key && JSON.stringify(prepares().at(-1)!.args) === JSON.stringify(original.args));
   check("recovered_handle_requires_new_inspection", button("Send this batch once")!.disabled && text().includes("synthetic-call-3"));
   click("Withdraw batch request"); await wait(() => !!button(prepareLabel) && !button(prepareLabel)!.disabled);
+  const withdrawnPrepares=prepares().length,withdrawnSends=sends().length;
+  for(const [language,notice] of [['zh-Hans','请求已撤回。'],['ja','リクエストを取り下げました。'],['en','Request withdrawn.']]){
+    await setLang(language as Lang);await wait(()=>text().includes(notice));
+    check(`${language}_withdrawal_notice_follows_language_without_new_request`,prepares().length===withdrawnPrepares&&sends().length===withdrawnSends&&!text().includes('SYNTHETIC BODY'));
+  }
   input(fixture.querySelector('input[inputmode="numeric"]')!, "512"); await sleep(); await prepare();
   check("changed_output_uses_another_key", prepares().at(-1)!.key !== original.key && prepares().at(-1)!.args.outputTokens === 512);
   const changedKey = prepares().at(-1)!.key;

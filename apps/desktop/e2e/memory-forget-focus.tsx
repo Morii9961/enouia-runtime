@@ -68,6 +68,11 @@ try {
   releasePending(); await wait(() => !row("synthetic-one") && !!row("synthetic-two")); await sleep(30);
   check("confirmed_forget_focuses_reread_results", document.activeElement === title());
   check("confirmed_forget_is_announced", notices().some(n => n === "Forget confirmed by Memory."));
+  const noticeWrites=calls.filter(c=>['review_confirm','forget_plan'].includes(c.command)).length;
+  for(const [language,label] of [['zh-Hans','记忆已确认遗忘。'],['ja','記憶が忘却を確定しました。'],['en','Forget confirmed by Memory.']]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_saved_forget_notice_follows_language_without_new_write`,notices().some(n=>n===label)&&calls.filter(c=>['review_confirm','forget_plan'].includes(c.command)).length===noticeWrites&&!row('synthetic-one'));
+  }
   await select("synthetic-two");
   check("new_selection_retires_deletion_notice", !notices().some(n => n.includes("confirmed by Memory")));
   await openPlan("Forget…"); click(button("Cancel"), "Cancel"); await wait(() => !fixture.querySelector("dialog[open]")); await sleep(30);

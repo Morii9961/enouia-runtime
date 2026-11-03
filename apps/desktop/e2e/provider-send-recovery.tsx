@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { ExternalPanel } from "../src/memory/ExternalPanel";
 import { ExtractionPanel } from "../src/memory/ExtractionPanel";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -42,11 +43,13 @@ async function wait(p: () => boolean) { for (let n = 0; n < 250; n++) { if (p())
 function click(label: string) { const b = button(label); if (!b || b.disabled) throw new Error(`Unavailable: ${label}`); b.click(); }
 function check(id: string, ok: boolean) { checks.push({ id, ok }); if (!ok) throw new Error(id); }
 let root = createRoot(fixture);
-function render(source: boolean) {
-  if (source) root.render(<ExtractionPanel range={{ sourceId: "synthetic-source", revision: 1, start: 0, end: 20 }} onBusyChange={v => { owned = v; }} onClose={() => { closed = true; }} />);
-  else root.render(<ExternalPanel branch={{ sessionId: "synthetic-session", branchId: "synthetic-branch" }} text="Unsent draft" invocations={[]}
-    onChanged={async () => { changed++; }} onBusyChange={v => { owned = v; }} consumeText={() => {}} />);
+function Surface({source}:{source:boolean}) {
+  useLang();
+  return source ? <ExtractionPanel range={{ sourceId: "synthetic-source", revision: 1, start: 0, end: 20 }} onBusyChange={v => { owned = v; }} onClose={() => { closed = true; }} />
+  : <ExternalPanel branch={{ sessionId: "synthetic-session", branchId: "synthetic-branch" }} text="Unsent draft" invocations={[]}
+    onChanged={async () => { changed++; }} onBusyChange={v => { owned = v; }} consumeText={() => {}} />;
 }
+function render(source: boolean) { root.render(<Surface source={source}/>); }
 try {
   for (const next of ["session", "source", "blocked-session", "blocked-source"]) {
     scenario = next; attempts = 0; sends = 0; admittedKey = null; changed = 0; owned = false; closed = false;
@@ -71,6 +74,13 @@ try {
       await wait(() => source ? closed : !owned && !button("Recover this call"));
       check(`${next}_leave_never_replays_send`, attempts === 1 && sends === 1);
       if (!source) check(`${next}_leave_reads_saved_state_without_claiming_not_sent`, changed === 2 && text().includes("outcome is not confirmed") && !text().includes("Not sent."));
+      if(!source){
+        const leaveCalls=calls.length;
+        for(const [language,notice] of [['zh-Hans','这里没有确认发送结果。'],['ja','送信の結果はここでは確認できていません。'],['en','The send outcome is not confirmed here.']]){
+          await setLang(language as Lang);await wait(()=>text().includes(notice));
+          check(`${language}_unknown_send_notice_follows_language_without_replay`,calls.length===leaveCalls&&attempts===1&&sends===1&&!owned&&!button('Recover this call'));
+        }
+      }
     }
     root.unmount(); root = createRoot(fixture);
   }

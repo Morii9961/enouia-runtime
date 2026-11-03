@@ -67,6 +67,11 @@ try{
   await inspectSaved();check("refresh_withdraws_old_checkbox_confirmation",!checkbox()!.checked&&!!button(apply)?.disabled);
   await confirm();click("Pause local result processing");await wait(()=>text().includes("Local pause-state receipt observed"));
   check("pause_is_only_the_observed_original_child_and_never_advances_cursor",cursor===0&&writes().length===0&&JSON.stringify(controls()[0].arguments)===JSON.stringify({sessionId:"synthetic-child-1",runId:"synthetic-run-1",paused:true})&&!checkbox());
+  const pauseCalls=calls.length;
+  for(const [language,notice] of [['zh-Hans','观察到本地暂停状态的回执。'],['ja','ローカルの一時停止の受領を確認しました。'],['en','Local pause-state receipt observed.']]){
+    await setLang(language as Lang);await wait(()=>text().includes(notice));
+    check(`${language}_pause_receipt_translates_without_new_action`,calls.length===pauseCalls&&cursor===0&&!checkbox());
+  }
   await inspectSaved();check("paused_result_requires_fresh_confirmation_before_resume",!!button("Resume local result processing")?.disabled&&!button(apply)&&!checkbox()!.checked);
   await confirm();click("Resume local result processing");await wait(()=>text().includes("Local pause-state receipt observed"));
   check("resume_adds_nothing_and_does_not_restore_old_preview",cursor===0&&writes().length===0&&!checkbox());

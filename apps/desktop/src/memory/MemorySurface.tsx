@@ -196,7 +196,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
     <>
       <Center title={title} count={count} busy={read.busy}>
         <div className="mem-pad mem-actions"><button ref={refreshControl} type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>{t("Refresh results")}</button></div>
-        {notice && <p role="status" className="mem-note mem-pad">{notice}</p>}
+        {notice && <p role="status" className="mem-note mem-pad">{t(notice)}</p>}
         <ErrorBox error={read.error} />
         {read.busy && <p role="status" className="mem-muted mem-pad">{t("Reading memories…")}</p>}
         {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? t("Nothing matches this search.") : t("No approved memories here yet.")}</div>}
@@ -236,7 +236,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
       </Center>
       {selected
         ? <MemoryDetail key={selected} id={selected} onChanged={(purge) => {
-          setNotice(purge ? t("Permanent purge confirmed by Memory.") : t("Forget confirmed by Memory."));
+          setNotice(purge ? msg("Permanent purge confirmed by Memory.") : msg("Forget confirmed by Memory."));
           focusAfterRead.current = { trigger: null, fallback: resultsTitle };
           setSelected(null); load(null);
         }} />
