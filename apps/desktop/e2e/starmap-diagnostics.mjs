@@ -1,6 +1,6 @@
 // Isolated, fictional browser diagnostics for UI v2 issue #24. No native IPC.
 // Probes temporarily omit drawing operations to locate cost; they are NOT visual fixes.
-// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes]
+// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes | --context]
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -63,6 +63,47 @@ try {
   };
   await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1.5, mobile: false });
+  if(process.argv.includes('--context')){
+    await send('Page.enable');
+    const rows=[];
+    for(const [run,alpha] of [true,false,true].entries()){
+      const script=await send('Page.addScriptToEvaluateOnNewDocument',{source:`(() => {
+        window.__starContextRun=${run};
+        const original=HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext=function(type,settings){return original.call(this,type,
+          type==='2d'&&this.classList.contains('sm-canvas')?{...settings,alpha:${alpha}}:settings);};
+      })()`});
+      await send('Page.navigate',{url:origin+`/starmap.html?lang=en&theme=dark&context-run=${run}`});
+      await until(()=>evaluate(`window.__starContextRun===${run}&&Boolean(document.querySelector(".sm-canvas[data-ready]"))`));
+      await evaluate('document.fonts.ready.then(()=>true)');
+      await evaluate(`(() => {
+        const p=window.__starDiagnostic={times:[],draws:[],steps:[]};
+        window.__starPerf.draws.push=function(value){p.times.push(performance.now());p.draws.push(value);return Array.prototype.push.call(this,value);};
+        window.__starPerf.steps.push=function(value){p.steps.push(value);return Array.prototype.push.call(this,value);};
+      })()`);
+      for(const layout of ['Sphere','Theme clusters']){
+        await evaluate(`(() => {
+          [...document.querySelectorAll('.sm-size button')].find(b=>b.textContent.replaceAll(',','')==='5000').click();
+          [...document.querySelectorAll('[aria-label="Star map layout"] button')].find(b=>b.textContent==='${layout}').click();
+        })()`);
+        await until(()=>evaluate(`document.querySelector('.sm-canvas')?.dataset.ready==='5000:${layout==='Sphere'?'sphere':'clusters'}'`));
+        await sleep(1200);
+        const row=await evaluate(`(async () => {
+          const p=window.__starDiagnostic;p.times=[];p.draws=[];p.steps=[];
+          await new Promise(resolve=>setTimeout(resolve,6000));
+          const summary=a=>{const s=a.slice().sort((x,y)=>x-y);return {n:s.length,median:s[Math.floor(s.length/2)]??null,p95:s[Math.min(s.length-1,Math.floor(s.length*.95))]??null};};
+          const canvas=document.querySelector('.sm-canvas');
+          return {layout:${JSON.stringify(layout)},n:5000,run:${run},requestedAlpha:${alpha},attributes:canvas.getContext('2d').getContextAttributes(),
+            dpr:devicePixelRatio,hidden:document.hidden,canvas:{width:canvas.width,height:canvas.height},
+            draw:summary(p.draws),step:summary(p.steps),interval:summary(p.times.slice(1).map((t,i)=>t-p.times[i]))};
+        })()`);
+        if(row.hidden||row.draw.n===0||row.attributes.alpha!==alpha)throw Error('Invalid context diagnostic sample '+JSON.stringify(row));
+        rows.push(row);console.log(JSON.stringify(row));
+        writeFileSync(join(out,'report.json'),JSON.stringify({browser:version.Browser,scope:'Fresh fictional headless pages, original product drawing; only main canvas alpha differs. Draw intervals are not presentation timestamps.',rows},null,2));
+      }
+      await send('Page.removeScriptToEvaluateOnNewDocument',{identifier:script.identifier});
+    }
+  }else{
   await send('Page.navigate', { url: origin + '/starmap.html?lang=en&theme=dark' });
   await until(() => evaluate('Boolean(document.querySelector(".sm-canvas[data-ready]"))'));
   await evaluate('document.fonts.ready.then(()=>true)');
@@ -148,6 +189,7 @@ try {
       }
       writeFileSync(join(out, 'report.json'), JSON.stringify({ browser: version.Browser, scope: 'Isolated headless browser, fictional star map; probes change pixels, not product behavior. Draw intervals are not presentation timestamps.', rows }, null, 2));
     }
+  }
   }
 } finally {
   if (ws?.readyState === WebSocket.OPEN) await send('Browser.close').catch(() => undefined);
