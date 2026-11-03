@@ -42,6 +42,8 @@ try {
     }
     phase = outcome === 'acknowledged' ? 'acknowledged' : 'completed';
     await wait(() => phase === 'completed' ? callbacks === 1 : !!button(kind === 'external_send' ? 'Local stop requested' : 'Cancellation requested'));
+    // onDone runs before React commits the terminal render; wait for that render, not the callback.
+    if (phase === 'completed') await wait(() => !button(label));
     if (outcome === 'late_error') { releasePending(); await sleep(40); }
     if(outcome==='acknowledged'){
       const operation=fixture.querySelector('.mem-operation'),stops=calls.filter(c=>c.command==='operation_cancel').length;
