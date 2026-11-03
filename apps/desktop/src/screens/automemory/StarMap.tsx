@@ -563,7 +563,7 @@ export default function StarMap() {
               <div><dt>{t("Formed by")}</dt><dd>{fmt.format(cutoff - 1)}</dd></div>
               <div><dt>{t("Layout")}</dt><dd>{ready ? t('{ms} ms of work in a worker', { ms: Math.round(layoutMs) }) : t('settling…')}</dd></div>
             </dl>
-            <p className="am-fine">Choose a star, or a row in the list, to see what it touches. Drag a star to pull the stars it links to; let go and they return. Shared-theme links are co-occurrence: same suggested theme, close in time. They do not say how two memories relate, and a missing line is not a missing relation.</p>
+            <p className="am-fine">{t("Choose a star, or a row in the list, to see what it touches. Drag a star to pull the stars it links to; let go and they return. Shared-theme links are co-occurrence: same suggested theme, close in time. They do not say how two memories relate, and a missing line is not a missing relation.")}</p>
           </>
         )}
       </aside>

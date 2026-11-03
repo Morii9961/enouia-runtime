@@ -6,7 +6,7 @@ import type { ViewProps } from './types';
 import { lendMap, type MapSpec } from '../../theme/TimeMap';
 import { clearViews, panTo, peekView, useTimeView } from '../../theme/timeview';
 
-import { msg, t } from '../../i18n/index.ts';
+import { msg, t, tn } from '../../i18n/index.ts';
 // Timeline, the signature view. The whole sample (1 Jul to 31 Oct) is the time
 // map in the strip above the page; the chart shows six weeks of it, and the
 // frame in the map moves them. Each theme is a pen lane (model
@@ -113,14 +113,14 @@ export default function Timeline({ sel, select }: ViewProps) {
   return (
     <div className="am-timeline">
       <div className="am-view-head am-tl-head">
-        <h2 className="am-vh">{t("Timeline")} <span>when it happened · {fmtDayShort(v.start)} – {fmtDayShort(v.start + v.span - 1)} of 1 Jul – 31 Oct</span></h2>
+        <h2 className="am-vh">{t("Timeline")} <span>{t("when it happened · {from} – {to} of 1 Jul – 31 Oct", { from: fmtDayShort(v.start), to: fmtDayShort(v.start + v.span - 1) })}</span></h2>
         <p className="am-fine am-tl-fine">{t(THEME_NOTE)} {t('Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see other weeks.')}</p>
       </div>
 
       <div className="am-tl" role="group" aria-label={t("Timeline, 1 July to 31 October 2026")}>
         <div className="am-tl-gut" aria-hidden="false">
           <div className="am-tl-corner"><b>{t("Theme pens")}</b><span>{t("model suggestion")}</span></div>
-          {LAYOUT.map((l) => { const o = off(l.id); return <div key={l.id || 'none'} className="am-lane-label" style={{ height: l.height }}><span>{l.name}</span>{l.packed.length === 0 ? <em>{t("no dated memory")}</em> : o.before || o.after ? <em>{o.before ? `◂ ${o.before} earlier` : ''}{o.before && o.after ? ' · ' : ''}{o.after ? `${o.after} later ▸` : ''}</em> : null}</div>; })}
+          {LAYOUT.map((l) => { const o = off(l.id); return <div key={l.id || 'none'} className="am-lane-label" style={{ height: l.height }}><span>{l.name}</span>{l.packed.length === 0 ? <em>{t("no dated memory")}</em> : o.before || o.after ? <em>{o.before ? t('◂ {n} earlier', { n: o.before }) : ''}{o.before && o.after ? ' · ' : ''}{o.after ? t('{n} later ▸', { n: o.after }) : ''}</em> : null}</div>; })}
           <div className="am-lane-label am-lane-recv" style={{ height: recvH }}><span>{t("Received")}</span><em>{t("pen 2 · when material arrived")}</em></div>
           <div className="am-lane-label am-lane-form" style={{ height: FORMATION_H }}><span>{t("Formation")}</span><em>{t("selected memory")}</em></div>
         </div>
@@ -154,8 +154,8 @@ export default function Timeline({ sel, select }: ViewProps) {
                 <button key={item.x.id} type="button" className="am-rt" aria-pressed={item.x.id === sel} style={{ left: `calc(${pct(item.at)} - 5px)`, bottom: 12 + row * 11 }} onClick={() => select(item.x.id)}
                   aria-label={t('Received {time}. {title}.', { time: fmtStamp(item.x.received), title: item.x.title })} />
               ))}
-              {span && lag !== null && lag >= 1 ? <span className="am-lag" style={{ left: pct(Math.min(span.b, rx)), width: pct(Math.abs(rx - span.b)) }}><span>received {lag} {lag === 1 ? 'day' : 'days'} after it happened</span></span> : null}
-              <span className="am-rt-label" data-side={(rx - startF) / (endF - startF) > 0.7 ? 'l' : 'r'} style={{ left: pct(rx), top: 5 }}>received {fmtDayShort(toMs(m.received))}, {fmtClock(toMs(m.received))}</span>
+              {span && lag !== null && lag >= 1 ? <span className="am-lag" style={{ left: pct(Math.min(span.b, rx)), width: pct(Math.abs(rx - span.b)) }}><span>{tn(lag, 'received {n} day after it happened', 'received {n} days after it happened')}</span></span> : null}
+              <span className="am-rt-label" data-side={(rx - startF) / (endF - startF) > 0.7 ? 'l' : 'r'} style={{ left: pct(rx), top: 5 }}>{t("received {day}, {time}", { day: fmtDayShort(toMs(m.received)), time: fmtClock(toMs(m.received)) })}</span>
             </div>
             <div className="am-lane am-form" style={{ ...GRID, height: FORMATION_H }} role="group" aria-label={t('Formation notes for {title}', { title: m.title })}>
               <svg className="am-leaders" viewBox={`0 0 1000 ${FORMATION_H}`} preserveAspectRatio="none" aria-hidden="true">
@@ -181,7 +181,7 @@ export default function Timeline({ sel, select }: ViewProps) {
       </section>
 
       <section className="am-pen-notes" aria-label={t('How {title} formed', { title: m.title })}>
-        <h3>{t("Pen notes")} <span className="am-tag">how “{m.title}” formed</span></h3>
+        <h3>{t("Pen notes")} <span className="am-tag">{t("how “{title}” formed", { title: m.title })}</span></h3>
         <ol>
           {trail.map((p) => (
             <li key={p.n} data-yours={p.step === 'corrected' || undefined}>

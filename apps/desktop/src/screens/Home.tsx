@@ -103,7 +103,7 @@ I'm here.
 {t("Current session")}
 </span>
 <span className="qr10">
-Vault adapter planning · {t('{n} turns, last at {time}', { n: 12, time: home.sesTime })}
+<span lang="en">Vault adapter planning</span> · {t('{n} turns, last at {time}', { n: 12, time: home.sesTime })}
 </span>
 <span className="qr11">
 {home.sesShort}

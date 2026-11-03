@@ -117,7 +117,7 @@ export default function Memory({ view }: { view: DemoView }) {
 </span>
 {m.hasConf ? <>
 <span className="qr25">
-conf {m.conf}
+{t("conf {n}", { n: m.conf })}
 </span>
 </> : null}
 {m.showId ? <>
@@ -322,7 +322,7 @@ conf {m.conf}
 </div>
 </React.Fragment>)}
 <div className="qr75">
-Related{' '}
+{t("Related")}{' '}
 <span className="qr74">
 {t("· shared project or tag")}
 </span>

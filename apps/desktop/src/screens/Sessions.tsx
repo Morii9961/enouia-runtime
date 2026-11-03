@@ -105,12 +105,12 @@ export default function Sessions({ view }: { view: DemoView }) {
 {ses.day}
 </div>
 <div className="qr30" />
-<div className="bg-ruler-note">Spacing = real time · 2 px per minute, capped</div>
+<div className="bg-ruler-note">{t("Spacing = real time · 2 px per minute, capped")}</div>
 </div>
 <div className="qr160" ref={track}>
 {ses.events.map((ev, evIndex) => <React.Fragment key={ses.title + ev.seq}>
 <div className="qr159 bg-turn" data-bracket={ruler[evIndex]?.bracket} data-checkpoint={ev.isCheckpoint || undefined} style={{ '--gap': (ruler[evIndex]?.gap ?? 0) + 'px' } as React.CSSProperties}>
-{(ruler[evIndex]?.minutes ?? 0) >= 4 ? <span className="bg-gap" aria-hidden="true">+{ruler[evIndex].minutes} min</span> : null}
+{(ruler[evIndex]?.minutes ?? 0) >= 4 ? <span className="bg-gap" aria-hidden="true">{t("+{n} min", { n: ruler[evIndex].minutes })}</span> : null}
 <span className="qr138">
 {ev.seq}
 </span>
@@ -133,7 +133,7 @@ export default function Sessions({ view }: { view: DemoView }) {
 {ev.role}
 </span>
 <span className="qr144">
-turn {ev.n} · {ev.turnShort}
+{t("turn {n} · {id}", { n: ev.n, id: ev.turnShort })}
 </span>
 </div>
 <div className="qr146" data-speaker={ev.speaker}>
@@ -161,7 +161,7 @@ turn {ev.n} · {ev.turnShort}
 {t("Checkpoint created")}
 </span>
 <span className="qr151">
-covers turns {ev.covered}
+{t("covers turns {range}", { range: ev.covered })}
 </span>
 <div className="qr30">
 
@@ -216,7 +216,7 @@ covers turns {ev.covered}
 {ses.checkpoints.map((c, cIndex) => <React.Fragment key={c.ref}>
 <button onClick={c.onClick} className="qr163" type="button">
 <span>
-Turns {c.covered}
+{t("Turns {range}", { range: c.covered })}
 </span>
 <span className="qr147">
 {c.ref}

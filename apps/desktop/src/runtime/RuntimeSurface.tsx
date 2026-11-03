@@ -108,8 +108,8 @@ export default function RuntimeSurface() {
           {open && <>
             <Fact name={t("Vault")}>{status.vault.rootName}</Fact>
             <Fact name={t("Latest commit")}>#{status.vault.headSequence} · {when(status.vault.lastCommitAt)}</Fact>
-            <Fact name={t("Running operations")}>{status.operationsRunning ?? "unknown"}</Fact>
-            <Fact name={t("Pending candidates")}>{status.pendingCandidates ?? "unknown"}</Fact>
+            <Fact name={t("Running operations")}>{status.operationsRunning ?? t("unknown")}</Fact>
+            <Fact name={t("Pending candidates")}>{status.pendingCandidates ?? t("unknown")}</Fact>
           </>}
         </>}
       </section>
@@ -123,9 +123,9 @@ export default function RuntimeSurface() {
         <ReadStatus {...host} observedAt={host.snapshot?.observedAt} label={t("shell status")} />
         {hostStatus && <>
           <Fact name={t("Lifecycle")}>{hostStatus.closing ? t("Exiting, finishing operations") : hostStatus.locking ? t("Finishing Vault lock") : hostStatus.vaultChanging ? t("Finishing Vault change") : t("Running")}</Fact>
-          <Fact name={t("System tray")}>{hostStatus.tray ?? "unknown"}</Fact>
-          <Fact name={t("Quick Search")}>{hostStatus.hotkey?.state ?? "unknown"}{hostStatus.hotkey?.combo ? ` · ${hostStatus.hotkey.combo}` : ""}</Fact>
-          <Fact name={t("Main window")}>{hostStatus.visible == null ? "unknown" : hostStatus.visible ? "visible" : "hidden"}</Fact>
+          <Fact name={t("System tray")}>{hostStatus.tray ?? t("unknown")}</Fact>
+          <Fact name={t("Quick Search")}>{hostStatus.hotkey?.state ?? t("unknown")}{hostStatus.hotkey?.combo ? ` · ${hostStatus.hotkey.combo}` : ""}</Fact>
+          <Fact name={t("Main window")}>{hostStatus.visible == null ? t("unknown") : hostStatus.visible ? t("visible") : t("hidden")}</Fact>
           {hostStatus.error && <Fact name={t("Last shell error")}>{hostStatus.error}</Fact>}
           {hostStatus.vaultAdmissionError && <Fact name={t("Vault admission")}>{hostStatus.vaultAdmissionError}</Fact>}
         </>}

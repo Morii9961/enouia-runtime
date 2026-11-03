@@ -28,7 +28,7 @@ export function Inspector({ m, select }: { m: AutoMemory; select: (id: string) =
 
       <section className="am-i-sec" aria-label={t("Times")}>
         <h3>{t("Five times, kept apart")}</h3>
-        <p className="am-fine am-tz">All times are Asia/Shanghai (UTC+8), the same as the rest of this demo. The browser's own zone is not used.</p>
+        <p className="am-fine am-tz">{t("All times are Asia/Shanghai (UTC+8), the same as the rest of this demo. The browser's own zone is not used.")}</p>
         <dl className="am-times">
           <dt>{t("Occurred")}</dt><dd><span className="am-mono">{occ.text}</span> <em>{occ.tag}</em></dd>
           <dt>{t("Valid")}</dt><dd><span className="am-mono">{valid.text}</span> <em>{valid.note}</em></dd>
@@ -85,7 +85,7 @@ export function Inspector({ m, select }: { m: AutoMemory; select: (id: string) =
       <section className="am-i-sec am-optional" aria-label={t("Optional controls")}>
         <h3>{t("Optional controls")}</h3>
         <div className="am-opt-row">
-          {['Correct', 'Withdraw', 'History'].map((b) => <button key={b} type="button" className="am-opt" disabled aria-describedby={NOTE_ID}>{b}</button>)}
+          {[msg('Correct'), msg('Withdraw'), msg('History')].map((b) => <button key={b} type="button" className="am-opt" disabled aria-describedby={NOTE_ID}>{t(b)}</button>)}
         </div>
         <p className="am-fine" id={NOTE_ID}>{t("Optional control · needs the automatic Memory contract")}</p>
       </section>

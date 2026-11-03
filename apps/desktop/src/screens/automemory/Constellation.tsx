@@ -64,14 +64,14 @@ export default function Constellation({ sel, select }: ViewProps) {
   return (
     <div className="am-stars">
       <div className="am-view-head">
-        <h2 className="am-vh">{t("Constellation")} <span>{m.title} and what touches it, one step out</span></h2>
+        <h2 className="am-vh">{t("Constellation")} <span>{t("{title} and what touches it, one step out", { title: m.title })}</span></h2>
         <p className="am-fine">{t("Only the selected memory and its direct relations are plotted. A line is a link, never a cause, and nothing is scored.")}</p>
       </div>
       <div className="am-plot-bar" role="group" aria-label={t("Plot zoom")}>
         <button type="button" className="am-zoom" aria-label={t("Zoom in (+)")} disabled={zi === ZOOM.length - 1} onClick={() => setZi((z) => Math.min(ZOOM.length - 1, z + 1))}>+</button>
         <button type="button" className="am-zoom" aria-label={t("Zoom out (−)")} disabled={zi === 0} onClick={() => setZi((z) => Math.max(0, z - 1))}>−</button>
         <button type="button" className="am-zoom am-zoom-reset" aria-label={t("Reset view")} disabled={zi === Z0} onClick={() => setZi(Z0)}>{t("Reset")}</button>
-        <span className="am-fine am-mono" aria-live="polite">zoom {Math.round(zoom * 100)}%</span>
+        <span className="am-fine am-mono" aria-live="polite">{t("zoom {n}%", { n: Math.round(zoom * 100) })}</span>
       </div>
       <div className="am-plot-frame" ref={frame}>
       <div className="am-plot" ref={plot} style={{ height: PLOT_H }} role="group" tabIndex={zoom > 1 ? 0 : undefined} aria-label={tn(n, 'Neighbourhood of {title}: {n} direct relation', 'Neighbourhood of {title}: {n} direct relations', { title: m.title })}>
@@ -97,7 +97,7 @@ export default function Constellation({ sel, select }: ViewProps) {
           const [ax, ay] = edge(cx, cy, x, y); const [bx, by] = edge(x, y, cx, cy);
           return <span key={'w' + i} className="am-rel-word" data-t={r.type} style={{ left: (ax + bx) / 2, top: (ay + by) / 2 }}>{relLabel(r.type)}</span>;
         })}
-        <button type="button" className="am-node am-node-center" aria-pressed="true" style={{ left: cx, top: cy, width: NW, height: NH, '--vtn': 'am-n-' + m.id } as React.CSSProperties} onClick={() => select(sel)} aria-label={`${m.title}. ${STATE_LABEL[m.state]}. Selected; the plot shows its direct relations.`}>
+        <button type="button" className="am-node am-node-center" aria-pressed="true" style={{ left: cx, top: cy, width: NW, height: NH, '--vtn': 'am-n-' + m.id } as React.CSSProperties} onClick={() => select(sel)} aria-label={`${m.title}. ${STATE_LABEL[m.state]}. ${t('Selected; the plot shows its direct relations.')}`}>
           <span className="am-node-top"><Glyph s={m.state} /><span className="am-node-t">{m.title}</span></span>
           <span className="am-node-sub"><span className="am-mono">{m.id}</span> · {STATE_LABEL[m.state]}</span>
         </button>
@@ -115,7 +115,7 @@ export default function Constellation({ sel, select }: ViewProps) {
       </div>
 
       <section className="am-rels" aria-label={t("Relations as a list")}>
-        <h3>{t("Relations")} <span className="am-tag">{n} direct</span></h3>
+        <h3>{t("Relations")} <span className="am-tag">{t("{n} direct", { n })}</span></h3>
         {n === 0 ? <p className="am-none">{t("None recorded in the sample.")}</p> : (
           <ul>
             {rels.map((r: Rel) => { const o = byId.get(r.other)!; return (
