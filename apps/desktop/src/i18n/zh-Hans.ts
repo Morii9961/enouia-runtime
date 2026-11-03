@@ -1593,5 +1593,10 @@ const dict: Record<string, string> = {
   "Run {run} · {state} · {applied}/{suggestions} applied · response {hash}": "运行 {run} · {state} · 已入队 {applied}/{suggestions} · 响应 {hash}",
   "Source {source} · r{revision} · bytes {start}–{end}": "来源 {source} · r{revision} · 字节 {start}–{end}",
   "Snapshot {commit} · SHA-256 {hash}": "快照 {commit} · SHA-256 {hash}",
+  "Read conflicting memory again": "重新读取冲突记忆",
+  "Read current conflicting memory": "读取当前冲突记忆",
+  "The current record could not be read. Its reported conflict remains in the candidate; read again to observe the saved record.": "无法读取当前记录。候选中报告的冲突仍然保留；请重新读取保存的记录。",
+  "Current saved observation · r{revision}": "当前保存记录的观察 · r{revision}",
+  "This record has changed since the reported conflict. The candidate reference above still names r{revision}; this read does not resolve that conflict.": "报告冲突后，这条记录已更改。上方候选引用仍指向 r{revision}；本次读取不会解决这项冲突。",
 };
 export default dict;

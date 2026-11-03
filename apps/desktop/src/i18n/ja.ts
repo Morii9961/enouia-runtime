@@ -1593,5 +1593,10 @@ const dict: Record<string, string> = {
   "Run {run} · {state} · {applied}/{suggestions} applied · response {hash}": "実行 {run} · {state} · キューに追加済み {applied}/{suggestions} · 応答 {hash}",
   "Source {source} · r{revision} · bytes {start}–{end}": "ソース {source} · r{revision} · バイト {start}–{end}",
   "Snapshot {commit} · SHA-256 {hash}": "スナップショット {commit} · SHA-256 {hash}",
+  "Read conflicting memory again": "競合するメモリを再読み込み",
+  "Read current conflicting memory": "現在の競合するメモリを読み込む",
+  "The current record could not be read. Its reported conflict remains in the candidate; read again to observe the saved record.": "現在の記録を読み込めませんでした。報告された競合は候補に残っています。保存済みの記録を再読み込みしてください。",
+  "Current saved observation · r{revision}": "現在の保存済み記録の観測 · r{revision}",
+  "This record has changed since the reported conflict. The candidate reference above still names r{revision}; this read does not resolve that conflict.": "競合の報告後にこの記録が変更されています。上の候補の参照先は引き続き r{revision} です。今回の読み込みで競合が解決するわけではありません。",
 };
 export default dict;

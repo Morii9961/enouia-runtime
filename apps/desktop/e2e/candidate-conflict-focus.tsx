@@ -2,6 +2,7 @@
 import { createRoot } from 'react-dom/client';
 import { CandidateConflict } from '../src/memory/CandidateConflict';
 import { CallError, type call } from '../src/memory/client';
+import { setLang, useLang, type Lang } from '../src/i18n';
 import '../src/quiet-runtime.css';
 import '../src/memory/memory.css';
 
@@ -25,9 +26,10 @@ function check(id: string, ok: boolean) { checks.push({ id, ok }); }
 function click(label: string) { const control = button(label); if (!control || control.disabled) throw new Error(`Unavailable ${label}`); control.focus(); control.click(); }
 async function begin(label: string) { click(label); await wait(() => release != null); }
 async function finish() { releasePending(); await wait(() => !text().includes('Reading the conflicting memory…')); await sleep(20); }
+function Surface({revision}:{revision:number}){useLang();return <ul data-revision={revision}><CandidateConflict key={revision} conflict={{ memory_id: 'synthetic-memory', revision: 1 }} readPage={request} /></ul>;}
 async function mount(revision: number) {
   // Match Inbox's existing key boundary for candidate revision changes.
-  root.render(<ul data-revision={revision}><CandidateConflict key={revision} conflict={{ memory_id: 'synthetic-memory', revision: 1 }} readPage={request} /></ul>);
+  root.render(<Surface revision={revision}/>);
   await wait(() => fixture.firstElementChild?.getAttribute('data-revision') === String(revision)); await sleep(20);
 }
 try {
@@ -36,12 +38,31 @@ try {
   await begin('Read current conflicting memory'); await finish();
   check('explicit_read_focuses_current_literal_record', document.activeElement === content() && content()?.textContent?.includes('<script>literal</script>') === true && !fixture.querySelector('script'));
   check('current_record_focus_target_adds_no_tab_stop', content()?.tabIndex === -1 && content()?.getAttribute('aria-label') === 'Current conflicting memory');
+  const current=content()!,languageCalls=calls.length;
+  for(const [language,label,warning] of [
+    ['zh-Hans','当前保存记录的观察 · r2','上方候选引用仍指向 r1'],
+    ['ja','現在の保存済み記録の観測 · r2','引き続き r1'],
+    ['en','Current saved observation · r2','still names r1'],
+  ]){
+    await setLang(language as Lang);await wait(()=>text().includes(label)&&text().includes(warning));
+    check(`${language}_current_and_reported_revisions_stay_distinct`,current===content()&&current.textContent==='Synthetic conflicting content <script>literal</script>'&&text().includes('forgotten'));
+    check(`${language}_language_keeps_record_focus_without_reread`,document.activeElement===current&&calls.length===languageCalls);
+  }
   await begin('Read conflicting memory again'); check('reread_clears_previous_record', !content()); await finish();
   check('reread_focuses_new_observation', document.activeElement === content());
   await begin('Read conflicting memory again'); outside.focus(); await finish();
   check('successful_read_respects_moved_focus', document.activeElement === outside);
   failure = 'permanent'; await begin('Read conflicting memory again'); await finish();
   check('permanent_error_keeps_manual_recovery_focus', document.activeElement === button('Read conflicting memory again') && !button('Retry'));
+  const recovery=button('Read conflicting memory again')!,errorCalls=calls.length;
+  for(const [language,label,explanation] of [
+    ['zh-Hans','重新读取冲突记忆','候选中报告的冲突仍然保留'],
+    ['ja','競合するメモリを再読み込み','報告された競合は候補に残っています'],
+    ['en','Read conflicting memory again','Its reported conflict remains in the candidate'],
+  ]){
+    await setLang(language as Lang);await wait(()=>!!button(label)&&text().includes(explanation));
+    check(`${language}_error_keeps_recovery_control_and_focus`,button(label)===recovery&&document.activeElement===recovery&&!!fixture.querySelector('[role="alert"]')&&!content()&&calls.length===errorCalls);
+  }
   failure = 'retry'; await begin('Read conflicting memory again'); await finish(); const original = calls.at(-1);
   failure = 'none'; await begin('Retry'); await finish();
   check('retry_focuses_original_record', document.activeElement === content() && JSON.stringify(calls.at(-1)) === JSON.stringify(original));
