@@ -35,7 +35,10 @@
 | `0442ff0` | [演示记忆库空分组与无匹配分开说明](../../validation/UI-v2-empty-collection-copy-2026-11-03.md) |
 | `d6d8dd4` | [read-1 合成自动记忆原生三语 × 双主题 × 最小窗口矩阵（共用 smoke 函数）](../../validation/UI-v2-read1-native-matrix-2026-11-03.md) |
 | `139dbd0` | [#24 其他记忆星图参考调研与方案排序](STARMAP_REFERENCES_2026-11-04.md) |
-| （交接） | [Claude → Codex 交接](../../integration/CLAUDE_TO_CODEX_2026-11-04.md)；#115–#118 合并进 `main` |
+| （合并） | #115–#118 合并进 `main`（`c5f4b2e`） |
+| `8a9b46d` | [#3 Settings 主题三选一](../../validation/UI-v2-theme-preference-2026-11-04.md) |
+| `7817f99` | #24 五种主题线方案对照与测速；#3 / #4 / #13 / #15 / #17 决定写入 OPEN_ISSUES |
+| （交接） | #24 Morii 选定方案 B；[Claude → Codex 交接](../../integration/CLAUDE_TO_CODEX_2026-11-04.md) 重写；#119 合并进 `main` |
 
 在 `4b16992` 上运行累计前端门禁：`npm test` 的 Node 部分 134 通过、3 跳过、0 失败；Happy DOM 86 场景、1,346 项断言通过。`npm run build`（含类型检查）通过，主 JS 452.19 kB；Memory pin 与 Activity 退役检查通过。此前各片按受影响范围运行定向检查，没有每片重复全套。保存日志位于忽略的 `apps/desktop/target/ui-v2-continuation/`。
 
