@@ -37,3 +37,10 @@ export type MemoryActions = {
   edit: boolean; editLabel: string; onEdit: () => void;
   save: boolean; saveLabel: string; onSave: () => void; onCancel: () => void; none: boolean;
 };
+
+export type DemoSessionView = {
+  title: string; day: string; events: SessionEvent[]; meta: { k: string; v: string }[];
+  checkpoints: { covered: string; ref: string; onClick: () => void }[]; noCheckpoints: boolean;
+  writes: { key: string; text: string; turn: number | undefined; label: string; onClick: () => void }[];
+  noWrites: boolean; hasCapsule: boolean;
+};

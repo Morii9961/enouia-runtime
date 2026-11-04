@@ -28,10 +28,7 @@ export default function Home({ view }: { view: DemoView }) {
   }, [v.seq]);
   React.useEffect(() => () => clearViews('home'), []);
 
-  const lastWrite = D.MEM.filter((m) => m.status === 'active' && m.kind !== 'session_checkpoint').map((m) => m.created).sort().slice(-1)[0];
-  const lastTurn = D.SESS[0].turns[D.SESS[0].turns.length - 1][2];
-  const checkpointAt = D.MEM.find((m) => m.key === 'm7')?.created ?? lastTurn;
-  const compiledAt = '2026-10-01T06:44:02.318Z';
+  const lastWrite = home.lastWrite, lastTurn = home.sessionAt, checkpointAt = home.checkpointAt, compiledAt = home.compiledAt;
   const targets = [lastWrite, compiledAt, lastTurn, checkpointAt];
 
   const inPane = (ms: number) => (ms - v.start) / v.span;      // 0 at the pane's left edge, 1 at its right edge
@@ -51,7 +48,7 @@ Enouia Runtime · {t("Thursday 1 October 2026")} · <span className="bg-clock">{
 <div className="bg-now" aria-label={t("Demo clock 14:44")}>14<span>:</span>44</div>
 </div>
 <div className="bg-home-sub">
-<span className="bg-recording">{t("Recording.")}</span> {home.memoryLine}.
+<span className="bg-recording">{t("Recording.")}</span> {home.memoryLine}.{view.demoDataset !== 'original' ? <div className="demo-sample-reset"><a href={view.originalDemoHref}>{t("Open original sample")}</a></div> : null}
 </div>
 </div>
 <div className="bg-home-chart">
@@ -70,11 +67,11 @@ I'm here.
 </h1>
 </div>
 <svg className="bg-leaders" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" data-hidden={!showLeaders || undefined}>
-{targets.map((at, i) => { const f = inPane(Date.parse(at)); return f >= 0 && f <= 1 ? <path key={i} d={`M${(PANE * f * 1000).toFixed(1)} ${(yAt(at) * 1000).toFixed(1)} L${(NOTES_LEFT * 1000 - 18).toFixed(1)} ${(NOTE_TOPS[i] * 1000 + 6).toFixed(1)} H${(NOTES_LEFT * 1000).toFixed(1)}`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" /> : null; })}
+{targets.map((at, i) => { if (!at) return null; const f = inPane(Date.parse(at)); return f >= 0 && f <= 1 ? <path key={i} d={`M${(PANE * f * 1000).toFixed(1)} ${(yAt(at) * 1000).toFixed(1)} L${(NOTES_LEFT * 1000 - 18).toFixed(1)} ${(NOTE_TOPS[i] * 1000 + 6).toFixed(1)} H${(NOTES_LEFT * 1000).toFixed(1)}`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" /> : null; })}
 </svg>
 <div className="qr13 bg-notes" style={{ left: pct(NOTES_LEFT) }}>
 <button onClick={nav.memory.go} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[0]) }} type="button">
-<span className="bg-note-time">{D.tTime(lastWrite)}</span>
+<span className="bg-note-time">{lastWrite ? D.tTime(lastWrite) : t('Not recorded')}</span>
 <span className="qr9">
 {t("Memory Vault")}
 </span>
@@ -86,39 +83,39 @@ I'm here.
 </span>
 </button>
 <button onClick={nav.context.go} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[1]) }} type="button">
-<span className="bg-note-time">{home.capTime}</span>
+<span className="bg-note-time">{home.capTime ?? t('Not recorded')}</span>
 <span className="qr9">
 {t("Context")}
 </span>
 <span className="qr10">
-{t('Compiled at {time} for “{query}”', { time: home.capTime, query: 'vault adapter rebuild trigger' })}
+{home.capTime ? t('Compiled at {time} for “{query}”', { time: home.capTime, query: 'vault adapter rebuild trigger' }) : t('No saved capsule in this sample.')}
 </span>
 <span className="qr11">
-{home.capShort}
+{home.capShort ?? '—'}
 </span>
 </button>
 <button onClick={nav.sessions.go} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[2]) }} type="button">
-<span className="bg-note-time">{home.sesTime}</span>
+<span className="bg-note-time">{home.sesTime ?? t('Not recorded')}</span>
 <span className="qr9">
 {t("Current session")}
 </span>
 <span className="qr10">
-<span lang="en">Vault adapter planning</span> · {t('{n} turns, last at {time}', { n: 12, time: home.sesTime })}
+{home.sessionTitle && home.sesTime ? <><span lang="en">{home.sessionTitle}</span> · {t('{n} turns, last at {time}', { n: home.turnCount, time: home.sesTime })}</> : t("No saved sessions in this sample.")}
 </span>
 <span className="qr11">
-{home.sesShort}
+{home.sesShort ?? '—'}
 </span>
 </button>
-<button onClick={home.openCheckpoint} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[3]) }} type="button">
-<span className="bg-note-time">{home.cpTime}</span>
+<button disabled={!home.hasCheckpoint} onClick={home.openCheckpoint} className="qr12 bg-note" style={{ top: pct(NOTE_TOPS[3]) }} type="button">
+<span className="bg-note-time">{home.cpTime ?? t('Not recorded')}</span>
 <span className="qr9">
 {t("Checkpoint")}
 </span>
 <span className="qr10">
-{t('Turns {a}–{b} covered at {time}', { a: 1, b: 8, time: home.cpTime })}
+{home.cpTime ? t('Turns {a}–{b} covered at {time}', { a: 1, b: 8, time: home.cpTime }) : t('No checkpoint in this sample.')}
 </span>
 <span className="qr11">
-{home.cpShort}
+{home.cpShort ?? '—'}
 </span>
 </button>
 </div>
@@ -153,7 +150,7 @@ I'm here.
 </span>
 <span className="bg-legend-key"><i data-kind="canonical" /> {t("canonical write")} <i data-kind="candidate" /> {t("candidate")} <i data-kind="checkpoint" /> {t("checkpoint")}</span>
 </div>
-<div className="qr15 bg-margin">
+{home.hasOpenWork ? <div className="qr15 bg-margin">
 <div className="qr9">
 {t("Left open last time")}
 </div>
@@ -163,7 +160,7 @@ I'm here.
 <div className="qr14">
 {t("Accept the first Windows port boundary.")}
 </div>
-</div>
+</div> : null}
 </div>
 </section>
   );

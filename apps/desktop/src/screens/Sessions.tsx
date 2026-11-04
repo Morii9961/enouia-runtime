@@ -39,7 +39,16 @@ const scrollFor = (t: number, a: Anchor[]) => {
 const stillNow = () => typeof window !== 'undefined' && (!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || !!document.querySelector('[data-motion="reduced"]'));
 
 export default function Sessions({ view }: { view: DemoView }) {
-  const { ctx, nav, ses, sessList } = view;
+  if (!view.ses) return <section data-screen-label="Sessions" className="qr171">
+    <aside className="qr136"><div className="qr20"><h1 className="qr18">{t("Sessions")}</h1><div className="qr19">{t("No saved sessions in this sample.")}</div></div></aside>
+    <div className="qr161 demo-empty"><p>{t("This synthetic Vault has no conversations or checkpoints. Open the original sample to inspect invented history.")}</p><a className="am-chip" href={view.originalDemoHref}>{t("Open original sample")}</a></div>
+    <aside className="qr170"><p className="qr19">{t("No session selected.")}</p></aside>
+  </section>;
+  return <SessionTranscript view={view} ses={view.ses} />;
+}
+
+function SessionTranscript({ view, ses }: { view: DemoView; ses: NonNullable<DemoView['ses']> }) {
+  const { ctx, nav, sessList } = view;
   const key = sessList.find((x) => x.selected)?.key ?? D.SESS[0].key;
   const ruler = rulerFor(key, ses.events.length);
 
@@ -251,7 +260,7 @@ export default function Sessions({ view }: { view: DemoView }) {
 <div className="qr85">
 {t("Session v1 does not persist capsules. The last compiled capsule is on the Context Surface.")}
 </div>
-{ses.hasCapsule ? <>
+{ses.hasCapsule && ctx ? <>
 <button onClick={nav.context.go} className="qr168" type="button">
 {ctx.capShort}
 </button>

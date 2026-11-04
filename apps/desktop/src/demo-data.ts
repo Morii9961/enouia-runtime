@@ -1,8 +1,9 @@
+import { CANDIDATE_ONLY, VAULT_DEMO_STATE } from './vault-demo-states.ts';
 import type { DemoMemory } from './demo-state';
 import { dateFmt, lang, msg } from './i18n/index.ts';
 import type { DemoSession, ContextSection, DemoRuntime } from './demo-types';
 // Fictional Claude Design fixture. Never a Runtime snapshot.
-export const demoData = (function () {
+export const originalDemoData = (function () {
     const hx = (seed: string) => { let out = ''; for (let k = 0; k < 4; k++) { let h = (0x811c9dc5 ^ Math.imul(k + 1, 0x9e3779b1)) >>> 0; const s = seed + '#' + k; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; out += (h >>> 0).toString(16).padStart(8, '0'); } return out; };
     const ID = (p: string, s: string) => p + '_' + hx(p + s);
     const short = (id: string) => { const i = id.indexOf('_'); return id.slice(0, i + 1) + id.slice(i + 1, i + 7) + '…' + id.slice(-4); };
@@ -101,4 +102,9 @@ function freezeDemo(value: unknown) {
     Object.freeze(value);
   }
 }
+freezeDemo(originalDemoData);
+export const demoData = VAULT_DEMO_STATE === 'original' ? originalDemoData : {
+  ...originalDemoData, MEM: VAULT_DEMO_STATE === 'empty' ? [] : CANDIDATE_ONLY,
+  SESS: [], CTX: [], EXCL: [],
+};
 freezeDemo(demoData);

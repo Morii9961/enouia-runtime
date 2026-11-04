@@ -411,3 +411,8 @@
 .memory-region .am-view:focus-visible{outline:2px solid var(--ink);outline-offset:-5px;z-index:2}
 
 .memory-region .am-head-views .am-range{margin-left:auto}
+
+.demo-empty{padding:22px;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.demo-empty a.am-chip,.qr32 a.am-chip{display:inline-flex;align-items:center;text-decoration:none}
+.demo-sample-reset{font-size:12px;line-height:18px}
+.bg-home:not(.bg-native-home) .bg-note:disabled{cursor:default;opacity:.65}

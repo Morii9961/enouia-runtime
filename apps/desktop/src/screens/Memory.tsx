@@ -13,12 +13,12 @@ const WORKSPACES: { id: WorkspaceId; label: string }[] = [
 ];
 
 const demoParams = new URLSearchParams(globalThis.location?.search);
-const initialWorkspace = WORKSPACES.find(w => w.id === demoParams.get('auto-workspace'))?.id ?? 'memories';
+const initialWorkspace = demoParams.has('vault-dataset') ? 'memories' : WORKSPACES.find(w => w.id === demoParams.get('auto-workspace'))?.id ?? 'memories';
 
 export default function Memory({ view }: { view: DemoView }) {
   // Browser demo only: a synthetic design preview of automatic memory. Local state, nothing stored.
   const [workspace, setWorkspace] = React.useState<WorkspaceId>(initialWorkspace);
-  const [memoryView, setMemoryView] = React.useState<'vault' | 'grid'>(demoParams.has('auto-dataset') ? 'grid' : 'vault');
+  const [memoryView, setMemoryView] = React.useState<'vault' | 'grid'>(!demoParams.has('vault-dataset') && demoParams.has('auto-dataset') ? 'grid' : 'vault');
   const preview = workspace !== 'memories' || memoryView === 'grid';
   const { act, colCount, colTitle, collections, copyLabel, draft, editing, groups, hasNotice, noSel, notEditing, notice, onDraft, onQuery, q, sel, timelineEmpty } = view;
   return (
@@ -90,7 +90,7 @@ export default function Memory({ view }: { view: DemoView }) {
 <div className="qr44">
 {timelineEmpty ? <>
 <div className="qr32">
-{q ? t("Nothing here matches. No reading on this strip for that text.") : t("No records here yet.")}
+{q ? t("Nothing here matches. No reading on this strip for that text.") : view.emptyVault ? <><p>{t("This synthetic Vault is empty. There are no memories or candidates to inspect.")}</p><a className="am-chip" href={view.originalDemoHref}>{t("Open original sample")}</a></> : view.onlyCandidates ? <><p>{t("Only imported candidates are present. No memory has been approved. Open the candidate inbox to review them in this window.")}</p><div className="am-demo-states"><button type="button" className="am-chip" onClick={collections[0].items[0].onClick}>{t("Candidate inbox")}</button><a className="am-chip" href={view.originalDemoHref}>{t("Open original sample")}</a></div></> : t("No records here yet.")}
 </div>
 </> : null}
 {groups.map((g, gIndex) => <React.Fragment key={g.key}>
@@ -150,7 +150,7 @@ export default function Memory({ view }: { view: DemoView }) {
 <aside aria-label={t("Memory Inspector")} className="qr88">
 {noSel ? <>
 <div className="qr46">
-{t("Select a memory to see where it came from.")}
+{view.emptyVault ? t("No memory to inspect in this sample.") : t("Select a memory to see where it came from.")}
 </div>
 </> : null}
 {sel ? <>

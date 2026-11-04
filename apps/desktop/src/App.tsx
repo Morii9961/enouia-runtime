@@ -1,5 +1,6 @@
 import React from "react";
 import { demoData } from "./demo-data.ts";
+import { ORIGINAL_VAULT_HREF, VAULT_DEMO_STATE } from "./vault-demo-states";
 import Home from "./screens/Home.tsx";
 import Memory from "./screens/Memory.tsx";
 import Context from "./screens/Context.tsx";
@@ -15,7 +16,7 @@ import SessionsSurface, { type SessionTarget } from './memory/SessionsSurface.ts
 import ContextSurface from './memory/ContextSurface.tsx';
 import ShellSettings from './shell/ShellSettings';
 import type { DemoMemory } from './demo-state';
-import type { Page, WindowAction, DetailRow, SessionEvent, CollectionDefinition, MemoryActions } from './demo-types';
+import type { Page, WindowAction, DetailRow, SessionEvent, DemoSessionView, CollectionDefinition, MemoryActions } from './demo-types';
 
 type AppProps = { startPage?: Page; memoryConnected?: boolean; breathing?: boolean; showIds?: boolean };
 type AppState = {
@@ -300,30 +301,33 @@ export default class App extends React.Component<AppProps, AppState> {
     });
     segs.push({ w: (282 / totalUnits * 100).toFixed(2) + '%', section: 'metadata', label: t('Metadata + provenance') });
     segs.push({ w: (256 / totalUnits * 100).toFixed(2) + '%', section: 'reserve', label: t('Framing reserve') });
-    const ctx = { capId: D.CAP, capShort: D.short(D.CAP), at: D.tFull('2026-10-01T06:44:02.318Z'), hash: D.CAPHASH, segs, sections: ctxSections,
+    const ctx = D.CTX.length ? { capId: D.CAP, capShort: D.short(D.CAP), at: D.tFull('2026-10-01T06:44:02.318Z'), hash: D.CAPHASH, segs, sections: ctxSections,
       excluded: D.EXCL.map((x) => { const mm = this.requireMemory(x.mem); const live = mm.status; const reason = x.mem.startsWith('c') && live === 'active' ? t('promoted after compile · next capsule') : t(x.reason); return { text: mm.content, ref: D.short(x.mem.startsWith('c') ? D.ID('cand', x.mem) : memId(mm)), reason, onClick: () => this.openMemory(mm.key) }; }),
-      jumpExcl: () => { const c = this.ctxScroll.current; const el = c && c.querySelector<HTMLElement>('#ctx-excluded'); if (c && el) c.scrollTo({ top: el.offsetTop - 8, behavior: reduced ? 'auto' : 'smooth' }); } };
+      jumpExcl: () => { const c = this.ctxScroll.current; const el = c && c.querySelector<HTMLElement>('#ctx-excluded'); if (c && el) c.scrollTo({ top: el.offsetTop - 8, behavior: reduced ? 'auto' : 'smooth' }); } } : null;
 
     // Sessions
     const sessList = D.SESS.map((s) => ({ key: s.key, selected: s.key === S.sessionKey, title: s.title, meta: D.tDate(s.created) + ' · ' + tn(s.turns.length, '{n} turn', '{n} turns') + (s.checkpoints.length ? ' · ' + tn(s.checkpoints.length, '{n} checkpoint', '{n} checkpoints') : ''), onClick: () => this.setState({ sessionKey: s.key }) }));
-    const cs = sess(S.sessionKey);
-    const writesFor = (t: number) => mems.filter((x) => x.src.s === cs.key && x.src.t === t && x.kind !== 'session_checkpoint');
-    const events: SessionEvent[] = []; let seq = 0;
-    cs.turns.forEach((turn, i) => {
-      const n = i + 1; seq++;
-      const isU = turn[0] === 'user';
-      events.push({ isTurn: true, isCheckpoint: false, seq: String(seq), time: D.tTime(turn[2]), n, role: isU ? t('You') : 'Enouia', speaker: turn[0], text: turn[1], turnShort: D.short(D.ID('turn', cs.key + n)),
-        writes: writesFor(n).map((w) => ({ key: w.key, label: w.status === 'candidate' ? t('Candidate proposed') : w.src.kind === 'explicit_remember' ? t('Memory saved') : w.status === 'superseded' ? t('Memory written · since superseded') : t('Memory written'), ref: D.short(w.status === 'candidate' ? D.ID('cand', w.key) : memId(w)), status: w.status, onClick: () => this.openMemory(w.key) })) });
-      cs.checkpoints.filter((c) => c.after === n).forEach((c) => { seq++; const cm = this.checkpoint(c.mem);
-        events.push({ isTurn: false, isCheckpoint: true, seq: String(seq), time: D.tTime(c.at), covered: cm.covered[0] + '–' + cm.covered[1], lastState: cm.lastState, loops: cm.openLoops, ref: D.short(memId(cm)), onClick: () => this.openMemory(cm.key) }); });
-    });
-    const allWrites = mems.filter((x) => x.src.s === cs.key && x.kind !== 'session_checkpoint').sort((a, b) => (a.src.t ?? 0) - (b.src.t ?? 0));
-    const lastAt = cs.checkpoints.length && cs.checkpoints[cs.checkpoints.length - 1].at > cs.turns[cs.turns.length - 1][2] ? cs.checkpoints[cs.checkpoints.length - 1].at : cs.turns[cs.turns.length - 1][2];
-    const ses = { title: cs.title, day: D.tDay(cs.created), events,
-      meta: [{ k: t('session'), v: cs.id }, { k: t('created'), v: D.tFull(cs.created) }, { k: t('updated'), v: D.tFull(lastAt) }, { k: t('events'), v: String(seq) }, { k: t('turns'), v: String(cs.turns.length) }, { k: t('checkpoints'), v: String(cs.checkpoints.length) }],
-      checkpoints: cs.checkpoints.map((c) => { const cm = this.checkpoint(c.mem); return { covered: cm.covered[0] + '–' + cm.covered[1], ref: D.short(memId(cm)), onClick: () => this.openMemory(cm.key) }; }),
-      noCheckpoints: !cs.checkpoints.length,
-      writes: allWrites.map((w) => ({ key: w.key, text: w.content, turn: w.src.t, label: STATUS[w.status], onClick: () => this.openMemory(w.key) })), noWrites: !allWrites.length, hasCapsule: cs.key === 's1' };
+    const cs = D.SESS.find(s => s.key === S.sessionKey) ?? D.SESS[0];
+    let ses: DemoSessionView | null = null;
+    if (cs) {
+      const writesFor = (t: number) => mems.filter((x) => x.src.s === cs.key && x.src.t === t && x.kind !== 'session_checkpoint');
+      const events: SessionEvent[] = []; let seq = 0;
+      cs.turns.forEach((turn, i) => {
+        const n = i + 1; seq++;
+        const isU = turn[0] === 'user';
+        events.push({ isTurn: true, isCheckpoint: false, seq: String(seq), time: D.tTime(turn[2]), n, role: isU ? t('You') : 'Enouia', speaker: turn[0], text: turn[1], turnShort: D.short(D.ID('turn', cs.key + n)),
+          writes: writesFor(n).map((w) => ({ key: w.key, label: w.status === 'candidate' ? t('Candidate proposed') : w.src.kind === 'explicit_remember' ? t('Memory saved') : w.status === 'superseded' ? t('Memory written · since superseded') : t('Memory written'), ref: D.short(w.status === 'candidate' ? D.ID('cand', w.key) : memId(w)), status: w.status, onClick: () => this.openMemory(w.key) })) });
+        cs.checkpoints.filter((c) => c.after === n).forEach((c) => { seq++; const cm = this.checkpoint(c.mem);
+          events.push({ isTurn: false, isCheckpoint: true, seq: String(seq), time: D.tTime(c.at), covered: cm.covered[0] + '–' + cm.covered[1], lastState: cm.lastState, loops: cm.openLoops, ref: D.short(memId(cm)), onClick: () => this.openMemory(cm.key) }); });
+      });
+      const allWrites = mems.filter((x) => x.src.s === cs.key && x.kind !== 'session_checkpoint').sort((a, b) => (a.src.t ?? 0) - (b.src.t ?? 0));
+      const lastAt = cs.checkpoints.length && cs.checkpoints[cs.checkpoints.length - 1].at > cs.turns[cs.turns.length - 1][2] ? cs.checkpoints[cs.checkpoints.length - 1].at : cs.turns[cs.turns.length - 1][2];
+      ses = { title: cs.title, day: D.tDay(cs.created), events,
+        meta: [{ k: t('session'), v: cs.id }, { k: t('created'), v: D.tFull(cs.created) }, { k: t('updated'), v: D.tFull(lastAt) }, { k: t('events'), v: String(seq) }, { k: t('turns'), v: String(cs.turns.length) }, { k: t('checkpoints'), v: String(cs.checkpoints.length) }],
+        checkpoints: cs.checkpoints.map((c) => { const cm = this.checkpoint(c.mem); return { covered: cm.covered[0] + '–' + cm.covered[1], ref: D.short(memId(cm)), onClick: () => this.openMemory(cm.key) }; }),
+        noCheckpoints: !cs.checkpoints.length,
+        writes: allWrites.map((w) => ({ key: w.key, text: w.content, turn: w.src.t, label: STATUS[w.status], onClick: () => this.openMemory(w.key) })), noWrites: !allWrites.length, hasCapsule: cs.key === 's1' && ctx !== null };
+    }
 
     // Runtime
     const rtList = D.RT.map((c) => ({ name: t(c.name), code: c.code, state: t(c.state), tone: c.tone, onClick: () => this.setState({ rtKey: c.k }) }));
@@ -332,11 +336,22 @@ export default class App extends React.Component<AppProps, AppState> {
       rows: rc.rows.map(([k, v]) => ({ k: t(k), v: t(v) })), checks: rc.checks.map(([k, v]) => ({ k: t(k), v: t(v) })), limits: rc.limits.map((l) => t(l)) };
     const rtStrip = [['memory', 'v1'], ['session', 'v1'], ['capsule', 'v1'], ['core ipc', 'v1'], ['schemaVersion', '1'], ['mutation result', 'model_only'], ['toolchain', 'rust 1.98.1 · gnu']].map(([k, v]) => ({ k, v }));
 
-    const cp = this.checkpoint('m7');
+    const cp = this.byKey('m7') ? this.checkpoint('m7') : null;
+    const latestSession = D.SESS[0];
+    const sessionAt = latestSession?.turns.at(-1)?.[2] ?? null;
+    const compiledAt = ctx ? '2026-10-01T06:44:02.318Z' : null;
     return {
       pageTitle: titles[page], nav, railKey,
       isHome: page === 'home', isMemory: page === 'memory', isContext: page === 'context', isSessions: page === 'sessions', isRuntime: page === 'runtime', isSettings: page === 'settings',
-      home: { memoryLine: cands.length ? t('{n} canonical memories, {c} waiting for your review', { n: active.length, c: cands.length }) : t('{n} canonical memories, nothing waiting for review', { n: active.length }), capTime: D.tTime('2026-10-01T06:44:02.318Z'), capShort: D.short(D.CAP), sesTime: D.tTime(D.SESS[0].turns[11][2]), sesShort: D.short(sess('s1').id), cpTime: D.tTime(cp.created), cpShort: D.short(D.ID('mem', 'm7')), openCheckpoint: () => this.openMemory('m7') },
+      home: { memoryLine: cands.length ? t('{n} canonical memories, {c} waiting for your review', { n: active.length, c: cands.length }) : t('{n} canonical memories, nothing waiting for review', { n: active.length }),
+        lastWrite: active.filter(m => m.kind !== 'session_checkpoint').map(m => m.created).sort().at(-1) ?? null,
+        compiledAt, sessionAt, checkpointAt: cp?.created ?? null,
+        capTime: compiledAt ? D.tTime(compiledAt) : null, capShort: ctx?.capShort ?? null,
+        sessionTitle: latestSession?.title ?? null, turnCount: latestSession?.turns.length ?? 0,
+        sesTime: sessionAt ? D.tTime(sessionAt) : null, sesShort: latestSession ? D.short(latestSession.id) : null,
+        cpTime: cp ? D.tTime(cp.created) : null, cpShort: cp ? D.short(D.ID('mem', cp.key)) : null,
+        hasCheckpoint: cp !== null, hasOpenWork: active.some(m => !!m.openLoops?.length), openCheckpoint: () => this.openMemory('m7') },
+      demoDataset: VAULT_DEMO_STATE, originalDemoHref: ORIGINAL_VAULT_HREF, emptyVault: mems.length === 0, onlyCandidates: active.length === 0 && cands.length > 0,
       q: S.q, onQuery: (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ q: e.target.value }), collections, colTitle, colCount: tn(visible.length, '{n} record', '{n} records'), groups, timelineEmpty: !visible.length,
       sel, hasSel: !!sel, noSel: !sel, act, editing: S.editing, notEditing: !S.editing, draft: S.draft, onDraft: (e: React.ChangeEvent<HTMLTextAreaElement>) => this.setState({ draft: e.target.value }), notice: t(S.notice), hasNotice: !!S.notice, copyLabel: S.copied ? t('Copied') : t('Copy ID'),
       ctx, ctxScroll: this.ctxScroll, sessList, ses, rtList, rt, rtStrip,
@@ -422,7 +437,7 @@ Enouia Runtime
 </div>
 </header>
 <div className="qr233 bg-body">
-{connected ? <NativeStrip page={page} nav={navEl} /> : <RecordStrip page={page} nav={navEl} still={still} selectedAt={selectedAt} sessionSpan={sessionSpan} sessionKey={this.state.sessionKey} />}
+{connected ? <NativeStrip page={page} nav={navEl} /> : <RecordStrip page={page} nav={navEl} still={still} selectedAt={selectedAt} sessionSpan={sessionSpan} sessionKey={strSession?.key} />}
 <main id="runtime-content" className="qr232" tabIndex={-1} aria-label={t('{page} content', { page: isHome ? t('Home') : pageTitle })}>
 {isHome ? <>
 {connected ? <ConnectedHome nav={view.nav} ring={penMark} /> : <Home view={{ ...view, still }} />}

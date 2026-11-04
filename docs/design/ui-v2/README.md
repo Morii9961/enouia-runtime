@@ -2,7 +2,7 @@
 
 给接手实现的人（Claude 或 Codex）。先读这一页，再按顺序读。**要把 UI v2 落地进 Windows 应用，先读 [HANDOFF_CODEX.md](HANDOFF_CODEX.md)**：现状、落地顺序、验收与交付包。
 
-最新逐片提交、前端门禁与待办见 [2026-11-03 接续记录](CONTINUATION_2026-11-03.md)，本批位于草稿 PR #115。此前已合入的原生前端续作见 [2026-11-02 记录](CONTINUATION_2026-11-02.md)。这些开发证据不代表发布、安装或人工验收。
+2026-11-04：#115–#119 已合并；其后的 UI 接续仍在草稿 PR，不能视为 main 已采用。近期范围与证据见 [五工作区](../../validation/UI-v2-memory-workspaces-2026-11-04.md)、[演示反馈](../../validation/UI-v2-demo-feedback-2026-11-04.md)、[窗口反馈](../../validation/UI-v2-window-feedback-2026-11-04.md)与[旧 Vault 空状态](../../validation/UI-v2-empty-vault-demo-2026-11-04.md)。此前逐片记录见 [2026-11-03 接续](CONTINUATION_2026-11-03.md)。此前已合入的原生前端续作见 [2026-11-02 记录](CONTINUATION_2026-11-02.md)。这些开发证据不代表发布、安装或人工验收。
 
 1. [DESIGN.md](../../../DESIGN.md)：视觉的每个具体值（颜色、字体、间距、布局、动效、文案、禁区）。
 2. [docs/design-decisions.md](../../design-decisions.md)：已经定下的决定。已记录的不重新讨论；要推翻就新增一条。
@@ -19,7 +19,8 @@
 - UI v2 经 PR 合入 `main`（合并前在分支 `ui-v2/merge-main`；设计过程的分支是 `redesign/v2`，由 `redesign/08-negative` → `redesign/08-palettes` 收敛而来）。
 - 记忆星图独立预览：开发服务器上的 `/starmap.html`（`?lang=zh|ja|en`）。界面语言：`?lang=` 或 Settings → Language。
 - 浏览器演示：`apps/desktop` 里 `npm ci && npm run dev`，打开开发服务器地址。`?theme=dark|light` 强制明暗（默认跟随系统）。
-- 自动记忆合成预览：Memory Vault 左栏「Automatic memory · synthetic preview」。
+- 浏览器 Memory 预览：五工作区二级导航；记忆下有 grid 和旧 Vault 主人审阅兼容列表。`?auto-dataset=empty|held|open-ended|source-missing|unknown-result|read-only` 选择自动记忆状态，`auto-workspace` 选择工作区。
+- 旧 Vault 整屏状态：`?vault-dataset=empty|candidates|original`，仅浏览器、模块加载时选择；页面内可恢复原始样本。原生入口忽略这些参数。
 
 ## 文件地图（只列界面层）
 
