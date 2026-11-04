@@ -1342,8 +1342,6 @@ const dict: Record<string, string> = {
   "The trace is drawn once on Home and the time map glides for 320 ms. Reduced makes both instant.": "首页的笔迹只画一次，时间小地图滑动 320 毫秒。选“减少”则两者都瞬间完成。",
   "Language": "语言",
   "The interface language. Memories and sessions keep the language they were written in.": "界面的语言。记忆和会话保持它们原本的语言。",
-  "Tile Blue when the system is dark, Xuan Paper when it is light.": "系统为深色时用黛蓝，浅色时用宣纸。",
-  "Negative": "负片",
   "Location": "位置",
   "Not configured · Vault adapter pending": "未配置 · 记忆库适配器待做",
   "Identity files": "身份文件",
@@ -1699,5 +1697,6 @@ const dict: Record<string, string> = {
   "Retrieval and ranking": "检索与排名",
   "Budget and completeness": "预算与完整性",
   "No records here yet.": "这里还没有记录。",
+  "Follows the system unless you choose one: Tile Blue when it is dark, Xuan Paper when it is light. Kept on this device only.": "默认跟随系统，也可以固定一种：系统为深色时用黛蓝，浅色时用宣纸。只保存在这台设备上。",
 };
 export default dict;
