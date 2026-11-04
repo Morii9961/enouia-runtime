@@ -12,15 +12,16 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 | Contract | workspace IPC v1 (`schemaVersion: 1`, 58 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
-Current adoption (2026-10-25): the integrated Memory revision `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327` is merged through [Memory #55](https://github.com/Morii9961/enouia-memory/pull/55). It preserves all 58 Workspace v1 commands and current history consumers while adding the separate opt-in Core-8 synthetic capability. See [integrated evidence](validation/Core8-main-integration-2026-10-25.md); personal libraries, real model quality and production cutover remain separate activation gates.
+Current branch adoption (2026-11-03): Memory revision `0d338f12f51a859363e0725071bcf43874b492c7`, merged through [Memory #82](https://github.com/Morii9961/enouia-memory/pull/82), preserves all 58 Workspace v1 commands and the existing opt-in Core-8 synthetic reader. See [pin compatibility evidence](validation/Memory-pin-0d338f1-2026-11-03.md). The pin makes newer Core APIs available; Runtime's segmented read-2 entry is a separate integration slice. Personal libraries, real model quality and production cutover remain separate activation gates.
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
 
 ## Core-8 synthetic native capability
 
-[ADR-037](adr/037-synthetic-native-memory-adoption.md) consumes Memory Core-7
+[ADR-037](adr/037-synthetic-native-memory-adoption.md) originally consumed Memory Core-7
 `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327` with surface aggregate
 `01cfc998a6707897b1956ef31248dbd44102578440ff558095ab5566917f5b82`.
+That original evidence remains in [the Core-8 report](validation/Core8-main-integration-2026-10-25.md); the current pin and compatibility rerun are recorded above.
 The default workspace channel remains schema 1. A matching Git revision does
 not make that channel a V2 Vault reader.
 
@@ -288,7 +289,7 @@ The combined release passes 101/101 default native checks plus the focused confi
 ## Bumping the pin
 
 1. Read the new rows in Memory's compatibility log, `docs/integration/RUNTIME.md`. Review `git log <old>..<new> -- crates contracts apps/workspace` in the Memory repository.
-2. Set `rev` for all three Memory dependencies in `apps/desktop/src-tauri/Cargo.toml` to the new full SHA. If Memory changed an exact workspace pin (for example `serde_json`), align the desktop's own exact pin with it.
+2. Set `rev` for all five Memory dependencies in `apps/desktop/src-tauri/Cargo.toml` to the new full SHA. If Memory changed an exact workspace pin (for example `serde_json`), align the desktop's own exact pin with it.
 3. In `Cargo.lock`, replace the old revision with the new one on the Memory `source` lines only. Then run `cargo fetch --locked` online and `cargo metadata --offline --locked`. If Memory's manifests changed its dependencies, `--locked` fails. Only then run `cargo update -p enouia-memory-workspace -p enouia-memory-contract`, and revert any re-resolution of unrelated packages. That command can also move sibling edges (for example `syn`, `windows-sys`).
 4. Update `docs/integration/memory-pin.json`: the revision, the Memory surface aggregate, `contract` (schema version and command count) and the date.
 5. Adapt the adapter and the surfaces to what the log asks for. Keep `WRITES` equal to the contract.
