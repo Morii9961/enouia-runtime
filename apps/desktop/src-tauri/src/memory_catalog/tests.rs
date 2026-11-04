@@ -2,6 +2,41 @@ use super::*;
 fn packet(query: Value) -> Value {
     json!({"schema_version":2,"capability":"memory-native-read-2","query":query})
 }
+#[test]
+fn status_reauthorizes_when_policy_expires_without_a_new_commit() {
+    const NOW: i64 = 1_793_664_000_000;
+    let clock = Arc::new(enouia_memory_contract::foundation::FakeClock::new(NOW));
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| fixture::create_with_clock(stop, clock.clone()))
+        .unwrap();
+    let before = native
+        .call("main", &packet(json!({"operation":"status"})))
+        .unwrap();
+    let first = native
+        .call("main", &page(CatalogFilter::default(), Value::Null))
+        .unwrap();
+    clock.set(NOW + 3_600_001);
+    let after = native
+        .call("main", &packet(json!({"operation":"status"})))
+        .unwrap();
+    assert_eq!(
+        before["selection"]["snapshot"],
+        after["selection"]["snapshot"]
+    );
+    assert_ne!(
+        before["selection"]["scope_hash"],
+        after["selection"]["scope_hash"]
+    );
+    assert_eq!(
+        native
+            .call("main", &page(CatalogFilter::default(), Value::Null))
+            .unwrap()["matched_in_scope"],
+        0
+    );
+    assert!(native.call("main", &packet(json!({"operation":"stats","filter":CatalogFilter::default(),"selection":first["selection"]}))).is_err());
+    native.shutdown();
+}
 fn page(filter: CatalogFilter, cursor: Value) -> Value {
     packet(json!({"operation":"page","filter":filter,"cursor":cursor,"limit":1}))
 }

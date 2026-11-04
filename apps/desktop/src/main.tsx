@@ -34,7 +34,7 @@ class SurfaceBoundary extends React.Component<React.PropsWithChildren> {
     return this.state.failed ? (
       <main className="surface-error" role="alert">
         <h1>{t("This surface could not open.")}</h1>
-        <p>Reload to return Home. Fictional demo changes are cleared; Memory data stays in its Vault.</p>
+        <p>{t("Reload to return Home. Fictional demo changes are cleared; Memory data stays in its Vault.")}</p>
         <button onClick={() => location.reload()}>{t("Reload")}</button>
       </main>
     ) : this.props.children;

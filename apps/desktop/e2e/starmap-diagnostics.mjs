@@ -1,6 +1,6 @@
 // Isolated, fictional browser diagnostics for UI v2 issue #24. No native IPC.
 // Probes temporarily omit drawing operations to locate cost; they are NOT visual fixes.
-// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes | --context]
+// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes | --context | --trace]
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -51,8 +51,12 @@ try {
   const target = targets.find(target => target.type === 'page' && target.url === 'about:blank');
   if (!target?.webSocketDebuggerUrl?.startsWith(`ws://127.0.0.1:${port}/`)) throw Error('Owned blank page unavailable');
   ws = new WebSocket(target.webSocketDebuggerUrl);
+  const traceEvents = [];
+  let traceDone = null;
   ws.onmessage = event => {
     const packet = JSON.parse(event.data), waiter = pending.get(packet.id);
+    if (packet.method === 'Tracing.dataCollected') traceEvents.push(...packet.params.value);
+    if (packet.method === 'Tracing.tracingComplete') traceDone?.();
     if (!waiter) return;
     pending.delete(packet.id); clearTimeout(waiter.timer);
     if (packet.error) waiter.reject(Error(packet.error.message)); else waiter.resolve(packet.result);
@@ -63,7 +67,103 @@ try {
   };
   await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1.5, mobile: false });
-  if(process.argv.includes('--context')){
+  if(process.argv.includes('--trace')){
+    // Where the time between draws goes: per-thread top-level busy time from a CDP trace,
+    // plus the browser's own GPU feature report (is canvas raster hardware or software here?).
+    const browserWs = new WebSocket(version.webSocketDebuggerUrl);
+    await new Promise((resolve, reject) => { browserWs.onopen = resolve; browserWs.onerror = reject; });
+    const gpu = await new Promise((resolve, reject) => {
+      browserWs.onmessage = event => { const packet = JSON.parse(event.data); if (packet.id === 1) packet.error ? reject(Error(packet.error.message)) : resolve(packet.result.gpu); };
+      browserWs.send(JSON.stringify({ id: 1, method: 'SystemInfo.getInfo' }));
+    });
+    browserWs.close();
+    const features = gpu.featureStatus ?? {};
+    await send('Page.navigate', { url: origin + '/starmap.html?lang=en&theme=dark' });
+    await until(() => evaluate('Boolean(document.querySelector(".sm-canvas[data-ready]"))'));
+    await evaluate('document.fonts.ready.then(()=>true)');
+    await evaluate(`(() => {
+      const p=window.__starDiagnostic={times:[],draws:[],ops:{},mode:'baseline'};
+      const ctx=document.querySelector('.sm-canvas').getContext('2d'),o={};
+      // Counts the product's own calls. In batched_fills, consecutive single-arc fills of one style
+      // share a path and one fill: a probe that changes overlap order, never a product change.
+      let pending=null,arcOnly=false;
+      const alpha=()=>p.mode==='batched_fills_q16'?Math.round(ctx.globalAlpha*16)/16:ctx.globalAlpha;
+      const key=()=>ctx.fillStyle+'|'+alpha()+'|'+ctx.globalCompositeOperation;
+      const flush=()=>{
+        if(!pending)return;
+        const current=[ctx.fillStyle,ctx.globalAlpha,ctx.globalCompositeOperation];
+        [ctx.fillStyle,ctx.globalAlpha,ctx.globalCompositeOperation]=pending.style;o.fill();p.issuedFills=(p.issuedFills??0)+1;
+        [ctx.fillStyle,ctx.globalAlpha,ctx.globalCompositeOperation]=current;pending=null;o.beginPath();
+      };
+      const names=['drawImage','fill','stroke','arc','moveTo','lineTo','beginPath','fillRect','fillText','setLineDash','save','restore'];
+      for(const name of names){
+        const original=ctx[name];o[name]=(...args)=>original.apply(ctx,args);
+        ctx[name]=function(...args){
+          p.ops[name]=(p.ops[name]??0)+1;
+          if(p.mode==='blank_main_canvas')return;
+          if(name==='setLineDash')p.dashed=args[0].length>0;
+          if(p.mode==='no_dashed_strokes'&&name==='stroke'&&p.dashed)return;
+          if(p.mode==='no_star_fills'&&name==='beginPath')arcOnly=true;
+          if(p.mode==='no_star_fills'&&name==='fill'&&!args.length&&arcOnly)return;
+          if(p.mode==='no_star_fills'&&name!=='arc')arcOnly=name==='beginPath';
+          if(!p.mode.startsWith('batched_fills')){if(name==='fill')p.issuedFills=(p.issuedFills??0)+1;return original.apply(this,args);}
+          if(name==='beginPath'){if(pending)return;arcOnly=true;return original.apply(this,args);}
+          if(name==='arc'){
+            if(pending&&pending.key!==key())flush();
+            if(pending)o.moveTo(args[0]+args[2],args[1]);
+            return original.apply(this,args);
+          }
+          if(name==='fill'&&!args.length&&arcOnly){if(!pending)pending={key:key(),style:[ctx.fillStyle,alpha(),ctx.globalCompositeOperation]};return;}
+          flush();arcOnly=false;if(name==='fill')p.issuedFills=(p.issuedFills??0)+1;return original.apply(this,args);
+        };
+      }
+      window.__starPerf.draws.push=function(value){flush();p.times.push(performance.now());p.draws.push(value);return Array.prototype.push.call(this,value);};
+    })()`);
+    const rows = [];
+    for (const [layout, mode] of [['Sphere', 'baseline'], ['Sphere', 'batched_fills'], ['Sphere', 'batched_fills_q16'], ['Sphere', 'no_star_fills'], ['Sphere', 'blank_main_canvas'], ['Sphere', 'no_dashed_strokes'], ['Sphere', 'baseline'],
+      ['Theme clusters', 'baseline'], ['Theme clusters', 'batched_fills'], ['Theme clusters', 'batched_fills_q16'], ['Theme clusters', 'no_star_fills'], ['Theme clusters', 'blank_main_canvas'], ['Theme clusters', 'no_dashed_strokes'], ['Theme clusters', 'baseline']]) {
+      await evaluate(`(() => {
+        [...document.querySelectorAll('.sm-size button')].find(b=>b.textContent.replaceAll(',','')==='5000').click();
+        [...document.querySelectorAll('[aria-label="Star map layout"] button')].find(b=>b.textContent==='${layout}').click();
+      })()`);
+      await until(() => evaluate(`document.querySelector('.sm-canvas')?.dataset.ready==='5000:${layout === 'Sphere' ? 'sphere' : 'clusters'}'`));
+      await evaluate(`window.__starDiagnostic.mode=${JSON.stringify(mode)}`);
+      await sleep(1200);
+      traceEvents.length = 0;
+      await evaluate('(()=>{const p=window.__starDiagnostic;p.times=[];p.draws=[];p.ops={};p.issuedFills=0;})()');
+      await send('Tracing.start', { transferMode: 'ReportEvents', traceConfig: { recordMode: 'recordAsMuchAsPossible',
+        includedCategories: ['devtools.timeline', 'disabled-by-default-devtools.timeline', 'disabled-by-default-devtools.timeline.frame', 'blink', 'cc', 'gpu', 'viz', 'toplevel'] } });
+      const started = Date.now();
+      await sleep(6000);
+      const done = new Promise(resolve => { traceDone = resolve; });
+      await send('Tracing.end'); await done;
+      const wall = (Date.now() - started) * 1000;
+      const page = await evaluate(`(() => {
+        const p=window.__starDiagnostic,summary=a=>{const s=a.slice().sort((x,y)=>x-y);return {n:s.length,median:s[Math.floor(s.length/2)]??null};};
+        return {hidden:document.hidden,draw:summary(p.draws),interval:summary(p.times.slice(1).map((t,i)=>t-p.times[i])),
+          opsPerDraw:Object.fromEntries(Object.entries(p.ops).map(([k,v])=>[k,Math.round(v/Math.max(1,p.draws.length))])),
+          issuedFillsPerDraw:Math.round(p.issuedFills/Math.max(1,p.draws.length))};
+      })()`);
+      if (page.hidden || page.draw.n === 0) throw Error('Hidden or empty trace sample');
+      const names = new Map();
+      for (const e of traceEvents) if (e.ph === 'M' && e.name === 'thread_name') names.set(`${e.pid}:${e.tid}`, e.args.name);
+      const complete = traceEvents.filter(e => e.ph === 'X' && e.dur > 0).sort((a, b) => a.ts - b.ts);
+      const threads = {}, events = {}, ends = new Map();
+      for (const e of complete) {
+        const key = `${e.pid}:${e.tid}`, thread = names.get(key) ?? 'unnamed';
+        events[e.name] = (events[e.name] ?? 0) + e.dur;
+        if (e.ts >= (ends.get(key) ?? 0)) { threads[thread] = (threads[thread] ?? 0) + e.dur; ends.set(key, e.ts + e.dur); }
+      }
+      const share = Object.fromEntries(Object.entries(threads).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => [k, +(v / wall).toFixed(3)]));
+      const top = Object.entries(events).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([k, v]) => [k, +(v / 1000).toFixed(1)]);
+      const row = { layout, n: 5000, mode, ...page, traceEvents: traceEvents.length, threadBusyShare: share, topEventsMs: top };
+      rows.push(row); console.log(JSON.stringify(row));
+      writeFileSync(join(out, 'report.json'), JSON.stringify({ browser: version.Browser,
+        gpu: { features, devices: (gpu.devices ?? []).map(d => d.deviceString), driverBugWorkarounds: (gpu.driverBugWorkarounds ?? []).length },
+        scope: 'Fictional headless page. baseline = unmodified product drawing; batched_fills merges consecutive same-style single-arc fills; batched_fills_q16 also rounds alpha to 1/16 first (both change pixels and overlap order, probe only); no_star_fills skips single-arc star fills to bound their share; blank_main_canvas skips every counted call on the main canvas (labels via strokeText still draw); no_dashed_strokes skips strokes while a line dash is set (the theme links). Thread shares are top-level trace event time over the trace wall time; nested events are not double counted per thread. Draw intervals are not presentation timestamps.', rows }, null, 2));
+    }
+    console.log(JSON.stringify({ gpuFeatures: features }));
+  }else if(process.argv.includes('--context')){
     await send('Page.enable');
     const rows=[];
     for(const [run,alpha] of [true,false,true].entries()){

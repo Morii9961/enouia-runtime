@@ -1,0 +1,1360 @@
+{
+  "browser": "Edg/156.0.4314.58",
+  "gpu": {
+    "features": {
+      "2d_canvas": "enabled",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "enabled",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "enabled_on",
+      "rasterization": "enabled",
+      "raw_draw": "disabled_off_ok",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "enabled",
+      "video_encode": "enabled",
+      "webgl": "enabled",
+      "webgpu": "enabled",
+      "webnn": "disabled_off"
+    },
+    "devices": [
+      "NVIDIA GeForce RTX 4080 Laptop GPU",
+      "NVIDIA GeForce RTX 4080 Laptop GPU",
+      "Microsoft Basic Render Driver"
+    ],
+    "driverBugWorkarounds": 7
+  },
+  "scope": "Fictional headless page. baseline = unmodified product drawing; batched_fills merges consecutive same-style single-arc fills; batched_fills_q16 also rounds alpha to 1/16 first (both change pixels and overlap order, probe only); no_star_fills skips single-arc star fills to bound their share; blank_main_canvas skips every counted call on the main canvas (labels via strokeText still draw); no_dashed_strokes skips strokes while a line dash is set (the theme links). Thread shares are top-level trace event time over the trace wall time; nested events are not double counted per thread. Draw intervals are not presentation timestamps.",
+  "rows": [
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "baseline",
+      "hidden": false,
+      "draw": {
+        "n": 20,
+        "median": 72
+      },
+      "interval": {
+        "n": 19,
+        "median": 495.7000000476837
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "setLineDash": 4,
+        "beginPath": 5002,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 4999,
+        "fill": 4063,
+        "drawImage": 4381
+      },
+      "issuedFillsPerDraw": 4063,
+      "traceEvents": 110392,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.753,
+        "ThreadPoolForegroundWorker": 0.664,
+        "CrGpuMain": 0.662,
+        "CrRendererMain": 0.129,
+        "ThreadPoolBackgroundWorker": 0.058,
+        "CrBrowserMain": 0.048,
+        "Chrome_IOThread": 0.008,
+        "VizCompositorThread": 0.006
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          19070.9
+        ],
+        [
+          "RunTask",
+          13195.6
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          13136
+        ],
+        [
+          "ThreadPool_RunTask",
+          5989.9
+        ],
+        [
+          "Scheduler::RunTask",
+          5410.7
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5402.6
+        ],
+        [
+          "GPUTask",
+          5402
+        ],
+        [
+          "CommandBuffer::Flush",
+          5400.5
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5400.4
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5399.9
+        ],
+        [
+          "RendererMainThread",
+          5348.1
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5065.9
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5065.3
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          1047.3
+        ]
+      ]
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "batched_fills",
+      "hidden": false,
+      "draw": {
+        "n": 14,
+        "median": 113.19999998807907
+      },
+      "interval": {
+        "n": 13,
+        "median": 518.8000000119209
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "setLineDash": 4,
+        "beginPath": 5002,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 4999,
+        "fill": 4063,
+        "drawImage": 4380
+      },
+      "issuedFillsPerDraw": 4063,
+      "traceEvents": 74380,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.811,
+        "CrGpuMain": 0.784,
+        "CrRendererMain": 0.18,
+        "ThreadPoolForegroundWorker": 0.038,
+        "ThreadPoolBackgroundWorker": 0.017,
+        "VizCompositorThread": 0.005,
+        "CrBrowserMain": 0.003,
+        "Compositor": 0.003
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          13556.3
+        ],
+        [
+          "RunTask",
+          13203.4
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          13175.9
+        ],
+        [
+          "Scheduler::RunTask",
+          5761.7
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5755.8
+        ],
+        [
+          "GPUTask",
+          5755.7
+        ],
+        [
+          "RendererMainThread",
+          5755.5
+        ],
+        [
+          "CommandBuffer::Flush",
+          5755.4
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5755.4
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5755.2
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5435.1
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5434.4
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          1324.9
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          1281.9
+        ]
+      ]
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "batched_fills_q16",
+      "hidden": false,
+      "draw": {
+        "n": 14,
+        "median": 111.5
+      },
+      "interval": {
+        "n": 13,
+        "median": 514.8999999761581
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "setLineDash": 4,
+        "beginPath": 5002,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 4999,
+        "fill": 4063,
+        "drawImage": 4379
+      },
+      "issuedFillsPerDraw": 3981,
+      "traceEvents": 75993,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.815,
+        "CrGpuMain": 0.789,
+        "CrRendererMain": 0.177,
+        "ThreadPoolBackgroundWorker": 0.017,
+        "ThreadPoolForegroundWorker": 0.015,
+        "VizCompositorThread": 0.005,
+        "Compositor": 0.003,
+        "CrBrowserMain": 0.002
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          13418.7
+        ],
+        [
+          "RunTask",
+          13232.2
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          13202.7
+        ],
+        [
+          "Scheduler::RunTask",
+          5746.5
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5739.2
+        ],
+        [
+          "GPUTask",
+          5739.1
+        ],
+        [
+          "RendererMainThread",
+          5738.8
+        ],
+        [
+          "CommandBuffer::Flush",
+          5738.7
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5738.7
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5738.5
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5393
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5392.3
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          1305.3
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          1263
+        ]
+      ]
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "no_star_fills",
+      "hidden": false,
+      "draw": {
+        "n": 15,
+        "median": 72.69999998807907
+      },
+      "interval": {
+        "n": 14,
+        "median": 510.89999997615814
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "setLineDash": 4,
+        "beginPath": 5002,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 4999,
+        "fill": 4063,
+        "drawImage": 4381
+      },
+      "issuedFillsPerDraw": 0,
+      "traceEvents": 76949,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.805,
+        "CrGpuMain": 0.746,
+        "CrRendererMain": 0.128,
+        "ThreadPoolBackgroundWorker": 0.026,
+        "VizCompositorThread": 0.005,
+        "Compositor": 0.003,
+        "ThreadPoolForegroundWorker": 0.003,
+        "Chrome_IOThread": 0.002
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          12737.7
+        ],
+        [
+          "RunTask",
+          12579.6
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          12552.3
+        ],
+        [
+          "Scheduler::RunTask",
+          5537.2
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5531
+        ],
+        [
+          "GPUTask",
+          5530.9
+        ],
+        [
+          "RendererMainThread",
+          5530.7
+        ],
+        [
+          "CommandBuffer::Flush",
+          5530.6
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5530.6
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5530.4
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5435.2
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5434.6
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          946.7
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          912.2
+        ]
+      ]
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "blank_main_canvas",
+      "hidden": false,
+      "draw": {
+        "n": 336,
+        "median": 10.800000011920929
+      },
+      "interval": {
+        "n": 335,
+        "median": 33.39999997615814
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "setLineDash": 4,
+        "beginPath": 5002,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 4999,
+        "fill": 4063,
+        "drawImage": 4372
+      },
+      "issuedFillsPerDraw": 0,
+      "traceEvents": 198735,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.536,
+        "ThreadPoolForegroundWorker": 0.292,
+        "CrRendererMain": 0.255,
+        "Compositor": 0.037,
+        "ThreadPoolBackgroundWorker": 0.023,
+        "VizCompositorThread": 0.015,
+        "Chrome_IOThread": 0.008,
+        "Chrome_ChildIOThread": 0.007
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          12714.9
+        ],
+        [
+          "RunTask",
+          9359.1
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          9266.1
+        ],
+        [
+          "ThreadPool_RunTask",
+          3536.5
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          2740.3
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          2458.1
+        ],
+        [
+          "Blink.Animate.UpdateTime",
+          2447.1
+        ],
+        [
+          "PageAnimator::serviceScriptedAnimations",
+          2439.9
+        ],
+        [
+          "FrameRequestCallbackCollection::ExecuteFrameCallbacks",
+          2407.2
+        ],
+        [
+          "FireAnimationFrame",
+          2402.7
+        ],
+        [
+          "AsyncTask Run",
+          2394.2
+        ],
+        [
+          "FunctionCall",
+          2360.5
+        ],
+        [
+          "SimpleWatcher::OnHandleReady",
+          1046.5
+        ],
+        [
+          "Receive mojo message",
+          717.1
+        ]
+      ]
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "no_dashed_strokes",
+      "hidden": false,
+      "draw": {
+        "n": 96,
+        "median": 68.69999998807907
+      },
+      "interval": {
+        "n": 95,
+        "median": 117.39999997615814
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "setLineDash": 4,
+        "beginPath": 5002,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 4999,
+        "fill": 4063,
+        "drawImage": 4375
+      },
+      "issuedFillsPerDraw": 4063,
+      "traceEvents": 284460,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.538,
+        "CrGpuMain": 0.532,
+        "CrRendererMain": 0.363,
+        "ThreadPoolForegroundWorker": 0.058,
+        "Compositor": 0.009,
+        "ThreadPoolBackgroundWorker": 0.008,
+        "VizCompositorThread": 0.007,
+        "CrBrowserMain": 0.006
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          16969.2
+        ],
+        [
+          "RunTask",
+          16314.3
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          16268.2
+        ],
+        [
+          "Scheduler::RunTask",
+          5961.3
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5936.3
+        ],
+        [
+          "GPUTask",
+          5935.8
+        ],
+        [
+          "RendererMainThread",
+          5935
+        ],
+        [
+          "CommandBuffer::Flush",
+          5934.8
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5934.6
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5934.1
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          4461.9
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          4460.8
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          4017.9
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          3831.2
+        ]
+      ]
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "baseline",
+      "hidden": false,
+      "draw": {
+        "n": 14,
+        "median": 72.69999998807907
+      },
+      "interval": {
+        "n": 13,
+        "median": 512.2999999523163
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "setLineDash": 4,
+        "beginPath": 5002,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 4999,
+        "fill": 4063,
+        "drawImage": 4374
+      },
+      "issuedFillsPerDraw": 4063,
+      "traceEvents": 75189,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.809,
+        "CrGpuMain": 0.7,
+        "CrRendererMain": 0.122,
+        "ThreadPoolForegroundWorker": 0.015,
+        "CrBrowserMain": 0.008,
+        "VizCompositorThread": 0.006,
+        "ThreadPoolBackgroundWorker": 0.004,
+        "Compositor": 0.003
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          12299.3
+        ],
+        [
+          "RunTask",
+          12214.3
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          12182.8
+        ],
+        [
+          "Scheduler::RunTask",
+          5153.4
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5146.1
+        ],
+        [
+          "GPUTask",
+          5145.6
+        ],
+        [
+          "CommandBuffer::Flush",
+          5144.5
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5144.4
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5144.2
+        ],
+        [
+          "RendererMainThread",
+          5131.4
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          4854.5
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          4854
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          899.7
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          856.1
+        ]
+      ]
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "baseline",
+      "hidden": false,
+      "draw": {
+        "n": 21,
+        "median": 9.5
+      },
+      "interval": {
+        "n": 20,
+        "median": 355.7000000476837
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "fillText": 8,
+        "setLineDash": 4,
+        "beginPath": 5003,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 5000,
+        "fill": 4064
+      },
+      "issuedFillsPerDraw": 4064,
+      "traceEvents": 37432,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.856,
+        "CrGpuMain": 0.79,
+        "ThreadPoolForegroundWorker": 0.072,
+        "CrRendererMain": 0.038,
+        "VizCompositorThread": 0.006,
+        "Compositor": 0.006,
+        "CrBrowserMain": 0.003,
+        "ThreadPoolBackgroundWorker": 0.003
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          12370.7
+        ],
+        [
+          "RunTask",
+          11904.5
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          11873.6
+        ],
+        [
+          "Scheduler::RunTask",
+          5519
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5510.5
+        ],
+        [
+          "GPUTask",
+          5510.4
+        ],
+        [
+          "CommandBuffer::Flush",
+          5509.4
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5509.3
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5509
+        ],
+        [
+          "RendererMainThread",
+          5489
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5438
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5437.6
+        ],
+        [
+          "ThreadPool_RunTask",
+          530.6
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          254.2
+        ]
+      ]
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "batched_fills",
+      "hidden": false,
+      "draw": {
+        "n": 19,
+        "median": 44.39999997615814
+      },
+      "interval": {
+        "n": 18,
+        "median": 390.19999998807907
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "fillText": 8,
+        "setLineDash": 4,
+        "beginPath": 5003,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 5000,
+        "fill": 4064
+      },
+      "issuedFillsPerDraw": 4064,
+      "traceEvents": 35768,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.86,
+        "CrGpuMain": 0.823,
+        "CrRendererMain": 0.116,
+        "ThreadPoolForegroundWorker": 0.018,
+        "VizCompositorThread": 0.006,
+        "ThreadPoolBackgroundWorker": 0.006,
+        "Compositor": 0.006,
+        "CrBrowserMain": 0.003
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          12760.6
+        ],
+        [
+          "RunTask",
+          12646.8
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          12618.5
+        ],
+        [
+          "Scheduler::RunTask",
+          5725.1
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5716.3
+        ],
+        [
+          "GPUTask",
+          5716
+        ],
+        [
+          "RendererMainThread",
+          5715.7
+        ],
+        [
+          "CommandBuffer::Flush",
+          5715.6
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5715.6
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5715.4
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5653.3
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5652.8
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          802.1
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          780.5
+        ]
+      ]
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "batched_fills_q16",
+      "hidden": false,
+      "draw": {
+        "n": 16,
+        "median": 44.299999952316284
+      },
+      "interval": {
+        "n": 15,
+        "median": 422.7999999523163
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "fillText": 8,
+        "setLineDash": 4,
+        "beginPath": 5003,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 5000,
+        "fill": 4064
+      },
+      "issuedFillsPerDraw": 3657,
+      "traceEvents": 29384,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.888,
+        "CrGpuMain": 0.82,
+        "CrRendererMain": 0.102,
+        "ThreadPoolForegroundWorker": 0.014,
+        "VizCompositorThread": 0.006,
+        "Compositor": 0.004,
+        "CrBrowserMain": 0.003,
+        "ThreadPoolBackgroundWorker": 0.002
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          12351.5
+        ],
+        [
+          "RunTask",
+          12304
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          12274.6
+        ],
+        [
+          "Scheduler::RunTask",
+          5508.1
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5500.7
+        ],
+        [
+          "GPUTask",
+          5500.6
+        ],
+        [
+          "RendererMainThread",
+          5500.3
+        ],
+        [
+          "CommandBuffer::Flush",
+          5500.3
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5500.2
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5500
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5349.6
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5349.1
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          678.2
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          656.1
+        ]
+      ]
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "no_star_fills",
+      "hidden": false,
+      "draw": {
+        "n": 19,
+        "median": 8.199999988079071
+      },
+      "interval": {
+        "n": 18,
+        "median": 366.39999997615814
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "fillText": 8,
+        "setLineDash": 4,
+        "beginPath": 5003,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 5000,
+        "fill": 4064
+      },
+      "issuedFillsPerDraw": 0,
+      "traceEvents": 34645,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.867,
+        "CrGpuMain": 0.801,
+        "CrRendererMain": 0.029,
+        "ThreadPoolForegroundWorker": 0.012,
+        "VizCompositorThread": 0.006,
+        "Compositor": 0.006,
+        "ThreadPoolBackgroundWorker": 0.006,
+        "CrBrowserMain": 0.002
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          11930.1
+        ],
+        [
+          "RunTask",
+          11866
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          11837.1
+        ],
+        [
+          "Scheduler::RunTask",
+          5535.7
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5525.7
+        ],
+        [
+          "GPUTask",
+          5525.6
+        ],
+        [
+          "RendererMainThread",
+          5525.3
+        ],
+        [
+          "CommandBuffer::Flush",
+          5525.2
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5525.2
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5525
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5511.4
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5510.8
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          193
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          178.9
+        ]
+      ]
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "blank_main_canvas",
+      "hidden": false,
+      "draw": {
+        "n": 384,
+        "median": 4.5
+      },
+      "interval": {
+        "n": 383,
+        "median": 33.30000001192093
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "fillText": 8,
+        "setLineDash": 4,
+        "beginPath": 5003,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 5000,
+        "fill": 4064
+      },
+      "issuedFillsPerDraw": 0,
+      "traceEvents": 280875,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.47,
+        "CrRendererMain": 0.16,
+        "Compositor": 0.048,
+        "VizCompositorThread": 0.024,
+        "CrGpuMain": 0.014,
+        "Chrome_ChildIOThread": 0.009,
+        "ThreadPoolForegroundWorker": 0.009,
+        "ThreadPoolSingleThreadForegroundBlocking": 0.005
+      },
+      "topEventsMs": [
+        [
+          "RunTask",
+          9089.9
+        ],
+        [
+          "Edge_RunTask",
+          9077
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          8963.9
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          1923.2
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          1516.3
+        ],
+        [
+          "Blink.Animate.UpdateTime",
+          1503.1
+        ],
+        [
+          "PageAnimator::serviceScriptedAnimations",
+          1494.6
+        ],
+        [
+          "FrameRequestCallbackCollection::ExecuteFrameCallbacks",
+          1454.4
+        ],
+        [
+          "FireAnimationFrame",
+          1448.6
+        ],
+        [
+          "AsyncTask Run",
+          1438.1
+        ],
+        [
+          "FunctionCall",
+          1396
+        ],
+        [
+          "Graphics.Pipeline",
+          419.1
+        ],
+        [
+          "IOHandler::OnIOCompleted",
+          259.2
+        ],
+        [
+          "ThreadPool_RunTask",
+          203.8
+        ]
+      ]
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "no_dashed_strokes",
+      "hidden": false,
+      "draw": {
+        "n": 102,
+        "median": 8.699999988079071
+      },
+      "interval": {
+        "n": 101,
+        "median": 79.5
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "fillText": 8,
+        "setLineDash": 4,
+        "beginPath": 5003,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 5000,
+        "fill": 4064
+      },
+      "issuedFillsPerDraw": 4064,
+      "traceEvents": 89656,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.733,
+        "CrGpuMain": 0.609,
+        "CrRendererMain": 0.127,
+        "Compositor": 0.023,
+        "VizCompositorThread": 0.014,
+        "ThreadPoolForegroundWorker": 0.005,
+        "Chrome_ChildIOThread": 0.005,
+        "ThreadPoolBackgroundWorker": 0.003
+      },
+      "topEventsMs": [
+        [
+          "RunTask",
+          12296.5
+        ],
+        [
+          "Edge_RunTask",
+          12275.1
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          12248.6
+        ],
+        [
+          "Scheduler::RunTask",
+          4978.6
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          4945.2
+        ],
+        [
+          "GPUTask",
+          4944.5
+        ],
+        [
+          "RendererMainThread",
+          4942.1
+        ],
+        [
+          "CommandBuffer::Flush",
+          4941.8
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          4941.6
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          4940.7
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          4679.2
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          4678.3
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          1002.7
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          882.5
+        ]
+      ]
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "baseline",
+      "hidden": false,
+      "draw": {
+        "n": 19,
+        "median": 9
+      },
+      "interval": {
+        "n": 18,
+        "median": 367.2999999523163
+      },
+      "opsPerDraw": {
+        "fillRect": 1,
+        "fillText": 8,
+        "setLineDash": 4,
+        "beginPath": 5003,
+        "moveTo": 5766,
+        "lineTo": 5766,
+        "stroke": 939,
+        "arc": 5000,
+        "fill": 4064
+      },
+      "issuedFillsPerDraw": 4064,
+      "traceEvents": 35400,
+      "threadBusyShare": {
+        "GpuVSyncThread": 0.855,
+        "CrGpuMain": 0.75,
+        "CrRendererMain": 0.034,
+        "ThreadPoolForegroundWorker": 0.015,
+        "Compositor": 0.008,
+        "VizCompositorThread": 0.007,
+        "CrBrowserMain": 0.003,
+        "ThreadPoolBackgroundWorker": 0.003
+      },
+      "topEventsMs": [
+        [
+          "Edge_RunTask",
+          11678.4
+        ],
+        [
+          "RunTask",
+          11610.4
+        ],
+        [
+          "ThreadControllerImpl::RunTask",
+          11579.2
+        ],
+        [
+          "Scheduler::RunTask",
+          5257
+        ],
+        [
+          "GpuChannel::ExecuteDeferredRequest",
+          5250.4
+        ],
+        [
+          "GPUTask",
+          5250.2
+        ],
+        [
+          "RendererMainThread",
+          5249.7
+        ],
+        [
+          "CommandBuffer::Flush",
+          5249.7
+        ],
+        [
+          "CommandBufferStub::OnAsyncFlush",
+          5249.6
+        ],
+        [
+          "CommandBufferService:PutChanged",
+          5249.4
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM",
+          5190.7
+        ],
+        [
+          "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+          5190.3
+        ],
+        [
+          "ProxyMain::BeginMainFrame",
+          225.5
+        ],
+        [
+          "WebFrameWidgetImpl::BeginMainFrame",
+          194.4
+        ]
+      ]
+    }
+  ]
+}

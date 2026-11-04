@@ -27,7 +27,7 @@ export default function Formation({ sel, select }: ViewProps) {
     <div className="am-formation">
       <div className="am-view-head">
         <h2 className="am-vh">{t("Formation")} <span>{t("what the system did, newest first")}</span></h2>
-        <p className="am-fine">Read-only. The system takes these steps itself; held and conflicting statements wait for new evidence, not for you. Counts cover this sample only.</p>
+        <p className="am-fine">{t("Read-only. The system takes these steps itself; held and conflicting statements wait for new evidence, not for you. Counts cover this sample only.")}</p>
       </div>
       <ol className="am-pipe" aria-label={t("Formation stages and how many steps in this sample")}>
         {STAGES.map((s) => (
@@ -41,7 +41,7 @@ export default function Formation({ sel, select }: ViewProps) {
       <div className="am-log" role="list" aria-label={t("Formation log")}>
         {days.map((d, di) => (
           <section key={d.key} className="am-day" role="listitem" aria-label={dayHeading(d.at)}>
-            {di > 0 ? (() => { const gap = daysBetween(toMs(d.at), toMs(days[di - 1].at)); return gap >= 2 ? <p className="am-gap"><span>{gap} days between</span></p> : null; })() : null}
+            {di > 0 ? (() => { const gap = daysBetween(toMs(d.at), toMs(days[di - 1].at)); return gap >= 2 ? <p className="am-gap"><span>{t("{n} days between", { n: gap })}</span></p> : null; })() : null}
             <h3 className="am-day-h">{dayHeading(d.at)}</h3>
             <ul>
               {d.rows.map((e, i) => (

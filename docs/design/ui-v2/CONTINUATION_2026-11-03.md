@@ -1,5 +1,7 @@
 # Runtime UI v2 · 2026-11-03 接续
 
+**交接更新**：Morii 已要求收尾后交给 Claude。本 session 已完成 read-2 前端并停止展开新任务；当前工作树、四层草稿 PR 与完整待办以 [Codex → Claude 交接](../../integration/CODEX_TO_CLAUDE_2026-11-03.md) 为准，[新 session 启动提示词](../../prompts/CLAUDE_RUNTIME_RESUME_2026-11-03.md) 已备妥。下表前段为本日较早批次，末段列出后续完成片。
+
 基线为干净的 `main@61715c1`。Morii 已授权按当前路线持续开发、逐项提交并直接联系其他 session 协同。本批在隔离工作树的 `codex/ui-v2-review-continuation` 分支完成并推送，见[草稿 PR #115](https://github.com/Morii9961/enouia-runtime/pull/115)；尚未合入主线。
 
 | 提交 | 切片与证据 |
@@ -19,6 +21,21 @@
 | `25798d9` | [历史四面板独立保留错误跟随语言](../../validation/UI-v2-history-retained-errors-2026-11-03.md) |
 | `b4ca035` | [首片合成 read-2 接线的公开源码与边界评审](../../integration/UI-v2-read2-synthetic-entry-review-2026-11-03.md) |
 | `40948c2` | [记忆详情与本地任务回执保留当前语言](../../validation/UI-v2-detail-task-notices-2026-11-03.md) |
+| `e9ad498` | [Quick Search 保留宿主错误跟随语言](../../validation/UI-v2-quick-search-host-errors-2026-11-03.md) |
+| `9667f8f` | [Shell Settings 操作错误跟随语言](../../validation/UI-v2-shell-settings-error-copy-2026-11-03.md) |
+| `69fffd2` | [OperationWatch 保留原因跟随语言](../../validation/UI-v2-operation-observation-errors-2026-11-03.md) |
+| `e6808fc` | [星图 opaque context 六组诊断及文档身份核对](../../validation/UI-v2-starmap-context-2026-11-03.md) |
+| `bbdea44` | [Memory 精确 pin 兼容性；草稿 PR #116](../../validation/Memory-pin-0d338f1-2026-11-03.md) |
+| `73ca965` | [新根 read-2 原生合成入口；草稿 PR #117](../../validation/UI-v2-read2-native-entry-2026-11-03.md) |
+| `3a5dc33` | [read-2 前端及授权范围观察；草稿 PR #118](../../validation/UI-v2-read2-surface-2026-11-03.md) |
+| `678f475` | [read-2 原生三语 × 双主题 × 最小窗口矩阵、标签越框与 CJK 覆盖修复](../../validation/UI-v2-read2-native-matrix-2026-11-03.md) |
+| `a619013` | [JSX 字面文字、可访问名称及拼接句改为整句翻译，并加解析守卫](../../validation/UI-v2-jsx-literal-copy-2026-11-03.md) |
+| `4ed0b3d` | [`operation-stop-observation` 等终态渲染再断言](../../validation/UI-v2-stop-observation-wait-2026-11-03.md) |
+| `233571b` | [#24 CDP 追踪：GPU 进程光栅为主、虚线主题线约占八成；产品绘制不变](../../validation/UI-v2-starmap-trace-2026-11-03.md) |
+| `0442ff0` | [演示记忆库空分组与无匹配分开说明](../../validation/UI-v2-empty-collection-copy-2026-11-03.md) |
+| `d6d8dd4` | [read-1 合成自动记忆原生三语 × 双主题 × 最小窗口矩阵（共用 smoke 函数）](../../validation/UI-v2-read1-native-matrix-2026-11-03.md) |
+| `139dbd0` | [#24 其他记忆星图参考调研与方案排序](STARMAP_REFERENCES_2026-11-04.md) |
+| （交接） | [Claude → Codex 交接](../../integration/CLAUDE_TO_CODEX_2026-11-04.md)；#115–#118 合并进 `main` |
 
 在 `4b16992` 上运行累计前端门禁：`npm test` 的 Node 部分 134 通过、3 跳过、0 失败；Happy DOM 86 场景、1,346 项断言通过。`npm run build`（含类型检查）通过，主 JS 452.19 kB；Memory pin 与 Activity 退役检查通过。此前各片按受影响范围运行定向检查，没有每片重复全套。保存日志位于忽略的 `apps/desktop/target/ui-v2-continuation/`。
 
@@ -28,8 +45,8 @@
 
 保存文本、JSON、哈希、确认码、状态值及原始 ID 保持原样。三处旧语言提示问题有修复前的失败复现，各片记录了范围。新增语言切换检查不自动发送、重读或写入，原有未知结果、锁定及迟到回执保护继续通过。
 
-没有改 Rust、原生权限、安装包、正式状态快照或 Memory pin；pin 仍为 `bf6bfd1`，Workspace IPC v1 / schema 1 / 58 命令。既有合成自动记忆仍使用独立显式能力，没有采用 Owner 根。所有本批组件证据均为合成 DOM，不能替代 Windows、Provider 或 Morii 验收。
+截至 `e6808fc` 的 PR #115 没有改 Rust、原生权限、安装包、正式状态快照或 Memory pin，当时 pin 为 `bf6bfd1`。后续 #116 更新到 `0d338f12f51a859363e0725071bcf43874b492c7`，#117 新增独立合成原生权限及入口，#118 消费 page + stats；Workspace IPC v1 / schema 1 / 58 命令保持。Owner 根没有采用；后续真实原生合成流程证据见各报告，DOM 与原生证据不代表 Provider 或 Morii 验收。
 
-下一步继续检查当前前端的保存内容、等待/恢复分支。#24 不能靠删主题线或改实线宣称解决；后续需要新的完整绘制链路假设，视觉取舍仍另行确认。Memory session 已明确：新的合成接线应使用新建 segmented 根的 `SegmentedMemoryReader::from_authenticated_system`，首片仅 page + stats；不能复用旧 AutomationHost 根，也不能从 `active_vault` 推导身份或权限。该 API 就绪不代表 Runtime 已更新 pin、创建根或启用读取；Owner、原生与验收边界保留。
+接线已按 Memory session 确认的边界采用新 segmented 根和 `SegmentedMemoryReader::from_authenticated_system`，当前限 page + stats；不能复用旧 AutomationHost 根，也不能从 `active_vault` 推导身份或权限。#24 不能靠删主题线或改实线宣称解决，opaque context 诊断也未证明完整呈现性能；视觉取舍仍另行确认。
 
-下一次接续从本分支最新提交继续，保持每项验证、提交与推送。仍可检查 Quick Search 的独立宿主错误提示；read-2 的具体范围见上表评审。主目录 `main@61715c1` 保留，工作成果位于 PR #115；没有把这些提交写成已合入或人工接受。
+Quick Search 宿主错误已由 `e9ad498` 完成，勿重复。Claude 从 `codex/read2-synthetic-surface` 最新 HEAD 继续，优先参考交接中的新 read-2 前端原生矩阵待办，再处理保存内容、等待/恢复分支。主目录 `main@61715c1` 保留；四层草稿 PR 均未合入，没有把提交或测试写成人工接受。

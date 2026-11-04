@@ -1,7 +1,7 @@
 import React from "react";
 import type { DemoView } from "../App";
 
-import { t } from '../i18n/index.ts';
+import { t, tj } from '../i18n/index.ts';
 export default function Context({ view }: { view: DemoView }) {
   const { ctx, ctxScroll } = view;
   return (
@@ -17,19 +17,19 @@ export default function Context({ view }: { view: DemoView }) {
 </div>
 <div className="qr93">
 <span>
-Capsule{' '}
+{t("Capsule")}{' '}
 <span className="qr91">
 {ctx.capId}
 </span>
 </span>
 <span>
-Compiled{' '}
+{t("Compiled")}{' '}
 <span className="qr92">
 {ctx.at}
 </span>
 </span>
 <span>
-Query{' '}
+{t("Query")}{' '}
 <span className="qr91">
 {t("\"vault adapter rebuild trigger\"")}
 </span>
@@ -46,14 +46,7 @@ Query{' '}
 <div className="bg-scale" aria-hidden="true"><span>0</span><span>1,024</span><span>2,048</span><span>3,072</span><span>{t("4,096 units")}</span></div>
 <div className="qr98">
 <span>
-<span className="qr96">
-2,427
-</span>{' '}
-of{' '}
-<span className="qr97">
-4,096
-</span>{' '}
-units
+{tj("{used} of {total} units", { used: <span className="qr96">2,427</span>, total: <span className="qr97">4,096</span> })}
 </span>
 <span className="qr97">
 {t("utf8_bytes_v1 · 2,171 B + 256 reserve")}
@@ -205,7 +198,7 @@ units
 </React.Fragment>)}
 </div>
 <div className="qr127">
-consumed by mock provider v1 · sha256 {ctx.hash}
+{t("consumed by mock provider v1 · sha256 {hash}", { hash: ctx.hash })}
 </div>
 </div>
 </div>

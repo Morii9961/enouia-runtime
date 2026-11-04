@@ -53,7 +53,7 @@ export function ImportReport({ row, current, selected, vaultId, vaultHead, inspe
         {!Array.isArray(row.warnings) ? <p className="mem-muted">{t("unknown")}</p> : row.warnings.length === 0 ? <p className="mem-muted">{t("No warning codes recorded.")}</p>
           : <ul className="mem-list mem-mono">{row.warnings.map((warning: string, index: number) => <li key={index}>{warning}</li>)}</ul>}
         {row.duplicateOf && <>
-          <p className="mem-mono">Original import: {row.duplicateOf}</p>
+          <p className="mem-mono">{t("Original import: {id}", { id: row.duplicateOf })}</p>
           {inspectOriginal ? <button type="button" className="mem-button" onClick={(event) => {
             const trigger = event.currentTarget;
             const heading = document.getElementById("mem-import-report-title");

@@ -191,7 +191,7 @@ impl NativeCatalog {
         }
         let state = self.0.state.try_lock().map_err(|_| "catalog_busy")?;
         if is_status {
-            return Ok(status(if !self.enabled() {
+            let phase = if !self.enabled() {
                 "disabled"
             } else if state.initializing {
                 "initializing"
@@ -203,7 +203,36 @@ impl NativeCatalog {
                 "open"
             } else {
                 "disabled"
-            }));
+            };
+            let mut view = status(phase);
+            if phase == "open" {
+                let fixture = state.fixture.as_ref().ok_or("catalog_not_enabled")?;
+                let page = fixture
+                    .reader
+                    .memory_page_native(
+                        &CatalogReadRequest {
+                            profile: &fixture.profile,
+                            filter: &CatalogFilter::default(),
+                            options: CatalogReadOptions {
+                                limit: 1,
+                                max_bytes: MAX_DOCUMENT_BYTES,
+                                max_sensitivity: Sensitivity::Private,
+                                include_facets: false,
+                            },
+                        },
+                        None,
+                    )
+                    .map_err(fault)?;
+                if self.0.closing.load(Ordering::SeqCst) {
+                    return Ok(status("closing"));
+                }
+                if self.0.withdrawn.load(Ordering::SeqCst) {
+                    return Ok(status("locked"));
+                }
+                view["selection"] =
+                    serde_json::to_value(page.selection).map_err(|_| "catalog_read_refused")?;
+            }
+            return Ok(view);
         }
         let fixture = state.fixture.as_ref().ok_or("catalog_not_enabled")?;
         if matches!(request.query, CatalogQuery::Unlock) {

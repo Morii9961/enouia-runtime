@@ -1,5 +1,7 @@
 @AGENTS.md
 
+当前接续入口（2026-11-04）：先读 [Claude → Codex 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-04.md)。#115–#118 已合并进 `main`，在 `main` 上开新分支继续；上一轮 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md) 的边界仍然有效。
+
 # Claude Code 补充
 
 - 项目约定、流程和硬规则都在上面导入的 `AGENTS.md`，Codex 也读同一份，改动只改那一处。

@@ -86,7 +86,7 @@ export function ComponentList({ status }: { status: J }) {
         <li key={c.component}>
           <span className="mem-mono">{c.component}</span>
           <span className={`mem-state mem-state-${c.state}`}>{c.state}</span>
-          <span className="mem-muted">{c.mode ?? (c.errorCode ? `error ${c.errorCode}` : "")}{c.watermarkSequence != null ? ` · watermark #${c.watermarkSequence}` : ""}</span>
+          <span className="mem-muted">{c.mode ?? (c.errorCode ? t("error {code}", { code: c.errorCode }) : "")}{c.watermarkSequence != null ? ` · ${t("watermark #{n}", { n: c.watermarkSequence })}` : ""}</span>
         </li>
       ))}
     </ul>

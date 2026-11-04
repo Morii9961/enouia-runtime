@@ -4,6 +4,8 @@
 
 ## 1. 当前接续（2026-11-03）
 
+**最新交接入口为 [Codex → Claude](../../integration/CODEX_TO_CLAUDE_2026-11-03.md)，并已备好 [Claude 启动提示词](../../prompts/CLAUDE_RUNTIME_RESUME_2026-11-03.md)。** Morii 要求本 session 完成手头切片后停止。当前功能基线 `3a5dc33` 位于 `E:\Enouia Runtime\.worktrees\read2-pin-compatibility` 的 `codex/read2-synthetic-surface`；草稿 PR #115 → #116 → #117 → #118 依次叠放，均未合入。Memory 精确 pin 已为 `0d338f1`；新 read-2 合成原生 page + stats 及前端已完成，原生最终 21/21。剩余原生矩阵、星图 #24 和独立人工验收见最新交接。以下段落是较早批次背景，旧 pin 与旧证据只描述当时状态，不作为最新开工指令。
+
 最新十二个前端切片、两片星图诊断及一份 read-2 接线评审已逐项推送至草稿 PR #115。累计门禁在 `4b16992` 上通过：Node 134 / 3 跳过、DOM 86 场景 / 1,346 断言、构建与两项根检查；之后的 Settings、历史错误及详情/任务回执各做定向检查，星图诊断未改产品视觉。尚未合入主线；见 [2026-11-03 接续记录](CONTINUATION_2026-11-03.md)。以下保留此前已合入批次的范围。
 
 续作起点为 PR #112 / `d0208eb`；21 个功能/修复切片（24 个原始提交）及交付记录现已通过 [PR #113](https://github.com/Morii9961/enouia-runtime/pull/113) 合入 main / `a06e042`。原续作分支已归档清理，后续从 main 开始。本轮已经恢复 Home、Sessions、Inspector、Context 的前端结构，并补齐保存行字段与多处动态文案。逐片提交、验证和剩余边界见 [2026-11-02 接续记录](CONTINUATION_2026-11-02.md)。
