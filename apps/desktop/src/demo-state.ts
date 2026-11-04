@@ -1,3 +1,5 @@
+import { msg } from './i18n/index.ts';
+
 /** View fixtures, deliberately separate from canonical Rust/IPC records. */
 export type DemoMemory = {
   key: string;
@@ -25,8 +27,8 @@ export type DemoMemory = {
 
 export function approveDemoCandidate(memories: DemoMemory[], key: string, draft: string | null, at: string): DemoMemory[] {
   const proposal = memories.find(m => m.key === key);
-  if (proposal?.status !== 'candidate') throw new Error('Select a candidate before promoting.');
-  if (draft !== null && !draft.trim()) throw new Error('Enter memory content before promoting.');
+  if (proposal?.status !== 'candidate') throw new Error(msg('Select a candidate before promoting.'));
+  if (draft !== null && !draft.trim()) throw new Error(msg('Enter memory content before promoting.'));
   return memories.map(m => m.key === key ? {
     ...m, status: 'active', originalProposal: { ...m }, reviewed: at, updated: at,
     content: draft ?? m.content, editedInReview: draft !== null && draft !== m.content,
@@ -35,9 +37,9 @@ export function approveDemoCandidate(memories: DemoMemory[], key: string, draft:
 
 export function reviseDemoMemory(memories: DemoMemory[], key: string, draft: string, at: string, revisionKey: string): DemoMemory[] {
   const old = memories.find(m => m.key === key);
-  if (old?.status !== 'active' || old.kind === 'session_checkpoint') throw new Error('Select an editable canonical demo memory.');
-  if (!draft.trim()) throw new Error('Enter memory content before saving.');
-  if (memories.some(m => m.key === revisionKey)) throw new Error('Revision identity already exists. Try again.');
+  if (old?.status !== 'active' || old.kind === 'session_checkpoint') throw new Error(msg('Select an editable canonical demo memory.'));
+  if (!draft.trim()) throw new Error(msg('Enter memory content before saving.'));
+  if (memories.some(m => m.key === revisionKey)) throw new Error(msg('Revision identity already exists. Try again.'));
   const revision: DemoMemory = {
     ...old, key: revisionKey, content: draft, src: { kind: 'manual_save', at },
     created: at, updated: at, reviewed: null, supersedes: key, supersededBy: null,

@@ -1,6 +1,12 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Select a candidate before promoting.": "请先选择候选，再提升。",
+  "Enter memory content before promoting.": "请先输入记忆内容，再提升候选。",
+  "Select an editable canonical demo memory.": "请选择可编辑的正式演示记忆。",
+  "Enter memory content before saving.": "请先输入记忆内容，再保存。",
+  "Revision identity already exists. Try again.": "修订 ID 已存在，请重试。",
+
   "Time": "时间",
   "Connections": "关联",
   "Recall": "召回",

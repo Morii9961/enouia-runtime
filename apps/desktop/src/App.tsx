@@ -145,9 +145,9 @@ export default class App extends React.Component<AppProps, AppState> {
   async copyId(id: string) {
     try {
       await navigator.clipboard.writeText(id);
-      this.setState({ copied: true, notice: t('ID copied.') });
+      this.setState({ copied: true, notice: msg('ID copied.') });
     } catch {
-      this.setState({ copied: false, notice: t('Could not copy. Select the ID and copy it manually.') });
+      this.setState({ copied: false, notice: msg('Could not copy. Select the ID and copy it manually.') });
     }
   }
 
@@ -165,16 +165,16 @@ export default class App extends React.Component<AppProps, AppState> {
     const at = this.now();
     try {
       const mems = approveDemoCandidate(this.mems(), k, editing ? draft : null, at);
-      this.setState({ mems, sel: k, editing: false, collection: 'all', notice: t('Demo approval complete · kept in this window only. Reload clears demo changes.') });
-    } catch (e) { this.setState({ notice: e instanceof Error ? e.message : t('Demo action failed.') }); }
+      this.setState({ mems, sel: k, editing: false, collection: 'all', notice: msg('Demo approval complete · kept in this window only. Reload clears demo changes.') });
+    } catch (e) { this.setState({ notice: e instanceof Error ? e.message : msg('Demo action failed.') }); }
   }
   saveRevision() {
     const at = this.now();
     const nk = 'r' + crypto.randomUUID();
     try {
       const mems = reviseDemoMemory(this.mems(), this.state.sel, this.state.draft, at, nk);
-      this.setState({ mems, sel: nk, editing: false, collection: 'all', notice: t('Demo revision created · previous version retained in this window. Reload clears demo changes.') });
-    } catch (e) { this.setState({ notice: e instanceof Error ? e.message : t('Demo action failed.') }); }
+      this.setState({ mems, sel: nk, editing: false, collection: 'all', notice: msg('Demo revision created · previous version retained in this window. Reload clears demo changes.') });
+    } catch (e) { this.setState({ notice: e instanceof Error ? e.message : msg('Demo action failed.') }); }
   }
 
   renderVals() {
@@ -338,7 +338,7 @@ export default class App extends React.Component<AppProps, AppState> {
       isHome: page === 'home', isMemory: page === 'memory', isContext: page === 'context', isSessions: page === 'sessions', isRuntime: page === 'runtime', isSettings: page === 'settings',
       home: { memoryLine: cands.length ? t('{n} canonical memories, {c} waiting for your review', { n: active.length, c: cands.length }) : t('{n} canonical memories, nothing waiting for review', { n: active.length }), capTime: D.tTime('2026-10-01T06:44:02.318Z'), capShort: D.short(D.CAP), sesTime: D.tTime(D.SESS[0].turns[11][2]), sesShort: D.short(sess('s1').id), cpTime: D.tTime(cp.created), cpShort: D.short(D.ID('mem', 'm7')), openCheckpoint: () => this.openMemory('m7') },
       q: S.q, onQuery: (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ q: e.target.value }), collections, colTitle, colCount: tn(visible.length, '{n} record', '{n} records'), groups, timelineEmpty: !visible.length,
-      sel, hasSel: !!sel, noSel: !sel, act, editing: S.editing, notEditing: !S.editing, draft: S.draft, onDraft: (e: React.ChangeEvent<HTMLTextAreaElement>) => this.setState({ draft: e.target.value }), notice: S.notice, hasNotice: !!S.notice, copyLabel: S.copied ? t('Copied') : t('Copy ID'),
+      sel, hasSel: !!sel, noSel: !sel, act, editing: S.editing, notEditing: !S.editing, draft: S.draft, onDraft: (e: React.ChangeEvent<HTMLTextAreaElement>) => this.setState({ draft: e.target.value }), notice: t(S.notice), hasNotice: !!S.notice, copyLabel: S.copied ? t('Copied') : t('Copy ID'),
       ctx, ctxScroll: this.ctxScroll, sessList, ses, rtList, rt, rtStrip,
       motionOpts: [['system', msg('Follow system')], ['reduced', msg('Reduced')]].map(([k, label]) => { const a = S.motionPref === k; return { key: k, label: t(label), active: a, onClick: () => this.setState({ motionPref: k }) }; }),
     };
