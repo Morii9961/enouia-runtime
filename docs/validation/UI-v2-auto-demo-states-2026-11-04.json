@@ -1,0 +1,1308 @@
+{
+  "baseline_revision": "0cc1cb07be4078c9fb0af28f3ff0edbaac93d249",
+  "dom": [
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "nothing_adopted_or_offered",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "held"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "open_end_is_readable_without_fabricated_end",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "open-ended"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "read_only_controls_stay_disabled",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "read-only"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "missing_source_keeps_statement_without_excerpt",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "source-missing"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "unknown-result"
+    }
+  ],
+  "browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned headless browser/profile, browser-only fictional preview. Not native or human acceptance.",
+    "rows": [
+      {
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "empty",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": null,
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "held",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Hangzhou, end of October",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "open-ended",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Adapter work, end not recorded",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "source-missing",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Statement retained, source unavailable",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "unknown-result",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": "demo-only-unknown-0001"
+      },
+      {
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "read-only",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "empty",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": null,
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "held",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Hangzhou, end of October",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "open-ended",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Adapter work, end not recorded",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "source-missing",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Statement retained, source unavailable",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "unknown-result",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": "demo-only-unknown-0001"
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "read-only",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      }
+    ]
+  }
+}

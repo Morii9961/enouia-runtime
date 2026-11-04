@@ -1,5 +1,6 @@
 import React from 'react';
-import { STATE_LABEL, STREAM, type AutoState } from './fixture';
+import { STATE_LABEL, type AutoState } from './fixture';
+import { STREAM } from './dataset';
 import { STEP_LABEL, dayHeading, dayKey, daysBetween, fmtClock, toMs } from './model';
 import { Glyph } from './parts';
 import type { ViewProps } from './types';

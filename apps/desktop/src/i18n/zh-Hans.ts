@@ -1,6 +1,25 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Source missing": "来源缺失",
+  "Result unknown": "结果未知",
+  "Read-only sample": "只读示例",
+  "The original source is missing in this synthetic state. The statement and times remain readable. Choose another demo state to see source excerpts.": "此合成状态缺少原始来源，仍可读取陈述和时间。请选择其他演示状态查看来源摘录。",
+  "This synthetic sample is read-only. Inspect records and switch views; changes need the automatic Memory contract.": "此合成示例为只读模式。可查看记录、切换视图；修改需要自动记忆契约。",
+  "Result unknown · retained demo packet and key": "结果未知 · 保留的演示包与键",
+  "The result is unknown. Keep the original packet and key; do not submit the action again. This display is invented, and result lookup is unavailable in the browser preview.": "结果未知。请保留原始包和键，不要再次提交操作。这里显示的是虚构示例，此预览无法查询结果。",
+  "Look up original result · unavailable in preview": "查询原始结果 · 预览中不可用",
+
+  "Original sample": "原始示例",
+  "Empty sample": "空示例",
+  "Material and hypotheses only": "仅材料与暂存假说",
+  "Open-ended time": "开放端时间",
+  "Demo state": "演示状态",
+  "No readable memories in this synthetic sample. Choose another demo state to inspect invented records. Nothing is read or created.": "此合成示例没有可读记忆。请选择其他演示状态查看虚构记录。这里不会读取或创建记忆。",
+  "Only received material and held hypotheses are shown. Nothing has been adopted for recall. Inspect the material or choose another demo state.": "这里只有收到的材料和暂存假说，没有用于召回的系统采用记忆。可查看材料，或选择其他演示状态。",
+  "No recall case belongs to this sample. Choose another demo state to inspect a complete invented recall.": "此示例没有对应的召回案例。请选择其他演示状态，查看完整的虚构召回过程。",
+  "The star map uses a separate generated sample. Choose Original sample to open it.": "星图使用独立生成的示例。请选择原始示例打开星图。",
+
   "Off by default. Starts only the tray; no Vault is opened.": "默认关闭。登录后只启动托盘，不打开记忆库。",
   "Previous startup observation.": "这是上一次读取的启动设置。",
   "The startup setting is still unknown.": "启动设置尚未读取成功。",

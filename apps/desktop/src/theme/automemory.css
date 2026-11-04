@@ -398,3 +398,13 @@
 .smp-back{font-family:var(--f-lab);font-size:12px;font-weight:600;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .smp-stage{display:block;min-height:0}
 .smp-stage>.sm-host{height:100%;box-sizing:border-box}
+
+/* Browser-only state links reload the explicit demo dataset. */
+.am-demo-states{display:flex;gap:6px;flex-wrap:wrap}
+.am-demo-states a.am-chip{display:inline-flex;align-items:center;text-decoration:none}
+.am-demo-states a[aria-current="true"]{background:var(--i-paper);color:var(--i-ink);border-color:var(--i-paper)}
+.am-demo-states a:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+.am-unknown-result{font-size:13px;line-height:18px;color:var(--ink-2)}
+.am-unknown-result summary{cursor:pointer}
+.am-unknown-result pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--f-mono);font-size:12px}

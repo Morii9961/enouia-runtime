@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { AUTO_MEMORIES, KIND_LABEL, RANGE_NOTE, type Kind } from './fixture';
+import { KIND_LABEL, RANGE_NOTE, type Kind } from './fixture';
+import { AUTO_MEMORIES } from './dataset';
 import { toMs } from './model';
 import { OccurredLine, StateKey, StateTag, kindWord } from './parts';
 import type { ViewProps } from './types';

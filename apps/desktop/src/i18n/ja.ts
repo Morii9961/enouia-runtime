@@ -1,6 +1,25 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Source missing": "元の資料がない",
+  "Result unknown": "結果不明",
+  "Read-only sample": "読み取り専用サンプル",
+  "The original source is missing in this synthetic state. The statement and times remain readable. Choose another demo state to see source excerpts.": "この合成状態では元の資料がありません。記述と日時は確認できます。別のデモ状態を選ぶと資料の引用を確認できます。",
+  "This synthetic sample is read-only. Inspect records and switch views; changes need the automatic Memory contract.": "この合成サンプルは読み取り専用です。記録の確認と表示の切り替えは可能ですが、変更には自動記憶の契約が必要です。",
+  "Result unknown · retained demo packet and key": "結果不明 · 保持したデモのパケットとキー",
+  "The result is unknown. Keep the original packet and key; do not submit the action again. This display is invented, and result lookup is unavailable in the browser preview.": "結果は不明です。元のパケットとキーを保持し、同じ操作を再送しないでください。この表示は架空の例であり、ブラウザーのプレビューでは結果を照会できません。",
+  "Look up original result · unavailable in preview": "元の結果を照会 · プレビューでは利用不可",
+
+  "Original sample": "元のサンプル",
+  "Empty sample": "空のサンプル",
+  "Material and hypotheses only": "資料と保留中の仮説のみ",
+  "Open-ended time": "終了日未記録の期間",
+  "Demo state": "デモの状態",
+  "No readable memories in this synthetic sample. Choose another demo state to inspect invented records. Nothing is read or created.": "この合成サンプルには読み取れる記憶がありません。別のデモ状態を選ぶと架空の記録を確認できます。記憶の読み取りや作成は行いません。",
+  "Only received material and held hypotheses are shown. Nothing has been adopted for recall. Inspect the material or choose another demo state.": "受け取った資料と保留中の仮説だけを表示しています。想起に使う記憶はまだ採用されていません。資料を確認するか、別のデモ状態を選んでください。",
+  "No recall case belongs to this sample. Choose another demo state to inspect a complete invented recall.": "このサンプルに対応する想起の例はありません。別のデモ状態を選ぶと、架空の想起の内容を確認できます。",
+  "The star map uses a separate generated sample. Choose Original sample to open it.": "星図は別の生成サンプルを使います。元のサンプルを選ぶと開けます。",
+
   "Off by default. Starts only the tray; no Vault is opened.": "既定ではオフです。サインイン時はトレイだけを起動し、保管庫は開きません。",
   "Previous startup observation.": "前回読み取った起動設定です。",
   "The startup setting is still unknown.": "起動設定はまだ確認できていません。",
