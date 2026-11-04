@@ -1,6 +1,13 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Time": "時間",
+  "Connections": "つながり",
+  "Recall": "想起",
+  "Memory workspaces": "記憶のワークスペース",
+  "Memory workspace views": "記憶ワークスペースの表示",
+  "Vault list · owner review compatibility": "Vault 一覧 · 所有者レビューの旧表示",
+
   "Source missing": "元の資料がない",
   "Result unknown": "結果不明",
   "Read-only sample": "読み取り専用サンプル",
@@ -1332,7 +1339,6 @@ const dict: Record<string, string> = {
   "Choose the index rebuild trigger.": "インデックス再構築のきっかけを決める。",
   "Accept the first Windows port boundary.": "最初の Windows ポートの境界を受け入れる。",
   "Loading the synthetic preview…": "合成プレビューを読み込み中…",
-  "Invented data · not running · opens a design preview": "架空のデータ · 未実行 · 設計プレビューを開く",
   "Newest first · ↑ ↓ to move": "新しい順 · ↑ ↓ で移動",
   "Nothing here matches. No reading on this strip for that text.": "一致するものはありません。この記録帯にその語を含む記録はありません。",
   "Memory content": "記憶の内容",
