@@ -2,10 +2,13 @@ import React from "react";
 import type { DemoView } from "../App";
 import FontSettings from './FontSettings';
 
-import { LANG_NAMES, setLang, t, useLangPref } from '../i18n/index.ts';
+import { setThemePref, useThemePref, type ThemePref } from '../theme/scheme';
+import { LANG_NAMES, msg, setLang, t, useLangPref } from '../i18n/index.ts';
+const THEMES: [ThemePref, string][] = [['system', msg('Follow system')], ['dark', msg('Tile Blue')], ['light', msg('Xuan Paper')]];
 export default function Settings({ view }: { view: DemoView }) {
   const { keyboardHint, memorySettings, motionOpts, shellSettings } = view;
   const pref = useLangPref();
+  const theme = useThemePref();
   return (
 <section data-screen-label="Settings" className="qr187">
 <div className="qr219">
@@ -59,12 +62,14 @@ export default function Settings({ view }: { view: DemoView }) {
 {t("Theme")}
 </span>
 <span className="qr108">
-{t("Tile Blue when the system is dark, Xuan Paper when it is light.")}
+{t("Follows the system unless you choose one: Tile Blue when it is dark, Xuan Paper when it is light. Kept on this device only.")}
 </span>
 </div>
-<span className="qr9">
-{t("Negative")}
-</span>
+<div className="qr173" role="group" aria-label={t("Theme")}>
+{THEMES.map(([value, name]) => <button key={value} onClick={() => setThemePref(value)} aria-pressed={theme === value} className="qr212" type="button">
+{t(name)}
+</button>)}
+</div>
 </div>
 <FontSettings />
 </div>

@@ -1342,8 +1342,6 @@ const dict: Record<string, string> = {
   "The trace is drawn once on Home and the time map glides for 320 ms. Reduced makes both instant.": "ホームの軌跡は 1 回だけ描き、時間マップは 320 ミリ秒で滑ります。「控えめ」ではどちらも瞬時になります。",
   "Language": "言語",
   "The interface language. Memories and sessions keep the language they were written in.": "画面の言語です。記憶とセッションは書かれた言語のままです。",
-  "Tile Blue when the system is dark, Xuan Paper when it is light.": "システムが暗いときはタイルブルー、明るいときは宣紙。",
-  "Negative": "ネガ",
   "Location": "場所",
   "Not configured · Vault adapter pending": "未設定 · 保管庫アダプターは未対応",
   "Identity files": "アイデンティティファイル",
@@ -1699,5 +1697,6 @@ const dict: Record<string, string> = {
   "Retrieval and ranking": "検索と順位付け",
   "Budget and completeness": "予算と完全性",
   "No records here yet.": "ここにはまだ記録がありません。",
+  "Follows the system unless you choose one: Tile Blue when it is dark, Xuan Paper when it is light. Kept on this device only.": "選ばない限りシステムに従います。ダークのときはタイルブルー、ライトのときは宣紙です。この端末にだけ保存します。",
 };
 export default dict;
