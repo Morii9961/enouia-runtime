@@ -1,6 +1,6 @@
 // Isolated, fictional browser diagnostics for UI v2 issue #24. No native IPC.
 // Probes temporarily omit drawing operations to locate cost; they are NOT visual fixes.
-// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes | --context | --trace]
+// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes | --context | --trace | --options]
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -215,8 +215,10 @@ try {
     let dash=[],segments=[],last=null;
     ctx.drawImage=function(...args){if(!['no_glow','no_glow_or_blend'].includes(probe.mode))return drawImage.apply(this,args);};
     ctx.beginPath=function(){segments=[];last=null;return beginPath.call(this);};
-    ctx.moveTo=function(x,y){last=[x,y];return moveTo.call(this,x,y);};
+    let sampled=0,skip=false;
+    ctx.moveTo=function(x,y){last=[x,y];if(probe.mode==='sampled_theme_links'&&dash.length){skip=sampled++%4!==0;if(skip)return;}return moveTo.call(this,x,y);};
     ctx.lineTo=function(x,y){
+      if(probe.mode==='sampled_theme_links'&&dash.length&&skip){last=[x,y];return;}
       if(last&&dash.length){
         const [x0,y0]=last;segments.push([x0,y0,x,y]);
         if(probe.mode==='manual_theme_dashes'){
@@ -228,8 +230,9 @@ try {
       }
       last=[x,y];return lineTo.call(this,x,y);
     };
-    ctx.setLineDash=function(value){dash=value;return setLineDash.call(this,['solid_theme_links','manual_theme_dashes'].includes(probe.mode)?[]:value);};
+    ctx.setLineDash=function(value){dash=value;return setLineDash.call(this,['solid_theme_links','faint_solid_theme_links','manual_theme_dashes'].includes(probe.mode)?[]:value);};
     ctx.stroke=function(...args){
+      if(probe.mode==='faint_solid_theme_links'&&dash.length){const a=this.globalAlpha;this.globalAlpha=a*0.5;const r=stroke.apply(this,args);this.globalAlpha=a;return r;}
       if(dash.length)probe.path={segments:segments.slice(),stroke:this.strokeStyle,width:this.lineWidth,alpha:this.globalAlpha,
         transform:[this.getTransform().a,this.getTransform().b,this.getTransform().c,this.getTransform().d,this.getTransform().e,this.getTransform().f]};
       if(!(probe.mode==='no_theme_links'&&dash.length))return stroke.apply(this,args);
@@ -240,7 +243,8 @@ try {
     window.__starPerf.steps.push=function(value){probe.steps.push(value);return Array.prototype.push.call(this,value);};
   })()`);
   const rows = [];
-  const cases = process.argv.includes('--dashes') ? [
+  const options = ['baseline', 'no_theme_links', 'solid_theme_links', 'faint_solid_theme_links', 'sampled_theme_links'];
+  const cases = process.argv.includes('--options') ? [['Sphere', 5000, options], ['Theme clusters', 5000, options]] : process.argv.includes('--dashes') ? [
     ['Sphere', 5000, ['baseline', 'solid_theme_links', 'manual_theme_dashes', 'baseline']],
     ['Theme clusters', 5000, ['baseline', 'solid_theme_links', 'manual_theme_dashes', 'baseline']],
   ] : [
@@ -268,6 +272,14 @@ try {
       })()`);
       if (row.hidden || row.draw.n === 0) throw Error('Hidden or empty diagnostic sample');
       rows.push(row); console.log(JSON.stringify(row));
+      if (process.argv.includes('--options')) {
+        // The canvas region only, at device pixels, for side-by-side review of each option.
+        const box = await evaluate(`(()=>{const r=document.querySelector('.sm-canvas').getBoundingClientRect();return {x:r.left,y:r.top,width:r.width,height:r.height};})()`);
+        const shot = await send('Page.captureScreenshot', { format: 'png', clip: { ...box, scale: 1 } });
+        writeFileSync(join(out, `option-${layout === 'Sphere' ? 'sphere' : 'clusters'}-${mode}.png`), Buffer.from(shot.data, 'base64'));
+        const zoom = await send('Page.captureScreenshot', { format: 'png', clip: { x: box.x + box.width * 0.58, y: box.y + box.height * 0.1, width: box.width * 0.2, height: box.height * 0.28, scale: 2.5 } });
+        writeFileSync(join(out, `option-${layout === 'Sphere' ? 'sphere' : 'clusters'}-${mode}-zoom.png`), Buffer.from(zoom.data, 'base64'));
+      }
       if(mode==='manual_theme_dashes'){
         row.pixelComparison=await evaluate(`(() => {
           const p=window.__starDiagnostic.path,w=document.querySelector('.sm-canvas').width,h=document.querySelector('.sm-canvas').height;
