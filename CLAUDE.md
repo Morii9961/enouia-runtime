@@ -1,6 +1,6 @@
 @AGENTS.md
 
-当前接续入口（2026-11-03）：先读 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md)。最新功能在 `codex/read2-synthetic-surface`，不是根目录旧 main；具体 HEAD、叠放 PR、验证与待办见交接；交接文档顶部的“Claude 接续进度”一节列出了之后的切片与待决事项。
+当前接续入口（2026-11-04）：先读 [Claude → Codex 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-04.md)。#115–#118 已合并进 `main`，在 `main` 上开新分支继续；上一轮 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md) 的边界仍然有效。
 
 # Claude Code 补充
 
