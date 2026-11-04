@@ -7,7 +7,7 @@ import { useLatestRead } from '../memory/hooks';
 import { ErrorBox } from '../memory/ui';
 import './quick-search.css';
 
-import { t } from '../i18n/index.ts';
+import { msg, t } from '../i18n/index.ts';
 type Hit = { memoryId: string; currency: string; snippet: string };
 type SearchPage = { items: Hit[] };
 
@@ -39,7 +39,7 @@ export default function QuickSearch() {
     window.addEventListener('blur', clear);
     const subscription = listen('overlay-clear', focus);
     void subscription.then((dispose) => { if (stopped) dispose(); else unlisten = dispose; }).catch(() => {
-      if (!stopped) setHostError(t('Quick Search window events are unavailable. Close and reopen Runtime.'));
+      if (!stopped) setHostError(msg('Quick Search window events are unavailable. Close and reopen Runtime.'));
     });
     focus();
     return () => {
@@ -52,7 +52,7 @@ export default function QuickSearch() {
   const windowAction = useCallback(async (command: 'shell_hide' | 'shell_show') => {
     clear();
     try { await invoke(command); }
-    catch { setHostError(t('The window action failed. Try again.')); }
+    catch { setHostError(msg('The window action failed. Try again.')); }
   }, [clear]);
   useEffect(() => {
     // Escape belongs to this overlay even when focus has left its input.
@@ -98,7 +98,7 @@ export default function QuickSearch() {
       </form>
       <div className="quick-results">
         <ErrorBox error={searchError} />
-        {hostError && <p role="alert" className="mem-error">{hostError}</p>}
+        {hostError && <p role="alert" className="mem-error">{t(hostError)}</p>}
         {reads.busy && <p role="status" className="mem-muted">{t("Searching…")}</p>}
         {searched && !items.length && <p role="status" className="mem-muted">{t("No approved memories match.")}</p>}
         {!searched && !reads.busy && !reads.error && <p className="mem-muted">{t("Enter literal text and press Enter. Open the main window to inspect a memory.")}</p>}

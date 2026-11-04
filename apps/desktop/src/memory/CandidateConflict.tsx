@@ -43,15 +43,15 @@ export function CandidateConflict({ conflict, readPage = call }: { conflict: J; 
   return <li className="mem-evidence" aria-busy={read.busy}>
     <p className="mem-muted">{t("Reported conflict:")} <code title={conflict.memory_id}>{shortId(conflict.memory_id)}</code> · r{conflict.revision}</p>
     <div className="mem-actions">
-      <button ref={readControl} type="button" className="mem-link" onClick={observe}>{requested ? "Read conflicting memory again" : "Read current conflicting memory"}</button>
+      <button ref={readControl} type="button" className="mem-link" onClick={observe}>{t(requested ? "Read conflicting memory again" : "Read current conflicting memory")}</button>
       {requested && <button type="button" className="mem-link" onClick={hide}>{t("Hide conflicting memory")}</button>}
     </div>
     <ErrorBox error={readError} />
     {read.busy && <p role="status" className="mem-muted">{t("Reading the conflicting memory…")}</p>}
-    {read.error && <p className="mem-muted">The current record could not be read. Its reported conflict remains in the candidate; read again to observe the saved record.</p>}
+    {read.error && <p className="mem-muted">{t("The current record could not be read. Its reported conflict remains in the candidate; read again to observe the saved record.")}</p>}
     {record && <div className="mem-stack">
-      <p className="mem-muted">Current saved observation · r{record.revision} · <Tag>{record.status}</Tag></p>
-      {record.revision !== conflict.revision && <p className="mem-warn">This record has changed since the reported conflict. The candidate reference above still names r{conflict.revision}; this read does not resolve that conflict.</p>}
+      <p className="mem-muted">{t("Current saved observation · r{revision}", { revision: record.revision })} · <Tag>{record.status}</Tag></p>
+      {record.revision !== conflict.revision && <p className="mem-warn">{t("This record has changed since the reported conflict. The candidate reference above still names r{revision}; this read does not resolve that conflict.", { revision: conflict.revision })}</p>}
       <p ref={recordText} tabIndex={-1} aria-label={t("Current conflicting memory")} className="mem-content">{record.content}</p>
     </div>}
   </li>;

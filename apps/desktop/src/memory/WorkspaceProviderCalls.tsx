@@ -37,7 +37,7 @@ export function WorkspaceProviderCalls({ excludeOperationId = null, request = ca
     {items != null && !read.busy && !read.error && items.length === 0 && <p className="mem-muted">{t("No model calls in the current operation list.")}</p>}
     {excludeOperationId && items?.some(op => op.operationId === excludeOperationId) && <p className="mem-muted">{t("The selected session's watched call is shown in its inspector.")}</p>}
     {visible?.map(op => <div key={op.operationId} className="mem-stack">
-      <span className="mem-mono">Operation {shortId(op.operationId)}</span>
+      <span className="mem-mono">{t("Operation {id}", { id: shortId(op.operationId) })}</span>
       {["queued", "running"].includes(op.state)
         ? <Operation id={op.operationId} kind="external_send" request={request} onDone={() => void refresh()} />
         : <OperationFeedback status={op} onCancel={() => {}} />}

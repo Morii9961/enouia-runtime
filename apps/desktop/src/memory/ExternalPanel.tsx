@@ -172,7 +172,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
     <div className="mem-stack" aria-label={t("External provider")}>
       <h3 className="mem-h3">{t("External provider")}</h3>
       <ErrorBox error={action.error} />
-      {notice && <p className="mem-muted" role="status">{notice}</p>}
+      {notice && <p className="mem-muted" role="status">{t(notice)}</p>}
       {setupControls}
 
       <label className="mem-label" htmlFor="mem-ext-api">{t("Provider")}</label>
@@ -183,12 +183,12 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
         <button type="button" className="mem-button" disabled={setupBusy}
           onClick={() => void action.run(async () => {
             const r = await native.key(api, "set");
-            setNotice(r.cancelled ? t("Key entry cancelled.") : t("Key saved in Windows Credential Manager."));
+            setNotice(r.cancelled ? msg("Key entry cancelled.") : msg("Key saved in Windows Credential Manager."));
           })}>{t("Set key…")}</button>
         <button type="button" className="mem-button" disabled={setupBusy}
           onClick={() => void action.run(async () => {
             await native.key(api, "remove");
-            setNotice(t("Key removed from this computer. This does not revoke it at the provider."));
+            setNotice(msg("Key removed from this computer. This does not revoke it at the provider."));
             await refresh();
           })}>{t("Remove key")}</button>
       </div>
@@ -232,7 +232,7 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
               }}>{preparation ? t("Recover preparation") : t("Prepare the question for {api}…", { api })}</button>
             {preparation && <button type="button" className="mem-button" disabled={busy} onClick={() => void action.run(async () => {
               setPreparation(null);
-              setNotice(t("Preparation has not sent a model request. Read the saved session before preparing another question."));
+              setNotice(msg("Preparation has not sent a model request. Read the saved session before preparing another question."));
               await refresh(); await onChanged();
             })}>{t("Leave preparation and read saved state")}</button>}
           </div>
@@ -253,10 +253,10 @@ export function ExternalPanel({ branch, text, invocations, onChanged, consumeTex
               })}>{submitted ? t("Recover this call") : t("Send once")}</button>
             <button type="button" className="mem-button" disabled={busy || !!plan}
               onClick={() => {
-                if (!submitted) { action.clear(); setPrepared(null); setNotice(t("Not sent. The question stays saved in this session.")); }
+                if (!submitted) { action.clear(); setPrepared(null); setNotice(msg("Not sent. The question stays saved in this session.")); }
                 else void action.run(async () => {
                   setPrepared(null);
-                  setNotice(t("The send outcome is not confirmed here. Read the saved session and workspace calls; the service may have received it."));
+                  setNotice(msg("The send outcome is not confirmed here. Read the saved session and workspace calls; the service may have received it."));
                   await refresh(); await onChanged();
                 });
               }}>{submitted ? t("Leave and read saved state") : t("Don't send")}</button>

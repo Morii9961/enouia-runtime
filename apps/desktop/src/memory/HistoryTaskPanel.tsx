@@ -16,7 +16,7 @@ export function useHistoryTasks(vaultId: string, request = call) {
   const [operations, setOperations] = useState<J[] | null>(null);
   const [attempt, setAttempt] = useState<Attempt | null>(null), [waiting, setWaiting] = useState(false);
   const [operation, setOperation] = useState<{ id: string; kind: string; attempt: Attempt } | null>(null);
-  const [error, setError] = useState<string | null>(null), [note, setNote] = useState<string | null>(null);
+  const [error, setError] = useState<{ text: string } | null>(null), [note, setNote] = useState<{ text: string } | null>(null);
   const list = useLatestRead(), read = useLatestRead(), mounted = useRef(false), pending = useRef(false);
   const finished = useRef(new Set<string>());
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
@@ -49,10 +49,10 @@ export function useHistoryTasks(vaultId: string, request = call) {
       setOperation({ id: started.operationId, kind: submission.command, attempt: submission });
     } catch (err) {
       if (mounted.current) {
-        setError(describe(err));
+        setError({ get text() { return describe(err); } });
         // A typed final refusal differs from an uncertain/lost receipt.
         refused = err instanceof CallError && !err.error.retryable;
-        if (refused) { setAttempt(null); setNote(t("Memory refused this submission. Read a fresh plan and saved tasks before another action.")); }
+        if (refused) { setAttempt(null); setNote({ get text() { return t("Memory refused this submission. Read a fresh plan and saved tasks before another action."); } }); }
       }
     }
     finally { pending.current = false; if (mounted.current) { setWaiting(false); if (refused) refresh(); } }
@@ -77,18 +77,18 @@ export function useHistoryTasks(vaultId: string, request = call) {
           ? { vaultId, request: operation.attempt.args as HistoryTaskRequest }
           : { vaultId, taskId: (operation.attempt.args as { taskId: string }).taskId };
         setDetail(historyTaskObservation(status.result, selection));
-        setNote(t("Operation receipt. Read the saved task again to observe its latest state."));
-      } catch { setDetail(null); setAttempt(operation.attempt); setError(t("The task receipt could not be confirmed. Read saved tasks before creating another submission.")); }
-    } else setNote(t("Local task creation stopped. Saved admission or partial jobs may remain; read the saved task and explicitly resume missing jobs."));
+        setNote({ get text() { return t("Operation receipt. Read the saved task again to observe its latest state."); } });
+      } catch { setDetail(null); setAttempt(operation.attempt); setError({ get text() { return t("The task receipt could not be confirmed. Read saved tasks before creating another submission."); } }); }
+    } else setNote({ get text() { return t("Local task creation stopped. Saved admission or partial jobs may remain; read the saved task and explicitly resume missing jobs."); } });
     refresh();
   };
   const recoveredDone = (status: J) => {
     finished.current.add(status.operationId);
     setOperations(previous => previous?.filter(op => op.operationId !== status.operationId) ?? null);
-    setNote(t("Recovered local task operation {state}. Read its saved task to observe local jobs.", { state: status.state }));
+    setNote({ get text() { return t("Recovered local task operation {state}. Read its saved task to observe local jobs.", { state: status.state }); } });
     refresh();
   };
-  return { vaultId, batchOwner, page, detail, operations, operation, attempt, waiting, busy, ready, error, note, list, read,
+  return { vaultId, batchOwner, page, detail, operations, operation, attempt, waiting, busy, ready, error: error?.text ?? null, note: note?.text ?? null, list, read,
     create, resume, observe, refresh, done, recoveredDone, retry: () => { if (attempt) void execute(attempt); } };
 }
 

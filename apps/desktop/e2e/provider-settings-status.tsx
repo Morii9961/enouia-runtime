@@ -3,6 +3,7 @@
 import { createRoot } from "react-dom/client";
 import { ProviderSettingsStatus } from "../src/memory/ProviderSettingsStatus";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -28,7 +29,8 @@ setTransport(async (command, args) => {
   }
   throw new Error(`Unexpected native operation ${command}`);
 });
-const render = () => root.render(<ProviderSettingsStatus disabled={disabled} />);
+function Surface(){useLang();return <ProviderSettingsStatus disabled={disabled}/>;}
+const render = () => root.render(<Surface/>);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent === label)!;
@@ -58,6 +60,11 @@ try {
   check("pending_read_clears_old_ready_and_refuses_overlapping_actions", !text().includes("Settings loaded.") && reload().disabled && count("memory_provider_setup") === before && count("memory_provider_reload") === 0);
   failRead = true; releasePending(); await settled();
   check("failed_read_withholds_reload_and_hides_raw_native_error", text().includes("Loaded model settings are unknown") && reload().disabled && !text().includes("synthetic-private-path"));
+  const failedCalls=calls.length,readControl=read();readControl.focus();
+  for(const [language,error] of [['zh-Hans','已加载的模型设置未知。'],['ja','読み込まれたモデル設定は不明です。'],['en','Loaded model settings are unknown.']]){
+    await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.startsWith(error));
+    check(`${language}_failed_observation_keeps_recovery_without_native_read`,calls.length===failedCalls&&document.activeElement===readControl&&!readControl.disabled&&fixture.querySelectorAll<HTMLButtonElement>('button')[1].disabled&&!text().includes('synthetic-private-path'));
+  }
   failRead = false; await reread();
   check("explicit_read_recovers_without_reloading", text().includes("Settings loaded.") && count("memory_provider_reload") === 0);
   raw = { state: "ready", file: "unrelated.json" }; await reread();
@@ -71,6 +78,11 @@ try {
   check("reload_completion_restores_only_owned_focus", document.activeElement === reload());
   failReload = true; next = "ready"; click(reload()); await settled();
   check("lost_reload_ack_still_reobserves_the_loaded_state", text().includes("Reload was not acknowledged") && text().includes("Settings loaded."));
+  const unknownCalls=calls.length,reloadControl=reload(),observed=fixture.querySelectorAll('p')[2].textContent!.replace('Observed ','');reloadControl.focus();
+  for(const [language,error,cause] of [['zh-Hans','重载没有得到确认。','记忆工作进程意外停止'],['ja','再読み込みは確認されませんでした。','記憶のワーカーが予期せず停止しました'],['en','Reload was not acknowledged.','The Memory worker stopped unexpectedly']]){
+    await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.startsWith(error));
+    check(`${language}_unknown_reload_keeps_latest_observation_and_original_error`,text().includes(cause)&&text().includes(observed)&&calls.length===unknownCalls&&document.activeElement===reloadControl&&!reloadControl.disabled);
+  }
   const afterFailure = calls.length; await sleep(30);
   check("reload_failure_has_no_automatic_retry", calls.length === afterFailure);
   failReload = false; failRead = true; click(reload()); await settled();

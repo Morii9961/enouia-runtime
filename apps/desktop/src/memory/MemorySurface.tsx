@@ -196,7 +196,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
     <>
       <Center title={title} count={count} busy={read.busy}>
         <div className="mem-pad mem-actions"><button ref={refreshControl} type="button" className="mem-button" disabled={read.busy} onClick={onRefresh}>{t("Refresh results")}</button></div>
-        {notice && <p role="status" className="mem-note mem-pad">{notice}</p>}
+        {notice && <p role="status" className="mem-note mem-pad">{t(notice)}</p>}
         <ErrorBox error={read.error} />
         {read.busy && <p role="status" className="mem-muted mem-pad">{t("Reading memories…")}</p>}
         {loaded && !read.busy && !read.error && rows.length === 0 && <div className="qr32">{query ? t("Nothing matches this search.") : t("No approved memories here yet.")}</div>}
@@ -236,7 +236,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
       </Center>
       {selected
         ? <MemoryDetail key={selected} id={selected} onChanged={(purge) => {
-          setNotice(purge ? t("Permanent purge confirmed by Memory.") : t("Forget confirmed by Memory."));
+          setNotice(purge ? msg("Permanent purge confirmed by Memory.") : msg("Forget confirmed by Memory."));
           focusAfterRead.current = { trigger: null, fallback: resultsTitle };
           setSelected(null); load(null);
         }} />
@@ -270,8 +270,8 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
     void action.run(async (key) => setPlan(await readPage("forget_plan", { memoryId: id, mode, withDependents: false }, key)));
   };
   const copy = async () => {
-    try { await navigator.clipboard.writeText(id); setNote(t("ID copied.")); }
-    catch { setNote(t("Could not copy. Select the ID and copy it manually.")); }
+    try { await navigator.clipboard.writeText(id); setNote(msg("ID copied.")); }
+    catch { setNote(msg("Could not copy. Select the ID and copy it manually.")); }
   };
   const observation = <div className="mem-stack">
     <button ref={readAgain} type="button" className="mem-button" disabled={action.busy || reads.busy || !!plan} onClick={() => { if (!action.busy && !plan) { returnFocus(() => readAgain.current); load(); } }}>{t("Read memory again")}</button>
@@ -317,14 +317,14 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
             if (reads.pending.current || reads.error) return;
             await readPage("correction_propose", { memoryId: id, revision: r.revision, text: correction }, key);
             setCorrection((current) => current === correction ? "" : current);
-            setNote(t("Correction proposed. Review it in the candidate inbox."));
+            setNote(msg("Correction proposed. Review it in the candidate inbox."));
           }); }}>{t("Propose correction")}</button>
           <button type="button" className="mem-button" disabled={action.busy}
             onClick={() => { if (!reads.pending.current && !reads.error) { returnFocus(() => readAgain.current); void action.run(async () => setImpact(await readPage("delete_preview", { memoryId: id, withDependents: false }))); } }}>{t("Delete impact")}</button>
           <button type="button" className="mem-button" disabled={action.busy} onClick={() => forget("forget")}>{t("Forget…")}</button>
           <button type="button" className="mem-button mem-danger" disabled={action.busy} onClick={() => forget("purge")}>{t("Purge…")}</button>
         </div>
-        {note && <p role="status" className="mem-note">{note}</p>}
+        {note && <p role="status" className="mem-note">{t(note)}</p>}
         {action.busy && <p role="status" className="mem-muted">{t("Waiting for Memory to return the requested result…")}</p>}
         <ErrorBox error={action.error} />
         {impact && (
@@ -338,7 +338,7 @@ export function MemoryDetail({ id, onChanged, readPage = call }: { id: string; o
           setPlan(null);
           void refresh();
           if (done) onChanged(plan.purge === true);
-          else setNote(t("Confirmation cancelled. The deletion candidate remains in the candidate inbox."));
+          else setNote(msg("Confirmation cancelled. The deletion candidate remains in the candidate inbox."));
         }} />}
     </Inspector>
   );
@@ -429,7 +429,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 <code title={c.candidateId}>{shortId(c.candidateId)}</code><span>r{c.revision}</span>
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
                 <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
-                {["P0", "P1", "P2"].includes(c.details?.priority) && <Tag>Proposed priority {c.details.priority}</Tag>}
+                {["P0", "P1", "P2"].includes(c.details?.priority) && <Tag>{t("Proposed priority {priority}", { priority: c.details.priority })}</Tag>}
               </div>
               {typeof c.details?.title === "string" && <h3 className="mem-h3">{c.details.title}</h3>}
               {typeof c.reason === "string" && c.reason.length > 0 && <details className="mem-stack mem-reason">
@@ -437,7 +437,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
                 <p className="mem-muted">{t("A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.")}</p>
                 <p className="mem-content">{c.reason}</p>
               </details>}
-              {c.target && <p className="mem-old">Current fact (r{c.target.revision}): {c.target.content}</p>}
+              {c.target && <p className="mem-old">{t("Current fact (r{revision}): {content}", { revision: c.target.revision, content: c.target.content })}</p>}
               <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">{t("Candidate content")}</label>
               <textarea id={`mem-e-${c.candidateId}`} className="mem-textarea" value={draft}
                 onChange={(e) => setEdits({ ...edits, [c.candidateId]: e.target.value })} />

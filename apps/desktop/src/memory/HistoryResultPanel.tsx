@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { call, describe, type J } from "./client";
 import { historyResultOwner } from "./historyResults";
 
-import { t } from '../i18n/index.ts';
+import { msg, t } from '../i18n/index.ts';
 export function HistoryResultPanel({ vaultId, task, index, enabled = true, request = call }: {
   vaultId: string; task: J; index: number; enabled?: boolean; request?: typeof call;
 }) {
@@ -20,13 +20,13 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
   const { owner } = binding;
   const [view, setView] = useState<J>(null);
   const [busy, setBusy] = useState(false), [confirmed, setConfirmed] = useState(false);
-  const [error, setError] = useState<string | null>(null), [notice, setNotice] = useState<string | null>(null);
+  const [error, setError] = useState<{ cause: unknown } | null>(null), [notice, setNotice] = useState<string | null>(null);
   const mounted = useRef(false), pending = useRef(false);
   const inspectControl = useRef<HTMLButtonElement>(null), previewTitle = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     mounted.current = true;
     try { owner.select(binding.task, binding.index); setView(owner.snapshot); }
-    catch (err) { setError(describe(err)); }
+    catch (err) { setError({ cause: err }); }
     return () => { mounted.current = false; owner.invalidate(); };
   }, [binding, owner]);
 
@@ -42,11 +42,11 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
       else await owner.recover(shown, true, undefined, request);
       if (mounted.current) {
         setView(owner.snapshot);
-        if (kind === "pause" || kind === "resume") setNotice(t("Local pause-state receipt observed. This control does not add a candidate. Inspect saved results again."));
-        else if (kind !== "inspect") setNotice(t("Local step receipt observed. Inspect saved results again before another step. Candidates still require separate human review."));
+        if (kind === "pause" || kind === "resume") setNotice(msg("Local pause-state receipt observed. This control does not add a candidate. Inspect saved results again."));
+        else if (kind !== "inspect") setNotice(msg("Local step receipt observed. Inspect saved results again before another step. Candidates still require separate human review."));
       }
     } catch (err) {
-      if (mounted.current) { setError(describe(err)); setView(owner.snapshot); }
+      if (mounted.current) { setError({ cause: err }); setView(owner.snapshot); }
     } finally {
       pending.current = false;
       if (mounted.current) {
@@ -66,8 +66,8 @@ function SavedHistoryResult({ vaultId, task, index, request }: {
   return <section className="mem-stack mem-history-request" aria-label={t("Saved history batch results")} aria-busy={busy}>
     <h3 className="mem-h3">{t("Saved batch {n} results", { n: index + 1 })}</h3>
     <p className="mem-muted">{t("Inspect the saved response, then confirm one local step into the review queue. This does not send to a model or approve a memory.")}</p>
-    {error && <p className="mem-error" role="alert">{error}</p>}
-    {notice && <p className="mem-muted" role="status">{notice}</p>}
+    {error && <p className="mem-error" role="alert">{describe(error.cause)}</p>}
+    {notice && <p className="mem-muted" role="status">{t(notice)}</p>}
     <div className="mem-actions"><button ref={inspectControl} type="button" className="mem-button" disabled={busy || !view}
       onClick={() => void perform("inspect")}>{t("Inspect saved batch results")}</button></div>
     {busy && <p className="mem-muted" role="status">{t("Observing this local step…")}</p>}

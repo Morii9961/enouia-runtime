@@ -1,0 +1,214 @@
+{
+  "browser": "Edg/156.0.4314.58",
+  "scope": "Isolated headless browser, fictional star map; probes change pixels, not product behavior. Draw intervals are not presentation timestamps.",
+  "rows": [
+    {
+      "layout": "Sphere",
+      "n": 200,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 172,
+        "median": 0.20000004768371582,
+        "p95": 0.40000003576278687
+      },
+      "step": {
+        "n": 172,
+        "median": 0,
+        "p95": 0.10000002384185791
+      },
+      "interval": {
+        "n": 171,
+        "median": 34.89999997615814,
+        "p95": 36.10000002384186
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 43,
+        "median": 8,
+        "p95": 8.800000011920929
+      },
+      "step": {
+        "n": 43,
+        "median": 0.5,
+        "p95": 0.5
+      },
+      "interval": {
+        "n": 42,
+        "median": 138.5,
+        "p95": 151.69999998807907
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "no_glow",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 48,
+        "median": 2.5,
+        "p95": 2.900000035762787
+      },
+      "step": {
+        "n": 48,
+        "median": 0.40000003576278687,
+        "p95": 0.6000000238418579
+      },
+      "interval": {
+        "n": 47,
+        "median": 127.39999997615814,
+        "p95": 131
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "no_glow_or_blend",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 45,
+        "median": 2.5,
+        "p95": 2.800000011920929
+      },
+      "step": {
+        "n": 45,
+        "median": 0.3999999761581421,
+        "p95": 0.800000011920929
+      },
+      "interval": {
+        "n": 44,
+        "median": 129.30000001192093,
+        "p95": 166.10000002384186
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 43,
+        "median": 8.399999976158142,
+        "p95": 9.099999964237213
+      },
+      "step": {
+        "n": 43,
+        "median": 0.5,
+        "p95": 0.6000000238418579
+      },
+      "interval": {
+        "n": 42,
+        "median": 138.80000001192093,
+        "p95": 141.89999997615814
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 60,
+        "median": 1.100000023841858,
+        "p95": 1.2999999523162842
+      },
+      "step": {
+        "n": 60,
+        "median": 0.5,
+        "p95": 0.699999988079071
+      },
+      "interval": {
+        "n": 59,
+        "median": 99.5,
+        "p95": 104.40000003576279
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "no_theme_links",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 170,
+        "median": 1.0999999642372131,
+        "p95": 1.199999988079071
+      },
+      "step": {
+        "n": 170,
+        "median": 0.5999999642372131,
+        "p95": 0.699999988079071
+      },
+      "interval": {
+        "n": 169,
+        "median": 35.19999998807907,
+        "p95": 36.10000002384186
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 59,
+        "median": 1.0999999642372131,
+        "p95": 1.199999988079071
+      },
+      "step": {
+        "n": 59,
+        "median": 0.6000000238418579,
+        "p95": 0.699999988079071
+      },
+      "interval": {
+        "n": 58,
+        "median": 102.80000001192093,
+        "p95": 106.20000004768372
+      }
+    }
+  ]
+}

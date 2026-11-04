@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Explorer } from "../src/memory/MemorySurface";
 import { MemoryStatusProvider } from "../src/memory/status";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -45,7 +46,8 @@ setTransport(async (native, args) => {
   return { kind: "memory_page", result, error: null };
 });
 const root = createRoot(fixture);
-root.render(<MemoryStatusProvider><Explorer history={false} submitted={{ text: "", seq: 0 }} onRefresh={() => {}} /></MemoryStatusProvider>);
+function Surface(){useLang();return <MemoryStatusProvider><Explorer history={false} submitted={{ text: "", seq: 0 }} onRefresh={() => {}} /></MemoryStatusProvider>;}
+root.render(<Surface/>);
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b => b.textContent === label);
 const row = (id: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button.qr43")].find(b => b.textContent?.includes(snippets[id]));
@@ -66,10 +68,20 @@ try {
   releasePending(); await wait(() => !row("synthetic-one") && !!row("synthetic-two")); await sleep(30);
   check("confirmed_forget_focuses_reread_results", document.activeElement === title());
   check("confirmed_forget_is_announced", notices().some(n => n === "Forget confirmed by Memory."));
+  const noticeWrites=calls.filter(c=>['review_confirm','forget_plan'].includes(c.command)).length;
+  for(const [language,label] of [['zh-Hans','记忆已确认遗忘。'],['ja','記憶が忘却を確定しました。'],['en','Forget confirmed by Memory.']]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_saved_forget_notice_follows_language_without_new_write`,notices().some(n=>n===label)&&calls.filter(c=>['review_confirm','forget_plan'].includes(c.command)).length===noticeWrites&&!row('synthetic-one'));
+  }
   await select("synthetic-two");
   check("new_selection_retires_deletion_notice", !notices().some(n => n.includes("confirmed by Memory")));
   await openPlan("Forget…"); click(button("Cancel"), "Cancel"); await wait(() => !fixture.querySelector("dialog[open]")); await sleep(30);
   check("cancelled_plan_keeps_trigger_focus_and_note", document.activeElement === button("Forget…") && text().includes("Confirmation cancelled.") && !notices().some(n => n.includes("confirmed by Memory")));
+  const cancelledWrites=calls.filter(c=>['review_confirm','forget_plan','review_discard'].includes(c.command)).length,forgetControl=button('Forget…')!;
+  for(const [language,note] of [['zh-Hans','已取消确认。删除候选仍在候选收件箱中。'],['ja','確認をキャンセルしました。削除の候補は候補の受信箱に残っています。'],['en','Confirmation cancelled. The deletion candidate remains in the candidate inbox.']]){
+    await setLang(language as Lang);await wait(()=>text().includes(note));
+    check(`${language}_cancelled_plan_notice_keeps_memory_focus_and_no_confirmation`,forgetControl.isConnected&&document.activeElement===forgetControl&&calls.filter(c=>['review_confirm','forget_plan','review_discard'].includes(c.command)).length===cancelledWrites&&remaining.has('synthetic-two'));
+  }
   await openPlan("Purge…");
   holdList = true; click(button("Confirm (SYNTHETIC)"), "Confirm"); await wait(() => release != null && !fixture.querySelector("dialog[open]"));
   outside.focus(); releasePending(); await wait(() => !row("synthetic-two") && !!row("synthetic-three")); await sleep(30);
@@ -77,6 +89,15 @@ try {
   check("confirmed_purge_is_announced_as_permanent", notices().some(n => n === "Permanent purge confirmed by Memory."));
   await select("synthetic-three"); await openPlan("Forget…");
   holdConfirm = true; click(button("Confirm (SYNTHETIC)"), "Confirm"); await wait(() => release != null);
+  const dialog=fixture.querySelector('dialog'),records=dialog!.querySelector('pre')!.textContent,confirmCalls=calls.filter(c=>c.command==='review_confirm').length;
+  for(const [language,label,waiting] of [
+    ['zh-Hans','确认（SYNTHETIC）','确认已提交，正在等待 Memory 返回结果…'],
+    ['ja','確認（SYNTHETIC）','確認を送信しました。Memory からの結果を待っています…'],
+    ['en','Confirm (SYNTHETIC)','Confirmation submitted. Waiting for Memory to return its result…'],
+  ]){
+    await setLang(language as Lang);await wait(()=>text().includes(waiting)&&!!button(label));
+    check(`${language}_pending_confirmation_keeps_plan_and_single_write`,fixture.querySelector('dialog[open]')===dialog&&dialog!.querySelector('pre')!.textContent===records&&button(label)!.disabled&&calls.filter(c=>c.command==='review_confirm').length===confirmCalls&&release!==null);
+  }
   outside.focus(); root.unmount(); releasePending(); await sleep(50);
   check("unmount_discards_pending_focus", document.activeElement === outside);
   const plans = calls.filter(c => c.command === "forget_plan").map(c => `${c.args.memoryId}:${c.args.mode}`);

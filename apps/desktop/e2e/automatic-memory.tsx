@@ -4,6 +4,7 @@ import { AutomaticMemory } from '../src/memory/AutomaticMemory';
 import basePage from './fixtures/core8/page.json';
 import baseDetail from './fixtures/core8/detail.json';
 import baseSimulation from './fixtures/core8/simulation.json';
+import { setLang, useLang, type Lang } from '../src/i18n';
 const fixture = document.getElementById('fixture')!;
 const root = createRoot(fixture);
 const checks: { id: string; ok: boolean }[] = [];
@@ -38,7 +39,8 @@ const click = (label: string) => { const b = button(label); if (!b || b.disabled
 async function wait(test: () => boolean) { for (let n = 0; n < 300; n++) { if (test()) return; await sleep(20); } throw new Error(`UI timeout: ${text()}`); }
 const check = (id: string, ok: boolean) => checks.push({ id, ok });
 try {
-  root.render(<AutomaticMemory read={read} />);
+  function Surface(){useLang();return <AutomaticMemory read={read}/>;}
+  root.render(<Surface/>);
   const content = page.items[0].content;
   await wait(() => !!button(content));
   check('synthetic_mode_and_separate_state_axes', text().includes('Isolated synthetic library') && text().includes('System adopted') && text().includes('validity unspecified') && text().includes('attention active'));
@@ -56,6 +58,17 @@ try {
   fixture.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
   await wait(() => text().includes('Native read · no saved experiment'));
   check('simulation_has_explicit_read_only_effect', text().includes(baseSimulation.rendered_context));
+  const readCount=calls.filter(c=>c!=='status').length,source=fixture.querySelector('aside pre'),recall=fixture.querySelector('section pre');
+  input.focus();
+  for(const [language,observed,learned,limits] of [
+    ['zh-Hans','状态观察时间：','学到时间：','依赖数量不代表独立证据。'],
+    ['ja','状態の観測日時：','学習日時：','依存関係の数は独立した裏付けではありません。'],
+    ['en','State observed at ','Learned at: ','dependency count is not independent corroboration.'],
+  ]){
+    await setLang(language as Lang);await wait(()=>text().includes(observed)&&text().includes(learned)&&text().includes(limits));
+    check(`${language}_authorized_metadata_keeps_exact_source_and_recall`,fixture.querySelector('aside pre')===source&&source!.textContent===original&&fixture.querySelector('section pre')===recall&&recall!.textContent===baseSimulation.rendered_context&&!fixture.querySelector('#core8-injected'));
+    check(`${language}_language_keeps_recall_draft_focus_and_native_calls`,fixture.querySelector('input')===input&&input.value==='ceramics'&&document.activeElement===input&&calls.filter(c=>c!=='status').length===readCount);
+  }
   holdDetail = true; click(content);
   await wait(() => releaseDetail !== null);
   failBusyStatus = true;
@@ -63,6 +76,11 @@ try {
   releaseDetail!(); releaseDetail = null;
   await sleep(50);
   check('busy_observation_hides_body_until_scope_is_reconfirmed', !text().includes('Learned at:'));
+  const heldReads=calls.filter(c=>c!=='status').length;
+  for(const [language,error] of [['zh-Hans','自动记忆正忙。请稍后再读取。'],['ja','自動記憶は処理中です。少ししてから読み直してください。'],['en','Automatic Memory is busy. Try the read again shortly.']]){
+    await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));
+    check(`${language}_busy_error_keeps_observations_hidden_without_reread`,!fixture.querySelector('aside h3')&&calls.filter(c=>c!=='status').length===heldReads);
+  }
   await sleep(1700);
   check('transient_status_busy_does_not_lose_authorized_selection', text().includes('Learned at:'));
   holdDetail = true; click(content);

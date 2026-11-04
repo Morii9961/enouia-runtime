@@ -1,0 +1,228 @@
+{
+  "browser": "Edg/156.0.4314.58",
+  "scope": "Fresh fictional headless pages, original product drawing; only main canvas alpha differs. Draw intervals are not presentation timestamps.",
+  "rows": [
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "run": 0,
+      "requestedAlpha": true,
+      "attributes": {
+        "alpha": true,
+        "colorSpace": "srgb",
+        "colorType": "unorm8",
+        "desynchronized": false,
+        "toneMapping": {
+          "mode": "standard"
+        },
+        "willReadFrequently": false
+      },
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 9,
+        "median": 61.89999997615814,
+        "p95": 69.80000001192093
+      },
+      "step": {
+        "n": 9,
+        "median": 3.299999952316284,
+        "p95": 3.899999976158142
+      },
+      "interval": {
+        "n": 8,
+        "median": 647,
+        "p95": 707.8000000119209
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "run": 0,
+      "requestedAlpha": true,
+      "attributes": {
+        "alpha": true,
+        "colorSpace": "srgb",
+        "colorType": "unorm8",
+        "desynchronized": false,
+        "toneMapping": {
+          "mode": "standard"
+        },
+        "willReadFrequently": false
+      },
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 15,
+        "median": 7,
+        "p95": 10.899999976158142
+      },
+      "step": {
+        "n": 15,
+        "median": 3.699999988079071,
+        "p95": 4.199999988079071
+      },
+      "interval": {
+        "n": 14,
+        "median": 451.89999997615814,
+        "p95": 518.6000000238419
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "run": 1,
+      "requestedAlpha": false,
+      "attributes": {
+        "alpha": false,
+        "colorSpace": "srgb",
+        "colorType": "unorm8",
+        "desynchronized": false,
+        "toneMapping": {
+          "mode": "standard"
+        },
+        "willReadFrequently": false
+      },
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 10,
+        "median": 60.89999997615814,
+        "p95": 64.19999998807907
+      },
+      "step": {
+        "n": 10,
+        "median": 3.400000035762787,
+        "p95": 3.800000011920929
+      },
+      "interval": {
+        "n": 9,
+        "median": 615.8999999761581,
+        "p95": 686.9000000357628
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "run": 1,
+      "requestedAlpha": false,
+      "attributes": {
+        "alpha": false,
+        "colorSpace": "srgb",
+        "colorType": "unorm8",
+        "desynchronized": false,
+        "toneMapping": {
+          "mode": "standard"
+        },
+        "willReadFrequently": false
+      },
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 17,
+        "median": 7.399999976158142,
+        "p95": 8.900000035762787
+      },
+      "step": {
+        "n": 17,
+        "median": 3.5,
+        "p95": 4
+      },
+      "interval": {
+        "n": 16,
+        "median": 402.2999999523163,
+        "p95": 488.4000000357628
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "run": 2,
+      "requestedAlpha": true,
+      "attributes": {
+        "alpha": true,
+        "colorSpace": "srgb",
+        "colorType": "unorm8",
+        "desynchronized": false,
+        "toneMapping": {
+          "mode": "standard"
+        },
+        "willReadFrequently": false
+      },
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 11,
+        "median": 59.5,
+        "p95": 63.40000003576279
+      },
+      "step": {
+        "n": 11,
+        "median": 3.199999988079071,
+        "p95": 3.600000023841858
+      },
+      "interval": {
+        "n": 10,
+        "median": 620.6999999880791,
+        "p95": 683.4000000357628
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "run": 2,
+      "requestedAlpha": true,
+      "attributes": {
+        "alpha": true,
+        "colorSpace": "srgb",
+        "colorType": "unorm8",
+        "desynchronized": false,
+        "toneMapping": {
+          "mode": "standard"
+        },
+        "willReadFrequently": false
+      },
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 14,
+        "median": 7.699999988079071,
+        "p95": 18.600000023841858
+      },
+      "step": {
+        "n": 14,
+        "median": 3.399999976158142,
+        "p95": 4.100000023841858
+      },
+      "interval": {
+        "n": 13,
+        "median": 426.80000001192093,
+        "p95": 488.5
+      }
+    }
+  ]
+}

@@ -67,6 +67,11 @@ try{
   await inspectSaved();check("refresh_withdraws_old_checkbox_confirmation",!checkbox()!.checked&&!!button(apply)?.disabled);
   await confirm();click("Pause local result processing");await wait(()=>text().includes("Local pause-state receipt observed"));
   check("pause_is_only_the_observed_original_child_and_never_advances_cursor",cursor===0&&writes().length===0&&JSON.stringify(controls()[0].arguments)===JSON.stringify({sessionId:"synthetic-child-1",runId:"synthetic-run-1",paused:true})&&!checkbox());
+  const pauseCalls=calls.length;
+  for(const [language,notice] of [['zh-Hans','观察到本地暂停状态的回执。'],['ja','ローカルの一時停止の受領を確認しました。'],['en','Local pause-state receipt observed.']]){
+    await setLang(language as Lang);await wait(()=>text().includes(notice));
+    check(`${language}_pause_receipt_translates_without_new_action`,calls.length===pauseCalls&&cursor===0&&!checkbox());
+  }
   await inspectSaved();check("paused_result_requires_fresh_confirmation_before_resume",!!button("Resume local result processing")?.disabled&&!button(apply)&&!checkbox()!.checked);
   await confirm();click("Resume local result processing");await wait(()=>text().includes("Local pause-state receipt observed"));
   check("resume_adds_nothing_and_does_not_restore_old_preview",cursor===0&&writes().length===0&&!checkbox());
@@ -95,6 +100,11 @@ try{
   const beforeRefresh=writes().length;await inspectSaved();check("read_after_lost_commit_observes_progress_without_replaying",cursor===1&&writes().length===beforeRefresh&&!button(recover)&&!!button(apply)?.disabled);
   state="paused";await inspectSaved();check("paused_observation_cannot_authorize_candidate_application",text().includes("This local job is paused")&&!button(apply)&&!!button("Resume local result processing")?.disabled);
   refusal=true;click(inspect);await wait(()=>!!fixture.querySelector('[role="alert"]')&&!button(inspect)?.disabled);check("source_refusal_withdraws_previous_text_and_authority",!text().includes("Synthetic original proposal")&&!checkbox());
+  const failedCalls=calls.length;
+  for(const [language,error] of [['zh-Hans','当前策略不允许为规划预览读取这些来源'],['ja','現在のポリシーでは、計画のプレビューのためにこれらのソースを読むことはできません'],['en','The current policy does not allow reading these sources for a planning preview']]){
+    await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));
+    check(`${language}_result_error_cannot_restore_text_confirmation_or_write`,calls.length===failedCalls&&!text().includes('Synthetic original proposal')&&!checkbox());
+  }
   refusal=false;state="ready";hold=true;click(inspect);await wait(()=>release!==null);outside.focus();releasePending();await wait(()=>!!fixture.querySelector("h4"));await sleep();check("late_read_respects_outside_focus",document.activeElement===outside);
   hold=true;click(inspect);await wait(()=>release!==null);index=0;render();await wait(()=>text().includes("Saved batch 1 results"));index=1;render();await sleep();releasePending();await sleep();check("batch_round_trip_cannot_restore_old_preview",!fixture.querySelector("h4")&&!checkbox());
   hold=true;click(inspect);await wait(()=>release!==null);enabled=false;render();await wait(()=>fixture.childElementCount===0);releasePending();await sleep();enabled=true;render();await wait(()=>!!button(inspect)&&!button(inspect)!.disabled);check("lifecycle_disable_reenable_drops_late_text_and_confirmation",!fixture.querySelector("h4")&&!checkbox());

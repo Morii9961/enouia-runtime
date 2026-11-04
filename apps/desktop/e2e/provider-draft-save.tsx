@@ -2,6 +2,7 @@
 import { createRoot } from "react-dom/client";
 import { ProviderConfigDraft } from "../src/memory/ProviderConfigDraft";
 import { setTransport, type DraftSaveResult } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -17,7 +18,8 @@ const save = async (draft: string): Promise<DraftSaveResult> => {
   return cancelled ? { cancelled: true } : { saved: true, file: "memory-providers.json" };
 };
 const copied: string[] = [];
-const render = () => root.render(<ProviderConfigDraft save={save} copy={async draft => { copied.push(draft); }} />);
+function Surface(){useLang();return <ProviderConfigDraft save={save} copy={async draft => { copied.push(draft); }} />;}
+const render = () => root.render(<Surface/>);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const text = () => fixture.textContent ?? "";
 const button = (text: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent === text);
@@ -44,6 +46,14 @@ async function fill() {
   (input("I checked these models, capabilities and limits for my API account") as HTMLInputElement).click(); await sleep(20);
   click("Generate settings draft"); await wait(() => !!output());
 }
+async function noticeLanguages(scenario:string, labels:readonly (readonly [Lang,string])[]){
+  const retained=output()!,json=retained.value,saves=saved.length,copies=copied.length;
+  retained.focus();
+  for(const [language,label] of labels){
+    await setLang(language);await wait(()=>text().includes(label));
+    check(`${scenario}_${language}_notice_preserves_draft_focus_and_io`,output()===retained&&retained.value===json&&document.activeElement===retained&&saved.length===saves&&copied.length===copies&&native.length===0);
+  }
+}
 try {
   render(); await wait(() => !!button("Generate settings draft"));
   check("native_save_is_unavailable_before_an_inspected_draft", !button("Save settings draft…") && saved.length === 0);
@@ -51,13 +61,17 @@ try {
   check("generation_does_not_open_a_save_dialog", saved.length === 0);
   click("Save settings draft…"); await wait(() => text().includes("Save cancelled"));
   check("cancellation_keeps_draft_and_does_not_claim_a_write", output()!.value === draft && !text().includes("Settings draft saved"));
+  await noticeLanguages('cancelled',[['zh-Hans','已取消保存。草稿保留'],['ja','保存をキャンセルしました。下書きは残り'],['en','Save cancelled.']]);
   cancelled = false; click("Save settings draft…"); await wait(() => text().includes("Settings draft saved"));
   check("native_save_receives_the_exact_inspected_json", saved.length === 2 && saved.every(item => item === draft));
   check("saved_file_is_not_reported_as_loaded_or_sent", text().includes("running Core has not reloaded") && native.length === 0);
+  await noticeLanguages('saved',[['zh-Hans','设置草稿已保存'],['ja','設定の下書きを保存しました'],['en','Settings draft saved.']]);
   click("Copy settings draft"); await wait(() => text().includes("Draft copied"));
   check("copy_after_save_does_not_deny_the_prior_save", copied[0] === draft && text().includes("Copying does not save or reload") && !text().includes("has not been saved"));
+  await noticeLanguages('copied',[['zh-Hans','草稿已复制。复制不会保存或重载设置。'],['ja','下書きをコピーしました。コピーしても設定の保存や再読み込みはしません。'],['en','Draft copied.']]);
   fail = true; click("Save settings draft…"); await wait(() => text().includes("Save result is not confirmed"));
   check("ambiguous_save_error_retains_the_draft_without_false_success", output()!.value === draft && !text().includes("Settings draft saved") && !button("Save settings draft…")!.disabled);
+  await noticeLanguages('failed',[['zh-Hans','保存结果未确认。无法保存设置草稿。'],['ja','保存の結果は確認できていません。設定の下書きを保存できませんでした。'],['en','Save result is not confirmed. The settings draft could not be saved.']]);
   const afterFailure = saved.length; await sleep(25);
   check("save_failure_does_not_retry_automatically", saved.length === afterFailure);
   fail = false; hold = true; button("Save settings draft…")!.focus(); click("Save settings draft…"); await wait(() => release != null);

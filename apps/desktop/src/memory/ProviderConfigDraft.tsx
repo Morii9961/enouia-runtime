@@ -15,7 +15,7 @@ export function ProviderConfigDraft({ disabled = false, copy = copyDraft, save =
   const [draft, setDraft] = useState(emptyProviderConfigDraft);
   const [submitted, setSubmitted] = useState(false);
   const [generated, setGenerated] = useState<string | null>(null);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState<string | { saveError: unknown }>("");
   const [copyBusy, setCopyBusy] = useState(false);
   const [saveBusy, setSaveBusy] = useState(false);
   const saving = useRef(false);
@@ -60,14 +60,14 @@ export function ProviderConfigDraft({ disabled = false, copy = copyDraft, save =
                 inputMode={field.endsWith("Tokens") ? "numeric" : undefined} aria-invalid={invalid(`${api}.${field}`)}
                 autoComplete="off" spellCheck={false} onChange={event => destination(api, { [field]: event.target.value })} />
             </div>)}
-            <label className="mem-label" htmlFor={`${id}-${api}-streaming`}>{api} · Streaming supported</label>
+            <label className="mem-label" htmlFor={`${id}-${api}-streaming`}>{t("{api} · Streaming supported", { api })}</label>
             <select id={`${id}-${api}-streaming`} className="mem-input" value={draft.destinations[api].streaming} aria-invalid={invalid(`${api}.streaming`)}
               onChange={event => destination(api, { streaming: event.target.value as DestinationDraft["streaming"] })}>
               <option value="">{t("Choose the verified capability")}</option><option value="yes">{t("Yes")}</option><option value="no">{t("No")}</option>
             </select>
           </>}
         </div>)}
-        <label className="mem-label" htmlFor={`${id}-attempts`}>Attempts per session (1–1000)</label>
+        <label className="mem-label" htmlFor={`${id}-attempts`}>{t("Attempts per session (1–1000)")}</label>
         <input id={`${id}-attempts`} className="mem-input" inputMode="numeric" autoComplete="off" value={draft.maxAttemptsPerSession} aria-invalid={invalid("maxAttemptsPerSession")}
           onChange={event => update(current => ({ ...current, maxAttemptsPerSession: event.target.value }))} />
         <label className="mem-label" htmlFor={`${id}-tokens`}>{t("Reserved token budget per session")}</label>
@@ -88,8 +88,8 @@ export function ProviderConfigDraft({ disabled = false, copy = copyDraft, save =
         focusReturn.current = document.activeElement === event.currentTarget ? event.currentTarget : null;
         const current = revision.current;
         copying.current = true; setCopyBusy(true); setNotice("");
-        try { await copy(generated); if (mounted.current && revision.current === current) setNotice(t("Draft copied. Copying does not save or reload settings.")); }
-        catch { if (mounted.current && revision.current === current) setNotice(t("Copy failed. Select and copy the draft text, or try again.")); }
+        try { await copy(generated); if (mounted.current && revision.current === current) setNotice(msg("Draft copied. Copying does not save or reload settings.")); }
+        catch { if (mounted.current && revision.current === current) setNotice(msg("Copy failed. Select and copy the draft text, or try again.")); }
         finally { copying.current = false; if (mounted.current) setCopyBusy(false); }
       }}>{t("Copy settings draft")}</button>
       <button type="button" className="mem-button" disabled={disabled || saveBusy || copyBusy} onClick={async (event) => {
@@ -100,14 +100,14 @@ export function ProviderConfigDraft({ disabled = false, copy = copyDraft, save =
         try {
           const result = await save(generated);
           if (mounted.current && revision.current === current) setNotice("cancelled" in result
-            ? t("Save cancelled. The draft is kept; no settings were reloaded.")
-            : t("Settings draft saved. The running Core has not reloaded it."));
+            ? msg("Save cancelled. The draft is kept; no settings were reloaded.")
+            : msg("Settings draft saved. The running Core has not reloaded it."));
         } catch (error) {
-          if (mounted.current && revision.current === current) setNotice(t("Save result is not confirmed. {v0}. Check the selected file before saving again.", { v0: describe(error) }));
+          if (mounted.current && revision.current === current) setNotice({ saveError: error });
         } finally { saving.current = false; if (mounted.current) setSaveBusy(false); }
       }}>{t("Save settings draft…")}</button>
       <p className="mem-muted">{tj("Save as {path}. Saving does not reload the running Core; Runtime reads the file on next start or explicit Reload settings in Sessions. Set the key and review a grant separately. Reloading does not send a request.", { path: <span className="mem-mono">%APPDATA%\com.enouia.runtime\memory-providers.json</span> })}</p>
     </>}
-    {notice && <p role="status" className="mem-muted">{notice}</p>}
+    {notice && <p role="status" className="mem-muted">{typeof notice === "string" ? t(notice) : t("Save result is not confirmed. {v0}. Check the selected file before saving again.", { v0: describe(notice.saveError) })}</p>}
   </section>;
 }

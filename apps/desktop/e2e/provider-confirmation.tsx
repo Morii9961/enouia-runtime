@@ -2,6 +2,7 @@
 import { createRoot } from "react-dom/client";
 import { ExternalPanel } from "../src/memory/ExternalPanel";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -38,8 +39,9 @@ async function wait(p: () => boolean) { for (let n = 0; n < 250; n++) { if (p())
 function click(label: string) { const b = button(label); if (!b || b.disabled) throw new Error(`Unavailable: ${label}`); b.click(); }
 function check(id: string, ok: boolean) { checks.push({ id, ok }); if (!ok) throw new Error(id); }
 let root = createRoot(fixture);
-function render() { root.render(<ExternalPanel branch={{ sessionId: "synthetic", branchId: "synthetic" }} text="Unsent draft" invocations={[]}
-  native={native} onChanged={async () => { changed++; }} onBusyChange={v => { owned = v; }} consumeText={() => { throw new Error("Unexpected prepare"); }} />); }
+function Surface() { useLang();return <ExternalPanel branch={{ sessionId: "synthetic", branchId: "synthetic" }} text="Unsent draft" invocations={[]}
+  native={native} onChanged={async () => { changed++; }} onBusyChange={v => { owned = v; }} consumeText={() => { throw new Error("Unexpected prepare"); }} />; }
+function render() { root.render(<Surface/>); }
 try {
   render(); await wait(() => button("Review a grant…")?.disabled === false);
   click("Review a grant…"); await wait(() => button("Confirm")?.disabled === false);
@@ -49,6 +51,12 @@ try {
     button("Remove key")?.disabled === true && button("Review a grant…")?.disabled === true && button("Reload settings")?.disabled === true);
   click("Confirm"); await wait(() => !!button("Retry"));
   check("lost_receipt_keeps_exact_plan_visible", text().includes("Exact synthetic grant"));
+  const retries=calls.filter(c=>c.command==='provider_confirm').length,retryControl=button('Retry')!,plan=fixture.querySelector('pre');
+  retryControl.focus();
+  for(const [language,label,error] of [['zh-Hans','重试','记忆库正忙。请稍后重试'],['ja','再試行','保管庫は処理中です。少ししてからもう一度お試しください'],['en','Retry','The Vault is busy. Try again in a moment']]){
+    await setLang(language as Lang);await wait(()=>!!button(label)&&text().includes(error));
+    check(`${language}_retained_confirmation_error_keeps_original_retry_and_plan`,button(label)===retryControl&&document.activeElement===retryControl&&calls.filter(c=>c.command==='provider_confirm').length===retries&&fixture.querySelector('pre')===plan&&plan!.textContent==='Exact synthetic grant'&&owned);
+  }
   click("Confirm"); await sleep(20); await wait(() => attempts === 2 && button("Confirm")?.disabled === false && !!button("Retry"));
   click("Retry"); await wait(() => !button("Confirm") && !owned);
   const confirmations = calls.filter(c => c.command === "provider_confirm");

@@ -12,7 +12,7 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
   const [detail, setDetail] = useState<J>(null);
   const [simulation, setSimulation] = useState<J>(null);
   const [cue, setCue] = useState("");
-  const [observationError, setObservationError] = useState<string | null>(null);
+  const [observationError, setObservationError] = useState<{ cause: unknown } | null>(null);
   const reads = useLatestRead();
   const identity = useRef<string | null>(null);
   const lifecycleEpoch = useRef(0);
@@ -48,7 +48,7 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
           // Hide observations until a fresh successful probe confirms the same
           // snapshot. Revocation, lock, changed snapshots and other errors clear.
           if (error !== "automation_busy") cleared();
-          setObservationError(describe(error));
+          setObservationError({ cause: error });
         }
       } finally { if (!stopped) timer = setTimeout(poll, 1500); }
     };
@@ -77,46 +77,46 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
       <div className="qr44 mem-pad">
         <p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p>
         <p className="mem-content">{t("This isolated library is separate from the Vault used by Context and Sessions.")}</p>
-        {observationError && <p role="alert">{observationError}</p>}
+        {observationError && <p role="alert">{describe(observationError.cause)}</p>}
         <ErrorBox error={reads.error} />
         <p role="status">{status ? t("Library: {state}", { state: status.state }) : t("Reading library state…")}</p>
         {status?.state === "disabled" && <p className="mem-content">{t("No synthetic library is enabled in this session.")}</p>}
         {status?.state === "failed" && <p className="mem-content">{t("The synthetic library is unavailable. Start a new synthetic session to recover.")}</p>}
         {open && <button className="mem-button" disabled={reads.busy} onClick={() => void pageRead()}>{t("Refresh automatic memories")}</button>}
-        {(open || status?.state === "locked") && <button className="mem-button" disabled={reads.busy} onClick={() => control(open ? "lock" : "unlock")}>{open ? "Lock synthetic library" : "Unlock synthetic library"}</button>}
+        {(open || status?.state === "locked") && <button className="mem-button" disabled={reads.busy} onClick={() => control(open ? "lock" : "unlock")}>{t(open ? "Lock synthetic library" : "Unlock synthetic library")}</button>}
         {open && page && <>
-          <p className="mem-content">State observed at {page.authorized_at}</p>
-          <p className="mem-content">{page.matched_in_scope} currently authorized memories · {page.unknown_event_time_in_scope} unknown event dates</p>
-          <p className="mem-content">{page.complete_in_scope ? "Complete in this authorized page scope" : "Partial page; more results are available"} · Maintenance worker: {page.maintenance_worker_alive ? "running" : "stopped"}</p>
+          <p className="mem-content">{t("State observed at {time}", { time: page.authorized_at })}</p>
+          <p className="mem-content">{t("{memories} currently authorized memories · {unknown} unknown event dates", { memories: page.matched_in_scope, unknown: page.unknown_event_time_in_scope })}</p>
+          <p className="mem-content">{t(page.complete_in_scope ? "Complete in this authorized page scope" : "Partial page; more results are available")} · {t("Maintenance worker: {state}", { state: page.maintenance_worker_alive ? t("running") : t("stopped") })}</p>
           <ul className="mem-list">{page.items.map((item: J) => <li key={`${item.memory.memory_id}:${item.memory.revision}`}>
             <button className="mem-button" disabled={reads.busy} onClick={() => select(item)}>{item.content}</button>
-            <p className="mem-content">{item.dimensions.kind} · {item.knowledge} · System {item.adoption} · validity {item.validity} · attention {item.attention}</p>
+            <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: item.dimensions.kind, knowledge: item.knowledge, adoption: item.adoption, validity: item.validity, attention: item.attention })}</p>
           </li>)}</ul>
           {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void pageRead(page.next)}>{t("Next automatic page")}</button>}
           <form className="mem-stack" onSubmit={event => { event.preventDefault(); setSimulation(null); void reads.run(() => read({ operation: "simulate", query: { text: cue, conditions: [], event_window: null, at: page.authorized_at, intent: "current", limit: 8, max_bytes: 16384 } }), setSimulation); }}>
             <label className="mem-label">{t("Recall cue")} <input className="mem-input" value={cue} maxLength={2000} autoComplete="off" onChange={event => setCue(event.target.value)} /></label>
             <button className="mem-button" disabled={reads.busy || !cue.trim()}>{t("Simulate read-only recall")}</button>
           </form>
-          {simulation && <section className="mem-stack" aria-label={t("Read-only recall result")}><Tag>{t("Native read · no saved experiment")}</Tag><pre className="mem-source">{simulation.rendered_context}</pre><p className="mem-content">{simulation.trace.selected.length} selected of {simulation.trace.considered} currently authorized candidates.</p></section>}
+          {simulation && <section className="mem-stack" aria-label={t("Read-only recall result")}><Tag>{t("Native read · no saved experiment")}</Tag><pre className="mem-source">{simulation.rendered_context}</pre><p className="mem-content">{t("{selected} selected of {considered} currently authorized candidates.", { selected: simulation.trace.selected.length, considered: simulation.trace.considered })}</p></section>}
         </>}
       </div>
     </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><div className="mem-stack">
       {open && detail ? <>
         <h3>{detail.item.dimensions.kind}</h3><p className="mem-content">{detail.item.content}</p>
-        <p className="mem-content">Detail authorized at {detail.authorized_at}</p>
-        <p className="mem-content">System formation · {detail.item.knowledge} · System {detail.item.adoption}</p>
-        <p className="mem-content">Validity: {detail.item.validity} · Attention: {detail.item.attention}</p>
-        <p className="mem-content">State: {detail.item.dimensions.state ?? "Unspecified"} · Occurrence: {detail.item.dimensions.occurrence}</p>
-        <p className="mem-content">Event range: {detail.item.dimensions.event_time ? JSON.stringify(detail.item.dimensions.event_time) : "Unknown"}</p>
-        <p className="mem-content">Valid range: {detail.item.dimensions.valid_time ? JSON.stringify(detail.item.dimensions.valid_time) : "Unspecified"}</p>
-        <p className="mem-content">Learned at: {detail.item.learned_at}</p><p className="mem-content">Source captured at: {detail.item.source_captured_at}</p>
-        <p className="mem-content">Conditions: {detail.item.dimensions.conditions.join("; ") || "None specified"}</p>
-        <p className="mem-content">Stored commit: {shortId(detail.item.committed_in)} · rule {detail.item.rule_version}</p>
-        <p className="mem-content">{detail.history.length} currently authorized revisions · {detail.neighbors.length} local derivation/reversion links</p>
-        <p className="mem-content">Policy {shortId(detail.item.policy.policy_id)} · revision {detail.item.policy.revision}</p>
-        <p className="mem-content">Witnessed System commit receipt · sequence {detail.item.receipt?.sequence ?? "Unavailable"}</p>
-        <p className="mem-content">{detail.item.evidence.length} supporting citations · {detail.item.context_source_refs.length} analysis dependencies; dependency count is not independent corroboration.</p>
+        <p className="mem-content">{t("Detail authorized at {time}", { time: detail.authorized_at })}</p>
+        <p className="mem-content">{t("System formation · {knowledge} · System {adoption}", { knowledge: detail.item.knowledge, adoption: detail.item.adoption })}</p>
+        <p className="mem-content">{t("Validity: {validity} · Attention: {attention}", { validity: detail.item.validity, attention: detail.item.attention })}</p>
+        <p className="mem-content">{t("State: {state} · Occurrence: {occurrence}", { state: detail.item.dimensions.state ?? t("Unspecified"), occurrence: detail.item.dimensions.occurrence })}</p>
+        <p className="mem-content">{t("Event range: {range}", { range: detail.item.dimensions.event_time ? JSON.stringify(detail.item.dimensions.event_time) : t("Unknown") })}</p>
+        <p className="mem-content">{t("Valid range: {range}", { range: detail.item.dimensions.valid_time ? JSON.stringify(detail.item.dimensions.valid_time) : t("Unspecified") })}</p>
+        <p className="mem-content">{t("Learned at: {time}", { time: detail.item.learned_at })}</p><p className="mem-content">{t("Source captured at: {time}", { time: detail.item.source_captured_at })}</p>
+        <p className="mem-content">{t("Conditions: {conditions}", { conditions: detail.item.dimensions.conditions.join("; ") || t("None specified") })}</p>
+        <p className="mem-content">{t("Stored commit: {commit} · rule {rule}", { commit: shortId(detail.item.committed_in), rule: detail.item.rule_version })}</p>
+        <p className="mem-content">{t("{revisions} currently authorized revisions · {links} local derivation/reversion links", { revisions: detail.history.length, links: detail.neighbors.length })}</p>
+        <p className="mem-content">{t("Policy {policy} · revision {revision}", { policy: shortId(detail.item.policy.policy_id), revision: detail.item.policy.revision })}</p>
+        <p className="mem-content">{t("Witnessed System commit receipt · sequence {sequence}", { sequence: detail.item.receipt?.sequence ?? t("Unavailable") })}</p>
+        <p className="mem-content">{t("{citations} supporting citations · {dependencies} analysis dependencies; dependency count is not independent corroboration.", { citations: detail.item.evidence.length, dependencies: detail.item.context_source_refs.length })}</p>
         <ul aria-label={t("Authorized revision history")}>{detail.history.map((item: J) => <li key={item.memory.revision}>
           {t("Revision {n}", { n: item.memory.revision })}: {item.content} · {item.knowledge} · {t("System {state}", { state: item.adoption })} · {t("learned {date}", { date: item.learned_at })}
         </li>)}</ul>
@@ -127,7 +127,7 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
         <button className="mem-button" disabled={reads.busy} onClick={() => select(detail.item, true)}>{t("Read selected original sources")}</button>
         {detail.sources.map((source: J) => <section key={`${source.record.source_id}:${source.record.revision}`}>
           <p className="mem-content">{shortId(source.record.source_id)} · {source.record.speaker_role} · {source.record.evidence_class}</p>
-          <p className="mem-content">{detail.item.evidence.some((e: J) => e.source_id === source.record.source_id && e.source_revision === source.record.revision) ? "Supporting citation" : detail.item.context_source_refs.some((e: J) => e.source_id === source.record.source_id && e.source_revision === source.record.revision) ? "Analysis dependency · not corroboration" : "Authorized historical dependency"}</p>
+          <p className="mem-content">{t(detail.item.evidence.some((e: J) => e.source_id === source.record.source_id && e.source_revision === source.record.revision) ? "Supporting citation" : detail.item.context_source_refs.some((e: J) => e.source_id === source.record.source_id && e.source_revision === source.record.revision) ? "Analysis dependency · not corroboration" : "Authorized historical dependency")}</p>
           {source.text !== null ? <pre className="mem-source">{source.text}</pre> : <p className="mem-content">{t("Original text has not been requested or was omitted by the byte budget.")}</p>}
         </section>)}
         <p className="mem-content">{t("Global timeline, global graph and saved experiments are unavailable.")}</p>

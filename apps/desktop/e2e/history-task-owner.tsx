@@ -5,6 +5,7 @@ import { HistoryTasks, useHistoryTasks } from "../src/memory/HistoryTaskPanel";
 import { ImportReport } from "../src/memory/ImportReport";
 import { call, setTransport, type J } from "../src/memory/client";
 import { historyTask, historyTaskRequest } from "../tests/history-task-fixture";
+import { setLang, useLang, type Lang } from "../src/i18n";
 
 const fixture = document.getElementById("fixture")!, root = createRoot(fixture), checks: { id: string; ok: boolean }[] = [];
 const calls: { command: string; args: J; key: unknown }[] = [];
@@ -38,6 +39,7 @@ setTransport(async (native, args) => {
   return { kind: "synthetic", result };
 });
 function Harness() {
+  useLang();
   const tasks = useHistoryTasks(vaultId, call), [head, setHead] = useState("old-head"), [report, setReport] = useState(true);
   return <>
     <button disabled={!tasks.ready} onClick={() => tasks.create(historyTaskRequest())}>Submit synthetic selection</button>
@@ -70,6 +72,11 @@ try {
   check("retry_retains_exact_arguments_and_original_key", writes().length === 2 && writes()[0].key === writes()[1].key && JSON.stringify(writes()[0].args) === JSON.stringify(writes()[1].args));
   check("local_creation_is_not_reported_as_model_or_review_completion", text().includes("Model extraction and review are still separate") && !calls.some(c => c.command === "external_send"));
   check("saved_limits_are_visible_before_continuation", text().includes("Reserved token ceiling per batch") && [...fixture.querySelectorAll('dt')].find(el => el.textContent === "Cost ceiling per batch (micro USD)")?.nextElementSibling?.textContent === "unknown");
+  const receiptCalls=calls.length,receiptWrites=writes().length;
+  for(const [language,note] of [['zh-Hans','操作回执。请重新读取已保存的任务以查看最新状态。'],['ja','操作の受領です。最新の状態を見るには保存済みのタスクを読み直してください。'],['en','Operation receipt. Read the saved task again to observe its latest state.']]){
+    await setLang(language as Lang);await wait(()=>text().includes(note));
+    check(`${language}_local_task_receipt_keeps_saved_children_without_replay`,calls.length===receiptCalls&&writes().length===receiptWrites&&text().includes('synthetic-child-1')&&text().includes('synthetic-child-0'));
+  }
   partial = true; click("Read this history task again"); await wait(() => text().includes("1 local jobs are missing"));
   click("Resume missing local jobs"); await wait(() => text().includes("All selected local jobs exist"));
   check("resume_addresses_original_task_without_new_admission", writes().at(-1)!.command === "history_resume" && writes().at(-1)!.args.taskId === "synthetic-history-task" && writes().filter(c => c.command === "history_materialize").length === 2);

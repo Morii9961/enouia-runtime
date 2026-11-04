@@ -1,0 +1,228 @@
+{
+  "browser": "Edg/156.0.4314.58",
+  "scope": "Isolated headless browser, fictional star map; probes change pixels, not product behavior. Draw intervals are not presentation timestamps.",
+  "rows": [
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 29,
+        "median": 11.800000011920929,
+        "p95": 19.80000001192093
+      },
+      "step": {
+        "n": 29,
+        "median": 0.5999999642372131,
+        "p95": 1.2999999523162842
+      },
+      "interval": {
+        "n": 28,
+        "median": 192.10000002384186,
+        "p95": 241.69999998807907
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "solid_theme_links",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 47,
+        "median": 10.199999988079071,
+        "p95": 22.600000023841858
+      },
+      "step": {
+        "n": 47,
+        "median": 0.5999999642372131,
+        "p95": 0.9000000357627869
+      },
+      "interval": {
+        "n": 46,
+        "median": 122.5,
+        "p95": 177.69999998807907
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "manual_theme_dashes",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 38,
+        "median": 13.5,
+        "p95": 30.5
+      },
+      "step": {
+        "n": 38,
+        "median": 0.5,
+        "p95": 0.800000011920929
+      },
+      "interval": {
+        "n": 37,
+        "median": 147.30000001192093,
+        "p95": 252.19999998807907
+      },
+      "pixelComparison": {
+        "segments": 4300,
+        "pixels": 1533060,
+        "different": 167,
+        "maxChannelDelta": 128,
+        "meanChannelDelta": 0.00041420427119616974
+      }
+    },
+    {
+      "layout": "Sphere",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 42,
+        "median": 9,
+        "p95": 11.5
+      },
+      "step": {
+        "n": 42,
+        "median": 0.5,
+        "p95": 0.7000000476837158
+      },
+      "interval": {
+        "n": 41,
+        "median": 143,
+        "p95": 152.39999997615814
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 61,
+        "median": 1.5,
+        "p95": 1.9000000357627869
+      },
+      "step": {
+        "n": 61,
+        "median": 0.5999999642372131,
+        "p95": 0.800000011920929
+      },
+      "interval": {
+        "n": 60,
+        "median": 99.30000001192093,
+        "p95": 102.90000003576279
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "solid_theme_links",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 98,
+        "median": 1.5,
+        "p95": 1.699999988079071
+      },
+      "step": {
+        "n": 98,
+        "median": 0.6000000238418579,
+        "p95": 0.800000011920929
+      },
+      "interval": {
+        "n": 97,
+        "median": 61.5,
+        "p95": 66.60000002384186
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "manual_theme_dashes",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 63,
+        "median": 4.199999988079071,
+        "p95": 4.600000023841858
+      },
+      "step": {
+        "n": 63,
+        "median": 0.6000000238418579,
+        "p95": 0.699999988079071
+      },
+      "interval": {
+        "n": 62,
+        "median": 95.69999998807907,
+        "p95": 100.69999998807907
+      },
+      "pixelComparison": {
+        "segments": 4300,
+        "pixels": 1533060,
+        "different": 416,
+        "maxChannelDelta": 64,
+        "meanChannelDelta": 0.0004650829060832583
+      }
+    },
+    {
+      "layout": "Theme clusters",
+      "n": 5000,
+      "mode": "baseline",
+      "dpr": 1.5,
+      "hidden": false,
+      "canvas": {
+        "width": 1530,
+        "height": 1002
+      },
+      "draw": {
+        "n": 61,
+        "median": 1.5,
+        "p95": 1.699999988079071
+      },
+      "step": {
+        "n": 61,
+        "median": 0.6000000238418579,
+        "p95": 0.7000000476837158
+      },
+      "interval": {
+        "n": 60,
+        "median": 97,
+        "p95": 107.80000001192093
+      }
+    }
+  ]
+}

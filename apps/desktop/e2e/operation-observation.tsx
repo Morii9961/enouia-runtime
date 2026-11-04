@@ -2,6 +2,7 @@
 import { createRoot } from "react-dom/client";
 import { Operation } from "../src/memory/ui";
 import { setTransport } from "../src/memory/client";
+import { setLang, useLang, type Lang } from "../src/i18n";
 import "../src/quiet-runtime.css";
 import "../src/memory/memory.css";
 
@@ -31,7 +32,8 @@ setTransport(async (native, args) => {
   return { kind: "memory_page", result, error: null };
 });
 let root = createRoot(fixture);
-const render = (knownKind = true) => root.render(<Operation id="selected-operation" kind={knownKind ? "external_send" : undefined} onDone={() => { callbacks++; }} />);
+function Surface({knownKind}:{knownKind:boolean}){useLang();return <Operation id="selected-operation" kind={knownKind ? "external_send" : undefined} onDone={() => { callbacks++; }} />;}
+const render = (knownKind = true) => root.render(<Surface knownKind={knownKind}/>);
 render();
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b => b.textContent === label);
@@ -42,6 +44,11 @@ function retry() { const b = button("Retry"); if (!b || b.disabled) throw new Er
 try {
   await wait(() => !!button("Retry") || text().includes("Reply saved"));
   check("foreign_terminal_read_cannot_finish_selected_operation", callbacks === 0 && !text().includes("Reply saved") && !!button("Retry") && !button("Stop locally"));
+  const failedReads=calls.length,recovery=button('Retry')!;recovery.focus();
+  for(const [language,error] of [['zh-Hans','无法读取操作：记忆调用失败'],['ja','操作を読めませんでした：記憶の呼び出しに失敗しました'],['en','Could not read the operation: The Memory call failed']]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_operation_error_keeps_manual_retry_without_reobservation`,text().includes(error)&&recovery.isConnected&&document.activeElement===recovery&&calls.length===failedReads&&callbacks===0);
+  }
   fault = "missing"; retry(); await sleep(40);
   check("missing_read_identity_cannot_finish_operation", callbacks === 0 && !text().includes("Reply saved") && !!button("Retry"));
   fault = "kind"; retry(); await sleep(40);

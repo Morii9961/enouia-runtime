@@ -100,6 +100,11 @@ try {
   check("uncertain_receipt_and_task_reread_reuse_exact_key_and_args", prepares().at(-1)!.key === original.key && JSON.stringify(prepares().at(-1)!.args) === JSON.stringify(original.args));
   check("recovered_handle_requires_new_inspection", button("Send this batch once")!.disabled && text().includes("synthetic-call-3"));
   click("Withdraw batch request"); await wait(() => !!button(prepareLabel) && !button(prepareLabel)!.disabled);
+  const withdrawnPrepares=prepares().length,withdrawnSends=sends().length;
+  for(const [language,notice] of [['zh-Hans','请求已撤回。'],['ja','リクエストを取り下げました。'],['en','Request withdrawn.']]){
+    await setLang(language as Lang);await wait(()=>text().includes(notice));
+    check(`${language}_withdrawal_notice_follows_language_without_new_request`,prepares().length===withdrawnPrepares&&sends().length===withdrawnSends&&!text().includes('SYNTHETIC BODY'));
+  }
   input(fixture.querySelector('input[inputmode="numeric"]')!, "512"); await sleep(); await prepare();
   check("changed_output_uses_another_key", prepares().at(-1)!.key !== original.key && prepares().at(-1)!.args.outputTokens === 512);
   const changedKey = prepares().at(-1)!.key;
@@ -140,6 +145,13 @@ try {
     ["history.source_read", "does not allow reading"], ["history.batch_missing", "Explicitly resume"], ["history.batch_not_selected", "not selected"]]) {
     refusal = rule; click(prepareLabel); await wait(() => text().includes(expected));
     check(`${rule}_refusal_offers_saved_state_recovery_without_send`, !button("Send this batch once") && text().includes("Read the saved task"));
+    if(rule==='history.model_changed'){
+      const failedPrepares=prepares().length,failedSends=sends().length;
+      for(const [language,error] of [['zh-Hans','配置的模型与已保存任务不同。'],['ja','設定したモデルが保存済みのタスクと異なります。'],['en','The configured model differs from the saved task.']]){
+        await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));
+        check(`${language}_batch_error_does_not_reprepare_or_send`,prepares().length===failedPrepares&&sends().length===failedSends&&!text().includes('SYNTHETIC BODY'));
+      }
+    }
     click("Read this history task again"); await sleep(); await wait(() => !!button(prepareLabel) && !button(prepareLabel)!.disabled);
   }
   refusal = null; hold = true; click(prepareLabel); await wait(() => release !== null);

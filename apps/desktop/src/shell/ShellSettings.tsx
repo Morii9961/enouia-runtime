@@ -25,7 +25,7 @@ export default function ShellSettings() {
         const next = await invoke<ShellStatus>('shell_status');
         if (!stopped) { setStatus(next); setError(''); }
       } catch {
-        if (!stopped) setError(t('Runtime window status is unavailable.'));
+        if (!stopped) setError(msg('Runtime window status is unavailable.'));
       } finally {
         // Serial polling; a delayed request never publishes over a newer one.
         if (!stopped) timer = setTimeout(refresh, 1000);
@@ -38,7 +38,7 @@ export default function ShellSettings() {
   const exit = async () => {
     setBusy(true); setError('');
     try { await invoke('shell_exit'); }
-    catch { setError(t('Runtime could not exit. Try again.')); }
+    catch { setError(msg('Runtime could not exit. Try again.')); }
     finally { setBusy(false); }
   };
 
@@ -49,13 +49,13 @@ export default function ShellSettings() {
       <div className="qr216"><span className="qr35">{t("Close window")}</span><span>{t("Hide to tray · Memory operations keep running")}</span></div>
       <div className="qr216"><span className="qr35">{t("Quick Search")}</span><span>{status?.hotkey?.combo ?? 'Ctrl+Alt+M'} · {t(status?.hotkey?.state ?? 'checking')}{status?.hotkey?.state === 'conflict' ? ' · ' + t('shortcut already in use; use the tray or button') : ''}</span></div>
       <div className="qr216"><span className="qr35">{t("Search")}</span><button className="mem-button" type="button" disabled={status?.closing || status?.locking || status?.vaultChanging} onClick={() => {
-        void invoke('shell_search').catch(() => setError(t('Quick Search could not open. Try again.')));
+        void invoke('shell_search').catch(() => setError(msg('Quick Search could not open. Try again.')));
       }}>{t("Open Quick Search")}</button></div>
       {status?.locking && <div role="status" className="qr108">{t('Finishing Memory operations before locking. Model calls stop locally; read saved session outcomes after unlocking before sending again.')}</div>}
       {status?.vaultChanging && !status.locking && !status.closing && <div role="status" className="qr108">{t("Finishing Vault change…")}</div>}
       {status?.closing && <div role="status" className="qr108">{t('Finishing Memory operations before exiting. Model calls stop locally; this does not confirm remote cancellation.')}</div>}
       {status?.vaultAdmissionError && <div role="alert" className="mem-error">{t(admissionErrors[status.vaultAdmissionError] ?? 'Runtime could not open the requested Vault.')}</div>}
-      {(error || status?.error) && <div role="alert" className="qr108">{error || t(errors[status?.error ?? ''] || 'A window action failed. Try again.')}</div>}
+      {(error || status?.error) && <div role="alert" className="qr108">{error ? t(error) : t(errors[status?.error ?? ''] || 'A window action failed. Try again.')}</div>}
       <div className="qr216"><span className="qr35">{t("Exit")}</span><button className="mem-button" type="button" disabled={busy || status?.closing} onClick={() => void exit()}>{t("Exit Runtime")}</button></div>
     </div>
   );
