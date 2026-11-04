@@ -1,6 +1,6 @@
 // Isolated, fictional browser diagnostics for UI v2 issue #24. No native IPC.
-// Probes temporarily omit drawing operations to locate cost; they are NOT visual fixes.
-// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--dashes | --context | --trace | --options]
+// Probe modes omit drawing operations; --motion measures unchanged product drawing.
+// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--motion | --idle-only | --compare-idle=<prior output> | --dashes | --context | --trace | --options]
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -67,7 +67,83 @@ try {
   };
   await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1.5, mobile: false });
-  if(process.argv.includes('--trace')){
+  const compareArg = process.argv.find(arg => arg.startsWith('--compare-idle='));
+  if (compareArg) {
+    const prior = resolve(compareArg.slice('--compare-idle='.length));
+    if (!prior.startsWith(resolve('target') + sep)) throw Error('Prior images must stay under target');
+    const comparisons = [];
+    for (const layout of ['sphere', 'clusters']) {
+      const files = [prior, out].map(dir => 'data:image/png;base64,' + readFileSync(join(dir, `${layout}-idle-static.png`)).toString('base64'));
+      const comparison = await evaluate(`(async () => {
+        const images=await Promise.all(${JSON.stringify(files)}.map(async src=>{const im=new Image();im.src=src;await im.decode();return im;}));
+        const [a,b]=images;if(a.width!==b.width||a.height!==b.height)throw Error('Idle image dimensions differ');
+        const buffers=images.map(im=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);return g.getImageData(0,0,c.width,c.height).data;});
+        let differentPixels=0;for(let i=0;i<buffers[0].length;i+=4)if(buffers[0].subarray(i,i+4).some((v,j)=>v!==buffers[1][i+j]))differentPixels++;
+        return {layout:${JSON.stringify(layout)},width:a.width,height:a.height,differentPixels};
+      })()`);
+      comparisons.push(comparison); console.log(JSON.stringify(comparison));
+    }
+    writeFileSync(join(out, 'idle-pixels.json'), JSON.stringify(comparisons, null, 2));
+  } else if (process.argv.includes('--motion') || process.argv.includes('--idle-only')) {
+    // Product drawing only: alternating eased zoom keeps busy true without probes
+    // changing the canvas. Fresh reduced-motion pages make idle pixels reproducible.
+    const rows = [];
+    for (const layout of ['Sphere', 'Theme clusters']) {
+      await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });
+      await send('Page.navigate', { url: origin + '/starmap.html?lang=en&theme=dark' });
+      await until(() => evaluate('Boolean(document.querySelector(".sm-canvas[data-ready]"))'));
+      await evaluate('document.fonts.ready.then(()=>true)');
+      await evaluate(`(() => {
+        const canvas=document.querySelector('.sm-canvas'),ctx=canvas.getContext('2d');
+        const p=window.__starDiagnostic={times:[],draws:[],dashes:[],dash:[],frameDashes:0};
+        const setLineDash=ctx.setLineDash,stroke=ctx.stroke;
+        ctx.setLineDash=function(value){p.dash=value;return setLineDash.call(this,value);};
+        ctx.stroke=function(...args){if(p.dash.length)p.frameDashes++;return stroke.apply(this,args);};
+        window.__starPerf.draws.push=function(value){p.times.push(performance.now());p.draws.push(value);p.dashes.push(p.frameDashes);p.frameDashes=0;return Array.prototype.push.call(this,value);};
+        [...document.querySelectorAll('.sm-size button')].find(b=>b.textContent.replaceAll(',','')==='5000').click();
+        [...document.querySelectorAll('[aria-label="Star map layout"] button')].find(b=>b.textContent===${JSON.stringify(layout)}).click();
+      })()`);
+      await until(() => evaluate(`document.querySelector('.sm-canvas')?.dataset.ready==='5000:${layout === 'Sphere' ? 'sphere' : 'clusters'}'`));
+      if (!process.argv.includes('--idle-only')) {
+      await sleep(4500);
+      for (const phase of ['idle', 'motion', 'restored']) {
+        if (phase === 'motion') await evaluate(`(() => {
+          let plus=true;const c=document.querySelector('.sm-canvas');const reset=[...document.querySelectorAll('.sm-zoom button')].find(b=>b.textContent==='Reset view');if(!reset)throw Error('Missing reset');
+          window.__starDiagnostic.zoomTimer=setInterval(()=>{if(plus)c.dispatchEvent(new KeyboardEvent('keydown',{key:'+',bubbles:true}));else reset.click();plus=!plus;},100);
+        })()`);
+        if (phase === 'restored') await evaluate('clearInterval(window.__starDiagnostic.zoomTimer)');
+        await sleep(1200);
+        const row = await evaluate(`(async () => {
+          const p=window.__starDiagnostic;p.times=[];p.draws=[];p.dashes=[];
+          await new Promise(resolve=>setTimeout(resolve,6000));
+          const summary=a=>{const s=a.slice().sort((x,y)=>x-y);return {n:s.length,median:s[Math.floor(s.length/2)]??null,p95:s[Math.min(s.length-1,Math.floor(s.length*.95))]??null};};
+          return {layout:${JSON.stringify(layout)},phase:${JSON.stringify(phase)},n:5000,dpr:devicePixelRatio,hidden:document.hidden,
+            draw:summary(p.draws),interval:summary(p.times.slice(1).map((t,i)=>t-p.times[i])),themeStrokes:summary(p.dashes)};
+        })()`);
+        if (row.hidden || !row.draw.n) throw Error('Hidden or empty motion sample');
+        rows.push(row); console.log(JSON.stringify(row));
+        const shot = await send('Page.captureScreenshot', { format: 'png' });
+        writeFileSync(join(out, `${layout === 'Sphere' ? 'sphere' : 'clusters'}-${phase}.png`), Buffer.from(shot.data, 'base64'));
+      }
+      }
+      await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+      await send('Page.navigate', { url: origin + '/starmap.html?lang=en&theme=dark' });
+      await until(() => evaluate('Boolean(document.querySelector(".sm-canvas[data-ready]"))'));
+      await evaluate('document.fonts.ready.then(()=>true)');
+      await evaluate(`(() => {
+        [...document.querySelectorAll('.sm-size button')].find(b=>b.textContent.replaceAll(',','')==='5000').click();
+        [...document.querySelectorAll('[aria-label="Star map layout"] button')].find(b=>b.textContent===${JSON.stringify(layout)}).click();
+      })()`);
+      await until(() => evaluate(`document.querySelector('.sm-canvas')?.dataset.ready==='5000:${layout === 'Sphere' ? 'sphere' : 'clusters'}'`));
+      await sleep(1200);
+      await evaluate(`[...document.querySelectorAll('.sm-zoom button')].find(b=>b.textContent==='Reset view').click()`);
+      await sleep(300);
+      const png = await evaluate("document.querySelector('.sm-canvas').toDataURL('image/png').split(',')[1]");
+      writeFileSync(join(out, `${layout === 'Sphere' ? 'sphere' : 'clusters'}-idle-static.png`), Buffer.from(png, 'base64'));
+      writeFileSync(join(out, 'report.json'), JSON.stringify({ browser: version.Browser,
+        scope: 'Owned headless browser/profile, fictional 5000-star product drawing. Motion = alternating eased keyboard zoom-in/reset every 100 ms (bounded camera). Idle/restored = live decorative motion without interaction. Static idle PNG = fresh reduced-motion page, for decoded pixel comparison. Draw intervals are not presentation timestamps.', rows }, null, 2));
+    }
+  } else if(process.argv.includes('--trace')){
     // Where the time between draws goes: per-thread top-level busy time from a CDP trace,
     // plus the browser's own GPU feature report (is canvas raster hardware or software here?).
     const browserWs = new WebSocket(version.webSocketDebuggerUrl);
