@@ -16,6 +16,10 @@ Current branch adoption (2026-11-03): Memory revision `0d338f12f51a859363e072507
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
 
+## Synthetic segmented catalog entry
+
+The separate native `--memory-catalog-synthetic` entry creates a fresh segmented root and exposes main-window-only `memory_catalog`, schema 2 / `memory-native-read-2`. Its closed operations are status, page, stats, lock and unlock. The native binding owns the root, System, attention profile and Private ceiling; stats requires the page's original selection. It never reinterprets an old HostV2 root. Lock/exit withdraw observations, Provider setup stays disabled, and autostart creates no example. If both synthetic flags are supplied, this entry takes precedence. The frontend consumer is a later slice; see [native evidence and limits](validation/UI-v2-read2-native-entry-2026-11-03.md). This entry uses fixed fictional inputs without a model, analyzer or formation worker, and does not adopt an Owner root.
+
 ## Core-8 synthetic native capability
 
 [ADR-037](adr/037-synthetic-native-memory-adoption.md) originally consumed Memory Core-7

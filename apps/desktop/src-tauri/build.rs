@@ -5,6 +5,7 @@ fn main() {
         tauri_build::AppManifest::new().commands(&[
             "memory_call",
             "memory_automation",
+            "memory_catalog",
             "memory_pick",
             "memory_provider_setup",
             "memory_provider_reload",

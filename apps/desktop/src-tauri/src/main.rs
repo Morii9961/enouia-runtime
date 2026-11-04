@@ -17,6 +17,7 @@ mod companion;
 mod hotkey;
 mod memory;
 mod memory_automation;
+mod memory_catalog;
 mod provider;
 mod root_lease;
 mod shell;
@@ -29,10 +30,16 @@ fn main() {
     let host = MemoryHost::new();
     let args: Vec<String> = std::env::args().collect();
     let autostart = args.iter().any(|arg| arg == "--autostart");
-    let synthetic_requested = args.iter().any(|arg| arg == "--memory-synthetic");
+    let catalog_requested = args.iter().any(|arg| arg == "--memory-catalog-synthetic");
+    let synthetic_requested =
+        catalog_requested || args.iter().any(|arg| arg == "--memory-synthetic");
     let synthetic = !autostart && synthetic_requested;
     if synthetic_requested {
-        host.automation().request_synthetic_mode();
+        if catalog_requested {
+            host.catalog().request_synthetic_mode();
+        } else {
+            host.automation().request_synthetic_mode();
+        }
     }
     if !autostart
         && !synthetic
@@ -58,6 +65,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             memory::memory_call,
             memory_automation::memory_automation,
+            memory_catalog::memory_catalog,
             memory::memory_pick,
             provider::memory_provider_setup,
             provider::memory_provider_reload,
@@ -81,10 +89,17 @@ fn main() {
             // settings file (ADR-032).
             if synthetic_requested {
                 if synthetic {
-                    let native = app.state::<MemoryHost>().automation().clone();
-                    tauri::async_runtime::spawn_blocking(move || {
-                        let _ = native.initialize_synthetic();
-                    });
+                    if catalog_requested {
+                        let native = app.state::<MemoryHost>().catalog().clone();
+                        tauri::async_runtime::spawn_blocking(move || {
+                            let _ = native.initialize_synthetic();
+                        });
+                    } else {
+                        let native = app.state::<MemoryHost>().automation().clone();
+                        tauri::async_runtime::spawn_blocking(move || {
+                            let _ = native.initialize_synthetic();
+                        });
+                    }
                 }
             } else {
                 let path = provider::settings_path(app.handle());
