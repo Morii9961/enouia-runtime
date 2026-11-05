@@ -107,7 +107,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 - 顶部 56px 装饰迹线（笔色，纯 CSS）；「Quick Search」+「Approved Memory · read only」；下划线输入框 + 反相「Search」；结果行 = 状态竖块 + `current` 标签 + 片段；底部「Esc to close · cleared when hidden」与「Open main window」。
 - 已做：空 / 结果 / 无结果三态（截图 `dark-overlay-results-560`、`light-overlay-results-560`；空与无结果在 `.design`）。
-- 缺：没有「虚构/真实」标注（原生里本来显示真实记忆；OPEN_ISSUES #11）。
+- 截图桩已补明确虚构水印：`e2e/quick-search-preview.html` 覆盖空白/结果/无结果/错误，真实原生组件保持；见 [#11 验证](../../validation/UI-v2-quick-search-fixture-2026-11-06.md)。旧 shots 保留原证据，不代表新桩或原生接受。
 
 ## 3. Memory 区域的五个工作区
 

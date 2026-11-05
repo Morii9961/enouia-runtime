@@ -78,3 +78,5 @@ node scripts/check-activity-retirement.mjs
 - Codex 实质参与提交时，按 `AGENTS.md` 加 `Co-authored-by: Codex <267193182+codex@users.noreply.github.com>`。
 - 遇到 DESIGN.md 没写的问题：先在 `docs/design-decisions.md` 补一条决定，再改代码和 DESIGN.md。
 - 截图与个人数据：截图只用虚构演示数据；不在测试快照、日志、文档里放真实记忆正文；参考原图不进仓库。
+
+2026-11-06：Quick Search 的独立合成截图桩已带固定虚构标识，四态/三语/双主题及不重发检查见 [#11 记录](../../validation/UI-v2-quick-search-fixture-2026-11-06.md)。原生组件和历史 shots 未改。
