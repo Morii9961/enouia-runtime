@@ -2,7 +2,7 @@
 
 给接手实现的人（Claude 或 Codex）。先读这一页，再按顺序读。**要把 UI v2 落地进 Windows 应用，先读 [HANDOFF_CODEX.md](HANDOFF_CODEX.md)**：现状、落地顺序、验收与交付包。
 
-2026-11-05：#115–#119 已合并；其后的 UI 接续仍在草稿 PR，不能视为 main 已采用。近期范围与证据见 [五工作区](../../validation/UI-v2-memory-workspaces-2026-11-04.md)、[演示反馈](../../validation/UI-v2-demo-feedback-2026-11-04.md)、[窗口反馈](../../validation/UI-v2-window-feedback-2026-11-04.md)、[旧 Vault 空状态](../../validation/UI-v2-empty-vault-demo-2026-11-04.md)、[月／日浏览](../../validation/UI-v2-month-day-preview-2026-11-05.md)、[覆盖日历](../../validation/UI-v2-coverage-calendar-2026-11-05.md)、[记忆列表/筛选](../../validation/UI-v2-memory-list-filters-2026-11-05.md)与[替代链/证据链](../../validation/UI-v2-lineage-2026-11-05.md)。此前逐片记录见 [2026-11-03 接续](CONTINUATION_2026-11-03.md)。此前已合入的原生前端续作见 [2026-11-02 记录](CONTINUATION_2026-11-02.md)。这些开发证据不代表发布、安装或人工验收。
+2026-11-05：#115–#119 已合并；其后的 UI 接续仍在草稿 PR，不能视为 main 已采用。近期范围与证据见 [五工作区](../../validation/UI-v2-memory-workspaces-2026-11-04.md)、[演示反馈](../../validation/UI-v2-demo-feedback-2026-11-04.md)、[窗口反馈](../../validation/UI-v2-window-feedback-2026-11-04.md)、[旧 Vault 空状态](../../validation/UI-v2-empty-vault-demo-2026-11-04.md)、[月／日浏览](../../validation/UI-v2-month-day-preview-2026-11-05.md)、[覆盖日历](../../validation/UI-v2-coverage-calendar-2026-11-05.md)、[记忆列表/筛选](../../validation/UI-v2-memory-list-filters-2026-11-05.md)、[替代链/证据链](../../validation/UI-v2-lineage-2026-11-05.md)与[冲突/修订对照](../../validation/UI-v2-formation-comparison-2026-11-05.md)。此前逐片记录见 [2026-11-03 接续](CONTINUATION_2026-11-03.md)。此前已合入的原生前端续作见 [2026-11-02 记录](CONTINUATION_2026-11-02.md)。这些开发证据不代表发布、安装或人工验收。
 
 1. [DESIGN.md](../../../DESIGN.md)：视觉的每个具体值（颜色、字体、间距、布局、动效、文案、禁区）。
 2. [docs/design-decisions.md](../../design-decisions.md)：已经定下的决定。已记录的不重新讨论；要推翻就新增一条。

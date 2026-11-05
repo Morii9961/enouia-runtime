@@ -1,0 +1,3205 @@
+{
+  "baseline_revision": "2ddc2b30797803f30ea5801906ed77090e100fb8",
+  "scope": "Read-only browser conflict comparison and explicitly invented same-ID revision snapshots.",
+  "focused_dom": [
+    {
+      "fixture": "formation-comparison",
+      "checks": [
+        {
+          "id": "no_default_conflict_keeps_selection",
+          "ok": true
+        },
+        {
+          "id": "conflict_bodies_and_sources_are_original",
+          "ok": true
+        },
+        {
+          "id": "both_stay_held_without_resolution_action",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflict_focus_text_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_conflict_focus_text_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "en_conflict_focus_text_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "missing_history_is_not_reconstructed_from_notes",
+          "ok": true
+        },
+        {
+          "id": "revision_sample_link_keeps_exact_workspace_and_view",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "formation-comparison",
+      "checks": [
+        {
+          "id": "snapshots_are_explicit_same_id_current_body_matches",
+          "ok": true
+        },
+        {
+          "id": "initial_revision_bodies_and_highlights_are_literal",
+          "ok": true
+        },
+        {
+          "id": "historical_states_or_support_not_inferred",
+          "ok": true
+        },
+        {
+          "id": "insertion_preserves_exact_whitespace_and_bodies",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revision_selection_focus_and_current_record_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_revision_selection_focus_and_current_record_survive",
+          "ok": true
+        },
+        {
+          "id": "en_revision_selection_focus_and_current_record_survive",
+          "ok": true
+        },
+        {
+          "id": "identical_body_does_not_create_change",
+          "ok": true
+        },
+        {
+          "id": "reverse_comparison_does_not_revert_current_record",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "revisions"
+    },
+    {
+      "fixture": "formation-comparison",
+      "checks": [
+        {
+          "id": "unrelated_sample_does_not_invent_conflict",
+          "ok": true
+        },
+        {
+          "id": "missing_history_is_not_reconstructed_from_notes",
+          "ok": true
+        },
+        {
+          "id": "revision_sample_link_keeps_exact_workspace_and_view",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "source-missing"
+    },
+    {
+      "fixture": "formation-comparison",
+      "checks": [
+        {
+          "id": "no_default_conflict_keeps_selection",
+          "ok": true
+        },
+        {
+          "id": "conflict_bodies_and_sources_are_original",
+          "ok": true
+        },
+        {
+          "id": "both_stay_held_without_resolution_action",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflict_focus_text_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_original_unknown_packet_key_kept",
+          "ok": true
+        },
+        {
+          "id": "ja_conflict_focus_text_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_original_unknown_packet_key_kept",
+          "ok": true
+        },
+        {
+          "id": "en_conflict_focus_text_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "en_original_unknown_packet_key_kept",
+          "ok": true
+        },
+        {
+          "id": "missing_history_is_not_reconstructed_from_notes",
+          "ok": true
+        },
+        {
+          "id": "revision_sample_link_keeps_exact_workspace_and_view",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "unknown-result"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "revisions"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "coverage"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "nothing_adopted_or_offered",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "held"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "open_end_is_readable_without_fabricated_end",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "open-ended"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "missing_source_keeps_statement_without_excerpt",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "source-missing"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "unknown-result"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "en_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "en_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_conflicts_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_revisions_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "read_only_controls_stay_disabled",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "read-only"
+    },
+    {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic browser/profile only. No native or human acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Planning reviews happen every Sunday.",
+          "Wants a short planning check-in every morning."
+        ],
+        "marks": [
+          "Planning reviews happen every Sunday",
+          "Wants a short planning check-in every morning"
+        ],
+        "excerpts": [
+          "Let’s keep reviews to Sundays.",
+          "A quick check every morning would help."
+        ],
+        "left": null,
+        "right": null,
+        "current": "Planning reviews happen every Sunday.",
+        "currentId": "am_10 r1",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "original",
+        "view": "revisions",
+        "action": "initial",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [],
+        "marks": [],
+        "excerpts": [],
+        "left": null,
+        "right": null,
+        "current": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "currentId": "am_05 r4",
+        "historyLink": "http://127.0.0.1:5336/?lang=zh-Hans&theme=dark&auto-dataset=revisions&auto-workspace=formation&auto-view=revisions",
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "width": 1100,
+        "language": "zh-Hans",
+        "action": "follow-history-sample-link",
+        "view": "revisions"
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "initial",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a full planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [
+          "full",
+          "short daily"
+        ],
+        "excerpts": [],
+        "left": "r1",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "insert",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a short planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [
+          "daily "
+        ],
+        "excerpts": [],
+        "left": "r2",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "equal",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a short daily planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [],
+        "excerpts": [],
+        "left": "r3",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "source-missing",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [],
+        "marks": [],
+        "excerpts": [],
+        "left": null,
+        "right": null,
+        "current": "The adapter work started in September. Its end was not recorded.",
+        "currentId": "demo_missing_01 r1",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "unknown-result",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Planning reviews happen every Sunday.",
+          "Wants a short planning check-in every morning."
+        ],
+        "marks": [
+          "Planning reviews happen every Sunday",
+          "Wants a short planning check-in every morning"
+        ],
+        "excerpts": [
+          "Let’s keep reviews to Sundays.",
+          "A quick check every morning would help."
+        ],
+        "left": null,
+        "right": null,
+        "current": "Planning reviews happen every Sunday.",
+        "currentId": "am_10 r1",
+        "historyLink": null,
+        "unknownKey": "demo-only-unknown-0001",
+        "unknownPacket": "DEMO ONLY — not a Memory request\nAction: invented preview action\nKey: demo-only-unknown-0001\nResult: unknown"
+      },
+      {
+        "dataset": "original",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Planning reviews happen every Sunday.",
+          "Wants a short planning check-in every morning."
+        ],
+        "marks": [
+          "Planning reviews happen every Sunday",
+          "Wants a short planning check-in every morning"
+        ],
+        "excerpts": [
+          "Let’s keep reviews to Sundays.",
+          "A quick check every morning would help."
+        ],
+        "left": null,
+        "right": null,
+        "current": "Planning reviews happen every Sunday.",
+        "currentId": "am_10 r1",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "original",
+        "view": "revisions",
+        "action": "initial",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [],
+        "marks": [],
+        "excerpts": [],
+        "left": null,
+        "right": null,
+        "current": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "currentId": "am_05 r4",
+        "historyLink": "http://127.0.0.1:5336/?lang=ja&theme=light&auto-dataset=revisions&auto-workspace=formation&auto-view=revisions",
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "width": 1100,
+        "language": "ja",
+        "action": "follow-history-sample-link",
+        "view": "revisions"
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "initial",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a full planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [
+          "full",
+          "short daily"
+        ],
+        "excerpts": [],
+        "left": "r1",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "insert",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a short planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [
+          "daily "
+        ],
+        "excerpts": [],
+        "left": "r2",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "equal",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a short daily planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [],
+        "excerpts": [],
+        "left": "r3",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "source-missing",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [],
+        "marks": [],
+        "excerpts": [],
+        "left": null,
+        "right": null,
+        "current": "The adapter work started in September. Its end was not recorded.",
+        "currentId": "demo_missing_01 r1",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "unknown-result",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Planning reviews happen every Sunday.",
+          "Wants a short planning check-in every morning."
+        ],
+        "marks": [
+          "Planning reviews happen every Sunday",
+          "Wants a short planning check-in every morning"
+        ],
+        "excerpts": [
+          "Let’s keep reviews to Sundays.",
+          "A quick check every morning would help."
+        ],
+        "left": null,
+        "right": null,
+        "current": "Planning reviews happen every Sunday.",
+        "currentId": "am_10 r1",
+        "historyLink": null,
+        "unknownKey": "demo-only-unknown-0001",
+        "unknownPacket": "DEMO ONLY — not a Memory request\nAction: invented preview action\nKey: demo-only-unknown-0001\nResult: unknown"
+      },
+      {
+        "dataset": "original",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Planning reviews happen every Sunday.",
+          "Wants a short planning check-in every morning."
+        ],
+        "marks": [
+          "Planning reviews happen every Sunday",
+          "Wants a short planning check-in every morning"
+        ],
+        "excerpts": [
+          "Let’s keep reviews to Sundays.",
+          "A quick check every morning would help."
+        ],
+        "left": null,
+        "right": null,
+        "current": "Planning reviews happen every Sunday.",
+        "currentId": "am_10 r1",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "original",
+        "view": "revisions",
+        "action": "initial",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [],
+        "marks": [],
+        "excerpts": [],
+        "left": null,
+        "right": null,
+        "current": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "currentId": "am_05 r4",
+        "historyLink": "http://127.0.0.1:5336/?lang=en&theme=light&auto-dataset=revisions&auto-workspace=formation&auto-view=revisions",
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "width": 1440,
+        "language": "en",
+        "action": "follow-history-sample-link",
+        "view": "revisions"
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "initial",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a full planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [
+          "full",
+          "short daily"
+        ],
+        "excerpts": [],
+        "left": "r1",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "insert",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a short planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [
+          "daily "
+        ],
+        "excerpts": [],
+        "left": "r2",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "revisions",
+        "view": "revisions",
+        "action": "equal",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Use a short daily planning summary.",
+          "Use a short daily planning summary."
+        ],
+        "marks": [],
+        "excerpts": [],
+        "left": "r3",
+        "right": "r3",
+        "current": "Use a short daily planning summary.",
+        "currentId": "demo_revision_01 r3",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "source-missing",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [],
+        "marks": [],
+        "excerpts": [],
+        "left": null,
+        "right": null,
+        "current": "The adapter work started in September. Its end was not recorded.",
+        "currentId": "demo_missing_01 r1",
+        "historyLink": null,
+        "unknownKey": null,
+        "unknownPacket": null
+      },
+      {
+        "dataset": "unknown-result",
+        "view": "conflicts",
+        "action": "initial",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "headerOverflow": false,
+        "texts": [
+          "Planning reviews happen every Sunday.",
+          "Wants a short planning check-in every morning."
+        ],
+        "marks": [
+          "Planning reviews happen every Sunday",
+          "Wants a short planning check-in every morning"
+        ],
+        "excerpts": [
+          "Let’s keep reviews to Sundays.",
+          "A quick check every morning would help."
+        ],
+        "left": null,
+        "right": null,
+        "current": "Planning reviews happen every Sunday.",
+        "currentId": "am_10 r1",
+        "historyLink": null,
+        "unknownKey": "demo-only-unknown-0001",
+        "unknownPacket": "DEMO ONLY — not a Memory request\nAction: invented preview action\nKey: demo-only-unknown-0001\nResult: unknown"
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      528,
+      15,
+      20,
+      11,
+      12,
+      9,
+      12,
+      12,
+      11,
+      15,
+      11,
+      9,
+      9,
+      11,
+      11,
+      10,
+      9,
+      9,
+      12
+    ]
+  },
+  "browser_launcher_exit_code": 0,
+  "server_preparation_ms": 8143,
+  "checks": {
+    "typescript": "passed",
+    "i18n_cjk": "12 passed; font files unchanged",
+    "memory_pin": "passed; exact 0d338f1 unchanged",
+    "activity_retirement": "passed"
+  },
+  "failed_browser_setup": "First wait predicate returned a DOM node, producing CDP Object reference chain is too long. Fixed the predicate to return boolean and wait for actual revision body text. No product change for this error.",
+  "limits": [
+    "No full npm test, build, Rust, native smoke or human acceptance.",
+    "Conflict reception order does not resolve truth. No resolution/approval action.",
+    "Original sample has no historical bodies. Notes and cross-ID replacement are not revision snapshots.",
+    "Historical states, old support and commit receipts are unprovided. Current Inspector remains current."
+  ]
+}
