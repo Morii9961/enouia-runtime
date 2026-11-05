@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { STATE_LABEL, THEMES, THEME_NOTE, type AutoMemory } from './fixture';
 import { AUTO_MEMORIES } from './dataset';
+import MonthTimeline from './MonthTimeline';
 import { D0, D1, MONDAYS, MONTHS, WEEK, WEEK0, byId, dayStart, daysBetween, fmtClock, fmtDayShort, fmtStamp, occurredText, pack, spanOf, toMs, xOf, type Span } from './model';
 import { Glyph, StateKey } from './parts';
 import type { ViewProps } from './types';
@@ -75,7 +76,18 @@ function markerStyle(s: Span, row: number): React.CSSProperties {
 
 const K = (D1 - D0) / TL_SPAN;   // how many times wider the whole sample is than the visible chart
 
-export default function Timeline({ sel, select }: ViewProps) {
+export default function Timeline(props: ViewProps) {
+  const [mode, setMode] = useState<'months' | 'lanes'>('months');
+  return <>
+    <div className="am-time-modes" role="group" aria-label={t("Time views")}>
+      <button type="button" className="am-chip" data-time-view="months" aria-pressed={mode === 'months'} onClick={() => setMode('months')}>{t("Months and days")}</button>
+      <button type="button" className="am-chip" data-time-view="lanes" aria-pressed={mode === 'lanes'} onClick={() => setMode('lanes')}>{t("Theme lanes")}</button>
+    </div>
+    {mode === 'months' ? <MonthTimeline {...props} /> : <ThemeTimeline {...props} />}
+  </>;
+}
+
+function ThemeTimeline({ sel, select }: ViewProps) {
   // The time map in the strip owns which six weeks are showing; this chart lays the whole sample out at that scale and slides it.
   const v = useTimeView('timeline', SPEC.init);
   React.useEffect(() => { lendMap(SPEC); return () => { lendMap(null); clearViews('timeline'); }; }, []);

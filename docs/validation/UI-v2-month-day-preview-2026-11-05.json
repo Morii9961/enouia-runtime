@@ -1,0 +1,1776 @@
+{
+  "baseline_revision": "1663a338cf972c9adbca753329a4eeb5d889366c",
+  "scope": "Browser-only invented month/day preview; no Memory/Rust/pin changes.",
+  "focused_dom": [
+    {
+      "fixture": "month-day-preview",
+      "checks": [
+        {
+          "id": "months_are_default_and_map_is_lent",
+          "ok": true
+        },
+        {
+          "id": "exact_day_groups_only",
+          "ok": true
+        },
+        {
+          "id": "coarse_month_is_never_day_one",
+          "ok": true
+        },
+        {
+          "id": "range_is_not_flattened_into_days",
+          "ok": true
+        },
+        {
+          "id": "unknown_outside_calendar",
+          "ok": true
+        },
+        {
+          "id": "expanded_day_updates_shared_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_keeps_day_record_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_keeps_day_record_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "en_keeps_day_record_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "month_navigation_keeps_selection_and_overlap",
+          "ok": true
+        },
+        {
+          "id": "unknown_selection_does_not_invent_date",
+          "ok": true
+        },
+        {
+          "id": "coarse_only_month_does_not_invent_day",
+          "ok": true
+        },
+        {
+          "id": "external_exact_selection_opens_its_day",
+          "ok": true
+        },
+        {
+          "id": "map_movement_snaps_to_whole_calendar_month",
+          "ok": true
+        },
+        {
+          "id": "theme_lanes_keep_original_selection_and_map",
+          "ok": true
+        },
+        {
+          "id": "return_to_months_follows_selected_memory",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "saved_state_dom": [
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "nothing_adopted_or_offered",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "held"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "open_end_is_readable_without_fabricated_end",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "open-ended"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "missing_source_keeps_statement_without_excerpt",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "source-missing"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "unknown-result"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "read_only_controls_stay_disabled",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "read-only"
+    }
+  ],
+  "saved_browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic browser/profile only. No native or human acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": true,
+        "title": "Short answers",
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "2026年9月"
+      },
+      {
+        "width": 1100,
+        "language": "zh-Hans",
+        "action": "map-arrow-next-month",
+        "readout": "2026年10月"
+      },
+      {
+        "dataset": "held",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": "Hangzhou, end of October",
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "2026年9月"
+      },
+      {
+        "dataset": "open-ended",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": "Adapter work, end not recorded",
+        "openEnd": true,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "2026年9月"
+      },
+      {
+        "dataset": "empty",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "month": null,
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": null,
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": null
+      },
+      {
+        "dataset": "original",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": true,
+        "title": "Short answers",
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "2026年9月"
+      },
+      {
+        "width": 1100,
+        "language": "ja",
+        "action": "map-arrow-next-month",
+        "readout": "2026年10月"
+      },
+      {
+        "dataset": "held",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": "Hangzhou, end of October",
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "2026年9月"
+      },
+      {
+        "dataset": "open-ended",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": "Adapter work, end not recorded",
+        "openEnd": true,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "2026年9月"
+      },
+      {
+        "dataset": "empty",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "month": null,
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": null,
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": null
+      },
+      {
+        "dataset": "original",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": true,
+        "title": "Short answers",
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "Sep 2026"
+      },
+      {
+        "width": 1440,
+        "language": "en",
+        "action": "map-arrow-next-month",
+        "readout": "Oct 2026"
+      },
+      {
+        "dataset": "held",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": "Hangzhou, end of October",
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "Sep 2026"
+      },
+      {
+        "dataset": "open-ended",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "month": "2026-09",
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": "Adapter work, end not recorded",
+        "openEnd": true,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": "Sep 2026"
+      },
+      {
+        "dataset": "empty",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "month": null,
+        "overflow": false,
+        "paperOverflow": false,
+        "dayOpen": null,
+        "title": null,
+        "openEnd": false,
+        "falseDay": false,
+        "falseNaN": false,
+        "map": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "checks": {
+    "typescript": "passed 2026-11-05",
+    "i18n_cjk": "12 passed 2026-11-04",
+    "memory_pin": "passed 2026-11-04; pin unchanged",
+    "activity_retirement": "passed 2026-11-04"
+  },
+  "browser_followup": {
+    "state": "passed",
+    "report": {
+      "browser": "Edg/156.0.4314.58",
+      "scope": "Owned synthetic browser/profile only. No native or human acceptance.",
+      "rows": [
+        {
+          "dataset": "original",
+          "width": 1100,
+          "language": "zh-Hans",
+          "theme": "dark",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": true,
+          "title": "Short answers",
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "2026年9月"
+        },
+        {
+          "width": 1100,
+          "language": "zh-Hans",
+          "action": "map-arrow-next-month",
+          "readout": "2026年10月"
+        },
+        {
+          "dataset": "held",
+          "width": 1100,
+          "language": "zh-Hans",
+          "theme": "dark",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": "Hangzhou, end of October",
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "2026年9月"
+        },
+        {
+          "dataset": "open-ended",
+          "width": 1100,
+          "language": "zh-Hans",
+          "theme": "dark",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": "Adapter work, end not recorded",
+          "openEnd": true,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "2026年9月"
+        },
+        {
+          "dataset": "empty",
+          "width": 1100,
+          "language": "zh-Hans",
+          "theme": "dark",
+          "month": null,
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": null,
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": null
+        },
+        {
+          "dataset": "original",
+          "width": 1100,
+          "language": "ja",
+          "theme": "light",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": true,
+          "title": "Short answers",
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "2026年9月"
+        },
+        {
+          "width": 1100,
+          "language": "ja",
+          "action": "map-arrow-next-month",
+          "readout": "2026年10月"
+        },
+        {
+          "dataset": "held",
+          "width": 1100,
+          "language": "ja",
+          "theme": "light",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": "Hangzhou, end of October",
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "2026年9月"
+        },
+        {
+          "dataset": "open-ended",
+          "width": 1100,
+          "language": "ja",
+          "theme": "light",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": "Adapter work, end not recorded",
+          "openEnd": true,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "2026年9月"
+        },
+        {
+          "dataset": "empty",
+          "width": 1100,
+          "language": "ja",
+          "theme": "light",
+          "month": null,
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": null,
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": null
+        },
+        {
+          "dataset": "original",
+          "width": 1440,
+          "language": "en",
+          "theme": "light",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": true,
+          "title": "Short answers",
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "Sep 2026"
+        },
+        {
+          "width": 1440,
+          "language": "en",
+          "action": "map-arrow-next-month",
+          "readout": "Oct 2026"
+        },
+        {
+          "dataset": "held",
+          "width": 1440,
+          "language": "en",
+          "theme": "light",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": "Hangzhou, end of October",
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "Sep 2026"
+        },
+        {
+          "dataset": "open-ended",
+          "width": 1440,
+          "language": "en",
+          "theme": "light",
+          "month": "2026-09",
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": "Adapter work, end not recorded",
+          "openEnd": true,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": "Sep 2026"
+        },
+        {
+          "dataset": "empty",
+          "width": 1440,
+          "language": "en",
+          "theme": "light",
+          "month": null,
+          "overflow": false,
+          "paperOverflow": false,
+          "dayOpen": null,
+          "title": null,
+          "openEnd": false,
+          "falseDay": false,
+          "falseNaN": false,
+          "map": null
+        }
+      ],
+      "pageErrors": []
+    },
+    "setup": "Explicit empty PostCSS plugin list in this diagnostic only; no product configuration changes.",
+    "failed_attempts": [
+      "Default startup Emulation.setDeviceMetricsOverride timeout",
+      "Page-enabled navigation timeout",
+      "Separated server navigation timeout"
+    ],
+    "investigation": "Blank/data page succeeded. Separating the server did not resolve navigation. Same-script explicit empty CSS plugin configuration completed the matrix; exact underlying config-discovery wait remains unlocated."
+  },
+  "limits": [
+    "No full npm test, build, Rust test or native acceptance in this slice.",
+    "Final compact month labels verified in the final browser matrix; saved first matrix retained separately.",
+    "Coverage calendar and native time projection integration are separate slices."
+  ]
+}

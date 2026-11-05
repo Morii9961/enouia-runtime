@@ -416,3 +416,23 @@
 .demo-empty a.am-chip,.qr32 a.am-chip{display:inline-flex;align-items:center;text-decoration:none}
 .demo-sample-reset{font-size:12px;line-height:18px}
 .bg-home:not(.bg-native-home) .bg-note:disabled{cursor:default;opacity:.65}
+
+/* Month/day reading shares the preview Inspector and time map. */
+.am-time-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.am-month-layout{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px}
+.am-month-nav{display:flex;flex-direction:column;align-items:stretch;gap:6px;border-right:1px solid var(--grid-major);padding-right:12px}
+.am-month-nav .am-chip{white-space:normal;text-align:left}
+.am-month-nav [aria-current="date"]{color:var(--pen);border-color:var(--pen);background:var(--wash)}
+.am-month-paper h3,.am-month-unknown h3{margin:0 0 14px;font-size:19px;font-weight:500}
+.am-month-day{border-top:1px solid var(--grid-major);padding:10px 0}
+.am-month-day summary{cursor:pointer;font-size:14px;line-height:23px}
+.am-month-day summary .am-tag{margin-left:10px}
+.am-months ul{list-style:none;padding:0;margin:10px 0;display:grid;gap:8px}
+.am-month-record{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;padding:12px;text-align:left;border:1px solid var(--grid-major);background:transparent;color:var(--ink);overflow-wrap:anywhere}
+.am-month-record:hover{background:var(--wash)}
+.am-month-record[aria-pressed="true"]{border-color:var(--pen);background:var(--wash)}
+.am-month-title{display:flex;align-items:baseline;gap:8px;font-size:14px;line-height:20px;font-weight:500}
+.am-month-coarse{margin-top:20px}
+.am-month-coarse h4{font-size:14px;font-weight:500;margin:0 0 8px}
+.am-month-unknown{margin-top:26px;border-top:1px solid var(--grid-major);padding-top:18px}
+@media(max-width:1279px){.am-month-layout{grid-template-columns:90px minmax(0,1fr);gap:12px}}

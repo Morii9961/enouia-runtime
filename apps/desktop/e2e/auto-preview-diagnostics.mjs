@@ -103,8 +103,8 @@ try {
         const head=document.querySelector('.am-head');
         return {workspaces:document.querySelectorAll('[data-memory-workspace]').length,oldEntry:!!document.querySelector('.am-entry'),workspace:document.querySelector('[data-memory-workspace][aria-current="page"]')?.getAttribute('data-memory-workspace'),width:innerWidth,height:innerHeight,language:document.documentElement.lang,theme:document.documentElement.dataset.theme,
           dataset:${JSON.stringify(dataset)},item:${JSON.stringify(item)},documentOverflow:document.documentElement.scrollWidth>innerWidth,
-          headerOverflow:head?head.scrollWidth>head.clientWidth:false,openEnd:!!document.querySelector('.am-mk[data-open]'),
-          memoryTitle:document.querySelector('.am-i-title')?.textContent??null,generatedMap:!!document.querySelector('.sm-canvas'),falseOpenEndLag:!!document.querySelector('.am-mk[data-open]')&&!!document.querySelector('.am-lag'),unknownKey:document.querySelector('.am-unknown-result code')?.textContent??null};
+          headerOverflow:head?head.scrollWidth>head.clientWidth:false,openEnd:!!document.querySelector('.am-mk[data-open], [data-month-record][data-open]'),
+          memoryTitle:document.querySelector('.am-i-title')?.textContent??null,generatedMap:!!document.querySelector('.sm-canvas'),falseOpenEndLag:!!document.querySelector('.am-mk[data-open], [data-month-record][data-open]')&&!!document.querySelector('.am-lag'),unknownKey:document.querySelector('.am-unknown-result code')?.textContent??null};
       })()`);
       if(row.workspaces!==5||row.oldEntry||row.workspace!==workspace||row.falseOpenEndLag||row.documentOverflow||row.headerOverflow||row.generatedMap||(!workspaceMode&&((dataset==='empty'?row.memoryTitle!==null:row.memoryTitle===null)||(dataset==='open-ended'&&!row.openEnd))))throw Error('Invalid preview '+JSON.stringify(row));
       rows.push(row);console.log(JSON.stringify(row));
