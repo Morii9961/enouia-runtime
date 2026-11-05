@@ -1,0 +1,933 @@
+{
+  "baseline_revision": "26266983a8a85183e9543022b77844b8bca6b16f",
+  "scope": "Browser-only loaded-sample card/list layouts and intersecting filters.",
+  "focused_dom": [
+    {
+      "fixture": "memory-list-filters",
+      "checks": [
+        {
+          "id": "default_cards_keep_received_order",
+          "ok": true
+        },
+        {
+          "id": "list_retains_order_and_record_nodes",
+          "ok": true
+        },
+        {
+          "id": "list_arrow_moves_focus_and_shared_selection",
+          "ok": true
+        },
+        {
+          "id": "list_arrow_up_keeps_original_direction",
+          "ok": true
+        },
+        {
+          "id": "literal_search_keeps_all_three_matching_raw_records",
+          "ok": true
+        },
+        {
+          "id": "filters_intersect_without_borrowing_other_records",
+          "ok": true
+        },
+        {
+          "id": "filtering_keeps_hidden_selection_explained",
+          "ok": true
+        },
+        {
+          "id": "layout_switch_keeps_filters_selection_and_record",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_language_keeps_filters_focus_raw_text_and_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_language_keeps_filters_focus_raw_text_and_selection",
+          "ok": true
+        },
+        {
+          "id": "en_language_keeps_filters_focus_raw_text_and_selection",
+          "ok": true
+        },
+        {
+          "id": "no_match_keeps_inspector_and_clear_action",
+          "ok": true
+        },
+        {
+          "id": "clear_resets_all_filters_but_keeps_layout_and_selection",
+          "ok": true
+        },
+        {
+          "id": "state_and_suggested_theme_intersection_is_loaded_scope",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "coverage"
+    }
+  ],
+  "browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic browser/profile only. No native or human acceptance.",
+    "rows": [
+      {
+        "action": "cards",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "layout": "grid",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Vault port adapter next",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "list",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "layout": "list",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Vault port adapter next",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "filters",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "layout": "list",
+        "ids": [
+          "am_01"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "short",
+        "state": "adopted",
+        "themeFilter": "style",
+        "clearDisabled": false
+      },
+      {
+        "action": "no-match",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "layout": null,
+        "ids": [],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "no-match-from-fixture",
+        "state": "adopted",
+        "themeFilter": "style",
+        "clearDisabled": false
+      },
+      {
+        "action": "clear",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "layout": "list",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "cards",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "layout": "grid",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Vault port adapter next",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "list",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "layout": "list",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Vault port adapter next",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "filters",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "layout": "list",
+        "ids": [
+          "am_01"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "short",
+        "state": "adopted",
+        "themeFilter": "style",
+        "clearDisabled": false
+      },
+      {
+        "action": "no-match",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "layout": null,
+        "ids": [],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "no-match-from-fixture",
+        "state": "adopted",
+        "themeFilter": "style",
+        "clearDisabled": false
+      },
+      {
+        "action": "clear",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "layout": "list",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "cards",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "layout": "grid",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Vault port adapter next",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "list",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "layout": "list",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Vault port adapter next",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      },
+      {
+        "action": "filters",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "layout": "list",
+        "ids": [
+          "am_01"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "short",
+        "state": "adopted",
+        "themeFilter": "style",
+        "clearDisabled": false
+      },
+      {
+        "action": "no-match",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "layout": null,
+        "ids": [],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "no-match-from-fixture",
+        "state": "adopted",
+        "themeFilter": "style",
+        "clearDisabled": false
+      },
+      {
+        "action": "clear",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "layout": "list",
+        "ids": [
+          "am_11",
+          "am_10",
+          "am_14",
+          "am_09",
+          "am_15",
+          "am_05",
+          "am_04",
+          "am_08",
+          "am_03",
+          "am_01",
+          "am_07",
+          "am_12",
+          "am_06",
+          "am_13",
+          "am_02"
+        ],
+        "overflow": false,
+        "mainOverflow": false,
+        "slipOverflow": false,
+        "title": "Short answers",
+        "query": "",
+        "state": "all",
+        "themeFilter": "all",
+        "clearDisabled": true
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      11678,
+      98,
+      53,
+      24
+    ]
+  },
+  "browser_launcher_exit_code": 0,
+  "server_preparation_ms": 68742,
+  "checks": {
+    "typescript": "passed",
+    "i18n_cjk": "12 passed; no font changes",
+    "memory_pin": "passed; 0d338f12f51a859363e0725071bcf43874b492c7 unchanged",
+    "activity_retirement": "passed"
+  },
+  "followup": {
+    "entry_label": "Changed the synthetic entry label from Memory grid to Automatic memory to cover both layouts; navigation IDs unchanged.",
+    "verification": "Existing workspace DOM 33 passed again after this short label edit; screenshots precede the label-only edit."
+  },
+  "limits": [
+    "No full npm test, build, Rust or native acceptance.",
+    "Filters describe loaded invented records and narrative states, not Core global facets or authoritative currency.",
+    "Tags, pins/favorites and real pagination were not invented.",
+    "Existing owner-review Vault remains its compatibility view."
+  ]
+}

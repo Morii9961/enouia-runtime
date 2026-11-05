@@ -460,3 +460,14 @@
 
 .am-coverage-table caption{position:sticky;top:0;z-index:2;background:var(--paper);padding:6px 0;border-bottom:1px solid var(--grid-major);line-height:18px}
 .am-coverage-table caption small{display:block;font-size:12px}
+
+/* Same records and controls in cards or a compact reading list. */
+.am-select-filter{display:flex;flex-direction:column;gap:3px;font-size:12px}
+.am-select-filter select{min-height:30px;max-width:260px;background:var(--paper);color:var(--ink);border:1px solid var(--ink-3);padding:3px 6px;font:inherit}
+.am-slips[data-layout="list"]{display:block}
+.am-slips[data-layout="list"] .am-slip{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,32%);min-height:0;gap:6px 18px}
+.am-slips[data-layout="list"] .am-slip-top{grid-column:1/-1}
+.am-slips[data-layout="list"] .am-slip-title{grid-column:1;grid-row:2}
+.am-slips[data-layout="list"] .am-slip-text{grid-column:1;grid-row:3;font-size:13.5px}
+.am-slips[data-layout="list"] .am-state{grid-column:2;grid-row:2;margin-top:0;align-self:start}
+.am-slips[data-layout="list"] .am-occ{grid-column:2;grid-row:3;align-self:start;overflow-wrap:anywhere}

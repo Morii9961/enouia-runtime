@@ -1,6 +1,15 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Memory list": "记忆列表",
+  "Memory layouts": "记忆显示方式",
+  "Cards": "记忆格",
+  "All states": "全部状态",
+  "Suggested theme": "建议主题",
+  "Clear filters": "清除筛选",
+  "{shown} of {total} loaded records": "显示 {shown} / {total} 条已加载记录",
+  "The selected memory is outside these filters. Its Inspector stays open.": "所选记忆不在此筛选范围内，详情仍保持打开。",
+  "No matching record in the loaded sample. Clear filters to see all loaded records.": "已加载示例中没有匹配记录。清除筛选可查看全部已加载记录。",
   "Coverage sample": "覆盖示例",
   "Coverage calendar": "覆盖日历",
   "Coverage time map. Bars count received material identities only. The frame follows the calendar month.": "覆盖时间小地图。条形只统计收到的材料对象，取景框跟随日历月份。",
@@ -1207,7 +1216,6 @@ const dict: Record<string, string> = {
   "Words in title or statement": "标题或陈述中的词",
   "Literal search in the loaded sample": "在已加载样本中字面检索",
   "All kinds": "全部种类",
-  "Nothing here matches. No reading in the loaded sample for that filter. Clear the words or choose All kinds.": "没有匹配的内容。已加载的样本中没有符合这个筛选的记录。请清空文字或选择“全部种类”。",
   "Conflicts with": "冲突对象",
   "Automatic memory inspector": "自动记忆详情",
   "Times": "时间",
