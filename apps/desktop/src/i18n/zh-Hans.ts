@@ -1,6 +1,23 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Replacement chain": "替代关系",
+  "Evidence chain": "证据来源",
+  "recorded replacement links": "已记录的替代关系",
+  "support and dependencies kept apart": "支持与生成依赖分开",
+  "Only explicit links and excerpts in the loaded invented sample are shown. Missing links, source locators and commit receipts remain unrepresented.": "只显示已加载虚构示例中明确的关系与摘录。未记录的关系、来源定位与提交回执保持未知。",
+  "Selected memory": "所选记忆",
+  "Supporting excerpts": "支持摘录",
+  "Source names and revisions are invented display text. Repeated excerpts are not independent corroboration. Formation notes are not commit receipts.": "来源名称与修订是虚构的显示文本。重复摘录不代表独立支持，形成注记不等于提交回执。",
+  "No supporting excerpts are available in this sample. The retained statement remains readable; choose another demo state to inspect excerpts.": "此示例没有可用的支持摘录，保留的陈述仍可阅读。可选择其他演示状态查看摘录。",
+  "Recorded replacement links": "已记录的替代关系",
+  "Recorded shared-source links": "已记录的同来源关系",
+  "A replacement link does not establish current truth. Its effective time is not recorded in this preview.": "替代关系不代表当前事实。此预览未记录关系的生效时间。",
+  "Shared-source links are recorded in the sample. They do not add support or establish a cause. The same source name is not used to invent a link.": "同来源关系来自示例中的明确记录，不构成更多支持，也不代表因果关系。来源同名不会自动形成关系。",
+  "Replacing memory": "替代方记忆",
+  "Replaced memory": "被替代的记忆",
+  "Linked memory": "关联记忆",
+  "No link of this kind is recorded for the selected memory in the loaded sample. This is not a finding about its full history.": "已加载示例没有为所选记忆记录此类关系，这不代表它的全部历史。",
   "Memory list": "记忆列表",
   "Memory layouts": "记忆显示方式",
   "Cards": "记忆格",
