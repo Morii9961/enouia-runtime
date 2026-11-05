@@ -18,7 +18,7 @@ try{
   const slip=[...fixture.querySelectorAll<HTMLButtonElement>('.am-slip')].find(b=>b.getAttribute('aria-pressed')!=='true')!;
   const chosen=slip.querySelector('.am-slip-title')!.textContent;slip.click();await wait(()=>fixture.querySelector('.am-i-title')?.textContent===chosen);
   const inspector=fixture.querySelector('.am-inspector');
-  for(const [id,views] of [['time','timeline'],['relations','stars,starmap,replacement,evidence'],['formation','formation,conflicts,revisions'],['recall','recall'],['memories','grid']]){
+  for(const [id,views] of [['time','timeline'],['relations','stars,starmap,replacement,evidence'],['formation','formation,conflicts,revisions,hypotheses'],['recall','recall'],['memories','grid']]){
     const nav=workspace(id);nav.focus();nav.click();
     await wait(()=>nav.getAttribute('aria-current')==='page'&&!!fixture.querySelector('.am-i-title'));
     check(`${id}_only_owns_its_views`,[...fixture.querySelectorAll<HTMLElement>('[data-auto-view]')].map(b=>b.dataset.autoView).join(',')===(views.includes(',')?views:'')&&fixture.querySelector('.am')?.getAttribute('data-view')===views.split(',')[0]);
