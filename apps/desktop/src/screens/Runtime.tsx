@@ -1,4 +1,5 @@
 import React from "react";
+import { focusReadingTarget } from '../theme/readingFocus';
 import type { DemoView } from "../App";
 
 import { t } from '../i18n/index.ts';
@@ -6,7 +7,7 @@ export default function Runtime({ view }: { view: DemoView }) {
   const { rt, rtList, rtStrip, rtSubtitle } = view;
   return (
 <section data-screen-label="Runtime Inspector" className="qr210">
-<aside className="qr191">
+<aside className="qr191" id="runtime-components" tabIndex={-1}>
 <div className="qr20">
 <h1 className="qr18">
 {t("Runtime")}
@@ -17,7 +18,7 @@ export default function Runtime({ view }: { view: DemoView }) {
 </div>
 <div className="qr27">
 {rtList.map((c, cIndex) => <React.Fragment key={c.code}>
-<button onClick={c.onClick} className="qr190" data-selected={c.name === rt.name || undefined} type="button">
+<button onClick={() => { c.onClick(); if (matchMedia('(max-width:899px)').matches) focusReadingTarget('runtime-reading'); }} className="qr190" data-selected={c.name === rt.name || undefined} type="button">
 <span className="qr188">
 {c.name}
 </span>
@@ -31,7 +32,8 @@ export default function Runtime({ view }: { view: DemoView }) {
 </React.Fragment>)}
 </div>
 </aside>
-<div className="qr209">
+<div className="qr209" id="runtime-reading" tabIndex={-1}>
+<a className="reader-return" href="#runtime-components" onClick={e => { e.preventDefault(); focusReadingTarget('runtime-components'); }}>{t("Components")}</a>
 <div className="qr208">
 <div className="qr193">
 {rtStrip.map((s, sIndex) => <React.Fragment key={s.k}>
