@@ -1,4 +1,5 @@
 import React from "react";
+import { focusReadingTarget } from '../theme/readingFocus';
 import type { DemoView } from "../App";
 import { demoData as D } from "../demo-data";
 import { sessionSpec, sessionStretch } from "../theme/mapSpecs";
@@ -38,11 +39,20 @@ const scrollFor = (t: number, a: Anchor[]) => {
 };
 const stillNow = () => typeof window !== 'undefined' && (!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || !!document.querySelector('[data-motion="reduced"]'));
 
+function SessionReadingNav() {
+  return <nav className="reader-section-nav" aria-label={t("Sessions")}>
+    <a href="#session-list" onClick={e => { e.preventDefault(); focusReadingTarget('session-list'); }}>{t("Sessions")}</a>
+    <a href="#session-reader" onClick={e => { e.preventDefault(); focusReadingTarget('session-reader'); }}>{t("Session transcript")}</a>
+    <a href="#session-info" onClick={e => { e.preventDefault(); focusReadingTarget('session-info'); }}>{t("Session details")}</a>
+  </nav>;
+}
+
 export default function Sessions({ view }: { view: DemoView }) {
   if (!view.ses) return <section data-screen-label="Sessions" className="qr171">
-    <aside className="qr136"><div className="qr20"><h1 className="qr18">{t("Sessions")}</h1><div className="qr19">{t("No saved sessions in this sample.")}</div></div></aside>
-    <div className="qr161 demo-empty"><p>{t("This synthetic Vault has no conversations or checkpoints. Open the original sample to inspect invented history.")}</p><a className="am-chip" href={view.originalDemoHref}>{t("Open original sample")}</a></div>
-    <aside className="qr170"><p className="qr19">{t("No session selected.")}</p></aside>
+<SessionReadingNav/>
+    <aside className="qr136" id="session-list" tabIndex={-1}><div className="qr20"><h1 className="qr18">{t("Sessions")}</h1><div className="qr19">{t("No saved sessions in this sample.")}</div></div></aside>
+    <div className="qr161 demo-empty" id="session-reader" tabIndex={-1}><p>{t("This synthetic Vault has no conversations or checkpoints. Open the original sample to inspect invented history.")}</p><a className="am-chip" href={view.originalDemoHref}>{t("Open original sample")}</a></div>
+    <aside className="qr170" id="session-info" tabIndex={-1}><p className="qr19">{t("No session selected.")}</p></aside>
   </section>;
   return <SessionTranscript view={view} ses={view.ses} />;
 }
@@ -83,7 +93,8 @@ function SessionTranscript({ view, ses }: { view: DemoView; ses: NonNullable<Dem
   React.useEffect(() => () => clearViews('sessions'), []);
   return (
 <section data-screen-label="Sessions" className="qr171">
-<aside className="qr136">
+<SessionReadingNav/>
+<aside className="qr136" id="session-list" tabIndex={-1}>
 <div className="qr20">
 <h1 className="qr18">
 {t("Sessions")}
@@ -105,7 +116,8 @@ function SessionTranscript({ view, ses }: { view: DemoView; ses: NonNullable<Dem
 </React.Fragment>)}
 </div>
 </aside>
-<div className="qr161" ref={scroller}>
+<div className="qr161" ref={scroller} id="session-reader" tabIndex={-1}>
+<a className="reader-return" href="#session-list" onClick={e => { e.preventDefault(); focusReadingTarget('session-list'); }}>{t("Sessions")}</a>
 <div className="qr137">
 <div className="qr29">
 {ses.title}
@@ -197,7 +209,7 @@ function SessionTranscript({ view, ses }: { view: DemoView; ses: NonNullable<Dem
 </React.Fragment>)}
 </div>
 </div>
-<aside className="qr170">
+<aside className="qr170" id="session-info" tabIndex={-1}>
 <div className="qr15">
 <div className="qr55">
 {t("Session")}

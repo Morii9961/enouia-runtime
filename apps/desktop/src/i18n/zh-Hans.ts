@@ -1838,5 +1838,7 @@ const dict: Record<string, string> = {
   "Stop this type of suggestion": "关闭此类建议",
   "Back to memory view": "返回记忆视图",
   "Collections": "分组",
+  "Back to sections": "返回分区",
+  "Session details": "会话详情",
 };
 export default dict;
