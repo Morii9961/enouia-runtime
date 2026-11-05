@@ -141,7 +141,7 @@ Memory UI 规格 §1 把 Memory 内部分成五个工作区。浏览器现以五
 ## 5. 窗口宽度、缩放与键盘
 
 - 1100×700 最小窗口：全部已截图的屏幕不横向溢出、无 <11px 文字（截图脚本的阈值）；12px 下限见 DESIGN.md §3 与 OPEN_ISSUES #9。
-- Memory UI 规格建议：≥1280 三栏；900–1279 Inspector 变抽屉；<900 或 200% 缩放单任务页。Runtime 的 1100–1279 按既定决定保持三栏（OPEN_ISSUES #4）。[合成预览窄视口](../../validation/UI-v2-preview-reflow-2026-11-05.md)已做小于 900 CSS px 的纵向阅读与详情往返；等效 200% 布局取证不代表实际缩放验收，[旧 Vault 合成列表](../../validation/UI-v2-vault-reflow-2026-11-05.md)也已做纵向阅读；[Context/Sessions](../../validation/UI-v2-context-session-reflow-2026-11-06.md)保留中央滚动与小地图联动；[Runtime/Settings 合成布局](../../validation/UI-v2-inspector-settings-reflow-2026-11-06.md)也已适配；Home 仍待。
+- Memory UI 规格建议：≥1280 三栏；900–1279 Inspector 变抽屉；<900 或 200% 缩放单任务页。Runtime 的 1100–1279 按既定决定保持三栏（OPEN_ISSUES #4）。[合成预览窄视口](../../validation/UI-v2-preview-reflow-2026-11-05.md)已做小于 900 CSS px 的纵向阅读与详情往返；等效 200% 布局取证不代表实际缩放验收，[旧 Vault 合成列表](../../validation/UI-v2-vault-reflow-2026-11-05.md)也已做纵向阅读；[Context/Sessions](../../validation/UI-v2-context-session-reflow-2026-11-06.md)保留中央滚动与小地图联动；[Runtime/Settings 合成布局](../../validation/UI-v2-inspector-settings-reflow-2026-11-06.md)也已适配；[Home 合成布局](../../validation/UI-v2-home-reflow-2026-11-06.md)已完成曲线/注记纵向阅读；实际缩放和原生接受仍待。
 - 键盘：Ctrl+1…6 切表面；导航内 ↑↓；Memory 列表 ↑↓；时间小地图 slider 键；星图 `+ / − / Reset` 按钮与关系列表。视图切换现在是按钮组，若改成 ARIA tabs 必须完整实现方向键与 Home/End（规格 §10）。
 
 ## 6. 建议的设计顺序
@@ -151,6 +151,6 @@ Memory UI 规格 §1 把 Memory 内部分成五个工作区。浏览器现以五
 3. 记忆工作区：合成列表、类型/状态/建议主题筛选已做；标签与真实 facets 接入仍待。
 4. 关联工作区：生成星图、已加载替代链/证据链合成视图已做；真实授权投影和星图性能剩余项见 OPEN_ISSUES。
 5. 形成工作区：冲突/修订合成对照与固定暂存假说列表已做；召回：案例建议阅读卡已做，真实触发与写入待契约。
-6. 1100–1279 三栏维持已定；合成预览的窄视口已做，旧 Vault 合成列表也已做；Context/Sessions 合成阅读也已做；Runtime/Settings 合成布局也已做；Home 与实际 200% 缩放验收仍待。
+6. 浏览器六个表面的窄视口合成阅读已做；实际浏览器/Windows 200% 缩放、原生适配与人工接受仍待，1100–1279 保持三栏。
 
 每一项都只在浏览器演示里用虚构数据做；真实数据的接入按 §0「三种状态」里的第 3 条，由集成负责人单独进行。

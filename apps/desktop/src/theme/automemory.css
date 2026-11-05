@@ -521,14 +521,14 @@
    Keep the decided 1100–1279 three-column layout unchanged. */
 .am-reading-jump{display:none}
 @media(max-width:899px){
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]){min-width:0;min-height:100vh;height:auto;overflow:visible;grid-template-rows:auto auto}
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]) .bg-titlebar{height:auto;flex-wrap:wrap;gap:6px;padding:6px 12px}
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]) .bg-chartno{white-space:normal}
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]) .bg-strip-head{height:auto;min-height:34px;flex-wrap:wrap}
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]) .bg-nav{flex-wrap:wrap}
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]) .bg-strip-meta{flex-basis:100%;white-space:normal;text-align:left;margin:6px 0}
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]) .tm{height:auto;min-height:20px}
-  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"]) .tm-note{white-space:normal}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]){min-width:0;min-height:100vh;height:auto;overflow:visible;grid-template-rows:auto auto}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]) .bg-titlebar{height:auto;flex-wrap:wrap;gap:6px;padding:6px 12px}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]) .bg-chartno{white-space:normal}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]) .bg-strip-head{height:auto;min-height:34px;flex-wrap:wrap}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]) .bg-nav{flex-wrap:wrap}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]) .bg-strip-meta{flex-basis:100%;white-space:normal;text-align:left;margin:6px 0}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]) .tm{height:auto;min-height:20px}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"],[data-page="runtime"],[data-page="settings"],[data-page="home"]) .tm-note{white-space:normal}
   .memory-region,.memory-region .memory-region-body{height:auto;flex:none}
   .memory-region .am{height:auto;display:block}
   .memory-region .am-head{padding:12px}
@@ -594,4 +594,18 @@
   .bg-app[data-runtime-mode="demo"] .qr213{grid-template-columns:minmax(0,1fr);gap:10px}
   .bg-app[data-runtime-mode="demo"] .qr173{flex-wrap:wrap;width:fit-content;max-width:100%}
   .bg-app[data-runtime-mode="demo"] .qr212{height:auto;min-height:26px;white-space:normal}
+}
+
+/* Synthetic Home: the same four-day trace above readable timestamped notes. */
+@media(max-width:899px){
+  .bg-app[data-runtime-mode="demo"] .bg-home{height:auto;overflow:visible;grid-template-rows:auto auto auto;padding:12px;gap:16px}
+  .bg-app[data-runtime-mode="demo"] .bg-home-head{flex-direction:column;align-items:flex-start;gap:12px}
+  .bg-app[data-runtime-mode="demo"] .bg-home-sub{text-align:left;max-width:100%}
+  .bg-app[data-runtime-mode="demo"] .bg-home-chart>.bg-paper{position:relative;inset:auto;display:flex;flex-direction:column}
+  .bg-app[data-runtime-mode="demo"] .bg-home .bg-pane{position:relative;width:100% !important;height:240px;flex:none;border-right:0;border-bottom:1px solid var(--grid-major)}
+  .bg-app[data-runtime-mode="demo"] .bg-home .bg-leaders{display:none}
+  .bg-app[data-runtime-mode="demo"] .bg-home .bg-notes{position:static;padding:8px 12px}
+  .bg-app[data-runtime-mode="demo"] .bg-home .bg-note{position:static}
+  .bg-app[data-runtime-mode="demo"] .bg-home .bg-note .qr10{white-space:normal;overflow:visible}
+  .bg-app[data-runtime-mode="demo"] .bg-home-foot{grid-template-columns:minmax(0,1fr);gap:12px}
 }
