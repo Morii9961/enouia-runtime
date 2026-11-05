@@ -507,3 +507,12 @@
 
 .am-held-reason{font-size:13px;line-height:19px;color:var(--ink-2)}
 .am-slips[data-layout="list"] .am-held-reason{grid-column:1/-1;grid-row:4}
+
+/* Read-only cards from the selected invented recall; controls do not record actions. */
+.am-suggestions{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.am-suggestion-group{min-width:0}
+.am-suggestion-list{list-style:none;margin:6px 0 0;padding:0;border-top:1px solid var(--grid-major)}
+.am-suggestion-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px 0;border-bottom:1px solid var(--grid-major);overflow-wrap:anywhere}
+.am-suggestion-card p{margin:0;white-space:pre-wrap}
+.am-suggestion-statement{font-size:14px;line-height:21px}
+.am-suggestion-card .am-opt{height:auto;min-height:30px;white-space:normal;text-align:left}

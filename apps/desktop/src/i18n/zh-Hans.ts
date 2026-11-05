@@ -1828,5 +1828,13 @@ const dict: Record<string, string> = {
   "Budget and completeness": "预算与完整性",
   "No records here yet.": "这里还没有记录。",
   "Follows the system unless you choose one: Tile Blue when it is dark, Xuan Paper when it is light. Kept on this device only.": "默认跟随系统，也可以固定一种：系统为深色时用黛蓝，浅色时用宣纸。只保存在这台设备上。",
+  "Review suggestions": "回看建议",
+  "why revisit in this invented moment": "为何在此虚构时刻回看",
+  "These cards restate this invented recall, not a live suggestion feed. Being left out does not delete a memory or change its state.": "这些条目重述本次虚构召回，不是实时建议。未纳入不会删除记忆或改变其状态。",
+  "Reminders and dismissal need Memory support. These controls are unavailable; no action is recorded.": "通知和关闭建议需要 Memory 支持。当前控件不可用，不记录操作。",
+  "Why revisit in this case": "本案例为何回看",
+  "Why this case leaves it out": "本案例为何未纳入",
+  "Remind later": "稍后通知",
+  "Stop this type of suggestion": "关闭此类建议",
 };
 export default dict;
