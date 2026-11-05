@@ -1837,5 +1837,6 @@ const dict: Record<string, string> = {
   "Remind later": "後で表示",
   "Stop this type of suggestion": "この種の提案を停止",
   "Back to memory view": "記憶の表示に戻る",
+  "Collections": "コレクション",
 };
 export default dict;

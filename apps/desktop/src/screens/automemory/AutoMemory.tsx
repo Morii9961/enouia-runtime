@@ -1,4 +1,4 @@
-import { focusReadingTarget } from './parts';
+import { focusReadingTarget } from '../../theme/readingFocus';
 import React, { useEffect, useRef, useState } from 'react';
 import { AUTO_LABEL, AUTO_NOTE, RANGE_NOTE } from './fixture';
 import { AUTO_MEMORIES, DATASET, DATASETS, EMPTY_NOTE, HELD_NOTE } from './dataset';

@@ -1,7 +1,8 @@
 import React from 'react';
+import { focusReadingTarget } from '../../theme/readingFocus';
 import { STATE_HINT, type AutoMemory } from './fixture';
 import { SURFACING_TEXT, byId, fmtStamp, occurredText, validText } from './model';
-import { Ref, StateTag, kindWord, focusReadingTarget } from './parts';
+import { Ref, StateTag, kindWord } from './parts';
 
 import { msg, t } from '../../i18n/index.ts';
 const NOTE_ID = 'am-optional-note';

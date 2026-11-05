@@ -1,0 +1,2643 @@
+{
+  "baseline_revision": "7261134b59f03c3ce19ae8d76368ba0883f6e099",
+  "scope": "Fictional legacy owner-review compatibility Vault only. Narrow collections/list/Inspector reading, no domain changes.",
+  "before": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Fictional legacy Vault, owned profile. CSS layout-space diagnostic, not actual browser/Windows zoom or native acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "dataset": "empty",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "dataset": "candidates",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      },
+      {
+        "dataset": "original",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "dataset": "empty",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "dataset": "candidates",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      675,
+      18,
+      11,
+      9,
+      10,
+      9,
+      10,
+      9,
+      10,
+      29,
+      10,
+      10,
+      9
+    ]
+  },
+  "final": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Fictional legacy Vault, owned profile. CSS layout-space diagnostic, not actual browser/Windows zoom or native acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "action": "draft",
+        "dataset": "original",
+        "width": 1100,
+        "language": "en",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "mem_80978cac7c9a8abe17c0a4b4522a98ef",
+        "focused": true,
+        "left": 724,
+        "right": 1066,
+        "save": true
+      },
+      {
+        "dataset": "empty",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "dataset": "candidates",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "nav": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 45,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "collections": {
+          "x": 0,
+          "y": 196,
+          "right": 220,
+          "width": 220,
+          "height": 504,
+          "scrollWidth": 209,
+          "clientWidth": 209
+        },
+        "list": {
+          "x": 220,
+          "y": 196,
+          "right": 700,
+          "width": 480,
+          "height": 504,
+          "scrollWidth": 479,
+          "clientWidth": 479
+        },
+        "inspector": {
+          "x": 700,
+          "y": 196,
+          "right": 1100,
+          "width": 400,
+          "height": 504,
+          "scrollWidth": 400,
+          "clientWidth": 400
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      },
+      {
+        "action": "draft",
+        "dataset": "candidates",
+        "width": 1100,
+        "language": "en",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "cand_2ff5e57be1330be692e44d4ebd624d14",
+        "focused": true,
+        "left": 724,
+        "right": 1066,
+        "save": true
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 159,
+          "right": 540,
+          "width": 540,
+          "height": 45,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "collections": {
+          "x": 0,
+          "y": 284,
+          "right": 540,
+          "width": 540,
+          "height": 392,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "list": {
+          "x": 0,
+          "y": 676,
+          "right": 540,
+          "width": 540,
+          "height": 1025,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "inspector": {
+          "x": 0,
+          "y": 1701,
+          "right": 540,
+          "width": 540,
+          "height": 1265,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "target": "vault-collections",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "target": "vault-list",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "draft",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "mem_80978cac7c9a8abe17c0a4b4522a98ef",
+        "focused": true,
+        "left": 12,
+        "right": 528,
+        "save": true
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 159,
+          "right": 540,
+          "width": 540,
+          "height": 45,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "collections": {
+          "x": 0,
+          "y": 284,
+          "right": 540,
+          "width": 540,
+          "height": 392,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "list": {
+          "x": 0,
+          "y": 676,
+          "right": 540,
+          "width": 540,
+          "height": 258,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "inspector": {
+          "x": 0,
+          "y": 934,
+          "right": 540,
+          "width": 540,
+          "height": 137,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 550,
+        "language": "en",
+        "target": "vault-collections",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 550,
+        "language": "en",
+        "target": "vault-list",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 550,
+        "language": "en",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 213
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 159,
+          "right": 540,
+          "width": 540,
+          "height": 45,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "collections": {
+          "x": 0,
+          "y": 284,
+          "right": 540,
+          "width": 540,
+          "height": 392,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "list": {
+          "x": 0,
+          "y": 676,
+          "right": 540,
+          "width": 540,
+          "height": 269,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "inspector": {
+          "x": 0,
+          "y": 945,
+          "right": 540,
+          "width": 540,
+          "height": 938,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "target": "vault-collections",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "target": "vault-list",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "draft",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "cand_2ff5e57be1330be692e44d4ebd624d14",
+        "focused": true,
+        "left": 12,
+        "right": 528,
+        "save": true
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 169.375,
+          "right": 540,
+          "width": 540,
+          "height": 45,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "collections": {
+          "x": 0,
+          "y": 299.5625,
+          "right": 540,
+          "width": 540,
+          "height": 362.125,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "list": {
+          "x": 0,
+          "y": 661.6875,
+          "right": 540,
+          "width": 540,
+          "height": 1035.78125,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "inspector": {
+          "x": 0,
+          "y": 1697.46875,
+          "right": 540,
+          "width": 540,
+          "height": 1290.25,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-collections",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-list",
+        "focused": true,
+        "top": -0.3125
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 0.46875
+      },
+      {
+        "action": "draft",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "mem_80978cac7c9a8abe17c0a4b4522a98ef",
+        "focused": true,
+        "left": 12,
+        "right": 528,
+        "save": true
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 169.375,
+          "right": 540,
+          "width": 540,
+          "height": 45,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "collections": {
+          "x": 0,
+          "y": 299.5625,
+          "right": 540,
+          "width": 540,
+          "height": 362.125,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "list": {
+          "x": 0,
+          "y": 661.6875,
+          "right": 540,
+          "width": 540,
+          "height": 255.171875,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "inspector": {
+          "x": 0,
+          "y": 916.859375,
+          "right": 540,
+          "width": 540,
+          "height": 146.578125,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-collections",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-list",
+        "focused": true,
+        "top": -0.3125
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 203.859375
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "nav": {
+          "x": 0,
+          "y": 169.375,
+          "right": 540,
+          "width": 540,
+          "height": 45,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "collections": {
+          "x": 0,
+          "y": 299.5625,
+          "right": 540,
+          "width": 540,
+          "height": 362.125,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "list": {
+          "x": 0,
+          "y": 661.6875,
+          "right": 540,
+          "width": 540,
+          "height": 279.78125,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "inspector": {
+          "x": 0,
+          "y": 941.46875,
+          "right": 540,
+          "width": 540,
+          "height": 956.109375,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-collections",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-list",
+        "focused": true,
+        "top": -0.3125
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 0.46875
+      },
+      {
+        "action": "draft",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "cand_2ff5e57be1330be692e44d4ebd624d14",
+        "focused": true,
+        "left": 12,
+        "right": 528,
+        "save": true
+      },
+      {
+        "dataset": "original",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "nav": {
+          "x": 0,
+          "y": 169.375,
+          "right": 710,
+          "width": 710,
+          "height": 45,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "collections": {
+          "x": 0,
+          "y": 299.5625,
+          "right": 710,
+          "width": 710,
+          "height": 362.125,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "list": {
+          "x": 0,
+          "y": 661.6875,
+          "right": 710,
+          "width": 710,
+          "height": 995.78125,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "inspector": {
+          "x": 0,
+          "y": 1657.46875,
+          "right": 710,
+          "width": 710,
+          "height": 1272.25,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "records": 9,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename."
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-collections",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-list",
+        "focused": true,
+        "top": -0.3125
+      },
+      {
+        "action": "focus",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 0.46875
+      },
+      {
+        "action": "draft",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "mem_80978cac7c9a8abe17c0a4b4522a98ef",
+        "focused": true,
+        "left": 12,
+        "right": 698,
+        "save": true
+      },
+      {
+        "dataset": "empty",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "nav": {
+          "x": 0,
+          "y": 169.375,
+          "right": 710,
+          "width": 710,
+          "height": 45,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "collections": {
+          "x": 0,
+          "y": 299.5625,
+          "right": 710,
+          "width": 710,
+          "height": 362.125,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "list": {
+          "x": 0,
+          "y": 661.6875,
+          "right": 710,
+          "width": 710,
+          "height": 255.171875,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "inspector": {
+          "x": 0,
+          "y": 916.859375,
+          "right": 710,
+          "width": 710,
+          "height": 146.578125,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "records": 0,
+        "statement": null
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-collections",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-list",
+        "focused": true,
+        "top": 48.6875
+      },
+      {
+        "action": "focus",
+        "dataset": "empty",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 303.859375
+      },
+      {
+        "dataset": "candidates",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "nav": {
+          "x": 0,
+          "y": 169.375,
+          "right": 710,
+          "width": 710,
+          "height": 45,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "collections": {
+          "x": 0,
+          "y": 299.5625,
+          "right": 710,
+          "width": 710,
+          "height": 362.125,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "list": {
+          "x": 0,
+          "y": 661.6875,
+          "right": 710,
+          "width": 710,
+          "height": 279.78125,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "inspector": {
+          "x": 0,
+          "y": 941.46875,
+          "right": 710,
+          "width": 710,
+          "height": 956.109375,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "records": 2,
+        "statement": "A fictional reading session is planned for next week."
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-collections",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-list",
+        "focused": true,
+        "top": -0.3125
+      },
+      {
+        "action": "focus",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "target": "vault-inspector",
+        "focused": true,
+        "top": 0.46875
+      },
+      {
+        "action": "draft",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "value": "Owned invented draft.\nRaw second line.",
+        "identity": "cand_2ff5e57be1330be692e44d4ebd624d14",
+        "focused": true,
+        "left": 12,
+        "right": 698,
+        "save": true
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      777,
+      19,
+      12,
+      10,
+      13,
+      23,
+      11,
+      11,
+      10,
+      17,
+      10,
+      10,
+      11
+    ]
+  },
+  "focused_dom": [
+    {
+      "fixture": "vault-reading-links",
+      "checks": [
+        {
+          "id": "vault-collections_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-list_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-inspector_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "inspector_return_keeps_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_draft_focus_identity_and_records_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_draft_focus_identity_and_records_survive",
+          "ok": true
+        },
+        {
+          "id": "en_draft_focus_identity_and_records_survive",
+          "ok": true
+        },
+        {
+          "id": "reading_roundtrip_does_not_save_or_promote",
+          "ok": true
+        },
+        {
+          "id": "existing_cancel_restores_original_without_commit",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "vault-reading-links",
+      "checks": [
+        {
+          "id": "vault-collections_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-list_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-inspector_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "inspector_return_keeps_selection",
+          "ok": true
+        },
+        {
+          "id": "empty_links_do_not_create_memory",
+          "ok": true
+        },
+        {
+          "id": "en_empty_focus_and_nodes_survive",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_empty_focus_and_nodes_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_empty_focus_and_nodes_survive",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "vault-reading-links",
+      "checks": [
+        {
+          "id": "vault-collections_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-list_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-inspector_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "inspector_return_keeps_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_draft_focus_identity_and_records_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_draft_focus_identity_and_records_survive",
+          "ok": true
+        },
+        {
+          "id": "en_draft_focus_identity_and_records_survive",
+          "ok": true
+        },
+        {
+          "id": "reading_roundtrip_does_not_save_or_promote",
+          "ok": true
+        },
+        {
+          "id": "existing_cancel_restores_original_without_commit",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "candidates"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "only_imported_candidates_are_in_inbox",
+          "ok": true
+        },
+        {
+          "id": "explicit_approval_changes_only_window_model",
+          "ok": true
+        },
+        {
+          "id": "approval_does_not_invent_capsule_session_or_checkpoint",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "candidates"
+    },
+    {
+      "fixture": "demo-feedback-languages",
+      "checks": [
+        {
+          "id": "copy_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_success_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_success_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "one_approval_keeps_original_proposal",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "one_revision_retains_previous_identity",
+          "ok": true
+        },
+        {
+          "id": "only_explicit_actions_run_and_original_fixture_is_unchanged",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "copies": 2,
+      "clockReads": 4
+    },
+    {
+      "fixture": "demo-list-keyboard",
+      "checks": [
+        {
+          "id": "memory_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_inspector_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_collection_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "memory_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "search_field_owns_its_keys",
+          "ok": true
+        },
+        {
+          "id": "synthetic_preview_keeps_its_keys",
+          "ok": true
+        },
+        {
+          "id": "hidden_demo_selection_unchanged",
+          "ok": true
+        },
+        {
+          "id": "global_page_shortcut_preserved",
+          "ok": true
+        },
+        {
+          "id": "session_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "session_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "session_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "navigation_rail_keeps_its_keys",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "scaling-links",
+      "checks": [
+        {
+          "id": "visible_reading_link_focuses_same_inspector",
+          "ok": true
+        },
+        {
+          "id": "return_focuses_view_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "jump_keeps_hidden_selection_and_filter",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_links_keep_nodes_focus_and_raw_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_links_keep_nodes_focus_and_raw_selection",
+          "ok": true
+        },
+        {
+          "id": "en_links_keep_nodes_focus_and_raw_selection",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "browser_launcher_exit_codes": {
+    "before": 0,
+    "final": 0
+  },
+  "server_preparation_ms": {
+    "before": 12587,
+    "final": 12157
+  },
+  "checks": {
+    "typescript": "passed",
+    "i18n_cjk": "12 passed; font files unchanged",
+    "memory_pin": "passed; exact 0d338f1 unchanged",
+    "activity_retirement": "passed"
+  },
+  "corrections": [
+    "Chinese Collections translation contained a character outside the shipped font subset. Reworded as grouped navigation without changing fonts.",
+    "First expanded driver inserted an unescaped newline into CDP evaluation, causing SyntaxError. Used JSON.stringify for the invented multiline draft.",
+    "Next driver referenced a Node loop variable inside the browser expression. Serialized target ID. Product code unchanged for either driver error."
+  ],
+  "limits": [
+    "Equivalent narrow CSS viewports/DPR2 only, not actual browser zoom, Windows scaling or native acceptance.",
+    "Browser journey used draft typing/cancel, without save, promote or clipboard. Existing DOM regressions also exercise fictional window-local approval/save with mocks. No actual Vault, Owner or Provider action.",
+    "No full npm test, build, Rust or native smoke.",
+    "Other browser surfaces remain on the existing layout pending separate slices."
+  ]
+}

@@ -13,7 +13,7 @@
 // it by hand (and lets it spin on), and nearer stars are larger and brighter; in the
 // dark palette they glow, so the crowded core of new memories shines.
 // Nothing is read from a Vault, sent or kept.
-import { focusReadingTarget } from './parts';
+import { focusReadingTarget } from '../../theme/readingFocus';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { makeStarField, type LinkType, type StarField, type StarState } from './starfield';
 import { BALL, DRUM, GALAXY, ball, galaxyRadius, layout as layoutSync, project, type LayoutId } from './starLayout';
