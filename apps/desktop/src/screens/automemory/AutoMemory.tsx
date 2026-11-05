@@ -1,3 +1,4 @@
+import { focusReadingTarget } from './parts';
 import React, { useEffect, useRef, useState } from 'react';
 import { AUTO_LABEL, AUTO_NOTE, RANGE_NOTE } from './fixture';
 import { AUTO_MEMORIES, DATASET, DATASETS, EMPTY_NOTE, HELD_NOTE } from './dataset';
@@ -99,16 +100,16 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
             ))}
           </div> : null}
           <p className="am-range">{t(RANGE_NOTE, { n: AUTO_COUNT })}</p>
-          <a className="am-skip" href="#am-inspector" onClick={(e) => { e.preventDefault(); document.getElementById('am-inspector')?.focus(); }}>{t("Skip to inspector")}</a>
+          <a className="am-skip" href="#am-inspector" onClick={(e) => { e.preventDefault(); focusReadingTarget('am-inspector'); }}>{t("Skip to inspector")}</a>
         </div>
       </header>
       {view === 'starmap' && DATASET === 'original' ? (
         // The star map has its own sample (700 generated memories by default) and its own panel.
-        <div className="am-body"><div className="am-main sm-host" id="am-main"><StarMap /></div></div>
+        <div className="am-body"><div className="am-main sm-host" id="am-main" tabIndex={-1}><StarMap /></div></div>
       ) : (
         <div className="am-body">
-          <div className="am-main" id="am-main">{view === 'starmap' && m ? <p className="am-empty">{t("The star map uses a separate generated sample. Choose Original sample to open it.")}</p> : body}</div>
-          {m ? <Inspector m={m} select={choose} /> : <aside className="am-inspector" id="am-inspector" tabIndex={-1} aria-label={t("Automatic memory inspector")}><p className="am-empty">{t(EMPTY_NOTE)}</p></aside>}
+          <div className="am-main" id="am-main" tabIndex={-1}><a className="am-reading-jump" href="#am-inspector" onClick={e => { e.preventDefault(); focusReadingTarget('am-inspector'); }}>{t("Skip to inspector")}</a>{view === 'starmap' && m ? <p className="am-empty">{t("The star map uses a separate generated sample. Choose Original sample to open it.")}</p> : body}</div>
+          {m ? <Inspector m={m} select={choose} /> : <aside className="am-inspector" id="am-inspector" tabIndex={-1} aria-label={t("Automatic memory inspector")}><a className="am-reading-jump" href="#am-main" onClick={e => { e.preventDefault(); focusReadingTarget('am-main'); }}>{t("Back to memory view")}</a><p className="am-empty">{t(EMPTY_NOTE)}</p></aside>}
         </div>
       )}
     </section>

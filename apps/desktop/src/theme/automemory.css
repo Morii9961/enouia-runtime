@@ -516,3 +516,32 @@
 .am-suggestion-card p{margin:0;white-space:pre-wrap}
 .am-suggestion-statement{font-size:14px;line-height:21px}
 .am-suggestion-card .am-opt{height:auto;min-height:30px;white-space:normal;text-align:left}
+
+/* Equivalent narrow layout space under zoom: only the fictional Memory preview.
+   Keep the decided 1100–1279 three-column layout unchanged. */
+.am-reading-jump{display:none}
+@media(max-width:899px){
+  .bg-app:has(.memory-region .am){min-width:0;min-height:100vh;height:auto;overflow:visible;grid-template-rows:auto auto}
+  .bg-app:has(.memory-region .am) .bg-titlebar{height:auto;flex-wrap:wrap;gap:6px;padding:6px 12px}
+  .bg-app:has(.memory-region .am) .bg-chartno{white-space:normal}
+  .bg-app:has(.memory-region .am) .bg-strip-head{height:auto;min-height:34px;flex-wrap:wrap}
+  .bg-app:has(.memory-region .am) .bg-nav{flex-wrap:wrap}
+  .bg-app:has(.memory-region .am) .bg-strip-meta{flex-basis:100%;white-space:normal;text-align:left;margin:6px 0}
+  .bg-app:has(.memory-region .am) .tm{height:auto;min-height:20px}
+  .bg-app:has(.memory-region .am) .tm-note{white-space:normal}
+  .memory-region:has(.am),.memory-region:has(.am) .memory-region-body{height:auto;flex:none}
+  .memory-region .am{height:auto;display:block}
+  .memory-region .am-head{padding:12px}
+  .memory-region .am-head-row,.memory-region .am-views{flex-wrap:wrap}
+  .memory-region .am-views{max-width:100%;min-width:0;flex-shrink:1}
+  .memory-region .am-h1,.memory-region .am-stamp{white-space:normal}
+  .memory-region .am-range{text-align:left}
+  .memory-region .am-body{display:block}
+  .memory-region .am-body::after{display:none}
+  .memory-region .am-main{overflow:visible;padding:12px;outline-offset:-3px}
+  .memory-region .am-inspector{overflow:visible;min-width:0;border-left:0;border-top:1px solid var(--grid-major);padding:16px 12px}
+  .memory-region .sm{grid-template-columns:minmax(0,1fr);height:auto}
+  .memory-region .sm-main{overflow:visible;padding:12px}
+  .memory-region .sm-host{overflow:visible !important}
+  .memory-region .am-reading-jump{display:inline-block;margin:0 0 12px;font-family:var(--f-lab);font-size:12px;color:var(--ink);text-underline-offset:3px}
+}
