@@ -45,6 +45,13 @@ try{
   check('disabled_is_explicit_without_page_or_stats',reads()===0&&!text().includes('Page statistics were read'));
   holdStats=true;state='open';
   await wait(()=>releaseStats!==null);
+  await wait(()=>fixture.querySelector('[aria-busy]')?.getAttribute('aria-busy')==='true');
+  check('pending_counts_have_visible_reading_feedback',text().includes('Reading catalog page and statistics…'));
+  const pendingReads=reads();
+  for(const [language,message]of [['zh-Hans','正在读取目录页和统计…'],['ja','カタログページと統計を読み込み中…'],['en','Reading catalog page and statistics…']]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_pending_feedback_translates_without_replay`,text().includes(message)&&reads()===pendingReads&&!fixture.querySelector('li'));
+  }
   check('counts_and_records_wait_for_same_selection_stats',!text().includes('Synthetic item 1')&&!text().includes('matching authorized records')&&!text().includes('Page statistics were read'));
   releaseStats!();releaseStats=null;
   await wait(()=>text().includes('2 shown · 3 matching authorized records'));
@@ -82,6 +89,7 @@ try{
   click('Unlock synthetic library');await wait(()=>text().includes('1 shown · 1 matching authorized records'));
   input.focus();busyStatus=true;await wait(()=>!busyStatus);await sleep(30);
   check('busy_status_hides_observations_but_keeps_draft_and_focus',!fixture.querySelector('li')&&fixture.querySelector('input')===input&&input.value==='调试'&&document.activeElement===input);
+  check('failed_status_is_unknown_not_still_reading',text().includes('Library state is unknown.')&&!text().includes('Reading library state…'));
   const busyReads=reads();
   for(const [language,error]of [['zh-Hans','自动记忆正忙。请稍后再读取。'],['ja','自動記憶は処理中です。少ししてから読み直してください。'],['en','Automatic Memory is busy. Try the read again shortly.']]){
     await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role=alert]')?.textContent?.includes(error));

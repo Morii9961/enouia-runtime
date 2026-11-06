@@ -79,7 +79,7 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
         <p className="mem-content">{t("This isolated library is separate from the Vault used by Context and Sessions.")}</p>
         {observationError && <p role="alert">{describe(observationError.cause)}</p>}
         <ErrorBox error={reads.error} />
-        <p role="status">{status ? t("Library: {state}", { state: status.state }) : t("Reading library state…")}</p>
+        <p role="status">{status ? t("Library: {state}", { state: status.state }) : observationError ? t("Library state is unknown.") : t("Reading library state…")}</p>
         {status?.state === "disabled" && <p className="mem-content">{t("No synthetic library is enabled in this session.")}</p>}
         {status?.state === "failed" && <p className="mem-content">{t("The synthetic library is unavailable. Start a new synthetic session to recover.")}</p>}
         {open && <button className="mem-button" disabled={reads.busy} onClick={() => void pageRead()}>{t("Refresh automatic memories")}</button>}
