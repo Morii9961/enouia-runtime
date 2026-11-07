@@ -1,6 +1,15 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Memory list": "記憶一覧",
+  "Memory layouts": "記憶の表示形式",
+  "Cards": "カード",
+  "All states": "すべての状態",
+  "Suggested theme": "提案されたテーマ",
+  "Clear filters": "絞り込みを解除",
+  "{shown} of {total} loaded records": "読み込み済み {total} 件のうち {shown} 件を表示",
+  "The selected memory is outside these filters. Its Inspector stays open.": "選択中の記憶はこの絞り込みの範囲外です。詳細は開いたままです。",
+  "No matching record in the loaded sample. Clear filters to see all loaded records.": "読み込み済みサンプルに一致する記録はありません。絞り込みを解除すると全記録を表示します。",
   "Coverage sample": "カバー範囲のサンプル",
   "Coverage calendar": "カバー範囲のカレンダー",
   "Coverage time map. Bars count received material identities only. The frame follows the calendar month.": "カバー範囲の時間マップ。線は受信した資料の数のみを示し、枠は表示中の月に従います。",
@@ -1207,7 +1216,6 @@ const dict: Record<string, string> = {
   "Words in title or statement": "タイトルか記述の語",
   "Literal search in the loaded sample": "読み込んだサンプルを文字どおりに検索",
   "All kinds": "すべての種類",
-  "Nothing here matches. No reading in the loaded sample for that filter. Clear the words or choose All kinds.": "一致するものはありません。読み込んだサンプルにこの絞り込みに合う記録はありません。語を消すか「すべての種類」を選んでください。",
   "Conflicts with": "競合する相手",
   "Automatic memory inspector": "自動記憶の詳細",
   "Times": "時刻",

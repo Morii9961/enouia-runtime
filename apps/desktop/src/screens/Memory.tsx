@@ -28,7 +28,7 @@ export default function Memory({ view }: { view: DemoView }) {
       aria-current={workspace === w.id ? 'page' : undefined} onClick={() => setWorkspace(w.id)}><span className="am-vn">{t(w.label)}</span></button>)}
   </nav>
   {workspace === 'memories' ? <div className="am-views memory-view-nav" role="group" aria-label={t("Memory workspace views")}>
-    <button type="button" className="am-view" data-memory-view="grid" aria-pressed={memoryView === 'grid'} onClick={() => setMemoryView('grid')}><span className="am-vn">{t("Memory grid")}</span></button>
+    <button type="button" className="am-view" data-memory-view="grid" aria-pressed={memoryView === 'grid'} onClick={() => setMemoryView('grid')}><span className="am-vn">{t("Automatic memory")}</span></button>
     <button type="button" className="am-view" data-memory-view="vault" aria-pressed={memoryView === 'vault'} onClick={() => setMemoryView('vault')}><span className="am-vn">{t("Vault list · owner review compatibility")}</span></button>
   </div> : null}
   <div className="memory-region-body">
