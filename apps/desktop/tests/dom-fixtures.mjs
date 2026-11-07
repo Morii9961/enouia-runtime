@@ -19,7 +19,7 @@ const fixtures = ['settings-exit-ownership', 'tray-language', 'window-language',
   'suggestion-resume', 'suggestion-lifetime', 'suggestion-review-journey', 'workspace-calls',
   'operation-snapshot', 'provider-config-draft', 'provider-draft-save', 'provider-settings-status', 'provider-setup', 'provider-session', 'provider-send-recovery', 'provider-recorded-outcomes',
   'provider-preparation-recovery', 'provider-operations', 'provider-off-ledger', 'provider-confirmation',
-  'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation', 'automatic-memory', 'catalog-memory', 'theme-preference', 'auto-preview-states', 'memory-workspaces', 'demo-feedback-languages', 'window-feedback-languages', 'vault-demo-states', 'native-vault-demo-route', 'month-day-preview'];
+  'extraction-status-recovery', 'extraction-recovery', 'extraction-provider-choice', 'quick-search-observation', 'automatic-memory', 'catalog-memory', 'theme-preference', 'auto-preview-states', 'memory-workspaces', 'demo-feedback-languages', 'window-feedback-languages', 'vault-demo-states', 'native-vault-demo-route', 'month-day-preview', 'coverage-calendar'];
 const desktop = fileURLToPath(new URL('..', import.meta.url));
 const baselineSha = operationBaseline ? '290248b6cb37fe4e905970963793042b097bc7b8' : '6cb6920eab5ca5a84e23b7d9f55773cf3f61609d';
 const baselineFile = operationBaseline ? 'ui.tsx' : 'status.tsx';
@@ -27,7 +27,7 @@ const baselineFile = operationBaseline ? 'ui.tsx' : 'status.tsx';
 if (!process.argv.includes('--worker')) {
   const results = [];
   for (const { fixture, dataset, vaultDataset } of (operationBaseline ? ['operation-stop-observation'] : baseline ? fixtures.slice(0, 1) : fixtures).flatMap(fixture =>
-    fixture === 'auto-preview-states' ? ['original', 'empty', 'held', 'open-ended', 'source-missing', 'unknown-result', 'read-only'].map(dataset => ({ fixture, dataset })) : fixture === 'vault-demo-states' ? ['original', 'empty', 'candidates'].map(vaultDataset => ({ fixture, vaultDataset })) : [{ fixture }])) {
+    fixture === 'auto-preview-states' ? ['coverage', 'original', 'empty', 'held', 'open-ended', 'source-missing', 'unknown-result', 'read-only'].map(dataset => ({ fixture, dataset })) : fixture === 'coverage-calendar' ? ['coverage','original'].map(dataset => ({fixture,dataset})) : fixture === 'vault-demo-states' ? ['original', 'empty', 'candidates'].map(vaultDataset => ({ fixture, vaultDataset })) : [{ fixture }])) {
     const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--worker', fixture, ...(dataset ? [`--auto-dataset=${dataset}`] : []), ...(vaultDataset ? [`--vault-dataset=${vaultDataset}`] : []), ...(baseline ? [operationBaseline ? '--operation-baseline' : '--settings-baseline'] : [])],
       { cwd: desktop, encoding: 'utf8', timeout: 30000 });
     if (child.error) throw child.error;
@@ -56,7 +56,7 @@ if (!process.argv.includes('--worker')) {
   const fixture = process.argv[process.argv.indexOf('--worker') + 1];
   assert.ok(fixtures.includes(fixture), 'Only the named repository fixtures can run');
   const { GlobalRegistrator } = await import('@happy-dom/global-registrator');
-  GlobalRegistrator.register({ url: fixture === 'auto-preview-states' ? 'http://127.0.0.1/?auto-dataset=' + encodeURIComponent(process.argv.find(a => a.startsWith('--auto-dataset='))?.slice('--auto-dataset='.length) ?? 'original') : fixture === 'vault-demo-states' || fixture === 'native-vault-demo-route' ? 'http://127.0.0.1/?vault-dataset=' + encodeURIComponent(process.argv.find(a=>a.startsWith('--vault-dataset='))?.slice('--vault-dataset='.length) ?? 'empty') : 'http://127.0.0.1/', settings: {
+  GlobalRegistrator.register({ url: fixture === 'auto-preview-states' || fixture === 'coverage-calendar' ? 'http://127.0.0.1/?auto-dataset=' + encodeURIComponent(process.argv.find(a => a.startsWith('--auto-dataset='))?.slice('--auto-dataset='.length) ?? (fixture === 'coverage-calendar' ? 'coverage' : 'original')) : fixture === 'vault-demo-states' || fixture === 'native-vault-demo-route' ? 'http://127.0.0.1/?vault-dataset=' + encodeURIComponent(process.argv.find(a=>a.startsWith('--vault-dataset='))?.slice('--vault-dataset='.length) ?? 'empty') : 'http://127.0.0.1/', settings: {
     enableJavaScriptEvaluation: false, disableJavaScriptFileLoading: true,
     enableCSSFileLoading: false, enableImageFileLoading: false,
   } });

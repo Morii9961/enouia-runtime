@@ -1,5 +1,5 @@
-// Focused browser-only automatic-memory state/layout diagnostics.
-// node e2e/auto-preview-diagnostics.mjs <Edge executable> <directory under ./target>
+// Focused owned-browser layout diagnostics. Cold CDP startup has taken 52.7s on this host; commands are bounded to 60s, with no automatic retry.
+// node e2e/month-day-diagnostics.mjs <Edge executable> <directory under ./target>
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -27,7 +27,7 @@ async function until(test) {
 function send(method, params = {}) {
   const id = ++nextId;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => { pending.delete(id); reject(Error(`CDP timeout: ${method}`)); }, 15000);
+    const timer = setTimeout(() => { pending.delete(id); reject(Error(`CDP timeout: ${method}`)); }, 60000);
     pending.set(id, { resolve, reject, timer });
     ws.send(JSON.stringify({ id, method, params }));
   });
@@ -40,6 +40,11 @@ async function evaluate(expression) {
 try {
   await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+  const warming=Date.now();
+  await fetch(origin+'/');
+  await server.environments.client.warmupRequest('/src/main.tsx');
+  await server.environments.client.waitForRequestsIdle();
+  console.log(JSON.stringify({serverPreparedMs:Date.now()-warming}));
   browser = spawn(edge, ['--headless=new', '--no-first-run', '--disable-extensions', '--disable-default-apps',
     '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'],
   { windowsHide: true, stdio: ['ignore', log, log] });

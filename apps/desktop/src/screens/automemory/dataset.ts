@@ -1,11 +1,13 @@
 // Browser demo selection is fixed for this module load. No Vault, IPC or persistence.
 import { AUTO_MEMORIES as ORIGINAL, RELATIONS as ORIGINAL_RELATIONS, RECALL_CASES as ORIGINAL_CASES } from './fixture';
+import { COVERAGE_MEMORIES, COVERAGE_MATERIALS } from './coverage-fixtures';
 import { STATE_MEMORIES } from './state-fixtures';
 import { msg } from '../../i18n/index.ts';
 
 const asked = new URLSearchParams(globalThis.location?.search).get('auto-dataset');
-export const DATASET = asked === 'empty' || asked === 'held' || asked === 'open-ended' || asked === 'source-missing' || asked === 'unknown-result' || asked === 'read-only' ? asked : 'original';
+export const DATASET = asked === 'empty' || asked === 'held' || asked === 'open-ended' || asked === 'source-missing' || asked === 'unknown-result' || asked === 'read-only' || asked === 'coverage' ? asked : 'original';
 export const DATASETS = [
+  { id: 'coverage', label: msg('Coverage sample') },
   { id: 'original', label: msg('Original sample') },
   { id: 'empty', label: msg('Empty sample') },
   { id: 'held', label: msg('Material and hypotheses only') },
@@ -14,7 +16,8 @@ export const DATASETS = [
   { id: 'unknown-result', label: msg('Result unknown') },
   { id: 'read-only', label: msg('Read-only sample') },
 ] as const;
-export const AUTO_MEMORIES = DATASET === 'original' ? ORIGINAL : STATE_MEMORIES[DATASET];
+export const AUTO_MEMORIES = DATASET === 'original' ? ORIGINAL : DATASET === 'coverage' ? COVERAGE_MEMORIES : STATE_MEMORIES[DATASET];
+export const COVERAGE = DATASET === 'coverage' ? {materials:COVERAGE_MATERIALS,memories:COVERAGE_MEMORIES} : null;
 const ids = new Set(AUTO_MEMORIES.map(m => m.id));
 export const RELATIONS = ORIGINAL_RELATIONS.filter(r => ids.has(r.from) && ids.has(r.to));
 // Keep complete recall cases, including their original costs and budget; never prune a
