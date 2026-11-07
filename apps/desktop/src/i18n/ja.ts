@@ -1,6 +1,17 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Open original sample": "元のサンプルを開く",
+  "No saved capsule in this synthetic Vault. Nothing has been compiled or sent.": "この合成 Vault には保存済みの Capsule がありません。コンパイルも送信も行っていません。",
+  "No saved sessions in this sample.": "このサンプルには保存された会話がありません。",
+  "This synthetic Vault has no conversations or checkpoints. Open the original sample to inspect invented history.": "この合成 Vault には会話やチェックポイントがありません。元のサンプルで架空の履歴を確認できます。",
+  "No session selected.": "会話が選択されていません。",
+  "No saved capsule in this sample.": "このサンプルには保存済みの Capsule がありません。",
+  "No checkpoint in this sample.": "このサンプルにはチェックポイントがありません。",
+  "This synthetic Vault is empty. There are no memories or candidates to inspect.": "この合成 Vault は空です。確認できる記憶や候補はありません。",
+  "Only imported candidates are present. No memory has been approved. Open the candidate inbox to review them in this window.": "取り込んだ候補だけがあり、正式な記憶はありません。候補の受信箱を開くと、このウィンドウ内でレビューできます。",
+  "No memory to inspect in this sample.": "このサンプルに確認できる記憶はありません。",
+
   "Select a candidate before promoting.": "正式な記憶にする候補を選択してください。",
   "Enter memory content before promoting.": "候補を正式な記憶にする前に内容を入力してください。",
   "Select an editable canonical demo memory.": "編集できる正式なデモ記憶を選択してください。",

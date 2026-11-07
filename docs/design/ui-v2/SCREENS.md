@@ -13,7 +13,7 @@
 
 ## 数据与预览边界
 
-1. **当前 pin 的常规能力**：`docs/integration/memory-pin.json` 固定的 Memory Workspace `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`，Workspace IPC v1 / schema 1 / 58 命令。常规记忆列表/审阅、Context 与 Sessions 使用该契约，仍是 owner 审阅语义；本轮没有升级 pin 或采用新的 Owner Vault。
+1. **当前 pin 的常规能力**：`docs/integration/memory-pin.json` 固定的 Memory Workspace `0d338f12f51a859363e0725071bcf43874b492c7`，Workspace IPC v1 / schema 1 / 58 命令。常规记忆列表/审阅、Context 与 Sessions 使用该契约，仍是 owner 审阅语义；本轮没有升级 pin 或采用新的 Owner Vault。
 2. **合成预览**：「Automatic memory · synthetic preview」，只在浏览器演示（`connected === false`）里出现，固定标「Synthetic preview · not running」，原始数据是 `screens/automemory/fixture.ts` 的 15 条虚构记忆，另有 `state-fixtures.ts` / `dataset.ts` 的六种状态示例（`auto-dataset` URL 参数），原始 fixture 不改。不调用 IPC、不写存储。
 3. **既有隔离原生样本**：左栏「Synthetic automatic memories」是已合入的 `memory/AutomaticMemory.tsx`，使用独立 `memory_automation` / `memory-native-read-1`，只服务显式 `--memory-synthetic` 创建的隔离样本。它的 schema-2 请求封装与原生样本不代表生产采用，见[原 ADR](../../adr/037-synthetic-native-memory-adoption.md)。本轮未修改或启动该模式。
 4. **以后的受控采用**：Memory 仓库交付生产自动化契约后，由指定的集成负责人一次一处地采用真实数据（Memory UI 规格 §11 的 UI-D / UI-E）。失败或未激活时不得静默回退到浏览器演示；既有隔离原生样本始终保留其合成标签与独立边界。
@@ -125,8 +125,8 @@ Memory UI 规格 §1 把 Memory 内部分成五个工作区。浏览器现以五
 
 | 状态 | 需要看见的说明 | 现状 |
 | --- | --- | --- |
-| 空库 | 当前没有可读记忆；下一步是什么 | 自动记忆浏览器状态集已做；旧 Vault 整屏空库另片 |
-| 仅候选 | 有材料但还没有记忆 | 自动记忆已有仅材料/暂存状态；旧 Candidate inbox 整屏另片 |
+| 空库 | 当前没有可读记忆；下一步是什么 | 自动记忆与旧 Vault 浏览器状态均已做；原生另行验收 |
+| 仅候选 | 有材料但还没有记忆 | 自动记忆已有仅材料/暂存状态；旧 Vault 已有独立仅导入候选样本 |
 | 已确认但冲突 | 哪两条冲突、各自来源 | 部分（Formation 里有冲突事件） |
 | 来源缺失 | 哪个证据缺失、可看的还有什么 | 自动记忆浏览器状态集已做 |
 | 时间未知 | 哪个时间字段缺失 | 部分（Timeline 的「Time not recorded」） |

@@ -1,0 +1,1278 @@
+{
+  "baseline_revision": "a1f882fa68fd015c28f7c9012fb09d11fe059b60",
+  "dom": {
+    "before-empty": {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": false,
+          "reason": "Error: Unknown demo memory."
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": false
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": false
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": false
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": false
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": false
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": false
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": false
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": false
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": false
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": false
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": false
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": false
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": false
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": false,
+      "dataset": "empty"
+    },
+    "candidates": {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "only_imported_candidates_are_in_inbox",
+          "ok": true
+        },
+        {
+          "id": "explicit_approval_changes_only_window_model",
+          "ok": true
+        },
+        {
+          "id": "approval_does_not_invent_capsule_session_or_checkpoint",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "candidates"
+    },
+    "demo-feedback-languages": {
+      "fixture": "demo-feedback-languages",
+      "checks": [
+        {
+          "id": "copy_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_success_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_success_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "one_approval_keeps_original_proposal",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_zh-Hans_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_ja_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_ja_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_notice_follows_language",
+          "ok": true
+        },
+        {
+          "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+          "ok": true
+        },
+        {
+          "id": "one_revision_retains_previous_identity",
+          "ok": true
+        },
+        {
+          "id": "only_explicit_actions_run_and_original_fixture_is_unchanged",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "copies": 2,
+      "clockReads": 4
+    },
+    "demo-list-keyboard": {
+      "fixture": "demo-list-keyboard",
+      "checks": [
+        {
+          "id": "memory_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_inspector_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_collection_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "memory_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "search_field_owns_its_keys",
+          "ok": true
+        },
+        {
+          "id": "synthetic_preview_keeps_its_keys",
+          "ok": true
+        },
+        {
+          "id": "hidden_demo_selection_unchanged",
+          "ok": true
+        },
+        {
+          "id": "global_page_shortcut_preserved",
+          "ok": true
+        },
+        {
+          "id": "session_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "session_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "session_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "navigation_rail_keeps_its_keys",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    "empty": {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    "memory-workspaces": {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    "native-route": {
+      "fixture": "native-vault-demo-route",
+      "checks": [
+        {
+          "id": "native_ignores_browser_empty_vault_parameter",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    "original": {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    "shell-navigation-focus": {
+      "fixture": "shell-navigation-focus",
+      "checks": [
+        {
+          "id": "home_route_continues_in_new_surface",
+          "ok": true
+        },
+        {
+          "id": "shortcut_from_surface_continues_in_new_surface",
+          "ok": true
+        },
+        {
+          "id": "rail_click_keeps_rail_focus",
+          "ok": true
+        },
+        {
+          "id": "shortcut_from_rail_keeps_rail_focus",
+          "ok": true
+        },
+        {
+          "id": "shortcut_respects_focus_outside_shell",
+          "ok": true
+        },
+        {
+          "id": "open_dialog_still_blocks_shortcut",
+          "ok": true
+        },
+        {
+          "id": "main_target_adds_no_tab_stop",
+          "ok": true
+        }
+      ],
+      "passed": true
+    }
+  },
+  "browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned headless browser/profile. Browser-only empty/candidate Vault fixtures; no native bridge. Four surfaces, imported inbox and actual original-sample reloads. Not Core, native or human acceptance.",
+    "rows": [
+      {
+        "dataset": "empty",
+        "page": "home",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "empty",
+        "page": "memory",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "phase": "restore",
+        "fromDataset": "empty",
+        "width": 1100,
+        "page": "memory",
+        "dataset": "original",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "records": 9
+      },
+      {
+        "dataset": "candidates",
+        "page": "home",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "memory",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "inbox",
+        "width": 1100,
+        "language": "zh-Hans",
+        "candidates": 2
+      },
+      {
+        "phase": "restore",
+        "fromDataset": "candidates",
+        "width": 1100,
+        "page": "memory",
+        "dataset": "original",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "records": 9
+      },
+      {
+        "dataset": "empty",
+        "page": "home",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "empty",
+        "page": "memory",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "phase": "restore",
+        "fromDataset": "empty",
+        "width": 1440,
+        "page": "memory",
+        "dataset": "original",
+        "language": "ja",
+        "theme": "light",
+        "records": 9
+      },
+      {
+        "dataset": "candidates",
+        "page": "home",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "memory",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "invalidTime": false,
+        "records": 0,
+        "sessions": 0,
+        "capsule": false,
+        "checkpointEnabled": false,
+        "restore": true,
+        "restoreVisible": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "inbox",
+        "width": 1440,
+        "language": "ja",
+        "candidates": 2
+      },
+      {
+        "phase": "restore",
+        "fromDataset": "candidates",
+        "width": 1440,
+        "page": "memory",
+        "dataset": "original",
+        "language": "ja",
+        "theme": "light",
+        "records": 9
+      }
+    ]
+  }
+}

@@ -37,7 +37,7 @@ if (!root) throw new Error('The desktop root element is missing.');
 // The root follows the interface language, so a change re-renders the whole tree in place.
 function Root() {
   useLang();
-  return isTauri() && new URLSearchParams(location.search).get('view') === 'overlay' ? <QuickSearch /> : <><TrayLanguage /><WindowLanguage /><App startPage={!isTauri() && new URLSearchParams(location.search).has('auto-dataset') ? 'memory' : undefined} /></>;
+  return isTauri() && new URLSearchParams(location.search).get('view') === 'overlay' ? <QuickSearch /> : <><TrayLanguage /><WindowLanguage /><App startPage={!isTauri() && (new URLSearchParams(location.search).has('auto-dataset') || new URLSearchParams(location.search).has('vault-dataset')) ? 'memory' : undefined} /></>;
 }
 await ready();
 createRoot(root).render(

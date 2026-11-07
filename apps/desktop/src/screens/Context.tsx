@@ -4,6 +4,10 @@ import type { DemoView } from "../App";
 import { t, tj } from '../i18n/index.ts';
 export default function Context({ view }: { view: DemoView }) {
   const { ctx, ctxScroll } = view;
+  if (!ctx) return <section data-screen-label="Context Surface" className="qr132">
+    <div className="qr99"><h1 className="qr18">{t("Context Surface")}</h1><span className="qr9">{t("Fictional capsule snapshot · read only. No data is sent.")}</span></div>
+    <div className="demo-empty"><p>{t("No saved capsule in this synthetic Vault. Nothing has been compiled or sent.")}</p><a className="am-chip" href={view.originalDemoHref}>{t("Open original sample")}</a></div>
+  </section>;
   return (
 <section data-screen-label="Context Surface" className="qr132">
 <div className="qr99">

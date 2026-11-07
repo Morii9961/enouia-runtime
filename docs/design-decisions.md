@@ -398,3 +398,7 @@
 - 影响：全部屏幕的视觉；不改任何行为、IPC、测试。
 - 依据：`.design/review/index.html`（第一轮）、`.design/review/index-r2.html`（第二轮）与各方向 `critique-log.md`。
 - 状态：定稿
+
+## 2026-11-04 · #14 旧 Vault 浏览器空状态
+
+实现记录：空库样本同时没有记忆、候选、会话和 Capsule；仅候选样本包含两条独立导入候选，保留原始 fixture，缺失引用以空状态呈现。模块级 `vault-dataset` 参数只服务浏览器，SDK 原生标记下忽略；显式恢复链接回原始兼容列表。这不构成 Memory 契约或 Owner 采用。证据见 [验证](validation/UI-v2-empty-vault-demo-2026-11-04.md)。

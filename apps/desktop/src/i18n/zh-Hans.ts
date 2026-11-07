@@ -1,6 +1,17 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Open original sample": "打开原始示例",
+  "No saved capsule in this synthetic Vault. Nothing has been compiled or sent.": "此合成记忆库没有已保存的 Capsule，也未编译或发送内容。",
+  "No saved sessions in this sample.": "此示例没有已保存的会话。",
+  "This synthetic Vault has no conversations or checkpoints. Open the original sample to inspect invented history.": "此合成记忆库没有会话或检查点。可打开原始示例查看虚构历史。",
+  "No session selected.": "没有选中的会话。",
+  "No saved capsule in this sample.": "此示例没有已保存的 Capsule。",
+  "No checkpoint in this sample.": "此示例没有检查点。",
+  "This synthetic Vault is empty. There are no memories or candidates to inspect.": "此合成记忆库为空，没有可查看的记忆或候选。",
+  "Only imported candidates are present. No memory has been approved. Open the candidate inbox to review them in this window.": "这里只有导入的候选，尚无正式记忆。可打开候选收件箱，在此窗口审阅。",
+  "No memory to inspect in this sample.": "此示例没有可查看的记忆。",
+
   "Select a candidate before promoting.": "请先选择候选，再提升。",
   "Enter memory content before promoting.": "请先输入记忆内容，再提升候选。",
   "Select an editable canonical demo memory.": "请选择可编辑的正式演示记忆。",
