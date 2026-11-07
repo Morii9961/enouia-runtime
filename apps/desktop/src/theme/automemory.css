@@ -521,15 +521,15 @@
    Keep the decided 1100–1279 three-column layout unchanged. */
 .am-reading-jump{display:none}
 @media(max-width:899px){
-  .bg-app:has(.memory-region .am){min-width:0;min-height:100vh;height:auto;overflow:visible;grid-template-rows:auto auto}
-  .bg-app:has(.memory-region .am) .bg-titlebar{height:auto;flex-wrap:wrap;gap:6px;padding:6px 12px}
-  .bg-app:has(.memory-region .am) .bg-chartno{white-space:normal}
-  .bg-app:has(.memory-region .am) .bg-strip-head{height:auto;min-height:34px;flex-wrap:wrap}
-  .bg-app:has(.memory-region .am) .bg-nav{flex-wrap:wrap}
-  .bg-app:has(.memory-region .am) .bg-strip-meta{flex-basis:100%;white-space:normal;text-align:left;margin:6px 0}
-  .bg-app:has(.memory-region .am) .tm{height:auto;min-height:20px}
-  .bg-app:has(.memory-region .am) .tm-note{white-space:normal}
-  .memory-region:has(.am),.memory-region:has(.am) .memory-region-body{height:auto;flex:none}
+  .bg-app:has(.memory-region){min-width:0;min-height:100vh;height:auto;overflow:visible;grid-template-rows:auto auto}
+  .bg-app:has(.memory-region) .bg-titlebar{height:auto;flex-wrap:wrap;gap:6px;padding:6px 12px}
+  .bg-app:has(.memory-region) .bg-chartno{white-space:normal}
+  .bg-app:has(.memory-region) .bg-strip-head{height:auto;min-height:34px;flex-wrap:wrap}
+  .bg-app:has(.memory-region) .bg-nav{flex-wrap:wrap}
+  .bg-app:has(.memory-region) .bg-strip-meta{flex-basis:100%;white-space:normal;text-align:left;margin:6px 0}
+  .bg-app:has(.memory-region) .tm{height:auto;min-height:20px}
+  .bg-app:has(.memory-region) .tm-note{white-space:normal}
+  .memory-region,.memory-region .memory-region-body{height:auto;flex:none}
   .memory-region .am{height:auto;display:block}
   .memory-region .am-head{padding:12px}
   .memory-region .am-head-row,.memory-region .am-views{flex-wrap:wrap}
@@ -544,4 +544,22 @@
   .memory-region .sm-main{overflow:visible;padding:12px}
   .memory-region .sm-host{overflow:visible !important}
   .memory-region .am-reading-jump{display:inline-block;margin:0 0 12px;font-family:var(--f-lab);font-size:12px;color:var(--ink);text-underline-offset:3px}
+}
+
+/* Legacy browser Vault shares the narrow reading flow; native surfaces do not. */
+.vault-reading-nav,.vault-reading-return{display:none}
+@media(max-width:899px){
+  .memory-region .qr89{height:auto;display:block}
+  .memory-region .vault-reading-nav{display:flex;flex-wrap:wrap;gap:8px 20px;padding:12px;border-bottom:1px solid var(--grid-major)}
+  .memory-region .vault-reading-nav a,.memory-region .vault-reading-return{font-family:var(--f-lab);font-size:12px;color:var(--ink);text-underline-offset:3px}
+  .memory-region .vault-reading-return{display:inline-block;align-self:flex-start;margin:12px}
+  .memory-region .qr28,.memory-region .qr45,.memory-region .qr88{min-width:0;overflow:visible;border-right:0;border-bottom:1px solid var(--grid-major);outline-offset:-3px}
+  .memory-region .qr28{padding:12px;gap:12px}
+  .memory-region .qr27{flex-direction:row;flex-wrap:wrap;gap:4px 12px}
+  .memory-region .qr26{height:auto;min-height:30px}
+  .memory-region .qr24{white-space:normal}
+  .memory-region .qr31{flex-wrap:wrap;padding:12px}
+  .memory-region .qr44,.memory-region .qr79{flex:none;overflow:visible}
+  .memory-region .qr79{padding:16px 12px}
+  .memory-region .qr87{padding:12px}
 }

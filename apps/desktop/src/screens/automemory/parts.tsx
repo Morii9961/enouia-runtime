@@ -37,12 +37,3 @@ export function Ref({ m, onSelect, selected }: { m: AutoMemory; onSelect: (id: s
     </button>
   );
 }
-
-/** Focus alone centres a tall section off its opening text in narrow reading mode. */
-export function focusReadingTarget(id: 'am-main' | 'am-inspector') {
-  const target = document.getElementById(id);
-  if (matchMedia('(max-width:899px)').matches) {
-    target?.focus({ preventScroll: true });
-    target?.scrollIntoView({ block: 'start' });
-  } else target?.focus();
-}

@@ -1,4 +1,5 @@
 import React from "react";
+import { focusReadingTarget } from '../theme/readingFocus';
 import type { DemoView } from "../App";
 import type { WorkspaceId } from "./automemory/types";
 
@@ -34,7 +35,12 @@ export default function Memory({ view }: { view: DemoView }) {
   <div className="memory-region-body">
   {preview ? <React.Suspense fallback={<section className="am-loading" aria-busy="true"><p>{t("Loading the synthetic preview…")}</p></section>}><AutoMemory workspace={workspace} /></React.Suspense> : (
 <section className="qr89">
-<aside className="qr28">
+<nav className="vault-reading-nav" aria-label={t("Memory Vault")}>
+  <a href="#vault-collections" onClick={e => { e.preventDefault(); focusReadingTarget('vault-collections'); }}>{t("Collections")}</a>
+  <a href="#vault-list" onClick={e => { e.preventDefault(); focusReadingTarget('vault-list'); }}>{t("Memory list")}</a>
+  <a href="#vault-inspector" onClick={e => { e.preventDefault(); focusReadingTarget('vault-inspector'); }}>{t("Memory Inspector")}</a>
+</nav>
+<aside className="qr28" id="vault-collections" tabIndex={-1}>
 <div className="qr20">
 <h1 className="qr18">
 {t("Memory Vault")}
@@ -72,7 +78,8 @@ export default function Memory({ view }: { view: DemoView }) {
 </div>
 </React.Fragment>)}
 </aside>
-<div className="qr45">
+<div className="qr45" id="vault-list" tabIndex={-1}>
+<a className="vault-reading-return" href="#vault-inspector" onClick={e => { e.preventDefault(); focusReadingTarget('vault-inspector'); }}>{t("Skip to inspector")}</a>
 <div className="qr31">
 <div className="qr29">
 {colTitle}
@@ -147,7 +154,8 @@ export default function Memory({ view }: { view: DemoView }) {
 </React.Fragment>)}
 </div>
 </div>
-<aside aria-label={t("Memory Inspector")} className="qr88">
+<aside aria-label={t("Memory Inspector")} className="qr88" id="vault-inspector" tabIndex={-1}>
+<a className="vault-reading-return" href="#vault-list" onClick={e => { e.preventDefault(); focusReadingTarget('vault-list'); }}>{t("Back to memory view")}</a>
 {noSel ? <>
 <div className="qr46">
 {view.emptyVault ? t("No memory to inspect in this sample.") : t("Select a memory to see where it came from.")}
