@@ -1,0 +1,311 @@
+{
+  "baseline_revision": "dca832bcde5a3e8a8cd38e9073b6a81bde5d5426",
+  "before": {
+    "fixture": "window-feedback-languages",
+    "checks": [
+      {
+        "id": "plugin:window|minimize_one_explicit_rejected_request",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_zh-Hans_error_follows_language",
+        "ok": false
+      },
+      {
+        "id": "plugin:window|minimize_zh-Hans_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_ja_error_follows_language",
+        "ok": false
+      },
+      {
+        "id": "plugin:window|minimize_ja_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_one_explicit_rejected_request",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_zh-Hans_error_follows_language",
+        "ok": false
+      },
+      {
+        "id": "plugin:window|toggle_maximize_zh-Hans_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_ja_error_follows_language",
+        "ok": false
+      },
+      {
+        "id": "plugin:window|toggle_maximize_ja_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_one_explicit_rejected_request",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_zh-Hans_error_follows_language",
+        "ok": false
+      },
+      {
+        "id": "plugin:window|close_zh-Hans_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_ja_error_follows_language",
+        "ok": false
+      },
+      {
+        "id": "plugin:window|close_ja_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "later_explicit_success_retires_error_without_losing_draft",
+        "ok": true
+      },
+      {
+        "id": "only_mock_window_commands_for_main",
+        "ok": true
+      }
+    ],
+    "passed": false,
+    "calls": [
+      {
+        "command": "plugin:window|is_maximized",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|minimize",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|toggle_maximize",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|close",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|minimize",
+        "args": {
+          "label": "main"
+        }
+      }
+    ]
+  },
+  "after": {
+    "fixture": "window-feedback-languages",
+    "checks": [
+      {
+        "id": "plugin:window|minimize_one_explicit_rejected_request",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_zh-Hans_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_zh-Hans_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_ja_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_ja_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|minimize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_one_explicit_rejected_request",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_zh-Hans_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_zh-Hans_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_ja_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_ja_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|toggle_maximize_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_one_explicit_rejected_request",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_zh-Hans_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_zh-Hans_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_ja_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_ja_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_error_follows_language",
+        "ok": true
+      },
+      {
+        "id": "plugin:window|close_en_keeps_draft_identity_focus_and_request_count",
+        "ok": true
+      },
+      {
+        "id": "later_explicit_success_retires_error_without_losing_draft",
+        "ok": true
+      },
+      {
+        "id": "only_mock_window_commands_for_main",
+        "ok": true
+      }
+    ],
+    "passed": true,
+    "calls": [
+      {
+        "command": "plugin:window|is_maximized",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|minimize",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|toggle_maximize",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|close",
+        "args": {
+          "label": "main"
+        }
+      },
+      {
+        "command": "plugin:window|minimize",
+        "args": {
+          "label": "main"
+        }
+      }
+    ]
+  }
+}

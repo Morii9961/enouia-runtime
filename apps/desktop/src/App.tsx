@@ -157,7 +157,7 @@ export default class App extends React.Component<AppProps, AppState> {
       this.setState({ windowError: undefined });
       if (action === 'maximize') this._windowRead?.();
     }
-    catch { this.setState({ windowError: t('Window control failed. Try again.') }); }
+    catch { this.setState({ windowError: msg('Window control failed. Try again.') }); }
   }
 
   promote() {
@@ -394,7 +394,7 @@ Enouia Runtime
 </span>
 {t("Demo · local only")}
 </div>}
-{this.state.windowError ? <span role="alert" className="bg-window-error">{this.state.windowError}</span> : null}
+{this.state.windowError ? <span role="alert" className="bg-window-error">{t(this.state.windowError)}</span> : null}
 <div className="qr226">
 <button aria-label={t("Minimize")} className="window-control" disabled={!nativeWindow} onClick={() => this.windowAction('minimize')} type="button">
 <svg width="10" height="10" viewBox="0 0 10 10">
