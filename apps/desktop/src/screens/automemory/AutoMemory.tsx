@@ -8,6 +8,7 @@ import Formation from './Formation';
 import Grid from './Grid';
 import Timeline from './Timeline';
 import Constellation from './Constellation';
+import Lineage from './Lineage';
 import Recall from './Recall';
 import StarMap from './StarMap';
 import { Inspector } from './Inspector';
@@ -17,7 +18,7 @@ import { moveAlong } from '../../theme/motion';
 
 import { msg, t } from '../../i18n/index.ts';
 // Automatic memory · synthetic preview (browser demo only, invented fixture).
-// Five views share one Inspector and one selection. Local state only: no IPC,
+// Preview views share one Inspector and one selection. Local state only: no IPC,
 // no fetch, no storage, nothing logged. The real Vault still uses owner review.
 const VIEWS: { id: ViewId; name: string; hint: string }[] = [
   { id: 'formation', name: msg('Formation'), hint: msg('what the system did') },
@@ -25,14 +26,19 @@ const VIEWS: { id: ViewId; name: string; hint: string }[] = [
   { id: 'timeline', name: msg('Timeline'), hint: msg('when it happened') },
   { id: 'stars', name: msg('Constellation'), hint: msg('what touches it') },
   { id: 'starmap', name: msg('Star map'), hint: msg('the whole generated sample') },
+  { id: 'replacement', name: msg('Replacement chain'), hint: msg('recorded replacement links') },
+  { id: 'evidence', name: msg('Evidence chain'), hint: msg('support and dependencies kept apart') },
   { id: 'recall', name: msg('Recall lab'), hint: msg('why offered') },
 ];
 
 const WORKSPACE_VIEWS: Record<WorkspaceId, ViewId[]> = {
-  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap'], formation: ['formation'], recall: ['recall'],
+  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap', 'replacement', 'evidence'], formation: ['formation'], recall: ['recall'],
 };
 export default function AutoMemory({ onExit, workspace }: { onExit?: () => void; workspace?: WorkspaceId }) {
-  const [requestedView, setView] = useState<ViewId>('formation');
+  const [requestedView, setView] = useState<ViewId>(() => {
+    const asked = new URLSearchParams(globalThis.location?.search).get('auto-view');
+    return VIEWS.find(v => v.id === asked)?.id ?? 'formation';
+  });
   const views = workspace ? VIEWS.filter(v => WORKSPACE_VIEWS[workspace].includes(v.id)) : VIEWS;
   const view = views.some(v => v.id === requestedView) ? requestedView : views[0].id;
   const [sel, setSel] = useState<string | null>(() => byId.has('am_05') ? 'am_05' : AUTO_MEMORIES[0]?.id ?? null);
@@ -47,6 +53,7 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
     : view === 'grid' ? <Grid sel={m.id} select={choose} />
     : view === 'timeline' ? <Timeline sel={m.id} select={choose} />
     : view === 'stars' ? <Constellation sel={m.id} select={choose} />
+    : view === 'replacement' || view === 'evidence' ? <Lineage mode={view} sel={m.id} select={choose} />
     : <Recall sel={m.id} select={choose} />;
   return (
     <section data-screen-label="Memory Vault" className="am" data-view={view}
@@ -62,7 +69,7 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
         <p className="am-note">{t(AUTO_NOTE)}</p>
         <div className="am-demo-states" role="group" aria-label={t("Demo state")}>
           {DATASETS.map(d => {
-            const url = new URL(location.href); url.searchParams.set('auto-dataset', d.id);
+            const url = new URL(location.href); url.searchParams.set('auto-dataset', d.id); url.searchParams.set('auto-view', view);
             if (workspace) url.searchParams.set('auto-workspace', workspace);
             return <a key={d.id} className="am-chip" href={url.href} aria-current={d.id === DATASET ? 'true' : undefined}>{t(d.label)}</a>;
           })}

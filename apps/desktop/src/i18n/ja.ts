@@ -1,6 +1,23 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Replacement chain": "置き換えの履歴",
+  "Evidence chain": "根拠の流れ",
+  "recorded replacement links": "記録された置き換え関係",
+  "support and dependencies kept apart": "裏付けと生成時の依存を区別",
+  "Only explicit links and excerpts in the loaded invented sample are shown. Missing links, source locators and commit receipts remain unrepresented.": "読み込み済みの架空サンプルに明示された関係と抜粋のみを示します。不明な関係、資料の位置情報、コミット受領記録は作りません。",
+  "Selected memory": "選択中の記憶",
+  "Supporting excerpts": "裏付けとなる抜粋",
+  "Source names and revisions are invented display text. Repeated excerpts are not independent corroboration. Formation notes are not commit receipts.": "資料名とリビジョンは架空の表示用テキストです。重複する抜粋は独立した裏付けではなく、形成の注記はコミット受領記録ではありません。",
+  "No supporting excerpts are available in this sample. The retained statement remains readable; choose another demo state to inspect excerpts.": "このサンプルに利用可能な裏付けの抜粋はありません。保持された記述は読めます。別のデモ状態で抜粋を確認できます。",
+  "Recorded replacement links": "記録された置き換え関係",
+  "Recorded shared-source links": "記録された共通資料の関係",
+  "A replacement link does not establish current truth. Its effective time is not recorded in this preview.": "置き換え関係は現在の事実を保証しません。このプレビューには関係の発効日時の記録がありません。",
+  "Shared-source links are recorded in the sample. They do not add support or establish a cause. The same source name is not used to invent a link.": "共通資料の関係はサンプルの明示的な記録です。裏付けを増やしたり因果関係を示したりしません。資料名の一致だけでは関係を作りません。",
+  "Replacing memory": "置き換える記憶",
+  "Replaced memory": "置き換えられる記憶",
+  "Linked memory": "関連する記憶",
+  "No link of this kind is recorded for the selected memory in the loaded sample. This is not a finding about its full history.": "読み込み済みサンプルには、選択中の記憶のこの種類の関係が記録されていません。全履歴についての結論ではありません。",
   "Memory list": "記憶一覧",
   "Memory layouts": "記憶の表示形式",
   "Cards": "カード",

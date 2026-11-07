@@ -6,7 +6,7 @@ import { Ref, StateTag, kindWord } from './parts';
 import { msg, t } from '../../i18n/index.ts';
 const NOTE_ID = 'am-optional-note';
 
-/** The one Inspector shared by all five views. A region, not a modal: nothing here traps focus. */
+/** The one Inspector shared by the preview views. A region, not a modal: nothing here traps focus. */
 export function Inspector({ m, select }: { m: AutoMemory; select: (id: string) => void }) {
   const occ = occurredText(m.occurred);
   const valid = validText(m.valid);

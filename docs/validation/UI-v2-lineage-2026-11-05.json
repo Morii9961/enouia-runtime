@@ -1,0 +1,2681 @@
+{
+  "baseline_revision": "d2f7351bf47c3bb86051d0e80bbd085a81898efc",
+  "scope": "Browser-only explicit loaded replacement/source components, excerpts and generation dependencies.",
+  "focused_dom": [
+    {
+      "fixture": "lineage-links",
+      "checks": [
+        {
+          "id": "replacement_direction_is_recorded_new_to_old",
+          "ok": true
+        },
+        {
+          "id": "following_replacement_keeps_direction_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "other_replacement_component_stays_separate",
+          "ok": true
+        },
+        {
+          "id": "absent_replacement_is_not_full_history_claim",
+          "ok": true
+        },
+        {
+          "id": "source_chain_uses_only_recorded_edges",
+          "ok": true
+        },
+        {
+          "id": "support_and_generation_dependencies_are_separate",
+          "ok": true
+        },
+        {
+          "id": "missing_receipts_are_not_fabricated",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "en_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "same_source_name_does_not_invent_extra_edges",
+          "ok": true
+        },
+        {
+          "id": "demo_link_preserves_chain_view_and_workspace",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "lineage-links",
+      "checks": [
+        {
+          "id": "missing_sample_has_no_invented_replacement",
+          "ok": true
+        },
+        {
+          "id": "missing_source_has_no_excerpt_or_receipt",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_missing_source_keeps_statement",
+          "ok": true
+        },
+        {
+          "id": "ja_missing_source_keeps_statement",
+          "ok": true
+        },
+        {
+          "id": "en_missing_source_keeps_statement",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "source-missing"
+    },
+    {
+      "fixture": "lineage-links",
+      "checks": [
+        {
+          "id": "replacement_direction_is_recorded_new_to_old",
+          "ok": true
+        },
+        {
+          "id": "following_replacement_keeps_direction_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "other_replacement_component_stays_separate",
+          "ok": true
+        },
+        {
+          "id": "absent_replacement_is_not_full_history_claim",
+          "ok": true
+        },
+        {
+          "id": "source_chain_uses_only_recorded_edges",
+          "ok": true
+        },
+        {
+          "id": "support_and_generation_dependencies_are_separate",
+          "ok": true
+        },
+        {
+          "id": "missing_receipts_are_not_fabricated",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_unknown_packet_and_key_not_rewritten",
+          "ok": true
+        },
+        {
+          "id": "ja_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_unknown_packet_and_key_not_rewritten",
+          "ok": true
+        },
+        {
+          "id": "en_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "en_unknown_packet_and_key_not_rewritten",
+          "ok": true
+        },
+        {
+          "id": "same_source_name_does_not_invent_extra_edges",
+          "ok": true
+        },
+        {
+          "id": "demo_link_preserves_chain_view_and_workspace",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "unknown-result"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "coverage"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_empty_has_no_record_or_generated_map",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_empty_has_no_record_or_generated_map",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "nothing_adopted_or_offered",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "held"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "open_end_is_readable_without_fabricated_end",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "open-ended"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "missing_source_keeps_statement_without_excerpt",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "source-missing"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_original_unknown_packet_and_key_retained",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "unknown-result"
+    },
+    {
+      "fixture": "auto-preview-states",
+      "checks": [
+        {
+          "id": "original_15_records_retained",
+          "ok": true
+        },
+        {
+          "id": "references_belong_to_selected_sample",
+          "ok": true
+        },
+        {
+          "id": "en_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "en_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "en_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "en_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "en_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "en_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "en_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "en_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "en_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "en_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_formation_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_grid_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_timeline_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_stars_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_replacement_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_evidence_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_recall_selection_is_in_sample",
+          "ok": true
+        },
+        {
+          "id": "ja_starmap_renders",
+          "ok": true
+        },
+        {
+          "id": "ja_state_does_not_open_unrelated_generated_sample",
+          "ok": true
+        },
+        {
+          "id": "read_only_controls_stay_disabled",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "read-only"
+    },
+    {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "compact_followup_dom": [
+    {
+      "fixture": "lineage-links",
+      "checks": [
+        {
+          "id": "replacement_direction_is_recorded_new_to_old",
+          "ok": true
+        },
+        {
+          "id": "following_replacement_keeps_direction_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "other_replacement_component_stays_separate",
+          "ok": true
+        },
+        {
+          "id": "absent_replacement_is_not_full_history_claim",
+          "ok": true
+        },
+        {
+          "id": "source_chain_uses_only_recorded_edges",
+          "ok": true
+        },
+        {
+          "id": "support_and_generation_dependencies_are_separate",
+          "ok": true
+        },
+        {
+          "id": "missing_receipts_are_not_fabricated",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "en_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "same_source_name_does_not_invent_extra_edges",
+          "ok": true
+        },
+        {
+          "id": "demo_link_preserves_chain_view_and_workspace",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "lineage-links",
+      "checks": [
+        {
+          "id": "missing_sample_has_no_invented_replacement",
+          "ok": true
+        },
+        {
+          "id": "missing_source_has_no_excerpt_or_receipt",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_missing_source_keeps_statement",
+          "ok": true
+        },
+        {
+          "id": "ja_missing_source_keeps_statement",
+          "ok": true
+        },
+        {
+          "id": "en_missing_source_keeps_statement",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "source-missing"
+    },
+    {
+      "fixture": "lineage-links",
+      "checks": [
+        {
+          "id": "replacement_direction_is_recorded_new_to_old",
+          "ok": true
+        },
+        {
+          "id": "following_replacement_keeps_direction_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "other_replacement_component_stays_separate",
+          "ok": true
+        },
+        {
+          "id": "absent_replacement_is_not_full_history_claim",
+          "ok": true
+        },
+        {
+          "id": "source_chain_uses_only_recorded_edges",
+          "ok": true
+        },
+        {
+          "id": "support_and_generation_dependencies_are_separate",
+          "ok": true
+        },
+        {
+          "id": "missing_receipts_are_not_fabricated",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_unknown_packet_and_key_not_rewritten",
+          "ok": true
+        },
+        {
+          "id": "ja_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_unknown_packet_and_key_not_rewritten",
+          "ok": true
+        },
+        {
+          "id": "en_raw_excerpts_keys_focus_and_selection_survive",
+          "ok": true
+        },
+        {
+          "id": "en_unknown_packet_and_key_not_rewritten",
+          "ok": true
+        },
+        {
+          "id": "same_source_name_does_not_invent_extra_edges",
+          "ok": true
+        },
+        {
+          "id": "demo_link_preserves_chain_view_and_workspace",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "unknown-result"
+    }
+  ],
+  "initial_browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic browser/profile only. No native or human acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "view": "replacement",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [
+          "am_05:am_06"
+        ],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=zh-Hans&theme=dark&auto-dataset=coverage&auto-workspace=relations&auto-view=replacement"
+      },
+      {
+        "dataset": "original",
+        "view": "evidence",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_01",
+        "edges": [
+          "am_01:am_03",
+          "am_03:am_08"
+        ],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Prefers short, direct answers without extra explanation.",
+        "inspector": "Short answers",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=zh-Hans&theme=dark&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "dataset": "source-missing",
+        "view": "evidence",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "demo_missing_01",
+        "edges": [],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "The adapter work started in September. Its end was not recorded.",
+        "inspector": "Statement retained, source unavailable",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=zh-Hans&theme=dark&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "width": 1100,
+        "language": "zh-Hans",
+        "action": "follow-sample-link",
+        "view": "evidence",
+        "workspace": "relations"
+      },
+      {
+        "dataset": "unknown-result",
+        "view": "evidence",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": "demo-only-unknown-0001",
+        "unknownPacket": "DEMO ONLY — not a Memory request\nAction: invented preview action\nKey: demo-only-unknown-0001\nResult: unknown",
+        "demoHref": "http://127.0.0.1:1863/?lang=zh-Hans&theme=dark&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "width": 1100,
+        "language": "zh-Hans",
+        "action": "unknown-view-falls-back",
+        "view": "stars"
+      },
+      {
+        "dataset": "original",
+        "view": "replacement",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [
+          "am_05:am_06"
+        ],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=ja&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=replacement"
+      },
+      {
+        "dataset": "original",
+        "view": "evidence",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_01",
+        "edges": [
+          "am_01:am_03",
+          "am_03:am_08"
+        ],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Prefers short, direct answers without extra explanation.",
+        "inspector": "Short answers",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=ja&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "dataset": "source-missing",
+        "view": "evidence",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "demo_missing_01",
+        "edges": [],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "The adapter work started in September. Its end was not recorded.",
+        "inspector": "Statement retained, source unavailable",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=ja&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "width": 1100,
+        "language": "ja",
+        "action": "follow-sample-link",
+        "view": "evidence",
+        "workspace": "relations"
+      },
+      {
+        "dataset": "unknown-result",
+        "view": "evidence",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": "demo-only-unknown-0001",
+        "unknownPacket": "DEMO ONLY — not a Memory request\nAction: invented preview action\nKey: demo-only-unknown-0001\nResult: unknown",
+        "demoHref": "http://127.0.0.1:1863/?lang=ja&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "width": 1100,
+        "language": "ja",
+        "action": "unknown-view-falls-back",
+        "view": "stars"
+      },
+      {
+        "dataset": "original",
+        "view": "replacement",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [
+          "am_05:am_06"
+        ],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=en&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=replacement"
+      },
+      {
+        "dataset": "original",
+        "view": "evidence",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_01",
+        "edges": [
+          "am_01:am_03",
+          "am_03:am_08"
+        ],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Prefers short, direct answers without extra explanation.",
+        "inspector": "Short answers",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=en&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "dataset": "source-missing",
+        "view": "evidence",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "demo_missing_01",
+        "edges": [],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "The adapter work started in September. Its end was not recorded.",
+        "inspector": "Statement retained, source unavailable",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:1863/?lang=en&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "width": 1440,
+        "language": "en",
+        "action": "follow-sample-link",
+        "view": "evidence",
+        "workspace": "relations"
+      },
+      {
+        "dataset": "unknown-result",
+        "view": "evidence",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": "demo-only-unknown-0001",
+        "unknownPacket": "DEMO ONLY — not a Memory request\nAction: invented preview action\nKey: demo-only-unknown-0001\nResult: unknown",
+        "demoHref": "http://127.0.0.1:1863/?lang=en&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence"
+      },
+      {
+        "width": 1440,
+        "language": "en",
+        "action": "unknown-view-falls-back",
+        "view": "stars"
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      1546,
+      12,
+      11,
+      11,
+      10,
+      9,
+      12,
+      9,
+      12,
+      14,
+      10,
+      9,
+      11,
+      12,
+      11,
+      12,
+      11,
+      10,
+      11
+    ]
+  },
+  "final_compact_browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic browser/profile only. No native or human acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "view": "replacement",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [
+          "am_05:am_06"
+        ],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=zh-Hans&theme=dark&auto-dataset=coverage&auto-workspace=relations&auto-view=replacement",
+        "firstEdgeVisible": true
+      },
+      {
+        "dataset": "original",
+        "view": "evidence",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_01",
+        "edges": [
+          "am_01:am_03",
+          "am_03:am_08"
+        ],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Prefers short, direct answers without extra explanation.",
+        "inspector": "Short answers",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=zh-Hans&theme=dark&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence",
+        "firstEdgeVisible": false
+      },
+      {
+        "dataset": "source-missing",
+        "view": "evidence",
+        "width": 1100,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "demo_missing_01",
+        "edges": [],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "The adapter work started in September. Its end was not recorded.",
+        "inspector": "Statement retained, source unavailable",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=zh-Hans&theme=dark&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence",
+        "firstEdgeVisible": null
+      },
+      {
+        "dataset": "original",
+        "view": "replacement",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [
+          "am_05:am_06"
+        ],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=ja&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=replacement",
+        "firstEdgeVisible": true
+      },
+      {
+        "dataset": "original",
+        "view": "evidence",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_01",
+        "edges": [
+          "am_01:am_03",
+          "am_03:am_08"
+        ],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Prefers short, direct answers without extra explanation.",
+        "inspector": "Short answers",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=ja&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence",
+        "firstEdgeVisible": false
+      },
+      {
+        "dataset": "source-missing",
+        "view": "evidence",
+        "width": 1100,
+        "language": "ja",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "demo_missing_01",
+        "edges": [],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "The adapter work started in September. Its end was not recorded.",
+        "inspector": "Statement retained, source unavailable",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=ja&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence",
+        "firstEdgeVisible": null
+      },
+      {
+        "dataset": "original",
+        "view": "replacement",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_05",
+        "edges": [
+          "am_05:am_06"
+        ],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "Vault generations design is settled. Next is the Windows Vault port adapter, starting with same-volume rename.",
+        "inspector": "Vault port adapter next",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=en&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=replacement",
+        "firstEdgeVisible": true
+      },
+      {
+        "dataset": "original",
+        "view": "evidence",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "am_01",
+        "edges": [
+          "am_01:am_03",
+          "am_03:am_08"
+        ],
+        "excerpts": 2,
+        "dependencies": 1,
+        "statement": "Prefers short, direct answers without extra explanation.",
+        "inspector": "Short answers",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=en&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence",
+        "firstEdgeVisible": false
+      },
+      {
+        "dataset": "source-missing",
+        "view": "evidence",
+        "width": 1440,
+        "language": "en",
+        "theme": "light",
+        "overflow": false,
+        "mainOverflow": false,
+        "lineageOverflow": false,
+        "workspace": "relations",
+        "selected": "demo_missing_01",
+        "edges": [],
+        "excerpts": 0,
+        "dependencies": 0,
+        "statement": "The adapter work started in September. Its end was not recorded.",
+        "inspector": "Statement retained, source unavailable",
+        "unknownKey": null,
+        "unknownPacket": null,
+        "demoHref": "http://127.0.0.1:13315/?lang=en&theme=light&auto-dataset=coverage&auto-workspace=relations&auto-view=evidence",
+        "firstEdgeVisible": null
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      243,
+      16,
+      11,
+      13,
+      11,
+      10,
+      12,
+      10,
+      11,
+      12
+    ]
+  },
+  "launcher_exit_codes": [
+    0,
+    0
+  ],
+  "server_preparation_ms": [
+    3743,
+    14320
+  ],
+  "checks": {
+    "typescript": "passed after compact layout",
+    "i18n_cjk": "12 passed; fonts unchanged",
+    "memory_pin": "passed; 0d338f1 unchanged",
+    "activity_retirement": "passed"
+  },
+  "limits": [
+    "No full npm test, build, Rust, native smoke or human acceptance.",
+    "Replacement effective time is unprovided; no current truth inferred.",
+    "Source display names/revisions are not native locators. No commit receipts invented.",
+    "No new edge inferred from names, themes or transitive reachability."
+  ]
+}
