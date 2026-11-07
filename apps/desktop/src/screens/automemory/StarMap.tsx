@@ -194,6 +194,7 @@ export default function StarMap() {
     const sl = s !== null ? s : -1; const hv = hover.current !== null && hover.current !== sl ? hover.current : -1;
     const batches: [LinkType, string, number[], number][] = [['theme', col.major, [3, 3], 1], ['source', col.ink3, [], 1], ['supersedes', col.ink2, [], 1.2]];
     for (const [type, stroke, dash, lw] of batches) {
+      if (type === 'theme' && loop.current.busy) continue;
       g.strokeStyle = stroke; g.lineWidth = lw; g.setLineDash(dash); g.globalAlpha = sl >= 0 ? 0.35 : l === 'sphere' ? 0.16 : 1; g.beginPath();
       for (const ln of f.links) if (ln.type === type && vis(ln.a) && vis(ln.b)) { g.moveTo(X(ln.a), Y(ln.a)); g.lineTo(X(ln.b), Y(ln.b)); }
       g.stroke();
@@ -332,9 +333,9 @@ export default function StarMap() {
       const ms = dt * 1000; cam.current.x += L.fling.vx * ms; cam.current.y += L.fling.vy * ms; const fade = Math.exp(-ms / 220); L.fling.vx *= fade; L.fling.vy *= fade;
       if (Math.hypot(L.fling.vx, L.fling.vy) < 0.02) L.fling = null;
     }
+    L.busy = S.chasing || S.moving || held !== null || L.cam !== null || L.fling !== null || L.spin !== null || turning;
     if (!draw()) return;
     L.lastDraw = now;
-    L.busy = S.chasing || S.moving || held !== null || L.cam !== null || L.fling !== null || L.spin !== null || turning;
     if (L.busy || idle) L.raf = requestAnimationFrame(tick);
   }, [draw]);
   const kick = useCallback(() => { const L = loop.current; if (!L.raf) { L.last = performance.now(); L.busy = true; L.raf = requestAnimationFrame(tick); } }, [tick]);
