@@ -70,7 +70,10 @@ function launch(args, { port = PORT, profile = 'webview2' } = {}) {
   const child = spawn(exe, [...args, '--hotkey-key', 'Q', '--activity-settings', join(out, 'activity-install.json')], {
     env: {
       ...process.env,
-      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
+      // The focused journeys are written in English. Each run has a fresh
+      // profile, so pin its initial language instead of following the host
+      // system; language matrices still switch explicitly through Settings.
+      WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1 --lang=en-US`,
       WEBVIEW2_USER_DATA_FOLDER: join(out, profile),
     },
     stdio: nativeLog === null ? 'ignore' : ['ignore', nativeLog, nativeLog],
@@ -335,8 +338,21 @@ async function shot(s, name) {
   report.screenshots.push(`${name}.png`);
 }
 
-const has = (text) => `document.body.innerText.includes(${JSON.stringify(text)})`;
-const nav = (s, label) => s.evaluate(`document.querySelector('nav button[aria-label=${JSON.stringify(label)}]').click()`);
+// UI v2 uppercases labels with CSS and innerText follows it. Also accept the
+// DOM's own text, which keeps the authored case, instead of ignoring case
+// (that would let "1 evidence reference" satisfy a wait for "Evidence").
+const has = (text) => `(document.body.innerText.includes(${JSON.stringify(text)}) || document.body.textContent.includes(${JSON.stringify(text)}))`;
+// UI v2 renders the Memory status badge in uppercase; innerText follows CSS,
+// so read the badge's own text for its state.
+const badge = (text) => `(document.querySelector('[role=status].qr224')?.textContent ?? '').includes(${JSON.stringify(text)})`;
+// UI v2 changes surface inside a View Transition; wait for the target to
+// become current so a following navigation cannot be overtaken by it.
+const nav = (s, label) => s.evaluate(`(async () => {
+  const button = document.querySelector('nav button[aria-label=${JSON.stringify(label)}]');
+  button.click();
+  for (let i = 0; i < 100 && button.getAttribute('aria-current') !== 'page'; i++) await new Promise(r => setTimeout(r, 50));
+  if (button.getAttribute('aria-current') !== 'page') throw new Error('navigation did not reach ' + ${JSON.stringify(label)});
+})()`);
 const rail = (s, label) => s.evaluate(`__t.click('aside button.qr26', ${JSON.stringify(label)})`);
 const click = (s, sel, text) => s.evaluate(`__t.click(${JSON.stringify(sel)}, ${JSON.stringify(text)})`);
 const set = (s, sel, value) => s.evaluate(`__t.set(${JSON.stringify(sel)}, ${JSON.stringify(value)})`);
@@ -1277,7 +1293,7 @@ async function main() {
     await debugOwnerRefusal(app);
     const s = await connect();
     if (batchMode) { app.batchVault = vault; await createBatchVault(s, app, { waitFor, fillOpenDialog }); }
-    await waitFor(s, has('Memory · Vault open'), 'history fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'history fixture open');
     const initial = await s.evaluate("Promise.all([__t.memory('import_list',{}),__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([i,s,c])=>({imports:i.result.items.length,sessions:s.result.items.length,candidates:c.result.total}))");
     if (initial.imports || initial.sessions || initial.candidates) throw new Error('history fixture must start empty');
     if (tasksMode) {
@@ -1399,7 +1415,7 @@ async function main() {
       void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
       check('H2.first_host_exits', await waitForExit(app,20000)===0); s.close();
       const reopened = launch(['--memory-vault',vault], {profile:'webview2-reopened'}), next = await connect();
-      await waitFor(next,has('Memory · Vault open'),'reopened task fixture'); await nav(next,'Memory'); await rail(next,'Import');
+      await waitFor(next,badge('Memory · Vault open'),'reopened task fixture'); await nav(next,'Memory'); await rail(next,'Import');
       await waitFor(next,has('Read task '),'saved task discovery');
       await next.evaluate(`(()=>{const button=[...document.querySelectorAll('[aria-label="Saved history tasks"] button')].find(el=>el.textContent.startsWith('Read task '));if(!button)throw Error('saved task missing');button.click();})()`);
       await waitFor(next,has('All selected local jobs exist'),'saved task read after restart');
@@ -1429,7 +1445,7 @@ async function main() {
       check('H2.reopened_host_exits',await waitForExit(reopened,20000)===0);next.close();
       if (batchMode) {
         const recovered=launch(['--memory-vault',vault],{profile:'webview2-batch-recovered'}), last=await connect();
-        await waitFor(last,has('Memory · Vault open'),'batch fixture after full restart');
+        await waitFor(last,badge('Memory · Vault open'),'batch fixture after full restart');
         ownedWindowMetrics(recovered,{width:1100,height:700});
         await historyBatchProcessReopen(last,batchRecovery,{waitFor,check,nav,rail,click,set,shot});
         void last.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(()=>0);
@@ -1447,7 +1463,7 @@ async function main() {
     if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-keyboard-journey-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('keyboard journey requires its dedicated temporary synthetic fixture');
     const app = launch(['--memory-vault',vault]);
     const s = await connect();
-    await waitFor(s,has('Memory · Vault open'),'keyboard fixture open');
+    await waitFor(s,badge('Memory · Vault open'),'keyboard fixture open');
     const initial = await s.evaluate("Promise.all([__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false}),__t.memory('session_list',{}),__t.memory('candidate_list',{cursor:null,limit:25})]).then(([m,s,c])=>({memories:m.result.total,sessions:s.result.items.length,candidates:c.result.total}))");
     if (initial.memories || initial.sessions || initial.candidates) throw new Error('keyboard fixture must start empty');
     const key = async (name,code,keyCode,modifiers=0) => {
@@ -1508,13 +1524,13 @@ async function main() {
     await tabTo(button('New session'),'new session'); await enter();
     await waitFor(s,"!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled",'new saved session');
     const newSession=await capture('new-session');
-    check('K.new_session_enters_question',newSession.id==='mem-ask' && newSession.nativeFocused.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (local Mock')),JSON.stringify(newSession));
+    check('K.new_session_enters_question',newSession.id==='mem-ask' && newSession.nativeFocused.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (Send uses the local Mock')),JSON.stringify(newSession));
     await tabTo("e.id==='mem-ask'",'question'); await type('Lantern');
     await tabTo(button('Send'),'send'); await enter();
     await waitFor(s,has('Answer · supported_evidence'),'saved local answer');
     await waitFor(s,"!document.querySelector('#mem-ask').disabled",'session write settled');
     const focus=await capture('answered');
-    check('K.send_keeps_keyboard_in_session',focus.id==='mem-ask' && focus.nativeFocused.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (local Mock')),JSON.stringify(focus));
+    check('K.send_keeps_keyboard_in_session',focus.id==='mem-ask' && focus.nativeFocused.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (Send uses the local Mock')),JSON.stringify(focus));
     check('K.answer_cites_approved_statement',await s.evaluate(`document.querySelector('.qr88').textContent.includes(${JSON.stringify(fact)})`));
     await tabTo("e.id==='mem-cp'",'checkpoint summary'); await type('Synthetic keyboard journey checkpoint.');
     await tabTo(button('Save checkpoint'),'save checkpoint'); await enter();
@@ -1547,7 +1563,7 @@ async function main() {
     if (!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-native-accessibility-') || vault !== join(fixture,'vault') || lstatSync(fixture).isSymbolicLink() || lstatSync(vault).isSymbolicLink()) throw new Error('accessibility probe requires its dedicated temporary synthetic fixture');
     const app = launch(['--memory-vault',vault]);
     const s = await connect();
-    await waitFor(s,has('Memory · Vault open'),'accessibility fixture open');
+    await waitFor(s,badge('Memory · Vault open'),'accessibility fixture open');
     const initial = await s.evaluate("Promise.all([__t.memory('memory_list',{cursor:null,limit:25,includeInactive:false}),__t.memory('session_list',{})]).then(([m,s])=>({memories:m.result.total,sessions:s.result.items.length}))");
     if (initial.memories !== 0 || initial.sessions !== 0) throw new Error('accessibility fixture must start empty');
     const key = async (name,code,keyCode,modifiers=0) => {
@@ -1572,8 +1588,14 @@ async function main() {
       const name={Home:'Home',Memory:'Memory Vault',Context:'Context Surface',Sessions:'Sessions',Runtime:'Runtime Inspector',Settings:'Settings'}[page]+' content';
       check(`AX.${page}_named_main_landmark`,rows.some(row=>row.Name===name) && await s.evaluate(`document.querySelector('main')?.getAttribute('aria-label')===${JSON.stringify(name)}`));
     }
+    // Navigation now continues in the new surface's main region (014974e),
+    // so blurring after it no longer recreates a fresh document. Reload for
+    // the real first-Tab state instead.
     await nav(s,'Home');
-    await s.evaluate('document.activeElement.blur()');
+    await s.evaluate('location.reload()');
+    await waitFor(s,"document.readyState==='complete' && !!document.querySelector('#root > *') && (!document.activeElement || document.activeElement===document.body)",'fresh shell after reload');
+    await waitFor(s,badge('Memory · Vault open'),'reloaded Vault status');
+    await s.evaluate(HELPERS);
     await key('Tab','Tab',9);
     const first = await s.evaluate('({tag:document.activeElement.tagName,text:document.activeElement.textContent.trim(),href:document.activeElement.getAttribute("href")})');
     check('AX.first_tab_bypasses_shell',first.tag==='A' && first.href==='#runtime-content',JSON.stringify(first));
@@ -1587,7 +1609,8 @@ async function main() {
       await key('Tab','Tab',9);
       check('AX.next_tab_enters_surface_control',await s.evaluate("document.querySelector('main').contains(document.activeElement) && document.activeElement.tagName==='BUTTON'"));
       const rows=await capture('skip-focus');
-      check('AX.native_focus_matches_surface_control',rows.some(row=>row.Focused && row.Type==='ControlType.Button' && row.Name.includes('Memory Vault')));
+      // Chromium exposes CSS-uppercased card titles in the native name.
+      check('AX.native_focus_matches_surface_control',rows.some(row=>row.Focused && row.Type==='ControlType.Button' && row.Name.toLowerCase().includes('memory vault')));
       await shot(s,'accessibility-skip-focus');
     }
     const created = await s.evaluate("(async()=>{const rows=[];for(let i=0;i<2;i++){const r=await __t.memory('session_new',{},'ui-'+crypto.randomUUID());if(r.kind==='memory_error') throw new Error('session fixture: '+r.error.code);rows.push(r.result);}return rows;})()");
@@ -1600,7 +1623,7 @@ async function main() {
     await s.evaluate("document.querySelector('.mem-session-row').click()");
     await waitFor(s,"!!document.querySelector('#mem-ask')",'actual session detail');
     const detailTree=await capture('session-inputs');
-    check('AX.native_question_and_checkpoint_labels',detailTree.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (local Mock')) && detailTree.some(row=>row.Type==='ControlType.Edit' && row.Name==='Checkpoint summary'));
+    check('AX.native_question_and_checkpoint_labels',detailTree.some(row=>row.Type==='ControlType.Edit' && row.Name.startsWith('Ask (Send uses the local Mock')) && detailTree.some(row=>row.Type==='ControlType.Edit' && row.Name==='Checkpoint summary'));
     await nav(s,'Context');
     const contextTree=await capture('context-input');
     check('AX.native_context_input_label',contextTree.some(row=>row.Type==='ControlType.Edit' && row.Name==='Compile preview'));
@@ -1644,7 +1667,7 @@ async function main() {
     for (const kind of ['vault_verify', 'backup_export']) {
       const app = launch(['--memory-vault', vault], { profile: `long-${kind}` });
       const s = await connect();
-      await waitFor(s, has('Memory · Vault open'), `${kind} fixture open`);
+      await waitFor(s, badge('Memory · Vault open'), `${kind} fixture open`);
       await nav(s, 'Memory'); await rail(s, 'Vault & recovery');
       const head = (await s.evaluate("__t.memory('workspace_status', {})")).result.vault;
       // Observe the provider's actual reads without changing receipt delivery
@@ -1724,7 +1747,7 @@ async function main() {
       check(`L.${kind}_lock_rereads_real_progress_after_refresh`, trace.some(sample => sample.providerReads > pollCount && sample.providerState === 'locked' && sample.progressVisible));
       await shot(s, `long-${kind}-locking`);
       check(`L.${kind}_lock_finishes_worker_intact`, intact(await completed()));
-      await waitFor(s, has('Memory · Vault locked'), 'lock completed');
+      await waitFor(s, badge('Memory · Vault locked'), 'lock completed');
       check(`L.${kind}_lock_releases_admission`, await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status').then(r=>r.vaultChanging===false)"));
       const unlock = await s.evaluate("__t.memory('vault_unlock',{})");
       check(`L.${kind}_unlock_after_work`, unlock.kind !== 'memory_error');
@@ -1753,7 +1776,7 @@ async function main() {
       s.close();
       const reopened = launch(['--memory-vault', vault], { profile: `long-reopen-${kind}` });
       const r = await connect();
-      await waitFor(r, has('Memory · Vault open'), 'Vault released after long exit');
+      await waitFor(r, badge('Memory · Vault open'), 'Vault released after long exit');
       const after = (await r.evaluate("__t.memory('workspace_status',{})")).result.vault;
       check(`L.${kind}_reopens_same_commit`, after.headCommitId === head.headCommitId && after.headSequence === head.headSequence);
       if (kind === 'backup_export') {
@@ -1783,7 +1806,7 @@ async function main() {
       r.close();
       const afterEnd = launch(['--memory-vault', vault], { profile: `long-after-os-${kind}` });
       const end = await connect();
-      await waitFor(end, has('Memory · Vault open'), 'OS session-end releases Vault');
+      await waitFor(end, badge('Memory · Vault open'), 'OS session-end releases Vault');
       const endHead = (await end.evaluate("__t.memory('workspace_status',{})")).result.vault;
       check(`L.${kind}_os_exit_preserves_commit`, endHead.headCommitId === head.headCommitId && endHead.headSequence === head.headSequence);
       if (kind === 'backup_export') {
@@ -1804,7 +1827,7 @@ async function main() {
     const fixture=resolve(out,'..');
     if(!fixture.startsWith(resolve(tmpdir())+sep) || !basename(fixture).startsWith('enouia-runtime-damaged-verify-') || vault!==join(fixture,'vault')) throw new Error('damage probe requires its dedicated temporary synthetic fixture');
     const app=launch(['--memory-vault',vault]); await debugOwnerRefusal(app);
-    const s=await connect(); await waitFor(s,has('Memory · Vault open'),'damage fixture open');
+    const s=await connect(); await waitFor(s,badge('Memory · Vault open'),'damage fixture open');
     await s.evaluate(`(async()=>{
       window.__verifySend=async(command,args,write=false)=>{
         const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
@@ -1856,7 +1879,7 @@ async function main() {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
     const s=await connect();
-    await waitFor(s,has('Memory · Vault open'),'stale plan fixture open');
+    await waitFor(s,badge('Memory · Vault open'),'stale plan fixture open');
     const candidate=await s.evaluate(`(async()=>{
       window.__fixtureSend=async(command,args={},write=false)=>{
         const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
@@ -1915,7 +1938,7 @@ async function main() {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
     const s=await connect();
-    await waitFor(s,has('Memory · Vault open'),'forget fixture open');
+    await waitFor(s,badge('Memory · Vault open'),'forget fixture open');
     await s.evaluate(`window.__fixtureSend=async(command,args={},write=false)=>{
       const request=__t.request(command,args); if(write) request.idempotencyKey='ui-'+crypto.randomUUID();
       const reply=await window.__TAURI_INTERNALS__.invoke('memory_call',{request});
@@ -1979,7 +2002,7 @@ async function main() {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
     const s=await connect();
-    await waitFor(s,has('Memory · Vault open'),'window fixture open');
+    await waitFor(s,badge('Memory · Vault open'),'window fixture open');
     const initial=ownedWindowMetrics(app);
     check('N.window_dpi_is_recorded',initial.dpi>0,JSON.stringify(initial));
     await nav(s,'Sessions'); await click(s,'button','New session');
@@ -2027,7 +2050,7 @@ async function main() {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
     const s=await connect();
-    await waitFor(s,has('Memory · Vault open'),'source paging fixture open');
+    await waitFor(s,badge('Memory · Vault open'),'source paging fixture open');
     const sourceA='Synthetic source A <img src=x onerror="window.__sourceXss=1"> '+ '前後🌿'.repeat(1100);
     const sourceB='Synthetic source B, a separate literal record.';
     await s.evaluate(`(async()=>{
@@ -2110,7 +2133,7 @@ async function main() {
     const app=launch(['--memory-vault',vault]);
     await debugOwnerRefusal(app);
     const s=await connect();
-    await waitFor(s,has('Memory · Vault open'),'layout fixture open');
+    await waitFor(s,badge('Memory · Vault open'),'layout fixture open');
     const fact='Synthetic layout statement '+ 'x'.repeat(600);
     await s.evaluate(`(async()=>{
       const send=async(command,args,write=false)=>{
@@ -2191,7 +2214,7 @@ async function main() {
     let app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     let s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'transcript fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'transcript fixture open');
     await nav(s, 'Sessions');
     await click(s, 'button', 'New session');
     const editable = "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled";
@@ -2250,7 +2273,7 @@ async function main() {
     s.close();
     app=launch(['--memory-vault',vault],{profile:'webview2-restart'});
     s=await connect();
-    await waitFor(s,has('Memory · Vault open'),'transcript Vault reopened');
+    await waitFor(s,badge('Memory · Vault open'),'transcript Vault reopened');
     await nav(s,'Sessions');
     await click(s,'.mem-session-row','events');
     await waitFor(s,editable,'persisted transcript reopened');
@@ -2266,7 +2289,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'explorer keyboard fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'explorer keyboard fixture open');
     await s.evaluate(`(async () => {
       const send = async (command, args, write = false) => {
         const request = __t.request(command, args);
@@ -2334,7 +2357,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'session write fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'session write fixture open');
     await nav(s, 'Sessions');
     const waiting = "[...document.querySelectorAll('[role=status]')].some(node => node.textContent.includes('Waiting for Memory to return the session result'))";
     const editable = "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled";
@@ -2412,7 +2435,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'session timing fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'session timing fixture open');
     await nav(s, 'Sessions');
     const active = "document.querySelector('.mem-session-row[aria-pressed=true]')?.title";
     const editable = "!!document.querySelector('#mem-ask') && !document.querySelector('#mem-ask').disabled";
@@ -2488,7 +2511,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'context fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'context fixture open');
     await nav(s, 'Context');
     await waitFor(s, "!!document.querySelector('#mem-cq')", 'context surface');
     check('C.no_capsule_initially', (await s.evaluate('__t.text()')).includes('No capsule selected.'));
@@ -2581,7 +2604,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'list fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'list fixture open');
     await holdOperationObservation(s, true);
     await nav(s, 'Sessions');
     await waitFor(s, 'window.__operationHeld', 'initial session list held');
@@ -2629,7 +2652,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'confirm fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'confirm fixture open');
     const saved = await s.evaluate("__t.invoke('memory_call',{request:{...__t.request('remember',{text:'Synthetic pending confirmation fixture',claimKey:'fixture.confirm_timing'}),idempotencyKey:'ui-'+crypto.randomUUID()}})");
     if (!saved.ok) throw new Error(JSON.stringify(saved));
     await nav(s, 'Memory');
@@ -2706,7 +2729,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'keyboard fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'keyboard fixture open');
     const saved = await s.evaluate("__t.invoke('memory_call',{request:{...__t.request('remember',{text:'Synthetic keyboard review fixture',claimKey:'fixture.keyboard_review'}),idempotencyKey:'ui_'+crypto.randomUUID()}})");
     if (!saved.ok) throw new Error(JSON.stringify(saved));
     await nav(s, 'Memory');
@@ -2747,7 +2770,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'contrast fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'contrast fixture open');
     await contrastChecks(s);
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
     const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
@@ -2759,7 +2782,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'picker fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'picker fixture open');
     await pickerChecks(s, app);
     void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(() => 0);
     const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
@@ -2771,7 +2794,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'explorer fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'explorer fixture open');
     await explorerChecks(s);
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
     const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
@@ -2783,7 +2806,7 @@ async function main() {
     const app = launch(['--memory-vault', vault]);
     await debugOwnerRefusal(app);
     const s = await connect();
-    await waitFor(s, has('Memory · Vault open'), 'operation fixture open');
+    await waitFor(s, badge('Memory · Vault open'), 'operation fixture open');
     await operationChecks(s, app);
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
     const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
@@ -2841,20 +2864,20 @@ async function main() {
   await debugOwnerRefusal(app);
   let s = await connect();
   await waitFor(s, has('No Vault open'), 'no vault');
-  check('D.no_default_root', await s.evaluate(has('Memory · No Vault open')));
+  check('D.no_default_root', await s.evaluate(badge('Memory · No Vault open')));
   await nav(s, 'Memory');
   await click(s, 'button', 'Open an existing Vault');
   fillOpenDialog(app.pid, vault, true);
-  await waitFor(s, has('Memory · Vault open'), 'Vault opened through native folder picker');
+  await waitFor(s, badge('Memory · Vault open'), 'Vault opened through native folder picker');
   check('W01.vault_folder_picker', true);
   check('W04.folder_picker_keeps_path_native', !(await s.evaluate('__t.text()')).includes(vault));
   s.close(); app.kill(); await app.exited; await sleep(800);
 
   app = launch(['--memory-vault', vault]);
   s = await connect();
-  await waitFor(s, has('Memory · Vault open'), 'vault open badge');
+  await waitFor(s, badge('Memory · Vault open'), 'vault open badge');
   check('W03.process_termination_releases_root', true);
-  check('S.badge_states_connected_workspace', await s.evaluate(`${has('Memory · Vault open')} && ${has('Connected workspace')}`));
+  check('S.badge_states_connected_workspace', await s.evaluate(`${badge('Memory · Vault open')} && ${has('Connected workspace')}`));
   check('S.home_reads_status', await s.evaluate(`${has('Vault open')} && ${has('Nothing waiting for review')}`));
   await shot(s, '01-home');
 
@@ -3069,7 +3092,7 @@ async function main() {
   await waitFor(s, `[...document.querySelectorAll('.mem-operation')].some((o) => o.textContent.includes('index_rebuild') && o.textContent.includes('succeeded'))`, 'rebuild', 60000);
   check('W02.rebuild_operation', true);
   await click(s, 'button', 'Lock Vault');
-  await waitFor(s, has('Memory · Vault locked'), 'locked');
+  await waitFor(s, badge('Memory · Vault locked'), 'locked');
   const refused = await s.evaluate("__t.memory('memory_list', { includeInactive: false, cursor: null, limit: 5 })");
   check('W03.lock_refuses', refused.error?.code === 'vault_locked', JSON.stringify(refused.error));
   await s.evaluate("__t.invoke('shell_search')");
@@ -3087,14 +3110,14 @@ async function main() {
   await set(s, '#mem-create-phrase', 'create new vault');
   await click(s, 'button', 'Create Vault');
   fillOpenDialog(app.pid, created, true);
-  await waitFor(s, has('Memory · Vault open'), 'created vault open');
+  await waitFor(s, badge('Memory · Vault open'), 'created vault open');
   check('W01.create_via_folder_picker', (await statusOf(s)).vault.rootName === 'created-vault');
   await rail(s, 'Vault & recovery');
   await click(s, 'button', 'Lock Vault');
-  await waitFor(s, has('Memory · Vault locked'), 'created locked');
+  await waitFor(s, badge('Memory · Vault locked'), 'created locked');
   await click(s, 'button', 'Open an existing Vault');
   fillOpenDialog(app.pid, vault, true);
-  await waitFor(s, `${has('Memory · Vault open')}`, 'original reopened');
+  await waitFor(s, `${badge('Memory · Vault open')}`, 'original reopened');
   check('W01.open_via_folder_picker', (await statusOf(s)).vault.rootName === vault.split(/[\\/]/).pop());
 
   // Capability and contract denials from the main page.
@@ -3180,7 +3203,7 @@ async function main() {
   // Restart: committed memories and the session are still there.
   app = launch(['--memory-vault', vault]);
   s = await connect();
-  await waitFor(s, has('Memory · Vault open'), 'reopened');
+  await waitFor(s, badge('Memory · Vault open'), 'reopened');
   const rebound = await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_status')");
   check('Q.hotkey_released_on_exit', rebound.hotkey.state === 'registered', JSON.stringify(rebound.hotkey));
   await nav(s, 'Memory');
