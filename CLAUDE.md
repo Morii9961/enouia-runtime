@@ -1,6 +1,6 @@
 @AGENTS.md
 
-当前接续入口（2026-11-07）：先读 [Claude → Codex 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-07.md)。草稿链 #121–#146 依次叠放、均未合并，从 #146 头部开新分支继续；[2026-11-04 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-04.md) 与 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md) 的边界仍然有效。
+当前接续入口（2026-11-07）：先读 [Claude → Codex 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-07.md)。草稿链 #121–#148 依次叠放、均未合并，从 #148 头部开新分支继续；[2026-11-04 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-04.md) 与 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md) 的边界仍然有效。
 
 # Claude Code 补充
 

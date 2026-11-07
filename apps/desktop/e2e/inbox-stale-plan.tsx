@@ -60,10 +60,21 @@ try {
   await wait(() => !button('Confirm (FIXTURE)') && sent('candidate_list').length >= 2 && !!fixture.querySelector('article') && fixture.querySelector('article')!.textContent!.includes('r2'));
   check('cancel_discards_the_stale_plan', sent('review_discard').length === 1 && sent('review_discard')[0].arguments.planId === 'plan-synthetic-r1');
   check('refreshed_revision_is_visible_and_unsent_draft_is_kept', textarea().value === draft);
+  const saved = 'Saved proposal (r2): Synthetic proposal changed elsewhere';
+  check('kept_draft_shows_the_changed_saved_proposal', text().includes(saved));
+  for (const [language, message] of [['zh-Hans', '已保存的提议（r2）：Synthetic proposal changed elsewhere'], ['ja', '保存済みの提案（r2）：Synthetic proposal changed elsewhere'], ['en', saved]]) {
+    await setLang(language as Lang); await sleep(30);
+    check(`${language}_saved_proposal_label_translates_with_literal_content`, text().includes(message) && textarea().value === draft);
+  }
   click(button('Accept with edits…'));
   await wait(() => sent('review_plan').length === 2);
   const second = (sent('review_plan')[1].arguments.decisions as any[])[0];
   check('new_plan_uses_kept_draft_against_fresh_revision', second.editedContent === draft && second.revision === 2);
+  await wait(() => !!button('Cancel')); click(button('Cancel'));
+  await wait(() => !button('Confirm (FIXTURE)') && sent('review_discard').length === 2);
+  Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(textarea(), 'Synthetic proposal changed elsewhere');
+  textarea().dispatchEvent(new Event('input', { bubbles: true })); await sleep(30);
+  check('matching_draft_hides_the_saved_proposal_line', !text().includes('Saved proposal (r2)'));
   check('only_review_reads_and_one_confirm_were_sent', calls.every(c => ['workspace_status', 'candidate_list', 'review_plan', 'review_confirm', 'review_discard'].includes(c.command)) && sent('review_confirm').length === 1);
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), calls: calls.map(c => c.command) }); }
