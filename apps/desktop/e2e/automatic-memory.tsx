@@ -11,6 +11,7 @@ const checks: { id: string; ok: boolean }[] = [];
 const calls: string[] = [];
 let holdPage = true;
 let releasePage: (() => void) | null = null;
+let absentDetail = false, noRecall = false, emptyPage = false;
 let state = 'open', holdDetail = false, holdStatus = false, failBusyStatus = false;
 let releaseDetail: (() => void) | null = null, releaseStatus: (() => void) | null = null;
 const page = structuredClone(basePage);
@@ -23,14 +24,15 @@ const read = async (query: Record<string, unknown>) => {
     if (holdStatus) { holdStatus = false; await new Promise<void>(resolve => { releaseStatus = resolve; }); }
     return status;
   }
-  if (operation === 'page') { if (holdPage) { holdPage = false; await new Promise<void>(resolve => { releasePage = resolve; }); } return structuredClone(page); }
+  if (operation === 'page') { if (holdPage) { holdPage = false; await new Promise<void>(resolve => { releasePage = resolve; }); } return emptyPage ? { ...structuredClone(page), items: [], matched_in_scope: 0, unknown_event_time_in_scope: 0, complete_in_scope: true, next: null } : structuredClone(page); }
   if (operation === 'detail') {
+    if (absentDetail) return { schema_version: 2, kind: 'automation_memory_absent', capability: 'memory-native-read-1', effect: 'native_read', snapshot: page.snapshot };
     const detail = structuredClone(baseDetail);
     if (query.include_source_text) detail.sources[0].text = original;
     if (holdDetail) { holdDetail = false; await new Promise<void>(resolve => { releaseDetail = resolve; }); }
     return detail;
   }
-  if (operation === 'simulate') return { ...structuredClone(baseSimulation), effect: 'native_read' };
+  if (operation === 'simulate') { const simulation = { ...structuredClone(baseSimulation), effect: 'native_read' }; if (noRecall) { simulation.trace.selected = []; simulation.rendered_context = ''; } return simulation; }
   if (operation === 'lock' || operation === 'unlock') { state = operation === 'lock' ? 'locked' : 'open'; return { ...status, state, effect: 'native_control' }; }
   throw new Error('Unexpected synthetic operation');
 };
@@ -38,6 +40,7 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const text = () => fixture.textContent ?? '';
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>('button')].find(b => b.textContent?.trim() === label);
 const click = (label: string) => { const b = button(label); if (!b || b.disabled) throw new Error(`Unavailable ${label}`); b.click(); };
+async function settled(test: () => boolean) { for (let n = 0; n < 100; n++) { if (test()) return true; await sleep(20); } return false; }
 async function wait(test: () => boolean) { for (let n = 0; n < 300; n++) { if (test()) return; await sleep(20); } throw new Error(`UI timeout: ${text()}`); }
 const check = (id: string, ok: boolean) => checks.push({ id, ok });
 try {
@@ -110,6 +113,33 @@ try {
   await wait(() => text().includes('Library: locked'));
   releaseStatus!(); releaseStatus = null; await sleep(60);
   check('late_open_status_cannot_reverse_local_lock', text().includes('Library: locked') && !button(content));
+  click('Unlock synthetic library');
+  await wait(() => !!button(content));
+  const absent = 'This memory is no longer in the current authorized scope. Refresh automatic memories to see the current list.';
+  absentDetail = true; click(content);
+  check('absent_detail_explains_and_points_to_refresh', await settled(() => text().includes(absent)) && !text().includes('Learned at:') && !!button('Refresh automatic memories'));
+  absentDetail = false;
+  const absentReads = calls.filter(c => c !== 'status').length;
+  for (const [language, message] of [['zh-Hans', '这条记忆已不在当前授权范围内。刷新自动记忆可查看当前列表。'], ['ja', 'この記憶は現在の許可範囲にありません。自動記憶を更新すると現在の一覧を確認できます。'], ['en', absent]]) {
+    await setLang(language as Lang);
+    check(`${language}_absent_detail_notice_translates_without_reread`, await settled(() => text().includes(message)) && calls.filter(c => c !== 'status').length === absentReads);
+  }
+  click(content);
+  await wait(() => text().includes('Learned at:'));
+  check('later_detail_retires_absent_notice', !text().includes(absent));
+  noRecall = true;
+  fixture.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  const none = 'No memory in the current authorized scope was selected for this cue.';
+  check('empty_recall_says_nothing_was_selected', await settled(() => text().includes(none)) && !fixture.querySelector('section pre') && text().includes('0 selected of'));
+  noRecall = false;
+  emptyPage = true; click('Refresh automatic memories');
+  const empty = 'This synthetic library has no memories in the current authorized scope.';
+  check('empty_complete_page_explains_no_memories', await settled(() => text().includes(empty)) && !fixture.querySelector('.mem-list li') && !text().includes(none));
+  for (const [language, message] of [['zh-Hans', '此合成库的当前授权范围内没有记忆。'], ['ja', 'この合成ライブラリの現在の許可範囲には記憶がありません。'], ['en', empty]]) {
+    await setLang(language as Lang);
+    check(`${language}_empty_page_notice_translates`, await settled(() => text().includes(message)));
+  }
+  emptyPage = false;
   check('simulation_never_uses_legacy_context_preview_or_writes', calls.every(c => ['status','page','detail','simulate','lock','unlock'].includes(c)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePage?.(); releaseDetail?.(); releaseStatus?.(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), calls }); }

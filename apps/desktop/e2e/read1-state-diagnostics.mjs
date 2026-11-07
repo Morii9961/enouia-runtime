@@ -89,7 +89,7 @@ try {
 
   const rows=[];
   await send('Emulation.setDeviceMetricsOverride',{width:1100,height:700,deviceScaleFactor:1,mobile:false});
-  const states=process.argv.includes('--pending-only')?['page-pending','open']:['initial','page-pending','page-error','status-error','open','locked','disabled','failed'];
+  const states=process.argv.includes('--pending-only')?['page-pending','open']:['initial','page-pending','page-error','status-error','open','empty','locked','disabled','failed'];
   for(const language of ['en','zh-Hans','ja'])for(const theme of ['dark','light'])for(const state of states){
     await evaluate(`localStorage.setItem('enouia.lang',${JSON.stringify(language)})`);
     await send('Page.navigate',{url:origin+`/e2e/read1-state-preview.html?theme=${theme}&state=${state}`});
@@ -97,15 +97,16 @@ try {
     const snapshot=async action=>{
       const row=await evaluate(`(()=>{const w=document.querySelector('[data-fixture-watermark]'),b=w.getBoundingClientRect(),p=document.querySelector('.qr45');return {action:${JSON.stringify(action)},state:${JSON.stringify(state)},language:document.documentElement.lang,theme:document.documentElement.dataset.theme,watermarkVisible:b.left>=0&&b.top>=0&&b.right<=innerWidth&&b.bottom<=innerHeight,overflow:document.documentElement.scrollWidth>innerWidth,busy:p.getAttribute('aria-busy'),items:[...document.querySelectorAll('.mem-list li')].map(e=>e.querySelector('button').textContent),alerts:[...document.querySelectorAll('[role=alert]')].map(e=>e.textContent),statuses:[...p.querySelectorAll('[role=status]')].map(e=>e.textContent),body:p.textContent,inspector:document.querySelector('.qr88').textContent,query:document.querySelector('input')?.value??null,readCalls:read1FixtureCalls.map(c=>c.operation),hostActions:Number(document.documentElement.dataset.fixtureHostActions)};})()`);
       if(!row.watermarkVisible||row.overflow||row.hostActions||row.items.length!==(state==='open'?1:0)||row.alerts.length!==(['page-error','status-error'].includes(state)?1:0)||row.busy!==(state==='page-pending'?'true':'false'))throw Error('Invalid read-1 state '+JSON.stringify(row));
-      const feedback={en:{pending:'Reading…',unknown:'Library state is unknown.',initial:'Reading library state…'},'zh-Hans':{pending:'正在读取…',unknown:'库状态未知。',initial:'正在读取库状态…'},ja:{pending:'読み込み中…',unknown:'ライブラリの状態は不明です。',initial:'ライブラリの状態を読み込み中…'}}[row.language];
+      const feedback={en:{pending:'Reading…',unknown:'Library state is unknown.',initial:'Reading library state…',empty:'This synthetic library has no memories in the current authorized scope.'},'zh-Hans':{pending:'正在读取…',unknown:'库状态未知。',initial:'正在读取库状态…',empty:'此合成库的当前授权范围内没有记忆。'},ja:{pending:'読み込み中…',unknown:'ライブラリの状態は不明です。',initial:'ライブラリの状態を読み込み中…',empty:'この合成ライブラリの現在の許可範囲には記憶がありません。'}}[row.language];
       if(state==='status-error'&&(!row.statuses.includes(feedback.unknown)||row.statuses.includes(feedback.initial))||state==='initial'&&!row.statuses.includes(feedback.initial))throw Error('Wrong read-1 feedback');
       if(state==='page-pending'&&!row.statuses.includes(feedback.pending)||state==='open'&&row.statuses.includes(feedback.pending))throw Error('Wrong pending read-1 feedback');
+      if(state==='empty'!==row.body.includes(feedback.empty))throw Error('Wrong empty read-1 feedback '+JSON.stringify(row));
       if(!row.readCalls.every(x=>['status','page'].includes(x)))throw Error('Unexpected read-1 operation');
       rows.push(row);return row;
     };
     const initial=await snapshot('initial');if(initial.language!==language)throw Error('Wrong initial language');
     const shot=await send('Page.captureScreenshot',{format:'png'});writeFileSync(join(out,`${state}-${language}-${theme}.png`),Buffer.from(shot.data,'base64'));
-    if(['open','page-pending','status-error','page-error'].includes(state)){
+    if(['open','empty','page-pending','status-error','page-error'].includes(state)){
       await evaluate(`(()=>{window.fixtureInput=document.querySelector('input');window.fixtureRow=document.querySelector('.mem-list li');if(fixtureInput){fixtureInput.focus();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(fixtureInput,'literal cue — 中文と日本語');fixtureInput.dispatchEvent(new Event('input',{bubbles:true}));}})()`);
       if(state==='open')await until(()=>evaluate(`document.querySelector('input').value==='literal cue — 中文と日本語'`));
       const reads=initial.readCalls.filter(x=>x==='page').length;

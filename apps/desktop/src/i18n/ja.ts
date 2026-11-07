@@ -1849,5 +1849,8 @@ const dict: Record<string, string> = {
   "Library state is unknown.": "ライブラリの状態は不明です。",
   "Reading catalog page and statistics…": "カタログページと統計を読み込み中…",
   "Reading…": "読み込み中…",
+  "This synthetic library has no memories in the current authorized scope.": "この合成ライブラリの現在の許可範囲には記憶がありません。",
+  "No memory in the current authorized scope was selected for this cue.": "この想起の手がかりでは、現在の許可範囲の記憶は選ばれませんでした。",
+  "This memory is no longer in the current authorized scope. Refresh automatic memories to see the current list.": "この記憶は現在の許可範囲にありません。自動記憶を更新すると現在の一覧を確認できます。",
 };
 export default dict;

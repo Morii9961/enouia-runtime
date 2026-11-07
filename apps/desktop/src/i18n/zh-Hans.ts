@@ -1849,5 +1849,8 @@ const dict: Record<string, string> = {
   "Library state is unknown.": "库状态未知。",
   "Reading catalog page and statistics…": "正在读取目录页和统计…",
   "Reading…": "正在读取…",
+  "This synthetic library has no memories in the current authorized scope.": "此合成库的当前授权范围内没有记忆。",
+  "No memory in the current authorized scope was selected for this cue.": "这条召回线索没有选中当前授权范围内的记忆。",
+  "This memory is no longer in the current authorized scope. Refresh automatic memories to see the current list.": "这条记忆已不在当前授权范围内。刷新自动记忆可查看当前列表。",
 };
 export default dict;
