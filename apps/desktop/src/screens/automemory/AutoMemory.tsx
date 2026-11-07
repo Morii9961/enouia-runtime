@@ -33,10 +33,11 @@ const VIEWS: { id: ViewId; name: string; hint: string }[] = [
   { id: 'revisions', name: msg('Revision comparison'), hint: msg('literal changes between provided bodies') },
   { id: 'hypotheses', name: msg('Held hypotheses'), hint: msg('held until new evidence') },
   { id: 'recall', name: msg('Recall lab'), hint: msg('why offered') },
+  { id: 'suggestions', name: msg('Review suggestions'), hint: msg('why revisit in this invented moment') },
 ];
 
 const WORKSPACE_VIEWS: Record<WorkspaceId, ViewId[]> = {
-  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap', 'replacement', 'evidence'], formation: ['formation', 'conflicts', 'revisions', 'hypotheses'], recall: ['recall'],
+  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap', 'replacement', 'evidence'], formation: ['formation', 'conflicts', 'revisions', 'hypotheses'], recall: ['recall', 'suggestions'],
 };
 export default function AutoMemory({ onExit, workspace }: { onExit?: () => void; workspace?: WorkspaceId }) {
   const [requestedView, setView] = useState<ViewId>(() => {
@@ -60,7 +61,7 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
     : view === 'replacement' || view === 'evidence' ? <Lineage mode={view} sel={m.id} select={choose} />
     : view === 'conflicts' || view === 'revisions' ? <Comparison mode={view} sel={m.id} select={choose} />
     : view === 'hypotheses' ? <Grid key="hypotheses" subset="hypotheses" sel={m.id} select={choose} />
-    : <Recall sel={m.id} select={choose} />;
+    : <Recall mode={view === 'suggestions' ? 'suggestions' : 'pipeline'} sel={m.id} select={choose} />;
   return (
     <section data-screen-label="Memory Vault" className="am" data-view={view}
       // ArrowUp/Down belong to the lists in this preview; the demo Vault's global

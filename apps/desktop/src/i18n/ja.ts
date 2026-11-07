@@ -1828,5 +1828,13 @@ const dict: Record<string, string> = {
   "Budget and completeness": "予算と完全性",
   "No records here yet.": "ここにはまだ記録がありません。",
   "Follows the system unless you choose one: Tile Blue when it is dark, Xuan Paper when it is light. Kept on this device only.": "選ばない限りシステムに従います。ダークのときはタイルブルー、ライトのときは宣紙です。この端末にだけ保存します。",
+  "Review suggestions": "読み直しの提案",
+  "why revisit in this invented moment": "この架空の場面で読み直す理由",
+  "These cards restate this invented recall, not a live suggestion feed. Being left out does not delete a memory or change its state.": "このカードは架空の想起を読み直す表示です。リアルタイムの提案ではありません。対象外でも記憶の削除や状態の変更はありません。",
+  "Reminders and dismissal need Memory support. These controls are unavailable; no action is recorded.": "後日の表示や提案の停止には Memory の対応が必要です。この操作は使えず、記録もされません。",
+  "Why revisit in this case": "このケースで読み直す理由",
+  "Why this case leaves it out": "このケースで対象外の理由",
+  "Remind later": "後で表示",
+  "Stop this type of suggestion": "この種の提案を停止",
 };
 export default dict;
