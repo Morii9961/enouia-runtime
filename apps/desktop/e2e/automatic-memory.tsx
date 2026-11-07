@@ -76,6 +76,7 @@ try {
   releaseDetail!(); releaseDetail = null;
   await sleep(50);
   check('busy_observation_hides_body_until_scope_is_reconfirmed', !text().includes('Learned at:'));
+  check('failed_status_is_unknown_not_still_reading',text().includes('Library state is unknown.')&&!text().includes('Reading library state…'));
   const heldReads=calls.filter(c=>c!=='status').length;
   for(const [language,error] of [['zh-Hans','自动记忆正忙。请稍后再读取。'],['ja','自動記憶は処理中です。少ししてから読み直してください。'],['en','Automatic Memory is busy. Try the read again shortly.']]){
     await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role="alert"]')?.textContent?.includes(error));

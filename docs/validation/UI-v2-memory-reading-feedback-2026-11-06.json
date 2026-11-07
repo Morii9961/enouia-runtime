@@ -1,0 +1,2889 @@
+{
+  "baseline_revision": "fea8fce7d213e4ddcb05ae92e5f6f7d7bedcfb3b",
+  "scope": "Visible read-2 page/statistics progress and failed status feedback in read-1/read-2; no request or domain behavior changes.",
+  "read2_baseline": {
+    "fixture": "catalog-memory",
+    "checks": [
+      {
+        "id": "disabled_is_explicit_without_page_or_stats",
+        "ok": true
+      },
+      {
+        "id": "pending_counts_have_visible_reading_feedback",
+        "ok": false
+      },
+      {
+        "id": "zh-Hans_pending_feedback_translates_without_replay",
+        "ok": false
+      },
+      {
+        "id": "ja_pending_feedback_translates_without_replay",
+        "ok": false
+      },
+      {
+        "id": "en_pending_feedback_translates_without_replay",
+        "ok": false
+      },
+      {
+        "id": "counts_and_records_wait_for_same_selection_stats",
+        "ok": true
+      },
+      {
+        "id": "synthetic_authorized_scope_and_unknown_dates_are_explicit",
+        "ok": true
+      },
+      {
+        "id": "record_text_is_literal_not_markup",
+        "ok": true
+      },
+      {
+        "id": "next_page_uses_core_cursor_and_replaces_rows",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_language_preserves_rows_draft_focus_and_requests",
+        "ok": true
+      },
+      {
+        "id": "ja_language_preserves_rows_draft_focus_and_requests",
+        "ok": true
+      },
+      {
+        "id": "en_language_preserves_rows_draft_focus_and_requests",
+        "ok": true
+      },
+      {
+        "id": "explicit_search_reads_new_scope_and_preserves_raw_chinese",
+        "ok": true
+      },
+      {
+        "id": "stats_failure_withdraws_records_and_counts",
+        "ok": true
+      },
+      {
+        "id": "failed_page_stats_are_not_automatically_replayed",
+        "ok": true
+      },
+      {
+        "id": "explicit_refresh_recovers_same_filter",
+        "ok": true
+      },
+      {
+        "id": "late_counts_do_not_reappear_after_external_lock",
+        "ok": true
+      },
+      {
+        "id": "late_open_status_cannot_reverse_local_lock",
+        "ok": true
+      },
+      {
+        "id": "lock_control_was_sent_once",
+        "ok": true
+      },
+      {
+        "id": "busy_status_hides_observations_but_keeps_draft_and_focus",
+        "ok": true
+      },
+      {
+        "id": "failed_status_is_unknown_not_still_reading",
+        "ok": false
+      },
+      {
+        "id": "zh-Hans_busy_error_translates_without_read_replay",
+        "ok": true
+      },
+      {
+        "id": "ja_busy_error_translates_without_read_replay",
+        "ok": true
+      },
+      {
+        "id": "en_busy_error_translates_without_read_replay",
+        "ok": true
+      },
+      {
+        "id": "successful_status_restores_same_held_page_without_replay",
+        "ok": true
+      },
+      {
+        "id": "changed_authorized_scope_withdraws_old_rows_before_new_stats",
+        "ok": true
+      },
+      {
+        "id": "scope_change_can_be_empty_without_a_new_commit_or_draft_loss",
+        "ok": true
+      },
+      {
+        "id": "only_closed_read2_operations_were_used",
+        "ok": true
+      }
+    ],
+    "passed": false,
+    "calls": [
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": {
+          "selection": {
+            "algorithm": "owner-qualified-catalog-4",
+            "version": 4,
+            "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "withdrawal_watermark": 1,
+            "snapshot": {
+              "vault_id": "synthetic-vault",
+              "base_commit_id": "synthetic-commit",
+              "primary_epoch": 1,
+              "policy_watermark": 1,
+              "deletion_watermark": 1
+            },
+            "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "query_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "evaluated_at": "2026-11-03T00:00:00.000Z"
+          },
+          "after": "synthetic-memory-2"
+        },
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "unlock"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "lock"
+      },
+      {
+        "operation": "unlock"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      }
+    ]
+  },
+  "read2_final": {
+    "fixture": "catalog-memory",
+    "checks": [
+      {
+        "id": "disabled_is_explicit_without_page_or_stats",
+        "ok": true
+      },
+      {
+        "id": "pending_counts_have_visible_reading_feedback",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_pending_feedback_translates_without_replay",
+        "ok": true
+      },
+      {
+        "id": "ja_pending_feedback_translates_without_replay",
+        "ok": true
+      },
+      {
+        "id": "en_pending_feedback_translates_without_replay",
+        "ok": true
+      },
+      {
+        "id": "counts_and_records_wait_for_same_selection_stats",
+        "ok": true
+      },
+      {
+        "id": "synthetic_authorized_scope_and_unknown_dates_are_explicit",
+        "ok": true
+      },
+      {
+        "id": "record_text_is_literal_not_markup",
+        "ok": true
+      },
+      {
+        "id": "next_page_uses_core_cursor_and_replaces_rows",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_language_preserves_rows_draft_focus_and_requests",
+        "ok": true
+      },
+      {
+        "id": "ja_language_preserves_rows_draft_focus_and_requests",
+        "ok": true
+      },
+      {
+        "id": "en_language_preserves_rows_draft_focus_and_requests",
+        "ok": true
+      },
+      {
+        "id": "explicit_search_reads_new_scope_and_preserves_raw_chinese",
+        "ok": true
+      },
+      {
+        "id": "stats_failure_withdraws_records_and_counts",
+        "ok": true
+      },
+      {
+        "id": "failed_page_stats_are_not_automatically_replayed",
+        "ok": true
+      },
+      {
+        "id": "explicit_refresh_recovers_same_filter",
+        "ok": true
+      },
+      {
+        "id": "late_counts_do_not_reappear_after_external_lock",
+        "ok": true
+      },
+      {
+        "id": "late_open_status_cannot_reverse_local_lock",
+        "ok": true
+      },
+      {
+        "id": "lock_control_was_sent_once",
+        "ok": true
+      },
+      {
+        "id": "busy_status_hides_observations_but_keeps_draft_and_focus",
+        "ok": true
+      },
+      {
+        "id": "failed_status_is_unknown_not_still_reading",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_busy_error_translates_without_read_replay",
+        "ok": true
+      },
+      {
+        "id": "ja_busy_error_translates_without_read_replay",
+        "ok": true
+      },
+      {
+        "id": "en_busy_error_translates_without_read_replay",
+        "ok": true
+      },
+      {
+        "id": "successful_status_restores_same_held_page_without_replay",
+        "ok": true
+      },
+      {
+        "id": "changed_authorized_scope_withdraws_old_rows_before_new_stats",
+        "ok": true
+      },
+      {
+        "id": "scope_change_can_be_empty_without_a_new_commit_or_draft_loss",
+        "ok": true
+      },
+      {
+        "id": "only_closed_read2_operations_were_used",
+        "ok": true
+      }
+    ],
+    "passed": true,
+    "calls": [
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": {
+          "selection": {
+            "algorithm": "owner-qualified-catalog-4",
+            "version": 4,
+            "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "withdrawal_watermark": 1,
+            "snapshot": {
+              "vault_id": "synthetic-vault",
+              "base_commit_id": "synthetic-commit",
+              "primary_epoch": 1,
+              "policy_watermark": 1,
+              "deletion_watermark": 1
+            },
+            "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "query_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "evaluated_at": "2026-11-03T00:00:00.000Z"
+          },
+          "after": "synthetic-memory-2"
+        },
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "unlock"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "lock"
+      },
+      {
+        "operation": "unlock"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "status"
+      },
+      {
+        "operation": "page",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "cursor": null,
+        "limit": 2
+      },
+      {
+        "operation": "stats",
+        "filter": {
+          "text": "调试",
+          "form": null,
+          "state": null,
+          "knowledge": null,
+          "adoption": null,
+          "validity": null,
+          "attention": null,
+          "entity": null,
+          "project": null,
+          "theme": null,
+          "time_axis": null,
+          "time_window": null,
+          "include_unknown_time": false
+        },
+        "selection": {
+          "algorithm": "owner-qualified-catalog-4",
+          "version": 4,
+          "profile_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "withdrawal_watermark": 1,
+          "snapshot": {
+            "vault_id": "synthetic-vault",
+            "base_commit_id": "synthetic-commit",
+            "primary_epoch": 1,
+            "policy_watermark": 1,
+            "deletion_watermark": 1
+          },
+          "scope_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "query_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "evaluated_at": "2026-11-03T00:00:00.000Z"
+        }
+      }
+    ]
+  },
+  "read1_baseline": {
+    "fixture": "automatic-memory",
+    "checks": [
+      {
+        "id": "synthetic_mode_and_separate_state_axes",
+        "ok": true
+      },
+      {
+        "id": "source_body_not_read_implicitly",
+        "ok": true
+      },
+      {
+        "id": "learned_and_captured_times_stay_separate",
+        "ok": true
+      },
+      {
+        "id": "selected_source_is_plain_text",
+        "ok": true
+      },
+      {
+        "id": "simulation_has_explicit_read_only_effect",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_authorized_metadata_keeps_exact_source_and_recall",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_language_keeps_recall_draft_focus_and_native_calls",
+        "ok": true
+      },
+      {
+        "id": "ja_authorized_metadata_keeps_exact_source_and_recall",
+        "ok": true
+      },
+      {
+        "id": "ja_language_keeps_recall_draft_focus_and_native_calls",
+        "ok": true
+      },
+      {
+        "id": "en_authorized_metadata_keeps_exact_source_and_recall",
+        "ok": true
+      },
+      {
+        "id": "en_language_keeps_recall_draft_focus_and_native_calls",
+        "ok": true
+      },
+      {
+        "id": "busy_observation_hides_body_until_scope_is_reconfirmed",
+        "ok": true
+      },
+      {
+        "id": "failed_status_is_unknown_not_still_reading",
+        "ok": false
+      },
+      {
+        "id": "zh-Hans_busy_error_keeps_observations_hidden_without_reread",
+        "ok": true
+      },
+      {
+        "id": "ja_busy_error_keeps_observations_hidden_without_reread",
+        "ok": true
+      },
+      {
+        "id": "en_busy_error_keeps_observations_hidden_without_reread",
+        "ok": true
+      },
+      {
+        "id": "transient_status_busy_does_not_lose_authorized_selection",
+        "ok": true
+      },
+      {
+        "id": "late_detail_does_not_reappear_after_native_lock",
+        "ok": true
+      },
+      {
+        "id": "late_open_status_cannot_reverse_local_lock",
+        "ok": true
+      },
+      {
+        "id": "simulation_never_uses_legacy_context_preview_or_writes",
+        "ok": true
+      }
+    ],
+    "passed": false,
+    "calls": [
+      "status",
+      "page",
+      "detail",
+      "detail",
+      "simulate",
+      "detail",
+      "status",
+      "status",
+      "detail",
+      "status",
+      "unlock",
+      "status",
+      "page",
+      "status",
+      "lock"
+    ]
+  },
+  "read1_final": {
+    "fixture": "automatic-memory",
+    "checks": [
+      {
+        "id": "synthetic_mode_and_separate_state_axes",
+        "ok": true
+      },
+      {
+        "id": "source_body_not_read_implicitly",
+        "ok": true
+      },
+      {
+        "id": "learned_and_captured_times_stay_separate",
+        "ok": true
+      },
+      {
+        "id": "selected_source_is_plain_text",
+        "ok": true
+      },
+      {
+        "id": "simulation_has_explicit_read_only_effect",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_authorized_metadata_keeps_exact_source_and_recall",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_language_keeps_recall_draft_focus_and_native_calls",
+        "ok": true
+      },
+      {
+        "id": "ja_authorized_metadata_keeps_exact_source_and_recall",
+        "ok": true
+      },
+      {
+        "id": "ja_language_keeps_recall_draft_focus_and_native_calls",
+        "ok": true
+      },
+      {
+        "id": "en_authorized_metadata_keeps_exact_source_and_recall",
+        "ok": true
+      },
+      {
+        "id": "en_language_keeps_recall_draft_focus_and_native_calls",
+        "ok": true
+      },
+      {
+        "id": "busy_observation_hides_body_until_scope_is_reconfirmed",
+        "ok": true
+      },
+      {
+        "id": "failed_status_is_unknown_not_still_reading",
+        "ok": true
+      },
+      {
+        "id": "zh-Hans_busy_error_keeps_observations_hidden_without_reread",
+        "ok": true
+      },
+      {
+        "id": "ja_busy_error_keeps_observations_hidden_without_reread",
+        "ok": true
+      },
+      {
+        "id": "en_busy_error_keeps_observations_hidden_without_reread",
+        "ok": true
+      },
+      {
+        "id": "transient_status_busy_does_not_lose_authorized_selection",
+        "ok": true
+      },
+      {
+        "id": "late_detail_does_not_reappear_after_native_lock",
+        "ok": true
+      },
+      {
+        "id": "late_open_status_cannot_reverse_local_lock",
+        "ok": true
+      },
+      {
+        "id": "simulation_never_uses_legacy_context_preview_or_writes",
+        "ok": true
+      }
+    ],
+    "passed": true,
+    "calls": [
+      "status",
+      "page",
+      "detail",
+      "detail",
+      "simulate",
+      "detail",
+      "status",
+      "status",
+      "detail",
+      "status",
+      "unlock",
+      "status",
+      "page",
+      "status",
+      "lock"
+    ]
+  },
+  "read2_browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Fictional read-2 state fixture only; all transport mocked. No native connection, real Vault or Provider.",
+    "rows": [
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Reading library state…",
+        "statuses": [
+          "Reading library state…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Reading library state…Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Reading library state…",
+        "statuses": [
+          "Reading library state…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Reading library state…Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "正在读取库状态…",
+        "statuses": [
+          "正在读取库状态…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。正在读取库状态…字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "正在读取库状态…",
+        "statuses": [
+          "正在读取库状态…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。正在读取库状态…字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリの状態を読み込み中…",
+        "statuses": [
+          "ライブラリの状態を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリの状態を読み込み中…カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリの状態を読み込み中…",
+        "statuses": [
+          "ライブラリの状態を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリの状態を読み込み中…カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      26240,
+      19,
+      19,
+      17,
+      15,
+      18,
+      16,
+      15,
+      15,
+      41,
+      14,
+      18,
+      16,
+      16,
+      16,
+      18,
+      29,
+      18,
+      14
+    ]
+  },
+  "browser_launcher_exit_code": 0,
+  "checks": {
+    "typescript": "passed; rerun after read-1 wording change",
+    "i18n_cjk": {
+      "passed": 12,
+      "failed": 0,
+      "timing": "after dictionary + read-2 change; read-1 then reuses the same verified key"
+    },
+    "memory_pin_guard": "passed before read-1 copy-only expression change",
+    "activity_retirement_guard": "passed before read-1 copy-only expression change",
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "54 browser rows and 18 screenshots cover only read-2 changed states. Read-1 has focused DOM evidence only.",
+    "No full npm test/build, Rust, native/manual acceptance, actual browser or Windows zoom, real Vault/Owner/Provider, migration or deployment.",
+    "Raw state enums, ISO fields, original content, operation packets, keys, retries and polling remain unchanged."
+  ]
+}

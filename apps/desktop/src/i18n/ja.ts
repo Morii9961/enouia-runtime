@@ -1846,5 +1846,7 @@ const dict: Record<string, string> = {
   "Changing scale does not change date precision. Unknown occurred times stay off the axis.": "表示範囲を変えても日付の精度は変わりません。発生時刻が不明な記憶は軸上に置きません。",
   "Time map of the sample, 1 July to 31 October 2026, one cell per day. The frame is the visible time window.": "サンプルの時間マップ、2026 年 7 月 1 日から 10 月 31 日、1 マス 1 日。枠は現在の表示期間です。",
   "Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see another interval.": "軸は発生時刻（Asia/Shanghai、UTC+8）。受信時刻は下のペンで、別の時刻です。上の時間マップで表示期間を移動できます。",
+  "Library state is unknown.": "ライブラリの状態は不明です。",
+  "Reading catalog page and statistics…": "カタログページと統計を読み込み中…",
 };
 export default dict;

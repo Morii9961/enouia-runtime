@@ -1846,5 +1846,7 @@ const dict: Record<string, string> = {
   "Changing scale does not change date precision. Unknown occurred times stay off the axis.": "改变显示范围不改变日期精度。未知发生时间仍不放在轴上。",
   "Time map of the sample, 1 July to 31 October 2026, one cell per day. The frame is the visible time window.": "样本的时间小地图，2026 年 7 月 1 日至 10 月 31 日，一格一天。取景框是当前显示的时段。",
   "Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see another interval.": "横轴是发生时间，按 Asia/Shanghai（UTC+8）。收到时间是下方的笔，是另一种时间。移动上方时间小地图的取景框查看其他时段。",
+  "Library state is unknown.": "库状态未知。",
+  "Reading catalog page and statistics…": "正在读取目录页和统计…",
 };
 export default dict;

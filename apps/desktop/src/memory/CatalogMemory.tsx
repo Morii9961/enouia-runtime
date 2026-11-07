@@ -64,7 +64,8 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
         <p className="mem-content">{t("This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.")}</p>
         {observationError && <p role="alert">{describe(observationError.cause)}</p>}
         <ErrorBox error={reads.error} />
-        <p role="status">{status ? t("Library: {state}", { state: status.state }) : t("Reading library state…")}</p>
+        <p role="status">{status ? t("Library: {state}", { state: status.state }) : observationError ? t("Library state is unknown.") : t("Reading library state…")}</p>
+        {open && reads.busy && <p role="status">{t("Reading catalog page and statistics…")}</p>}
         {status?.state === "disabled" && <p className="mem-content">{t("No segmented synthetic library is enabled in this session.")}</p>}
         {status?.state === "failed" && <p className="mem-content">{t("The synthetic library is unavailable. Start a new synthetic session to recover.")}</p>}
           <form className="mem-stack" role="search" onSubmit={event => { event.preventDefault(); if (!open || reads.pending.current) return; epoch.current += 1; observedScope.current = null; clear(); setFilter({ ...CATALOG_FILTER, text: draft }); }}>
