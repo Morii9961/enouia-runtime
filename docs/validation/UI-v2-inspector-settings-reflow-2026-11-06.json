@@ -1,0 +1,1125 @@
+{
+  "baseline_revision": "f1b22889a23411d3ea210eb049f010f76394ab9a",
+  "scope": "Synthetic Runtime Inspector and browser Settings narrow layout only.",
+  "before": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic Runtime/Settings CSS-layout evidence only; no native observations, font installation or Windows settings.",
+    "rows": [
+      {
+        "page": "runtime",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "reader": {
+          "x": 240,
+          "y": 110,
+          "right": 1100,
+          "width": 860,
+          "height": 590,
+          "scrollWidth": 860,
+          "clientWidth": 860
+        },
+        "title": "Core"
+      },
+      {
+        "page": "settings",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1090,
+          "clientWidth": 1090
+        },
+        "reader": {
+          "x": 0,
+          "y": 110,
+          "right": 816,
+          "width": 816,
+          "height": 611,
+          "scrollWidth": 816,
+          "clientWidth": 816
+        },
+        "title": null
+      },
+      {
+        "page": "runtime",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 1100,
+          "width": 860,
+          "height": 590,
+          "scrollWidth": 860,
+          "clientWidth": 860
+        },
+        "title": "Core"
+      },
+      {
+        "page": "settings",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1090,
+          "clientWidth": 1090
+        },
+        "reader": {
+          "x": 0,
+          "y": 0,
+          "right": 816,
+          "width": 816,
+          "height": 611,
+          "scrollWidth": 816,
+          "clientWidth": 816
+        },
+        "title": null
+      },
+      {
+        "page": "runtime",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 1100,
+          "width": 860,
+          "height": 590,
+          "scrollWidth": 850,
+          "clientWidth": 850
+        },
+        "title": "核心"
+      },
+      {
+        "page": "settings",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1090,
+          "clientWidth": 1090
+        },
+        "reader": {
+          "x": 0,
+          "y": 0,
+          "right": 816,
+          "width": 816,
+          "height": 635.5,
+          "scrollWidth": 816,
+          "clientWidth": 816
+        },
+        "title": null
+      },
+      {
+        "page": "runtime",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 1100,
+          "width": 860,
+          "height": 590,
+          "scrollWidth": 850,
+          "clientWidth": 850
+        },
+        "title": "コア"
+      },
+      {
+        "page": "settings",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1090,
+          "clientWidth": 1090
+        },
+        "reader": {
+          "x": 0,
+          "y": 0,
+          "right": 816,
+          "width": 816,
+          "height": 675.484375,
+          "scrollWidth": 816,
+          "clientWidth": 816
+        },
+        "title": null
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      1073,
+      16,
+      10,
+      12,
+      9
+    ]
+  },
+  "after": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic Runtime/Settings CSS-layout evidence only; no native observations, font installation or Windows settings.",
+    "rows": [
+      {
+        "page": "runtime",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "reader": {
+          "x": 240,
+          "y": 110,
+          "right": 1100,
+          "width": 860,
+          "height": 590,
+          "scrollWidth": 860,
+          "clientWidth": 860
+        },
+        "title": "Core"
+      },
+      {
+        "page": "settings",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1090,
+          "clientWidth": 1090
+        },
+        "reader": {
+          "x": 0,
+          "y": 110,
+          "right": 816,
+          "width": 816,
+          "height": 611,
+          "scrollWidth": 816,
+          "clientWidth": 816
+        },
+        "title": null
+      },
+      {
+        "page": "runtime",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -159,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 1236,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "reader": {
+          "x": 0,
+          "y": 232,
+          "right": 540,
+          "width": 540,
+          "height": 1004,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "title": "Core"
+      },
+      {
+        "page": "settings",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -159,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 675,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "reader": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 675,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "title": null
+      },
+      {
+        "page": "runtime",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -169,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 540,
+          "width": 540,
+          "height": 1338.96875,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "reader": {
+          "x": 0,
+          "y": 266.296875,
+          "right": 540,
+          "width": 540,
+          "height": 1073.046875,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "title": "核心"
+      },
+      {
+        "page": "settings",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -169,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 540,
+          "width": 540,
+          "height": 699.5,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "reader": {
+          "x": 0,
+          "y": 0.375,
+          "right": 540,
+          "width": 540,
+          "height": 699.5,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "title": null
+      },
+      {
+        "page": "runtime",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -169,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 710,
+          "width": 710,
+          "height": 1277.390625,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "reader": {
+          "x": 0,
+          "y": 204.71875,
+          "right": 710,
+          "width": 710,
+          "height": 1073.046875,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "title": "コア"
+      },
+      {
+        "page": "settings",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -173,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 710,
+          "width": 710,
+          "height": 718.6875,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "reader": {
+          "x": 0,
+          "y": 0.375,
+          "right": 710,
+          "width": 710,
+          "height": 718.6875,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "title": null
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      1231,
+      23,
+      9,
+      11,
+      11
+    ]
+  },
+  "details": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic Runtime/Settings CSS-layout evidence only; no native observations, font installation or Windows settings.",
+    "rows": [
+      {
+        "action": "component",
+        "index": 0,
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0,
+        "title": "Core",
+        "selected": "Core",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 1,
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0,
+        "title": "Vault",
+        "selected": "Vault",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 2,
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0,
+        "title": "Index",
+        "selected": "Index",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 3,
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0,
+        "title": "Context Compiler",
+        "selected": "Context Compiler",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 4,
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0,
+        "title": "Provider",
+        "selected": "Provider",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 5,
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0,
+        "title": "Gateway",
+        "selected": "Gateway",
+        "overflow": false
+      },
+      {
+        "action": "font-licences",
+        "width": 550,
+        "language": "en",
+        "open": true,
+        "licenceOpen": true,
+        "right": 528,
+        "scrollWidth": 516,
+        "clientWidth": 516,
+        "licenceScrollWidth": 506,
+        "licenceClientWidth": 506,
+        "bodySelection": [
+          "Bundled font"
+        ]
+      },
+      {
+        "action": "component",
+        "index": 0,
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.296875,
+        "title": "核心",
+        "selected": "核心",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 1,
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.296875,
+        "title": "记忆库",
+        "selected": "记忆库",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 2,
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.296875,
+        "title": "索引",
+        "selected": "索引",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 3,
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.296875,
+        "title": "上下文编译器",
+        "selected": "上下文编译器",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 4,
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.296875,
+        "title": "模型服务商",
+        "selected": "模型服务商",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 5,
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.296875,
+        "title": "网关",
+        "selected": "网关",
+        "overflow": false
+      },
+      {
+        "action": "font-licences",
+        "width": 550,
+        "language": "zh-Hans",
+        "open": true,
+        "licenceOpen": true,
+        "right": 528,
+        "scrollWidth": 516,
+        "clientWidth": 516,
+        "licenceScrollWidth": 506,
+        "licenceClientWidth": 506,
+        "bodySelection": [
+          "内置字体"
+        ]
+      },
+      {
+        "action": "component",
+        "index": 0,
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.28125,
+        "title": "コア",
+        "selected": "コア",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 1,
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.28125,
+        "title": "保管庫",
+        "selected": "保管庫",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 2,
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.28125,
+        "title": "インデックス",
+        "selected": "インデックス",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 3,
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.28125,
+        "title": "コンテキストコンパイラー",
+        "selected": "コンテキストコンパイラー",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 4,
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.28125,
+        "title": "プロバイダー",
+        "selected": "プロバイダー",
+        "overflow": false
+      },
+      {
+        "action": "component",
+        "index": 5,
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.28125,
+        "title": "ゲートウェイ",
+        "selected": "ゲートウェイ",
+        "overflow": false
+      },
+      {
+        "action": "font-licences",
+        "width": 720,
+        "language": "ja",
+        "open": true,
+        "licenceOpen": true,
+        "right": 698,
+        "scrollWidth": 686,
+        "clientWidth": 686,
+        "licenceScrollWidth": 676,
+        "licenceClientWidth": 676,
+        "bodySelection": [
+          "内蔵フォント"
+        ]
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      13467,
+      19,
+      11,
+      12
+    ]
+  },
+  "focused_dom": [
+    {
+      "fixture": "inspector-reading-links",
+      "checks": [
+        {
+          "id": "fictional_component_catalog_is_present",
+          "ok": true
+        },
+        {
+          "id": "component_0_focuses_existing_reading_panel",
+          "ok": true
+        },
+        {
+          "id": "component_1_focuses_existing_reading_panel",
+          "ok": true
+        },
+        {
+          "id": "component_2_focuses_existing_reading_panel",
+          "ok": true
+        },
+        {
+          "id": "component_3_focuses_existing_reading_panel",
+          "ok": true
+        },
+        {
+          "id": "component_4_focuses_existing_reading_panel",
+          "ok": true
+        },
+        {
+          "id": "component_5_focuses_existing_reading_panel",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_selection_focus_nodes_and_contract_values_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_selection_focus_nodes_and_contract_values_survive",
+          "ok": true
+        },
+        {
+          "id": "en_selection_focus_nodes_and_contract_values_survive",
+          "ok": true
+        },
+        {
+          "id": "return_focuses_components_without_selection_change",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "theme-preference",
+      "checks": [
+        {
+          "id": "follows_system_by_default",
+          "ok": true
+        },
+        {
+          "id": "follow_system_is_the_pressed_choice",
+          "ok": true
+        },
+        {
+          "id": "tile_blue_applies_and_is_kept_locally",
+          "ok": true
+        },
+        {
+          "id": "xuan_paper_applies_and_is_kept_locally",
+          "ok": true
+        },
+        {
+          "id": "follow_system_clears_the_choice",
+          "ok": true
+        },
+        {
+          "id": "another_window_choice_is_followed_without_writing_back",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "primary-navigation-languages",
+      "checks": [
+        {
+          "id": "en_stable_hook_retains_localized_accessible_name",
+          "ok": true
+        },
+        {
+          "id": "en_page_hooks_are_language_independent",
+          "ok": true
+        },
+        {
+          "id": "en_stable_sessions_hook_reaches_actual_surface",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stable_hook_retains_localized_accessible_name",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_page_hooks_are_language_independent",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stable_sessions_hook_reaches_actual_surface",
+          "ok": true
+        },
+        {
+          "id": "ja_stable_hook_retains_localized_accessible_name",
+          "ok": true
+        },
+        {
+          "id": "ja_page_hooks_are_language_independent",
+          "ok": true
+        },
+        {
+          "id": "ja_stable_sessions_hook_reaches_actual_surface",
+          "ok": true
+        },
+        {
+          "id": "en_motion_preference_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "en_motion_preference_remains_reduced",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_motion_preference_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_motion_preference_remains_reduced",
+          "ok": true
+        },
+        {
+          "id": "ja_motion_preference_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "ja_motion_preference_remains_reduced",
+          "ok": true
+        },
+        {
+          "id": "en_demo_collection_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "en_demo_collection_selection_is_unchanged",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_demo_collection_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_demo_collection_selection_is_unchanged",
+          "ok": true
+        },
+        {
+          "id": "ja_demo_collection_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "ja_demo_collection_selection_is_unchanged",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "reader-section-links",
+      "checks": [
+        {
+          "id": "fictional_scope_marker_is_explicit",
+          "ok": true
+        },
+        {
+          "id": "empty_context_does_not_invent_capsule",
+          "ok": true
+        },
+        {
+          "id": "session-list_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-reader_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-info_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "en_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "only_existing_sample_events_are_shown",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "vault-reading-links",
+      "checks": [
+        {
+          "id": "vault-collections_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-list_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-inspector_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "inspector_return_keeps_selection",
+          "ok": true
+        },
+        {
+          "id": "empty_links_do_not_create_memory",
+          "ok": true
+        },
+        {
+          "id": "en_empty_focus_and_nodes_survive",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_empty_focus_and_nodes_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_empty_focus_and_nodes_survive",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    }
+  ],
+  "browser_launcher_exit_codes": {
+    "before": 0,
+    "after": 0,
+    "details": 0
+  },
+  "server_preparation_ms": {
+    "before": 11647,
+    "after": 12854,
+    "details": 3041
+  },
+  "checks": {
+    "typescript": "passed",
+    "memory_pin": "passed; exact 0d338f1 unchanged",
+    "activity_retirement": "passed",
+    "i18n_cjk": "not rerun; reused existing translated Components key, dictionaries and fonts unchanged"
+  },
+  "limits": [
+    "CSS layout-space/DPR2 evidence only, not actual browser/Windows zoom or native acceptance.",
+    "Runtime components are fictional documentation, not new native observations.",
+    "Browser detail journeys only selected fictional components and expanded bundled license text; no font selection/installation or Windows settings.",
+    "DOM theme and motion checks change isolated mock/local preference state only.",
+    "No full npm test, build, Rust or native smoke. Home narrow layout remains pending."
+  ]
+}
