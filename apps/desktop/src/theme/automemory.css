@@ -63,13 +63,6 @@
 .am-main{min-width:0;min-height:0;overflow:auto;padding:16px 22px 32px}
 .am-inspector{min-height:0;overflow:auto;border-left:1px solid var(--grid-major);padding:16px 20px 32px;background:var(--paper);outline:0}
 
-/* ---- entry in the demo Vault collections column ---- */
-.am-entry{display:flex;flex-direction:column;gap:3px;margin:0 4px;padding:8px 10px;border:1px solid var(--ink-3);background:transparent;text-align:left;color:var(--ink)}
-.am-entry:hover{background:var(--wash)}
-.am-entry-k{font-family:var(--f-lab);font-size:12px;line-height:16px;font-weight:600}
-.am-entry-s{font-size:12px;line-height:16px;color:var(--ink-2)}
-.am-entry:focus-visible{outline-offset:2px}
-
 /* ---- Formation ---- */
 .am-formation{display:flex;flex-direction:column;max-width:980px}
 .am-pipe{list-style:none;margin:0 0 14px;padding:8px 0;display:flex;flex-wrap:wrap;row-gap:6px;border-top:1px solid var(--grid-major);border-bottom:1px solid var(--grid-major)}
@@ -408,3 +401,13 @@
 .am-unknown-result{font-size:13px;line-height:18px;color:var(--ink-2)}
 .am-unknown-result summary{cursor:pointer}
 .am-unknown-result pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--f-mono);font-size:12px}
+
+/* Browser Memory region: workspaces first, legacy owner review within Memories. */
+.memory-region{height:100%;min-height:0;display:flex;flex-direction:column;background:var(--paper);color:var(--ink)}
+.memory-workspace-nav,.memory-view-nav{padding:8px 22px;border-bottom:1px solid var(--grid-major);flex-wrap:wrap;gap:0}
+.memory-view-nav{padding-top:6px;padding-bottom:6px}
+.memory-region-body{flex:1;min-height:0}
+.memory-workspace-nav .am-view[aria-current="page"]{background:var(--i-paper);color:var(--i-ink);border-color:var(--i-paper);z-index:1}
+.memory-region .am-view:focus-visible{outline:2px solid var(--ink);outline-offset:-5px;z-index:2}
+
+.memory-region .am-head-views .am-range{margin-left:auto}

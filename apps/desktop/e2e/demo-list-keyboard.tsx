@@ -36,10 +36,10 @@ try {
   const input = fixture.querySelector<HTMLInputElement>(".qr21")!;
   const inputKey = press(input, "ArrowDown"); await sleep(30);
   check("search_field_owns_its_keys", !inputKey.defaultPrevented && selected() === first);
-  fixture.querySelector<HTMLButtonElement>(".am-entry")!.click(); await wait(() => !!fixture.querySelector(".am-h1"));
+  fixture.querySelector<HTMLButtonElement>('[data-memory-view="grid"]')!.click(); await wait(() => !!fixture.querySelector(".am-h1"));
   const previewKey = press(fixture.querySelector<HTMLElement>(".am-view")!, "ArrowDown"); await sleep(30);
   check("synthetic_preview_keeps_its_keys", !previewKey.defaultPrevented && memoryRows().length === 0);
-  fixture.querySelector<HTMLButtonElement>(".am-back")!.click(); await wait(() => memoryRows().length > 1);
+  fixture.querySelector<HTMLButtonElement>('[data-memory-view="vault"]')!.click(); await wait(() => memoryRows().length > 1);
   check("hidden_demo_selection_unchanged", selected() === memoryRows()[0]);
   const shortcut = press(main(), "4", true); await wait(() => !!fixture.querySelector(".qr135 .qr134"));
   check("global_page_shortcut_preserved", shortcut.defaultPrevented);

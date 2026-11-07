@@ -11,7 +11,7 @@ import Constellation from './Constellation';
 import Recall from './Recall';
 import StarMap from './StarMap';
 import { Inspector } from './Inspector';
-import type { ViewId } from './types';
+import type { ViewId, WorkspaceId } from './types';
 import { setAutoMode } from '../../theme/autoMode';
 import { moveAlong } from '../../theme/motion';
 
@@ -28,14 +28,19 @@ const VIEWS: { id: ViewId; name: string; hint: string }[] = [
   { id: 'recall', name: msg('Recall lab'), hint: msg('why offered') },
 ];
 
-export default function AutoMemory({ onExit }: { onExit: () => void }) {
-  const [view, setView] = useState<ViewId>('formation');
+const WORKSPACE_VIEWS: Record<WorkspaceId, ViewId[]> = {
+  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap'], formation: ['formation'], recall: ['recall'],
+};
+export default function AutoMemory({ onExit, workspace }: { onExit?: () => void; workspace?: WorkspaceId }) {
+  const [requestedView, setView] = useState<ViewId>('formation');
+  const views = workspace ? VIEWS.filter(v => WORKSPACE_VIEWS[workspace].includes(v.id)) : VIEWS;
+  const view = views.some(v => v.id === requestedView) ? requestedView : views[0].id;
   const [sel, setSel] = useState<string | null>(() => byId.has('am_05') ? 'am_05' : AUTO_MEMORIES[0]?.id ?? null);
   const head = useRef<HTMLHeadingElement>(null);
   useEffect(() => { setAutoMode(true); head.current?.focus(); return () => setAutoMode(false); }, []);
   const m = sel === null ? undefined : byId.get(sel);
   // Views advance along their order; a new selection turns the Inspector (DESIGN.md §7).
-  const order = VIEWS.map((v) => v.id);
+  const order = views.map((v) => v.id);
   const showView = (id: ViewId) => { if (id !== view) moveAlong('view', () => setView(id), order.indexOf(id) > order.indexOf(view) ? 'fwd' : 'back'); };
   const choose = (id: string) => { if (id !== sel) moveAlong('select', () => setSel(id)); };
   const body = !m ? <p className="am-empty">{t(EMPTY_NOTE)}</p> : view === 'formation' ? <Formation sel={m.id} select={choose} />
@@ -52,12 +57,13 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
         <div className="am-head-row">
           <h1 className="am-h1" tabIndex={-1} ref={head}>{t("Automatic memory")} <span>{t("synthetic preview")}</span></h1>
           <p className="am-stamp bg-inv">{t(AUTO_LABEL)}</p>
-          <button type="button" className="am-back" onClick={onExit}>{t("Back to Vault · owner review")}</button>
+          {onExit ? <button type="button" className="am-back" onClick={onExit}>{t("Back to Vault · owner review")}</button> : null}
         </div>
         <p className="am-note">{t(AUTO_NOTE)}</p>
         <div className="am-demo-states" role="group" aria-label={t("Demo state")}>
           {DATASETS.map(d => {
             const url = new URL(location.href); url.searchParams.set('auto-dataset', d.id);
+            if (workspace) url.searchParams.set('auto-workspace', workspace);
             return <a key={d.id} className="am-chip" href={url.href} aria-current={d.id === DATASET ? 'true' : undefined}>{t(d.label)}</a>;
           })}
         </div>
@@ -71,13 +77,13 @@ export default function AutoMemory({ onExit }: { onExit: () => void }) {
           <button type="button" className="am-chip" disabled>{t("Look up original result · unavailable in preview")}</button>
         </details> : null}
         <div className="am-head-row am-head-views">
-          <div className="am-views" role="group" aria-label={t("Automatic memory views")}>
-            {VIEWS.map((v) => (
+          {!workspace || views.length > 1 ? <div className="am-views" role="group" aria-label={t("Automatic memory views")}>
+            {views.map((v) => (
               <button key={v.id} type="button" className="am-view" data-auto-view={v.id} aria-pressed={view === v.id} title={t(v.hint)} onClick={() => showView(v.id)}>
                 <span className="am-vn">{t(v.name)}</span>
               </button>
             ))}
-          </div>
+          </div> : null}
           <p className="am-range">{t(RANGE_NOTE, { n: AUTO_COUNT })}</p>
           <a className="am-skip" href="#am-inspector" onClick={(e) => { e.preventDefault(); document.getElementById('am-inspector')?.focus(); }}>{t("Skip to inspector")}</a>
         </div>

@@ -1,21 +1,39 @@
 import React from "react";
 import type { DemoView } from "../App";
-import { AUTO_ENTRY } from "./automemory/entry";
+import type { WorkspaceId } from "./automemory/types";
 
-import { t } from '../i18n/index.ts';
+import { msg, t } from '../i18n/index.ts';
 // The preview is a separate chunk: it only loads when someone opens it, which keeps the main script small.
 const AutoMemory = React.lazy(() => import("./automemory/AutoMemory"));
 
+const WORKSPACES: { id: WorkspaceId; label: string }[] = [
+  { id: 'memories', label: msg('Memories') }, { id: 'time', label: msg('Time') },
+  { id: 'relations', label: msg('Connections') }, { id: 'formation', label: msg('Formation') },
+  { id: 'recall', label: msg('Recall') },
+];
+
+const demoParams = new URLSearchParams(globalThis.location?.search);
+const initialWorkspace = WORKSPACES.find(w => w.id === demoParams.get('auto-workspace'))?.id ?? 'memories';
+
 export default function Memory({ view }: { view: DemoView }) {
   // Browser demo only: a synthetic design preview of automatic memory. Local state, nothing stored.
-  const [auto, setAuto] = React.useState(false);
-  const entry = React.useRef<HTMLButtonElement>(null);
-  const wasAuto = React.useRef(false);
-  React.useEffect(() => { if (!auto && wasAuto.current) entry.current?.focus(); wasAuto.current = auto; }, [auto]);
+  const [workspace, setWorkspace] = React.useState<WorkspaceId>(initialWorkspace);
+  const [memoryView, setMemoryView] = React.useState<'vault' | 'grid'>(demoParams.has('auto-dataset') ? 'grid' : 'vault');
+  const preview = workspace !== 'memories' || memoryView === 'grid';
   const { act, colCount, colTitle, collections, copyLabel, draft, editing, groups, hasNotice, noSel, notEditing, notice, onDraft, onQuery, q, sel, timelineEmpty } = view;
-  if (auto) return <React.Suspense fallback={<section data-screen-label="Memory Vault" className="am-loading" aria-busy="true"><p>{t("Loading the synthetic preview…")}</p></section>}><AutoMemory onExit={() => setAuto(false)} /></React.Suspense>;
   return (
-<section data-screen-label="Memory Vault" className="qr89">
+<section data-screen-label="Memory Vault" className="memory-region">
+  <nav className="am-views memory-workspace-nav" aria-label={t("Memory workspaces")}>
+    {WORKSPACES.map(w => <button key={w.id} type="button" className="am-view" data-memory-workspace={w.id}
+      aria-current={workspace === w.id ? 'page' : undefined} onClick={() => setWorkspace(w.id)}><span className="am-vn">{t(w.label)}</span></button>)}
+  </nav>
+  {workspace === 'memories' ? <div className="am-views memory-view-nav" role="group" aria-label={t("Memory workspace views")}>
+    <button type="button" className="am-view" data-memory-view="grid" aria-pressed={memoryView === 'grid'} onClick={() => setMemoryView('grid')}><span className="am-vn">{t("Memory grid")}</span></button>
+    <button type="button" className="am-view" data-memory-view="vault" aria-pressed={memoryView === 'vault'} onClick={() => setMemoryView('vault')}><span className="am-vn">{t("Vault list · owner review compatibility")}</span></button>
+  </div> : null}
+  <div className="memory-region-body">
+  {preview ? <React.Suspense fallback={<section className="am-loading" aria-busy="true"><p>{t("Loading the synthetic preview…")}</p></section>}><AutoMemory workspace={workspace} /></React.Suspense> : (
+<section className="qr89">
 <aside className="qr28">
 <div className="qr20">
 <h1 className="qr18">
@@ -25,10 +43,6 @@ export default function Memory({ view }: { view: DemoView }) {
 {t("What I keep, and why.")}
 </div>
 </div>
-<button type="button" className="am-entry" ref={entry} onClick={() => setAuto(true)} aria-describedby="am-entry-sub">
-<span className="am-entry-k">{t(AUTO_ENTRY)}</span>
-<span className="am-entry-s" id="am-entry-sub">{t("Invented data · not running · opens a design preview")}</span>
-</button>
 <label className="qr22">
 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ stroke: 'var(--ink-2)' }} strokeWidth="1.2">
 <circle cx="6" cy="6" r="4.2">
@@ -383,6 +397,9 @@ export default function Memory({ view }: { view: DemoView }) {
 </div>
 </> : null}
 </aside>
+</section>
+  )}
+  </div>
 </section>
   );
 }

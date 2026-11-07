@@ -1,6 +1,13 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Time": "时间",
+  "Connections": "关联",
+  "Recall": "召回",
+  "Memory workspaces": "记忆工作区",
+  "Memory workspace views": "记忆工作区视图",
+  "Vault list · owner review compatibility": "Vault 列表 · 主人审阅旧版",
+
   "Source missing": "来源缺失",
   "Result unknown": "结果未知",
   "Read-only sample": "只读示例",
@@ -1332,7 +1339,6 @@ const dict: Record<string, string> = {
   "Choose the index rebuild trigger.": "选定索引重建的触发条件。",
   "Accept the first Windows port boundary.": "接受第一个 Windows 端口边界。",
   "Loading the synthetic preview…": "正在加载合成预览…",
-  "Invented data · not running · opens a design preview": "虚构数据 · 未运行 · 打开设计预览",
   "Newest first · ↑ ↓ to move": "最新的在前 · ↑ ↓ 移动",
   "Nothing here matches. No reading on this strip for that text.": "没有匹配的内容。这条记录带上没有包含这段文字的记录。",
   "Memory content": "记忆内容",

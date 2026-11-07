@@ -52,9 +52,9 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 原生落地（2026-11-01）：设备时钟明确标 UTC+8；纸面/日历只绘制已观察的最新 Vault 提交标记与一条引线，没有连续波形。其余注记是读取入口，不声明已知最近会话、Capsule 或检查点。无库、锁库、切库、退出、读取失败时仍保留首页结构，撤下提交和交互地图。[证据与未完成项](../../validation/UI-v2-native-home-2026-11-01.md)。
 
-### 1.2 Memory Vault（演示：owner 审阅语义）
+### 1.2 Memory Vault（记忆工作区下的 owner 审阅兼容视图）
 
-- 三栏 `220 | 主列表 | 360–400`：左栏「Memory Vault / What I keep, and why.」、自动记忆预览入口（反相边框块，名称含「Automatic memory」）、字面检索框（写「Literal search」）、REVIEW（Candidate inbox + 数量）、CANONICAL 按种类、PROJECTS、SOURCES。
+- 三栏 `220 | 主列表 | 360–400`：左栏「Memory Vault / What I keep, and why.」、字面检索框（写「Literal search」）、REVIEW（Candidate inbox + 数量）、CANONICAL 按种类、PROJECTS、SOURCES。
 - 主列表：按天分组，日分隔条 = `--ink-3` 底 + 底色字的大写日期；每行：时刻 · 种类 · 项目 · 正文一行 · 来源/会话/turn/conf；选中行反相；↑↓ 移动。
 - Inspector：状态牌（Canonical 反相）、种类、ID + Copy ID、正文、DECISIONS、OPEN LOOPS、WHY I REMEMBER THIS、字段表（Source / Source ID / Session / Turn / Source created / Reviewed from），底部「Edit · creates a revision」与「Demo changes stay in this window · reload resets」。四个裁切角。
 - Candidate inbox（`dark-memory-candidate-1440`）：候选行用空心竖块，Inspector 给接受/编辑/拒绝（演示）。
@@ -111,7 +111,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 ## 3. Memory 区域的五个工作区
 
-Memory UI 规格 §1 把 Memory 内部分成五个工作区。现状：浏览器演示的 Memory Vault 是旧 pin 语义；五个工作区只以**合成预览**的五个视图出现，共用一个 Inspector。
+Memory UI 规格 §1 把 Memory 内部分成五个工作区。浏览器现以五区二级导航组织；记忆下包含 grid 与旧 Vault 主人审阅兼容列表（无演示 URL 时保留列表默认入口），旧左栏预览入口已撤下。时间 / 关联 / 形成 / 召回使用显式合成预览，和 grid 共用选择及 Inspector；关联包含 constellation / star map 两个子视图。原生 MemorySurface 仍用现有 pin 和独立合成入口，不以虚构五区替代真实契约。见 [#13 验证](../../validation/UI-v2-memory-workspaces-2026-11-04.md)。
 
 | 工作区 | Morii 的问题 | 现在有的（合成预览） | 缺（先设计） | 参考 | 真实数据 |
 | --- | --- | --- | --- | --- | --- |

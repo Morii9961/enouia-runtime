@@ -1,0 +1,811 @@
+{
+  "baseline_revision": "5dd4e20436df8c7e93f6367f0b722d20fbb8da88",
+  "dom": [
+    {
+      "fixture": "demo-list-keyboard",
+      "checks": [
+        {
+          "id": "memory_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_inspector_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_collection_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "memory_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "search_field_owns_its_keys",
+          "ok": true
+        },
+        {
+          "id": "synthetic_preview_keeps_its_keys",
+          "ok": true
+        },
+        {
+          "id": "hidden_demo_selection_unchanged",
+          "ok": true
+        },
+        {
+          "id": "global_page_shortcut_preserved",
+          "ok": true
+        },
+        {
+          "id": "session_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "session_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "session_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "navigation_rail_keeps_its_keys",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "primary-navigation-languages",
+      "checks": [
+        {
+          "id": "en_stable_hook_retains_localized_accessible_name",
+          "ok": true
+        },
+        {
+          "id": "en_page_hooks_are_language_independent",
+          "ok": true
+        },
+        {
+          "id": "en_stable_sessions_hook_reaches_actual_surface",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stable_hook_retains_localized_accessible_name",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_page_hooks_are_language_independent",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_stable_sessions_hook_reaches_actual_surface",
+          "ok": true
+        },
+        {
+          "id": "ja_stable_hook_retains_localized_accessible_name",
+          "ok": true
+        },
+        {
+          "id": "ja_page_hooks_are_language_independent",
+          "ok": true
+        },
+        {
+          "id": "ja_stable_sessions_hook_reaches_actual_surface",
+          "ok": true
+        },
+        {
+          "id": "en_motion_preference_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "en_motion_preference_remains_reduced",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_motion_preference_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_motion_preference_remains_reduced",
+          "ok": true
+        },
+        {
+          "id": "ja_motion_preference_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "ja_motion_preference_remains_reduced",
+          "ok": true
+        },
+        {
+          "id": "en_demo_collection_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "en_demo_collection_selection_is_unchanged",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_demo_collection_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_demo_collection_selection_is_unchanged",
+          "ok": true
+        },
+        {
+          "id": "ja_demo_collection_keeps_control_and_focus",
+          "ok": true
+        },
+        {
+          "id": "ja_demo_collection_selection_is_unchanged",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "shell-navigation-focus",
+      "checks": [
+        {
+          "id": "home_route_continues_in_new_surface",
+          "ok": true
+        },
+        {
+          "id": "shortcut_from_surface_continues_in_new_surface",
+          "ok": true
+        },
+        {
+          "id": "rail_click_keeps_rail_focus",
+          "ok": true
+        },
+        {
+          "id": "shortcut_from_rail_keeps_rail_focus",
+          "ok": true
+        },
+        {
+          "id": "shortcut_respects_focus_outside_shell",
+          "ok": true
+        },
+        {
+          "id": "open_dialog_still_blocks_shortcut",
+          "ok": true
+        },
+        {
+          "id": "main_target_adds_no_tab_stop",
+          "ok": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "workspace_layout": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned headless browser/profile, browser-only fictional preview. Not native or human acceptance.",
+    "rows": [
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "memories",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "original",
+        "item": "memories",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "original",
+        "item": "time",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "relations",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "original",
+        "item": "relations",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "formation",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "original",
+        "item": "formation",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "recall",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "original",
+        "item": "recall",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "memories",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "original",
+        "item": "vault",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": null,
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "memories",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "original",
+        "item": "memories",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "original",
+        "item": "time",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "relations",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "original",
+        "item": "relations",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "formation",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "original",
+        "item": "formation",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "recall",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "original",
+        "item": "recall",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "memories",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "original",
+        "item": "vault",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": null,
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      }
+    ]
+  },
+  "state_links_and_layout": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned headless browser/profile, browser-only fictional preview. Not native or human acceptance.",
+    "rows": [
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "empty",
+        "item": "empty",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": null,
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "held",
+        "item": "held",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Hangzhou, end of October",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "open-ended",
+        "item": "open-ended",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Adapter work, end not recorded",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "source-missing",
+        "item": "source-missing",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Statement retained, source unavailable",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "unknown-result",
+        "item": "unknown-result",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": "demo-only-unknown-0001"
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "read-only",
+        "item": "read-only",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "empty",
+        "item": "empty",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": null,
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "held",
+        "item": "held",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Hangzhou, end of October",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "open-ended",
+        "item": "open-ended",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Adapter work, end not recorded",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "source-missing",
+        "item": "source-missing",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": true,
+        "memoryTitle": "Statement retained, source unavailable",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "unknown-result",
+        "item": "unknown-result",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": "demo-only-unknown-0001"
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "time",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "read-only",
+        "item": "read-only",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      }
+    ]
+  },
+  "final_single_view_layout": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned headless browser/profile, browser-only fictional preview. Not native or human acceptance.",
+    "rows": [
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "memories",
+        "width": 1100,
+        "height": 700,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "dataset": "original",
+        "item": "memories",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      },
+      {
+        "workspaces": 5,
+        "oldEntry": false,
+        "workspace": "memories",
+        "width": 1440,
+        "height": 900,
+        "language": "ja",
+        "theme": "light",
+        "dataset": "original",
+        "item": "memories",
+        "documentOverflow": false,
+        "headerOverflow": false,
+        "openEnd": false,
+        "memoryTitle": "Vault port adapter next",
+        "generatedMap": false,
+        "falseOpenEndLag": false,
+        "unknownKey": null
+      }
+    ]
+  }
+}
