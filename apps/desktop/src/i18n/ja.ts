@@ -1,6 +1,12 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Select a candidate before promoting.": "正式な記憶にする候補を選択してください。",
+  "Enter memory content before promoting.": "候補を正式な記憶にする前に内容を入力してください。",
+  "Select an editable canonical demo memory.": "編集できる正式なデモ記憶を選択してください。",
+  "Enter memory content before saving.": "保存する前に記憶の内容を入力してください。",
+  "Revision identity already exists. Try again.": "改訂 ID は既に存在します。やり直してください。",
+
   "Time": "時間",
   "Connections": "つながり",
   "Recall": "想起",

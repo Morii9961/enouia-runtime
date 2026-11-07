@@ -1,0 +1,481 @@
+{
+  "baseline_revision": "a1e7e26c44188364536e74c535565c65c7230e0f",
+  "before": {
+    "fixture": "demo-feedback-languages",
+    "checks": [
+      {
+        "id": "copy_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_success_zh-Hans_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "copy_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_success_ja_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "copy_success_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_zh-Hans_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "copy_failure_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_ja_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "copy_failure_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_zh-Hans_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "candidate_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_ja_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "candidate_blank_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_zh-Hans_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "approval_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_ja_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "approval_success_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "one_approval_keeps_original_proposal",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_zh-Hans_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "revision_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_ja_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "revision_blank_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_zh-Hans_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "revision_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_ja_notice_follows_language",
+        "ok": false
+      },
+      {
+        "id": "revision_success_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "one_revision_retains_previous_identity",
+        "ok": true
+      },
+      {
+        "id": "only_explicit_actions_run_and_original_fixture_is_unchanged",
+        "ok": true
+      }
+    ],
+    "passed": false,
+    "copies": 2,
+    "clockReads": 4
+  },
+  "after": {
+    "fixture": "demo-feedback-languages",
+    "checks": [
+      {
+        "id": "copy_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_success_zh-Hans_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_success_ja_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_success_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_zh-Hans_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_ja_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "copy_failure_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_zh-Hans_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_ja_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "candidate_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_zh-Hans_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "approval_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_ja_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "approval_success_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "approval_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "one_approval_keeps_original_proposal",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_zh-Hans_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_ja_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_blank_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_zh-Hans_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_success_zh-Hans_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_ja_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_success_ja_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_notice_follows_language",
+        "ok": true
+      },
+      {
+        "id": "revision_success_en_keeps_record_draft_focus_and_action_count",
+        "ok": true
+      },
+      {
+        "id": "one_revision_retains_previous_identity",
+        "ok": true
+      },
+      {
+        "id": "only_explicit_actions_run_and_original_fixture_is_unchanged",
+        "ok": true
+      }
+    ],
+    "passed": true,
+    "copies": 2,
+    "clockReads": 4
+  },
+  "browser": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned headless browser/profile, 1100x700, fictional browser-only Vault. Clipboard replaced before load; no native IPC or system clipboard. Language changes do not repeat the demo action.",
+    "rows": [
+      {
+        "kind": "copy",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "identity": "mem_80978cac7c9a8abe17c0a4b4522a98ef",
+        "notice": "无法复制。请选中 ID 手动复制。",
+        "expected": "无法复制。请选中 ID 手动复制。",
+        "copies": 1,
+        "draft": null,
+        "pageOverflow": false,
+        "noticeFits": true
+      },
+      {
+        "kind": "copy",
+        "language": "ja",
+        "theme": "light",
+        "identity": "mem_80978cac7c9a8abe17c0a4b4522a98ef",
+        "notice": "コピーできませんでした。ID を選択して手動でコピーしてください。",
+        "expected": "コピーできませんでした。ID を選択して手動でコピーしてください。",
+        "copies": 1,
+        "draft": null,
+        "pageOverflow": false,
+        "noticeFits": true
+      },
+      {
+        "kind": "candidate",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "identity": "cand_b49861df245f75159df59453d9ab5bc6",
+        "notice": "请先输入记忆内容，再提升候选。",
+        "expected": "请先输入记忆内容，再提升候选。",
+        "copies": 0,
+        "draft": "",
+        "pageOverflow": false,
+        "noticeFits": true
+      },
+      {
+        "kind": "candidate",
+        "language": "ja",
+        "theme": "light",
+        "identity": "cand_b49861df245f75159df59453d9ab5bc6",
+        "notice": "候補を正式な記憶にする前に内容を入力してください。",
+        "expected": "候補を正式な記憶にする前に内容を入力してください。",
+        "copies": 0,
+        "draft": "",
+        "pageOverflow": false,
+        "noticeFits": true
+      }
+    ]
+  }
+}
