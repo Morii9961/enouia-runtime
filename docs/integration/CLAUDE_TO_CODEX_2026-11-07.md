@@ -4,9 +4,9 @@ Codex 限额用尽后，Morii 让 Claude 接续。本文接在 [2026-11-04 交�
 
 ## 从哪里开始
 
-- 主目录 `E:\Enouia Runtime`，当前分支 `claude/ui-v2-vault-switch-clearing`（草稿 #149 头部）。下一片从这个分支开新分支，PR 以它为 base 继续叠放。
-- 主目录有 `docs/status/PROJECT_STATUS.md` 与 `project-status.json` 的未提交改动，内容与 `claude/status-2026-11-07`（草稿 #142，另一个 session 的工作树）里已提交的快照完全一致。不要在功能分支上提交它们，也不要丢弃；等 #142 的去留由 Morii 决定。
-- 草稿链：#120（星图方案 B，基于 `main`）单独一条；#121 → … → #141（Codex）→ #143 → … → #149（Claude）依次叠放。全部未合并，合并需要 Morii 明确同意。
+- **2026-11-07 已全部合并。** Morii 在会话里选定“全部合并 #121–#149 和 #120”。合并顺序：叠放链 #121 → … → #141 → #143 → … → #149（每合一个把下一个的 base 改成 `main`，合并提交，分支保留），最后 #120（星图方案 B）。期间另一个 session 的 #150（Memory pin 升到 `b9faf544da272bfe821c621d59a979b1a434e355`）先进了 `main`。最终 `main@884a6a8`。
+- 合并前在独立工作树里把 `main@94bbce9` + 链尾 + #120 合成一次：完整 `npm test`（Node 139 通过 / 3 跳过 / 0 失败；DOM 119 个场景运行、2,470 项全部通过）、`npm run build`（主 JS 470.17 kB）、Memory pin 与 Activity 退役守卫全部通过，无冲突。最终 `main` 与该合成结果的差异只有 #150 的 Cargo / pin / 文档，前端源码和测试完全一致；在最终 `main` 上复跑 pin 与退役守卫通过。没有在最终 `main` 上跑 Rust 或原生检查（#150 的 Rust 证据见其自身记录）。
+- 下一片在 `main` 上开新分支。主目录已切到 `main@884a6a8`，工作区干净。
 
 ## Claude 本轮的切片
 
@@ -35,4 +35,4 @@ Codex 限额用尽后，Morii 让 Claude 接续。本文接在 [2026-11-04 交�
 
 ## 仍待 Morii 决定（不推进）
 
-同 2026-11-04 交接：合成面板枚举 / ISO 是否翻译；草稿链合并范围与顺序；Windows 独立验收环境；新 Owner 后端首个采用切片。
+同 2026-11-04 交接：合成面板枚举 / ISO 是否翻译；Windows 独立验收环境；新 Owner 后端首个采用切片。
