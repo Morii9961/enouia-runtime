@@ -35,6 +35,7 @@ try {
   fixture.querySelector<HTMLButtonElement>('[data-auto-view="timeline"]')!.click();
   await wait(()=>fixture.querySelector('[data-view]')?.getAttribute('data-view')==='timeline');
   if(DATASET==='held')check('nothing_adopted_or_offered',AUTO_MEMORIES.length>0&&AUTO_MEMORIES.every(m=>['received','held'].includes(m.state)&&m.known===null&&m.surfacing==='not offered')&&RECALL_CASES.length===0);
+  if(DATASET==='open-ended'){fixture.querySelector<HTMLButtonElement>('[data-time-view="lanes"]')!.click();await wait(()=>!!fixture.querySelector('.am-mk[data-open]'));}
   if(DATASET==='open-ended')check('open_end_is_readable_without_fabricated_end',fixture.textContent!.includes('range · end open')&&AUTO_MEMORIES.some(m=>m.occurred.precision==='range'&&m.occurred.end===null)&&!fixture.textContent!.includes('NaN')&&!fixture.querySelector('.am-lag')&&!!fixture.querySelector('.am-mk[data-open]'));
   if(DATASET==='source-missing')check('missing_source_keeps_statement_without_excerpt',!!fixture.querySelector('.am-statement')&&AUTO_MEMORIES[0].support.length===0);
   if(DATASET==='read-only')check('read_only_controls_stay_disabled',[...fixture.querySelectorAll<HTMLButtonElement>('.am-opt')].every(b=>b.disabled));

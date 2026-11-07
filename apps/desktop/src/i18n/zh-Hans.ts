@@ -1,6 +1,18 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Time views": "时间视图",
+  "Months and days": "月与日",
+  "Theme lanes": "主题分轨",
+  "month": "月",
+  "Sample time map. Exact occurred days only; month-only dates and ranges are listed separately. The frame follows the displayed month.": "示例时间小地图。只标示有明确发生日期的记录；仅有月份和范围的记录另列。取景框跟随当前月份。",
+  "Occurred time · Asia/Shanghai (UTC+8) · loaded sample only. Open a day to read its memories. Month-only dates, ranges and unknown times keep their precision.": "发生时间 · Asia/Shanghai（UTC+8）· 仅限已加载示例。打开日期查看记忆。仅有月份、范围或未知时间的记录保留原有精度。",
+  "Sample months": "示例月份",
+  "No dated records in this sample month. Choose another month or inspect unknown times below. This does not mean nothing happened.": "此示例月份没有有日期的记录。可选择其他月份或查看下方未知时间的记录。这不代表当时没有事情发生。",
+  "Month-only dates and ranges": "仅有月份与日期范围",
+  "These records are not assigned to individual days. Ranges may appear in more than one month; do not add those monthly counts. An open end does not establish continued activity.": "这些记录不分配到某一天。范围可能出现在多个月份，月间数量不可相加。开放端不代表事情一直持续。",
+  "No occurred date is assigned to these records. Selecting one keeps it outside the calendar.": "这些记录没有发生日期。选中后仍保留在日历之外。",
+  "No unknown occurred times in this sample.": "此示例没有发生时间未知的记录。",
   "Open original sample": "打开原始示例",
   "No saved capsule in this synthetic Vault. Nothing has been compiled or sent.": "此合成记忆库没有已保存的 Capsule，也未编译或发送内容。",
   "No saved sessions in this sample.": "此示例没有已保存的会话。",

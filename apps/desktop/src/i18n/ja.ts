@@ -1,6 +1,18 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Time views": "時間表示",
+  "Months and days": "月と日",
+  "Theme lanes": "テーマのレーン",
+  "month": "月",
+  "Sample time map. Exact occurred days only; month-only dates and ranges are listed separately. The frame follows the displayed month.": "サンプルの時間マップ。発生日が明確な記録のみ示し、月のみの日付と範囲は別に示します。枠は表示中の月に従います。",
+  "Occurred time · Asia/Shanghai (UTC+8) · loaded sample only. Open a day to read its memories. Month-only dates, ranges and unknown times keep their precision.": "発生日時 · Asia/Shanghai（UTC+8）· 読み込み済みサンプルのみ。日を開いて記憶を読みます。月のみ、範囲、不明の日時は元の精度を保ちます。",
+  "Sample months": "サンプルの月",
+  "No dated records in this sample month. Choose another month or inspect unknown times below. This does not mean nothing happened.": "このサンプル月に日付のある記録はありません。別の月か、下の日時不明の記録を確認してください。何も起きなかったという意味ではありません。",
+  "Month-only dates and ranges": "月のみの日付と範囲",
+  "These records are not assigned to individual days. Ranges may appear in more than one month; do not add those monthly counts. An open end does not establish continued activity.": "これらの記録を日には割り当てません。範囲は複数の月に現れるため、月ごとの数は合計できません。終わりが不明でも、その後も続くとは限りません。",
+  "No occurred date is assigned to these records. Selecting one keeps it outside the calendar.": "これらの記録に発生日はありません。選択しても日付を割り当てません。",
+  "No unknown occurred times in this sample.": "このサンプルに発生日時不明の記録はありません。",
   "Open original sample": "元のサンプルを開く",
   "No saved capsule in this synthetic Vault. Nothing has been compiled or sent.": "この合成 Vault には保存済みの Capsule がありません。コンパイルも送信も行っていません。",
   "No saved sessions in this sample.": "このサンプルには保存された会話がありません。",
