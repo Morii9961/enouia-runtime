@@ -215,3 +215,39 @@ fn failed_initialization_reports_its_fault_code_and_opens_nothing() {
     );
     assert_eq!(native.initialize_synthetic(), Err("capture_busy"));
 }
+
+#[test]
+fn explicit_renewal_after_expiry_reenrolls_the_same_producer_and_replays_keys() {
+    const NOW: i64 = 1_793_664_000_000;
+    let clock = Arc::new(enouia_memory_contract::foundation::FakeClock::new(NOW));
+    let native = NativeCapture::default();
+    native
+        .initialize_with(|stop| fixture::create_with_clock(stop, clock.clone()))
+        .unwrap();
+    let written = native.call("main", &op("write", 0)).unwrap();
+    assert_eq!(written["capture"]["captured"], true);
+    clock.set(NOW + 300_000);
+    let status = packet(json!({"operation":"status"}));
+    assert_eq!(native.call("main", &status).unwrap()["state"], "expired");
+    assert_eq!(native.call("main", &op("write", 1)), Err("capture_expired"));
+    let renewed = native
+        .call("main", &packet(json!({"operation":"renew"})))
+        .unwrap();
+    assert_eq!(renewed["state"], "open");
+    assert_eq!(renewed["effect"], "native_control");
+    assert_eq!(native.call("main", &status).unwrap()["state"], "open");
+    let replay = native.call("main", &op("write", 0)).unwrap();
+    assert_eq!(replay["capture"]["replayed"], true, "{replay}");
+    assert_eq!(
+        native.call("main", &op("write", 1)).unwrap()["capture"]["captured"],
+        true
+    );
+    native
+        .call("main", &packet(json!({"operation":"lock"})))
+        .unwrap();
+    assert_eq!(
+        native.call("main", &packet(json!({"operation":"renew"}))),
+        Err("capture_locked")
+    );
+    native.shutdown();
+}

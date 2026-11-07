@@ -13,6 +13,7 @@ setCaptureTransport(async(command,args)=>{
   const query=(args as any).request.query;calls.push(structuredClone(query));
   if(query.operation==='status')return status(state);
   if(query.operation==='lock'){state='locked';return {...status('locked'),effect:'native_control'};}
+  if(query.operation==='renew'){state='open';return {...status('open'),effect:'native_control'};}
   if(query.operation==='preflight')return preflight(query.exchange);
   if(query.operation==='write'){
     if(writeFailure){const error=writeFailure;writeFailure=null;throw error;}
@@ -73,10 +74,11 @@ try{
   check('queue_refusal_keeps_the_capture_receipt_visible',item(2)!.textContent!.includes('The synthetic capture was refused'));
   state='expired';await wait(()=>text().includes('This capture enrollment has expired.'));
   check('expired_enrollment_disables_capture',[0,1,2].every(n=>[...item(n)!.querySelectorAll('button')].every(b=>b.disabled))&&!button('End capture enrollment'));
-  state='open';await wait(()=>!!button('End capture enrollment'));
+  button('Renew capture enrollment')!.click();await wait(()=>!!button('End capture enrollment'));
+  check('explicit_renewal_sends_one_renew_and_reopens_capture',sent('renew').length===1&&text().includes('Capture: open')&&[0,1,2].every(n=>[...item(n)!.querySelectorAll('button')].every(b=>!b.disabled)));
   button('End capture enrollment')!.click();
   await wait(()=>text().includes('Capture enrollment ended for this session.'));
   check('end_enrollment_sends_one_lock_and_hides_formed_list',sent('lock').length===1&&!text().includes('memories formed in this root'));
-  check('only_closed_capture_operations_were_used',calls.every(c=>['status','preflight','write','jobs','page','lock'].includes(c.operation)));
+  check('only_closed_capture_operations_were_used',calls.every(c=>['status','preflight','write','jobs','page','lock','renew'].includes(c.operation)));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.every(c=>c.ok),calls});}

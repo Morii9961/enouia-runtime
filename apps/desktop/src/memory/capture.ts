@@ -21,8 +21,8 @@ export type CaptureItem = { title: string; content_lang: string; base: { memory:
   content: string; system_actor: { actor_type: "system" } } };
 export type CapturePage = { kind: "catalog_memory_page"; matched_in_scope: number; authorized_at: string; items: CaptureItem[] };
 type Queries = { status: object; preflight: { exchange: number }; write: { exchange: number }; jobs: { exchange: number };
-  page: { cursor: null; limit: number }; lock: object };
-type Results = { status: CaptureStatus; preflight: CapturePreflight; write: CaptureWrite; jobs: CaptureJobs; page: CapturePage; lock: CaptureStatus };
+  page: { cursor: null; limit: number }; lock: object; renew: object };
+type Results = { status: CaptureStatus; preflight: CapturePreflight; write: CaptureWrite; jobs: CaptureJobs; page: CapturePage; lock: CaptureStatus; renew: CaptureStatus };
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);
 export function setCaptureTransport(next: Transport): void { transport = next; }
@@ -37,9 +37,9 @@ export async function captureCall<K extends keyof Queries>(query: { operation: K
   if (!value || value.schema_version !== 2) bad();
   const exchange = (request.query as { exchange?: number }).exchange;
   switch (query.operation) {
-    case "status": case "lock":
+    case "status": case "lock": case "renew":
       if (value.kind !== "runtime_memory_capture_status" || value.capability !== CAPTURE_CAPABILITY ||
-          value.effect !== (query.operation === "lock" ? "native_control" : "native_read") || value.mode !== "synthetic_owner_only" ||
+          value.effect !== (query.operation === "status" ? "native_read" : "native_control") || value.mode !== "synthetic_owner_only" ||
           !CAPTURE_STATES.includes(value.state) || value.available !== (value.state === "open") || !count(value.exchanges) ||
           (value.reason !== undefined && (value.state !== "failed" || typeof value.reason !== "string")) ||
           !Array.isArray(value.conversations) || value.conversations.length !== value.exchanges ||

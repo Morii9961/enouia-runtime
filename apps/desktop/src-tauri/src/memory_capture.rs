@@ -72,6 +72,7 @@ enum CaptureQuery {
         limit: usize,
     },
     Lock,
+    Renew,
 }
 fn status(phase: &str) -> Value {
     json!({"schema_version":2,"kind":"runtime_memory_capture_status","capability":CAPABILITY,
@@ -214,7 +215,7 @@ impl NativeCapture {
             view["effect"] = json!("native_control");
             return Ok(view);
         }
-        let state = self.0.state.try_lock().map_err(|_| "capture_busy")?;
+        let mut state = self.0.state.try_lock().map_err(|_| "capture_busy")?;
         if is_status {
             let phase = if !self.enabled() {
                 "disabled"
@@ -237,6 +238,23 @@ impl NativeCapture {
             if let Some(reason) = state.failure {
                 view["reason"] = json!(reason);
             }
+            return Ok(view);
+        }
+        if matches!(request.query, CaptureQuery::Renew) {
+            // Explicit owner action. Lock and unknown outcomes stay final.
+            if self.0.withdrawn.load(Ordering::SeqCst) {
+                return Err("capture_locked");
+            }
+            let fixture = state.fixture.as_mut().ok_or("capture_not_enabled")?;
+            if let Err(error) = fixture.renew() {
+                state.failure = Some(error);
+                return Err(error);
+            }
+            if self.0.closing.load(Ordering::SeqCst) {
+                return Err("runtime_closing");
+            }
+            let mut view = status("open");
+            view["effect"] = json!("native_control");
             return Ok(view);
         }
         let fixture = state.fixture.as_ref().ok_or("capture_not_enabled")?;
@@ -299,7 +317,9 @@ impl NativeCapture {
                 let _ = fixture.host.set_foreground(false);
                 serde_json::to_value(page.map_err(fault)?).map_err(|_| "capture_refused")?
             }
-            CaptureQuery::Status | CaptureQuery::Lock => return Err("capture_invalid_request"),
+            CaptureQuery::Status | CaptureQuery::Lock | CaptureQuery::Renew => {
+                return Err("capture_invalid_request");
+            }
         };
         // Lock/exit withdraw before waiting on this call. Never publish a
         // result completed after that withdrawal was observed.
