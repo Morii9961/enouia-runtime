@@ -6,6 +6,7 @@ fn main() {
             "memory_call",
             "memory_automation",
             "memory_catalog",
+            "memory_capture",
             "memory_pick",
             "memory_provider_setup",
             "memory_provider_reload",

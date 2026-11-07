@@ -28,6 +28,7 @@
     "allow-startup-status",
     "allow-startup-set",
     "allow-memory-automation",
-    "allow-memory-catalog"
+    "allow-memory-catalog",
+    "allow-memory-capture"
   ]
 }
