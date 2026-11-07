@@ -1,0 +1,3391 @@
+{
+  "baseline_revision": "4b36559c4d64fb97210ba57275f6eb65f0832102",
+  "scope": "CSS-only synthetic Home reflow. Same four-day trace and original timestamped navigation notes; no React/data changes.",
+  "before": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned fictional Home layout-space evidence only; no real Vault or native/Windows acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 90,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 225.1875,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 374.8125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 225.1875,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 374.8125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12Memory Vault9 canonical memories, 3 waiting for your reviewmodel_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 240.171875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:44ContextCompiled at 14:44 for “vault adapter rebuild trigger”cap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 330.125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:43Current sessionVault adapter planning · 12 turns, last at 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 420.078125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:20CheckpointTurns 1–8 covered at 14:20mem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 510.03125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 90,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 225.1875,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 405.8125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 225.1875,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 405.8125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, nothing waiting for reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 241.40625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 338.8125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 436.203125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 533.59375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 90,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 225.1875,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 405.8125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 225.1875,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 405.8125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, 2 waiting for your reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 241.40625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 338.8125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 436.203125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 533.59375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 133.390625,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 376.609375,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 133.390625,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 376.609375,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12Memory Vault9 canonical memories, 3 waiting for your reviewmodel_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 148.453125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:44ContextCompiled at 14:44 for “vault adapter rebuild trigger”cap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 238.828125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:43Current sessionVault adapter planning · 12 turns, last at 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 329.21875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:20CheckpointTurns 1–8 covered at 14:20mem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 419.609375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 133.390625,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 407.609375,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 133.390625,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 407.609375,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, nothing waiting for reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 149.6875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 247.515625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 345.34375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 443.171875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 133.390625,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 407.609375,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 133.390625,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 407.609375,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, 2 waiting for your reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 149.6875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 247.515625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 345.34375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 443.171875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 138.578125,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 366.234375,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 138.578125,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 366.234375,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12记忆库9 条正式记忆，3 条等你审阅model_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 153.21875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:44上下文14:44 为“vault adapter rebuild trigger”编译cap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 241.109375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:43当前会话Vault adapter planning · 12 轮，最后一轮在 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 329.015625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:20检查点14:20 覆盖第 1–8 轮mem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 416.90625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 138.578125,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 394.828125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 138.578125,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 394.828125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "未记录记忆库0 条正式记忆，没有等待审阅的model_only",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 154.359375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "未记录上下文此示例没有已保存的 Capsule。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 249.125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "未记录当前会话此示例没有已保存的会话。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 343.875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "未记录检查点此示例没有检查点。—",
+            "time": "未记录",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 438.640625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 138.578125,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 394.828125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 138.578125,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 394.828125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "未记录记忆库0 条正式记忆，2 条等你审阅model_only",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 154.359375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "未记录上下文此示例没有已保存的 Capsule。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 249.125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "未记录当前会话此示例没有已保存的会话。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 343.875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "未记录检查点此示例没有检查点。—",
+            "time": "未记录",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 438.640625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "original",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 138.578125,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 366.234375,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 138.578125,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 366.234375,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12記憶の保管庫正式な記憶 9 件、レビュー待ち 3 件model_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 153.21875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:44コンテキスト14:44、「vault adapter rebuild trigger」向けにコンパイルcap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 241.109375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:43現在のセッションVault adapter planning · 12 ターン、最後は 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 329.015625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:20チェックポイント14:20 にターン 1–8 をまとめたmem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 416.90625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 138.578125,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 394.828125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 138.578125,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 394.828125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "記録なし記憶の保管庫正式な記憶 0 件、レビュー待ちはありませんmodel_only",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 154.359375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "記録なしコンテキストこのサンプルには保存済みの Capsule がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 249.125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "記録なし現在のセッションこのサンプルには保存された会話がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 343.875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "記録なしチェックポイントこのサンプルにはチェックポイントがありません。—",
+            "time": "記録なし",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 438.640625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -90,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 138.578125,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 394.828125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 138.578125,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 394.828125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "記録なし記憶の保管庫正式な記憶 0 件、レビュー待ち 2 件model_only",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 154.359375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "記録なしコンテキストこのサンプルには保存済みの Capsule がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 249.125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "記録なし現在のセッションこのサンプルには保存された会話がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 343.875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "記録なしチェックポイントこのサンプルにはチェックポイントがありません。—",
+            "time": "記録なし",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 438.640625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      14296,
+      18,
+      11,
+      10,
+      9,
+      10,
+      10,
+      11,
+      10,
+      16,
+      9,
+      9,
+      10
+    ]
+  },
+  "after": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned fictional Home layout-space evidence only; no real Vault or native/Windows acceptance.",
+    "rows": [
+      {
+        "dataset": "original",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 90,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 225.1875,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 374.8125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 225.1875,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 374.8125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12Memory Vault9 canonical memories, 3 waiting for your reviewmodel_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 240.171875,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:44ContextCompiled at 14:44 for “vault adapter rebuild trigger”cap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 330.125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:43Current sessionVault adapter planning · 12 turns, last at 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 420.078125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "14:20CheckpointTurns 1–8 covered at 14:20mem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 510.03125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 90,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 225.1875,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 405.8125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 225.1875,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 405.8125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, nothing waiting for reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 241.40625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 338.8125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 436.203125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 533.59375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "surface": {
+          "x": 0,
+          "y": 90,
+          "right": 1100,
+          "width": 1100,
+          "height": 610,
+          "scrollWidth": 1100,
+          "clientWidth": 1100
+        },
+        "pane": {
+          "x": 29,
+          "y": 225.1875,
+          "right": 634.359375,
+          "width": 605.359375,
+          "height": 405.8125,
+          "scrollWidth": 1058,
+          "clientWidth": 604
+        },
+        "notes": {
+          "x": 659.40625,
+          "y": 225.1875,
+          "right": 1057,
+          "width": 397.59375,
+          "height": 405.8125,
+          "scrollWidth": 398,
+          "clientWidth": 398
+        },
+        "leaders": "block",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, 2 waiting for your reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 241.40625,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 338.8125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 659.40625,
+              "y": 436.203125,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 659.40625,
+              "y": 533.59375,
+              "right": 1057,
+              "width": 397.59375,
+              "height": 58,
+              "scrollWidth": 398,
+              "clientWidth": 398
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -139,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 812.390625,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "pane": {
+          "x": 13,
+          "y": 175.390625,
+          "right": 527,
+          "width": 514,
+          "height": 241,
+          "scrollWidth": 900,
+          "clientWidth": 514
+        },
+        "notes": {
+          "x": 13,
+          "y": 416.390625,
+          "right": 527,
+          "width": 514,
+          "height": 248,
+          "scrollWidth": 514,
+          "clientWidth": 514
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12Memory Vault9 canonical memories, 3 waiting for your reviewmodel_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 424.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "14:44ContextCompiled at 14:44 for “vault adapter rebuild trigger”cap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 482.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "14:43Current sessionVault adapter planning · 12 turns, last at 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 540.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "14:20CheckpointTurns 1–8 covered at 14:20mem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 598.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -139,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 749.390625,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "pane": {
+          "x": 13,
+          "y": 193.390625,
+          "right": 527,
+          "width": 514,
+          "height": 241,
+          "scrollWidth": 900,
+          "clientWidth": 514
+        },
+        "notes": {
+          "x": 13,
+          "y": 434.390625,
+          "right": 527,
+          "width": 514,
+          "height": 248,
+          "scrollWidth": 514,
+          "clientWidth": 514
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, nothing waiting for reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 442.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 500.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 558.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 25,
+              "y": 616.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -139,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 749.390625,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "pane": {
+          "x": 13,
+          "y": 193.390625,
+          "right": 527,
+          "width": 514,
+          "height": 241,
+          "scrollWidth": 900,
+          "clientWidth": 514
+        },
+        "notes": {
+          "x": 13,
+          "y": 434.390625,
+          "right": 527,
+          "width": 514,
+          "height": 248,
+          "scrollWidth": 514,
+          "clientWidth": 514
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "Not recordedMemory Vault0 canonical memories, 2 waiting for your reviewmodel_only",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 442.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "Not recordedContextNo saved capsule in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 500.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "Not recordedCurrent sessionNo saved sessions in this sample.—",
+            "time": "Not recorded",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 558.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "Not recordedCheckpointNo checkpoint in this sample.—",
+            "time": "Not recorded",
+            "disabled": true,
+            "box": {
+              "x": 25,
+              "y": 616.390625,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "original",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -149,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 540,
+          "width": 540,
+          "height": 830.359375,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "pane": {
+          "x": 13,
+          "y": 180.953125,
+          "right": 527,
+          "width": 514,
+          "height": 241,
+          "scrollWidth": 900,
+          "clientWidth": 514
+        },
+        "notes": {
+          "x": 13,
+          "y": 421.953125,
+          "right": 527,
+          "width": 514,
+          "height": 248,
+          "scrollWidth": 514,
+          "clientWidth": 514
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12记忆库9 条正式记忆，3 条等你审阅model_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 429.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "14:44上下文14:44 为“vault adapter rebuild trigger”编译cap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 487.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "14:43当前会话Vault adapter planning · 12 轮，最后一轮在 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 545.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "14:20检查点14:20 覆盖第 1–8 轮mem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 603.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -149,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 540,
+          "width": 540,
+          "height": 762.171875,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "pane": {
+          "x": 13,
+          "y": 198.953125,
+          "right": 527,
+          "width": 514,
+          "height": 241,
+          "scrollWidth": 900,
+          "clientWidth": 514
+        },
+        "notes": {
+          "x": 13,
+          "y": 439.953125,
+          "right": 527,
+          "width": 514,
+          "height": 248,
+          "scrollWidth": 514,
+          "clientWidth": 514
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "未记录记忆库0 条正式记忆，没有等待审阅的model_only",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 447.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "未记录上下文此示例没有已保存的 Capsule。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 505.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "未记录当前会话此示例没有已保存的会话。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 563.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "未记录检查点此示例没有检查点。—",
+            "time": "未记录",
+            "disabled": true,
+            "box": {
+              "x": 25,
+              "y": 621.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -149,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 540,
+          "width": 540,
+          "height": 762.171875,
+          "scrollWidth": 540,
+          "clientWidth": 540
+        },
+        "pane": {
+          "x": 13,
+          "y": 198.953125,
+          "right": 527,
+          "width": 514,
+          "height": 241,
+          "scrollWidth": 900,
+          "clientWidth": 514
+        },
+        "notes": {
+          "x": 13,
+          "y": 439.953125,
+          "right": 527,
+          "width": 514,
+          "height": 248,
+          "scrollWidth": 514,
+          "clientWidth": 514
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "未记录记忆库0 条正式记忆，2 条等你审阅model_only",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 447.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "未记录上下文此示例没有已保存的 Capsule。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 505.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "未记录当前会话此示例没有已保存的会话。—",
+            "time": "未记录",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 563.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          },
+          {
+            "text": "未记录检查点此示例没有检查点。—",
+            "time": "未记录",
+            "disabled": true,
+            "box": {
+              "x": 25,
+              "y": 621.953125,
+              "right": 515,
+              "width": 490,
+              "height": 58,
+              "scrollWidth": 490,
+              "clientWidth": 490
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "original",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -149,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 710,
+          "width": 710,
+          "height": 830.359375,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "pane": {
+          "x": 13,
+          "y": 180.953125,
+          "right": 697,
+          "width": 684,
+          "height": 241,
+          "scrollWidth": 1197,
+          "clientWidth": 684
+        },
+        "notes": {
+          "x": 13,
+          "y": 421.953125,
+          "right": 697,
+          "width": 684,
+          "height": 248,
+          "scrollWidth": 684,
+          "clientWidth": 684
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "14:12記憶の保管庫正式な記憶 9 件、レビュー待ち 3 件model_only",
+            "time": "14:12",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 429.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "14:44コンテキスト14:44、「vault adapter rebuild trigger」向けにコンパイルcap_1ab388…a1b8",
+            "time": "14:44",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 487.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "14:43現在のセッションVault adapter planning · 12 ターン、最後は 14:43ses_23c48c…6547",
+            "time": "14:43",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 545.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "14:20チェックポイント14:20 にターン 1–8 をまとめたmem_609c12…3f9f",
+            "time": "14:20",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 603.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "empty",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -149,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 710,
+          "width": 710,
+          "height": 762.171875,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "pane": {
+          "x": 13,
+          "y": 198.953125,
+          "right": 697,
+          "width": 684,
+          "height": 241,
+          "scrollWidth": 1197,
+          "clientWidth": 684
+        },
+        "notes": {
+          "x": 13,
+          "y": 439.953125,
+          "right": 697,
+          "width": 684,
+          "height": 248,
+          "scrollWidth": 684,
+          "clientWidth": 684
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "記録なし記憶の保管庫正式な記憶 0 件、レビュー待ちはありませんmodel_only",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 447.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "記録なしコンテキストこのサンプルには保存済みの Capsule がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 505.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "記録なし現在のセッションこのサンプルには保存された会話がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 563.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "記録なしチェックポイントこのサンプルにはチェックポイントがありません。—",
+            "time": "記録なし",
+            "disabled": true,
+            "box": {
+              "x": 25,
+              "y": 621.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          }
+        ]
+      },
+      {
+        "dataset": "candidates",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -149,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 710,
+          "width": 710,
+          "height": 762.171875,
+          "scrollWidth": 710,
+          "clientWidth": 710
+        },
+        "pane": {
+          "x": 13,
+          "y": 198.953125,
+          "right": 697,
+          "width": 684,
+          "height": 241,
+          "scrollWidth": 1197,
+          "clientWidth": 684
+        },
+        "notes": {
+          "x": 13,
+          "y": 439.953125,
+          "right": 697,
+          "width": 684,
+          "height": 248,
+          "scrollWidth": 684,
+          "clientWidth": 684
+        },
+        "leaders": "none",
+        "clock": "14:44",
+        "items": [
+          {
+            "text": "記録なし記憶の保管庫正式な記憶 0 件、レビュー待ち 2 件model_only",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 447.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "記録なしコンテキストこのサンプルには保存済みの Capsule がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 505.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "記録なし現在のセッションこのサンプルには保存された会話がありません。—",
+            "time": "記録なし",
+            "disabled": false,
+            "box": {
+              "x": 25,
+              "y": 563.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          },
+          {
+            "text": "記録なしチェックポイントこのサンプルにはチェックポイントがありません。—",
+            "time": "記録なし",
+            "disabled": true,
+            "box": {
+              "x": 25,
+              "y": 621.953125,
+              "right": 685,
+              "width": 660,
+              "height": 58,
+              "scrollWidth": 660,
+              "clientWidth": 660
+            }
+          }
+        ]
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      1603,
+      20,
+      11,
+      11,
+      12,
+      15,
+      9,
+      11,
+      9,
+      10,
+      9,
+      12,
+      10
+    ]
+  },
+  "interaction": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned fictional Home layout-space evidence only; no real Vault or native/Windows acceptance.",
+    "rows": [
+      {
+        "action": "pan",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "14:12",
+          "14:44",
+          "14:43",
+          "14:20"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "en",
+        "index": 3,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "empty",
+        "width": 550,
+        "language": "en",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "Not recorded",
+          "Not recorded",
+          "Not recorded",
+          "Not recorded"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          true
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 550,
+        "language": "en",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 550,
+        "language": "en",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 550,
+        "language": "en",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "Not recorded",
+          "Not recorded",
+          "Not recorded",
+          "Not recorded"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          true
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "en",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "14:12",
+          "14:44",
+          "14:43",
+          "14:20"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 3,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "empty",
+        "width": 550,
+        "language": "zh-Hans",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "未记录",
+          "未记录",
+          "未记录",
+          "未记录"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          true
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "未记录",
+          "未记录",
+          "未记录",
+          "未记录"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          true
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 550,
+        "language": "zh-Hans",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "14:12",
+          "14:44",
+          "14:43",
+          "14:20"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "original",
+        "width": 720,
+        "language": "ja",
+        "index": 3,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "empty",
+        "width": 720,
+        "language": "ja",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "記録なし",
+          "記録なし",
+          "記録なし",
+          "記録なし"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          true
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 720,
+        "language": "ja",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 720,
+        "language": "ja",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "empty",
+        "width": 720,
+        "language": "ja",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      },
+      {
+        "action": "pan",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "transform": "translateX(-80.9524%)",
+        "paperWidth": "525%",
+        "times": [
+          "記録なし",
+          "記録なし",
+          "記録なし",
+          "記録なし"
+        ],
+        "clock": "14:44",
+        "disabled": [
+          false,
+          false,
+          false,
+          true
+        ]
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "index": 0,
+        "page": "memory",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "index": 1,
+        "page": "context",
+        "hit": true
+      },
+      {
+        "action": "pointer-route",
+        "dataset": "candidates",
+        "width": 720,
+        "language": "ja",
+        "index": 2,
+        "page": "sessions",
+        "hit": true
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      15312,
+      18,
+      9,
+      10,
+      8,
+      10,
+      9,
+      10,
+      9,
+      13
+    ]
+  },
+  "focused_dom": [
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "only_imported_candidates_are_in_inbox",
+          "ok": true
+        },
+        {
+          "id": "explicit_approval_changes_only_window_model",
+          "ok": true
+        },
+        {
+          "id": "approval_does_not_invent_capsule_session_or_checkpoint",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "candidates"
+    }
+  ],
+  "browser_launcher_exit_codes": {
+    "before": 0,
+    "after": 0,
+    "interaction": 0
+  },
+  "server_preparation_ms": {
+    "before": 3605,
+    "after": 13156,
+    "interaction": 3386
+  },
+  "checks": {
+    "typescript": "passed",
+    "memory_pin": "passed; exact 0d338f1 unchanged",
+    "activity_retirement": "passed",
+    "i18n_cjk": "not rerun; CSS-only product changes, no dictionaries/fonts or display text changes"
+  },
+  "limits": [
+    "Equivalent CSS layout space/DPR2 only, not actual browser/Windows scaling or native acceptance.",
+    "Narrow Home leaders are intentionally hidden because notes now sit below the trace. Wide leaders/geometry remain.",
+    "Existing fictional trace remains the same preview graphic for all demo datasets; empty/candidate timestamps and disabled checkpoint are preserved, no new events inferred.",
+    "No full npm test, build, Rust, native smoke, private Vault, Owner or Provider action."
+  ]
+}
