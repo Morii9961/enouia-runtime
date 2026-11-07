@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "description": "The Enouia Memory revision Runtime's desktop shell embeds (ADR-025, Enouia Memory ADR-MEM-45). Change only with apps/desktop/src-tauri/Cargo.toml and Cargo.lock; check with scripts/check-memory-integration.mjs.",
   "repository": "https://github.com/Morii9961/enouia-memory.git",
-  "revision": "0d338f12f51a859363e0725071bcf43874b492c7",
+  "revision": "b9faf544da272bfe821c621d59a979b1a434e355",
   "crates": [
     "enouia-memory-workspace",
     "enouia-memory-contract",
@@ -15,13 +15,13 @@
     "schemaVersion": 1,
     "commands": 58
   },
-  "memorySurfaceAggregate": "61e8712d37e456de326725caf589a74950a10992437632b59bbaaa2b3635b4ef",
-  "recordedAt": "2026-11-03",
+  "memorySurfaceAggregate": "15a5385770b1077984078280062c85e8b0a5da622632a18c3aa8253572cb0728",
+  "recordedAt": "2026-11-07",
   "adoption": {
     "state": "merged",
-    "pullRequest": "https://github.com/Morii9961/enouia-memory/pull/82",
+    "pullRequest": "https://github.com/Morii9961/enouia-memory/pull/85",
     "mergeRequiredForDelivery": false,
-    "sourceRevision": "d75ad9a57ec0f5833a8744eaf3ee08f0775792d5",
-    "mergeCommit": "0d338f12f51a859363e0725071bcf43874b492c7"
+    "sourceRevision": "47ab7cd245d130a8155c7044ef56e222289d84b7",
+    "mergeCommit": "b9faf544da272bfe821c621d59a979b1a434e355"
   }
 }

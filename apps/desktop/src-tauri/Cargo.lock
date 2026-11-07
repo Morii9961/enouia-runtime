@@ -734,7 +734,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-context"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "enouia-memory-contract",
  "enouia-memory-index",
@@ -746,7 +746,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-contract"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "serde",
  "serde_json",
@@ -755,7 +755,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-govern"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "enouia-memory-contract",
  "enouia-memory-vault",
@@ -765,7 +765,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-host"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "enouia-memory-context",
  "enouia-memory-contract",
@@ -785,7 +785,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-import"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "crc32fast",
  "enouia-memory-contract",
@@ -797,7 +797,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-index"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "enouia-memory-contract",
  "enouia-memory-vault",
@@ -808,7 +808,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-provider"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "enouia-memory-context",
  "enouia-memory-contract",
@@ -828,7 +828,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-vault"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "enouia-memory-contract",
  "serde",
@@ -839,7 +839,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-workspace"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=0d338f12f51a859363e0725071bcf43874b492c7#0d338f12f51a859363e0725071bcf43874b492c7"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=b9faf544da272bfe821c621d59a979b1a434e355#b9faf544da272bfe821c621d59a979b1a434e355"
 dependencies = [
  "enouia-memory-context",
  "enouia-memory-contract",

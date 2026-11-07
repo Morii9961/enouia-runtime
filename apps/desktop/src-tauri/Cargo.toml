@@ -19,15 +19,15 @@ tauri = { version = "=2.12.0", features = ["tray-icon"] }
 # Enouia Memory's embedded workspace Core at a pinned revision (ADR-025,
 # ADR-MEM-45). Change `rev` only together with Cargo.lock and
 # docs/integration/memory-pin.json; never a branch, path or [patch].
-enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "0d338f12f51a859363e0725071bcf43874b492c7" }
+enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "b9faf544da272bfe821c621d59a979b1a434e355" }
 # The pinned contract's command catalog (long-running and write commands).
-enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "0d338f12f51a859363e0725071bcf43874b492c7" }
+enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "b9faf544da272bfe821c621d59a979b1a434e355" }
 # Native text Provider dispatch the Core hosts (Enouia Memory ADR-MEM-48):
 # HTTPS transport, Windows credential store and capability types.
-enouia-memory-provider = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "0d338f12f51a859363e0725071bcf43874b492c7" }
+enouia-memory-provider = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "b9faf544da272bfe821c621d59a979b1a434e355" }
 # Separate opt-in synthetic automation adapter; never the v1 workspace writer.
-enouia-memory-host = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "0d338f12f51a859363e0725071bcf43874b492c7" }
-enouia-memory-vault = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "0d338f12f51a859363e0725071bcf43874b492c7" }
+enouia-memory-host = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "b9faf544da272bfe821c621d59a979b1a434e355" }
+enouia-memory-vault = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "b9faf544da272bfe821c621d59a979b1a434e355" }
 # Native dialogs for the Memory picker; pinned to the reference shell's version.
 rfd = { version = "=0.17.2", default-features = false }
 # Must equal Enouia Memory's exact workspace pins.
