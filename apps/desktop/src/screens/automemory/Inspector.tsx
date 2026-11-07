@@ -1,7 +1,7 @@
 import React from 'react';
 import { STATE_HINT, type AutoMemory } from './fixture';
 import { SURFACING_TEXT, byId, fmtStamp, occurredText, validText } from './model';
-import { Ref, StateTag, kindWord } from './parts';
+import { Ref, StateTag, kindWord, focusReadingTarget } from './parts';
 
 import { msg, t } from '../../i18n/index.ts';
 const NOTE_ID = 'am-optional-note';
@@ -17,6 +17,7 @@ export function Inspector({ m, select }: { m: AutoMemory; select: (id: string) =
   const anyChange = changes.some(([, id]) => id);
   return (
     <aside className="am-inspector" aria-label={t("Automatic memory inspector")} tabIndex={-1} id="am-inspector">
+      <a className="am-reading-jump" href="#am-main" onClick={e => { e.preventDefault(); focusReadingTarget('am-main'); }}>{t("Back to memory view")}</a>
       <header className="am-i-head">
         <p className="am-i-id"><span className="am-mono">{m.id}</span> <span className="am-mono">{m.rev}</span></p>
         <h2 className="am-i-title">{m.title}</h2>

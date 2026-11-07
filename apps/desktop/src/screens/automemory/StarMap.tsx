@@ -13,6 +13,7 @@
 // it by hand (and lets it spin on), and nearer stars are larger and brighter; in the
 // dark palette they glow, so the crowded core of new memories shines.
 // Nothing is read from a Vault, sent or kept.
+import { focusReadingTarget } from './parts';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { makeStarField, type LinkType, type StarField, type StarState } from './starfield';
 import { BALL, DRUM, GALAXY, ball, galaxyRadius, layout as layoutSync, project, type LayoutId } from './starLayout';
@@ -439,6 +440,7 @@ export default function StarMap() {
     <div className="sm" data-mode={mode}>
       <div className="sm-main">
         <div className="sm-bar">
+          <a className="am-reading-jump" href="#am-inspector" onClick={e => { e.preventDefault(); focusReadingTarget('am-inspector'); }}>{t("Skip to inspector")}</a>
           <div className="am-views sm-seg" role="group" aria-label={t("Star map layout")}>
             {LAYOUTS.map((l) => <button key={l.id} type="button" className="am-view" aria-pressed={lay === l.id} title={t(l.hint)} onClick={() => setLay(l.id)}>{t(l.name)}</button>)}
           </div>
@@ -524,7 +526,8 @@ export default function StarMap() {
           <span><i className="sm-l" /> {t("same conversation")}</span><span><i className="sm-l sm-l-dash" /> {t("shared theme · algorithm suggestion")}</span><span>{lay === 'sphere' ? t('In the sphere, distance from the centre is age; nearer stars look larger and brighter, and the turning means nothing.') : lay === 'force' ? t('In the galaxy, distance from the core is age; arms, turning and twinkle mean nothing. Dot size is the same for every memory.') : t('Positions and drift mean nothing; dot size is the same for every memory.')}</span>
         </p>
       </div>
-      <aside className="am-inspector sm-panel" aria-label={t("Star map details")} tabIndex={-1}>
+      <aside className="am-inspector sm-panel" aria-label={t("Star map details")} tabIndex={-1} id="am-inspector">
+        <a className="am-reading-jump" href="#am-main" onClick={e => { e.preventDefault(); focusReadingTarget('am-main'); }}>{t("Back to memory view")}</a>
         <p className="am-stamp bg-inv">{t("Generated sample · invented memories")}</p>
         {s ? (
           <>

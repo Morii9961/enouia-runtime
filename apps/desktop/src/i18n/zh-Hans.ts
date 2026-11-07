@@ -1836,5 +1836,6 @@ const dict: Record<string, string> = {
   "Why this case leaves it out": "本案例为何未纳入",
   "Remind later": "稍后通知",
   "Stop this type of suggestion": "关闭此类建议",
+  "Back to memory view": "返回记忆视图",
 };
 export default dict;
