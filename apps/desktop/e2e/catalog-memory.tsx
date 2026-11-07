@@ -105,6 +105,19 @@ try{
   releaseStats!();releaseStats=null;
   await wait(()=>text().includes('0 shown · 0 matching authorized records'));
   check('scope_change_can_be_empty_without_a_new_commit_or_draft_loss',!fixture.querySelector('li')&&input.value==='调试');
+  const noMatch='No authorized record matches this search. Search with an empty field to see the whole catalog.';
+  check('empty_search_result_explains_next_step',text().includes(noMatch));
+  const emptyReads=reads();
+  for(const [language,message]of [['zh-Hans','没有授权记录与这次检索匹配。清空检索框再检索，可查看整个目录。'],['ja','この検索に一致する許可済みの記録はありません。検索欄を空にして検索すると、カタログ全体を表示できます。'],['en',noMatch]]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_empty_search_notice_translates_without_replay`,text().includes(message)&&reads()===emptyReads);
+  }
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(input,'');
+  input.dispatchEvent(new Event('input',{bubbles:true}));await sleep(30);
+  fixture.querySelector('form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+  const noRecords='This synthetic catalog has no records in the current authorized scope.';
+  let emptyCatalog=false;for(let n=0;n<100&&!emptyCatalog;n++){emptyCatalog=text().includes(noRecords)&&calls.filter(c=>c.operation==='page').at(-1)!.filter.text==='';await sleep(20);}
+  check('empty_catalog_without_search_says_no_records',emptyCatalog&&!text().includes(noMatch));
   check('only_closed_read2_operations_were_used',calls.every(c=>['status','page','stats','lock','unlock'].includes(c.operation)));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{releaseStats?.();releaseStatus?.();root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.every(c=>c.ok),calls});}

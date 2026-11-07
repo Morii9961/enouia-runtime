@@ -15,7 +15,7 @@ import '../src/theme/motion.css';
 import '../src/theme/cjk-fonts.css';
 
 const params=new URLSearchParams(location.search);
-const states=['initial','counts-pending','counts-error','status-error','open','locked','disabled','failed'];
+const states=['initial','counts-pending','counts-error','status-error','open','empty','locked','disabled','failed'];
 const state=states.includes(params.get('state')??'')?params.get('state')!:'initial';
 const calls:Record<string,any>[]=[];
 Object.assign(window,{catalogFixtureCalls:calls});
@@ -37,10 +37,10 @@ setCatalogTransport(async(command,args)=>{
     if(state==='status-error')throw 'catalog_read_refused';
     return status(['locked','disabled','failed'].includes(state)?state:'open');
   }
-  if(query.operation==='page')return page(query.filter.text,query.cursor);
+  if(query.operation==='page'){const result=page(query.filter.text,query.cursor);return state==='empty'?{...result,items:[],matched_in_scope:0,unknown_time_in_scope:0,complete_in_scope:true,next:null}:result;}
   if(state==='counts-pending')return new Promise(()=>{});
   if(state==='counts-error')throw 'catalog_stale';
-  return stats(query.selection,query.filter.text?1:3);
+  return stats(query.selection,state==='empty'?0:query.filter.text?1:3);
 });
 function Preview(){
   useLang();
@@ -59,5 +59,6 @@ await wait(()=>!!document.querySelector('form')&&calls.length>0);
 if(state==='counts-pending')await wait(()=>calls.some(c=>c.operation==='stats')&&document.querySelector('.qr45')?.getAttribute('aria-busy')==='true');
 if(state==='counts-error'||state==='status-error')await wait(()=>!!document.querySelector('[role="alert"]'));
 if(state==='open')await wait(()=>document.querySelectorAll('.mem-list li').length===2);
+if(state==='empty')await wait(()=>!!document.querySelector('.mem-list')&&document.querySelector('.qr45')?.getAttribute('aria-busy')==='false');
 await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
 document.documentElement.dataset.fixtureReady='true';
