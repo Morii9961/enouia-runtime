@@ -17,13 +17,15 @@ import { ImportReport } from "./ImportReport";
 import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
 import { AutomaticMemory } from "./AutomaticMemory";
 import { CatalogMemory } from "./CatalogMemory";
+import { CaptureMemory } from "./CaptureMemory";
 
 import { labels, locale, msg, t, tn } from '../i18n/index.ts';
-type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated" | "catalog";
+type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated" | "catalog" | "capture";
 
 const TITLES: Record<Collection, string> = labels({
   automated: msg("Synthetic automatic memories"),
   catalog: msg("Segmented synthetic catalog"),
+  capture: msg("Synthetic Runtime capture"),
   inbox: msg("Candidate inbox"),
   current: msg("Current memories"),
   history: msg("Including history"),
@@ -49,7 +51,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = [
     { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },
-    { label: t("Automatic"), items: [["automated", TITLES.automated], ["catalog", TITLES.catalog]] },
+    { label: t("Automatic"), items: [["automated", TITLES.automated], ["catalog", TITLES.catalog], ["capture", TITLES.capture]] },
     { label: t("Vault"), items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
@@ -89,7 +91,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           </div>
         ))}
       </aside>
-      {collection === "catalog" ? <CatalogMemory /> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
+      {collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <CatalogMemory /> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>

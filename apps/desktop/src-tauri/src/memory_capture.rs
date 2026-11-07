@@ -36,7 +36,8 @@ mod tests;
 #[derive(Default)]
 struct Binding {
     initializing: bool,
-    failed: bool,
+    /// The initialization fault code, kept for status; never a path or text.
+    failure: Option<&'static str>,
     fixture: Option<fixture::Fixture>,
 }
 #[derive(Serialize, Deserialize)]
@@ -75,7 +76,10 @@ enum CaptureQuery {
 fn status(phase: &str) -> Value {
     json!({"schema_version":2,"kind":"runtime_memory_capture_status","capability":CAPABILITY,
         "effect":"native_read","mode":"synthetic_owner_only","state":phase,"available":phase=="open",
-        "exchanges":fixture::EXCHANGES.len()})
+        "exchanges":fixture::EXCHANGES.len(),
+        // The fixed fictional input, shown so the owner sees what a write sends.
+        "conversations":fixture::EXCHANGES.iter().enumerate().map(|(exchange, (user, assistant, lang, _, _))|
+            json!({"exchange":exchange,"user":user,"assistant":assistant,"content_lang":lang})).collect::<Vec<_>>()})
 }
 fn fault(error: ApplicationFault) -> &'static str {
     match error {
@@ -120,7 +124,7 @@ impl NativeCapture {
         let mut state = self.0.state.lock().map_err(|_| "capture_busy")?;
         state.initializing = false;
         if self.0.closing.load(Ordering::SeqCst) || self.0.withdrawn.load(Ordering::SeqCst) {
-            state.failed = true;
+            state.failure = Some("capture_interrupted");
             if let Ok(fixture) = result {
                 stop(fixture);
             }
@@ -136,7 +140,7 @@ impl NativeCapture {
                 Ok(())
             }
             Err(error) => {
-                state.failed = true;
+                state.failure = Some(error);
                 Err(error)
             }
         }
@@ -216,7 +220,7 @@ impl NativeCapture {
                 "disabled"
             } else if state.initializing {
                 "initializing"
-            } else if state.failed {
+            } else if state.failure.is_some() {
                 "failed"
             } else if self.0.withdrawn.load(Ordering::SeqCst) {
                 "locked"
@@ -229,7 +233,11 @@ impl NativeCapture {
             } else {
                 "disabled"
             };
-            return Ok(status(phase));
+            let mut view = status(phase);
+            if let Some(reason) = state.failure {
+                view["reason"] = json!(reason);
+            }
+            return Ok(view);
         }
         let fixture = state.fixture.as_ref().ok_or("capture_not_enabled")?;
         if self.0.withdrawn.load(Ordering::SeqCst) {
