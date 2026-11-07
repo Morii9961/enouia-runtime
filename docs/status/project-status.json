@@ -1,24 +1,26 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "project_id": "enouia.runtime",
   "project_name": "Enouia Runtime",
-  "snapshot_at": "2026-11-02T17:54:36+08:00",
+  "snapshot_at": "2026-11-07T13:26:23+08:00",
   "source": {
     "branch": "main",
-    "commit_sha": "a06e0422d27459824826b8fa1635abb7bfe957ff",
+    "commit_sha": "0cc1cb07be4078c9fb0af28f3ff0edbaac93d249",
     "tests_rerun": false,
     "basis": [
-      "2026-11-02 核对并交付本地 21 个 UI 功能/修复切片（24 个原始提交）；PR #113 已合入 main@a06e0422d27459824826b8fa1635abb7bfe957ff。主目录此前落后远端 139 提交，本次交付后同步；不能据此推断安装版本。",
-      "https://github.com/Morii9961/enouia-runtime/pull/113",
-      "docs/design/ui-v2/CONTINUATION_2026-11-02.md：原始切片与开发阶段证据；未推送描述已由文末交付复核更新。",
-      "docs/validation/UI-v2-integration-2026-11-02.md：独立交付验证实际运行 npm test（134 Node 通过、3 跳过；86 DOM 场景/1268 断言）、前端 build（含类型检查）和两项集成根检查，均通过。",
-      "本快照自身只整理证据，不重跑测试，tests_rerun=false；上述检查属于单独的 UI 交付验证。未刷新原生候选、安装或部署，未访问个人 Vault、凭据或真实 Provider。",
-      "保留既有里程碑 ID、原始版本的验证范围和人工验收状态；既有 58 命令 Core 与 schema-1 路径不变，未采用新的 Owner 后端。",
-      "docs/validation/Repository-delivery-cleanup-2026-11-02.md：本地未提交文档、历史探索归档及分支/工作树清理记录。"
+      "2026-11-07 生成快照：只读 Git、GitHub PR 和仓库文档；不重跑测试、构建或真实验收",
+      "origin/main@0cc1cb0（PR #119 合并提交）；本机主目录在 Codex 工作分支上，有未提交改动，未计入",
+      "docs/integration/CLAUDE_TO_CODEX_2026-11-04.md",
+      "PR #115～#119 已合并；开启的草稿 PR #120～#141 共 22 个，依次叠放",
+      "交接记录：最近一次完整 npm test 为 Node 139 通过 / 3 跳过、DOM 88 个 fixture 全过；合并后的 main 未重跑整套"
     ]
   },
+  "reporter": {
+    "agent": "claude",
+    "note": "Claude Opus 5.5"
+  },
   "stage": "integration",
-  "summary": "21 个首页/会话/Inspector/Context、三语和焦点切片已由 PR #113 合入 main；前端合成回归与构建通过。全设计保真仍受现有后端能力限制；原生候选未刷新，安装/托盘/默认热键、个人工作流及新 Owner 后端采用待完成。",
+  "summary": "#115～#119 已合入 main：Memory pin 升到 0d338f1，read-2 合成原生入口、主题三选一和三语文案修复进入主线。之后又叠了 22 个草稿 PR（#120～#141），含星图方案 B 和演示状态集，均未合并。原生候选、安装/托盘/热键验收及新 Owner 后端采用仍待完成。",
   "overall_progress": null,
   "milestones": [
     {
@@ -51,14 +53,14 @@
     },
     {
       "id": "memory_mv7_integration",
-      "title": "Runtime 已采用集成 Memory Core，v1 58 命令",
+      "title": "Runtime 已采用 Memory 精确 pin 0d338f1，Workspace v1 58 命令兼容",
       "status": "done",
-      "evidence_level": "existing_test",
+      "evidence_level": "repository",
       "evidence_refs": [
-        "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/integration/memory-pin.json",
-        "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/validation/Core8-main-integration-2026-10-25.md"
+        "PR #116",
+        "docs/integration/CLAUDE_TO_CODEX_2026-11-04.md"
       ],
-      "human_acceptance": "pending"
+      "human_acceptance": "not_required"
     },
     {
       "id": "live_provider",
@@ -137,20 +139,20 @@
       "id": "ui_v2_native",
       "title": "UI v2 三语、主题及原生适配已进入主线",
       "status": "done",
+      "evidence_level": "existing_test",
       "evidence_refs": [
         "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/validation/UI-v2-23-button-wrap-2026-10-29.md"
       ],
-      "evidence_level": "existing_test",
       "human_acceptance": "pending"
     },
     {
       "id": "activity_usage_retirement",
       "title": "Activity/Usage 桌面入口及原生命令退役（独立旧程序未清理）",
       "status": "done",
+      "evidence_level": "existing_test",
       "evidence_refs": [
         "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/validation/Activity-usage-backend-retirement-2026-10-25.md"
       ],
-      "evidence_level": "existing_test",
       "human_acceptance": "not_required"
     },
     {
@@ -164,41 +166,102 @@
         "docs/design/ui-v2/CONTINUATION_2026-11-02.md"
       ],
       "human_acceptance": "pending"
+    },
+    {
+      "id": "read2_synthetic_native",
+      "title": "read-2 合成原生入口与 page/stats 前端（#117、#118 已合并，仅三条合成记录）",
+      "status": "done",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "PR #117",
+        "PR #118",
+        "docs/integration/CLAUDE_TO_CODEX_2026-11-04.md"
+      ],
+      "human_acceptance": "not_required"
+    },
+    {
+      "id": "ui_v2_review_continuation",
+      "title": "UI v2 续作：三语动态文案、主题三选一、星图诊断与决定记录（#115、#119 已合并）",
+      "status": "done",
+      "evidence_level": "existing_test",
+      "evidence_refs": [
+        "PR #115",
+        "PR #119",
+        "docs/validation/UI-v2-theme-preference-2026-11-04.md"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "ui_v2_draft_chain",
+      "title": "UI v2 草稿链 #120～#141：星图方案 B、演示状态集、五个工作区、窄屏重排、Timeline 缩放等（未合并）",
+      "status": "in_progress",
+      "evidence_level": "repository",
+      "evidence_refs": [
+        "PR #120",
+        "PR #141"
+      ],
+      "human_acceptance": "pending"
     }
   ],
   "blockers": [
     {
+      "id": "design_read_limits",
       "title": "全设计呈现受现有读取能力限制",
       "impact": "Home 连续真实迹线/近期摘要、全库分类、完整 Capsule 索引需要 Memory 领域契约；不能用当前页或虚构内容冒充。"
     },
     {
+      "id": "native_backend_gaps",
       "title": "原生与新后端采用仍有缺口",
-      "impact": "原生候选尚未包含本批 UI；安装/升级、物理托盘、默认热键冲突、登录启动、真实质量和个人资料验收未闭环；新 Owner 后端没有采用。"
+      "impact": "原生候选未包含近期 UI；安装/升级、物理托盘、默认热键冲突、登录启动、真实质量和个人资料验收未闭环；新 Owner 后端没有采用。"
+    },
+    {
+      "id": "draft_chain_unmerged",
+      "title": "22 个草稿 PR 叠放待评审",
+      "impact": "#120～#141 依次叠放，不合并就进不了主线，也不能据此刷新原生候选；链越长评审越难。"
     }
   ],
   "next_actions": [
     {
+      "id": "review_draft_chain",
+      "title": "评审草稿链 #120～#141",
+      "priority": "P1",
+      "result": "Morii 决定合并范围和顺序，合并后 main 成为下一轮原生候选的基线。"
+    },
+    {
+      "id": "windows_acceptance_refresh",
       "title": "刷新候选并完成 Windows 验收",
       "priority": "P1",
-      "result": "从已合并 UI 基线生成原生候选，在明确验收环境补安装/托盘/默认热键和日常工作流证据。"
+      "result": "从合并后的 UI 基线生成原生候选，在明确的验收环境补安装/托盘/默认热键和日常工作流证据。"
     },
     {
+      "id": "owner_adoption_slice",
       "title": "选择新 Owner 后端的首个采用切片",
       "priority": "P1",
-      "result": "与 Memory 的实际已交付精确契约对齐；保留当前 pin 和 v1 根，先用合成数据接线，再补依赖这些契约的设计呈现。"
+      "result": "与 Memory 已合并的精确契约对齐，保留当前 pin 和 v1 根，先用合成数据接线。"
     },
     {
-      "title": "定位大规模星图的整条渲染成本",
+      "id": "starmap_b_native",
+      "title": "在 WebView2 中复测星图方案 B",
       "priority": "P2",
-      "result": "按 OPEN_ISSUES #24 单独测量 5000 条深色球体/聚类；视觉取舍由 Morii 确认，小规模截图不等于规模验收。"
+      "result": "按 OPEN_ISSUES #24 记录运动中和空闲帧间隔，达到目标频率才宣称解决。"
     }
   ],
   "needs_morii": [
     {
-      "decision": "Windows 实际验收使用什么独立环境，何时安排安装/托盘/默认热键和真实日常工作流？"
+      "id": "merge_120_141",
+      "decision": "草稿 PR #120～#141 是否按顺序评审合并？先合哪一段？"
     },
     {
+      "id": "windows_env",
+      "decision": "Windows 实际验收用什么独立环境，何时安排安装/托盘/默认热键和真实日常工作流？"
+    },
+    {
+      "id": "owner_chain",
       "decision": "新 Owner/采集后端先采用哪条链，允许使用哪些测试资料？"
+    },
+    {
+      "id": "translate_raw_values",
+      "decision": "合成面板的库状态、枚举值和 ISO 时间是否翻译？"
     }
   ]
 }
