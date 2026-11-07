@@ -80,3 +80,5 @@ node scripts/check-activity-retirement.mjs
 - 截图与个人数据：截图只用虚构演示数据；不在测试快照、日志、文档里放真实记忆正文；参考原图不进仓库。
 
 2026-11-06：Quick Search 的独立合成截图桩已带固定虚构标识，四态/三语/双主题及不重发检查见 [#11 记录](../../validation/UI-v2-quick-search-fixture-2026-11-06.md)。原生组件和历史 shots 未改。
+
+2026-11-06：主题泳道日/7 天/自然月/六周缩放及标签可读性修正，见[合成验证](../../validation/UI-v2-timeline-scale-2026-11-06.md)；不改变时间精度，不代表原生时间投影接入。

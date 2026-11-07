@@ -3,30 +3,31 @@ import { STATE_LABEL, THEMES, THEME_NOTE, type AutoMemory } from './fixture';
 import { AUTO_MEMORIES } from './dataset';
 import MonthTimeline from './MonthTimeline';
 import CoverageCalendar from './CoverageCalendar';
-import { D0, D1, MONDAYS, MONTHS, WEEK, WEEK0, byId, dayStart, daysBetween, fmtClock, fmtDayShort, fmtStamp, occurredText, pack, spanOf, toMs, xOf, type Span } from './model';
+import { D0, D1, MONDAYS, MONTHS, WEEK, WEEK0, byId, dayKey, dayStart, monthStart, nextMonth, daysBetween, fmtClock, fmtDayShort, fmtStamp, occurredText, pack, spanOf, toMs, xOf, type Span } from './model';
 import { Glyph, StateKey } from './parts';
 import type { ViewProps } from './types';
 import { lendMap, type MapSpec } from '../../theme/TimeMap';
-import { clearViews, panTo, peekView, useTimeView } from '../../theme/timeview';
+import { clearViews, panTo, peekView, setWindow, useTimeView } from '../../theme/timeview';
 
 import { msg, t, tn } from '../../i18n/index.ts';
 // Timeline, the signature view. The whole sample (1 Jul to 31 Oct) is the time
-// map in the strip above the page; the chart shows six weeks of it, and the
-// frame in the map moves them. Each theme is a pen lane (model
+// map in the strip above the page; the chart defaults to six weeks, and the
+// frame in the map moves the visible interval. Each theme is a pen lane (model
 // suggestions); the lower pen records when the material was received, which is a
 // different time and never stands in for the occurred one. The lane at the
 // bottom is the pen's remark trail for the selected memory: how it formed.
 const FALLBACK_W = 760;     // visible width (px) used until the real width is measured
 const ROW = 16;
+const LABEL_H = 60; // two title lines plus two explanation lines (15/14px).
 const LABEL_PX = 6.4;       // average width of one title character in the lane labels (px, Geist 13)
 const DAY = 24 * 36e5;
-const TL_SPAN = 42 * DAY;   // the chart shows six weeks
+const TL_SPAN = 42 * DAY;   // the default chart shows six weeks
 const TL_START = dayStart('2026-08-31');
 const pct = (x: number) => (x * 100).toFixed(3) + '%';
 
 const SPEC: MapSpec = {
   key: 'timeline',
-  label: msg('Time map of the sample, 1 July to 31 October 2026, one cell per day. The frame is the six weeks the Timeline shows.'),
+  label: msg('Time map of the sample, 1 July to 31 October 2026, one cell per day. The frame is the visible time window.'),
   cells: Math.round((D1 - D0) / DAY),
   ticks: [],
   bars: (() => { const n = Math.round((D1 - D0) / DAY); const c = Array.from({ length: n }, () => 0); AUTO_MEMORIES.forEach((m) => { const sp = spanOf(m.occurred); if (!sp) return; const a = Math.max(0, Math.floor(sp.a * n)), b = Math.min(n, Math.max(a + 1, Math.ceil(sp.b * n))); for (let i = a; i < b; i++) c[i]++; }); const mx = Math.max(...c, 1); return c.map((x) => x / mx); })(),
@@ -64,9 +65,9 @@ function layoutLane(id: string, EST: number) {
     return { ...p, side, ext: (side === 'r' ? [a0 - 6 / EST, a0 + mk + w + 6 / EST] : [a0 - w - 6 / EST, a0 + mk + 6 / EST]) as [number, number] };
   });
   const packed = pack(items, (t) => t.ext);
-  return { packed, rows: packed.rows ?? 1, height: Math.max(id === '' ? 38 : 30, (packed.rows ?? 1) * ROW + 12) };
+  return { packed, rows: packed.rows ?? 1, height: Math.max(LABEL_H, (packed.rows ?? 1) * ROW + 12) };
 }
-const FORMATION_H = 50;
+const FORMATION_H = LABEL_H;
 
 function markerStyle(s: Span, row: number): React.CSSProperties {
   const top = 6 + row * ROW;
@@ -74,8 +75,6 @@ function markerStyle(s: Span, row: number): React.CSSProperties {
   if (s.shape === 'cell') return { left: pct(s.a), width: `max(${pct(s.b - s.a)}, 9px)`, top };
   return { left: pct(s.a), width: s.open ? 9 : `max(${pct(s.b - s.a)}, 8px)`, top };
 }
-
-const K = (D1 - D0) / TL_SPAN;   // how many times wider the whole sample is than the visible chart
 
 export default function Timeline(props: ViewProps) {
   const [mode, setMode] = useState<'months' | 'lanes' | 'coverage'>(() => new URLSearchParams(globalThis.location?.search).get('auto-time-view') === 'coverage' ? 'coverage' : 'months');
@@ -90,9 +89,21 @@ export default function Timeline(props: ViewProps) {
 }
 
 function ThemeTimeline({ sel, select }: ViewProps) {
-  // The time map in the strip owns which six weeks are showing; this chart lays the whole sample out at that scale and slides it.
+  // Scale is local presentation state; the original precision and selection stay.
+  const [scale, setScale] = useState<'day' | 'week' | 'month' | 'six-weeks'>('six-weeks');
   const v = useTimeView('timeline', SPEC.init);
-  React.useEffect(() => { lendMap(SPEC); return () => { lendMap(null); clearViews('timeline'); }; }, []);
+  const spec = React.useMemo<MapSpec>(() => ({ ...SPEC,
+    get labels() { return SPEC.labels; },
+    step: scale === 'day' ? DAY : scale === 'month' ? 31 * DAY : 7 * DAY,
+    unit: scale === 'day' ? msg('day') : scale === 'month' ? msg('month') : msg('week'),
+  }), [scale]);
+  useEffect(() => { lendMap(spec); return () => lendMap(null); }, [spec]);
+  useEffect(() => () => clearViews('timeline'), []);
+  const month = dayKey(new Date(v.start + v.span / 2).toISOString()).slice(0, 7);
+  useEffect(() => {
+    if (scale === 'month') setWindow('timeline', monthStart(month), nextMonth(month) - monthStart(month), [D0, D1], v.by);
+  }, [scale, month, v.seq]);
+  const K = (D1 - D0) / v.span;
   // Labels are packed against the laid-out paper's real width, so a wide window gets fewer rows.
   const [visible, setW] = useState(FALLBACK_W);
   const EST = visible * K;
@@ -105,11 +116,15 @@ function ThemeTimeline({ sel, select }: ViewProps) {
     return () => ro.disconnect();
   }, []);
   const startF = (v.start - D0) / (D1 - D0), endF = (v.start + v.span - D0) / (D1 - D0);
-  // A memory chosen elsewhere (another view, a link in the Inspector) that sits outside the six weeks pulls the frame to it.
+  // A memory chosen elsewhere (another view, a link in the Inspector) that sits outside the view pulls the frame to it.
   useEffect(() => {
     const sp = spanOf(byId.get(sel)!.occurred); const cur = peekView('timeline'); if (!sp || !cur) return;
     const a = D0 + sp.a * (D1 - D0), b = D0 + sp.b * (D1 - D0);
-    if (b < cur.start + 2 * DAY || a > cur.start + cur.span - 2 * DAY) panTo('timeline', (a + b) / 2 - cur.span / 2);
+    const margin = Math.min(2 * DAY, cur.span / 4);
+    if (b < cur.start + margin || a > cur.start + cur.span - margin) {
+      const anchor = (a + b) / 2;
+      panTo('timeline', scale === 'day' ? dayStart(dayKey(new Date(anchor).toISOString())) : anchor - cur.span / 2);
+    }
   }, [sel]);
   const off = (id: string) => laneItems(id).reduce((n, p) => ({ before: n.before + (p.span.b < startF ? 1 : 0), after: n.after + (p.span.a > endF ? 1 : 0) }), { before: 0, after: 0 });
   const LAYOUT = LANES.map((l) => ({ ...l, ...layoutLane(l.id, EST) }));
@@ -118,7 +133,7 @@ function ThemeTimeline({ sel, select }: ViewProps) {
   const rx = xOf(toMs(m.received));
   const recv = pack(AUTO_MEMORIES.map((x) => ({ x, at: xOf(toMs(x.received)) })), (t) => [t.at - 7 / EST, t.at + 7 / EST]);
   const recvRows = recv.rows ?? 1;
-  const recvH = recvRows * 11 + 32;
+  const recvH = Math.max(LABEL_H, recvRows * 11 + 32);
   const unknown = AUTO_MEMORIES.filter((x) => x.occurred.precision === 'unknown');
   const lag = span && !span.open ? daysBetween(D0 + span.b * (D1 - D0), toMs(m.received)) : null;
   // Pen notes for the selected memory: ordinal marks, nudged apart so they never overlap.
@@ -129,9 +144,18 @@ function ThemeTimeline({ sel, select }: ViewProps) {
     <div className="am-timeline">
       <div className="am-view-head am-tl-head">
         <h2 className="am-vh">{t("Timeline")} <span>{t("when it happened · {from} – {to} of 1 Jul – 31 Oct", { from: fmtDayShort(v.start), to: fmtDayShort(v.start + v.span - 1) })}</span></h2>
-        <p className="am-fine am-tl-fine">{t(THEME_NOTE)} {t('Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see other weeks.')}</p>
+        <p className="am-fine am-tl-fine">{t(THEME_NOTE)} {t('Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see another interval.')}</p>
       </div>
 
+      <div className="am-time-modes" role="group" aria-label={t("Timeline scale")}>
+        {([{id:'day',label:msg('Day')},{id:'week',label:msg('7 days')},{id:'month',label:msg('Calendar month')},{id:'six-weeks',label:msg('6 weeks')}] as const).map(choice => <button key={choice.id} type="button" className="am-chip" data-time-scale={choice.id} aria-pressed={scale === choice.id} onClick={() => {
+          const anchor = dayKey(new Date(v.start).toISOString());
+          const start = choice.id === 'month' ? monthStart(anchor.slice(0,7)) : dayStart(anchor);
+          const span = choice.id === 'day' ? DAY : choice.id === 'week' ? 7 * DAY : choice.id === 'month' ? nextMonth(anchor.slice(0,7)) - start : TL_SPAN;
+          setScale(choice.id);setWindow('timeline', Math.max(D0, Math.min(D1 - span, start)), span, [D0,D1], 'map');
+        }}>{t(choice.label)}</button>)}
+      </div>
+      <p className="am-fine">{t("Changing scale does not change date precision. Unknown occurred times stay off the axis.")}</p>
       <div className="am-tl" role="group" aria-label={t("Timeline, 1 July to 31 October 2026")}>
         <div className="am-tl-gut" aria-hidden="false">
           <div className="am-tl-corner"><b>{t("Theme pens")}</b><span>{t("model suggestion")}</span></div>
@@ -143,7 +167,7 @@ function ThemeTimeline({ sel, select }: ViewProps) {
           <div className="am-pan" data-by={v.by} style={{ width: (K * 100).toFixed(3) + '%', transform: `translateX(${(-startF * 100).toFixed(4)}%)` }}>
           <div className="am-axis" style={GRID}>
             {MONTHS.map((mo) => <span key={mo.key} className="am-axis-m" style={{ left: pct(mo.a) }}>{mo.name} <b>{mo.key.slice(0, 4)}</b></span>)}
-            {MONDAYS.map((w) => <span key={w.x} className="am-axis-w" style={{ left: pct(w.x) }}>{w.day}</span>)}
+            {scale === 'day' ? [0,6,12,18].map(hour => <span key={hour} className="am-axis-w" data-clock-tick style={{left:pct(xOf(v.start + hour * 36e5)),transform:hour === 0 ? 'none' : undefined}}>{fmtClock(v.start + hour * 36e5)}</span>) : MONDAYS.map((w) => <span key={w.x} className="am-axis-w" style={{ left: pct(w.x) }}>{w.day}</span>)}
           </div>
           <div className="am-lanes">
             {LAYOUT.map((l) => (
