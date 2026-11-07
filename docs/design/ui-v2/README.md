@@ -84,3 +84,5 @@ node scripts/check-activity-retirement.mjs
 2026-11-06：主题泳道日/7 天/自然月/六周缩放及标签可读性修正，见[合成验证](../../validation/UI-v2-timeline-scale-2026-11-06.md)；不改变时间精度，不代表原生时间投影接入。
 
 2026-11-06：read-2 目录八种加载/失败/库状态的[独立合成截图桩](../../validation/UI-v2-catalog-state-fixture-2026-11-06.md)已补，原组件未改。
+
+2026-11-07：read-1 自动记忆八种加载/失败/库状态的[独立合成截图桩](../../validation/UI-v2-read1-state-fixture-2026-11-07.md)已补，读取中增加可见提示。
