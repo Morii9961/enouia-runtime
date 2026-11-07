@@ -81,6 +81,11 @@ fn fixed_turns_capture_queue_and_form_in_background_then_replay_by_key() {
             .unwrap()["state"],
         "open"
     );
+    let status = native
+        .call("main", &packet(json!({"operation":"status"})))
+        .unwrap();
+    assert_eq!(status["conversations"][1]["user"], fixture::EXCHANGES[1].0);
+    assert_eq!(status["conversations"][1]["content_lang"], "zh-Hans");
     assert_eq!(page(&native)["matched_in_scope"], 0);
     let preview = native.call("main", &op("preflight", 0)).unwrap();
     assert_eq!(preview["capture"]["captured"], false);
@@ -189,4 +194,24 @@ fn enrollment_expiry_is_reported_and_refuses_capture_without_renewal() {
         assert!(fixture.host.preflight(&fixture.requests[0]).is_err());
     }
     native.shutdown();
+}
+
+#[test]
+fn failed_initialization_reports_its_fault_code_and_opens_nothing() {
+    let native = NativeCapture::default();
+    assert_eq!(
+        native.initialize_with(|_| Err("capture_fixture_enroll")),
+        Err("capture_fixture_enroll")
+    );
+    let status = native
+        .call("main", &packet(json!({"operation":"status"})))
+        .unwrap();
+    assert_eq!(status["state"], "failed");
+    assert_eq!(status["reason"], "capture_fixture_enroll");
+    assert_eq!(status["available"], false);
+    assert_eq!(
+        native.call("main", &op("write", 0)),
+        Err("capture_not_enabled")
+    );
+    assert_eq!(native.initialize_synthetic(), Err("capture_busy"));
 }
