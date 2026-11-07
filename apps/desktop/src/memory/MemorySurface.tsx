@@ -443,6 +443,7 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
               <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">{t("Candidate content")}</label>
               <textarea id={`mem-e-${c.candidateId}`} className="mem-textarea" value={draft}
                 onChange={(e) => setEdits({ ...edits, [c.candidateId]: e.target.value })} />
+              {draft !== c.content && <p className="mem-muted">{t("Saved proposal (r{revision}): {content}", { revision: c.revision, content: c.content })}</p>}
               <p className="mem-muted">
                 {tn(c.evidence.length, "{n} evidence reference", "{n} evidence references")}
                 {c.conflicts.length > 0 && <span className="mem-warn"> · {tn(c.conflicts.length, "{n} conflict", "{n} conflicts")}</span>}
