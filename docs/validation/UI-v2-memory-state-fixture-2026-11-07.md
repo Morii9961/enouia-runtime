@@ -8,6 +8,6 @@
 
 第一次运行停在诊断自身的断言上：语言切换步骤里按循环变量而不是页面实际语言比对英文。只修正诊断，产品当时显示的中文是正确的。
 
-没覆盖：revision 冲突时保留草稿、换库 / 撤销权限时清空面板（各自已有 DOM 场景，但没有截图）。没有 Rust、原生 smoke、实际缩放、真实索引重建、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
+没覆盖：revision 冲突时保留草稿、换库 / 撤销权限时清空面板。（更正：初稿写“各自已有 DOM 场景”不准确。换库在历史面板有 DOM 场景；收件箱的过期审阅计划原来没有，下一片 `inbox-stale-plan` 补上。）没有 Rust、原生 smoke、实际缩放、真实索引重建、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
 
 复现：`node e2e/memory-state-diagnostics.mjs <Edge executable> target/<owned-directory>`（cwd `apps/desktop`）。
