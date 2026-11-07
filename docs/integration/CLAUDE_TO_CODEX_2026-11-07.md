@@ -4,9 +4,9 @@ Codex 限额用尽后，Morii 让 Claude 接续。本文接在 [2026-11-04 交�
 
 ## 从哪里开始
 
-- 主目录 `E:\Enouia Runtime`，当前分支 `claude/ui-v2-draft-shows-saved`（草稿 #148 头部）。下一片从这个分支开新分支，PR 以它为 base 继续叠放。
+- 主目录 `E:\Enouia Runtime`，当前分支 `claude/ui-v2-vault-switch-clearing`（草稿 #149 头部）。下一片从这个分支开新分支，PR 以它为 base 继续叠放。
 - 主目录有 `docs/status/PROJECT_STATUS.md` 与 `project-status.json` 的未提交改动，内容与 `claude/status-2026-11-07`（草稿 #142，另一个 session 的工作树）里已提交的快照完全一致。不要在功能分支上提交它们，也不要丢弃；等 #142 的去留由 Morii 决定。
-- 草稿链：#120（星图方案 B，基于 `main`）单独一条；#121 → … → #141（Codex）→ #143 → … → #148（Claude）依次叠放。全部未合并，合并需要 Morii 明确同意。
+- 草稿链：#120（星图方案 B，基于 `main`）单独一条；#121 → … → #141（Codex）→ #143 → … → #149（Claude）依次叠放。全部未合并，合并需要 Morii 明确同意。
 
 ## Claude 本轮的切片
 
@@ -19,6 +19,7 @@ Codex 限额用尽后，Morii 让 Claude 接续。本文接在 [2026-11-04 交�
 | #146 | `claude/ui-v2-memory-state-fixture` | 记忆库列表七态独立截图桩（初次载入、空库、无匹配、两种索引不可用），只取证 | [记录](../validation/UI-v2-memory-state-fixture-2026-11-07.md) |
 | #147 | `claude/ui-v2-review-conflict-fixture` | 收件箱审阅计划过期的 DOM 场景（解释、禁止重试、不重发、取消后保留草稿），并更正 #146 记录 | [记录](../validation/UI-v2-inbox-stale-plan-2026-11-07.md) |
 | #148 | `claude/ui-v2-draft-shows-saved` | 草稿与已保存内容不同时显示“已保存的提议（r{修订}）”；完整 `npm test` 通过 | [记录](../validation/UI-v2-draft-shows-saved-2026-11-07.md) |
+| #149 | `claude/ui-v2-vault-switch-clearing` | 换库落在两次状态轮询之间时，旧 Vault 的列表和详情会留在新 Vault 下；Explorer/Inbox 按 Vault 身份重新挂载；完整 `npm test` 通过 | [记录](../validation/UI-v2-vault-switch-clearing-2026-11-07.md) |
 
 ## 这轮发现的工作习惯
 
@@ -28,9 +29,9 @@ Codex 限额用尽后，Morii 让 Claude 接续。本文接在 [2026-11-04 交�
 
 ## 下一步建议（按顺序，均不需要 Morii 先决定）
 
-1. SCREENS §9 剩下的原生状态只有行为、没有截图（索引不可用由 #146、收件箱计划过期由 #147/#148 补上）：权限改变 / 删除 / 换库（立即清除面板与派生文本）。可以仿 read-1/read-2 的独立截图桩，为对应的原生面板各做一个只用 mock transport 的预览，先取证，再按“先复现，再最小修复”处理发现的缺口。
-2. #120 星图方案 B 在 WebView2 中复测（OPEN_ISSUES #24），达到目标频率才宣称解决。
-3. `.ts` 模块返回给界面的字符串仍需人工检查（JSX 已有守卫）。
+1. SCREENS §9 剩下的原生状态只有行为、没有截图（索引不可用由 #146、收件箱计划过期由 #147/#148、换库清除由 #149 补上）：剩下的只有截图取证，例如权限改变 / 删除 / 换库（立即清除面板与派生文本）。可以仿 read-1/read-2 的独立截图桩，为对应的原生面板各做一个只用 mock transport 的预览，先取证，再按“先复现，再最小修复”处理发现的缺口。
+2. #120 星图方案 B 在 WebView2 中复测（OPEN_ISSUES #24），达到目标频率才宣称解决。W5 用的独立 Tauri/WebView2 测量壳只保存在当时的本机忽略目录 `.design/w5-browser/`，2026-11-07 已不存在，仓库里也没有源码；复测需要先按 [W5 记录](../validation/UI-v2-W5-starmap-2026-10-27.md) 第 7 行的约束重建测量壳，这是单独一片。
+3. ~~`.ts` 模块返回给界面的字符串仍需人工检查~~ 2026-11-07 已在 #149 头部查过：非 fixture / 演示数据的 `.ts` 模块里，三词以上的英文句子和返回的短标签都经 `msg()` / `t()`；演示动作抛出的 `Error` 消息也是 `msg()` 键并在渲染时翻译；`nativeTime.ts` 的 `Now` 在 `TimeMap` 里 `t()`。fixture、`demo-data.ts`、`starfield.ts` 的主题名与 `vault-demo-states.ts` 是虚构内容，按约定保持英文。没有发现泄漏，未改代码。查法：按“英文句子字面量数量 / msg·t 调用数量”给 `.ts` 文件排序，再逐条排除已包裹的字面量。
 
 ## 仍待 Morii 决定（不推进）
 
