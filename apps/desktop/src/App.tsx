@@ -384,7 +384,7 @@ export default class App extends React.Component<AppProps, AppState> {
     );
     const penMark = <span className="bg-pen-mark" aria-hidden="true"><svg width="18" height="14" viewBox="0 0 18 14"><path d="M0 0L18 7L0 14z" fill="currentColor" /></svg></span>;
     const surface = (
-<div className="qr234 bg-app" data-motion={this.state.motionPref} data-page={page}>
+<div className="qr234 bg-app" data-runtime-mode={connected ? 'native' : 'demo'} data-motion={this.state.motionPref} data-page={page}>
 <a className="runtime-skip-link" href="#runtime-content" onClick={(event) => {
   event.preventDefault();
   document.getElementById('runtime-content')?.focus();

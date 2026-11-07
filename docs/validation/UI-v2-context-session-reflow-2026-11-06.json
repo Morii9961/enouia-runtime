@@ -1,0 +1,3271 @@
+{
+  "baseline_revision": "0d96dfa9e6e1e03e64e8f3474ffaff5ad92b73d3",
+  "scope": "Browser-only synthetic Context/Sessions narrow reading. Central scroll containers retained for existing section navigation and session time-map linkage.",
+  "layout_before": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic Context/Sessions layout space only, no real Vault/Provider or Windows zoom.",
+    "rows": [
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 220,
+          "y": 276,
+          "right": 1100,
+          "width": 880,
+          "height": 424,
+          "scrollWidth": 870,
+          "clientWidth": 870,
+          "scrollHeight": 1779,
+          "clientHeight": 424
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "consumed by mock provider v1 · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 131,
+          "right": 1100,
+          "width": 1100,
+          "height": 569,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 569,
+          "clientHeight": 569
+        },
+        "reader": {
+          "x": 240,
+          "y": 131,
+          "right": 810,
+          "width": 570,
+          "height": 569,
+          "scrollWidth": 560,
+          "clientWidth": 560,
+          "scrollHeight": 1250,
+          "clientHeight": 569
+        },
+        "inspector": {
+          "x": 810,
+          "y": 131,
+          "right": 1100,
+          "width": 290,
+          "height": 569,
+          "scrollWidth": 279,
+          "clientWidth": 279,
+          "scrollHeight": 656,
+          "clientHeight": 569
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 110,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 110,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 110,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 110,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 220,
+          "y": 166,
+          "right": 1100,
+          "width": 880,
+          "height": 424,
+          "scrollWidth": 870,
+          "clientWidth": 870,
+          "scrollHeight": 1779,
+          "clientHeight": 424
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "consumed by mock provider v1 · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -131,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 569,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 569,
+          "clientHeight": 569
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 569,
+          "scrollWidth": 560,
+          "clientWidth": 560,
+          "scrollHeight": 1250,
+          "clientHeight": 569
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 569,
+          "scrollWidth": 279,
+          "clientWidth": 279,
+          "scrollHeight": 656,
+          "clientHeight": 569
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 220,
+          "y": 182.359375,
+          "right": 1100,
+          "width": 880,
+          "height": 407.640625,
+          "scrollWidth": 870,
+          "clientWidth": 870,
+          "scrollHeight": 1947,
+          "clientHeight": 408
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "已由模拟服务商 v1 读取 · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -131,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 569,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 569,
+          "clientHeight": 569
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 569,
+          "scrollWidth": 560,
+          "clientWidth": 560,
+          "scrollHeight": 1321,
+          "clientHeight": 569
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 569,
+          "scrollWidth": 279,
+          "clientWidth": 279,
+          "scrollHeight": 731,
+          "clientHeight": 569
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 540,
+          "width": 540,
+          "height": 340,
+          "scrollWidth": 1100,
+          "clientWidth": 540,
+          "scrollHeight": 700,
+          "clientHeight": 340
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710,
+          "scrollHeight": 700,
+          "clientHeight": 440
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 220,
+          "y": 182.359375,
+          "right": 1100,
+          "width": 880,
+          "height": 407.640625,
+          "scrollWidth": 870,
+          "clientWidth": 870,
+          "scrollHeight": 1947,
+          "clientHeight": 408
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "モックのプロバイダー v1 が読み込み済み · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -131,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710,
+          "scrollHeight": 700,
+          "clientHeight": 440
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 569,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 569,
+          "clientHeight": 569
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 569,
+          "scrollWidth": 560,
+          "clientWidth": 560,
+          "scrollHeight": 1350,
+          "clientHeight": 569
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 569,
+          "scrollWidth": 279,
+          "clientWidth": 279,
+          "scrollHeight": 695,
+          "clientHeight": 569
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710,
+          "scrollHeight": 700,
+          "clientHeight": 440
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710,
+          "scrollHeight": 700,
+          "clientHeight": 440
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710,
+          "scrollHeight": 700,
+          "clientHeight": 440
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -110,
+          "right": 710,
+          "width": 710,
+          "height": 440,
+          "scrollWidth": 1100,
+          "clientWidth": 710,
+          "scrollHeight": 700,
+          "clientHeight": 440
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 0,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 0,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      5427,
+      118,
+      56,
+      51,
+      45,
+      55,
+      50,
+      145,
+      63,
+      94,
+      62,
+      64,
+      55
+    ]
+  },
+  "layout_after": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic Context/Sessions layout space only, no real Vault/Provider or Windows zoom.",
+    "rows": [
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 220,
+          "y": 276,
+          "right": 1100,
+          "width": 880,
+          "height": 424,
+          "scrollWidth": 870,
+          "clientWidth": 870,
+          "scrollHeight": 1779,
+          "clientHeight": 424
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "consumed by mock provider v1 · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 131,
+          "right": 1100,
+          "width": 1100,
+          "height": 569,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 569,
+          "clientHeight": 569
+        },
+        "reader": {
+          "x": 240,
+          "y": 131,
+          "right": 810,
+          "width": 570,
+          "height": 569,
+          "scrollWidth": 560,
+          "clientWidth": 560,
+          "scrollHeight": 1250,
+          "clientHeight": 569
+        },
+        "inspector": {
+          "x": 810,
+          "y": 131,
+          "right": 1100,
+          "width": 290,
+          "height": 569,
+          "scrollWidth": 279,
+          "clientWidth": 279,
+          "scrollHeight": 656,
+          "clientHeight": 569
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 110,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 110,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 1100,
+        "height": 700,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 1100,
+          "width": 1100,
+          "height": 700,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 700,
+          "clientHeight": 700
+        },
+        "surface": {
+          "x": 0,
+          "y": 110,
+          "right": 1100,
+          "width": 1100,
+          "height": 590,
+          "scrollWidth": 1100,
+          "clientWidth": 1100,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "reader": {
+          "x": 240,
+          "y": 110,
+          "right": 810,
+          "width": 570,
+          "height": 590,
+          "scrollWidth": 570,
+          "clientWidth": 570,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "inspector": {
+          "x": 810,
+          "y": 110,
+          "right": 1100,
+          "width": 290,
+          "height": 590,
+          "scrollWidth": 289,
+          "clientWidth": 289,
+          "scrollHeight": 590,
+          "clientHeight": 590
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -159,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 807,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 648,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 648,
+          "clientHeight": 648
+        },
+        "reader": {
+          "x": 0,
+          "y": 408,
+          "right": 540,
+          "width": 540,
+          "height": 240,
+          "scrollWidth": 530,
+          "clientWidth": 530,
+          "scrollHeight": 2094,
+          "clientHeight": 238
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "consumed by mock provider v1 · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -180,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 1320,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 0,
+          "right": 540,
+          "width": 540,
+          "height": 1140,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 1140,
+          "clientHeight": 1140
+        },
+        "reader": {
+          "x": 0,
+          "y": 292,
+          "right": 540,
+          "width": 540,
+          "height": 240,
+          "scrollWidth": 530,
+          "clientWidth": 530,
+          "scrollHeight": 1243,
+          "clientHeight": 238
+        },
+        "inspector": {
+          "x": 0,
+          "y": 532,
+          "right": 540,
+          "width": 540,
+          "height": 608,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 608,
+          "clientHeight": 608
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -8,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 358,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 151,
+          "right": 540,
+          "width": 540,
+          "height": 199.390625,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 199,
+          "clientHeight": 199
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -8,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 476,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 151,
+          "right": 540,
+          "width": 540,
+          "height": 316.78125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 317,
+          "clientHeight": 317
+        },
+        "reader": {
+          "x": 0,
+          "y": 257,
+          "right": 540,
+          "width": 540,
+          "height": 146.78125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 147,
+          "clientHeight": 147
+        },
+        "inspector": {
+          "x": 0,
+          "y": 403.78125,
+          "right": 540,
+          "width": 540,
+          "height": 64,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 64,
+          "clientHeight": 64
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -8,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 358,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 151,
+          "right": 540,
+          "width": 540,
+          "height": 199.390625,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 199,
+          "clientHeight": 199
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "en",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -8,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 476,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 151,
+          "right": 540,
+          "width": 540,
+          "height": 316.78125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 317,
+          "clientHeight": 317
+        },
+        "reader": {
+          "x": 0,
+          "y": 257,
+          "right": 540,
+          "width": 540,
+          "height": 146.78125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 147,
+          "clientHeight": 147
+        },
+        "inspector": {
+          "x": 0,
+          "y": 403.78125,
+          "right": 540,
+          "width": 540,
+          "height": 64,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 64,
+          "clientHeight": 64
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -169,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 775,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 540,
+          "width": 540,
+          "height": 605.734375,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 606,
+          "clientHeight": 606
+        },
+        "reader": {
+          "x": 0,
+          "y": 366.109375,
+          "right": 540,
+          "width": 540,
+          "height": 240,
+          "scrollWidth": 530,
+          "clientWidth": 530,
+          "scrollHeight": 2187,
+          "clientHeight": 238
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "已由模拟服务商 v1 读取 · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -169,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 1383,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 21.375,
+          "right": 540,
+          "width": 540,
+          "height": 1192.40625,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 1192,
+          "clientHeight": 1192
+        },
+        "reader": {
+          "x": 0,
+          "y": 344.484375,
+          "right": 540,
+          "width": 540,
+          "height": 240,
+          "scrollWidth": 530,
+          "clientWidth": 530,
+          "scrollHeight": 1319,
+          "clientHeight": 238
+        },
+        "inspector": {
+          "x": 0,
+          "y": 584.484375,
+          "right": 540,
+          "width": 540,
+          "height": 629.296875,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 629,
+          "clientHeight": 629
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -24,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 374,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 145.375,
+          "right": 540,
+          "width": 540,
+          "height": 204.578125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -24,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 475,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 145.375,
+          "right": 540,
+          "width": 540,
+          "height": 305.953125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 306,
+          "clientHeight": 306
+        },
+        "reader": {
+          "x": 0,
+          "y": 259.75,
+          "right": 540,
+          "width": 540,
+          "height": 124.390625,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 124,
+          "clientHeight": 124
+        },
+        "inspector": {
+          "x": 0,
+          "y": 384.140625,
+          "right": 540,
+          "width": 540,
+          "height": 67.1875,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 67,
+          "clientHeight": 67
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -24,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 374,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 145.375,
+          "right": 540,
+          "width": 540,
+          "height": 204.578125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 550,
+        "height": 350,
+        "language": "zh-Hans",
+        "theme": "dark",
+        "document": {
+          "x": 0,
+          "y": -24,
+          "right": 540,
+          "width": 540,
+          "height": 350,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 475,
+          "clientHeight": 350
+        },
+        "surface": {
+          "x": 0,
+          "y": 145.375,
+          "right": 540,
+          "width": 540,
+          "height": 305.953125,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 306,
+          "clientHeight": 306
+        },
+        "reader": {
+          "x": 0,
+          "y": 259.75,
+          "right": 540,
+          "width": 540,
+          "height": 124.390625,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 124,
+          "clientHeight": 124
+        },
+        "inspector": {
+          "x": 0,
+          "y": 384.140625,
+          "right": 540,
+          "width": 540,
+          "height": 67.1875,
+          "scrollWidth": 540,
+          "clientWidth": 540,
+          "scrollHeight": 67,
+          "clientHeight": 67
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "original",
+        "page": "context",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -169,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 788,
+          "clientHeight": 450
+        },
+        "surface": {
+          "x": 0,
+          "y": 0.375,
+          "right": 710,
+          "width": 710,
+          "height": 619.046875,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 619,
+          "clientHeight": 619
+        },
+        "reader": {
+          "x": 0,
+          "y": 326.921875,
+          "right": 710,
+          "width": 710,
+          "height": 292.5,
+          "scrollWidth": 700,
+          "clientWidth": 700,
+          "scrollHeight": 2029,
+          "clientHeight": 291
+        },
+        "inspector": null,
+        "events": 0,
+        "capsule": "モックのプロバイダー v1 が読み込み済み · sha256 2ada8df27a539a0420f2c2d63a5e0bd210c1895310246a29269a712459adeae9",
+        "empty": false
+      },
+      {
+        "dataset": "original",
+        "page": "sessions",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": -169,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 1435,
+          "clientHeight": 450
+        },
+        "surface": {
+          "x": 0,
+          "y": 21.375,
+          "right": 710,
+          "width": 710,
+          "height": 1244.90625,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 1245,
+          "clientHeight": 1245
+        },
+        "reader": {
+          "x": 0,
+          "y": 344.484375,
+          "right": 710,
+          "width": 710,
+          "height": 292.5,
+          "scrollWidth": 700,
+          "clientWidth": 700,
+          "scrollHeight": 1235,
+          "clientHeight": 291
+        },
+        "inspector": {
+          "x": 0,
+          "y": 636.984375,
+          "right": 710,
+          "width": 710,
+          "height": 629.296875,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 629,
+          "clientHeight": 629
+        },
+        "events": 13,
+        "capsule": null,
+        "empty": false
+      },
+      {
+        "dataset": "empty",
+        "page": "context",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 720,
+          "width": 720,
+          "height": 450,
+          "scrollWidth": 720,
+          "clientWidth": 720,
+          "scrollHeight": 450,
+          "clientHeight": 450
+        },
+        "surface": {
+          "x": 0,
+          "y": 207.390625,
+          "right": 720,
+          "width": 720,
+          "height": 204.578125,
+          "scrollWidth": 720,
+          "clientWidth": 720,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "empty",
+        "page": "sessions",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 475,
+          "clientHeight": 450
+        },
+        "surface": {
+          "x": 0,
+          "y": 169.375,
+          "right": 710,
+          "width": 710,
+          "height": 305.953125,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 306,
+          "clientHeight": 306
+        },
+        "reader": {
+          "x": 0,
+          "y": 283.75,
+          "right": 710,
+          "width": 710,
+          "height": 124.390625,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 124,
+          "clientHeight": 124
+        },
+        "inspector": {
+          "x": 0,
+          "y": 408.140625,
+          "right": 710,
+          "width": 710,
+          "height": 67.1875,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 67,
+          "clientHeight": 67
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "context",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 720,
+          "width": 720,
+          "height": 450,
+          "scrollWidth": 720,
+          "clientWidth": 720,
+          "scrollHeight": 450,
+          "clientHeight": 450
+        },
+        "surface": {
+          "x": 0,
+          "y": 207.390625,
+          "right": 720,
+          "width": 720,
+          "height": 204.578125,
+          "scrollWidth": 720,
+          "clientWidth": 720,
+          "scrollHeight": 205,
+          "clientHeight": 205
+        },
+        "reader": null,
+        "inspector": null,
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      },
+      {
+        "dataset": "candidates",
+        "page": "sessions",
+        "width": 720,
+        "height": 450,
+        "language": "ja",
+        "theme": "light",
+        "document": {
+          "x": 0,
+          "y": 0,
+          "right": 710,
+          "width": 710,
+          "height": 450,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 475,
+          "clientHeight": 450
+        },
+        "surface": {
+          "x": 0,
+          "y": 169.375,
+          "right": 710,
+          "width": 710,
+          "height": 305.953125,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 306,
+          "clientHeight": 306
+        },
+        "reader": {
+          "x": 0,
+          "y": 283.75,
+          "right": 710,
+          "width": 710,
+          "height": 124.390625,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 124,
+          "clientHeight": 124
+        },
+        "inspector": {
+          "x": 0,
+          "y": 408.140625,
+          "right": 710,
+          "width": 710,
+          "height": 67.1875,
+          "scrollWidth": 710,
+          "clientWidth": 710,
+          "scrollHeight": 67,
+          "clientHeight": 67
+        },
+        "events": 0,
+        "capsule": null,
+        "empty": true
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      3759,
+      100,
+      48,
+      49,
+      716,
+      69,
+      43,
+      45,
+      49,
+      68,
+      44,
+      48,
+      45
+    ]
+  },
+  "interaction": {
+    "browser": "Edg/156.0.4314.58",
+    "scope": "Owned synthetic Context/Sessions layout space only, no real Vault/Provider or Windows zoom.",
+    "rows": [
+      {
+        "action": "context-section",
+        "width": 550,
+        "language": "en",
+        "scrollTop": 1701,
+        "focused": true,
+        "readerTop": 110,
+        "excludedTop": 119,
+        "readerBottom": 350,
+        "capsule": "cap_1ab3883ea4b0f1926000ebf9147ea1b8"
+      },
+      {
+        "action": "session-focus",
+        "target": "session-list",
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "session-focus",
+        "target": "session-reader",
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "session-focus",
+        "target": "session-info",
+        "width": 550,
+        "language": "en",
+        "focused": true,
+        "top": 0
+      },
+      {
+        "action": "transcript-to-map",
+        "width": 550,
+        "language": "en",
+        "scrollTop": 1005,
+        "mapValue": 41,
+        "events": 13
+      },
+      {
+        "action": "map-to-transcript",
+        "width": 550,
+        "language": "en",
+        "scrollTop": 0,
+        "events": 13
+      },
+      {
+        "action": "context-section",
+        "width": 550,
+        "language": "zh-Hans",
+        "scrollTop": 1735,
+        "focused": true,
+        "readerTop": 110.109375,
+        "excludedTop": 119.03125,
+        "readerBottom": 350.109375,
+        "capsule": "cap_1ab3883ea4b0f1926000ebf9147ea1b8"
+      },
+      {
+        "action": "session-focus",
+        "target": "session-list",
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "session-focus",
+        "target": "session-reader",
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.484375
+      },
+      {
+        "action": "session-focus",
+        "target": "session-info",
+        "width": 550,
+        "language": "zh-Hans",
+        "focused": true,
+        "top": 0.484375
+      },
+      {
+        "action": "transcript-to-map",
+        "width": 550,
+        "language": "zh-Hans",
+        "scrollTop": 1081,
+        "mapValue": 42,
+        "events": 13
+      },
+      {
+        "action": "map-to-transcript",
+        "width": 550,
+        "language": "zh-Hans",
+        "scrollTop": 0,
+        "events": 13
+      },
+      {
+        "action": "context-section",
+        "width": 720,
+        "language": "ja",
+        "scrollTop": 1577,
+        "focused": true,
+        "readerTop": 157.921875,
+        "excludedTop": 166.46875,
+        "readerBottom": 450.421875,
+        "capsule": "cap_1ab3883ea4b0f1926000ebf9147ea1b8"
+      },
+      {
+        "action": "session-focus",
+        "target": "session-list",
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.4375
+      },
+      {
+        "action": "session-focus",
+        "target": "session-reader",
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": 0.484375
+      },
+      {
+        "action": "session-focus",
+        "target": "session-info",
+        "width": 720,
+        "language": "ja",
+        "focused": true,
+        "top": -0.015625
+      },
+      {
+        "action": "transcript-to-map",
+        "width": 720,
+        "language": "ja",
+        "scrollTop": 944,
+        "mapValue": 40,
+        "events": 13
+      },
+      {
+        "action": "map-to-transcript",
+        "width": 720,
+        "language": "ja",
+        "scrollTop": 0,
+        "events": 13
+      }
+    ],
+    "pageErrors": [],
+    "navigationTimings": [
+      1615,
+      27,
+      10,
+      12
+    ]
+  },
+  "focused_dom": [
+    {
+      "fixture": "reader-section-links",
+      "checks": [
+        {
+          "id": "fictional_scope_marker_is_explicit",
+          "ok": true
+        },
+        {
+          "id": "section_jump_uses_existing_reader_and_capsule",
+          "ok": true
+        },
+        {
+          "id": "context_return_focuses_section_navigation",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_capsule_expansion_focus_and_raw_text_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_capsule_expansion_focus_and_raw_text_survive",
+          "ok": true
+        },
+        {
+          "id": "en_capsule_expansion_focus_and_raw_text_survive",
+          "ok": true
+        },
+        {
+          "id": "session-list_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-reader_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-info_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "en_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "only_existing_sample_events_are_shown",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "reader-section-links",
+      "checks": [
+        {
+          "id": "fictional_scope_marker_is_explicit",
+          "ok": true
+        },
+        {
+          "id": "empty_context_does_not_invent_capsule",
+          "ok": true
+        },
+        {
+          "id": "session-list_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-reader_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-info_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "en_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "only_existing_sample_events_are_shown",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "reader-section-links",
+      "checks": [
+        {
+          "id": "fictional_scope_marker_is_explicit",
+          "ok": true
+        },
+        {
+          "id": "empty_context_does_not_invent_capsule",
+          "ok": true
+        },
+        {
+          "id": "session-list_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-reader_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "session-info_focus_does_not_change_transcript",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "en_transcript_nodes_raw_text_gaps_and_focus_survive",
+          "ok": true
+        },
+        {
+          "id": "only_existing_sample_events_are_shown",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "candidates"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "vault-demo-states",
+      "checks": [
+        {
+          "id": "sample_projects_without_dangling_references",
+          "ok": true
+        },
+        {
+          "id": "explicit_dataset_is_selected",
+          "ok": true
+        },
+        {
+          "id": "en_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "en_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "en_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "en_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "en_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "en_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_home_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_home_checkpoint_or_timestamps",
+          "ok": true
+        },
+        {
+          "id": "ja_memory_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_canonical_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_context_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_capsule",
+          "ok": true
+        },
+        {
+          "id": "ja_sessions_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_no_fabricated_session_or_checkpoint",
+          "ok": true
+        },
+        {
+          "id": "ja_runtime_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "ja_settings_renders_without_invalid_time",
+          "ok": true
+        },
+        {
+          "id": "only_imported_candidates_are_in_inbox",
+          "ok": true
+        },
+        {
+          "id": "explicit_approval_changes_only_window_model",
+          "ok": true
+        },
+        {
+          "id": "approval_does_not_invent_capsule_session_or_checkpoint",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "candidates"
+    },
+    {
+      "fixture": "demo-list-keyboard",
+      "checks": [
+        {
+          "id": "memory_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_inspector_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_collection_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "memory_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "memory_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "search_field_owns_its_keys",
+          "ok": true
+        },
+        {
+          "id": "synthetic_preview_keeps_its_keys",
+          "ok": true
+        },
+        {
+          "id": "hidden_demo_selection_unchanged",
+          "ok": true
+        },
+        {
+          "id": "global_page_shortcut_preserved",
+          "ok": true
+        },
+        {
+          "id": "session_main_does_not_move_or_prevent",
+          "ok": true
+        },
+        {
+          "id": "session_list_down_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "session_list_up_moves_and_prevents",
+          "ok": true
+        },
+        {
+          "id": "navigation_rail_keeps_its_keys",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "memory-workspaces",
+      "checks": [
+        {
+          "id": "five_workspaces_with_legacy_list_inside_memories",
+          "ok": true
+        },
+        {
+          "id": "time_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "time_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "time_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "time_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "relations_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "relations_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "relations_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "relations_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "formation_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "formation_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "formation_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "formation_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "recall_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "recall_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "recall_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "recall_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "memories_only_owns_its_views",
+          "ok": true
+        },
+        {
+          "id": "memories_keeps_shared_selection_and_inspector",
+          "ok": true
+        },
+        {
+          "id": "memories_en_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_zh-Hans_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_ja_keeps_nav_focus_and_selection",
+          "ok": true
+        },
+        {
+          "id": "memories_state_link_retains_workspace",
+          "ok": true
+        },
+        {
+          "id": "legacy_compatibility_returns_without_synthetic_content",
+          "ok": true
+        },
+        {
+          "id": "generated_map_is_only_a_connections_subview",
+          "ok": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "fixture": "vault-reading-links",
+      "checks": [
+        {
+          "id": "vault-collections_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-list_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "vault-inspector_focuses_section_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "inspector_return_keeps_selection",
+          "ok": true
+        },
+        {
+          "id": "empty_links_do_not_create_memory",
+          "ok": true
+        },
+        {
+          "id": "en_empty_focus_and_nodes_survive",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_empty_focus_and_nodes_survive",
+          "ok": true
+        },
+        {
+          "id": "ja_empty_focus_and_nodes_survive",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "empty"
+    },
+    {
+      "fixture": "scaling-links",
+      "checks": [
+        {
+          "id": "visible_reading_link_focuses_same_inspector",
+          "ok": true
+        },
+        {
+          "id": "return_focuses_view_without_navigation",
+          "ok": true
+        },
+        {
+          "id": "jump_keeps_hidden_selection_and_filter",
+          "ok": true
+        },
+        {
+          "id": "zh-Hans_links_keep_nodes_focus_and_raw_selection",
+          "ok": true
+        },
+        {
+          "id": "ja_links_keep_nodes_focus_and_raw_selection",
+          "ok": true
+        },
+        {
+          "id": "en_links_keep_nodes_focus_and_raw_selection",
+          "ok": true
+        }
+      ],
+      "passed": true,
+      "dataset": "original"
+    },
+    {
+      "fixture": "native-vault-demo-route",
+      "checks": [
+        {
+          "id": "native_ignores_browser_empty_vault_parameter",
+          "ok": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "browser_launcher_exit_codes": {
+    "layout_before": 0,
+    "layout_after": 0,
+    "interaction": 0
+  },
+  "server_preparation_ms": {
+    "layout_before": 163448,
+    "layout_after": 166326,
+    "interaction": 6616
+  },
+  "checks": {
+    "typescript": "passed 2026-11-05; afterward only final navigation label and evidence changed",
+    "i18n_cjk": "12 passed 2026-11-06 after final label clarification; fonts unchanged",
+    "memory_pin": "passed 2026-11-06; exact 0d338f1 unchanged",
+    "activity_retirement": "passed 2026-11-06"
+  },
+  "corrections": [
+    "Initial DOM assertion compared translated capsule footer text as if raw. Limited preservation assertion to capsule ID/hash; no product change for that failure.",
+    "Prior interaction command was not executed because automatic approval review could not complete after usage limit. Executed after user resumed.",
+    "Layout/interaction screenshots precede the final Session-to-Session-details navigation-label clarification; i18n/CJK rerun afterward.",
+    "Diagnostic Vite preparation took 163/166 seconds for saved layout runs; own HTTP service responded. These are diagnostic startup timings, not native/production performance."
+  ],
+  "limits": [
+    "Equivalent narrow CSS layout space/DPR2 only. No actual browser zoom, Windows scaling, native WebView or human acceptance.",
+    "No full npm test, build, Rust or native smoke. Historical full-suite results retain original revisions.",
+    "Only existing synthetic content, capsule, events and navigation. No real Vault, Owner, Provider, recall creation or persistent writing.",
+    "Home, Runtime Inspector and Settings still require their own narrow-layout slices."
+  ]
+}

@@ -1,4 +1,5 @@
 import React from "react";
+import { focusReadingTarget } from '../theme/readingFocus';
 import type { DemoView } from "../App";
 
 import { t, tj } from '../i18n/index.ts';
@@ -62,9 +63,9 @@ export default function Context({ view }: { view: DemoView }) {
 </div>
 </div>
 <div className="qr131">
-<div className="qr105">
+<div className="qr105" id="context-sections" tabIndex={-1}>
 {ctx.sections.map((s, sIndex) => <React.Fragment key={s.domId}>
-<button onClick={s.jump} className="qr102" type="button">
+<button onClick={() => { s.jump(); if (matchMedia('(max-width:899px)').matches) focusReadingTarget('context-reader'); }} className="qr102" type="button">
 <span className="qr100" data-i={sIndex} data-section={s.section}>
 
 </span>
@@ -76,7 +77,7 @@ export default function Context({ view }: { view: DemoView }) {
 </span>
 </button>
 </React.Fragment>)}
-<button onClick={ctx.jumpExcl} className="qr104" type="button">
+<button onClick={() => { ctx.jumpExcl(); if (matchMedia('(max-width:899px)').matches) focusReadingTarget('context-reader'); }} className="qr104" type="button">
 <span className="qr103">
 
 </span>
@@ -88,7 +89,8 @@ export default function Context({ view }: { view: DemoView }) {
 </span>
 </button>
 </div>
-<div ref={ctxScroll} className="qr130">
+<div ref={ctxScroll} className="qr130" id="context-reader" tabIndex={-1}>
+<a className="reader-return" href="#context-sections" onClick={e => { e.preventDefault(); focusReadingTarget('context-sections'); }}>{t("Back to sections")}</a>
 <div className="qr129">
 {ctx.sections.map((s, sIndex) => <React.Fragment key={s.domId}>
 <div id={s.domId} className="qr121">

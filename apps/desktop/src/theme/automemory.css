@@ -521,14 +521,14 @@
    Keep the decided 1100–1279 three-column layout unchanged. */
 .am-reading-jump{display:none}
 @media(max-width:899px){
-  .bg-app:has(.memory-region){min-width:0;min-height:100vh;height:auto;overflow:visible;grid-template-rows:auto auto}
-  .bg-app:has(.memory-region) .bg-titlebar{height:auto;flex-wrap:wrap;gap:6px;padding:6px 12px}
-  .bg-app:has(.memory-region) .bg-chartno{white-space:normal}
-  .bg-app:has(.memory-region) .bg-strip-head{height:auto;min-height:34px;flex-wrap:wrap}
-  .bg-app:has(.memory-region) .bg-nav{flex-wrap:wrap}
-  .bg-app:has(.memory-region) .bg-strip-meta{flex-basis:100%;white-space:normal;text-align:left;margin:6px 0}
-  .bg-app:has(.memory-region) .tm{height:auto;min-height:20px}
-  .bg-app:has(.memory-region) .tm-note{white-space:normal}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]){min-width:0;min-height:100vh;height:auto;overflow:visible;grid-template-rows:auto auto}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]) .bg-titlebar{height:auto;flex-wrap:wrap;gap:6px;padding:6px 12px}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]) .bg-chartno{white-space:normal}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]) .bg-strip-head{height:auto;min-height:34px;flex-wrap:wrap}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]) .bg-nav{flex-wrap:wrap}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]) .bg-strip-meta{flex-basis:100%;white-space:normal;text-align:left;margin:6px 0}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]) .tm{height:auto;min-height:20px}
+  .bg-app[data-runtime-mode="demo"]:is([data-page="memory"],[data-page="context"],[data-page="sessions"]) .tm-note{white-space:normal}
   .memory-region,.memory-region .memory-region-body{height:auto;flex:none}
   .memory-region .am{height:auto;display:block}
   .memory-region .am-head{padding:12px}
@@ -562,4 +562,21 @@
   .memory-region .qr44,.memory-region .qr79{flex:none;overflow:visible}
   .memory-region .qr79{padding:16px 12px}
   .memory-region .qr87{padding:12px}
+}
+
+/* Synthetic Context/Sessions keep their existing scroll-based reading contracts. */
+.reader-section-nav,.reader-return{display:none}
+@media(max-width:899px){
+  .bg-app[data-runtime-mode="demo"] :is(.qr132,.qr171){height:auto;display:block}
+  .bg-app[data-runtime-mode="demo"] .qr99{padding:12px}
+  .bg-app[data-runtime-mode="demo"] .qr131{display:block}
+  .bg-app[data-runtime-mode="demo"] .qr105{flex-direction:row;flex-wrap:wrap;overflow:visible;border-right:0;gap:4px 12px}
+  .bg-app[data-runtime-mode="demo"] :is(.qr130,.qr161:not(.demo-empty)){height:clamp(240px,65vh,560px);box-sizing:border-box;overflow:auto;padding:8px 12px 24px;border-block:1px solid var(--grid-major);outline-offset:-3px}
+  .bg-app[data-runtime-mode="demo"] .qr93{overflow-wrap:anywhere}
+  .bg-app[data-runtime-mode="demo"] :is(.qr136,.qr170){overflow:visible;padding:12px;border-inline:0;outline-offset:-3px}
+  .bg-app[data-runtime-mode="demo"] .qr137{flex-wrap:wrap}
+  .bg-app[data-runtime-mode="demo"] .qr148{white-space:normal;flex-wrap:wrap}
+  .bg-app[data-runtime-mode="demo"] .reader-section-nav{display:flex;flex-wrap:wrap;gap:8px 20px;padding:12px}
+  .bg-app[data-runtime-mode="demo"] :is(.reader-section-nav a,.reader-return){font-family:var(--f-lab);font-size:12px;color:var(--ink);text-underline-offset:3px}
+  .bg-app[data-runtime-mode="demo"] .reader-return{display:inline-block;margin:8px 0}
 }
