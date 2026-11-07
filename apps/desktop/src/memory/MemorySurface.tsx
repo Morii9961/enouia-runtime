@@ -53,6 +53,9 @@ export default function MemorySurface({ initialCollection = "current", openSessi
     { label: t("Vault"), items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
+  // A switch can finish between two status polls without an observed change;
+  // remount per Vault so the previous Vault's rows, detail and drafts go.
+  const vaultKey = status?.vault?.vaultId ?? status?.vault?.rootName ?? "";
   return (
     <section data-screen-label="Memory Vault" className="qr89">
       <aside className="qr28">
@@ -99,10 +102,10 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           <aside aria-label={t("Memory Inspector")} className="qr88"><div className="qr46">{t("Open a Vault to see its memories.")}</div></aside>
         </>
       ) : explorer ? (
-        <Explorer key={`${collection}:${submitted.seq}`} history={collection === "history"} submitted={submitted}
+        <Explorer key={`${vaultKey}:${collection}:${submitted.seq}`} history={collection === "history"} submitted={submitted}
           onRefresh={() => setSubmitted((current) => ({ ...current, seq: current.seq + 1 }))} />
       ) : collection === "inbox" ? (
-        <Inbox />
+        <Inbox key={vaultKey} />
       ) : (
         <Import key={status.vault.vaultId} openSession={openSession} />
       )}
