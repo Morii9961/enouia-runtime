@@ -90,3 +90,5 @@ node scripts/check-activity-retirement.mjs
 2026-11-07：read-1 空库、召回无选中、详情已不在授权范围三种[无结果说明](../../validation/UI-v2-read1-empty-outcomes-2026-11-07.md)。
 
 2026-11-07：read-2 目录检索无匹配与空目录的[分开说明](../../validation/UI-v2-read2-empty-results-2026-11-07.md)。
+
+2026-11-07：记忆库列表七种加载/无结果/索引不可用状态的[独立合成截图桩](../../validation/UI-v2-memory-state-fixture-2026-11-07.md)，原组件未改。
