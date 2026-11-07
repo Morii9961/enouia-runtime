@@ -1,0 +1,1297 @@
+{
+  "baseline_revision": "81216f6 (draft #145 head)",
+  "branch": "claude/ui-v2-memory-state-fixture",
+  "scope": "Independent browser preview of the native MemorySurface explorer with mocked Workspace reads (workspace_status, memory_list, memory_search). Evidence only; no product change.",
+  "states": [
+    "pending",
+    "list",
+    "empty",
+    "no-match",
+    "index-unavailable",
+    "index-busy",
+    "search-index-unavailable"
+  ],
+  "browser_matrix": {
+    "browser": "Edg/156.0.4314.58",
+    "viewport": "1100x700 DPR 1",
+    "rows": [
+      {
+        "action": "initial",
+        "state": "pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "Waiting for memories",
+        "statuses": [
+          "Reading memories…"
+        ],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "list",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 2,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "2 of 2 records",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "No approved memories here yet.",
+        "count": "0 of 0 records",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "这里还没有已批准的记忆。",
+        "count": "0 / 0 条记录",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "承認済みの記憶はまだありません。",
+        "count": "0 / 0 件",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "No approved memories here yet.",
+        "count": "0 of 0 records",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "no-match",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "Nothing matches this search.",
+        "count": "0 records",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "no-match",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "没有符合这次检索的记忆。",
+        "count": "0 条记录",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "no-match",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "この検索に一致する記憶はありません。",
+        "count": "0 件",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "no-match",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "Nothing matches this search.",
+        "count": "0 records",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-unavailable",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is unavailable. Retry, or use Rebuild index in Vault & recovery if it stays unavailableRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "index-unavailable",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引不可用。请重试；若一直不可用，到“记忆库与恢复”中重建索引重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "index-unavailable",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスを使えません。再試行し、使えないままなら「保管庫と復旧」でインデックスを再構築してください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "index-unavailable",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is unavailable. Retry, or use Rebuild index in Vault & recovery if it stays unavailableRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-busy",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is busy or rebuilding. Try again in a momentRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "search-index-unavailable",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is unavailable. Retry, or use Rebuild index in Vault & recovery if it stays unavailableRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "search-index-unavailable",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引不可用。请重试；若一直不可用，到“记忆库与恢复”中重建索引重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "search-index-unavailable",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスを使えません。再試行し、使えないままなら「保管庫と復旧」でインデックスを再構築してください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "search-index-unavailable",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is unavailable. Retry, or use Rebuild index in Vault & recovery if it stays unavailableRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "Waiting for memories",
+        "statuses": [
+          "Reading memories…"
+        ],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "list",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 2,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "2 of 2 records",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "No approved memories here yet.",
+        "count": "0 of 0 records",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "no-match",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "Nothing matches this search.",
+        "count": "0 records",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-unavailable",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is unavailable. Retry, or use Rebuild index in Vault & recovery if it stays unavailableRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-busy",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is busy or rebuilding. Try again in a momentRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "Current memories",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "search-index-unavailable",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "The index is unavailable. Retry, or use Rebuild index in Vault & recovery if it stays unavailableRetry"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "Results unavailable",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "等待记忆",
+        "statuses": [
+          "正在读取记忆…"
+        ],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "list",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 2,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "2 / 2 条记录",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "这里还没有已批准的记忆。",
+        "count": "0 / 0 条记录",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "no-match",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "没有符合这次检索的记忆。",
+        "count": "0 条记录",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-unavailable",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引不可用。请重试；若一直不可用，到“记忆库与恢复”中重建索引重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-busy",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引正忙或在重建。请稍后重试重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "search-index-unavailable",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引不可用。请重试；若一直不可用，到“记忆库与恢复”中重建索引重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "等待记忆",
+        "statuses": [
+          "正在读取记忆…"
+        ],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "list",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 2,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "2 / 2 条记录",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "这里还没有已批准的记忆。",
+        "count": "0 / 0 条记录",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "no-match",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "没有符合这次检索的记忆。",
+        "count": "0 条记录",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-unavailable",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引不可用。请重试；若一直不可用，到“记忆库与恢复”中重建索引重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-busy",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引正忙或在重建。请稍后重试重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "当前记忆",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "search-index-unavailable",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "索引不可用。请重试；若一直不可用，到“记忆库与恢复”中重建索引重试"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "结果不可用",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "記憶を待っています",
+        "statuses": [
+          "記憶を読み込み中…"
+        ],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "list",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 2,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "2 / 2 件",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "承認済みの記憶はまだありません。",
+        "count": "0 / 0 件",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "no-match",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "この検索に一致する記憶はありません。",
+        "count": "0 件",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-unavailable",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスを使えません。再試行し、使えないままなら「保管庫と復旧」でインデックスを再構築してください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-busy",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスは処理中か再構築中です。少ししてからもう一度お試しください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "search-index-unavailable",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスを使えません。再試行し、使えないままなら「保管庫と復旧」でインデックスを再構築してください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "記憶を待っています",
+        "statuses": [
+          "記憶を読み込み中…"
+        ],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "list",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 2,
+        "alerts": [],
+        "retry": false,
+        "empty": null,
+        "count": "2 / 2 件",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "承認済みの記憶はまだありません。",
+        "count": "0 / 0 件",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "no-match",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [],
+        "retry": false,
+        "empty": "この検索に一致する記憶はありません。",
+        "count": "0 件",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-unavailable",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスを使えません。再試行し、使えないままなら「保管庫と復旧」でインデックスを再構築してください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "index-busy",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスは処理中か再構築中です。少ししてからもう一度お試しください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "現在の記憶",
+        "query": "",
+        "calls": [
+          "workspace_status",
+          "memory_list"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "search-index-unavailable",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "rows": 0,
+        "alerts": [
+          "インデックスを使えません。再試行し、使えないままなら「保管庫と復旧」でインデックスを再構築してください再試行"
+        ],
+        "retry": true,
+        "empty": null,
+        "count": "結果を表示できません",
+        "statuses": [],
+        "title": "“fictional absent cue”",
+        "query": "fictional absent cue",
+        "calls": [
+          "workspace_status",
+          "memory_list",
+          "memory_search"
+        ],
+        "hostActions": 0
+      }
+    ],
+    "page_errors": [],
+    "launcher_exit_code": 0
+  },
+  "screenshots": 42,
+  "diagnostic_corrections": [
+    "First run stopped on the diagnostic's own assertion: it compared English copy using the loop language instead of the rendered language during the language-switch step. Fixed the diagnostic only; the product rendered the correct Chinese text."
+  ],
+  "limitations": [
+    "Mocked index errors use the error codes the client maps (index_not_ready; busy with rule index.busy); no real index rebuild or Vault.",
+    "Revision-conflict draft retention and vault switch/revoke clearing are not covered here.",
+    "No Rust, native smoke, real scaling, personal Vault, Owner, Provider, migration or deployment."
+  ]
+}
