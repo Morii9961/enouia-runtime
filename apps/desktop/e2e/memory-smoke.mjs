@@ -268,7 +268,7 @@ async function connect(overlay = false, port = PORT) {
           await s.evaluate(HELPERS);
           // This focused English journey owns fresh profiles. Use existing UI
           // controls, keeping translated accessible names in the application.
-          if (['--quick-only', '--automatic-only', '--catalog-only'].includes(process.argv[6])) {
+          if (['--quick-only', '--automatic-only', '--catalog-only', '--capture-only'].includes(process.argv[6])) {
             if (!overlay) {
               await s.evaluate("document.querySelectorAll('.bg-nav-item')[5].click()");
               await waitFor(s, "!!document.querySelector('button[lang=en]')", 'fixture language controls');
@@ -1173,8 +1173,78 @@ async function catalogMemoryChecks() {
   s.close();
 }
 
+// Capture mode uses only the fresh built-in synthetic Owner root and its fixed
+// conversations. The legacy path arguments remain signature placeholders.
+async function captureMemoryChecks() {
+  const fixture = resolve(out, '..');
+  if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-capture-smoke-') || lstatSync(fixture).isSymbolicLink()) throw new Error('Capture smoke requires its dedicated temporary fixture');
+  let app = launch(['--memory-capture-synthetic']);
+  let s = await connect();
+  const helpers = `__t.capture = query => __t.invoke('memory_capture',{request:{schema_version:2,capability:'memory-runtime-owner-capture-native-1',query}})`;
+  await s.evaluate(helpers);
+  await waitFor(s,"__t.capture({operation:'status'}).then(r=>r.ok?.state==='open')",'synthetic Owner root');
+  const status = await s.evaluate("__t.capture({operation:'status'}).then(r=>r.ok)");
+  check('CAPTURE.explicit_synthetic_owner_entry', status.mode === 'synthetic_owner_only' && status.effect === 'native_read' && status.available && status.exchanges === 3);
+  const others = await s.evaluate("Promise.all([__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}}),__t.invoke('memory_catalog',{request:{schema_version:2,capability:'memory-native-read-2',query:{operation:'status'}}})]).then(r=>r.map(x=>x.ok?.state))");
+  check('CAPTURE.workspace_read1_and_read2_do_not_adopt_owner_root', (await statusOf(s)).vault.state === 'none' && others.every(state => state === 'disabled'));
+  const page = () => s.evaluate("__t.capture({operation:'page',cursor:null,limit:32}).then(r=>r.ok)");
+  check('CAPTURE.fresh_root_has_no_memories', (await page()).matched_in_scope === 0);
+  const preview = await s.evaluate("__t.capture({operation:'preflight',exchange:0}).then(r=>r.ok)");
+  check('CAPTURE.preflight_captures_and_queues_nothing', preview.capture.captured === false && (await page()).matched_in_scope === 0);
+  const written = [];
+  for (let i = 0; i < 3; i++) written.push(await s.evaluate(`__t.capture({operation:'write',exchange:${i}})`));
+  check('CAPTURE.write_returns_separate_capture_and_queue_receipts', written.every(r => r.ok?.capture.captured === true && r.ok.capture.formation_scheduled === false && r.ok.queue?.state === 'queued' && r.ok.queue_error === null));
+  const settled = [];
+  for (let i = 0; i < 3; i++) {
+    await waitFor(s, `__t.capture({operation:'jobs',exchange:${i}}).then(r=>r.ok && r.ok.jobs.length>0 && r.ok.jobs.every(j=>!['queued','dispatched','forming'].includes(j.state)))`, `background formation ${i}`);
+    settled.push(await s.evaluate(`__t.capture({operation:'jobs',exchange:${i}}).then(r=>r.ok)`));
+  }
+  check('CAPTURE.background_worker_forms_user_turns_only', settled.every(r => JSON.stringify(r.jobs.map(j=>j.state).sort()) === JSON.stringify(['formed','no_memory']) && r.jobs.reduce((n,j)=>n+j.receipts,0) === 1));
+  check('CAPTURE.job_status_carries_no_turn_text', settled.every(r => !JSON.stringify(r).includes('Synthetic example') && !JSON.stringify(r).includes('合成示例')));
+  const formed = await page();
+  const titles = formed.items.map(row => row.title).sort();
+  check('CAPTURE.formed_records_are_system_authored_with_receipts', formed.matched_in_scope === 3 && JSON.stringify(titles) === JSON.stringify(['pottery glaze','reading design notes','蓝色陶杯'].sort()) && formed.items.every(row => row.base.system_actor.actor_type === 'system' && row.base.receipt));
+  const replay = await s.evaluate("__t.capture({operation:'write',exchange:0}).then(r=>r.ok)");
+  check('CAPTURE.same_key_write_replays_without_new_memory', replay.capture.replayed === true && (await page()).matched_in_scope === 3);
+  const version = await s.evaluate("__t.invoke('memory_capture',{request:{schema_version:1,capability:'memory-runtime-owner-capture-native-1',query:{operation:'status'}}})");
+  check('CAPTURE.version_refused_before_query_decode', version.err === 'capture_version_unsupported');
+  const authored = await s.evaluate("__t.invoke('memory_capture',{request:{schema_version:2,capability:'memory-runtime-owner-capture-native-1',query:{operation:'write',exchange:0,text:'page-supplied turn'}}})");
+  const authority = await s.evaluate("__t.invoke('memory_capture',{request:{schema_version:2,capability:'memory-runtime-owner-capture-native-1',pid:1,query:{operation:'status'}}})");
+  check('CAPTURE.page_cannot_supply_turns_or_identity', authored.err === 'capture_invalid_request' && authority.err === 'capture_invalid_request');
+  const quick = await connect(true);
+  const denied = await quick.evaluate("__t.invoke('memory_capture',{request:{schema_version:2,capability:'memory-runtime-owner-capture-native-1',query:{operation:'status'}}})");
+  check('CAPTURE.overlay_has_no_capture_permission', !!denied.err && !denied.ok);
+  quick.close();
+  await s.evaluate("__t.capture({operation:'lock'})");
+  const locked = await s.evaluate("Promise.all([__t.capture({operation:'write',exchange:1}),__t.capture({operation:'page',cursor:null,limit:1}),__t.capture({operation:'status'})])");
+  check('CAPTURE.lock_revokes_enrollment_and_reads', locked[0].err === 'capture_locked' && locked[1].err === 'capture_locked' && locked[2].ok?.state === 'locked');
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+  check('CAPTURE.exit_joins_worker_and_releases_root', (await waitForExit(app,20000)) === 0);
+  s.close();
+  const restartPort = await unusedPort();
+  app = launch(['--memory-capture-synthetic'],{port:restartPort,profile:'capture-fresh'});
+  s = await connect(false,restartPort);
+  await s.evaluate(helpers);
+  await waitFor(s,"__t.capture({operation:'status'}).then(r=>r.ok?.state==='open')",'fresh Owner restart');
+  const fresh = await s.evaluate("__t.capture({operation:'page',cursor:null,limit:1}).then(r=>r.ok)");
+  check('CAPTURE.restart_creates_new_empty_root', fresh.matched_in_scope === 0 && fresh.selection.snapshot.vault_id !== formed.selection.snapshot.vault_id && (await statusOf(s)).vault.state === 'none');
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+  check('CAPTURE.restarted_exit', (await waitForExit(app,20000)) === 0);
+  s.close();
+  const autostartPort = await unusedPort();
+  app = launch(['--autostart','--memory-capture-synthetic'],{port:autostartPort,profile:'capture-autostart'});
+  s = await connect(false,autostartPort);
+  await s.evaluate(helpers);
+  const ignored = await s.evaluate("__t.capture({operation:'status'}).then(r=>r.ok)");
+  check('CAPTURE.autostart_does_not_initialize_example', ignored.state === 'disabled' && !ignored.available && (await statusOf(s)).vault.state === 'none');
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+  check('CAPTURE.autostart_exit', (await waitForExit(app,20000)) === 0);
+  s.close();
+}
+
 async function main() {
   if (process.argv[6] === '--catalog-only') return catalogMemoryChecks();
+  if (process.argv[6] === '--capture-only') return captureMemoryChecks();
   if (process.argv[6] === '--automatic-only') return automaticMemoryChecks();
   if (['--history-only', '--history-tasks-only', '--history-batch-only'].includes(process.argv[6])) {
     const batchMode = process.argv[6] === '--history-batch-only';

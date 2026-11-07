@@ -32,6 +32,7 @@ pub struct MemoryHost {
     core: Arc<Workspace>,
     automation: crate::memory_automation::NativeAutomation,
     catalog: crate::memory_catalog::NativeCatalog,
+    capture: crate::memory_capture::NativeCapture,
     gate: Arc<RwLock<()>>,
     closing: Arc<AtomicBool>,
     lifecycle: Arc<AtomicUsize>,
@@ -50,6 +51,7 @@ impl MemoryHost {
             core: Arc::new(Workspace::new(Config::default())),
             automation: crate::memory_automation::NativeAutomation::default(),
             catalog: crate::memory_catalog::NativeCatalog::default(),
+            capture: crate::memory_capture::NativeCapture::default(),
             gate: Arc::new(RwLock::new(())),
             closing: Arc::new(AtomicBool::new(false)),
             lifecycle: Arc::new(AtomicUsize::new(0)),
@@ -69,6 +71,10 @@ impl MemoryHost {
     }
     pub fn catalog(&self) -> &crate::memory_catalog::NativeCatalog {
         &self.catalog
+    }
+
+    pub fn capture(&self) -> &crate::memory_capture::NativeCapture {
+        &self.capture
     }
 
     /// Hand the Core a native Provider setup, or take it away (ADR-032).
@@ -96,7 +102,7 @@ impl MemoryHost {
     /// Serialize configuration reloads and key changes without queuing a
     /// second native prompt. Core still owns admission against active sends.
     pub fn provider_update(&self) -> Result<MutexGuard<'_, ()>, &'static str> {
-        if self.automation.enabled() || self.catalog.enabled() {
+        if self.automation.enabled() || self.catalog.enabled() || self.capture.enabled() {
             return Err("automation_synthetic_mode");
         }
         let guard = self
@@ -124,6 +130,7 @@ impl MemoryHost {
         if first {
             self.automation.begin_close();
             self.catalog.begin_close();
+            self.capture.begin_close();
             self.publish_companion();
         }
         first
@@ -136,6 +143,7 @@ impl MemoryHost {
     pub fn close_failed(&self) {
         self.automation.close_failed();
         self.catalog.close_failed();
+        self.capture.close_failed();
         self.closing.store(false, Ordering::SeqCst);
         self.publish_companion();
     }
@@ -244,6 +252,7 @@ impl MemoryHost {
             Gate::Exclusive => {
                 self.automation.lock();
                 self.catalog.lock();
+                self.capture.lock();
                 let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
                 invoke()
             }
@@ -291,6 +300,7 @@ impl MemoryHost {
     pub fn shutdown(&self) {
         self.automation.shutdown();
         self.catalog.shutdown();
+        self.capture.shutdown();
         let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
         self.core.shutdown();
         *self
