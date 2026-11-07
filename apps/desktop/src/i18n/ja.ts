@@ -1,6 +1,13 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Held hypotheses": "保留中の仮説",
+  "held until new evidence": "新たな裏付けを待つ",
+  "Held hypotheses in this sample wait for new evidence and are not used for recall. This is a reading list, not an approval queue.": "このサンプルの保留中の仮説は新しい裏付けを待ち、想起には使われません。読み取り用の一覧であり、承認待ちの一覧ではありません。",
+  "Unformed material and conflicts are outside this list.": "未形成の資料と競合はこの一覧に含みません。",
+  "{shown} of {total} loaded hypotheses": "読み込み済みの仮説 {total} 件のうち {shown} 件を表示",
+  "No record marked Held as hypothesis in this loaded sample. Choose another demo state.": "読み込み済みサンプルに保留中の仮説はありません。別のデモ状態を選んでください。",
+  "No held hypothesis matches these filters. Clear filters to see all loaded hypotheses.": "この絞り込みに一致する保留中の仮説はありません。解除すると読み込み済みの仮説をすべて表示します。",
   "Revision sample": "リビジョンサンプル",
   "Conflict comparison": "競合の比較",
   "held statements and their sources": "保留された記述と資料",

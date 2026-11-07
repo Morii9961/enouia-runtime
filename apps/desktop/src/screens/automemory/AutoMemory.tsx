@@ -31,11 +31,12 @@ const VIEWS: { id: ViewId; name: string; hint: string }[] = [
   { id: 'evidence', name: msg('Evidence chain'), hint: msg('support and dependencies kept apart') },
   { id: 'conflicts', name: msg('Conflict comparison'), hint: msg('held statements and their sources') },
   { id: 'revisions', name: msg('Revision comparison'), hint: msg('literal changes between provided bodies') },
+  { id: 'hypotheses', name: msg('Held hypotheses'), hint: msg('held until new evidence') },
   { id: 'recall', name: msg('Recall lab'), hint: msg('why offered') },
 ];
 
 const WORKSPACE_VIEWS: Record<WorkspaceId, ViewId[]> = {
-  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap', 'replacement', 'evidence'], formation: ['formation', 'conflicts', 'revisions'], recall: ['recall'],
+  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap', 'replacement', 'evidence'], formation: ['formation', 'conflicts', 'revisions', 'hypotheses'], recall: ['recall'],
 };
 export default function AutoMemory({ onExit, workspace }: { onExit?: () => void; workspace?: WorkspaceId }) {
   const [requestedView, setView] = useState<ViewId>(() => {
@@ -53,11 +54,12 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
   const showView = (id: ViewId) => { if (id !== view) moveAlong('view', () => setView(id), order.indexOf(id) > order.indexOf(view) ? 'fwd' : 'back'); };
   const choose = (id: string) => { if (id !== sel) moveAlong('select', () => setSel(id)); };
   const body = !m ? <p className="am-empty">{t(EMPTY_NOTE)}</p> : view === 'formation' ? <Formation sel={m.id} select={choose} />
-    : view === 'grid' ? <Grid sel={m.id} select={choose} />
+    : view === 'grid' ? <Grid key="all" sel={m.id} select={choose} />
     : view === 'timeline' ? <Timeline sel={m.id} select={choose} />
     : view === 'stars' ? <Constellation sel={m.id} select={choose} />
     : view === 'replacement' || view === 'evidence' ? <Lineage mode={view} sel={m.id} select={choose} />
     : view === 'conflicts' || view === 'revisions' ? <Comparison mode={view} sel={m.id} select={choose} />
+    : view === 'hypotheses' ? <Grid key="hypotheses" subset="hypotheses" sel={m.id} select={choose} />
     : <Recall sel={m.id} select={choose} />;
   return (
     <section data-screen-label="Memory Vault" className="am" data-view={view}

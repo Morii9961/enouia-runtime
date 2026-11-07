@@ -1,6 +1,13 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Held hypotheses": "暂存假说",
+  "held until new evidence": "等待新证据",
+  "Held hypotheses in this sample wait for new evidence and are not used for recall. This is a reading list, not an approval queue.": "此示例的暂存假说等待新证据，未用于召回。这是阅读列表，不是批准队列。",
+  "Unformed material and conflicts are outside this list.": "未形成材料和冲突不在此列表中。",
+  "{shown} of {total} loaded hypotheses": "显示 {shown} / {total} 条已加载假说",
+  "No record marked Held as hypothesis in this loaded sample. Choose another demo state.": "此已加载示例没有标为暂存假说的记录，可选择其他演示状态。",
+  "No held hypothesis matches these filters. Clear filters to see all loaded hypotheses.": "没有暂存假说匹配此筛选。清除筛选可查看全部已加载假说。",
   "Revision sample": "修订示例",
   "Conflict comparison": "冲突对比",
   "held statements and their sources": "暂存的陈述与来源",
