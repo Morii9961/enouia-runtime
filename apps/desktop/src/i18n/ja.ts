@@ -1848,5 +1848,6 @@ const dict: Record<string, string> = {
   "Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see another interval.": "軸は発生時刻（Asia/Shanghai、UTC+8）。受信時刻は下のペンで、別の時刻です。上の時間マップで表示期間を移動できます。",
   "Library state is unknown.": "ライブラリの状態は不明です。",
   "Reading catalog page and statistics…": "カタログページと統計を読み込み中…",
+  "Reading…": "読み込み中…",
 };
 export default dict;

@@ -1848,5 +1848,6 @@ const dict: Record<string, string> = {
   "Occurred time is the axis, in Asia/Shanghai (UTC+8). Received time is the lower pen, a different time. Move the frame in the time map above to see another interval.": "横轴是发生时间，按 Asia/Shanghai（UTC+8）。收到时间是下方的笔，是另一种时间。移动上方时间小地图的取景框查看其他时段。",
   "Library state is unknown.": "库状态未知。",
   "Reading catalog page and statistics…": "正在读取目录页和统计…",
+  "Reading…": "正在读取…",
 };
 export default dict;

@@ -4,11 +4,13 @@ import { AutomaticMemory } from '../src/memory/AutomaticMemory';
 import basePage from './fixtures/core8/page.json';
 import baseDetail from './fixtures/core8/detail.json';
 import baseSimulation from './fixtures/core8/simulation.json';
-import { setLang, useLang, type Lang } from '../src/i18n';
+import { setLang, useLang, t, type Lang } from '../src/i18n';
 const fixture = document.getElementById('fixture')!;
 const root = createRoot(fixture);
 const checks: { id: string; ok: boolean }[] = [];
 const calls: string[] = [];
+let holdPage = true;
+let releasePage: (() => void) | null = null;
 let state = 'open', holdDetail = false, holdStatus = false, failBusyStatus = false;
 let releaseDetail: (() => void) | null = null, releaseStatus: (() => void) | null = null;
 const page = structuredClone(basePage);
@@ -21,7 +23,7 @@ const read = async (query: Record<string, unknown>) => {
     if (holdStatus) { holdStatus = false; await new Promise<void>(resolve => { releaseStatus = resolve; }); }
     return status;
   }
-  if (operation === 'page') return structuredClone(page);
+  if (operation === 'page') { if (holdPage) { holdPage = false; await new Promise<void>(resolve => { releasePage = resolve; }); } return structuredClone(page); }
   if (operation === 'detail') {
     const detail = structuredClone(baseDetail);
     if (query.include_source_text) detail.sources[0].text = original;
@@ -42,7 +44,16 @@ try {
   function Surface(){useLang();return <AutomaticMemory read={read}/>;}
   root.render(<Surface/>);
   const content = page.items[0].content;
+  await wait(()=>releasePage!==null&&fixture.querySelector('[aria-busy]')?.getAttribute('aria-busy')==='true');
+  check('pending_page_has_visible_reading_feedback',text().includes('Reading…'));
+  const initialPageReads=calls.filter(c=>c!=='status').length;
+  for(const [language,message]of [['zh-Hans','正在读取…'],['ja','読み込み中…'],['en','Reading…']]){
+    await setLang(language as Lang);await wait(()=>fixture.querySelector('h2')?.textContent===t('Automatic memories'));
+    check(`${language}_pending_page_feedback_translates_without_replay`,text().includes(message)&&calls.filter(c=>c!=='status').length===initialPageReads&&!fixture.querySelector('.mem-list li'));
+  }
+  releasePage!();releasePage=null;
   await wait(() => !!button(content));
+  check('completed_page_retires_reading_feedback',!text().includes('Reading…'));
   check('synthetic_mode_and_separate_state_axes', text().includes('Isolated synthetic library') && text().includes('System adopted') && text().includes('validity unspecified') && text().includes('attention active'));
   click(content);
   await wait(() => !!button('Read selected original sources'));
@@ -71,6 +82,8 @@ try {
   }
   holdDetail = true; click(content);
   await wait(() => releaseDetail !== null);
+  await wait(()=>fixture.querySelector('[aria-busy]')?.getAttribute('aria-busy')==='true');
+  check('pending_detail_has_visible_reading_feedback',text().includes('Reading…'));
   failBusyStatus = true;
   await wait(() => !failBusyStatus);
   releaseDetail!(); releaseDetail = null;
@@ -99,4 +112,4 @@ try {
   check('late_open_status_cannot_reverse_local_lock', text().includes('Library: locked') && !button(content));
   check('simulation_never_uses_legacy_context_preview_or_writes', calls.every(c => ['status','page','detail','simulate','lock','unlock'].includes(c)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
-finally { releaseDetail?.(); releaseStatus?.(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), calls }); }
+finally { releasePage?.(); releaseDetail?.(); releaseStatus?.(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), calls }); }
