@@ -69,10 +69,12 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
     } catch (error) { update(n, { error }); }
     finally { update(n, { sending: false }); }
   };
-  const end = async () => {
+  // Both controls are explicit owner actions, sent once each.
+  const control = async (operation: "lock" | "renew") => {
     if (controlling.current) return;
-    controlling.current = true; setPage(null);
-    try { setStatus(await call({ operation: "lock" })); setStatusError(null); }
+    controlling.current = true;
+    if (operation === "lock") setPage(null);
+    try { setStatus(await call({ operation })); setStatusError(null); }
     catch (cause) { setStatusError(cause); }
     finally { controlling.current = false; }
   };
@@ -85,7 +87,7 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
         <p role="status">{status ? t("Capture: {state}", { state: status.state }) : statusError != null ? t("Capture state is unknown.") : t("Reading capture state…")}</p>
         {status?.state === "disabled" && <p className="mem-content">{t("No synthetic capture is enabled in this session.")}</p>}
         {status?.state === "failed" && <p className="mem-content">{t("The synthetic capture is unavailable. Start a new synthetic session to recover.")}</p>}
-        {status?.state === "expired" && <p className="mem-content">{t("This capture enrollment has expired. Start a new synthetic session to capture again.")}</p>}
+        {status?.state === "expired" && <p className="mem-content">{t("This capture enrollment has expired. Renew it to capture again.")}</p>}
         {status?.state === "locked" && <p className="mem-content">{t("Capture enrollment ended for this session.")}</p>}
         {status && status.state !== "disabled" && <ol className="mem-list">{status.conversations.map(c => {
           const e = exchanges[c.exchange] ?? {};
@@ -106,7 +108,10 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
               {t("{state} · {receipts} memories", { state: JOB[j.state], receipts: j.receipts })}</li>)}</ul>}
           </li>;
         })}</ol>}
-        {open && <button className="mem-button" onClick={() => void end()}>{t("End capture enrollment")}</button>}
+        {(open || status?.state === "expired") && <div className="mem-actions">
+          <button className="mem-button" onClick={() => void control("renew")}>{t("Renew capture enrollment")}</button>
+          {open && <button className="mem-button" onClick={() => void control("lock")}>{t("End capture enrollment")}</button>}
+        </div>}
         <h3 className="qr29">{t("Formed memories")}</h3>
         <ErrorBox error={reads.error} />
         {open && <button className="mem-button" disabled={reads.busy} onClick={() => void loadPage()}>{t("Refresh formed memories")}</button>}

@@ -57,10 +57,71 @@ pub(super) struct Fixture {
     pub reader: SegmentedMemoryReader,
     pub profile: AttentionProfile,
     pub requests: Vec<RuntimeCaptureRequest>,
-    /// The enrollment ends here; a fresh launch is the only new enrollment.
+    /// The current enrollment ends here; renewal is an explicit native setup.
     pub expires_at_ms: i64,
     pub clock: Arc<dyn Clock + Send + Sync>,
+    producer: Producer,
     pub _root: PathBuf,
+}
+/// What a native re-enrollment needs; never supplied by the page.
+struct Producer {
+    vault: Arc<SegmentedAutomationVault>,
+    owner: ActorRef,
+    principal: ActorRef,
+    policy_id: PolicyId,
+    source_ids: Vec<SourceId>,
+    policy_until_ms: i64,
+}
+impl Producer {
+    /// Memory bounds one producer enrollment to five minutes and the policy.
+    fn enroll(
+        &self,
+        clock: &(dyn Clock + Send + Sync),
+    ) -> Result<(Arc<RuntimeCaptureHost>, CapturedWorker, i64), &'static str> {
+        let until = (clock.now_unix_ms() + 300_000).min(self.policy_until_ms);
+        let host = Arc::new(
+            RuntimeCaptureHost::enroll_owner(
+                self.vault.clone(),
+                &self.owner,
+                std::process::id(),
+                self.principal.clone(),
+                RuntimeCaptureScope {
+                    policy_id: self.policy_id.clone(),
+                    source_ids: self.source_ids.clone(),
+                    max_sensitivity: Sensitivity::Private,
+                    platform: "enouia-runtime".into(),
+                    account_scope: "runtime-synthetic".into(),
+                    default_timezone: "Asia/Shanghai".into(),
+                    valid_until: Timestamp::from_unix_ms(until).ok_or("capture_fixture_invalid")?,
+                },
+            )
+            .map_err(|error| {
+                #[cfg(test)]
+                eprintln!("synthetic capture enrollment: {error:?}");
+                let _ = error;
+                "capture_fixture_enroll"
+            })?,
+        );
+        let worker = host
+            .start_worker(LookupAnalyzer, Duration::from_secs(30))
+            .map_err(|_| "capture_fixture_worker")?;
+        Ok((host, worker, until))
+    }
+}
+impl Fixture {
+    /// Explicit owner-initiated renewal: revoke and join the old enrollment,
+    /// then enroll the same producer again so earlier request keys replay.
+    pub fn renew(&mut self) -> Result<(), &'static str> {
+        self.host.revoke();
+        if let Some(worker) = self.worker.take() {
+            let _ = worker.shutdown();
+        }
+        let (host, worker, until) = self.producer.enroll(self.clock.as_ref())?;
+        self.host = host;
+        self.worker = Some(worker);
+        self.expires_at_ms = until;
+        Ok(())
+    }
 }
 
 /// Knows only the fixed user turns above; every other source forms nothing.
@@ -180,37 +241,18 @@ pub(super) fn create_with_clock(
     }
     // The producer is this Runtime process; native setup, never a packet,
     // supplies its PID, principal and scope.
-    let host = Arc::new(
-        RuntimeCaptureHost::enroll_owner(
-            vault.clone(),
-            &descriptor.created_by,
-            std::process::id(),
-            ActorRef {
-                actor_type: ActorType::Client,
-                actor_id: PrincipalId::from_random(ids.random_16()),
-            },
-            RuntimeCaptureScope {
-                policy_id: policy.policy_id.clone(),
-                source_ids: policy.source_ids.clone(),
-                max_sensitivity: Sensitivity::Private,
-                platform: "enouia-runtime".into(),
-                account_scope: "runtime-synthetic".into(),
-                default_timezone: "Asia/Shanghai".into(),
-                // Memory bounds one producer enrollment to five minutes.
-                valid_until: Timestamp::from_unix_ms(now_ms + 300_000)
-                    .ok_or("capture_fixture_invalid")?,
-            },
-        )
-        .map_err(|error| {
-            #[cfg(test)]
-            eprintln!("synthetic capture enrollment: {error:?}");
-            let _ = error;
-            "capture_fixture_enroll"
-        })?,
-    );
-    let worker = host
-        .start_worker(LookupAnalyzer, Duration::from_secs(30))
-        .map_err(|_| "capture_fixture_worker")?;
+    let producer = Producer {
+        vault: vault.clone(),
+        owner: descriptor.created_by.clone(),
+        principal: ActorRef {
+            actor_type: ActorType::Client,
+            actor_id: PrincipalId::from_random(ids.random_16()),
+        },
+        policy_id: policy.policy_id.clone(),
+        source_ids: policy.source_ids.clone(),
+        policy_until_ms: now_ms + 3_600_000,
+    };
+    let (host, worker, expires_at_ms) = producer.enroll(clock.as_ref())?;
     let requests = EXCHANGES
         .iter()
         .enumerate()
@@ -252,8 +294,9 @@ pub(super) fn create_with_clock(
         reader,
         profile: load(include_str!("../../tests/fixtures/core8/profile.json"))?,
         requests,
-        expires_at_ms: now_ms + 300_000,
+        expires_at_ms,
         clock,
+        producer,
         _root: root,
     })
     // Retain only this fresh bounded example for diagnosis. Never reopen it.

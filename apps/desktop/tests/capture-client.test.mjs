@@ -19,6 +19,7 @@ test('wrong kinds, effects, exchanges and receipts are refused', async () => {
     ['status', {}, { ...status(), state: 'owner_confirmed' }],
     ['status', {}, { ...status(), conversations: [] }],
     ['lock', {}, status('locked')],
+    ['renew', {}, status('open')],
     ['preflight', { exchange: 0 }, preflight(1)],
     ['preflight', { exchange: 0 }, { ...preflight(0), capture: { captured: true, replayed: false, formation_scheduled: false } }],
     ['write', { exchange: 0 }, { ...write(0), effect: 'native_read' }],
@@ -36,7 +37,7 @@ test('wrong kinds, effects, exchanges and receipts are refused', async () => {
   }
 });
 test('every failure is one send without fallback or resend', async () => {
-  for (const operation of ['status', 'preflight', 'write', 'jobs', 'page', 'lock'])
+  for (const operation of ['status', 'preflight', 'write', 'jobs', 'page', 'lock', 'renew'])
     for (const error of ['capture_outcome_unknown', 'capture_busy', 'worker_failed']) {
       let calls = 0;
       setCaptureTransport(async () => { calls++; throw error; });

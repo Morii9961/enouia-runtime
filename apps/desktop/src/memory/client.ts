@@ -183,7 +183,7 @@ const HOST: Record<string, string> = labels({
   catalog_invalid_request: msg("The request does not match the contract"),
   capture_busy: msg("Synthetic capture is busy. Try again shortly."),
   capture_locked: msg("Capture enrollment ended for this session."),
-  capture_expired: msg("This capture enrollment has expired. Start a new synthetic session to capture again."),
+  capture_expired: msg("This capture enrollment has expired. Renew it to capture again."),
   capture_stale: msg("The synthetic Owner root changed. Refresh and try again."),
   capture_conflict: msg("This conversation was already captured with different content"),
   capture_refused: msg("The synthetic capture was refused"),

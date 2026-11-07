@@ -1231,6 +1231,9 @@ async function captureMemoryChecks() {
   const denied = await quick.evaluate("__t.invoke('memory_capture',{request:{schema_version:2,capability:'memory-runtime-owner-capture-native-1',query:{operation:'status'}}})");
   check('CAPTURE.overlay_has_no_capture_permission', !!denied.err && !denied.ok);
   quick.close();
+  const renewed = await s.evaluate("__t.capture({operation:'renew'})");
+  const afterRenew = await s.evaluate("__t.capture({operation:'write',exchange:0}).then(r=>r.ok)");
+  check('CAPTURE.explicit_renewal_reenrolls_and_replays_original_key', renewed.ok?.state === 'open' && renewed.ok.effect === 'native_control' && afterRenew.capture.replayed === true && (await page()).matched_in_scope === 3);
   await s.evaluate("__t.capture({operation:'lock'})");
   const locked = await s.evaluate("Promise.all([__t.capture({operation:'write',exchange:1}),__t.capture({operation:'page',cursor:null,limit:1}),__t.capture({operation:'status'})])");
   check('CAPTURE.lock_revokes_enrollment_and_reads', locked[0].err === 'capture_locked' && locked[1].err === 'capture_locked' && locked[2].ok?.state === 'locked');
