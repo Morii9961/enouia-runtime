@@ -490,3 +490,17 @@
 .am-lineage-links .am-ref-id{flex:none}
 .am-lineage-direction{font-size:12px;line-height:18px;color:var(--ink-2);max-width:95px;text-align:center}
 @media(max-width:1000px){.am-lineage-links>li{grid-template-columns:minmax(0,1fr)}.am-lineage-direction{text-align:left;max-width:none}}
+
+/* Comparison preserves complete text and makes no resolution controls. */
+.am-revision-pickers{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:14px 0}
+.am-comparison-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+.am-comparison-side{min-width:0;border:1px solid var(--grid-major);padding:12px;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.am-comparison-side h3{font-size:16px;line-height:22px;margin:0}
+.am-comparison-side h4{font-size:13px;line-height:19px;font-weight:600;margin:9px 0 0}
+.am-comparison-side code{font-size:12px;color:var(--ink-2)}
+.am-comparison-text{white-space:pre-wrap;font-size:14px;line-height:21px;margin:10px 0}
+.am-comparison-text mark{background:var(--wash);color:var(--ink);text-decoration:underline;text-decoration-color:var(--pen);text-underline-offset:3px}
+.am-comparison-side .am-evidence{width:100%;box-sizing:border-box}
+.am-comparison-empty{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.am-comparison-empty .am-empty{padding-bottom:4px}
+@media(max-width:1000px){.am-comparison-columns{grid-template-columns:minmax(0,1fr)}}

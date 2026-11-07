@@ -22,7 +22,7 @@ try {
   for(const language of ['en','zh-Hans','ja']){
     await setLang(language as Lang);
     if(DATASET==='unknown-result')check(`${language}_original_unknown_packet_and_key_retained`,fixture.querySelector('.am-unknown-result pre')?.textContent===UNKNOWN_PACKET&&fixture.querySelector('.am-unknown-result code')?.textContent===UNKNOWN_KEY&&fixture.querySelector<HTMLButtonElement>('.am-unknown-result button')?.disabled===true);
-    for(const view of ['formation','grid','timeline','stars','replacement','evidence','recall','starmap']){
+    for(const view of ['formation','grid','timeline','stars','replacement','evidence','conflicts','revisions','recall','starmap']){
       fixture.querySelector<HTMLButtonElement>(`[data-auto-view="${view}"]`)!.click();
       await wait(()=>fixture.querySelector('[data-view]')?.getAttribute('data-view')===view);
       check(`${language}_${view}_renders`,!!fixture.querySelector('#am-main')&&!!fixture.querySelector('.am-note'));

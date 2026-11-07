@@ -5,6 +5,7 @@ const AUTO_COUNT = AUTO_MEMORIES.length;
 import { UNKNOWN_KEY, UNKNOWN_PACKET } from './state-fixtures';
 import { byId } from './model';
 import Formation from './Formation';
+import Comparison from './Comparison';
 import Grid from './Grid';
 import Timeline from './Timeline';
 import Constellation from './Constellation';
@@ -28,11 +29,13 @@ const VIEWS: { id: ViewId; name: string; hint: string }[] = [
   { id: 'starmap', name: msg('Star map'), hint: msg('the whole generated sample') },
   { id: 'replacement', name: msg('Replacement chain'), hint: msg('recorded replacement links') },
   { id: 'evidence', name: msg('Evidence chain'), hint: msg('support and dependencies kept apart') },
+  { id: 'conflicts', name: msg('Conflict comparison'), hint: msg('held statements and their sources') },
+  { id: 'revisions', name: msg('Revision comparison'), hint: msg('literal changes between provided bodies') },
   { id: 'recall', name: msg('Recall lab'), hint: msg('why offered') },
 ];
 
 const WORKSPACE_VIEWS: Record<WorkspaceId, ViewId[]> = {
-  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap', 'replacement', 'evidence'], formation: ['formation'], recall: ['recall'],
+  memories: ['grid'], time: ['timeline'], relations: ['stars', 'starmap', 'replacement', 'evidence'], formation: ['formation', 'conflicts', 'revisions'], recall: ['recall'],
 };
 export default function AutoMemory({ onExit, workspace }: { onExit?: () => void; workspace?: WorkspaceId }) {
   const [requestedView, setView] = useState<ViewId>(() => {
@@ -54,6 +57,7 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
     : view === 'timeline' ? <Timeline sel={m.id} select={choose} />
     : view === 'stars' ? <Constellation sel={m.id} select={choose} />
     : view === 'replacement' || view === 'evidence' ? <Lineage mode={view} sel={m.id} select={choose} />
+    : view === 'conflicts' || view === 'revisions' ? <Comparison mode={view} sel={m.id} select={choose} />
     : <Recall sel={m.id} select={choose} />;
   return (
     <section data-screen-label="Memory Vault" className="am" data-view={view}
