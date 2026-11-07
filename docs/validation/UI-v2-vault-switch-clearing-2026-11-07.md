@@ -8,6 +8,6 @@
 - 修复前 6 项中 3 项失败：换库后 A 的行与详情仍显示、没有读取 B 的列表、选择状态被继承；锁定清除与只读两项原本就通过。实际调用记录里换库后只有 `workspace_status`，没有 `memory_list@B`。
 - 修复：`Explorer` 与 `Inbox` 的 key 加上 Vault 身份（`vaultId`，缺省用 `rootName`），与已有的 `Import` 一致。修复后 6/6。
 
-影响与边界：换库后收件箱的未发送草稿会随旧 Vault 一起清除，这是预期行为（草稿属于旧 Vault 的候选）。不新增状态、请求、轮询或写入。按 AGENTS.md 的原则，这里记明失败场景与成本：发生条件是换库在一次轮询间隔内完成；后果是新 Vault 下显示旧 Vault 的记忆；代价是两个 key。若 Morii 认为不需要，回退这两行即可。
+影响与边界：换库后收件箱的未发送草稿会随旧 Vault 一起清除，这是预期行为（草稿属于旧 Vault 的候选）。不新增状态、请求、轮询或写入。按 AGENTS.md 的原则，这里记明失败场景与成本：发生条件是换库在一次轮询间隔内完成；后果是新 Vault 下显示旧 Vault 的记忆；代价是两个 key。2026-11-07 Morii 在会话中回复“Keep it”，同意保留。
 
 检查：完整 `npm test`：Node 142 项 139 通过 / 3 跳过 / 0 失败；DOM 119 个场景运行、2,470 项全部通过，退出 0。TypeScript 通过。没有字典改动。没有截图、Rust、原生 smoke、真实换库、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
