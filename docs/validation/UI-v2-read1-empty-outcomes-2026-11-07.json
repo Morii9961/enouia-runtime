@@ -1,0 +1,3343 @@
+{
+  "baseline_revision": "9f95b95",
+  "branch": "claude/ui-v2-read1-empty-outcomes",
+  "scope": "read-1 AutomaticMemory display-only explanations for an empty complete page, a recall simulation that selects nothing, and a detail read that returns automation_memory_absent.",
+  "dom_automatic_memory": {
+    "before_fix_failed": [
+      "absent_detail_explains_and_points_to_refresh",
+      "zh-Hans_absent_detail_notice_translates_without_reread",
+      "ja_absent_detail_notice_translates_without_reread",
+      "en_absent_detail_notice_translates_without_reread",
+      "empty_recall_says_nothing_was_selected",
+      "empty_complete_page_explains_no_memories",
+      "zh-Hans_empty_page_notice_translates",
+      "ja_empty_page_notice_translates",
+      "en_empty_page_notice_translates"
+    ],
+    "after_fix": {
+      "checks": 36,
+      "passed": 36
+    }
+  },
+  "type_check": "tsc --project tsconfig.json exit 0",
+  "i18n_cjk": {
+    "tests": 12,
+    "passed": 12
+  },
+  "guards": {
+    "check-memory-integration": 0,
+    "check-activity-retirement": "passed"
+  },
+  "browser_attempts": [
+    {
+      "attempt": 1,
+      "result": "CDP timeout: Page.navigate on the first navigation; no rows or screenshots"
+    },
+    {
+      "attempt": 2,
+      "result": "passed",
+      "launcher_exit_code": 0
+    }
+  ],
+  "browser_matrix": {
+    "browser": "Edg/156.0.4314.58",
+    "viewport": "1100x700 DPR 1",
+    "states": 9,
+    "rows": [
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Reading library state…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Reading library state…",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: locked"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: lockedUnlock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: disabled"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: disabledNo synthetic library is enabled in this session.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: failed"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: failedThe synthetic library is unavailable. Start a new synthetic session to recover.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Reading library state…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Reading library state…",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: locked"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: lockedUnlock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: disabled"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: disabledNo synthetic library is enabled in this session.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: failed"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: failedThe synthetic library is unavailable. Start a new synthetic session to recover.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "正在读取库状态…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。正在读取库状态…",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：locked"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：locked解锁合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：disabled"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：disabled这个会话没有启用合成库。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：failed"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：failed合成库不可用。请开始一个新的合成会话来恢复。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "正在读取库状态…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。正在读取库状态…",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：locked"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：locked解锁合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：disabled"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：disabled这个会话没有启用合成库。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：failed"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：failed合成库不可用。请开始一个新的合成会话来恢复。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリの状態を読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリの状態を読み込み中…",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：locked"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：locked合成ライブラリのロックを解除",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：disabled"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：disabledこのセッションでは合成ライブラリが有効になっていません。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：failed"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：failed合成ライブラリを使えません。新しい合成セッションを始めて復旧してください。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリの状態を読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリの状態を読み込み中…",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open",
+          "正在读取…"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open正在读取…刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open",
+          "読み込み中…"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open読み込み中…自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open",
+          "Reading…"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openReading…Refresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库：open刷新自动记忆锁定合成库",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリ：open自動記憶を更新合成ライブラリをロック",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "page-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary: openRefresh automatic memoriesLock synthetic library",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。自动记忆的读取被拒绝库状态未知。",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.The automatic Memory read was refusedLibrary state is unknown.",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 1 条记忆 · 1 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · 系统 adopted · 有效性 unspecified · 关注状态 active召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 1 件 · 発生日時不明 1 件このページの許可範囲内では完全 · 保守ワーカー：停止中Synthetic subject says: I prefer quiet workspaces.preference · attributed_statement · システム adopted · 有効性 unspecified · 注意状態 active想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          "Synthetic subject says: I prefer quiet workspaces."
+        ],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z1 currently authorized memories · 1 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedSynthetic subject says: I prefer quiet workspaces.preference · attributed_statement · System adopted · validity unspecified · attention activeRecall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "库：open"
+        ],
+        "body": "自动记忆隔离的合成库系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。这个隔离库与上下文和会话所用的记忆库是分开的。库：open刷新自动记忆锁定合成库状态观察时间：2026-10-24T12:00:00.000Z当前授权范围内有 0 条记忆 · 0 条发生日期未知此授权页面范围内完整 · 维护工作器：已停止此合成库的当前授权范围内没有记忆。召回线索 模拟只读召回",
+        "inspector": "选择一条自动记忆，检查它的来源与状态。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：open自動記憶を更新合成ライブラリをロック状態の観測日時：2026-10-24T12:00:00.000Z現在の許可範囲のメモリ 0 件 · 発生日時不明 0 件このページの許可範囲内では完全 · 保守ワーカー：停止中この合成ライブラリの現在の許可範囲には記憶がありません。想起の手がかり 読み取り専用の想起をシミュレーション",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Automatic memoriesIsolated synthetic librarySystem formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.This isolated library is separate from the Vault used by Context and Sessions.Library: openRefresh automatic memoriesLock synthetic libraryState observed at 2026-10-24T12:00:00.000Z0 currently authorized memories · 0 unknown event datesComplete in this authorized page scope · Maintenance worker: stoppedThis synthetic library has no memories in the current authorized scope.Recall cue Simulate read-only recall",
+        "inspector": "Select an automatic memory to inspect its sources and state.",
+        "query": "literal cue — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：locked"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：locked合成ライブラリのロックを解除",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：disabled"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：disabledこのセッションでは合成ライブラリが有効になっていません。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "statuses": [
+          "ライブラリ：failed"
+        ],
+        "body": "自動記憶隔離した合成ライブラリシステムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。この隔離したライブラリは、コンテキストとセッションが使う保管庫とは別です。ライブラリ：failed合成ライブラリを使えません。新しい合成セッションを始めて復旧してください。",
+        "inspector": "自動記憶を選ぶと、そのソースと状態を確認できます。",
+        "query": null,
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      }
+    ],
+    "page_errors": []
+  },
+  "screenshots": 54,
+  "limitations": [
+    "Absent detail and empty recall are DOM evidence only; the browser fixture stays limited to status/page reads.",
+    "No full npm test, build, Rust, native smoke, real scaling, personal Vault, Owner, real Provider, continuous formation, migration or deployment."
+  ]
+}

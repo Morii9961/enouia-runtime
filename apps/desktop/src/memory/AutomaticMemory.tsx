@@ -10,6 +10,7 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
   const [status, setStatus] = useState<J>(null);
   const [page, setPage] = useState<J>(null);
   const [detail, setDetail] = useState<J>(null);
+  const [absent, setAbsent] = useState(false);
   const [simulation, setSimulation] = useState<J>(null);
   const [cue, setCue] = useState("");
   const [observationError, setObservationError] = useState<{ cause: unknown } | null>(null);
@@ -17,9 +18,9 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
   const identity = useRef<string | null>(null);
   const lifecycleEpoch = useRef(0);
   const controlling = useRef(false);
-  const cleared = useCallback(() => { reads.clear(); setPage(null); setDetail(null); setSimulation(null); identity.current = null; }, [reads.clear]);
+  const cleared = useCallback(() => { reads.clear(); setPage(null); setDetail(null); setAbsent(false); setSimulation(null); identity.current = null; }, [reads.clear]);
   const pageRead = useCallback((cursor: J = null) => {
-    setDetail(null); setSimulation(null);
+    setDetail(null); setAbsent(false); setSimulation(null);
     return reads.run(() => read({ operation: "page", filter: FILTER, cursor, limit: 16 }), result => {
       if (result.kind !== "automation_memory_page") throw new Error("Unexpected automatic Memory page");
       setPage(result);
@@ -56,9 +57,9 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
     return () => { stopped = true; clearTimeout(timer); };
   }, [read, cleared, pageRead]);
   const select = (item: J, sourceText = false) => {
-    setDetail(null); setSimulation(null);
+    setDetail(null); setAbsent(false); setSimulation(null);
     void reads.run(() => read({ operation: "detail", memory_id: item.memory.memory_id, expected: page.snapshot, include_source_text: sourceText }), result => {
-      if (result.kind === "automation_memory_absent") { setDetail(null); return; }
+      if (result.kind === "automation_memory_absent") { setDetail(null); setAbsent(true); return; }
       if (result.kind !== "automation_memory_detail" || snapshotKey(result.snapshot) !== snapshotKey(page.snapshot)) throw new Error("Memory changed; refresh the list");
       setDetail(result);
     });
@@ -93,12 +94,13 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
             <button className="mem-button" disabled={reads.busy} onClick={() => select(item)}>{item.content}</button>
             <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: item.dimensions.kind, knowledge: item.knowledge, adoption: item.adoption, validity: item.validity, attention: item.attention })}</p>
           </li>)}</ul>
+          {page.items.length === 0 && !page.next && <p className="mem-content">{t("This synthetic library has no memories in the current authorized scope.")}</p>}
           {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void pageRead(page.next)}>{t("Next automatic page")}</button>}
           <form className="mem-stack" onSubmit={event => { event.preventDefault(); setSimulation(null); void reads.run(() => read({ operation: "simulate", query: { text: cue, conditions: [], event_window: null, at: page.authorized_at, intent: "current", limit: 8, max_bytes: 16384 } }), setSimulation); }}>
             <label className="mem-label">{t("Recall cue")} <input className="mem-input" value={cue} maxLength={2000} autoComplete="off" onChange={event => setCue(event.target.value)} /></label>
             <button className="mem-button" disabled={reads.busy || !cue.trim()}>{t("Simulate read-only recall")}</button>
           </form>
-          {simulation && <section className="mem-stack" aria-label={t("Read-only recall result")}><Tag>{t("Native read · no saved experiment")}</Tag><pre className="mem-source">{simulation.rendered_context}</pre><p className="mem-content">{t("{selected} selected of {considered} currently authorized candidates.", { selected: simulation.trace.selected.length, considered: simulation.trace.considered })}</p></section>}
+          {simulation && <section className="mem-stack" aria-label={t("Read-only recall result")}><Tag>{t("Native read · no saved experiment")}</Tag>{simulation.trace.selected.length ? <pre className="mem-source">{simulation.rendered_context}</pre> : <p className="mem-content">{t("No memory in the current authorized scope was selected for this cue.")}</p>}<p className="mem-content">{t("{selected} selected of {considered} currently authorized candidates.", { selected: simulation.trace.selected.length, considered: simulation.trace.considered })}</p></section>}
         </>}
       </div>
     </div>
@@ -132,7 +134,7 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
           {source.text !== null ? <pre className="mem-source">{source.text}</pre> : <p className="mem-content">{t("Original text has not been requested or was omitted by the byte budget.")}</p>}
         </section>)}
         <p className="mem-content">{t("Global timeline, global graph and saved experiments are unavailable.")}</p>
-      </> : <p className="mem-content">{t("Select an automatic memory to inspect its sources and state.")}</p>}
+      </> : <p className="mem-content" role={open && absent ? "status" : undefined}>{t(open && absent ? "This memory is no longer in the current authorized scope. Refresh automatic memories to see the current list." : "Select an automatic memory to inspect its sources and state.")}</p>}
     </div></div></aside>
   </>;
 }

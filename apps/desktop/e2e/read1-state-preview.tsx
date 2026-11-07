@@ -15,7 +15,7 @@ import '../src/theme/motion.css';
 import '../src/theme/cjk-fonts.css';
 
 const params=new URLSearchParams(location.search);
-const states=['initial','page-pending','page-error','status-error','open','locked','disabled','failed'];
+const states=['initial','page-pending','page-error','status-error','open','empty','locked','disabled','failed'];
 const state=states.includes(params.get('state')??'')?params.get('state')!:'initial';
 const calls:Record<string,any>[]=[];
 Object.assign(window,{read1FixtureCalls:calls});
@@ -39,7 +39,7 @@ setAutomationTransport(async(command,args)=>{
   }
   if(state==='page-pending')return new Promise(()=>{});
   if(state==='page-error')throw 'automation_read_refused';
-  return structuredClone(basePage);
+  return state==='empty'?{...structuredClone(basePage),items:[],matched_in_scope:0,unknown_event_time_in_scope:0,complete_in_scope:true,next:null}:structuredClone(basePage);
 });
 function Preview(){
   useLang();
@@ -58,5 +58,6 @@ await wait(()=>!!document.querySelector('.qr45 h2')&&calls.length>0);
 if(state==='page-pending')await wait(()=>calls.some(c=>c.operation==='page')&&document.querySelector('.qr45')?.getAttribute('aria-busy')==='true');
 if(state==='page-error'||state==='status-error')await wait(()=>!!document.querySelector('[role="alert"]'));
 if(state==='open')await wait(()=>document.querySelectorAll('.mem-list li').length===basePage.items.length);
+if(state==='empty')await wait(()=>!!document.querySelector('.mem-list')&&document.querySelector('.qr45')?.getAttribute('aria-busy')==='false');
 await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
 document.documentElement.dataset.fixtureReady='true';
