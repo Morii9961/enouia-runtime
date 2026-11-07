@@ -3,7 +3,8 @@
 // time's precision, geometry on the preview's own sample paper, and small
 // lookups. Nothing here reads a Vault, calls IPC or stores anything.
 import { dateFmt, labels, lang, msg, t } from '../../i18n/index.ts';
-import { AUTO_MEMORIES, RELATIONS, THEMES, type AutoMemory, type AutoState, type Occurred, type RelType } from './fixture';
+import { THEMES, type AutoMemory, type AutoState, type Occurred, type RelType } from './fixture';
+import { AUTO_MEMORIES, RELATIONS } from './dataset';
 
 export const byId = new Map(AUTO_MEMORIES.map((m) => [m.id, m]));
 export const themeName = new Map(THEMES.map((t) => [t.id, t.name]));

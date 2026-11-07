@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { RECALL_CASES, type RecallCase } from './fixture';
+import { type RecallCase } from './fixture';
+import { RECALL_CASES } from './dataset';
 import { byId } from './model';
 import { Glyph, Ref } from './parts';
 import type { ViewProps } from './types';
@@ -16,6 +17,7 @@ const STATION: Record<RecallCase['steps'][number]['label'], string> = labels({ '
 export default function Recall({ sel, select }: ViewProps) {
   const [ci, setCi] = useState(0);
   const c = RECALL_CASES[ci];
+  if (!c) return <p className="am-empty">{t("No recall case belongs to this sample. Choose another demo state to inspect a complete invented recall.")}</p>;
   const eligibilityOut = c.excluded.filter((e) => !isBudgetCut(e.reason));
   const cut = c.excluded.filter((e) => isBudgetCut(e.reason));
   const pctOf = (n: number) => `${((n / c.budget.limit) * 100).toFixed(2)}%`;

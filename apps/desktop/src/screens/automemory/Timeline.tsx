@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AUTO_MEMORIES, STATE_LABEL, THEMES, THEME_NOTE, type AutoMemory } from './fixture';
+import { STATE_LABEL, THEMES, THEME_NOTE, type AutoMemory } from './fixture';
+import { AUTO_MEMORIES } from './dataset';
 import { D0, D1, MONDAYS, MONTHS, WEEK, WEEK0, byId, dayStart, daysBetween, fmtClock, fmtDayShort, fmtStamp, occurredText, pack, spanOf, toMs, xOf, type Span } from './model';
 import { Glyph, StateKey } from './parts';
 import type { ViewProps } from './types';
@@ -105,7 +106,7 @@ export default function Timeline({ sel, select }: ViewProps) {
   const recvRows = recv.rows ?? 1;
   const recvH = recvRows * 11 + 32;
   const unknown = AUTO_MEMORIES.filter((x) => x.occurred.precision === 'unknown');
-  const lag = span ? daysBetween(D0 + span.b * (D1 - D0), toMs(m.received)) : null;
+  const lag = span && !span.open ? daysBetween(D0 + span.b * (D1 - D0), toMs(m.received)) : null;
   // Pen notes for the selected memory: ordinal marks, nudged apart so they never overlap.
   const trail = m.trail.map((t, i) => ({ ...t, n: i + 1, x: xOf(toMs(t.at)) }));
   let last = -1;

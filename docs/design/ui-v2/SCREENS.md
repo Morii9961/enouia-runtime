@@ -14,7 +14,7 @@
 ## 数据与预览边界
 
 1. **当前 pin 的常规能力**：`docs/integration/memory-pin.json` 固定的 Memory Workspace `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`，Workspace IPC v1 / schema 1 / 58 命令。常规记忆列表/审阅、Context 与 Sessions 使用该契约，仍是 owner 审阅语义；本轮没有升级 pin 或采用新的 Owner Vault。
-2. **合成预览**：「Automatic memory · synthetic preview」，只在浏览器演示（`connected === false`）里出现，固定标「Synthetic preview · not running」，数据是 `screens/automemory/fixture.ts` 的 15 条虚构记忆。不调用 IPC、不写存储。
+2. **合成预览**：「Automatic memory · synthetic preview」，只在浏览器演示（`connected === false`）里出现，固定标「Synthetic preview · not running」，原始数据是 `screens/automemory/fixture.ts` 的 15 条虚构记忆，另有 `state-fixtures.ts` / `dataset.ts` 的六种状态示例（`auto-dataset` URL 参数），原始 fixture 不改。不调用 IPC、不写存储。
 3. **既有隔离原生样本**：左栏「Synthetic automatic memories」是已合入的 `memory/AutomaticMemory.tsx`，使用独立 `memory_automation` / `memory-native-read-1`，只服务显式 `--memory-synthetic` 创建的隔离样本。它的 schema-2 请求封装与原生样本不代表生产采用，见[原 ADR](../../adr/037-synthetic-native-memory-adoption.md)。本轮未修改或启动该模式。
 4. **以后的受控采用**：Memory 仓库交付生产自动化契约后，由指定的集成负责人一次一处地采用真实数据（Memory UI 规格 §11 的 UI-D / UI-E）。失败或未激活时不得静默回退到浏览器演示；既有隔离原生样本始终保留其合成标签与独立边界。
 
@@ -125,16 +125,16 @@ Memory UI 规格 §1 把 Memory 内部分成五个工作区。现状：浏览器
 
 | 状态 | 需要看见的说明 | 现状 |
 | --- | --- | --- |
-| 空库 | 当前没有可读记忆；下一步是什么 | 未做 |
-| 仅候选 | 有材料但还没有记忆 | 未做（演示有 Candidate inbox，但没有「只有候选」的整屏） |
+| 空库 | 当前没有可读记忆；下一步是什么 | 自动记忆浏览器状态集已做；旧 Vault 整屏空库另片 |
+| 仅候选 | 有材料但还没有记忆 | 自动记忆已有仅材料/暂存状态；旧 Candidate inbox 整屏另片 |
 | 已确认但冲突 | 哪两条冲突、各自来源 | 部分（Formation 里有冲突事件） |
-| 来源缺失 | 哪个证据缺失、可看的还有什么 | 未做 |
+| 来源缺失 | 哪个证据缺失、可看的还有什么 | 自动记忆浏览器状态集已做 |
 | 时间未知 | 哪个时间字段缺失 | 部分（Timeline 的「Time not recorded」） |
 | 部分覆盖 | 已加载多少、是否还有分页 | 部分（「Loaded sample only」文字，无分页样子） |
 | 被替代 | 替代者、生效时间 | 部分（列表与 Inspector 的 superseded 记号） |
 | 锁定 | 没有可读记忆，显式解锁 | 已做 |
-| 结果未知 | 操作可能已提交；保留原始包，显式查询恢复，不自动重发 | 未做 |
-| 只读模式 | 为什么只读、哪些动作不可用 | 未做 |
+| 结果未知 | 操作可能已提交；保留原始包，显式查询恢复，不自动重发 | 浏览器有固定虚构包/键展示，查询明确禁用；不代表原生恢复 |
+| 只读模式 | 为什么只读、哪些动作不可用 | 自动记忆浏览器状态集已做 |
 
 另外按规格 §9 还要有：初次载入（不闪成 0 条）、无结果、索引暂不可用、状态读取失败（清除敏感内容）、plan 过期 / revision 冲突（保留草稿）、权限改变 / 删除 / 换库（立即清除面板与派生文本）。这些在原生 `src/memory/*` 里有行为，视觉上只换了皮，没有专门截图。
 
