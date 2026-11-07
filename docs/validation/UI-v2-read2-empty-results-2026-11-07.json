@@ -1,0 +1,3741 @@
+{
+  "baseline_revision": "claude/ui-v2-read1-empty-outcomes head (draft #144)",
+  "branch": "claude/ui-v2-read2-empty-results",
+  "scope": "read-2 CatalogMemory display-only explanations for an empty complete page with and without a search term.",
+  "dom_catalog_memory": {
+    "before_fix_failed": [
+      "empty_search_result_explains_next_step",
+      "zh-Hans_empty_search_notice_translates_without_replay",
+      "ja_empty_search_notice_translates_without_replay",
+      "en_empty_search_notice_translates_without_replay",
+      "empty_catalog_without_search_says_no_records"
+    ],
+    "after_fix": {
+      "checks": 33,
+      "passed": 33
+    }
+  },
+  "type_check": "tsc --project tsconfig.json exit 0",
+  "i18n_cjk": {
+    "first_run": "cjk-fonts failed: U+641C (搜) missing from the Chinese subset",
+    "reworded": "搜索 -> 检索 (the catalog's existing term)",
+    "final": {
+      "tests": 12,
+      "passed": 12
+    }
+  },
+  "guards": {
+    "check-memory-integration": 0,
+    "check-activity-retirement": "passed"
+  },
+  "browser_matrix": {
+    "browser": "Edg/156.0.4314.58",
+    "viewport": "1100x700 DPR 1",
+    "states": 9,
+    "rows": [
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Reading library state…",
+        "statuses": [
+          "Reading library state…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Reading library state…Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: locked",
+        "statuses": [
+          "Library: locked"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: lockedLiteral catalog search Search catalogUnlock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: disabled",
+        "statuses": [
+          "Library: disabled"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: disabledNo segmented synthetic library is enabled in this session.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: failed",
+        "statuses": [
+          "Library: failed"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: failedThe synthetic library is unavailable. Start a new synthetic session to recover.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Reading library state…",
+        "statuses": [
+          "Reading library state…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Reading library state…Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: locked",
+        "statuses": [
+          "Library: locked"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: lockedLiteral catalog search Search catalogUnlock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: disabled",
+        "statuses": [
+          "Library: disabled"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: disabledNo segmented synthetic library is enabled in this session.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: failed",
+        "statuses": [
+          "Library: failed"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: failedThe synthetic library is unavailable. Start a new synthetic session to recover.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "正在读取库状态…",
+        "statuses": [
+          "正在读取库状态…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。正在读取库状态…字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：locked",
+        "statuses": [
+          "库：locked"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：locked字面检索目录 检索目录解锁合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：disabled",
+        "statuses": [
+          "库：disabled"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：disabled本次会话未启用分段合成库。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：failed",
+        "statuses": [
+          "库：failed"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：failed合成库不可用。请开始一个新的合成会话来恢复。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "正在读取库状态…",
+        "statuses": [
+          "正在读取库状态…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。正在读取库状态…字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：locked",
+        "statuses": [
+          "库：locked"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：locked字面检索目录 检索目录解锁合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：disabled",
+        "statuses": [
+          "库：disabled"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：disabled本次会话未启用分段合成库。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：failed",
+        "statuses": [
+          "库：failed"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：failed合成库不可用。请开始一个新的合成会话来恢复。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリの状態を読み込み中…",
+        "statuses": [
+          "ライブラリの状態を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリの状態を読み込み中…カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：locked",
+        "statuses": [
+          "ライブラリ：locked"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：lockedカタログの文字列検索 カタログを検索合成ライブラリのロックを解除",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：disabled",
+        "statuses": [
+          "ライブラリ：disabled"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：disabledこのセッションでは分割形式の合成ライブラリが有効になっていません。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "ja",
+        "theme": "dark",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：failed",
+        "statuses": [
+          "ライブラリ：failed"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：failed合成ライブラリを使えません。新しい合成セッションを始めて復旧してください。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "initial",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリの状態を読み込み中…",
+        "statuses": [
+          "ライブラリの状態を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリの状態を読み込み中…カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open",
+          "正在读取目录页和统计…"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open正在读取目录页和统计…字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open",
+          "カタログページと統計を読み込み中…"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログページと統計を読み込み中…カタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-pending",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "true",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open",
+          "Reading catalog page and statistics…"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openReading catalog page and statistics…Literal catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆库已变化。请刷新列表。"
+        ],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆库已变化。请刷新列表。库：open字面检索目录 检索目录刷新目录锁定合成库",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶のライブラリが変わりました。一覧を更新してください。"
+        ],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶のライブラリが変わりました。一覧を更新してください。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "counts-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory library changed. Refresh the list."
+        ],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory library changed. Refresh the list.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自动记忆的读取被拒绝"
+        ],
+        "status": "库状态未知。",
+        "statuses": [
+          "库状态未知。"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。自动记忆的读取被拒绝库状态未知。字面检索目录 检索目录",
+        "inspector": "当前没有已读取的目录页面。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "自動記憶の読み取りは拒否されました"
+        ],
+        "status": "ライブラリの状態は不明です。",
+        "statuses": [
+          "ライブラリの状態は不明です。"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。自動記憶の読み取りは拒否されましたライブラリの状態は不明です。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "status-error",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [
+          "The automatic Memory read was refused"
+        ],
+        "status": "Library state is unknown.",
+        "statuses": [
+          "Library state is unknown."
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.The automatic Memory read was refusedLibrary state is unknown.Literal catalog search Search catalog",
+        "inspector": "No catalog page is currently observed.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 2 条 · 授权范围内匹配 3 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 3 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · 系统 adopted · 有效性 unspecified · 关注状态 activesynthetic-memory-2 · r1 · zh-Hans下一页目录",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック2 件表示 · 許可範囲内の一致レコード 3 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 3 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · システム adopted · 有効性 unspecified · 注意状態 activesynthetic-memory-2 · r1 · zh-Hansカタログの次のページ",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "open",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [
+          {
+            "title": "Synthetic item 1",
+            "content": "Synthetic text <img id=\"catalog-injected\" src=\"invalid\">"
+          },
+          {
+            "title": "调试偏好",
+            "content": "合成示例：我喜欢详细的调试说明。"
+          }
+        ],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library2 shown · 3 matching authorized recordsCounts cover currently authorized machine revisions for this selection.3 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZSynthetic item 1Synthetic text <img id=\"catalog-injected\" src=\"invalid\">preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-1 · r1 · en调试偏好合成示例：我喜欢详细的调试说明。preference · self_report · System adopted · validity unspecified · attention activesynthetic-memory-2 · r1 · zh-HansNext catalog page",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "zh-Hans",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "库：open",
+        "statuses": [
+          "库：open"
+        ],
+        "body": "分段合成目录隔离合成 read-2此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。库：open字面检索目录 检索目录刷新目录锁定合成库显示 0 条 · 授权范围内匹配 0 条计数仅包括本次选择中当前获授权的机器记忆修订。此筛选范围内有 0 条记录的事件日期未知。状态观察时间：2026-11-03T00:00:00.000Z此合成目录的当前授权范围内没有记录。",
+        "inspector": "页面与统计来自同一次选择。系统形成保留合成主体说过的话。这不是独立证实，也不是主人确认。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：open",
+        "statuses": [
+          "ライブラリ：open"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：openカタログの文字列検索 カタログを検索カタログを更新合成ライブラリをロック0 件表示 · 許可範囲内の一致レコード 0 件件数は、この選択で現在許可されているシステム記憶のリビジョンのみを対象とします。この絞り込み範囲では 0 件の出来事の日付が不明です。状態の観測日時：2026-11-03T00:00:00.000Zこの合成カタログの現在の許可範囲には記録がありません。",
+        "inspector": "ページと統計は同じ選択に基づいています。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "language",
+        "state": "empty",
+        "language": "en",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "Library: open",
+        "statuses": [
+          "Library: open"
+        ],
+        "body": "Segmented synthetic catalogIsolated synthetic read-2This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.Library: openLiteral catalog search Search catalogRefresh catalogLock synthetic library0 shown · 0 matching authorized recordsCounts cover currently authorized machine revisions for this selection.0 records have unknown event dates in this filter scope.State observed at 2026-11-03T00:00:00.000ZThis synthetic catalog has no records in the current authorized scope.",
+        "inspector": "Page statistics were read for the same selection.System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.",
+        "query": "literal draft — 中文と日本語",
+        "readCalls": [
+          "status",
+          "page",
+          "stats"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "locked",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：locked",
+        "statuses": [
+          "ライブラリ：locked"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：lockedカタログの文字列検索 カタログを検索合成ライブラリのロックを解除",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "disabled",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：disabled",
+        "statuses": [
+          "ライブラリ：disabled"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：disabledこのセッションでは分割形式の合成ライブラリが有効になっていません。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      },
+      {
+        "action": "initial",
+        "state": "failed",
+        "language": "ja",
+        "theme": "light",
+        "watermarkVisible": true,
+        "overflow": false,
+        "busy": "false",
+        "items": [],
+        "alerts": [],
+        "status": "ライブラリ：failed",
+        "statuses": [
+          "ライブラリ：failed"
+        ],
+        "body": "分割形式の合成カタログ隔離された合成 read-2このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。ライブラリ：failed合成ライブラリを使えません。新しい合成セッションを始めて復旧してください。カタログの文字列検索 カタログを検索",
+        "inspector": "現在読み取られたカタログページはありません。システムによる形成は、合成した主体が述べた内容を保ちます。独立した検証でも所有者の確認でもありません。",
+        "query": "",
+        "readCalls": [
+          "status"
+        ],
+        "hostActions": 0
+      }
+    ],
+    "page_errors": [],
+    "launcher_exit_code": 0
+  },
+  "screenshots": 54,
+  "limitations": [
+    "The search-without-match case has DOM evidence only; the browser fixture's empty state uses the default empty filter.",
+    "No full npm test, build, Rust, native smoke, real scaling, personal Vault, Owner, real Provider, continuous formation, migration or deployment."
+  ]
+}

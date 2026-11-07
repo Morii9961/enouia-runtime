@@ -84,6 +84,7 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
             <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: item.base.dimensions.kind, knowledge: item.base.knowledge, adoption: item.base.adoption, validity: item.base.validity, attention: item.base.attention })}</p>
             <p className="mem-row-meta">{shortId(item.base.memory.memory_id)} · r{item.base.memory.revision} · {item.content_lang}</p>
           </li>)}</ul>
+          {page.items.length === 0 && !page.next && <p className="mem-content">{t(filter.text ? "No authorized record matches this search. Search with an empty field to see the whole catalog." : "This synthetic catalog has no records in the current authorized scope.")}</p>}
           {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void load(page.next)}>{t("Next catalog page")}</button>}
         </>}
       </div>

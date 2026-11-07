@@ -1852,5 +1852,7 @@ const dict: Record<string, string> = {
   "This synthetic library has no memories in the current authorized scope.": "この合成ライブラリの現在の許可範囲には記憶がありません。",
   "No memory in the current authorized scope was selected for this cue.": "この想起の手がかりでは、現在の許可範囲の記憶は選ばれませんでした。",
   "This memory is no longer in the current authorized scope. Refresh automatic memories to see the current list.": "この記憶は現在の許可範囲にありません。自動記憶を更新すると現在の一覧を確認できます。",
+  "No authorized record matches this search. Search with an empty field to see the whole catalog.": "この検索に一致する許可済みの記録はありません。検索欄を空にして検索すると、カタログ全体を表示できます。",
+  "This synthetic catalog has no records in the current authorized scope.": "この合成カタログの現在の許可範囲には記録がありません。",
 };
 export default dict;

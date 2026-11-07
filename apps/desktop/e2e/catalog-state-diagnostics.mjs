@@ -89,7 +89,7 @@ try {
 
   const rows=[];
   await send('Emulation.setDeviceMetricsOverride',{width:1100,height:700,deviceScaleFactor:1,mobile:false});
-  const states=process.argv.includes('--feedback-only')?['initial','counts-pending','status-error']:process.argv.includes('--pending-only')?['initial','counts-pending']:['initial','counts-pending','counts-error','status-error','open','locked','disabled','failed'];
+  const states=process.argv.includes('--feedback-only')?['initial','counts-pending','status-error']:process.argv.includes('--pending-only')?['initial','counts-pending']:['initial','counts-pending','counts-error','status-error','open','empty','locked','disabled','failed'];
   for(const language of ['en','zh-Hans','ja'])for(const theme of ['dark','light'])for(const state of states){
     await evaluate(`localStorage.setItem('enouia.lang',${JSON.stringify(language)})`);
     await send('Page.navigate',{url:origin+`/e2e/catalog-state-preview.html?theme=${theme}&state=${state}`});
@@ -99,13 +99,15 @@ try {
       if(!row.watermarkVisible||row.overflow||row.hostActions||row.items.length!==(state==='open'?2:0)||row.alerts.length!==(['counts-error','status-error'].includes(state)?1:0)||row.busy!==(state==='counts-pending'?'true':'false'))throw Error('Invalid catalog state '+JSON.stringify(row));
       const feedback={en:{unknown:'Library state is unknown.',pending:'Reading catalog page and statistics…',initial:'Reading library state…'},'zh-Hans':{unknown:'库状态未知。',pending:'正在读取目录页和统计…',initial:'正在读取库状态…'},ja:{unknown:'ライブラリの状態は不明です。',pending:'カタログページと統計を読み込み中…',initial:'ライブラリの状態を読み込み中…'}}[row.language];
       if(state==='counts-pending'&&!row.statuses.includes(feedback.pending)||state==='status-error'&&(!row.statuses.includes(feedback.unknown)||row.statuses.includes(feedback.initial))||state==='initial'&&!row.statuses.includes(feedback.initial))throw Error('Wrong reading feedback '+JSON.stringify(row));
-      if(state!=='open'&&/shown|匹配|件を表示/.test(row.body))throw Error('Unobserved counts shown');
+      if(state!=='open'&&state!=='empty'&&/shown|匹配|件を表示/.test(row.body))throw Error('Unobserved counts shown');
+      const empty={en:'This synthetic catalog has no records in the current authorized scope.','zh-Hans':'此合成目录的当前授权范围内没有记录。',ja:'この合成カタログの現在の許可範囲には記録がありません。'}[row.language];
+      if(state==='empty'!==row.body.includes(empty))throw Error('Wrong empty catalog feedback '+JSON.stringify(row));
       if(!row.readCalls.every(x=>['status','page','stats'].includes(x)))throw Error('Unexpected operation');
       rows.push(row);return row;
     };
     const initial=await snapshot('initial');if(initial.language!==language)throw Error('Wrong initial language');
     const shot=await send('Page.captureScreenshot',{format:'png'});writeFileSync(join(out,`${state}-${language}-${theme}.png`),Buffer.from(shot.data,'base64'));
-    if(['open','counts-pending','counts-error','status-error'].includes(state)){
+    if(['open','empty','counts-pending','counts-error','status-error'].includes(state)){
       await evaluate(`(()=>{window.fixtureInput=document.querySelector('input');window.fixtureRow=document.querySelector('.mem-list li');fixtureInput.focus();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(fixtureInput,'literal draft — 中文と日本語');fixtureInput.dispatchEvent(new Event('input',{bubbles:true}));})()`);
       await until(()=>evaluate(`document.querySelector('input').value==='literal draft — 中文と日本語'`));
       const reads=initial.readCalls.filter(x=>x==='page'||x==='stats').length;
