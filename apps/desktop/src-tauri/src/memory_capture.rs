@@ -73,14 +73,16 @@ enum CaptureQuery {
     },
     Lock,
     Renew,
+    Correct,
 }
 fn status(phase: &str) -> Value {
     json!({"schema_version":2,"kind":"runtime_memory_capture_status","capability":CAPABILITY,
         "effect":"native_read","mode":"synthetic_owner_only","state":phase,"available":phase=="open",
         "exchanges":fixture::EXCHANGES.len(),
         // The fixed fictional input, shown so the owner sees what a write sends.
-        "conversations":fixture::EXCHANGES.iter().enumerate().map(|(exchange, (user, assistant, lang, _, _))|
-            json!({"exchange":exchange,"user":user,"assistant":assistant,"content_lang":lang})).collect::<Vec<_>>()})
+        "conversations":fixture::EXCHANGES.iter().enumerate().map(|(exchange, (user, assistant, lang, _))|
+            json!({"exchange":exchange,"user":user,"assistant":assistant,"content_lang":lang,
+                "corrects":(exchange == fixture::CORRECTION.1).then_some(fixture::CORRECTION.0)})).collect::<Vec<_>>()})
 }
 fn fault(error: ApplicationFault) -> &'static str {
     match error {
@@ -316,6 +318,15 @@ impl NativeCapture {
                 );
                 let _ = fixture.host.set_foreground(false);
                 serde_json::to_value(page.map_err(fault)?).map_err(|_| "capture_refused")?
+            }
+            CaptureQuery::Correct => {
+                // Saving the report is the whole effect; the worker decides
+                // any revision later. The worker yields while it is saved.
+                fixture.host.set_foreground(true).map_err(fault)?;
+                let receipt = fixture.report_correction(fault);
+                let _ = fixture.host.set_foreground(false);
+                json!({"schema_version":2,"kind":"runtime_memory_capture_correction","effect":"native_write",
+                    "target_exchange":fixture::CORRECTION.0,"correction_exchange":fixture::CORRECTION.1,"receipt":receipt?})
             }
             CaptureQuery::Status | CaptureQuery::Lock | CaptureQuery::Renew => {
                 return Err("capture_invalid_request");

@@ -192,6 +192,7 @@ const HOST: Record<string, string> = labels({
   capture_response_unsupported: msg("This synthetic capture version is unsupported"),
   capture_not_enabled: msg("No synthetic capture is enabled in this session."),
   capture_invalid_request: msg("The request does not match the contract"),
+  capture_correction_unavailable: msg("Capture both conversations and let the first form a memory before sending the correction report."),
   credential_prompt_failed: msg("The Windows credential prompt could not be shown"),
   invalid_request: msg("The request does not match the contract"),
 });

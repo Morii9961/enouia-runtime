@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { captureCall, settled, type CaptureJobs, type CapturePage, type CapturePreflight, type CaptureStatus, type CaptureWrite } from "./capture";
+import { captureCall, settled, type CaptureCorrection, type CaptureJobs, type CapturePage, type CapturePreflight, type CaptureStatus, type CaptureWrite } from "./capture";
 import { describe } from "./client";
 import { useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
@@ -9,7 +9,8 @@ const JOB = labels({
   queued: msg("Queued"), dispatched: msg("Analysing"), forming: msg("Forming"), formed: msg("Formed"),
   no_memory: msg("No memory"), rejected: msg("Rejected"), analysis_unknown: msg("Analysis outcome unknown"),
 });
-type Exchange = { preview?: CapturePreflight; written?: CaptureWrite; jobs?: CaptureJobs; error?: unknown; sending?: boolean };
+type Exchange = { preview?: CapturePreflight; written?: CaptureWrite; jobs?: CaptureJobs; corrected?: CaptureCorrection; error?: unknown; sending?: boolean };
+const revisions = (page: CapturePage | null) => page?.items.reduce((sum, item) => sum + item.base.memory.revision, 0) ?? 0;
 
 export function CaptureMemory({ call = captureCall }: { call?: typeof captureCall }) {
   const [status, setStatus] = useState<CaptureStatus | null>(null);
@@ -17,6 +18,9 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
   const [exchanges, setExchanges] = useState<Record<number, Exchange>>({});
   const [page, setPage] = useState<CapturePage | null>(null);
   const reads = useLatestRead();
+  // Revision total observed when a correction report was saved; the panel
+  // rereads the formed list until Memory's worker writes a newer revision.
+  const [awaiting, setAwaiting] = useState<{ before: number; left: number } | null>(null);
   const controlling = useRef(false);
   const update = (n: number, change: Exchange) => setExchanges(all => ({ ...all, [n]: { ...all[n], ...change } }));
   const open = status?.state === "open";
@@ -32,7 +36,9 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
         setStatus(next); setStatusError(null);
         if (next.state !== "open") setPage(null);
       } catch (cause) {
-        if (!stopped && !controlling.current) { setStatus(null); setStatusError(cause); }
+        // A busy status only means another native call held the entry; keep
+        // what was already observed and read again on the next poll.
+        if (!stopped && !controlling.current) { setStatusError(cause); if (cause !== "capture_busy") setStatus(null); }
       } finally { if (!stopped) timer = setTimeout(poll, 1500); }
     };
     void poll();
@@ -59,6 +65,23 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
     }, 600);
     return () => { stopped = true; clearTimeout(timer); };
   }, [open, exchanges, call, loadPage]);
+  useEffect(() => {
+    if (!open || !awaiting) return;
+    if (revisions(page) > awaiting.before || awaiting.left <= 0) { setAwaiting(null); return; }
+    const timer = setTimeout(() => { setAwaiting(a => a && { ...a, left: a.left - 1 }); void loadPage(); }, 800);
+    return () => clearTimeout(timer);
+  }, [open, awaiting, page, loadPage]);
+  const correct = async (n: number) => {
+    if (exchanges[n]?.sending) return;
+    update(n, { sending: true, error: undefined });
+    try {
+      // Saving the report is the whole effect; Memory's worker decides any revision.
+      const corrected = await call({ operation: "correct" });
+      update(n, { corrected });
+      setAwaiting({ before: revisions(page), left: 30 });
+    } catch (error) { update(n, { error }); }
+    finally { update(n, { sending: false }); }
+  };
   const send = async (n: number, operation: "preflight" | "write") => {
     if (exchanges[n]?.sending) return;
     update(n, { sending: true, error: undefined });
@@ -82,7 +105,7 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
     <div className="qr45" aria-busy={reads.busy}>
       <div className="qr31"><h2 className="qr29">{t("Synthetic Runtime capture")}</h2><Tag tone="warn">{t("Isolated synthetic Owner root")}</Tag></div>
       <div className="qr44 mem-pad">
-        <p className="mem-content">{t("Runtime captures three fixed fictional conversations into a fresh Owner root. Memory's background worker forms memories from the user turns. No model, Provider or personal data is used.")}</p>
+        <p className="mem-content">{t("Runtime captures fixed fictional conversations into a fresh Owner root. Memory's background worker forms memories from the user turns and applies a synthetic Agent's correction report. No model, Provider or personal data is used.")}</p>
         {statusError != null && <p role="alert">{describe(statusError)}</p>}
         <p role="status">{status ? t("Capture: {state}", { state: status.state }) : statusError != null ? t("Capture state is unknown.") : t("Reading capture state…")}</p>
         {status?.state === "disabled" && <p className="mem-content">{t("No synthetic capture is enabled in this session.")}</p>}
@@ -93,17 +116,20 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
           const e = exchanges[c.exchange] ?? {};
           return <li key={c.exchange}>
             <h3 className="mem-content">{t("Conversation {n}", { n: c.exchange + 1 })}</h3>
+            {c.corrects !== null && <p className="mem-row-meta">{t("Corrects conversation {n}", { n: c.corrects + 1 })}</p>}
             <p className="mem-content" lang={c.content_lang}><span className="mem-label">{t("User")}</span> {c.user}</p>
             <p className="mem-content" lang={c.content_lang}><span className="mem-label">{t("Assistant")}</span> {c.assistant}</p>
             <div className="mem-actions">
               <button className="mem-button" disabled={!open || e.sending} onClick={() => void send(c.exchange, "preflight")}>{t("Preview capture")}</button>
               <button className="mem-button" disabled={!open || e.sending} onClick={() => void send(c.exchange, "write")}>{t("Capture conversation")}</button>
+              {c.corrects !== null && <button className="mem-button" disabled={!open || e.sending} onClick={() => void correct(c.exchange)}>{t("Send synthetic correction report")}</button>}
             </div>
             {e.sending && <p role="status">{t("Sending to Memory…")}</p>}
             {e.error != null && <p role="alert">{describe(e.error)}</p>}
             {e.preview && <p className="mem-content">{t(e.preview.capture.replayed ? "Preview: this conversation is already captured." : "Preview: this conversation is not captured yet. Nothing was queued.")}</p>}
             {e.written && <p className="mem-content">{e.written.queue_error ? t("Captured, but queueing was refused: {error}", { error: describe(e.written.queue_error) })
               : t(e.written.capture.replayed ? "Already captured. Memory returned the original receipt." : "Captured and queued for formation.")}</p>}
+            {e.corrected && <p className="mem-content">{t("Correction report saved. Memory's worker decides any revision on its own.")}</p>}
             {e.jobs && <ul className="mem-list">{e.jobs.jobs.map(j => <li key={j.job_key} className="mem-row-meta">
               {t("{state} · {receipts} memories", { state: JOB[j.state], receipts: j.receipts })}</li>)}</ul>}
           </li>;

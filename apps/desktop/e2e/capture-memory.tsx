@@ -3,15 +3,15 @@ import { createRoot } from 'react-dom/client';
 import { CaptureMemory } from '../src/memory/CaptureMemory';
 import { setCaptureTransport } from '../src/memory/capture';
 import { setLang, useLang, type Lang } from '../src/i18n';
-import { status, preflight, write, jobs, page } from './fixtures/capture.mjs';
+import { status, preflight, write, jobs, page, correction } from './fixtures/capture.mjs';
 const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:Record<string,any>[]=[];
 let state='disabled';const formed:string[]=[];const progress:Record<number,string[][]>={};
-let writeFailure:string|null=null,queueFailure=false;
+let writeFailure:string|null=null,queueFailure=false,busyStatus=false;const revised:string[]=[];
 setCaptureTransport(async(command,args)=>{
   if(command!=='memory_capture')throw new Error('Unexpected channel');
   const query=(args as any).request.query;calls.push(structuredClone(query));
-  if(query.operation==='status')return status(state);
+  if(query.operation==='status'){if(busyStatus){busyStatus=false;throw 'capture_busy';}return status(state);}
   if(query.operation==='lock'){state='locked';return {...status('locked'),effect:'native_control'};}
   if(query.operation==='renew'){state='open';return {...status('open'),effect:'native_control'};}
   if(query.operation==='preflight')return preflight(query.exchange);
@@ -27,7 +27,8 @@ setCaptureTransport(async(command,args)=>{
     if(next[0]==='formed'&&!formed.includes(`conversation ${query.exchange}`))formed.push(`conversation ${query.exchange}`);
     return jobs(query.exchange,next);
   }
-  if(query.operation==='page')return page(formed);
+  if(query.operation==='correct'){setTimeout(()=>revised.push('conversation 0'),300);return correction();}
+  if(query.operation==='page')return page(formed,revised);
   throw new Error('Unexpected operation');
 });
 const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -59,6 +60,15 @@ try{
   check('formed_memories_refresh_after_jobs_settle',text().includes('Formed from: conversation 0'));
   const settledJobs=sent('jobs').length;await sleep(1500);
   check('settled_jobs_stop_polling',sent('jobs').length===settledJobs);
+  busyStatus=true;await wait(()=>!busyStatus);await wait(()=>text().includes('Synthetic capture is busy. Try again shortly.'));
+  check('busy_status_keeps_conversations_and_formed_list',!!item(3)&&text().includes('Capture: open')&&text().includes('1 memories formed in this root'));
+  await wait(()=>!text().includes('Synthetic capture is busy.'));
+  check('correction_conversation_names_its_target',item(3)!.textContent!.includes('Corrects conversation 1')&&!item(0)!.textContent!.includes('Corrects conversation'));
+  const writesBefore=sent('write').length;
+  [...item(3)!.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.trim()==='Send synthetic correction report')!.click();
+  await wait(()=>item(3)!.textContent!.includes("Correction report saved. Memory's worker decides any revision on its own."));
+  await wait(()=>text().includes('· r2 ·'));
+  check('correction_sends_one_report_and_waits_for_the_worker_revision',sent('correct').length===1&&sent('write').length===writesBefore&&text().includes('Corrected by the synthetic report'));
   const writes=sent('write').length;
   for(const [language,heading,label] of [['zh-Hans','合成 Runtime 捕获','已形成 · 1 条记忆'],['ja','合成 Runtime キャプチャ','形成済み · 記憶 1 件'],['en','Synthetic Runtime capture','Formed · 1 memories']]){
     await setLang(language as Lang);await wait(()=>text().includes(heading));
@@ -79,6 +89,6 @@ try{
   button('End capture enrollment')!.click();
   await wait(()=>text().includes('Capture enrollment ended for this session.'));
   check('end_enrollment_sends_one_lock_and_hides_formed_list',sent('lock').length===1&&!text().includes('memories formed in this root'));
-  check('only_closed_capture_operations_were_used',calls.every(c=>['status','preflight','write','jobs','page','lock','renew'].includes(c.operation)));
+  check('only_closed_capture_operations_were_used',calls.every(c=>['status','preflight','write','jobs','page','lock','renew','correct'].includes(c.operation)));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.every(c=>c.ok),calls});}

@@ -29,7 +29,12 @@ fn wait_formed(native: &NativeCapture, exchange: usize) -> Value {
                 .map(|job| job["state"].as_str().unwrap())
                 .collect();
             states.sort();
-            assert_eq!(states, ["formed", "no_memory"], "{jobs}");
+            let expected: &[&str] = if fixture::EXCHANGES[exchange].3.is_some() {
+                &["formed", "no_memory"]
+            } else {
+                &["no_memory", "no_memory"]
+            };
+            assert_eq!(states, expected, "{jobs}");
             return jobs;
         }
         assert!(Instant::now() < deadline, "formation deadline: {jobs}");
@@ -112,10 +117,12 @@ fn fixed_turns_capture_queue_and_form_in_background_then_replay_by_key() {
             .map(|job| job["receipts"].as_u64().unwrap())
             .sum::<u64>();
     }
-    // Only the fixed user turns form; assistant turns form nothing.
-    assert_eq!(receipts, fixture::EXCHANGES.len() as u64);
+    // Only the fixed statement turns form; assistant and correction turns
+    // form nothing on their own.
+    let statements = fixture::EXCHANGES.iter().filter(|e| e.3.is_some()).count();
+    assert_eq!(receipts, statements as u64);
     let formed = page(&native);
-    assert_eq!(formed["matched_in_scope"], fixture::EXCHANGES.len());
+    assert_eq!(formed["matched_in_scope"], statements);
     let mut titles: Vec<_> = formed["items"]
         .as_array()
         .unwrap()
@@ -123,12 +130,70 @@ fn fixed_turns_capture_queue_and_form_in_background_then_replay_by_key() {
         .map(|row| row["title"].as_str().unwrap().to_owned())
         .collect();
     titles.sort();
-    let mut expected: Vec<_> = fixture::EXCHANGES.iter().map(|e| e.3.to_owned()).collect();
+    let mut expected: Vec<_> = fixture::EXCHANGES
+        .iter()
+        .filter_map(|e| e.3.map(|(title, _)| title.to_owned()))
+        .collect();
     expected.sort();
     assert_eq!(titles, expected);
     let replay = native.call("main", &op("write", 0)).unwrap();
     assert_eq!(replay["capture"]["replayed"], true, "{replay}");
-    assert_eq!(page(&native)["matched_in_scope"], fixture::EXCHANGES.len());
+    assert_eq!(page(&native)["matched_in_scope"], statements);
+    native.shutdown();
+}
+
+#[test]
+fn synthetic_agent_report_is_consumed_into_a_system_revision_automatically() {
+    let native = NativeCapture::default();
+    native.initialize_synthetic().unwrap();
+    let (target, correction) = fixture::CORRECTION;
+    let status = native
+        .call("main", &packet(json!({"operation":"status"})))
+        .unwrap();
+    assert_eq!(status["conversations"][correction]["corrects"], target);
+    assert!(status["conversations"][target]["corrects"].is_null());
+    let correct = packet(json!({"operation":"correct"}));
+    // Nothing to correct before both conversations are captured and formed.
+    assert_eq!(
+        native.call("main", &correct),
+        Err("capture_correction_unavailable")
+    );
+    for exchange in [target, correction] {
+        native.call("main", &op("write", exchange)).unwrap();
+        wait_formed(&native, exchange);
+    }
+    let before = page(&native);
+    assert_eq!(before["matched_in_scope"], 1);
+    let saved = native.call("main", &correct).unwrap();
+    assert_eq!(saved["effect"], "native_write");
+    assert_eq!(saved["receipt"]["state"], "report_saved", "{saved}");
+    let deadline = Instant::now() + Duration::from_secs(20);
+    let revised = loop {
+        let now = page(&native);
+        if now["items"][0]["base"]["memory"]["revision"] == 2 {
+            break now;
+        }
+        assert!(Instant::now() < deadline, "correction deadline: {now}");
+        std::thread::sleep(Duration::from_millis(20));
+    };
+    assert_eq!(revised["matched_in_scope"], 1);
+    assert_eq!(
+        revised["items"][0]["base"]["memory"]["memory_id"],
+        before["items"][0]["base"]["memory"]["memory_id"]
+    );
+    assert_eq!(
+        revised["items"][0]["base"]["content"],
+        fixture::EXCHANGES[correction].0
+    );
+    assert_eq!(
+        revised["items"][0]["title"],
+        "reading design notes in the evening"
+    );
+    // The same report key replays its original receipt; no second revision.
+    let again = native.call("main", &correct).unwrap();
+    assert_eq!(again["receipt"], saved["receipt"]);
+    std::thread::sleep(Duration::from_millis(200));
+    assert_eq!(page(&native)["items"][0]["base"]["memory"]["revision"], 2);
     native.shutdown();
 }
 
