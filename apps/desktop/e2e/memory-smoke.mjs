@@ -1200,7 +1200,7 @@ async function captureMemoryChecks() {
   await s.evaluate(helpers);
   await waitFor(s,"__t.capture({operation:'status'}).then(r=>r.ok?.state==='open')",'synthetic Owner root');
   const status = await s.evaluate("__t.capture({operation:'status'}).then(r=>r.ok)");
-  check('CAPTURE.explicit_synthetic_owner_entry', status.mode === 'synthetic_owner_only' && status.effect === 'native_read' && status.available && status.exchanges === 3);
+  check('CAPTURE.explicit_synthetic_owner_entry', status.mode === 'synthetic_owner_only' && status.effect === 'native_read' && status.available && status.exchanges === 4 && status.conversations[3].corrects === 0);
   const others = await s.evaluate("Promise.all([__t.invoke('memory_automation',{request:{schema_version:2,capability:'memory-native-read-1',query:{operation:'status'}}}),__t.invoke('memory_catalog',{request:{schema_version:2,capability:'memory-native-read-2',query:{operation:'status'}}})]).then(r=>r.map(x=>x.ok?.state))");
   check('CAPTURE.workspace_read1_and_read2_do_not_adopt_owner_root', (await statusOf(s)).vault.state === 'none' && others.every(state => state === 'disabled'));
   const page = () => s.evaluate("__t.capture({operation:'page',cursor:null,limit:32}).then(r=>r.ok)");
@@ -1220,6 +1220,17 @@ async function captureMemoryChecks() {
   const formed = await page();
   const titles = formed.items.map(row => row.title).sort();
   check('CAPTURE.formed_records_are_system_authored_with_receipts', formed.matched_in_scope === 3 && JSON.stringify(titles) === JSON.stringify(['pottery glaze','reading design notes','蓝色陶杯'].sort()) && formed.items.every(row => row.base.system_actor.actor_type === 'system' && row.base.receipt));
+  const firstPage = formed.items.find(row => row.title === 'reading design notes');
+  await s.evaluate("__t.capture({operation:'write',exchange:3})");
+  await waitFor(s, "__t.capture({operation:'jobs',exchange:3}).then(r=>r.ok && r.ok.jobs.length>0 && r.ok.jobs.every(j=>j.state==='no_memory'))", 'correction turn settles without memory');
+  const saved = await s.evaluate("__t.capture({operation:'correct'})");
+  check('CAPTURE.synthetic_agent_correction_report_is_saved', saved.ok?.receipt?.state === 'report_saved' && saved.ok.effect === 'native_write');
+  await waitFor(s, `__t.capture({operation:'page',cursor:null,limit:32}).then(r=>r.ok && r.ok.items.some(i=>i.base.memory.memory_id===${JSON.stringify(firstPage.base.memory.memory_id)} && i.base.memory.revision===2))`, 'System revision from the report');
+  const revisedPage = await page();
+  const revised = revisedPage.items.find(row => row.base.memory.memory_id === firstPage.base.memory.memory_id);
+  check('CAPTURE.worker_revises_the_target_memory_from_the_user_correction', revisedPage.matched_in_scope === 3 && revised.title === 'reading design notes in the evening' && revised.base.content.includes('in the evening') && revised.base.system_actor.actor_type === 'system');
+  const again = await s.evaluate("__t.capture({operation:'correct'}).then(r=>r.ok)");
+  check('CAPTURE.correction_report_key_replays_without_second_revision', again.receipt.report_key === saved.ok.receipt.report_key && (await page()).items.find(row => row.base.memory.memory_id === firstPage.base.memory.memory_id).base.memory.revision === 2);
   const replay = await s.evaluate("__t.capture({operation:'write',exchange:0}).then(r=>r.ok)");
   check('CAPTURE.same_key_write_replays_without_new_memory', replay.capture.replayed === true && (await page()).matched_in_scope === 3);
   const version = await s.evaluate("__t.invoke('memory_capture',{request:{schema_version:1,capability:'memory-runtime-owner-capture-native-1',query:{operation:'status'}}})");
@@ -1235,7 +1246,9 @@ async function captureMemoryChecks() {
   const afterRenew = await s.evaluate("__t.capture({operation:'write',exchange:0}).then(r=>r.ok)");
   check('CAPTURE.explicit_renewal_reenrolls_and_replays_original_key', renewed.ok?.state === 'open' && renewed.ok.effect === 'native_control' && afterRenew.capture.replayed === true && (await page()).matched_in_scope === 3);
   await s.evaluate("__t.capture({operation:'lock'})");
-  const locked = await s.evaluate("Promise.all([__t.capture({operation:'write',exchange:1}),__t.capture({operation:'page',cursor:null,limit:1}),__t.capture({operation:'status'})])");
+  // Sequential: concurrent calls on this entry may see capture_busy instead.
+  const locked = [];
+  for (const query of ["{operation:'write',exchange:1}", "{operation:'page',cursor:null,limit:1}", "{operation:'status'}"]) locked.push(await s.evaluate(`__t.capture(${query})`));
   check('CAPTURE.lock_revokes_enrollment_and_reads', locked[0].err === 'capture_locked' && locked[1].err === 'capture_locked' && locked[2].ok?.state === 'locked');
   void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
   check('CAPTURE.exit_joins_worker_and_releases_root', (await waitForExit(app,20000)) === 0);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { captureCall, setCaptureTransport, settled } from '../src/memory/capture.ts';
-import { CAPABILITY, status, preflight, write, jobs, page } from '../e2e/fixtures/capture.mjs';
+import { CAPABILITY, status, preflight, write, jobs, page, correction } from '../e2e/fixtures/capture.mjs';
 
 test('capture uses its own native port and names exchanges only', async () => {
   const sent = [];
@@ -20,6 +20,11 @@ test('wrong kinds, effects, exchanges and receipts are refused', async () => {
     ['status', {}, { ...status(), conversations: [] }],
     ['lock', {}, status('locked')],
     ['renew', {}, status('open')],
+    ['status', {}, { ...status(), conversations: status().conversations.map(c => c.exchange === 3 ? { ...c, corrects: 3 } : c) }],
+    ['status', {}, { ...status(), conversations: status().conversations.map(c => c.exchange === 3 ? { ...c, corrects: 9 } : c) }],
+    ['correct', {}, { ...correction(), effect: 'native_read' }],
+    ['correct', {}, { ...correction(), receipt: { state: 'corrected', request_id: 'x' } }],
+    ['correct', {}, { ...correction(), correction_exchange: 0 }],
     ['preflight', { exchange: 0 }, preflight(1)],
     ['preflight', { exchange: 0 }, { ...preflight(0), capture: { captured: true, replayed: false, formation_scheduled: false } }],
     ['write', { exchange: 0 }, { ...write(0), effect: 'native_read' }],
@@ -37,13 +42,17 @@ test('wrong kinds, effects, exchanges and receipts are refused', async () => {
   }
 });
 test('every failure is one send without fallback or resend', async () => {
-  for (const operation of ['status', 'preflight', 'write', 'jobs', 'page', 'lock', 'renew'])
+  for (const operation of ['status', 'preflight', 'write', 'jobs', 'page', 'lock', 'renew', 'correct'])
     for (const error of ['capture_outcome_unknown', 'capture_busy', 'worker_failed']) {
       let calls = 0;
       setCaptureTransport(async () => { calls++; throw error; });
       await assert.rejects(captureCall({ operation, exchange: 0, cursor: null, limit: 32 }), actual => actual === error);
       assert.equal(calls, 1);
     }
+});
+test('a saved correction report is accepted only as report_saved', async () => {
+  setCaptureTransport(async () => correction());
+  assert.equal((await captureCall({ operation: 'correct' })).receipt.state, 'report_saved');
 });
 test('jobs settle only on terminal Memory states', () => {
   assert.equal(settled([]), false);

@@ -8,21 +8,23 @@ export const CAPTURE_STATES = ["disabled", "initializing", "open", "locked", "ex
 export const JOB_STATES = ["queued", "dispatched", "forming", "formed", "no_memory", "rejected", "analysis_unknown"] as const;
 export type CaptureState = typeof CAPTURE_STATES[number];
 export type JobState = typeof JOB_STATES[number];
-export type CaptureConversation = { exchange: number; user: string; assistant: string; content_lang: string };
+export type CaptureConversation = { exchange: number; user: string; assistant: string; content_lang: string; corrects: number | null };
 export type CaptureStatus = { kind: "runtime_memory_capture_status"; mode: "synthetic_owner_only"; state: CaptureState;
   available: boolean; exchanges: number; conversations: CaptureConversation[]; reason?: string };
 export type CaptureReceipt = { captured: boolean; replayed: boolean; formation_scheduled: boolean };
 export type CapturePreflight = { kind: "runtime_memory_capture_preflight"; exchange: number; capture: CaptureReceipt };
 export type CaptureWrite = { kind: "runtime_memory_capture_write"; exchange: number; capture: CaptureReceipt;
   queue: { state: string } | null; queue_error: string | null };
+export type CaptureCorrection = { kind: "runtime_memory_capture_correction"; target_exchange: number; correction_exchange: number;
+  receipt: { state: "report_saved"; request_id: string } };
 export type CaptureJob = { job_key: string; state: JobState; receipts: number; refused: number };
 export type CaptureJobs = { kind: "runtime_memory_capture_jobs"; exchange: number; jobs: CaptureJob[] };
 export type CaptureItem = { title: string; content_lang: string; base: { memory: { memory_id: string; revision: number };
   content: string; system_actor: { actor_type: "system" } } };
 export type CapturePage = { kind: "catalog_memory_page"; matched_in_scope: number; authorized_at: string; items: CaptureItem[] };
 type Queries = { status: object; preflight: { exchange: number }; write: { exchange: number }; jobs: { exchange: number };
-  page: { cursor: null; limit: number }; lock: object; renew: object };
-type Results = { status: CaptureStatus; preflight: CapturePreflight; write: CaptureWrite; jobs: CaptureJobs; page: CapturePage; lock: CaptureStatus; renew: CaptureStatus };
+  page: { cursor: null; limit: number }; lock: object; renew: object; correct: object };
+type Results = { status: CaptureStatus; preflight: CapturePreflight; write: CaptureWrite; jobs: CaptureJobs; page: CapturePage; lock: CaptureStatus; renew: CaptureStatus; correct: CaptureCorrection };
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);
 export function setCaptureTransport(next: Transport): void { transport = next; }
@@ -44,7 +46,8 @@ export async function captureCall<K extends keyof Queries>(query: { operation: K
           (value.reason !== undefined && (value.state !== "failed" || typeof value.reason !== "string")) ||
           !Array.isArray(value.conversations) || value.conversations.length !== value.exchanges ||
           value.conversations.some((c: J, n: number) => !c || c.exchange !== n || typeof c.user !== "string" ||
-            typeof c.assistant !== "string" || typeof c.content_lang !== "string")) bad();
+            typeof c.assistant !== "string" || typeof c.content_lang !== "string" ||
+            (c.corrects !== null && (!count(c.corrects) || c.corrects >= value.exchanges || c.corrects === n)))) bad();
       break;
     case "preflight":
       if (value.kind !== "runtime_memory_capture_preflight" || value.effect !== "native_read" || value.exchange !== exchange ||
@@ -56,6 +59,11 @@ export async function captureCall<K extends keyof Queries>(query: { operation: K
           (value.queue === null) === (value.queue_error === null) ||
           (value.queue !== null && typeof value.queue?.state !== "string") ||
           (value.queue_error !== null && typeof value.queue_error !== "string")) bad();
+      break;
+    case "correct":
+      if (value.kind !== "runtime_memory_capture_correction" || value.effect !== "native_write" ||
+          !count(value.target_exchange) || !count(value.correction_exchange) || value.target_exchange === value.correction_exchange ||
+          value.receipt?.state !== "report_saved" || typeof value.receipt?.request_id !== "string") bad();
       break;
     case "jobs":
       if (value.kind !== "runtime_memory_capture_jobs" || value.effect !== "native_read" || value.exchange !== exchange ||
