@@ -20,12 +20,16 @@ struct Page {
     ws: Workspace,
     base: PathBuf,
     n: AtomicU64,
+    /// Leave the synthetic root behind (only the ignored seeding test).
+    keep: bool,
 }
 
 impl Drop for Page {
     fn drop(&mut self) {
         self.ws.shutdown();
-        let _ = std::fs::remove_dir_all(&self.base);
+        if !self.keep {
+            let _ = std::fs::remove_dir_all(&self.base);
+        }
     }
 }
 
@@ -43,6 +47,7 @@ impl Page {
             ws: Workspace::new(Config::default()),
             base,
             n: AtomicU64::new(1),
+            keep: false,
         };
         let token = page.pick(PickKind::VaultRoot, "vault");
         let status = page.ok(
@@ -1696,4 +1701,336 @@ fn session_and_context_fields_the_surfaces_render() {
     );
     assert_eq!(previewed["delivery"], "preview_not_sent");
     assert_eq!(previewed["capsule"]["query"], "Lantern");
+}
+
+/// Keys sorted at every level, as Memory's canonical persona bytes require.
+fn sorted(value: &Value) -> Value {
+    match value {
+        Value::Object(map) => {
+            let mut keys: Vec<&String> = map.keys().collect();
+            keys.sort();
+            Value::Object(
+                keys.into_iter()
+                    .map(|k| (k.clone(), sorted(&map[k])))
+                    .collect(),
+            )
+        }
+        Value::Array(items) => Value::Array(items.iter().map(sorted).collect()),
+        other => other.clone(),
+    }
+}
+
+const PRIVATE_PROSE: &str = "（合成私密）只在主人面前说的话。";
+const PRIVATE_FACT: &str = "（合成私密）主人家的门牌号。";
+const PUBLIC_FACT: &str = "（合成公开）喜欢看星星。";
+const UNCHECKED_FACT: &str = "（合成公开）周末常去爬山。";
+
+/// A synthetic Vault with one Identity revision holding a public persona
+/// block (plus private prose outside it), two public records and one private
+/// record, all accepted. Workspace IPC v1 has no Identity write, so the
+/// proposals go through the pinned Vault and govern crates while the Core is
+/// released; acceptance then uses review_plan/review_confirm like the review
+/// dialog. Synthetic text only.
+fn seeded_persona_page(name: &str) -> Page {
+    use enouia_memory_contract::candidate::{ProposalKind, ProposedType};
+    use enouia_memory_contract::common::{Sensitivity, TimePrecision, TrustedSurface};
+    use enouia_memory_contract::json::Revision;
+    use enouia_memory_contract::record::{RecordKind, RecordRef};
+    use enouia_memory_contract::source::ConfirmationMethod;
+    use enouia_memory_govern::{EvidenceSpec, Origin, Proposal, Proposed, propose};
+    use enouia_memory_vault::service::ManualAssertionInput;
+    use enouia_memory_vault::{
+        OsIdSource, RootPolicy, SystemClock, Vault, VaultOptions, verify_data_root,
+    };
+    use std::sync::Arc;
+
+    let example = |n: u32| {
+        json!({"turns": [{"speaker": "群友甲", "text": format!("（合成）问题{n}")},
+            {"speaker": "合成伙伴", "text": format!("（合成）回答{n}")}]})
+    };
+    let block = json!({
+        "display_name": "合成伙伴",
+        "persona": {"background": "（合成）虚构的数字伙伴。", "personality": "（合成）温和。",
+            "voice": "（合成）短句。", "motivation": "（合成）帮人想清楚。", "values": "（合成）诚实。",
+            "rules": "（合成）不评价私事。", "limits": "（合成）不联网。"},
+        "style": {"rules": ["（合成）一次答一个问题"], "anti_examples": ["（合成）长篇大论"]},
+        "examples": [example(1), example(2), example(3)],
+        "interests": ["（合成）天文"],
+        "boundaries": {"refuse": ["（合成）透露私人信息"], "ai_disclosure": "（合成）我是 AI。",
+            "avoid_topics": ["（合成）政治"], "forbidden_words": ["（合成）禁词"]},
+    });
+    let markdown = format!(
+        "# 合成身份\n\n{PRIVATE_PROSE}\n\n```enouia-public-persona-1\n{}\n```\n",
+        serde_json::to_string_pretty(&block).unwrap()
+    );
+
+    let mut page = Page::new(name);
+    page.ws.shutdown();
+    {
+        let root = verify_data_root(&page.base.join("vault"), &RootPolicy::default()).unwrap();
+        let vault = Vault::open(
+            &root,
+            None,
+            Arc::new(SystemClock),
+            Arc::new(OsIdSource),
+            VaultOptions::default(),
+        )
+        .unwrap();
+        let owner = vault.descriptor().created_by.clone();
+        let pin = vault.pin_current().unwrap();
+        let policy: enouia_memory_contract::ids::PolicyId = vault
+            .record_entries(&pin, RecordKind::Policy)
+            .unwrap()
+            .into_iter()
+            .find_map(|e| {
+                let bytes = vault
+                    .read_record(
+                        &pin,
+                        &RecordRef::new(RecordKind::Policy, &e.record_id, e.revision),
+                    )
+                    .unwrap();
+                let record: Value = serde_json::from_slice(&bytes).unwrap();
+                (record["origin"] == "genesis_default")
+                    .then(|| serde_json::from_value(record["policy_id"].clone()).unwrap())
+            })
+            .expect("genesis policy");
+        let source = |text: &str, sensitivity| {
+            vault
+                .record_manual_assertion(
+                    &ManualAssertionInput {
+                        text: text.to_owned(),
+                        operator: owner.clone(),
+                        trusted_surface: TrustedSurface::TrustedWindowsApp,
+                        confirmation: ConfirmationMethod::ExactTextConfirmDialog,
+                        sensitivity,
+                        access_policy_id: policy.clone(),
+                        time_precision: TimePrecision::Millisecond,
+                    },
+                    format!("runtime-persona-source\n{text}").as_bytes(),
+                )
+                .unwrap()
+                .id
+        };
+        let offer = |proposal: Proposal| {
+            let key = format!("runtime-persona\n{}", proposal.content);
+            let stored = propose(
+                &vault,
+                &proposal,
+                &Origin::owner(owner.clone()),
+                key.as_bytes(),
+            )
+            .unwrap();
+            assert!(matches!(stored, Proposed::Stored(_)));
+        };
+        let one = Revision::new(1).unwrap();
+        let mut details = serde_json::Map::new();
+        details.insert("slug".into(), json!("style"));
+        details.insert("title".into(), json!("合成身份"));
+        offer(Proposal {
+            kind: ProposalKind::IdentityChange,
+            proposed_type: ProposedType::Identity,
+            content: markdown.clone(),
+            details: Some(details),
+            evidence: vec![EvidenceSpec::content(
+                source(&markdown, Sensitivity::Private),
+                one,
+            )],
+            context_source_refs: vec![],
+            reason: "identity change".into(),
+            sensitivity: None,
+            target_memory_id: None,
+            target_identity_id: None,
+            expected_revision: None,
+            effective_from: None,
+            reopens_candidate_id: None,
+        });
+        for (n, (text, sensitivity)) in [
+            (PUBLIC_FACT, Sensitivity::Public),
+            (UNCHECKED_FACT, Sensitivity::Public),
+            (PRIVATE_FACT, Sensitivity::Private),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let mut details = serde_json::Map::new();
+            details.insert("claim_key".into(), json!(format!("synthetic.persona_{n}")));
+            details.insert("tags".into(), json!(["synthetic.persona"]));
+            details.insert(
+                "subject_ids".into(),
+                json!([owner.actor_id.as_str().replacen("prn_", "sub_", 1)]),
+            );
+            offer(Proposal::create(
+                ProposedType::Fact,
+                text,
+                details,
+                vec![EvidenceSpec::content(source(text, sensitivity), one)],
+            ));
+        }
+    }
+    page.reopen();
+    let pending = page.ok("candidate_list", json!({"cursor": null, "limit": 50}));
+    for candidate in pending["items"].as_array().unwrap() {
+        page.decide(candidate, "accept", None);
+    }
+    page
+}
+
+/// Public persona export (Enouia Memory ADR-MEM-128) as the persona panel
+/// drives it, on the seeded synthetic Vault.
+#[test]
+fn public_persona_export_writes_exactly_the_previewed_file() {
+    let page = seeded_persona_page("persona");
+
+    // Options: one valid Identity, only the public records, no last export.
+    let options = page.ok("persona_options", json!({"audience": "public_group"}));
+    assert_eq!(
+        options["identities"].as_array().unwrap().len(),
+        1,
+        "{options}"
+    );
+    let identity = &options["identities"][0];
+    assert_eq!(identity["publicBlock"], "valid");
+    let public = options["publicMemories"].as_array().unwrap();
+    let titles: Vec<&str> = public
+        .iter()
+        .map(|m| m["title"].as_str().unwrap())
+        .collect();
+    assert_eq!(titles.len(), 2, "{options}");
+    assert!(titles.contains(&PUBLIC_FACT) && titles.contains(&UNCHECKED_FACT));
+    assert!(!options.to_string().contains(PRIVATE_FACT));
+    assert_eq!(options["lastExport"], Value::Null);
+    let public_id = public.iter().find(|m| m["title"] == PUBLIC_FACT).unwrap()["memoryId"].clone();
+    let list = page.ok(
+        "memory_list",
+        json!({"includeInactive": false, "cursor": null, "limit": 50}),
+    );
+    let private_id = list["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|m| m["snippet"] == PRIVATE_FACT)
+        .unwrap_or_else(|| panic!("{list}"))["memoryId"]
+        .clone();
+
+    // Preview: a checked private record and everything outside the block stay out.
+    let selection = json!({"audience": "public_group", "identityId": identity["identityId"],
+        "identityRevision": identity["revision"], "memoryIds": [public_id, private_id]});
+    let preview = page.ok("persona_preview", selection.clone());
+    for absent in [PRIVATE_PROSE, PRIVATE_FACT, UNCHECKED_FACT] {
+        assert!(!preview.to_string().contains(absent), "{absent} leaked");
+    }
+    assert!(preview["projection"].to_string().contains(PUBLIC_FACT));
+    assert_eq!(preview["exclusions"]["selectedNotPublic"], 1, "{preview}");
+    assert_eq!(preview["exclusions"]["publicMemoriesNotSelected"], 1);
+    assert_eq!(preview["diff"]["baselineVersion"], Value::Null);
+    assert_eq!(preview["version"], 1);
+
+    // Memory refuses unsafe folders before anything is reserved or written.
+    for folder in ["repo/.git", "repo/out", "vault/persona-out", "out"] {
+        std::fs::create_dir_all(page.base.join(folder)).unwrap();
+    }
+    let export_with = |preview: &Value, folder: &str, key: &str| {
+        let mut args = selection.clone();
+        args["previewDigest"] = preview["previewDigest"].clone();
+        args["destinationToken"] = json!(page.pick(PickKind::PersonaDestination, folder));
+        page.send_keyed("persona_export", args, Some(key))
+    };
+    let export = |folder: &str, key: &str| export_with(&preview, folder, key);
+    let rules = |response: &Value| -> Vec<String> {
+        assert_eq!(response["kind"], "memory_error", "{response}");
+        response["error"]["rules"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|r| r.as_str().unwrap().to_owned())
+            .collect()
+    };
+    assert_eq!(
+        rules(&export("repo/out", "ui-runtime-persona-0000000000000001")),
+        ["persona.destination_rejected", "root.inside_repository"]
+    );
+    assert_eq!(
+        rules(&export(
+            "vault/persona-out",
+            "ui-runtime-persona-0000000000000002"
+        )),
+        [
+            "persona.destination_rejected",
+            "persona.destination_in_vault"
+        ]
+    );
+    assert_eq!(
+        std::fs::read_dir(page.base.join("repo/out"))
+            .unwrap()
+            .count(),
+        0
+    );
+
+    // The written file is the previewed text plus the receipt's exported_at.
+    let written = export("out", "ui-runtime-persona-0000000000000003");
+    assert_eq!(written["kind"], "persona_exported", "{written}");
+    let receipt = &written["result"];
+    assert_eq!(receipt["replayed"], false);
+    assert_eq!(receipt["version"], 1);
+    let file = page
+        .base
+        .join("out")
+        .join(receipt["fileName"].as_str().unwrap());
+    let bytes = std::fs::read(&file).unwrap();
+    assert_eq!(
+        json!(enouia_memory_contract::hash::sha256(&bytes)),
+        receipt["fileSha256"]
+    );
+    let document = json!({
+        "contract": preview["contract"], "exported_at": receipt["exportedAt"],
+        "memory_version": receipt["memoryVersion"], "projection": preview["projection"],
+        "projection_sha256": preview["projectionSha256"], "version": preview["version"],
+    });
+    let text = format!(
+        "{}\n",
+        serde_json::to_string_pretty(&sorted(&document)).unwrap()
+    );
+    assert_eq!(String::from_utf8(bytes.clone()).unwrap(), text);
+
+    // The same key replays the receipt; a new decision never replaces the file.
+    let replay = export("out", "ui-runtime-persona-0000000000000003");
+    assert_eq!(replay["result"]["replayed"], true, "{replay}");
+    assert_eq!(replay["result"]["fileSha256"], receipt["fileSha256"]);
+    // The export moved the baseline, so the old preview is refused; a fresh
+    // preview of unchanged content keeps the version and digest.
+    assert_eq!(
+        rules(&export("out", "ui-runtime-persona-0000000000000004")),
+        ["persona.preview_changed"]
+    );
+    let again = page.ok("persona_preview", selection.clone());
+    assert_eq!(again["version"], 1);
+    assert_eq!(again["projectionSha256"], preview["projectionSha256"]);
+    assert_eq!(again["diff"]["baselineVersion"], 1);
+    assert_eq!(again["diff"]["knowledge"], json!([]));
+    std::thread::sleep(Duration::from_millis(5));
+    assert_eq!(
+        rules(&export_with(
+            &again,
+            "out",
+            "ui-runtime-persona-0000000000000005"
+        )),
+        ["persona.destination_exists"]
+    );
+    assert_eq!(std::fs::read(&file).unwrap(), bytes);
+
+    let after = page.ok("persona_options", json!({"audience": "public_group"}));
+    assert_eq!(after["lastExport"]["fileSha256"], receipt["fileSha256"]);
+    assert_eq!(after["lastExport"]["version"], 1);
+}
+
+/// Leaves a seeded synthetic Vault for the native `--persona-only` smoke:
+/// `cargo test --locked --test memory_core seed_synthetic_persona_vault -- --ignored --nocapture`
+/// prints its root. Synthetic text only; remove the folder afterwards.
+#[test]
+#[ignore]
+fn seed_synthetic_persona_vault() {
+    let mut page = seeded_persona_page("persona-seed");
+    page.ws.shutdown();
+    page.keep = true;
+    println!("persona-seed-vault={}", page.base.join("vault").display());
 }

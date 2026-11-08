@@ -146,7 +146,7 @@
         ]
       ],
       "fullCharacterSet": false,
-      "labelFallbackCharacters": ""
+      "labelFallbackCharacters": "U+516C,U+53CB,U+5957,U+7FA4"
     },
     {
       "file": "SarasaMonoSC-Regular.ttf",
@@ -292,7 +292,7 @@
         ]
       ],
       "fullCharacterSet": false,
-      "labelFallbackCharacters": ""
+      "labelFallbackCharacters": "U+516C,U+53CB,U+5957,U+7FA4"
     },
     {
       "file": "SarasaMonoSC-SemiBold.ttf",
@@ -438,7 +438,7 @@
         ]
       ],
       "fullCharacterSet": false,
-      "labelFallbackCharacters": ""
+      "labelFallbackCharacters": "U+516C,U+53CB,U+5957,U+7FA4"
     },
     {
       "file": "MPLUS1Code[wght].ttf",
