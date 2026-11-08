@@ -6,7 +6,8 @@ Codex 限额用尽后，Morii 让 Claude 接续。本文接在 [2026-11-04 交�
 
 - **2026-11-07 已全部合并。** Morii 在会话里选定“全部合并 #121–#149 和 #120”。合并顺序：叠放链 #121 → … → #141 → #143 → … → #149（每合一个把下一个的 base 改成 `main`，合并提交，分支保留），最后 #120（星图方案 B）。期间另一个 session 的 #150（Memory pin 升到 `b9faf544da272bfe821c621d59a979b1a434e355`）先进了 `main`。最终 `main@884a6a8`。
 - 合并前在独立工作树里把 `main@94bbce9` + 链尾 + #120 合成一次：完整 `npm test`（Node 139 通过 / 3 跳过 / 0 失败；DOM 119 个场景运行、2,470 项全部通过）、`npm run build`（主 JS 470.17 kB）、Memory pin 与 Activity 退役守卫全部通过，无冲突。最终 `main` 与该合成结果的差异只有 #150 的 Cargo / pin / 文档，前端源码和测试完全一致；在最终 `main` 上复跑 pin 与退役守卫通过。没有在最终 `main` 上跑 Rust 或原生检查（#150 的 Rust 证据见其自身记录）。
-- 下一片在 `main` 上开新分支。主目录已切到 `main@884a6a8`，工作区干净。
+- 下一片在 `main` 上开新分支。之后另一个 session 又合入了合成采集相关的 #152、#154、#155；Claude 合入了 #151（交接指向 main）与 #153（UI v2 下的原生冒烟脚本修正和 `884a6a8` 候选）。
+- 2026-11-08 从 `main@b00034d` 重新打候选包，并修了高对比度下导航焦点框的回归和 `lists-only` 的拦截问题，见 [b00034d 候选记录](../validation/UI-v2-candidate-b00034d-2026-11-08.md)。原生冒烟里会弹文件对话框或发系统热键的模式（picks、quick、operations、history-*、long-lifecycle、damaged-verify）没有在 Morii 使用中的桌面上跑。
 
 ## Claude 本轮的切片
 
