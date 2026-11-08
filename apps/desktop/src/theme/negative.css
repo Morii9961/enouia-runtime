@@ -23,6 +23,10 @@
 .bg-nav-item .qr229{font-size:12px;line-height:1}
 .bg-nav-item:hover:not([aria-current="page"]){background:var(--wash);color:var(--ink)}
 .bg-nav-item:focus-visible{outline-offset:-4px;box-shadow:none}
+/* System contrast themes draw the current page as an inset Highlight outline.
+   Keep keyboard focus outside the item, as decided in 50a99bc, so focus is a
+   separate cue rather than drawn where selection sits. */
+@media (forced-colors: active){.bg-nav-item:focus-visible,.bg-nav-item[aria-current="page"]:focus-visible{outline-offset:3px}}
 .bg-strip-meta{flex:1 1 0;margin-left:16px;min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
 .bg-strip-meta b{font-weight:600;color:var(--ink)}
 .bg-clock{color:var(--ink-2)}

@@ -810,6 +810,49 @@ async function holdOperationObservation(s, memoryPage = false) {
   })()`);
 }
 
+// Hold the result of the next Workspace request for one exact command. UI v2
+// mounts other items-only lists (operation_list) beside Sessions, so a
+// result-shape matcher can catch the wrong request. Tauri's internals are
+// frozen; instead results are queued in the page until the network observer
+// names the command's callback id, then every other result is released.
+async function holdCommandObservation(s, command) {
+  const network = await s.send('Network.enable', {maxPostDataSize: 4096});
+  if (network.error) throw new Error(network.error.message);
+  await s.evaluate(`(() => {
+    window.__operationHeld = false;
+    const callbacks = window.__TAURI_INTERNALS__.callbacks, originalSet = callbacks.set;
+    const queued = new Map();
+    let target = null;
+    const hold = (id, callback, value) => {
+      callbacks.set = originalSet;
+      window.__operationHeld = true;
+      window.__operationObserved = value?.result;
+      window.__releaseOperation = replacement => callback(replacement ?? value);
+    };
+    window.__setHoldTarget = id => {
+      target = id;
+      for (const [queuedId, entry] of queued) if (queuedId === id) hold(queuedId, entry.callback, entry.value); else entry.callback(entry.value);
+      queued.clear();
+    };
+    callbacks.set = function(id, callback) {
+      return originalSet.call(this, id, value => {
+        if (window.__operationHeld || (target !== null && id !== target)) return callback(value);
+        if (id === target) return hold(id, callback, value);
+        queued.set(id, {callback, value});
+      });
+    };
+  })()`);
+  s.observe('Network.requestWillBeSent', ({request}) => {
+    if (request.url !== 'http://ipc.localhost/memory_call' || !request.postData) return;
+    if (JSON.parse(request.postData).request?.command !== command) return;
+    const header = Object.entries(request.headers).find(([name]) => name.toLowerCase() === 'tauri-callback');
+    const id = Number(header?.[1]);
+    if (!Number.isFinite(id)) { void s.evaluate(`window.__holdError = ${JSON.stringify(Object.keys(request.headers))}`); return; }
+    s.observe('Network.requestWillBeSent', () => {});
+    void s.evaluate(`window.__setHoldTarget(${id})`);
+  });
+}
+
 async function operationChecks(s, app) {
   await nav(s, 'Memory');
   await rail(s, 'Import');
@@ -2608,7 +2651,7 @@ async function main() {
     await debugOwnerRefusal(app);
     const s = await connect();
     await waitFor(s, badge('Memory · Vault open'), 'list fixture open');
-    await holdOperationObservation(s, true);
+    await holdCommandObservation(s, 'session_list');
     await nav(s, 'Sessions');
     await waitFor(s, 'window.__operationHeld', 'initial session list held');
     check('W02.session_list_wait_explained', await s.evaluate("document.querySelector('aside[aria-label=Sessions] [role=status]')?.textContent.includes('Reading sessions') === true"));
@@ -2627,7 +2670,7 @@ async function main() {
     await waitFor(s, has('No approved memories here yet.'), 'initial memory page settled');
     const saved = await s.evaluate("__t.invoke('memory_call',{request:{...__t.request('remember',{text:'Synthetic list read recovery candidate',claimKey:'fixture.list_read'}),idempotencyKey:'ui-'+crypto.randomUUID()}})");
     if (!saved.ok) throw new Error(JSON.stringify(saved));
-    await holdOperationObservation(s, true);
+    await holdCommandObservation(s, 'candidate_list');
     await rail(s, 'Candidate inbox');
     await waitFor(s, 'window.__operationHeld', 'candidate page held');
     check('W02.pending_candidate_count_unknown', await s.evaluate("document.querySelector('.qr31')?.textContent.includes('Waiting for candidates') === true && !document.querySelector('.qr31')?.textContent.includes('0 waiting')"));
