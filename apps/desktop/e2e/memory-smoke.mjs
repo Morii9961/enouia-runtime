@@ -23,6 +23,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:net';
+import { createHash } from 'node:crypto';
 import { assertBatchFixture, createBatchVault, historyBatchPreparation, historyBatchProcessReopen } from './history-batch-native.mjs';
 
 const inputs = process.argv.slice(2, 6);
@@ -948,6 +949,46 @@ async function explorerChecks(s) {
   await waitFor(s, "document.querySelectorAll('button.qr43').length === 27", 'all records after refresh');
   check('W02.stale_cursor_refresh_recovers', await s.evaluate("new Set([...document.querySelectorAll('button.qr43 .qr39')].map(row => row.textContent)).size === 27"));
   await shot(s, '12-explorer-paging');
+}
+
+// Public persona export (Memory ADR-MEM-128) through the real Core, the real
+// folder dialog and a seeded synthetic Vault. Memory judges every folder.
+async function personaChecks(s, app) {
+  const repo = join(out, 'persona-repo');
+  const inside = join(repo, 'out');
+  const target = join(out, 'persona-out');
+  for (const dir of [join(repo, '.git'), inside, target]) mkdirSync(dir, { recursive: true });
+  const tick = (text) => s.evaluate(`[...document.querySelectorAll('label.mem-choice')].find(l => l.textContent.includes(${JSON.stringify(text)})).querySelector('input').click()`);
+  await nav(s, 'Memory');
+  await rail(s, 'Public persona export');
+  await waitFor(s, has('（合成公开）喜欢看星星。'), 'public records listed');
+  const listed = await s.evaluate("[...document.querySelectorAll('fieldset')].find(f => f.querySelector('legend')?.textContent === 'Public knowledge').querySelectorAll('input[type=checkbox]').length");
+  check('P01.lists_only_public_records', listed === 2 && !(await s.evaluate('__t.text()')).includes('门牌号'), `listed=${listed}`);
+  check('P01.no_receipt_before_export', await s.evaluate(has('No export in this window yet.')));
+  await s.evaluate("document.querySelector('input[name=persona-identity]').click()");
+  await tick('喜欢看星星');
+  await click(s, 'button', 'Preview the file');
+  await waitFor(s, "!!document.querySelector('pre.mem-pre-file')", 'preview text');
+  const previewed = await s.evaluate("document.querySelector('pre.mem-pre-file').textContent");
+  check('P01.preview_shows_public_text_only', previewed.includes('喜欢看星星') && previewed.includes('exported_at') && !previewed.includes('只在主人面前') && !previewed.includes('爬山'));
+  await shot(s, 'persona-preview');
+  await tick('model providers');
+  await tick('asking questions');
+  await click(s, 'button', 'Choose folder and export');
+  fillOpenDialog(app.pid, inside, true);
+  await waitFor(s, has('persona.destination_rejected'), 'repository refusal shown');
+  check('P01.memory_refusal_shown_as_given', await s.evaluate(has('invalid_request · persona.destination_rejected · root.inside_repository')) && readdirSync(inside).length === 0);
+  await shot(s, 'persona-refused');
+  await click(s, 'button', 'Choose folder and export');
+  fillOpenDialog(app.pid, target, true);
+  await waitFor(s, has('has the same SHA-256 as the written file'), 'receipt verified');
+  const files = readdirSync(target);
+  const bytes = readFileSync(join(target, files[0]));
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  const receipt = await s.evaluate("document.querySelector('.mem-receipt').textContent");
+  check('P01.receipt_names_written_file_and_sha256', files.length === 1 && receipt.includes(files[0]) && receipt.includes(digest), `${files[0]} ${digest}`);
+  check('P01.written_file_equals_shown_text', bytes.toString('utf8') === await s.evaluate("document.querySelector('pre.mem-pre-file').textContent"));
+  await shot(s, 'persona-receipt');
 }
 
 async function pickerChecks(s, app) {
@@ -2834,6 +2875,20 @@ async function main() {
     await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
     const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
     check('W05.contrast_host_exits', code === 0);
+    s.close();
+    return;
+  }
+  if (process.argv[6] === '--persona-only') {
+    // The Vault argument is a root left by memory_core's ignored
+    // seed_synthetic_persona_vault test: Workspace IPC v1 has no Identity write.
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, badge('Memory · Vault open'), 'persona fixture open');
+    await personaChecks(s, app);
+    void s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')").catch(() => 0);
+    const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('P01.persona_host_exits', code === 0);
     s.close();
     return;
   }

@@ -66,6 +66,8 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 2026-11-02：原生集合导航分组使用稳定集合 ID，语言切换保留按钮/焦点；候选依赖、导入恢复、Vault 作用范围，以及历史规划/表单/任务/请求/保存结果文案继续接入三语。浏览器示例集合导航也保留语言切换焦点。原保存内容、确认与操作归属保留，见[接续记录](CONTINUATION_2026-11-02.md)。其他动态分支仍需检查，不代表全部文案或 Windows 验收完成。
 
+2026-11-08：原生 Memory → Vault 分组新增“公开人设导出”（Memory ADR-MEM-128，pin `731edd5`）。六步单页、全文预览、两项确认、系统文件夹选择器和回执；浏览器演示与 Runtime Inspector 不显示该功能。[验证与边界](../../validation/Memory-public-persona-export-2026-11-08.md)。
+
 ### 1.3 Context Surface
 
 - 一次召回的 Capsule：纳入/排除列表，每项 rank、reason、字节、来源可达；展开看 trace。预算条只用墨色阶。

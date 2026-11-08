@@ -440,6 +440,10 @@ fn pick_kind(kind: &str) -> Option<(PickKind, &'static str)> {
             Some((PickKind::BackupDestination, "Choose an empty backup folder"))
         }
         "export_folder" => Some((PickKind::ExportFolder, "Choose a backup folder to preview")),
+        "persona_destination" => Some((
+            PickKind::PersonaDestination,
+            "Choose a folder for the public persona file",
+        )),
         _ => None,
     }
 }
@@ -763,7 +767,8 @@ mod tests {
                 "history_materialize",
                 "history_resume",
                 "history_batch_prepare",
-                "history_batch_apply"
+                "history_batch_apply",
+                "persona_export"
             ]
         );
         for read in [
@@ -774,6 +779,8 @@ mod tests {
             "history_task_list",
             "history_task_get",
             "history_batch_preview",
+            "persona_options",
+            "persona_preview",
         ] {
             assert_eq!(gate(&json!({"command": read})), Gate::Open, "{read}");
         }
@@ -830,6 +837,7 @@ mod tests {
             "vault_root",
             "backup_destination",
             "export_folder",
+            "persona_destination",
         ]
         .iter()
         .map(|k| pick_kind(k).unwrap().0)
@@ -840,7 +848,8 @@ mod tests {
                 PickKind::ImportFile,
                 PickKind::VaultRoot,
                 PickKind::BackupDestination,
-                PickKind::ExportFolder
+                PickKind::ExportFolder,
+                PickKind::PersonaDestination
             ]
         );
         assert!(pick_kind("vault").is_none() && pick_kind("").is_none());

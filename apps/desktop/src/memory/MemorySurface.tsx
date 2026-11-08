@@ -18,9 +18,10 @@ import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
 import { AutomaticMemory } from "./AutomaticMemory";
 import { CatalogMemory } from "./CatalogMemory";
 import { CaptureMemory } from "./CaptureMemory";
+import { PersonaExport } from "./PersonaExport";
 
 import { labels, locale, msg, t, tn } from '../i18n/index.ts';
-type Collection = "inbox" | "current" | "history" | "import" | "vault" | "automated" | "catalog" | "capture";
+type Collection = "inbox" | "current" | "history" | "import" | "persona" | "vault" | "automated" | "catalog" | "capture";
 
 const TITLES: Record<Collection, string> = labels({
   automated: msg("Synthetic automatic memories"),
@@ -30,6 +31,7 @@ const TITLES: Record<Collection, string> = labels({
   current: msg("Current memories"),
   history: msg("Including history"),
   import: msg("Import"),
+  persona: msg("Public persona export"),
   vault: msg("Vault & recovery"),
 });
 
@@ -52,7 +54,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
     { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },
     { label: t("Automatic"), items: [["automated", TITLES.automated], ["catalog", TITLES.catalog], ["capture", TITLES.capture]] },
-    { label: t("Vault"), items: [["import", TITLES.import], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
+    { label: t("Vault"), items: [["import", TITLES.import], ["persona", TITLES.persona], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
   // A switch can finish between two status polls without an observed change;
@@ -108,6 +110,8 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           onRefresh={() => setSubmitted((current) => ({ ...current, seq: current.seq + 1 }))} />
       ) : collection === "inbox" ? (
         <Inbox key={vaultKey} />
+      ) : collection === "persona" ? (
+        <PersonaExport key={vaultKey} vaultId={vaultKey} />
       ) : (
         <Import key={status.vault.vaultId} openSession={openSession} />
       )}

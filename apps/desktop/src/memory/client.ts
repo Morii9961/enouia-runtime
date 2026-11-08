@@ -29,9 +29,10 @@ const WRITES = new Set([
   "import_resume", "session_new", "session_ask", "session_checkpoint", "context_preview",
   "provider_confirm", "external_prepare", "external_send",
   "extraction_prepare", "extraction_apply", "extraction_pause", "history_materialize", "history_resume", "history_batch_prepare", "history_batch_apply",
+  "persona_export",
 ]);
 
-export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder"] as const;
+export const PICK_KINDS = ["import_file", "vault_root", "backup_destination", "export_folder", "persona_destination"] as const;
 export type PickKind = (typeof PICK_KINDS)[number];
 export type Picked = { token: string; displayName: string; bytes: number | null };
 
@@ -138,6 +139,15 @@ const RULES: Record<string, string> = labels({
   "provider.plan_unknown": msg("That plan is no longer available. Create it again"),
   "review.stale_plan": msg("The content changed since you reviewed it. Review it again"),
   "workspace.extraction_range": msg("Choose a shorter part of the source (at most 32 KB)"),
+  // Public persona export (Memory ADR-MEM-128). The panel also shows the code and every rule as given.
+  "persona.destination_rejected": msg("Memory refused this folder for the public persona file"),
+  "persona.destination_exists": msg("A different file with this name is already in that folder. Memory never replaces it. Choose another folder"),
+  "persona.preview_changed": msg("The content changed after this preview. Preview again before exporting"),
+  "persona.identity_stale": msg("That Identity revision is no longer current. Read the options again and choose the current revision"),
+  "persona.identity_missing": msg("That Identity record is not available. Read the options again"),
+  "persona.identity_block": msg("The Identity's public block does not follow the contract rule shown below. Fix it through an Identity review"),
+  "persona.projection_invalid": msg("A checked record's text breaks the contract rule shown below. Fix the record in Memory or uncheck it"),
+  "workspace.persona_selection": msg("Check at most 64 different records"),
 });
 
 const HOST: Record<string, string> = labels({
