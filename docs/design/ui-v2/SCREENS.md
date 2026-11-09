@@ -58,7 +58,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - 主列表：按天分组，日分隔条 = `--ink-3` 底 + 底色字的大写日期；每行：时刻 · 种类 · 项目 · 正文一行 · 来源/会话/turn/conf；选中行反相；↑↓ 移动。
 - Inspector：状态牌（Canonical 反相）、种类、ID + Copy ID、正文、DECISIONS、OPEN LOOPS、WHY I REMEMBER THIS、字段表（Source / Source ID / Session / Turn / Source created / Reviewed from），底部「Edit · creates a revision」与「Demo changes stay in this window · reload resets」。四个裁切角。
 - Candidate inbox（`dark-memory-candidate-1440`）：候选行用空心竖块，Inspector 给接受/编辑/拒绝（演示）。
-- 缺：Inspector 里过长的 Session ID 越过右侧裁切角（OPEN_ISSUES #8）。
+- 已解决：Inspector 里过长的 Session ID 越过右侧裁切角（OPEN_ISSUES #8，2026-10-27 起完整 ID 可换行）。
 
 2026-11-01：原生日期标题已随界面语言显示，切换语言保留行节点与焦点；项目/来源导航仍未补造。[验证记录](../../validation/UI-v2-native-memory-dates-2026-11-01.md)。
 
@@ -129,11 +129,11 @@ Memory UI 规格 §1 把 Memory 内部分成五个工作区。浏览器现以五
 | --- | --- | --- |
 | 空库 | 当前没有可读记忆；下一步是什么 | 自动记忆与旧 Vault 浏览器状态均已做；原生另行验收 |
 | 仅候选 | 有材料但还没有记忆 | 自动记忆已有仅材料/暂存状态；旧 Vault 已有独立仅导入候选样本 |
-| 已确认但冲突 | 哪两条冲突、各自来源 | 部分（Formation 里有冲突事件） |
+| 已确认但冲突 | 哪两条冲突、各自来源 | 浏览器合成预览已做：形成工作区的[冲突与修订对照](../../validation/UI-v2-formation-comparison-2026-11-05.md)并列双方原文、状态和来源摘录，保留未知时间，没有解决或审批动作；原生另行验收 |
 | 来源缺失 | 哪个证据缺失、可看的还有什么 | 自动记忆浏览器状态集已做 |
-| 时间未知 | 哪个时间字段缺失 | 部分（Timeline 的「Time not recorded」） |
-| 部分覆盖 | 已加载多少、是否还有分页 | 部分（「Loaded sample only」文字，无分页样子） |
-| 被替代 | 替代者、生效时间 | 部分（列表与 Inspector 的 superseded 记号） |
+| 时间未知 | 哪个时间字段缺失 | 浏览器合成预览已做：时间工作区把月份精度、范围和未知时间[分开列出](../../validation/UI-v2-month-day-preview-2026-11-05.md)，选中未知时间的记忆不补日期；自动记忆另有开放端时间状态；原生另行验收 |
+| 部分覆盖 | 已加载多少、是否还有分页 | 原生记忆列表显示「{n} / {total} 条记录」，还有下一页时显示「加载更多」，翻页与焦点由 `explorer-paging-focus` DOM 场景覆盖；浏览器预览只写「只含已加载的样本」，样本已全部加载，所以没有分页样子 |
+| 被替代 | 替代者、生效时间 | 浏览器合成预览已做：关联工作区的[替代链](../../validation/UI-v2-lineage-2026-11-05.md)逐条显示新记录指向旧记录；样本没有生效时间，界面明说未提供，不从链接推断当前真值；原生另行验收 |
 | 锁定 | 没有可读记忆，显式解锁 | 已做 |
 | 结果未知 | 操作可能已提交；保留原始包，显式查询恢复，不自动重发 | 浏览器有固定虚构包/键展示，查询明确禁用；不代表原生恢复 |
 | 只读模式 | 为什么只读、哪些动作不可用 | 自动记忆浏览器状态集已做 |
