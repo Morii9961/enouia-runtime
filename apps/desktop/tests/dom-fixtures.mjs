@@ -62,7 +62,43 @@ if (!process.argv.includes('--worker')) {
   } });
   // Vite uses Node timer handles (.unref). Fixture unmounts clear React polls;
   // DOM close does not claim to track these native timers.
-  Object.assign(globalThis, { setTimeout, clearTimeout, setInterval, clearInterval, setImmediate, clearImmediate });
+  //
+  // React Scheduler captures setImmediate when it loads and runs non-sync
+  // renders and passive effects through it. Fixtures poll and sleep with
+  // setTimeout. On a loaded machine a timer can fire before that queued work,
+  // so a wait passes on DOM whose effects have not run, or a check after a
+  // short sleep sees the previous render. A timer that comes due while
+  // Scheduler work is queued therefore waits until that work has run, which is
+  // the order an idle browser gives. Requests a fixture holds on a promise are
+  // not Scheduler work and still stay pending.
+  //
+  // Diagnosis aids: --delay-effects=<ms> holds Scheduler work back by that much,
+  // which makes timing assumptions fail deterministically instead of only under
+  // load; --no-settle restores plain timers to show what the ordering fixes.
+  const effectDelay = Number(process.argv.find(arg => arg.startsWith('--delay-effects='))?.slice('--delay-effects='.length) ?? 0);
+  const settle = !process.argv.includes('--no-settle');
+  let queuedWork = 0;
+  const cancelled = new WeakSet();
+  const schedulerImmediate = (callback, ...args) => {
+    queuedWork += 1;
+    const run = () => { queuedWork -= 1; callback(...args); };
+    return effectDelay ? setTimeout(run, effectDelay) : setImmediate(run);
+  };
+  const settledTimeout = (callback, ms, ...args) => {
+    const handle = setTimeout(function fire() {
+      if (cancelled.has(handle)) return;
+      if (queuedWork > 0) { setTimeout(fire, 1); return; }
+      callback(...args);
+    }, ms);
+    return handle;
+  };
+  const settledClear = (handle) => { if (handle && typeof handle === 'object') cancelled.add(handle); clearTimeout(handle); };
+  Object.assign(globalThis, { setInterval, clearInterval,
+    setTimeout: settle ? settledTimeout : setTimeout, clearTimeout: settle ? settledClear : clearTimeout,
+    setImmediate: schedulerImmediate, clearImmediate: effectDelay ? clearTimeout : clearImmediate });
+  // Happy DOM's animation frames use its own timers, so frames get the same order.
+  if (settle) Object.assign(globalThis, {
+    requestAnimationFrame: (callback) => settledTimeout(() => callback(performance.now()), 0), cancelAnimationFrame: settledClear });
   const { createServer, normalizePath } = await import('vite');
   const baselinePath = normalizePath(fileURLToPath(new URL(`../src/memory/${baselineFile}`, import.meta.url)));
   const original = baseline ? execFileSync('git', ['show', `${baselineSha}:apps/desktop/src/memory/${baselineFile}`], { cwd: desktop, encoding: 'utf8' }) : null;
