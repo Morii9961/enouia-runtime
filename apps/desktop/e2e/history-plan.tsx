@@ -1,5 +1,6 @@
 // The actual Import report and history UI, with synthetic native IPC only.
 import { createRoot } from "react-dom/client";
+import { flushSync } from "react-dom";
 import { ImportReport } from "../src/memory/ImportReport";
 import { setTransport, type J } from "../src/memory/client";
 import { historyPage, historySelection, PLAN_HASH } from "../tests/history-fixture";
@@ -27,14 +28,20 @@ setTransport(async (native, args) => {
 function Surface(){useLang();return <ImportReport selected={historySelection.importId} current={current} vaultId={vaultId} vaultHead={vaultHead}
   row={{ importId: historySelection.importId, revision, status, duplicateOf: duplicate ? "synthetic-original" : null,
     inputKind: "chatgpt_conversations_json", warnings: [], counts: {} }} close={() => { current = false; render(); }} />;}
-const render = () => root.render(<Surface/>);
+// Each render commits synchronously and first runs any passive effects still
+// pending from an earlier commit. Prop changes therefore remount HistoryPlan
+// before the journey continues, and click() uses a same-props render to settle.
+const render = () => flushSync(() => root.render(<Surface/>));
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const text = () => fixture.textContent ?? "";
 const button = (label: string) => [...fixture.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent === label);
 const planButton = () => button("Plan archived history") ?? button("Read history plan again");
 const details = () => fixture.querySelectorAll("details");
 function check(id: string, ok: boolean) { checks.push({ id, ok }); if (!ok) throw new Error(id); }
-function click(control: HTMLButtonElement | undefined) { if (!control || control.disabled) throw new Error("Unavailable control"); control.click(); }
+// A wait can pass on the DOM of a commit whose passive effects have not run.
+// React would run them inside the next click, after refresh() armed focus
+// restoration, and the previous read's focus effect would consume it.
+function click(control: HTMLButtonElement | undefined) { if (!control || control.disabled) throw new Error("Unavailable control"); render(); control.click(); }
 async function wait(predicate: () => boolean) { for (let n = 0; n < 250; n++) { if (predicate()) return; await sleep(20); } throw new Error(`UI timeout: ${text()}`); }
 async function edit(label: string, value: string) {
   const field = [...fixture.querySelectorAll<HTMLLabelElement>("label")].find(item => item.textContent === label)!;

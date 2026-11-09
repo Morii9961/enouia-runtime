@@ -1,5 +1,6 @@
 // The source and provider observations are synthetic and render real controls.
 import { createRoot } from "react-dom/client";
+import { flushSync } from "react-dom";
 import { Source } from "../src/memory/ui";
 import { setTransport } from "../src/memory/client";
 import "../src/quiet-runtime.css";
@@ -36,7 +37,9 @@ setTransport(async(native,args)=>{
   return {kind:"memory_page",result,error:null};
 });
 const root=createRoot(fixture);
-root.render(<Source evidence={{available:true,sourceId:"synthetic-source",sourceRevision:1,supports:"synthetic support"}}/>);
+// Commit and run mount effects before the first click. Source resets its read
+// in an effect; a click before that effect runs would have the reset discard it.
+flushSync(()=>root.render(<Source evidence={{available:true,sourceId:"synthetic-source",sourceRevision:1,supports:"synthetic support"}}/>));
 const text=()=>fixture.textContent??"";
 const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent===label);
 const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
