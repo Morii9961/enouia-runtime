@@ -30,7 +30,7 @@ export type DemoView = ReturnType<App['renderVals']> & {
   rtSubtitle?: string; still?: boolean; memorySettings?: React.ReactNode; keyboardHint?: string; shellSettings?: React.ReactNode;
 };
 import { NativeStrip, RecordStrip } from './theme/RecordStrip.tsx';
-import { moveAlong } from './theme/motion.ts';
+import { moveAlong, settleMoves } from './theme/motion.ts';
 
 import { msg, t, tn } from './i18n/index.ts';
 // Inside the native shell the Memory, Context and Sessions surfaces use the
@@ -63,6 +63,8 @@ export default class App extends React.Component<AppProps, AppState> {
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
       if (target?.closest('nav')) return;
+      // Arrow keys read the current page and selection, so settle a held move first.
+      settleMoves();
       const d = e.key === 'ArrowDown' ? 1 : -1;
       const page = this.page();
       if (this.connected() && (page === 'memory' || page === 'sessions')) return;
@@ -123,6 +125,7 @@ export default class App extends React.Component<AppProps, AppState> {
   // Leaving a surface removes the control that held focus. Continue in the
   // new surface rather than the document; focus kept elsewhere stays there.
   show<K extends keyof AppState>(patch: Pick<AppState, K>) {
+    settleMoves();
     const apply = () => this.setState(patch, () => {
       if (!document.activeElement || document.activeElement === document.body) document.getElementById('runtime-content')?.focus();
     });
@@ -133,6 +136,7 @@ export default class App extends React.Component<AppProps, AppState> {
   }
   go(p: Page) { if (this.PAGES.includes(p)) this.show({ page: p, memInitialCollection: 'current', memSessionTarget: null, editing: false, copied: false, notice: '' }); }
   select(k: string) {
+    settleMoves();
     const apply = () => this.setState({ sel: k, editing: false, notice: '', copied: false });
     if (k !== this._selectedKey) moveAlong('select', apply); else apply();
   }
