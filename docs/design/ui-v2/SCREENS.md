@@ -58,7 +58,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - 主列表：按天分组，日分隔条 = `--ink-3` 底 + 底色字的大写日期；每行：时刻 · 种类 · 项目 · 正文一行 · 来源/会话/turn/conf；选中行反相；↑↓ 移动。
 - Inspector：状态牌（Canonical 反相）、种类、ID + Copy ID、正文、DECISIONS、OPEN LOOPS、WHY I REMEMBER THIS、字段表（Source / Source ID / Session / Turn / Source created / Reviewed from），底部「Edit · creates a revision」与「Demo changes stay in this window · reload resets」。四个裁切角。
 - Candidate inbox（`dark-memory-candidate-1440`）：候选行用空心竖块，Inspector 给接受/编辑/拒绝（演示）。
-- 缺：Inspector 里过长的 Session ID 越过右侧裁切角（OPEN_ISSUES #8）。
+- 已解决：Inspector 里过长的 Session ID 越过右侧裁切角（OPEN_ISSUES #8，2026-10-27 起完整 ID 可换行）。
 
 2026-11-01：原生日期标题已随界面语言显示，切换语言保留行节点与焦点；项目/来源导航仍未补造。[验证记录](../../validation/UI-v2-native-memory-dates-2026-11-01.md)。
 
