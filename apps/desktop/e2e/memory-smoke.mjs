@@ -2878,6 +2878,32 @@ async function main() {
     s.close();
     return;
   }
+  if (process.argv[6] === '--rapid-nav-only') {
+    // Shortcuts sent in one task land inside one View Transition capture: the
+    // later page must win however WebView2 orders the skipped first update.
+    const app = launch(['--memory-vault', vault]);
+    await debugOwnerRefusal(app);
+    const s = await connect();
+    await waitFor(s, badge('Memory · Vault open'), 'rapid navigation fixture open');
+    const motion = await s.evaluate("({ transitions: typeof document.startViewTransition === 'function', reduced: matchMedia('(prefers-reduced-motion: reduce)').matches })");
+    check('N01.view_transitions_active', motion.transitions && !motion.reduced, JSON.stringify(motion));
+    const current = "document.querySelector('nav [aria-current=page]')?.getAttribute('data-runtime-page')";
+    const press = (digits) => s.evaluate(`(${JSON.stringify(digits)}).forEach(d => document.body.dispatchEvent(new KeyboardEvent('keydown', { key: d, ctrlKey: true, bubbles: true, cancelable: true })))`);
+    const settle = async (page) => { await sleep(1500); return s.evaluate(`({ page: ${current}, label: document.getElementById('runtime-content')?.getAttribute('aria-label') })`).then((seen) => ({ seen, ok: seen.page === page })); };
+    await press(['1']); await waitFor(s, `${current} === 'home'`, 'rapid navigation starts at Home');
+    await press(['2', '3']); let r = await settle('context');
+    check('N02.second_shortcut_wins', r.ok, JSON.stringify(r.seen));
+    await press(['1']); await waitFor(s, `${current} === 'home'`, 'rapid navigation back at Home');
+    await press(['2', '1']); r = await settle('home');
+    check('N03.return_to_start_wins', r.ok, JSON.stringify(r.seen));
+    await press(['4', '5', '6']); r = await settle('settings');
+    check('N04.three_shortcuts_end_on_last', r.ok, JSON.stringify(r.seen));
+    await s.evaluate("window.__TAURI_INTERNALS__.invoke('shell_exit')");
+    const code = await Promise.race([app.exited, sleep(20000).then(() => 'timeout')]);
+    check('N05.rapid_navigation_host_exits', code === 0);
+    s.close();
+    return;
+  }
   if (process.argv[6] === '--persona-only') {
     // The Vault argument is a root left by memory_core's ignored
     // seed_synthetic_persona_vault test: Workspace IPC v1 has no Identity write.

@@ -16,7 +16,7 @@ import StarMap from './StarMap';
 import { Inspector } from './Inspector';
 import type { ViewId, WorkspaceId } from './types';
 import { setAutoMode } from '../../theme/autoMode';
-import { moveAlong } from '../../theme/motion';
+import { moveAlong, settleMoves } from '../../theme/motion';
 
 import { msg, t } from '../../i18n/index.ts';
 // Automatic memory · synthetic preview (browser demo only, invented fixture).
@@ -53,8 +53,17 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
   const m = sel === null ? undefined : byId.get(sel);
   // Views advance along their order; a new selection turns the Inspector (DESIGN.md §7).
   const order = views.map((v) => v.id);
-  const showView = (id: ViewId) => { if (id !== view) moveAlong('view', () => setView(id), order.indexOf(id) > order.indexOf(view) ? 'fwd' : 'back'); };
-  const choose = (id: string) => { if (id !== sel) moveAlong('select', () => setSel(id)); };
+  // A move still held by its transition owns the shown view or selection. Settle
+  // it first and compare with the values that settled render leaves here, not
+  // with this handler's own render.
+  const latest = useRef({ view, sel });
+  latest.current = { view, sel };
+  const showView = (id: ViewId) => {
+    settleMoves();
+    const from = latest.current.view;
+    if (id !== from) moveAlong('view', () => setView(id), order.indexOf(id) > order.indexOf(from) ? 'fwd' : 'back');
+  };
+  const choose = (id: string) => { settleMoves(); if (id !== latest.current.sel) moveAlong('select', () => setSel(id)); };
   const body = !m ? <p className="am-empty">{t(EMPTY_NOTE)}</p> : view === 'formation' ? <Formation sel={m.id} select={choose} />
     : view === 'grid' ? <Grid key="all" sel={m.id} select={choose} />
     : view === 'timeline' ? <Timeline sel={m.id} select={choose} />
