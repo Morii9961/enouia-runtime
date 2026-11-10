@@ -179,7 +179,7 @@ Update (2026-10-05, ADR-026): the tray, hotkey and quick search, and login start
 [ADR-026](026-companion-shell.md) completes Runtime as Memory's local client:
 - Closing a window hides it, and Exit (tray or Settings) shuts the Memory Core down before the process ends.
 - A tray offers Show, Lock and Exit.
-- Ctrl+Alt+M (or `--hotkey-key`) opens a quick-search window scoped to `memory_search` by native window identity, with its own minimal capability.
+- Ctrl+Alt+Q (or `--hotkey-key`; M until 2026-11-10) opens a quick-search window scoped to `memory_search` by native window identity, with its own minimal capability.
 - Opt-in login startup writes only Runtime's own Run value and starts in the tray with no Vault.
 
 Activity is untouched. The installer followed in ADR-027.

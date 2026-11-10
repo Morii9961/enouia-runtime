@@ -22,7 +22,7 @@ Until Runtime provided these, Runtime and the reference shell each covered part 
    - Neither action pauses or touches the independently installed Activity producer.
 2. **Tray.** Left click shows Runtime. The menu has Show, Lock Memory Vault and Exit. Lock runs on a worker thread, never on the event loop.
 3. **Global hotkey and quick search.**
-   - Ctrl+Alt+M (another letter with `--hotkey-key`) is registered on its own thread. It opens a small always-on-top quick-search window (`overlay`).
+   - Ctrl+Alt+Q (another letter with `--hotkey-key`; the default was M until 2026-11-10) is registered on its own thread. It opens a small always-on-top quick-search window (`overlay`).
    - A combination held by another program is reported in Settings as a conflict, never silently.
    - The window maps to Memory's `HostSurface::QuickSearch`, so its requests are limited to `memory_search`, checked by native window identity.
    - Its capability grants only `memory_call`, `show_main` and `hide_window`. It has no picker, exit, review, write or startup command.

@@ -25,7 +25,7 @@ const applyTheme = () => { document.documentElement.dataset.theme = scheme === '
 applyTheme();
 system.addEventListener('change', () => { if (scheme === 'system') moveAlong('theme', applyTheme); });
 
-const NAMES: [Scheme, string][] = [['system', msg('System')], ['dark', msg('Tile Blue')], ['light', msg('Xuan Paper')]];
+const NAMES: [Scheme, string][] = [['system', msg('System')], ['dark', msg('Dark')], ['light', msg('Light')]];
 
 function Preview() {
   useLang();

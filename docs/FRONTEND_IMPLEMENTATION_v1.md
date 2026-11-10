@@ -56,7 +56,7 @@ On this restricted host, Vite/Tauri builds require approved execution outside th
 - Reduced motion disables ring animation and all transitions; system preference is respected.
 - In a browser preview the pause switch is explicitly a demo. In the native shell, Pause/Resume calls `activity_set_paused` through the installed runner.
 - Window buttons work only inside Tauri and are disabled in browser preview.
-- Native Ctrl+Alt+M opens read-only Quick Search. Tray and Settings also open it. Escape or blur hides and clears it; Open main window returns to the existing workspace. Shortcut conflicts are visible in Settings. The full [scope and lifecycle](MEMORY_INTEGRATION_v1.md) remain host-owned.
+- Native Ctrl+Alt+Q (M until 2026-11-10) opens read-only Quick Search. Tray and Settings also open it. Escape or blur hides and clears it; Open main window returns to the existing workspace. Shortcut conflicts are visible in Settings. The full [scope and lifecycle](MEMORY_INTEGRATION_v1.md) remain host-owned.
 
 ## Backend integration boundary
 
