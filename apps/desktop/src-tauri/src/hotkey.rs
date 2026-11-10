@@ -1,10 +1,11 @@
 //! A thread-owned Windows registration; no keyboard hook or input recording.
 use serde_json::{Value, json};
 
-/// Default Ctrl+Alt+M, with an explicit single ASCII letter override.
+/// Default Ctrl+Alt+Q, with an explicit single ASCII letter override. The
+/// default was M until 2026-11-10; another program held it on the owner's machine.
 pub fn letter(args: &[String]) -> Option<u8> {
     match args.iter().position(|arg| arg == "--hotkey-key") {
-        None => Some(b'M'),
+        None => Some(b'Q'),
         Some(index) => args.get(index + 1).and_then(|value| {
             let bytes = value.as_bytes();
             (bytes.len() == 1 && bytes[0].is_ascii_alphabetic())
@@ -162,7 +163,7 @@ mod tests {
     use super::*;
     #[test]
     fn override_is_one_explicit_ascii_letter() {
-        assert_eq!(letter(&[]), Some(b'M'));
+        assert_eq!(letter(&[]), Some(b'Q'));
         for (value, expected) in [
             ("a", Some(b'A')),
             ("Z", Some(b'Z')),

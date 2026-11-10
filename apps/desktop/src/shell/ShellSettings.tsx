@@ -47,7 +47,7 @@ export default function ShellSettings() {
       <div className="qr198">{t("Windows shell")}</div>
       <div className="qr216"><span className="qr35">{t("System tray")}</span><span>{status?.tray === 'present' ? t('Available · Show / Lock Memory Vault / Exit') : t('Checking…')}</span></div>
       <div className="qr216"><span className="qr35">{t("Close window")}</span><span>{t("Hide to tray · Memory operations keep running")}</span></div>
-      <div className="qr216"><span className="qr35">{t("Quick Search")}</span><span>{status?.hotkey?.combo ?? 'Ctrl+Alt+M'} · {t(status?.hotkey?.state ?? 'checking')}{status?.hotkey?.state === 'conflict' ? ' · ' + t('shortcut already in use; use the tray or button') : ''}</span></div>
+      <div className="qr216"><span className="qr35">{t("Quick Search")}</span><span>{status?.hotkey?.combo ?? 'Ctrl+Alt+Q'} · {t(status?.hotkey?.state ?? 'checking')}{status?.hotkey?.state === 'conflict' ? ' · ' + t('shortcut already in use; use the tray or button') : ''}</span></div>
       <div className="qr216"><span className="qr35">{t("Search")}</span><button className="mem-button" type="button" disabled={status?.closing || status?.locking || status?.vaultChanging} onClick={() => {
         void invoke('shell_search').catch(() => setError(msg('Quick Search could not open. Try again.')));
       }}>{t("Open Quick Search")}</button></div>

@@ -499,3 +499,15 @@ SCREENS §9 要求换库时立即清除面板与派生文本。状态每 3 秒�
 - 理由：导出是对 Vault 内容的主人操作，和导入、备份同组；六步必须依次可见，全文和两项确认在同一屏核对，不用对话框分页。符合“一屏最多一种框”和“不用颜色表达状态”。
 - 影响：`memory/PersonaExport.tsx`、`MemorySurface.tsx` 左栏、`theme/negative.css`（`.mem-step*`、`.mem-choice*`、`.mem-pre-file`、`.mem-slot`、`.mem-held`）。中文标签字体子集缺“公、群、友、套”，按已有做法登记为标签位置回落到正文字体（`cjk-manifest.json` 的 `labelFallbackCharacters`），不重切字体；其余缺字改了措辞。
 
+
+## 2026-11-10 · 主题按钮用“深色 / 浅色”
+
+- 决定：设置里的主题一行改为 跟随系统 / 深色 / 浅色（英文 Dark / Light，日文 ダーク / ライト），说明文字改为“默认跟随系统，也可以固定为深色或浅色”。星图预览页的同一组按钮同步改。Morii 在验收中看过实机后要求简单改成深色和浅色的字样。
+- 理由：按钮上的“黛蓝 / 宣纸”要先知道配色名才能对应明暗；直接写明暗更快。
+- 影响：`screens/Settings.tsx`、`starmap-preview.tsx`、三语字典、`theme-preference` DOM 场景。DESIGN.md 里“黛蓝”“宣纸”作为两套配色的名字不变，存储值仍是 `dark` / `light`，已保存的偏好不受影响。2026-11-04「Settings 主题三选一，默认跟随系统」的其余内容不变。
+
+## 2026-11-10 · 快速检索默认快捷键改为 Ctrl+Alt+Q
+
+- 决定：默认全局快捷键从 Ctrl+Alt+M 改为 Ctrl+Alt+Q。`--hotkey-key <字母>` 仍可改成别的字母，冲突时设置页的提示不变。Morii 在三个选项（设置里可选字母 / 只改默认为 Q / 两者都做）中选了只改默认。
+- 理由：Morii 实机按 Ctrl+Alt+M 呼不出来。逐个字母只注册、随即注销的探测（不发送按键、不装钩子）显示：Runtime 没有运行时，M 仍然返回 1409（热键已被其他程序注册），A–Z 其余字母都可用。Q 已在 2026-10-29 的实际 OS 输入测试中唤出过快速检索（OPEN_ISSUES #26）。
+- 影响：`src-tauri/src/hotkey.rs` 默认值和单元测试、`shell/ShellSettings.tsx` 的后备显示、ADR-026 与几份规格文档的当前行为描述、验收指南第 4 步。以后如果 Q 也被占，只能用启动参数改字母，界面里没有改键入口。

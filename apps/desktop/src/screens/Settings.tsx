@@ -4,7 +4,7 @@ import FontSettings from './FontSettings';
 
 import { setThemePref, useThemePref, type ThemePref } from '../theme/scheme';
 import { LANG_NAMES, msg, setLang, t, useLangPref } from '../i18n/index.ts';
-const THEMES: [ThemePref, string][] = [['system', msg('Follow system')], ['dark', msg('Tile Blue')], ['light', msg('Xuan Paper')]];
+const THEMES: [ThemePref, string][] = [['system', msg('Follow system')], ['dark', msg('Dark')], ['light', msg('Light')]];
 export default function Settings({ view }: { view: DemoView }) {
   const { keyboardHint, memorySettings, motionOpts, shellSettings } = view;
   const pref = useLangPref();
@@ -62,7 +62,7 @@ export default function Settings({ view }: { view: DemoView }) {
 {t("Theme")}
 </span>
 <span className="qr108">
-{t("Follows the system unless you choose one: Tile Blue when it is dark, Xuan Paper when it is light. Kept on this device only.")}
+{t("Follows the system unless you choose Dark or Light. Kept on this device only.")}
 </span>
 </div>
 <div className="qr173" role="group" aria-label={t("Theme")}>
