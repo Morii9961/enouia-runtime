@@ -2085,7 +2085,12 @@ async function main() {
     const forgetPlan=await s.evaluate('window.__operationObserved');
     check('W01.logical_forget_plan_is_not_permanent_purge',forgetPlan.purge===false&&JSON.stringify(forgetPlan.records).includes(selected));
     await s.evaluate('window.__releaseOperation()'); await waitFor(s,"!!document.querySelector('dialog[open]')",'logical forget dialog shown');
+    await holdOperationObservation(s,true);
     await click(s,'dialog button','Confirm'); await waitFor(s,dialogClosed,'synthetic logical forget confirmed');
+    await waitFor(s,'window.__operationHeld','post-forget list receipt held');
+    check('W01.confirmed_forget_withdraws_old_rows_before_list_receipt',await s.evaluate(`window.__operationObserved.total===1 && window.__operationObserved.items.every(row=>row.memoryId!==${JSON.stringify(selected)}) && !document.querySelector('button.qr43') && !document.querySelector('#mem-fix') && document.querySelector('.qr45').getAttribute('aria-busy')==='true'`));
+    await shot(s,'38a-forget-list-refreshing');
+    await s.evaluate('window.__releaseOperation()');
     await waitFor(s,"document.querySelectorAll('button.qr43').length===1",'forgotten memory removed from current list');
     check('W01.confirmed_forget_clears_selected_inspector',await s.evaluate("!document.querySelector('#mem-fix') && document.querySelector('aside[aria-label=\"Memory Inspector\"]').textContent.includes('Select a memory')"));
     check('W01.logical_forget_retains_source',(await s.evaluate(`__fixtureSend('source_excerpt',${JSON.stringify(source)})`)).excerpt==='Synthetic forget fixture 0');
