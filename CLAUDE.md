@@ -1,6 +1,6 @@
 @AGENTS.md
 
-当前接续入口（2026-11-10）：先读 [Claude → Codex 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-10.md)。#120–#166 已合并进 `main`，项目在统一验收阶段，在 `main` 上开新分支继续；最近一份 Windows 候选包与原生冒烟见 [71a5222 候选记录](docs/validation/UI-v2-candidate-71a5222-2026-11-09.md)（不含 #166），人工验收按 [验收指南](docs/RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)；更早的 [2026-11-07](docs/integration/CLAUDE_TO_CODEX_2026-11-07.md)、[2026-11-04 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-04.md) 与 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md) 的边界仍然有效。
+当前接续入口（2026-11-11）：先读 [Claude → Codex 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-10.md)。#120–#167 已合并进 `main`，项目在统一验收阶段，在 `main` 上开新分支继续；最近一份 Windows 候选包与原生冒烟见 [734b597 候选记录](docs/validation/UI-v2-candidate-734b597-2026-11-11.md)（包含 #166 的深色 / 浅色主题按钮与默认快捷键 Ctrl+Alt+Q，取代 `71a5222`），人工验收按 [验收指南](docs/RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)；更早的 [2026-11-07](docs/integration/CLAUDE_TO_CODEX_2026-11-07.md)、[2026-11-04 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-04.md) 与 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md) 的边界仍然有效。
 
 # Claude Code 补充
 
