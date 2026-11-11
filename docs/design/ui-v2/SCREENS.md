@@ -140,6 +140,8 @@ Memory UI 规格 §1 把 Memory 内部分成五个工作区。浏览器现以五
 
 另外按规格 §9 还要有：初次载入（不闪成 0 条）、无结果、索引暂不可用、状态读取失败（清除敏感内容）、plan 过期 / revision 冲突（保留草稿）、权限改变 / 删除 / 换库（立即清除面板与派生文本）。这些在原生 `src/memory/*` 里有行为，视觉上主要换了皮；read-2 目录的首次读取、统计等待/失败、状态失败与锁定等已补[独立合成截图](../../validation/UI-v2-catalog-state-fixture-2026-11-06.md)，read-1 自动记忆同八态也已补[独立合成截图](../../validation/UI-v2-read1-state-fixture-2026-11-07.md)；read-1 的空库、召回无选中和详情已不在范围内也有了[明确说明](../../validation/UI-v2-read1-empty-outcomes-2026-11-07.md)，read-2 的检索无匹配与空目录也已[分开说明](../../validation/UI-v2-read2-empty-results-2026-11-07.md)；记忆库列表的初次载入、空库、无匹配和索引不可用已有[独立合成截图](../../validation/UI-v2-memory-state-fixture-2026-11-07.md)。换库时撤下旧列表、选中详情，以及新库读取中 / 读取完成的状态，已有[三语 × 双主题的 18 组合成截图](../../validation/UI-v2-vault-switch-fixture-2026-11-11.md)；仅覆盖 Memory Vault 列表与详情，不代表权限撤回、删除、其他表面或原生接受。
 
+2026-11-11 补充：Memory Vault 已打开内容在锁库、状态读取返回 `storage_failed` / `permission_denied` 后撤回的[三语 × 双主题 18 组合成截图](../../validation/UI-v2-vault-status-fixture-2026-11-11.md)已补齐；连同换库原场景共 36 组通过。仅验证前端消费合成回执，不代表真实权限变化、删除、其他表面或原生接受。
+
 ## 5. 窗口宽度、缩放与键盘
 
 - 1100×700 最小窗口：全部已截图的屏幕不横向溢出、无 <11px 文字（截图脚本的阈值）；12px 下限见 DESIGN.md §3 与 OPEN_ISSUES #9。

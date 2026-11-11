@@ -1,18 +1,20 @@
-// Owned headless Edge, mock transport only. No native app, Vault, picker or OS keys.
-// node e2e/memory-vault-switch-diagnostics.mjs <Edge executable> <directory under ./target>
+// Owned headless Chromium browser, mock transport only. No native app, Vault, picker or OS keys.
+// node e2e/memory-vault-switch-diagnostics.mjs <browser executable> <directory under ./target>
 import {spawn} from 'node:child_process';
 import {closeSync,existsSync,mkdirSync,mkdtempSync,openSync,readFileSync,writeFileSync} from 'node:fs';
 import {join,resolve,sep} from 'node:path';
-import {createServer} from 'vite';
+import {build,preview} from 'vite';
 
 const [edgeInput,outputInput]=process.argv.slice(2);
-if(!edgeInput||!outputInput)throw Error('Expected Edge executable and output directory');
+if(!edgeInput||!outputInput)throw Error('Expected browser executable and output directory');
 const edge=resolve(edgeInput),out=resolve(outputInput);
 if(!out.startsWith(resolve('target')+sep))throw Error('Diagnostics must stay under the desktop target directory');
 mkdirSync(out,{recursive:true});
 const profile=mkdtempSync(join(out,'profile-')),log=openSync(join(profile,'edge.log'),'a');
-// Keep screenshots independent of a running preview or DOM runner's optimizer.
-const server=await createServer({cacheDir:join(out,'vite-cache'),css:{postcss:{plugins:[]}},server:{host:'127.0.0.1',port:0,strictPort:true},logLevel:'error'});
+// Build only this fixture before serving it; dev-server cold starts timed out on this host.
+const fixtureOut=join(out,'preview');
+await build({css:{postcss:{plugins:[]}},build:{outDir:fixtureOut,emptyOutDir:false,rolldownOptions:{input:resolve('e2e/memory-vault-switch-preview.html')}},logLevel:'error'});
+const server=await preview({build:{outDir:fixtureOut},preview:{host:'127.0.0.1',port:0,strictPort:true},logLevel:'error'});
 let browser,ws,nextId=0;
 const pending=new Map(),pageErrors=[],rows=[],commands=[];
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -35,11 +37,7 @@ async function evaluate(expression){
   return result.result?.value;
 }
 try{
-  await server.listen();
   const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
-  await fetch(origin+'/');
-  await server.environments.client.warmupRequest('/e2e/memory-vault-switch-preview.tsx');
-  await server.environments.client.waitForRequestsIdle();
   const initialUrl=origin+'/e2e/memory-vault-switch-preview.html';
   browser=spawn(edge,['--headless=new','--no-first-run','--disable-extensions','--disable-default-apps','--remote-debugging-address=127.0.0.1','--remote-debugging-port=0',`--user-data-dir=${profile}`,initialUrl],{windowsHide:true,stdio:['ignore',log,log]});
   const portFile=join(profile,'DevToolsActivePort');
@@ -67,22 +65,29 @@ try{
   await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   await send('Page.navigate',{url:origin+'/e2e/memory-vault-switch-preview.html'});
   await until(()=>evaluate("document.documentElement.dataset.fixtureReady==='true'"));
-  for(const language of ['en','zh-Hans','ja'])for(const theme of ['dark','light'])for(const state of ['before','loading','ready']){
+  for(const language of ['en','zh-Hans','ja'])for(const theme of ['dark','light'])for(const state of ['before','loading','ready','locked','status-error','permission-denied']){
     await evaluate(`localStorage.setItem('enouia.lang',${JSON.stringify(language)})`);
     await send('Page.navigate',{url:origin+`/e2e/memory-vault-switch-preview.html?theme=${theme}&state=${state}`});
     await until(()=>evaluate("document.documentElement.dataset.fixtureReady==='true'"));
     await evaluate('document.fonts.ready.then(()=>true)');
-    const row=await evaluate(`(()=>{const surface=document.querySelector('[data-screen-label="Memory Vault"]'),watermark=document.querySelector('[data-fixture-watermark]').getBoundingClientRect(),buttons=[...surface.querySelectorAll('button.qr43')];return {state:${JSON.stringify(state)},language:document.documentElement.lang,theme:document.documentElement.dataset.theme,startedWithSelectedA:document.documentElement.dataset.fixtureStartedWithSelectedA==='true',vault:document.querySelector('#fixture-refresh').dataset.vault,oldContent:surface.textContent.includes('Vault A'),newContent:surface.textContent.includes('Vault B saved memory'),rows:buttons.length,selected:buttons.filter(button=>button.getAttribute('aria-pressed')==='true').length,detail:!!surface.querySelector('#mem-fix'),busy:surface.querySelector('.qr45').getAttribute('aria-busy'),inspector:surface.querySelector('.qr88')?.textContent,overflow:document.documentElement.scrollWidth>innerWidth,watermarkVisible:watermark.top>=0&&watermark.left>=0&&watermark.right<=innerWidth&&watermark.bottom<=innerHeight,hostActions:Number(document.documentElement.dataset.fixtureHostActions),calls:memorySwitchFixtureCalls};})()`);
-    const before=state==='before';
-    if(row.language!==language||row.theme!==theme||!row.startedWithSelectedA||row.vault!==`vlt_fictional_${before?'A':'B'}`||row.oldContent!==before||row.newContent!==(state==='ready')||row.rows!==(state==='loading'?0:1)||row.selected!==(before?1:0)||row.detail!==before||row.busy!==(state==='loading'?'true':'false')||row.overflow||!row.watermarkVisible||row.hostActions)throw Error('Invalid Vault switch state: '+JSON.stringify(row));
+    const row=await evaluate(`(()=>{const surface=document.querySelector('[data-screen-label="Memory Vault"]'),watermark=document.querySelector('[data-fixture-watermark]').getBoundingClientRect(),buttons=[...surface.querySelectorAll('button.qr43')],center=surface.querySelector('.qr45');return {state:${JSON.stringify(state)},language:document.documentElement.lang,theme:document.documentElement.dataset.theme,startedWithSelectedA:document.documentElement.dataset.fixtureStartedWithSelectedA==='true',vault:document.querySelector('#fixture-refresh').dataset.vault,status:document.querySelector('#fixture-refresh').dataset.status,oldContent:surface.textContent.includes('Vault A saved memory')||surface.textContent.includes('Vault A detail'),newContent:surface.textContent.includes('Vault B saved memory'),rows:buttons.length,selected:buttons.filter(button=>button.getAttribute('aria-pressed')==='true').length,detail:!!surface.querySelector('#mem-fix'),connect:!!surface.querySelector('#mem-create-phrase'),busy:center.getAttribute('aria-busy'),centerText:center.textContent,inspector:surface.querySelector('.qr88')?.textContent,overflow:document.documentElement.scrollWidth>innerWidth,watermarkVisible:watermark.top>=0&&watermark.left>=0&&watermark.right<=innerWidth&&watermark.bottom<=innerHeight,hostActions:Number(document.documentElement.dataset.fixtureHostActions),hostReads:memorySwitchFixtureHostReads,calls:memorySwitchFixtureCalls};})()`);
+    const before=state==='before',gated=['locked','status-error','permission-denied'].includes(state);
+    const status=state==='locked'?'locked':gated?'failed':'open';
+    if(row.language!==language||row.theme!==theme||!row.startedWithSelectedA||row.vault!==(gated?'':`vlt_fictional_${before?'A':'B'}`)||row.status!==status||row.oldContent!==before||row.newContent!==(state==='ready')||row.rows!==((before||state==='ready')?1:0)||row.selected!==(before?1:0)||row.detail!==before||row.connect!==(state==='locked')||row.busy!==(state==='loading'?'true':gated?null:'false')||row.overflow||!row.watermarkVisible||row.hostActions)throw Error('Invalid Vault lifecycle state: '+JSON.stringify(row));
     if(!row.calls.every(call=>['workspace_status','memory_list','memory_read'].includes(call.command))||row.calls.some(call=>call.command==='memory_read'&&call.vault==='B'))throw Error('Unexpected read or inherited selection');
-    if(language==='en'&&!before&&!row.inspector.includes('Select a memory to see where it came from.'))throw Error('Missing unselected inspector explanation');
+    if(!row.hostReads.every(command=>command==='shell_status')||(row.hostReads.length>0)!==(state==='locked'))throw Error('Unexpected host read');
+    if(gated&&row.calls.filter(call=>call.command==='memory_list').length!==1)throw Error('Gated Vault started another list read');
+    if(language==='en'){
+      if(!before&&!row.inspector.includes(gated?'Open a Vault to see its memories.':'Select a memory to see where it came from.'))throw Error('Missing inspector explanation');
+      if(state==='locked'&&!row.centerText.includes('Vault locked · Fictional Vault A'))throw Error('Missing locked Vault explanation');
+      if(gated&&state!=='locked'&&!row.centerText.includes('Memory status could not be read. It is retried every few seconds.'))throw Error('Missing failed status explanation');
+    }
     const screenshot=`${state}-${language}-${theme}.png`;
     const shot=await send('Page.captureScreenshot',{format:'png'});writeFileSync(join(out,screenshot),Buffer.from(shot.data,'base64'));
     rows.push({...row,screenshot});console.log(JSON.stringify({state,language,theme,passed:true}));
   }
   if(pageErrors.length)throw Error('Page errors: '+JSON.stringify(pageErrors));
-  writeFileSync(join(out,'report.json'),JSON.stringify({browser:version.Browser,scope:'MemorySurface switch between two fictional Vaults. Mock status, list and detail reads only; no native acceptance.',rows,pageErrors,commands},null,2)+'\n');
+  writeFileSync(join(out,'report.json'),JSON.stringify({browser:version.Browser,rendering:'Vite production bundle of the fictional fixture only',scope:'MemorySurface across fictional Vault switches, lock, storage_failed and permission_denied status reads. Mock status, list and detail reads only; no native acceptance.',rows,pageErrors,commands},null,2)+'\n');
 }finally{
   if(ws?.readyState===WebSocket.OPEN)await send('Browser.close').catch(()=>undefined);
   ws?.close();browser?.kill();await server.close();closeSync(log);
