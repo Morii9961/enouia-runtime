@@ -64,6 +64,7 @@ try {
   await select("synthetic-one"); await openPlan("Forget…");
   holdList = true; click(button("Confirm (SYNTHETIC)"), "Confirm"); await wait(() => release != null && !fixture.querySelector("dialog[open]"));
   check("confirmed_forget_clears_inspector", text().includes("Select a memory to see where it came from.") && !button("Forget…"));
+  check("confirmed_forget_withdraws_deleted_row_while_results_are_pending", !row("synthetic-one"));
   check("confirmed_forget_waits_for_current_results", document.activeElement !== title());
   releasePending(); await wait(() => !row("synthetic-one") && !!row("synthetic-two")); await sleep(30);
   check("confirmed_forget_focuses_reread_results", document.activeElement === title());
@@ -84,6 +85,7 @@ try {
   }
   await openPlan("Purge…");
   holdList = true; click(button("Confirm (SYNTHETIC)"), "Confirm"); await wait(() => release != null && !fixture.querySelector("dialog[open]"));
+  check("confirmed_purge_withdraws_deleted_row_while_results_are_pending", !row("synthetic-two"));
   outside.focus(); releasePending(); await wait(() => !row("synthetic-two") && !!row("synthetic-three")); await sleep(30);
   check("confirmed_purge_respects_moved_focus", document.activeElement === outside);
   check("confirmed_purge_is_announced_as_permanent", notices().some(n => n === "Permanent purge confirmed by Memory."));

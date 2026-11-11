@@ -249,7 +249,7 @@ export function Explorer({ history, submitted, onRefresh, readPage = call }: {
         ? <MemoryDetail key={selected} id={selected} onChanged={(purge) => {
           setNotice(purge ? msg("Permanent purge confirmed by Memory.") : msg("Forget confirmed by Memory."));
           focusAfterRead.current = { trigger: null, fallback: resultsTitle };
-          setSelected(null); load(null);
+          setSelected(null); setRows([]); setTotal(null); setNext(null); setLoaded(false); load(null);
         }} />
         : <aside aria-label={t("Memory Inspector")} className="qr88"><div className="qr46">{t("Select a memory to see where it came from.")}</div></aside>}
     </>
