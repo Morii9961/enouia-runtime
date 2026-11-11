@@ -1,4 +1,4 @@
-// Visual companion to memory-vault-switch: real components, fictional read-only IPC.
+// Real Memory components across fictional Vault switches, lock and failed status reads.
 import {createRoot} from 'react-dom/client';
 import {mockIPC} from '@tauri-apps/api/mocks';
 import MemorySurface from '../src/memory/MemorySurface';
@@ -14,14 +14,17 @@ import '../src/theme/motion.css';
 import '../src/theme/cjk-fonts.css';
 
 const params=new URLSearchParams(location.search);
-const state=['before','loading','ready'].includes(params.get('state')??'')?params.get('state')!:'before';
+const state=['before','loading','ready','locked','status-error','permission-denied'].includes(params.get('state')??'')?params.get('state')!:'before';
+const gated=['locked','status-error','permission-denied'].includes(state);
 const calls:{command:string;vault:string}[]=[];
-let vault='A';
-Object.assign(window,{memorySwitchFixtureCalls:calls});
+const hostReads:string[]=[];
+let vault='A',changed=false;
+Object.assign(window,{memorySwitchFixtureCalls:calls,memorySwitchFixtureHostReads:hostReads});
 document.documentElement.dataset.theme=params.get('theme')==='light'?'light':'dark';
 document.documentElement.dataset.fixtureState=state;
 document.documentElement.dataset.fixtureHostActions='0';
 mockIPC(async command=>{
+  if(command==='shell_status'){hostReads.push(command);return {vaultChanging:false,vaultAdmissionError:null};}
   document.documentElement.dataset.fixtureHostActions=String(Number(document.documentElement.dataset.fixtureHostActions)+1);
   throw Error('Unexpected Vault switch fixture host action '+command);
 },{shouldMockEvents:true});
@@ -32,7 +35,9 @@ setTransport(async(native,args)=>{
   calls.push({command:request.command,vault});
   let result:unknown;
   switch(request.command){
-    case 'workspace_status':result={vault:{state:'open',vaultId:`vlt_fictional_${vault}`,rootName:`Fictional Vault ${vault}`},pendingCandidates:0};break;
+    case 'workspace_status':
+      if(changed&&(state==='status-error'||state==='permission-denied'))return {kind:'memory_error',error:{code:state==='status-error'?'storage_failed':'permission_denied',retryable:false,rules:[]}};
+      result={vault:changed&&state==='locked'?{state:'locked',rootName:'Fictional Vault A'}:{state:'open',vaultId:`vlt_fictional_${vault}`,rootName:`Fictional Vault ${vault}`},pendingCandidates:0};break;
     case 'memory_list':
       if(vault==='B'&&state==='loading')return new Promise(()=>{});
       result={items:[{memoryId:`mem_fictional_${vault}`,snippet:`Vault ${vault} saved memory`,type:'fact',status:'active',currency:'current',revision:1,updatedAt:'2026-11-01T10:00:00Z',evidenceCount:0}],nextCursor:null,total:1};break;
@@ -42,8 +47,8 @@ setTransport(async(native,args)=>{
   return {kind:'memory_page',result};
 });
 function StatusControl(){
-  const {refresh,status}=useStatus();
-  return <button hidden id="fixture-refresh" data-vault={status?.vault?.vaultId??''} onClick={()=>void refresh()}>Fixture: read status</button>;
+  const {refresh,status,error}=useStatus();
+  return <button hidden id="fixture-refresh" data-vault={status?.vault?.vaultId??''} data-status={status?.vault?.state??(error?'failed':'pending')} onClick={()=>void refresh()}>Fixture: read status</button>;
 }
 function Preview(){
   useLang();
@@ -61,13 +66,18 @@ surface().querySelector<HTMLButtonElement>('button.qr43')!.click();
 await wait(()=>surface().textContent!.includes('Vault A detail for mem_fictional_A'));
 document.documentElement.dataset.fixtureStartedWithSelectedA='true';
 if(state!=='before'){
-  // No host-changing state is observed: the switch finished between status polls.
-  vault='B';
+  changed=true;
+  // Switches finish between polls; gate cases retain the same fictional root.
+  if(!gated)vault='B';
   document.querySelector<HTMLButtonElement>('#fixture-refresh')!.click();
-  await wait(()=>document.querySelector('#fixture-refresh')?.getAttribute('data-vault')==='vlt_fictional_B'&&!surface().textContent!.includes('Vault A'));
-  await wait(()=>calls.some(call=>call.command==='memory_list'&&call.vault==='B'));
-  if(state==='loading')await wait(()=>surface().querySelector('.qr45')?.getAttribute('aria-busy')==='true');
-  else await wait(()=>surface().querySelector('button.qr43')?.textContent?.includes('Vault B saved memory')===true);
+  if(gated){
+    await wait(()=>document.querySelector('#fixture-refresh')?.getAttribute('data-status')===(state==='locked'?'locked':'failed')&&!surface().querySelector('button.qr43')&&!surface().querySelector('#mem-fix'));
+  }else{
+    await wait(()=>document.querySelector('#fixture-refresh')?.getAttribute('data-vault')==='vlt_fictional_B'&&!surface().textContent!.includes('Vault A'));
+    await wait(()=>calls.some(call=>call.command==='memory_list'&&call.vault==='B'));
+    if(state==='loading')await wait(()=>surface().querySelector('.qr45')?.getAttribute('aria-busy')==='true');
+    else await wait(()=>surface().querySelector('button.qr43')?.textContent?.includes('Vault B saved memory')===true);
+  }
 }
 await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
 document.documentElement.dataset.fixtureReady='true';
