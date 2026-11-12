@@ -1,0 +1,293 @@
+{
+  "baseline": "9ef2b995e2bd616f78d644671ce211db4fd6d8c3",
+  "measured_at": "2026-11-12",
+  "webview2": {
+    "browser": "Edg/157.0.4341.46",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+    "rendering": "static starmap bundle",
+    "engine": "standalone WebView2",
+    "nativeWindow": {
+      "width": 2160,
+      "minimized": false,
+      "maximized": false,
+      "dpi": 144,
+      "height": 1350
+    },
+    "scope": "Owned browser/profile, fictional 5000-star product drawing. Motion = alternating eased keyboard zoom-in/reset every 100 ms (bounded camera). Idle/restored = live decorative motion without interaction. Static idle PNG = fresh reduced-motion page, for decoded pixel comparison. Draw intervals are not presentation timestamps.",
+    "rows": [
+      {
+        "layout": "Sphere",
+        "phase": "idle",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 10,
+          "median": 53.300000000046566,
+          "p95": 55.199999999953434
+        },
+        "interval": {
+          "n": 9,
+          "median": 586.8000000000466,
+          "p95": 595.5999999999767
+        },
+        "themeStrokes": {
+          "n": 10,
+          "median": 1,
+          "p95": 1
+        }
+      },
+      {
+        "layout": "Sphere",
+        "phase": "motion",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 40,
+          "median": 52.40000000002328,
+          "p95": 55.39999999990687
+        },
+        "interval": {
+          "n": 39,
+          "median": 148.90000000002328,
+          "p95": 160.09999999997672
+        },
+        "themeStrokes": {
+          "n": 40,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      {
+        "layout": "Sphere",
+        "phase": "restored",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 8,
+          "median": 52.40000000002328,
+          "p95": 55.300000000046566
+        },
+        "interval": {
+          "n": 7,
+          "median": 788,
+          "p95": 797.1000000000931
+        },
+        "themeStrokes": {
+          "n": 8,
+          "median": 1,
+          "p95": 1
+        }
+      },
+      {
+        "layout": "Theme clusters",
+        "phase": "idle",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 14,
+          "median": 5.900000000023283,
+          "p95": 6.200000000069849
+        },
+        "interval": {
+          "n": 13,
+          "median": 410.9000000000233,
+          "p95": 421.70000000006985
+        },
+        "themeStrokes": {
+          "n": 14,
+          "median": 1,
+          "p95": 1
+        }
+      },
+      {
+        "layout": "Theme clusters",
+        "phase": "motion",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 62,
+          "median": 5,
+          "p95": 6.100000000093132
+        },
+        "interval": {
+          "n": 61,
+          "median": 96.59999999997672,
+          "p95": 104
+        },
+        "themeStrokes": {
+          "n": 62,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      {
+        "layout": "Theme clusters",
+        "phase": "restored",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 16,
+          "median": 5.799999999930151,
+          "p95": 6.5
+        },
+        "interval": {
+          "n": 15,
+          "median": 392.0999999999767,
+          "p95": 400.4000000000233
+        },
+        "themeStrokes": {
+          "n": 16,
+          "median": 1,
+          "p95": 1
+        }
+      }
+    ]
+  },
+  "edge": {
+    "browser": "Edg/157.0.4341.46",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+    "rendering": "static starmap bundle",
+    "engine": "headless Edge",
+    "scope": "Owned browser/profile, fictional 5000-star product drawing. Motion = alternating eased keyboard zoom-in/reset every 100 ms (bounded camera). Idle/restored = live decorative motion without interaction. Static idle PNG = fresh reduced-motion page, for decoded pixel comparison. Draw intervals are not presentation timestamps.",
+    "rows": [
+      {
+        "layout": "Sphere",
+        "phase": "idle",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 10,
+          "median": 51.5999999998603,
+          "p95": 55.200000000186265
+        },
+        "interval": {
+          "n": 9,
+          "median": 590.5,
+          "p95": 617.5
+        },
+        "themeStrokes": {
+          "n": 10,
+          "median": 1,
+          "p95": 1
+        }
+      },
+      {
+        "layout": "Sphere",
+        "phase": "motion",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 40,
+          "median": 52.300000000046566,
+          "p95": 59.300000000046566
+        },
+        "interval": {
+          "n": 39,
+          "median": 146.20000000018626,
+          "p95": 169
+        },
+        "themeStrokes": {
+          "n": 40,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      {
+        "layout": "Sphere",
+        "phase": "restored",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 7,
+          "median": 49.300000000046566,
+          "p95": 50.300000000046566
+        },
+        "interval": {
+          "n": 6,
+          "median": 880,
+          "p95": 909.6000000000931
+        },
+        "themeStrokes": {
+          "n": 7,
+          "median": 1,
+          "p95": 1
+        }
+      },
+      {
+        "layout": "Theme clusters",
+        "phase": "idle",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 16,
+          "median": 5.899999999906868,
+          "p95": 6.800000000046566
+        },
+        "interval": {
+          "n": 15,
+          "median": 383.9000000001397,
+          "p95": 414
+        },
+        "themeStrokes": {
+          "n": 16,
+          "median": 1,
+          "p95": 1
+        }
+      },
+      {
+        "layout": "Theme clusters",
+        "phase": "motion",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 61,
+          "median": 4.900000000139698,
+          "p95": 5.899999999906868
+        },
+        "interval": {
+          "n": 60,
+          "median": 99.69999999995343,
+          "p95": 109.5999999998603
+        },
+        "themeStrokes": {
+          "n": 61,
+          "median": 0,
+          "p95": 0
+        }
+      },
+      {
+        "layout": "Theme clusters",
+        "phase": "restored",
+        "n": 5000,
+        "dpr": 1.5,
+        "hidden": false,
+        "draw": {
+          "n": 15,
+          "median": 5.7999999998137355,
+          "p95": 6.099999999860302
+        },
+        "interval": {
+          "n": 14,
+          "median": 380.9000000001397,
+          "p95": 389
+        },
+        "themeStrokes": {
+          "n": 15,
+          "median": 1,
+          "p95": 1
+        }
+      }
+    ]
+  }
+}
