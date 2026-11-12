@@ -1,0 +1,8 @@
+{
+  "productName": "Enouia starmap measurement",
+  "version": "0.1.0",
+  "identifier": "com.enouia.starmap-measurement",
+  "build": { "frontendDist": "assets" },
+  "app": { "windows": [], "security": { "capabilities": [] } },
+  "bundle": { "active": false, "icon": ["../../src-tauri/icons/icon.ico"] }
+}

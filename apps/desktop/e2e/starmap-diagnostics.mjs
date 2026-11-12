@@ -1,19 +1,29 @@
 // Isolated, fictional browser diagnostics for UI v2 issue #24. No native IPC.
 // Probe modes omit drawing operations; --motion measures unchanged product drawing.
-// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--motion | --idle-only | --compare-idle=<prior output> | --dashes | --context | --trace | --options]
+// node e2e/starmap-diagnostics.mjs <Edge executable> <directory under ./target> [--motion | --idle-only | --compare-idle=<prior output> | --dashes | --context | --trace | --options] [--static]
+// Substitute the standalone measurement exe and add --motion --webview2 for native measurement.
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
-import { createServer } from 'vite';
+import { build, createServer, preview } from 'vite';
+import { assertDebugOwner, ownedWindowMetrics, unusedPort } from './starmap-native-owner.mjs';
 
 const [edgeInput, outputInput] = process.argv.slice(2);
 if (!edgeInput || !outputInput) throw Error('Expected Edge executable and output directory');
 const edge = resolve(edgeInput), out = resolve(outputInput);
+const webview2 = process.argv.includes('--webview2');
+const staticPreview = webview2 || process.argv.includes('--static');
+if (webview2 && !process.argv.includes('--motion')) throw Error('WebView2 measurement requires --motion');
 if (!out.startsWith(resolve('target') + sep)) throw Error('Diagnostics must stay under the desktop target directory');
 mkdirSync(out, { recursive: true });
 const profile = mkdtempSync(join(out, 'profile-'));
 const log = openSync(join(profile, 'edge.log'), 'a');
-const server = await createServer({ server: { host: '127.0.0.1', port: 0, strictPort: true }, logLevel: 'error' });
+// The native remeasurement serves a static build of this fictional page only.
+if (staticPreview) await build({ build: { outDir: join(out, 'preview'), emptyOutDir: false, rolldownOptions: { input: resolve('starmap.html') } }, logLevel: 'error' });
+const server = staticPreview
+  ? await preview({ build: { outDir: join(out, 'preview') }, preview: { host: '127.0.0.1', port: 0, strictPort: true }, logLevel: 'error' })
+  : await createServer({ server: { host: '127.0.0.1', port: 0, strictPort: true }, logLevel: 'error' });
+let nativeWindow;
 let browser, ws, nextId = 0;
 const pending = new Map();
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -36,19 +46,31 @@ async function evaluate(expression) {
   return result.result?.value;
 }
 try {
-  await server.listen();
+  if (!staticPreview) await server.listen();
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+  let port;
+  if (webview2) {
+    port = await unusedPort();
+    browser = spawn(edge, [origin + '/starmap.html?lang=en&theme=dark', profile], {
+      env: { ...process.env, WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1 --lang=en-US`, WEBVIEW2_USER_DATA_FOLDER: profile },
+      windowsHide: true, stdio: ['ignore', log, log],
+    });
+    await until(async () => fetch(`http://127.0.0.1:${port}/json/version`).then(r => r.ok).catch(() => false));
+    assertDebugOwner(port, browser);
+    nativeWindow = ownedWindowMetrics(browser, { width: 1440, height: 900 });
+  } else {
   browser = spawn(edge, ['--headless=new', '--no-first-run', '--disable-extensions', '--disable-default-apps',
     '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'],
   { windowsHide: true, stdio: ['ignore', log, log] });
   const portFile = join(profile, 'DevToolsActivePort');
   await until(() => existsSync(portFile));
-  const port = Number(readFileSync(portFile, 'utf8').split('\n')[0]);
+  port = Number(readFileSync(portFile, 'utf8').split('\n')[0]);
+  }
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw Error('Invalid owned browser port');
   const endpoint = `http://127.0.0.1:${port}`;
   const version = await (await fetch(endpoint + '/json/version')).json();
   const targets = await (await fetch(endpoint + '/json/list')).json();
-  const target = targets.find(target => target.type === 'page' && target.url === 'about:blank');
+  const target = targets.find(target => target.type === 'page' && (webview2 ? target.url.startsWith(origin + '/starmap.html') : target.url === 'about:blank'));
   if (!target?.webSocketDebuggerUrl?.startsWith(`ws://127.0.0.1:${port}/`)) throw Error('Owned blank page unavailable');
   ws = new WebSocket(target.webSocketDebuggerUrl);
   const traceEvents = [];
@@ -66,7 +88,8 @@ try {
     pending.clear();
   };
   await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
-  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1.5, mobile: false });
+  const userAgent = await evaluate('navigator.userAgent');
+  if (!webview2) await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1.5, mobile: false });
   const compareArg = process.argv.find(arg => arg.startsWith('--compare-idle='));
   if (compareArg) {
     const prior = resolve(compareArg.slice('--compare-idle='.length));
@@ -140,8 +163,8 @@ try {
       await sleep(300);
       const png = await evaluate("document.querySelector('.sm-canvas').toDataURL('image/png').split(',')[1]");
       writeFileSync(join(out, `${layout === 'Sphere' ? 'sphere' : 'clusters'}-idle-static.png`), Buffer.from(png, 'base64'));
-      writeFileSync(join(out, 'report.json'), JSON.stringify({ browser: version.Browser,
-        scope: 'Owned headless browser/profile, fictional 5000-star product drawing. Motion = alternating eased keyboard zoom-in/reset every 100 ms (bounded camera). Idle/restored = live decorative motion without interaction. Static idle PNG = fresh reduced-motion page, for decoded pixel comparison. Draw intervals are not presentation timestamps.', rows }, null, 2));
+      writeFileSync(join(out, 'report.json'), JSON.stringify({ browser: version.Browser, userAgent, rendering: staticPreview ? 'static starmap bundle' : 'Vite dev server', engine: webview2 ? 'standalone WebView2' : 'headless Edge', nativeWindow,
+        scope: 'Owned browser/profile, fictional 5000-star product drawing. Motion = alternating eased keyboard zoom-in/reset every 100 ms (bounded camera). Idle/restored = live decorative motion without interaction. Static idle PNG = fresh reduced-motion page, for decoded pixel comparison. Draw intervals are not presentation timestamps.', rows }, null, 2));
     }
   } else if(process.argv.includes('--trace')){
     // Where the time between draws goes: per-thread top-level busy time from a CDP trace,
