@@ -10,6 +10,8 @@ The user explicitly requested continuous work across backend design slices. Veri
 
 ## Code implementation principles
 
+PR merge authorization (Morii, 2026-11-12): after completing and verifying a Runtime slice within the authorized scope, commit, push, open its PR and merge it without asking for per-PR approval. This supersedes older handoff instructions to ask before each merge. Pending owner decisions and authorization boundaries for personal Vaults, Providers, installation, deployment and new integration slices still apply.
+
 Where these principles conflict with existing design or implementation guidance, follow these principles.
 
 - Keep code in one function unless it needs to be composable or reusable.
