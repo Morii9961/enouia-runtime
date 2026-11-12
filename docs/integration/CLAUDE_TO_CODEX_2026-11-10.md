@@ -1,5 +1,7 @@
 # Runtime：Claude → Codex 交接（2026-11-10）
 
+> 2026-11-12 起，当前进展与合并授权以 [Runtime 接续入口](RUNTIME_CONTINUATION_2026-11-12.md) 为准。下文保留当日基线和原始提示作追溯；“逐片合并前询问”已被 Morii 后续的直接合并授权取代。
+
 Morii 让 Codex 接手后续全部工作。本文接在 [2026-11-07 交接](CLAUDE_TO_CODEX_2026-11-07.md) 之后。那份文档以及更早的 [2026-11-04 交接](CLAUDE_TO_CODEX_2026-11-04.md)、[Codex → Claude 交接](CODEX_TO_CLAUDE_2026-11-03.md) 里的边界仍然有效。项目规则只在 `AGENTS.md`。
 
 ## 现在在哪

@@ -1,6 +1,6 @@
 @AGENTS.md
 
-当前接续入口（2026-11-11）：先读 [Claude → Codex 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-10.md)。#120–#171 已合并进 `main`，项目在统一验收阶段，在 `main` 上开新分支继续；最近一份 Windows 候选包与原生冒烟见 [5175284 候选记录](docs/validation/UI-v2-candidate-5175284-2026-11-11.md)（包含 #171 删除确认后立即撤下旧列表的修复，取代 `734b597`；保留 #166 深色 / 浅色主题按钮与默认快捷键 Ctrl+Alt+Q），人工验收按 [验收指南](docs/RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)；更早的 [2026-11-07](docs/integration/CLAUDE_TO_CODEX_2026-11-07.md)、[2026-11-04 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-04.md) 与 [Codex → Claude 交接](docs/integration/CODEX_TO_CLAUDE_2026-11-03.md) 的边界仍然有效。
+当前接续入口（2026-11-12）：先读 [Runtime 接续入口](docs/integration/RUNTIME_CONTINUATION_2026-11-12.md)。#120–#174 已合并进 `main`，项目在统一验收阶段；Morii 已授权完成验证的 PR 直接合并，不再逐片询问。最新 Windows 候选仍为 [5175284](docs/validation/UI-v2-candidate-5175284-2026-11-11.md)，人工验收按 [验收指南](docs/RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)。待决定事项、个人 Vault 与安装/Provider/集成边界不变；历史配方见 [2026-11-10 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-10.md)。
 
 # Claude Code 补充
 
