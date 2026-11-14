@@ -228,7 +228,9 @@ for ($depth = 0; $depth -lt 16 -and $ancestor -ne 0; $depth++) {
 }
 throw 'debug listener does not belong to test process'`;
   try {
-    execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { windowsHide: true, timeout: 15000, stdio: ['ignore', 'ignore', 'pipe'] });
+    // Windows management queries took ~20s on this host; keep a bounded wait
+    // while still requiring the same listener/process ancestry checks.
+    execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { windowsHide: true, timeout: 30000, stdio: ['ignore', 'ignore', 'pipe'] });
   } catch {
     throw new Error('debug listener does not belong to test process');
   }
