@@ -1,5 +1,11 @@
 # Runtime 接续入口（2026-11-12）
 
+## 2026-11-14：Memory 交付核对与兼容采用
+
+Morii 告知 Memory session 收束后，已直接取得最终工程交接并核对公共仓库：#102、#106–#108 已合并，Memory main 为 `eb7050961cceaac04d4aec79257524331be6c7b0`。完成的是能力 PR；工程记录仍为 `native_initialization_complete=false`，生产 fresh-input 驱动、真实形成/重开/查询/来源验收尚未完成，没有已写入真实 OwnerReadGrant 或已确定长期读取范围的工程记录。未为此探测个人 Vault。
+
+Runtime 先做 [eb70509 兼容采用](../validation/Memory-pin-eb70509-2026-11-14.md)，Workspace 仍为相同 61 命令、源码无 diff，不启动正式 Owner 界面、读取授权或真实 Provider。下文的 `731edd56…` 是旧安装候选 `5175284` 的 pin，不能再理解成当前源码将一直保持旧 pin。该候选继续作为既有 Workspace/合成验收基线；不是新 Owner 根的交付包。新根应先完成 Memory 的真实初始化与验收，再推进其 Runtime 接入/新候选；不是只剩 Morii 点第 6、9 步。
+
 接在 [2026-11-10 交接](CLAUDE_TO_CODEX_2026-11-10.md) 之后。先读 `AGENTS.md`；本文覆盖旧文档中的当前基线、候选指针与逐片合并审批要求，其他领域和验收边界继续有效。本次整理基线为 `main@ac1cbbf8da91d682559d30f6efbe200df5adea8a`（#174 合并提交），不代表人工验收通过。
 
 ## 工作方式
