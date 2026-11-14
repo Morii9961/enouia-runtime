@@ -4,6 +4,8 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 
 ## Pinned revision
 
+Current compatibility adoption (2026-11-15): Memory `eb7050961cceaac04d4aec79257524331be6c7b0`, merged through [Memory #108](https://github.com/Morii9961/enouia-memory/pull/108), surface aggregate `39cc2a820fd132770397e3cef37674b8fca17280c8977bcd161622a43ad54c52`. Workspace source and its 61-command catalog are unchanged. This adopts the Owner backup/restore activation gate, formation-title correction, persistent connector read-grant representation and same-source quoted-range evaluator compatibility without activating those Owner/remote interfaces in Runtime. See [compatibility checks and unfinished initialization boundary](validation/Memory-pin-eb70509-2026-11-14.md). The installed acceptance candidate `5175284` still uses the earlier pin; the pin bump does not itself deliver a real initialized Owner Vault or its Runtime UI.
+
 | Field | Value |
 |---|---|
 | Repository | `https://github.com/Morii9961/enouia-memory.git` (public) |
@@ -12,7 +14,7 @@ Enouia Runtime is the Windows client for Enouia Memory's local part ([ADR-025](a
 | Contract | workspace IPC v1 (`schemaVersion: 1`, 61 commands) |
 | Memory surface digest | the aggregate from Memory's `docs/integration/runtime-surface.json` at that revision |
 
-Current adoption (2026-11-08): Memory revision `731edd56a276ffa752c736b7d2be667b9e12776c`, merged through [Memory #87](https://github.com/Morii9961/enouia-memory/pull/87), adds the owner-side public persona projection export (Memory ADR-MEM-128): `persona_options`, `persona_preview` and the keyed write `persona_export` (61 Workspace v1 commands) and the folder picker kind `persona_destination`. Runtime adopts it as the **Public persona export** page under Memory's Vault group; see [the public persona export section](#public-persona-export) and [evidence](validation/Memory-public-persona-export-2026-11-08.md). Every other Workspace command, the Core-8 synthetic reader, the read-2 entry and the capture entry are unchanged. Previous adoption (2026-11-07): Memory revision `b9faf544da272bfe821c621d59a979b1a434e355`, merged through [Memory #84](https://github.com/Morii9961/enouia-memory/pull/84) and [Memory #85](https://github.com/Morii9961/enouia-memory/pull/85), preserves all 58 Workspace v1 commands, the opt-in Core-8 synthetic reader and the synthetic segmented read-2 entry. See [pin compatibility evidence](validation/Memory-pin-b9faf54-2026-11-07.md); the previous pin's evidence remains in [the 0d338f1 report](validation/Memory-pin-0d338f1-2026-11-03.md). The pin makes the Owner-root MCP-4/MCP-5 Host APIs (correction, supersede and forget-request transports, opening prompt/resources, session_start) and the capture-wire representation fixes available; none activates itself in Runtime. Wiring the Owner pipeline is a separate integration slice. Personal libraries, real model quality and production cutover remain separate activation gates.
+Previous feature adoption (2026-11-08): Memory revision `731edd56a276ffa752c736b7d2be667b9e12776c`, merged through [Memory #87](https://github.com/Morii9961/enouia-memory/pull/87), adds the owner-side public persona projection export (Memory ADR-MEM-128): `persona_options`, `persona_preview` and the keyed write `persona_export` (61 Workspace v1 commands) and the folder picker kind `persona_destination`. Runtime adopts it as the **Public persona export** page under Memory's Vault group; see [the public persona export section](#public-persona-export) and [evidence](validation/Memory-public-persona-export-2026-11-08.md). Every other Workspace command, the Core-8 synthetic reader, the read-2 entry and the capture entry are unchanged. Previous adoption (2026-11-07): Memory revision `b9faf544da272bfe821c621d59a979b1a434e355`, merged through [Memory #84](https://github.com/Morii9961/enouia-memory/pull/84) and [Memory #85](https://github.com/Morii9961/enouia-memory/pull/85), preserves all 58 Workspace v1 commands, the opt-in Core-8 synthetic reader and the synthetic segmented read-2 entry. See [pin compatibility evidence](validation/Memory-pin-b9faf54-2026-11-07.md); the previous pin's evidence remains in [the 0d338f1 report](validation/Memory-pin-0d338f1-2026-11-03.md). The pin makes the Owner-root MCP-4/MCP-5 Host APIs (correction, supersede and forget-request transports, opening prompt/resources, session_start) and the capture-wire representation fixes available; none activates itself in Runtime. Wiring the Owner pipeline is a separate integration slice. Personal libraries, real model quality and production cutover remain separate activation gates.
 
 `node scripts/check-memory-integration.mjs` checks that the pin record, the manifest and the lockfile agree. It also checks that the revision is a full SHA and that no path, branch or `[patch]` source is committed. Given `--memory-checkout <dir>`, it compares the recorded surface digest with that checkout's manifest.
 
@@ -95,7 +97,7 @@ Vault/import arguments are unused placeholders in this mode. It uses a fresh
 WebView profile and empty Activity settings override, checks debug-port process
 ownership and touches no unrelated window. See [scope and checks](validation/Core8-native-adoption-2026-10-25.md).
 
-Rollback the pin record, all five manifest revisions, the lockfile, native
+Rollback the pin record, all six manifest revisions, the lockfile, native
 adapter/permission and client together. Old Runtime/MCP clients must reject the
 new root before business decoding/querying, never rely on the page hiding fields.
 Keep v1 owner bytes/approval history unchanged. Do not downgrade a synthetic V2
@@ -317,7 +319,7 @@ The combined release passes 101/101 default native checks plus the focused confi
 ## Bumping the pin
 
 1. Read the new rows in Memory's compatibility log, `docs/integration/RUNTIME.md`. Review `git log <old>..<new> -- crates contracts apps/workspace` in the Memory repository.
-2. Set `rev` for all five Memory dependencies in `apps/desktop/src-tauri/Cargo.toml` to the new full SHA. If Memory changed an exact workspace pin (for example `serde_json`), align the desktop's own exact pin with it.
+2. Set `rev` for all six Memory dependencies (including the governance dev-dependency) in `apps/desktop/src-tauri/Cargo.toml` to the new full SHA. If Memory changed an exact workspace pin (for example `serde_json`), align the desktop's own exact pin with it.
 3. In `Cargo.lock`, replace the old revision with the new one on the Memory `source` lines only. Then run `cargo fetch --locked` online and `cargo metadata --offline --locked`. If Memory's manifests changed its dependencies, `--locked` fails. Only then run `cargo update -p enouia-memory-workspace -p enouia-memory-contract`, and revert any re-resolution of unrelated packages. That command can also move sibling edges (for example `syn`, `windows-sys`).
 4. Update `docs/integration/memory-pin.json`: the revision, the Memory surface aggregate, `contract` (schema version and command count) and the date.
 5. Adapt the adapter and the surfaces to what the log asks for. Keep `WRITES` equal to the contract.
