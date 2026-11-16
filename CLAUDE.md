@@ -1,8 +1,8 @@
 @AGENTS.md
 
-当前接续入口（2026-11-15）：先读 [Runtime 接续入口](docs/integration/RUNTIME_CONTINUATION_2026-11-12.md)。#120–#177 已合并进 `main`，项目在统一验收阶段；Morii 已授权完成验证的 PR 直接合并，不再逐片询问。Memory 新库能力已合并但生产初始化尚未交付，当前采用 eb70509 兼容 pin；见入口顶部更新，不能把第 6、9 步当作新根已 ready。最新 Windows 候选仍为 [5175284](docs/validation/UI-v2-candidate-5175284-2026-11-11.md)，人工验收按 [验收指南](docs/RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)。待决定事项、个人 Vault 与安装/Provider/集成边界不变；历史配方见 [2026-11-10 交接](docs/integration/CLAUDE_TO_CODEX_2026-11-10.md)。
+当前接续入口（2026-11-16）：先读[Runtime交付路线](docs/integration/RUNTIME_ROADMAP_2026-11-16.md)与[新会话提示词](docs/prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)。项目仍处于端到端集成，旧草稿链已合并；下一片是覆盖Memory ADR146的兼容采用，正式Owner入口范围及真实库验收仍独立。当前pin为eb70509，旧候选5175284未更新。Memory负责新库形成和独立恢复，Runtime不重做fresh驱动。
 
-下一步主线使用 [Memory 启动提示词](docs/prompts/CODEX_MEMORY_NEXT_2026-11-15.md)；之后使用 [Runtime 接续提示词](docs/prompts/CODEX_RUNTIME_NEXT_2026-11-15.md)。
+[状态报告](docs/status/PROJECT_STATUS.md)及[Dashboard JSON](docs/status/project-status.json)仅为手动快照；历史验证和验收边界见[旧接续记录](docs/integration/RUNTIME_CONTINUATION_2026-11-12.md)。授权内Runtime切片验证后可直接合并；个人库、Provider、安装/部署及待定产品决策的边界保留。
 
 # Claude Code 补充
 

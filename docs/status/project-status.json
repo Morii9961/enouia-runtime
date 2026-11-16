@@ -1,26 +1,31 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.0",
   "project_id": "enouia.runtime",
   "project_name": "Enouia Runtime",
-  "snapshot_at": "2026-11-07T13:26:23+08:00",
+  "snapshot_at": "2026-11-16T18:16:07+08:00",
   "source": {
     "branch": "main",
-    "commit_sha": "0cc1cb07be4078c9fb0af28f3ff0edbaac93d249",
+    "commit_sha": "19ff0d1c53649f16bef97c131cfd755d1d39afdc",
     "tests_rerun": false,
     "basis": [
-      "2026-11-07 生成快照：只读 Git、GitHub PR 和仓库文档；不重跑测试、构建或真实验收",
-      "origin/main@0cc1cb0（PR #119 合并提交）；本机主目录在 Codex 工作分支上，有未提交改动，未计入",
-      "docs/integration/CLAUDE_TO_CODEX_2026-11-04.md",
-      "PR #115～#119 已合并；开启的草稿 PR #120～#141 共 22 个，依次叠放",
-      "交接记录：最近一次完整 npm test 为 Node 139 通过 / 3 跳过、DOM 88 个 fixture 全过；合并后的 main 未重跑整套"
+      "2026-11-16 文档快照：读取本地 main@19ff0d1c53649f16bef97c131cfd755d1d39afdc，未重跑测试、构建、冒烟或校验和；文档提交不是代码验收基线。",
+      "git status/branch --merged/worktree list 与在线 git ls-remote：审计时本地 main+3个已合并分支、1工作树，云端仅main；GitHub未合并PR为0。清理后的引用数量不改变此代码基线。",
+      "docs/integration/RUNTIME_CONTINUATION_2026-11-12.md；docs/MEMORY_INTEGRATION_v1.md；docs/integration/memory-pin.json",
+      "docs/validation/Memory-pin-eb70509-2026-11-14.md：PR177保存的限定合成验证，源码pin eb70509，Workspace 61命令；并非正式Owner接入。",
+      "docs/validation/UI-v2-candidate-5175284-2026-11-11.md：旧pin安装候选及保存验证；docs/RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md：人工验收边界。",
+      "https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/docs/integration/RUNTIME.md：ADR146要求新兼容pin/aggregate，ADR145驱动已存在；新库形成/来源/独立恢复不由合并证明。",
+      "https://github.com/Morii9961/enouia-memory/pull/110；https://github.com/Morii9961/enouia-memory/pull/112；https://github.com/Morii9961/enouia-memory/pull/113：审计时均open，112依赖110，113为纯文本保留。",
+      "docs/design/ui-v2/OPEN_ISSUES.md；docs/validation/UI-v2-starmap-webview2-2026-11-12.md：星图复测已完成但目标未达，视觉选择待定。",
+      "对照 Moriium Dashboard docs/protocol/README.md 与只读 status-check 接收规则；依本仓库AGENTS固定1.0，保留基线reporter及条目ID扩展，扩展接收提醒不代表严格1.0 schema通过。",
+      "不读取个人Vault或凭据，不向Dashboard导入；overall_progress=null。路线中的2–4周仅低置信度日用首版排期预算，不是验收比例或承诺。"
     ]
   },
   "reporter": {
-    "agent": "claude",
-    "note": "Claude Opus 5.5"
+    "agent": "codex",
+    "note": "2026-11-16 仓库与跨项目工程核对；保留既有根字段，v1.0接收器可能忽略此扩展。"
   },
   "stage": "integration",
-  "summary": "#115～#119 已合入 main：Memory pin 升到 0d338f1，read-2 合成原生入口、主题三选一和三语文案修复进入主线。之后又叠了 22 个草稿 PR（#120～#141），含星图方案 B 和演示状态集，均未合并。原生候选、安装/托盘/热键验收及新 Owner 后端采用仍待完成。",
+  "summary": "Runtime主线已收拢，UI v2及eb70509兼容采用已合并；旧候选5175284未更新。Memory新库尚未交付，ADR146另需兼容采用，正式Owner入口及Windows日用验收待完成。",
   "overall_progress": null,
   "milestones": [
     {
@@ -29,11 +34,8 @@
       "status": "done",
       "evidence_level": "existing_test",
       "evidence_refs": [
-        "docs/FRONTEND_IMPLEMENTATION_v1.md：七个页面、托盘与快捷搜索；浏览器及 Runtime Inspector 的虚构边界",
-        "docs/validation/Desktop-stack-integration-2026-10-07.md：该历史版本合成环境完整冒烟 101/101，unsigned 安装包；不覆盖最新版本完整复验、实机日常使用和全部 Windows 验收",
-        "docs/validation/Activity-claude-pr29-merge/activity-default.json：合并桌面版本局部 Activity 验证 29/29",
-        "docs/validation/Candidate-conflict-focus-v1.md：最近产品 release 构建通过；不是完整 Windows 验收。",
-        "docs/validation/Frontend-dom-regressions-v1.json：98 项 Node 测试、48 个 DOM 用例及 677 项断言的保存记录。"
+        "docs/validation/Desktop-stack-integration-2026-10-07.md：历史版本的合成启动/工作流验证",
+        "docs/validation/UI-v2-candidate-5175284-2026-11-11.md：候选安装保护及21个安全原生模式最终399/399，首次catalog失败和重跑保留；不证明实际安装/个人使用。"
       ],
       "human_acceptance": "pending"
     },
@@ -43,22 +45,20 @@
       "status": "done",
       "evidence_level": "existing_test",
       "evidence_refs": [
-        "docs/validation/Desktop-stack-integration-2026-10-07.md：审阅、导入、Mock 回答与实际上下文、会话及重启读取；合成环境证据",
-        "docs/validation/Activity-claude-pr29-merge/memory-sessions-only.json：19/19",
-        "docs/validation/Activity-claude-pr29-merge/memory-source-paging-only.json：16/16",
-        "docs/validation/Activity-claude-pr29-merge/memory-session-writes-only.json：21/21",
-        "docs/validation/Frontend-dom-regressions-v1.md：保存的 Session/Context/候选/来源/建议回归，全部为模拟 IPC，不代表个人工作流。"
+        "docs/validation/Desktop-stack-integration-2026-10-07.md：历史Workspace合成闭环",
+        "docs/validation/Memory-pin-eb70509-2026-11-14.md：PR177 Rust 58+9通过/1忽略，Node148通过/3跳过，DOM122场景2527项，三个原生模式102/102；不证明新Owner或真实Provider。"
       ],
       "human_acceptance": "pending"
     },
     {
       "id": "memory_mv7_integration",
-      "title": "Runtime 已采用 Memory 精确 pin 0d338f1，Workspace v1 58 命令兼容",
+      "title": "Runtime 已采用 Memory eb70509；Workspace v1 61命令兼容（不含ADR146）",
       "status": "done",
       "evidence_level": "repository",
       "evidence_refs": [
-        "PR #116",
-        "docs/integration/CLAUDE_TO_CODEX_2026-11-04.md"
+        "docs/integration/memory-pin.json",
+        "docs/validation/Memory-pin-eb70509-2026-11-14.md",
+        "https://github.com/Morii9961/enouia-runtime/pull/177"
       ],
       "human_acceptance": "not_required"
     },
@@ -90,8 +90,8 @@
       "status": "in_progress",
       "evidence_level": "existing_test",
       "evidence_refs": [
-        "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/design/ui-v2/OPEN_ISSUES.md",
-        "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/validation/UI-v2-23-button-wrap-2026-10-29.md"
+        "docs/validation/UI-v2-candidate-5175284-2026-11-11.md",
+        "docs/RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md"
       ],
       "human_acceptance": "pending"
     },
@@ -141,7 +141,8 @@
       "status": "done",
       "evidence_level": "existing_test",
       "evidence_refs": [
-        "https://github.com/Morii9961/enouia-runtime/blob/d0208eb60e75f05d283b0866fe528b1b47080786/docs/validation/UI-v2-23-button-wrap-2026-10-29.md"
+        "docs/integration/CLAUDE_TO_CODEX_2026-11-10.md",
+        "docs/validation/UI-v2-candidate-5175284-2026-11-11.md"
       ],
       "human_acceptance": "pending"
     },
@@ -193,12 +194,35 @@
     },
     {
       "id": "ui_v2_draft_chain",
-      "title": "UI v2 草稿链 #120～#141：星图方案 B、演示状态集、五个工作区、窄屏重排、Timeline 缩放等（未合并）",
-      "status": "in_progress",
+      "title": "原UI v2草稿链 #120–#141 已合并；保留历史ID，不等同人工验收",
+      "status": "done",
       "evidence_level": "repository",
       "evidence_refs": [
-        "PR #120",
-        "PR #141"
+        "docs/integration/CLAUDE_TO_CODEX_2026-11-10.md",
+        "docs/integration/RUNTIME_CONTINUATION_2026-11-12.md"
+      ],
+      "human_acceptance": "pending"
+    },
+    {
+      "id": "memory_adr146_compatibility",
+      "title": "采用覆盖ADR146文字视图回放的Memory pin/aggregate",
+      "status": "not_started",
+      "evidence_level": "repository",
+      "evidence_refs": [
+        "docs/integration/memory-pin.json",
+        "https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/docs/integration/RUNTIME.md"
+      ],
+      "human_acceptance": "not_required"
+    },
+    {
+      "id": "owner_daily_use",
+      "title": "真实新Owner库交付、正式桌面接入与日常使用端到端验收",
+      "status": "blocked",
+      "evidence_level": "repository",
+      "evidence_refs": [
+        "docs/integration/RUNTIME_CONTINUATION_2026-11-12.md",
+        "docs/MEMORY_INTEGRATION_v1.md",
+        "https://github.com/Morii9961/enouia-memory/pull/113"
       ],
       "human_acceptance": "pending"
     }
@@ -207,61 +231,59 @@
     {
       "id": "design_read_limits",
       "title": "全设计呈现受现有读取能力限制",
-      "impact": "Home 连续真实迹线/近期摘要、全库分类、完整 Capsule 索引需要 Memory 领域契约；不能用当前页或虚构内容冒充。"
+      "impact": "Home真实迹线/摘要、全库分类、完整Capsule索引仍需Memory契约；当前页或虚构数据不能冒充全库。"
     },
     {
       "id": "native_backend_gaps",
-      "title": "原生与新后端采用仍有缺口",
-      "impact": "原生候选未包含近期 UI；安装/升级、物理托盘、默认热键冲突、登录启动、真实质量和个人资料验收未闭环；新 Owner 后端没有采用。"
+      "title": "新Owner交付、兼容采用、桌面入口及候选尚未闭环",
+      "impact": "Memory真实纯文本形成/重开/查询/来源/独立恢复未验收；Runtime pin不含ADR146、正式Owner入口未接，旧5175284不能作为新库验收包。"
     },
     {
-      "id": "draft_chain_unmerged",
-      "title": "22 个草稿 PR 叠放待评审",
-      "impact": "#120～#141 依次叠放，不合并就进不了主线，也不能据此刷新原生候选；链越长评审越难。"
+      "id": "starmap_performance",
+      "title": "星图大样本性能与视觉取舍待解决",
+      "impact": "11月12日WebView2运动球体/聚类draw间隔中位148.9/96.6ms，未达到约33ms目标；复测完成不等于优化完成。"
     }
   ],
   "next_actions": [
     {
-      "id": "review_draft_chain",
-      "title": "评审草稿链 #120～#141",
-      "priority": "P1",
-      "result": "Morii 决定合并范围和顺序，合并后 main 成为下一轮原生候选的基线。"
-    },
-    {
-      "id": "windows_acceptance_refresh",
-      "title": "刷新候选并完成 Windows 验收",
-      "priority": "P1",
-      "result": "从合并后的 UI 基线生成原生候选，在明确的验收环境补安装/托盘/默认热键和日常工作流证据。"
+      "id": "memory_adr146_adoption",
+      "title": "完成ADR146兼容采用切片",
+      "priority": "P0",
+      "result": "核实已合并revision/aggregate并更新精确pin和锁文件，按Memory集成要求验证；可与Memory建库并行，不打开真实库。"
     },
     {
       "id": "owner_adoption_slice",
-      "title": "选择新 Owner 后端的首个采用切片",
-      "priority": "P1",
-      "result": "与 Memory 已合并的精确契约对齐，保留当前 pin 和 v1 根，先用合成数据接线。"
+      "title": "核对新库交付并明确首个Owner桌面入口",
+      "priority": "P0",
+      "result": "Memory负责完整容量、真实形成及独立恢复；Runtime提出最小打开/检索/来源入口，范围确认后用合成资料接入，不转接为旧Workspace库。"
     },
     {
-      "id": "starmap_b_native",
-      "title": "在 WebView2 中复测星图方案 B",
-      "priority": "P2",
-      "result": "按 OPEN_ISSUES #24 记录运动中和空闲帧间隔，达到目标频率才宣称解决。"
+      "id": "windows_acceptance_refresh",
+      "title": "接入就绪后刷新候选并补Windows日用验收",
+      "priority": "P1",
+      "result": "候选绑定实际pin，补安装/托盘/热键/登录启动和新库流程未完成项；分别记录合成验证与Morii验收。"
     }
   ],
   "needs_morii": [
     {
-      "id": "merge_120_141",
-      "decision": "草稿 PR #120～#141 是否按顺序评审合并？先合哪一段？"
+      "id": "owner_chain",
+      "decision": "正式Owner首个入口是否采用打开、检索、来源、锁定/重开这一最小范围？它尚不是已批准产品设计。"
     },
     {
       "id": "windows_env",
-      "decision": "Windows 实际验收用什么独立环境，何时安排安装/托盘/默认热键和真实日常工作流？"
+      "decision": "确定Windows独立验收环境与实际安装、日常使用验收安排。"
     },
     {
-      "id": "owner_chain",
-      "decision": "新 Owner/采集后端先采用哪条链，允许使用哪些测试资料？"
+      "id": "starmap_visual",
+      "decision": "选择星图运动中主题线方案，或明确大样本优化是否作为首版阻塞。"
+    },
+    {
+      "id": "persona_defaults",
+      "decision": "确认公开人设导出四项默认及Memory契约§5五项；保持现有保守实现。"
     },
     {
       "id": "translate_raw_values",
-      "decision": "合成面板的库状态、枚举值和 ISO 时间是否翻译？"
+      "decision": "合成面板枚举/ISO时间是否翻译；若Q热键后续冲突，是否另加改键入口。"
     }
   ]
 }
