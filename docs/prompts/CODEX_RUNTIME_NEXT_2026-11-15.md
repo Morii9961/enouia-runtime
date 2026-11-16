@@ -1,5 +1,7 @@
 # Runtime 后续接续提示词（2026-11-15）
 
+> 历史提示词；当前工作请使用[2026-11-16接续提示词](CODEX_RUNTIME_NEXT_2026-11-16.md)。
+
 以下正文可直接复制到 Enouia Runtime 的新 session。主线前置工作目前在 Memory；本提示词不启动尚未选定的正式 Owner 集成切片。
 
 ---
