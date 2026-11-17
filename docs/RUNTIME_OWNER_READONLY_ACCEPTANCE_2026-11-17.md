@@ -1,9 +1,10 @@
 # 已登记 Owner 只读入口验收准备（2026-11-17）
 
 供 Morii 在新候选交付后验收同一个已登记库。目前是准备稿：**没有新安装候选，也没有
-个人库验收结果。** 当前开发基线为 Runtime `d7791aa`（PR184），Memory pin 为
-`a543c1eb81e5d7150ebe7820592eea35a9042697`，aggregate `723ec245…`，Workspace 61 命令。
-合成原生检查 20/20，范围与首轮失败见[壳层状态报告](validation/Registered-owner-shell-status-2026-11-17.md)。
+个人库验收结果。** 只读壳层实现基线为 Runtime `d7791aa`（PR184）；当前兼容采用的 Memory
+pin 为 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，aggregate `df3248e7…`，Workspace 61 命令，
+见[新 pin 证据](validation/Memory-pin-506d23d-2026-11-17.md)。此前合成原生检查 20/20 的范围与
+首轮失败见[壳层状态报告](validation/Registered-owner-shell-status-2026-11-17.md)，不改写为本次执行。
 
 ## 先选对流程
 
@@ -24,8 +25,8 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 
 | 材料 | 本轮确认结果 / 后续需填内容 |
 | --- | --- |
-| Memory 形成版本及读兼容性 | 公共 main 已核对到 PR117 / ADR149 的 `17a369e010f670baacaeec98306854fd4d14afc5`；grouped decisions 新字段要求升级 reader，aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，仍61命令。当前 Runtime pin 尚未采用该能力；待容量方案最终合并后核对最小兼容采用，不能先打开新字段库 |
-| 全量计划及 journal 生命周期容量 | 隔壁交付会话报告原清单43计划/351记录准入通过，但 queued journal 21,793,549字节、lifecycle 上界30,865,623字节，超过16,777,216字节（16 MiB），尚未创建真实 Vault。紧凑 journal 候选 PR118 已交付、尚待主人合并；77项合成检查及1024记录合成容量结果不替代真实清单的新完整预检。正式合并、重建及真实容量通过结果仍待交付 |
+| Memory 形成版本及读兼容性 | PR118 已获主人批准并合并至 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，Runtime 本片采用该正式 pin。ADR149 grouped decisions 的 reader 门槛由此满足，aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，仍61命令；ADR150只改变独立fresh工具的私有journal，没有额外Runtime reader门槛 |
+| 全量计划及 journal 生命周期容量 | 隔壁此前报告原清单43计划/351记录准入通过，但 queued journal 21,793,549字节、lifecycle 上界30,865,623字节，超过16,777,216字节（16 MiB）。PR118已合并，Memory正在从正式版本重建并重跑原始完整清单；77项上游合成检查及1024记录合成容量结果不替代这个真实新结果。真实容量通过、建库/ready仍待其工程摘要 |
 | 真实形成、关闭重开、查询与精确来源 | 待 Memory 提供工程结果及未完成项；PR 合并不等于已形成真实库 |
 | 独立备份、验证与隔离恢复 | 待 Memory 提供已完成的工程证明；同盘合成往返不替代独立恢复 |
 | 同根身份与允许读取范围 | Memory 确认原生登记及兼容布局，Morii 保管实际启动参数；当前允许的读取范围与期限另核，不由 Runtime 续期 |

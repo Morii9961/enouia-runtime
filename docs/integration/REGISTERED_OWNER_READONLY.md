@@ -18,6 +18,10 @@
 仅适用于本切片源码构建的对应程序。旧 `5175284` 安装候选不认识这些参数，也不包含新
 Owner 接口；不能用旧包测试新库。新生产候选待 R3 与 Memory 工程交付就绪后另行安排。
 
+包含 ADR149 来源分组决策的库还要求兼容 reader；当前采用的是已合并 Memory `506d23d`，
+见[pin 验证](../validation/Memory-pin-506d23d-2026-11-17.md)。早期 `a543c1e` 的 R2 验证程序
+也不能因此当作分组新库的兼容程序。独立 fresh 工具的 journal v2 接续由 Memory 管理。
+
 在已授权的受信任本机启动中显式指定原来登记的 home 与 bootstrap operation：
 
 ```powershell
