@@ -26,8 +26,8 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 | 材料 | 本轮确认结果 / 后续需填内容 |
 | --- | --- |
 | Memory 形成版本及读兼容性 | PR118 已获主人批准并合并至 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，Runtime 本片采用该正式 pin。ADR149 grouped decisions 的 reader 门槛由此满足，aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，仍61命令；ADR150只改变独立fresh工具的私有journal，没有额外Runtime reader门槛 |
-| 全量计划及 journal 生命周期容量 | 隔壁此前报告原清单43计划/351记录准入通过，但 queued journal 21,793,549字节、lifecycle 上界30,865,623字节，超过16,777,216字节（16 MiB）。PR118已合并，Memory正在从正式版本重建并重跑原始完整清单；77项上游合成检查及1024记录合成容量结果不替代这个真实新结果。真实容量通过、建库/ready仍待其工程摘要 |
-| 真实形成、关闭重开、查询与精确来源 | 待 Memory 提供工程结果及未完成项；PR 合并不等于已形成真实库 |
+| 全量计划及 journal 生命周期容量 | Memory交付会话已从正式506d23d重建CLI并报告原始完整清单容量通过：43计划、351记录、2,149个选入来源完整保留，queued journal 62,174字节、生命周期上界9,134,248字节、最大Plan对象674,906字节，均低于各自16 MiB。Runtime仅核对工程摘要，未读取私人清单或自行执行；早期17a369e的容量拒绝仍保留为历史结果。容量通过不等于建库/ready |
+| 真实形成、关闭重开、查询与精确来源 | 同一bootstrap操作已创建并登记Vault。Memory于11月18日报告原运行已提交3条、348条排队，第二批来源捕获完成前遇到 `fresh.step: Denied`，保留原journal、packet、key和回执，原因待定位。形成完成、重开、查询及全量来源/引文对账仍待证据 |
 | 独立备份、验证与隔离恢复 | 待 Memory 提供已完成的工程证明；同盘合成往返不替代独立恢复 |
 | 同根身份与允许读取范围 | Memory 确认原生登记及兼容布局，Morii 保管实际启动参数；当前允许的读取范围与期限另核，不由 Runtime 续期 |
 | 新候选 | 待记录 Runtime 完整源码提交、精确 Memory pin/aggregate、程序与相邻 DLL/安装包位置及发行记录；当前没有可填写的新包 |
@@ -39,7 +39,7 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 明确只报告合成结果。以上材料未齐时继续独立开发准备，不生成生产候选或启动个人库验收。
 
 随后 PR117 已合并，公共[ADR149 集成说明](https://github.com/Morii9961/enouia-memory/blob/17a369e010f670baacaeec98306854fd4d14afc5/docs/integration/RUNTIME.md)
-明确新增 reader 采用门槛；容量失败与两边分工见[路线接续](integration/RUNTIME_ROADMAP_2026-11-16.md#11月17日跨会话接续准入通过容量未通过)。不能继续沿用“后续仅初始化变更，无需更新 reader”的旧判断。
+明确新增 reader 采用门槛；历史容量失败、新版本容量通过及两边分工见[路线接续](integration/RUNTIME_ROADMAP_2026-11-16.md#11月17日跨会话接续准入通过容量未通过)。不能继续沿用“后续仅初始化变更，无需更新 reader”的旧判断。
 
 ## 候选交付后的只读操作
 
