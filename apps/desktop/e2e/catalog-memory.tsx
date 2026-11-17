@@ -153,7 +153,15 @@ try{
   check('empty_catalog_without_search_says_no_records',emptyCatalog&&!text().includes(noMatch));
   mode='registered_owner_readonly';scope='f'.repeat(64);
   await wait(()=>text().includes('Registered Owner · read only'));
+  await wait(()=>text().includes('0 shown · 0 matching authorized records'));
   check('registered_mode_is_explicit_without_fictional_library_claim',text().includes('explicitly registered library')&&!text().includes('fixed fictional records')&&!text().includes('synthetic subject'));
+  const registeredEmpty='This registered catalog has no records in the current authorized scope.';
+  check('registered_empty_scope_does_not_claim_a_synthetic_catalog',text().includes(registeredEmpty)&&!text().includes(noRecords));
+  const registeredEmptyReads=reads();
+  for(const [language,message]of [['zh-Hans','此已登记目录的当前授权范围内没有记录。'],['ja','この登録済みカタログの現在の許可範囲には記録がありません。'],['en',registeredEmpty]]){
+    await setLang(language as Lang);await sleep(30);
+    check(`${language}_registered_empty_scope_translates_without_replay`,text().includes(message)&&reads()===registeredEmptyReads);
+  }
   click('Lock registered library');await wait(()=>text().includes('Library: locked'));
   check('registered_lock_requires_explicit_native_reopen_without_page_unlock',!button('Unlock synthetic library')&&text().includes('Exit Runtime')&&!fixture.querySelector('li'));
   check('only_closed_read2_operations_were_used',calls.every(c=>['status','page','stats','detail','source','lock','unlock'].includes(c.operation)));
