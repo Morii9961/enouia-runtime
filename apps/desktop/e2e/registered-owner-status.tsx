@@ -28,7 +28,7 @@ setCatalogTransport(async(_command,args)=>{
     return result;
   }
   if(query.operation==='page')return page(query.filter.text,query.cursor);
-  if(query.operation==='stats')return stats(query.selection);
+  if(query.operation==='stats')return stats(query.selection,query.filter.text?1:3);
   if(query.operation==='lock'){state='locked';return {...status(state),mode:'registered_owner_readonly',effect:'native_control'};}
   throw new Error(`Unexpected catalog query ${query.operation}`);
 });
@@ -49,6 +49,17 @@ try{
   check('no_fabricated_commit_or_time_trace',!fixture.querySelector('[data-kind="vault-commit"]')&&text().includes('Read-only library · no time trace is available'));
   check('settings_and_gates_do_not_offer_writes_or_model_configuration',!text().includes('Create Vault…')&&!text().includes('Open an existing Vault…')&&!calls.some(c=>c.startsWith('memory_provider_')));
   check('memory_defaults_to_native_catalog',fixture.querySelector('[data-screen-label="Memory Vault"] button[aria-pressed=true]')?.textContent==='Native memory catalog');
+  const memory=fixture.querySelector('[data-screen-label="Memory Vault"]')!;
+  check('registered_entry_only_offers_catalog_search',!memory.querySelector('.qr28 form[role=search]'));
+  const catalogSearch=memory.querySelector<HTMLFormElement>('form:not(.qr22)')!;
+  const input=catalogSearch.querySelector('input')!;
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(input,'调试');
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  await wait(()=>!catalogSearch.querySelector('button')!.disabled);
+  await sleep(30);
+  catalogSearch.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+  await wait(()=>text().includes('1 shown · 1 matching authorized records'));
+  check('registered_search_keeps_catalog_selected',memory.querySelector('button[aria-pressed=true]')?.textContent==='Native memory catalog'&&input.value==='调试');
   state='locked';refresh();await wait(()=>badge().includes('Registered library closed'));
   check('closed_state_has_no_unlock_or_fresh_open_controls',!text().includes('Unlock synthetic library')&&!text().includes('Open an existing Vault…'));
   state='open';hold=true;refresh();await wait(()=>release!==null);
