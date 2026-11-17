@@ -13,3 +13,17 @@ export function page(text='',cursor=null) {
     complete_in_scope:!!text||!!cursor,next:text||cursor?null:{selection:chosen,after:'synthetic-memory-2'},facets:[]};
 }
 export const stats = (selected=selection,matched=3) => ({...envelope,kind:'catalog_memory_stats',selection:selected,authorized_at:selection.evaluated_at,count_exact:true,scope:'authorized_current_machine_revisions',matched_in_scope:matched,groups:[],theme_membership:'authorized'});
+export const quote = '合成原文🌙 <img id="catalog-source-injected">';
+export const sourceRef = {source_id:'synthetic-source',source_revision:1};
+const header = (algorithm) => ({selection,version:2,algorithm,scope:'authorized_current_dependencies'});
+export function detail(memoryId='synthetic-memory-1') {
+  return {...envelope,kind:'native_memory_detail',header:header('authorized-native-detail-2'),
+    item:page().items.find(item=>item.base.memory.memory_id===memoryId)??null,
+    fields:{title:'Synthetic detail',evidence:[{reference:{...sourceRef,object_hash:'d'.repeat(64)},quote,speaker:'user',start:0,end:Array.from(quote).length}]}};
+}
+export function source(start=0,limit=4096) {
+  const chars=Array.from(quote),end=Math.min(start+limit,chars.length);
+  return {...envelope,kind:'native_source_excerpt',header:header('selected-source-excerpt-2'),source:sourceRef,
+    source_record:{reference:sourceRef,speaker:'user',source_kind:'export_message',evidence_class:'user_statement',anchor_hash:'d'.repeat(64),original_conversation_id:'synthetic-conversation',original_message_id:'synthetic-message'},
+    excerpt:chars.slice(start,end).join(''),start,end,total_characters:chars.length,complete_in_scope:end===chars.length};
+}

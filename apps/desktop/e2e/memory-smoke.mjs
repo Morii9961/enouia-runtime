@@ -1224,6 +1224,16 @@ async function catalogMemoryChecks() {
   await rail(s,'Segmented synthetic catalog');
   await waitFor(s,has('2 shown · 3 matching authorized records'),'read-2 panel and same-selection stats');
   check('CATALOG.native_panel_is_explicitly_synthetic_and_scoped',await s.evaluate(`${has('Isolated synthetic read-2')} && ${has('Counts cover currently authorized machine revisions for this selection.')} && ${has('Page statistics were read for the same selection.')}`));
+  const detail = await s.evaluate(`__t.catalog({operation:'detail',filter:${JSON.stringify(filter)},memory_id:${JSON.stringify(first.items[0].base.memory.memory_id)}}).then(r=>r.ok)`);
+  check('CATALOG.detail_uses_native_process_header_and_exact_record', detail?.header?.version === 2 && detail.header.algorithm === 'authorized-native-detail-2' && detail.item.base.memory.memory_id === first.items[0].base.memory.memory_id && detail.fields.evidence.length > 0);
+  const quote = detail.fields.evidence[0];
+  const source = await s.evaluate(`__t.catalog({operation:'source',source:${JSON.stringify({source_id:quote.reference.source_id,source_revision:quote.reference.source_revision})},start:${quote.start},limit:${quote.end-quote.start}}).then(r=>r.ok)`);
+  check('CATALOG.source_matches_exact_revision_quote_and_anchor', source?.header?.version === 2 && source.excerpt === quote.quote && source.start === quote.start && source.end === quote.end && source.source_record.anchor_hash === quote.reference.object_hash);
+  await s.evaluate("document.querySelector('.qr44 .mem-list h3 button').click()");
+  await waitFor(s,"!!document.querySelector('section[aria-label=\"Catalog record detail\"] blockquote')",'native catalog detail inspector');
+  await click(s,'button','Read quoted source');
+  await waitFor(s,"!!document.querySelector('section[aria-label=\"Quoted source excerpt\"] blockquote')",'native quoted source');
+  check('CATALOG.native_source_inspector_is_literal', await s.evaluate(`document.querySelector('section[aria-label="Quoted source excerpt"] blockquote').textContent === ${JSON.stringify(quote.quote)} && !document.querySelector('section[aria-label="Quoted source excerpt"] blockquote img')`));
   await shot(s,'catalog-01-list');
   await surfaceMatrix(s,app,'CATALOG','catalog',{'zh-Hans':'分段合成目录',ja:'分割形式の合成カタログ',en:'Segmented synthetic catalog'},
     "[...document.querySelectorAll('.qr44 .mem-list li')].map(n=>[n.querySelector('h3').textContent,n.querySelector('p').textContent,n.querySelector('.mem-row-meta').textContent].join(' / ')).join('|')");

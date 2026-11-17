@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus } from "./catalog";
+import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection } from "./catalog";
 import { describe } from "./client";
 import { useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
@@ -9,6 +9,7 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
   const [status, setStatus] = useState<CatalogStatus | null>(null);
   const [page, setPage] = useState<CatalogPage | null>(null);
   const [stats, setStats] = useState<CatalogStats | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [filter, setFilter] = useState(CATALOG_FILTER);
   const [observationError, setObservationError] = useState<{ cause: unknown } | null>(null);
@@ -16,9 +17,9 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
   const observedScope = useRef<string | null>(null);
   const epoch = useRef(0);
   const controlling = useRef(false);
-  const clear = useCallback(() => { reads.clear(); setPage(null); setStats(null); }, [reads.clear]);
+  const clear = useCallback(() => { reads.clear(); setPage(null); setStats(null); setSelectedId(null); }, [reads.clear]);
   const load = useCallback((cursor: CatalogCursor | null = null) => {
-    setPage(null); setStats(null);
+    setPage(null); setStats(null); setSelectedId(null);
     return reads.run(async () => {
       const next = await read({ operation: "page", filter, cursor, limit: 2 });
       const counts = await read({ operation: "stats", filter, selection: next.selection });
@@ -80,7 +81,7 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
           <p className="mem-content">{t("{unknown} records have unknown event dates in this filter scope.", { unknown: page.unknown_time_in_scope })}</p>
           <p className="mem-content">{t("State observed at {time}", { time: page.authorized_at })}</p>
           <ul className="mem-list">{page.items.map(item => <li key={`${item.base.memory.memory_id}:${item.base.memory.revision}`}>
-            <h3 className="mem-content">{item.title}</h3><p className="mem-content">{item.base.content}</p>
+            <h3 className="mem-content"><button type="button" className="mem-link" aria-pressed={selectedId === item.base.memory.memory_id} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={() => setSelectedId(item.base.memory.memory_id)}>{item.title}</button></h3><p className="mem-content">{item.base.content}</p>
             <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: item.base.dimensions.kind, knowledge: item.base.knowledge, adoption: item.base.adoption, validity: item.base.validity, attention: item.base.attention })}</p>
             <p className="mem-row-meta">{shortId(item.base.memory.memory_id)} · r{item.base.memory.revision} · {item.content_lang}</p>
           </li>)}</ul>
@@ -89,6 +90,59 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
         </>}
       </div>
     </div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p></div></aside>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p>
+      {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} />}
+    </div></aside>
   </>;
+}
+
+function CatalogDetailPanel({ memoryId, filter, selection, read }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead }) {
+  const [detail, setDetail] = useState<CatalogDetail | null>(null);
+  const [source, setSource] = useState<CatalogSource | null>(null);
+  const details = useLatestRead();
+  const sources = useLatestRead();
+  const load = useCallback(() => {
+    setDetail(null); setSource(null); sources.clear();
+    return details.run(async () => {
+      const result = await read({ operation: "detail", memory_id: memoryId, filter });
+      if (catalogScopeKey(result.header.selection) !== catalogScopeKey(selection)) throw "catalog_stale";
+      return result;
+    }, setDetail);
+  }, [read, memoryId, filter, selection, details.run, sources.clear]);
+  useEffect(() => { void load(); }, [load]);
+  const quoted = (evidence: CatalogEvidence) => {
+    setSource(null);
+    void sources.run(async () => {
+      const result = await read({ operation: "source", source: { source_id: evidence.reference.source_id, source_revision: evidence.reference.source_revision }, start: evidence.start, limit: evidence.end - evidence.start });
+      if (catalogScopeKey(result.header.selection) !== catalogScopeKey(selection)) throw "catalog_stale";
+      if (result.source && (result.excerpt !== evidence.quote || result.end !== evidence.end || result.source_record?.anchor_hash !== evidence.reference.object_hash)) throw "catalog_response_unsupported";
+      return result;
+    }, setSource);
+  };
+  return <section className="mem-stack" aria-label={t("Catalog record detail")} aria-busy={details.busy || sources.busy}>
+    <h3>{t("Catalog record detail")}</h3>
+    <button type="button" className="mem-button" disabled={details.busy} onClick={() => void load()}>{t("Refresh record detail")}</button>
+    {details.busy && <p role="status">{t("Reading record detail…")}</p>}
+    <ErrorBox error={details.error} />
+    {detail && !detail.item && <p role="status">{t("This record is no longer available in the current scope.")}</p>}
+    {detail?.item && detail.fields && <>
+      <h4 className="mem-content">{detail.fields.title}</h4><p className="mem-content">{detail.item.base.content}</p>
+      <p className="mem-row-meta mem-content">{detail.item.base.memory.memory_id} · r{detail.item.base.memory.revision}</p>
+      <p>{t("Quoted text evidence; attachment content is not read.")}</p>
+      <ul className="mem-list">{detail.fields.evidence.map((evidence, index) => <li key={index}>
+        <blockquote className="mem-content">{evidence.quote}</blockquote>
+        <p className="mem-row-meta mem-content">{evidence.reference.source_id} · r{evidence.reference.source_revision} · {evidence.start}–{evidence.end}</p>
+        <button type="button" className="mem-link" disabled={sources.busy} onClick={() => quoted(evidence)}>{t("Read quoted source")}</button>
+      </li>)}</ul>
+    </>}
+    {sources.busy && <p role="status">{t("Reading quoted source…")}</p>}
+    <ErrorBox error={sources.error} />
+    {source && !source.source && <p role="status">{t("This source revision is no longer available.")}</p>}
+    {source?.source && source.source_record && <section aria-label={t("Quoted source excerpt")}>
+      <h4>{t("Quoted source excerpt")}</h4><blockquote className="mem-content">{source.excerpt}</blockquote>
+      <p className="mem-row-meta mem-content">{source.source.source_id} · r{source.source.source_revision} · {source.start}–{source.end} / {source.total_characters}</p>
+      <p className="mem-content">{source.source_record.speaker} · {source.source_record.evidence_class} · {source.source_record.source_kind}</p>
+      <p className="mem-content">{source.source_record.original_conversation_id} {source.source_record.original_message_id}</p>
+    </section>}
+  </section>;
 }

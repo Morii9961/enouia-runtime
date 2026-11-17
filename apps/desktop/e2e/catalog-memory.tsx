@@ -3,11 +3,13 @@ import { createRoot } from 'react-dom/client';
 import { CatalogMemory } from '../src/memory/CatalogMemory';
 import { setCatalogTransport } from '../src/memory/catalog';
 import { setLang, useLang, type Lang } from '../src/i18n';
-import { status, page, stats } from './fixtures/catalog.mjs';
+import { status, page, stats, detail, source, quote } from './fixtures/catalog.mjs';
 const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:Record<string,any>[]=[];
 let state='disabled',holdStats=false,holdStatus=false,failStats=false,busyStatus=false,expired=false,scope='b'.repeat(64);
 let releaseStats:(()=>void)|null=null,releaseStatus:(()=>void)|null=null;
+let holdDetail=false,holdSource=false,failDetail=false;
+let releaseDetail:(()=>void)|null=null,releaseSource:(()=>void)|null=null;
 setCatalogTransport(async(command,args)=>{
   if(command!=='memory_catalog')throw new Error('Unexpected channel');
   const query=(args as any).request.query;calls.push(structuredClone(query));
@@ -27,6 +29,17 @@ setCatalogTransport(async(command,args)=>{
     if(failStats){failStats=false;throw 'catalog_stale';}
     if(holdStats){holdStats=false;await new Promise<void>(resolve=>{releaseStats=resolve;});}
     return stats(query.selection,expired?0:query.filter.text?1:3);
+  }
+  if(query.operation==='detail'){
+    if(failDetail){failDetail=false;throw 'catalog_busy';}
+    const result=detail(query.memory_id);result.header.selection={...result.header.selection,scope_hash:scope};
+    if(holdDetail){holdDetail=false;await new Promise<void>(resolve=>{releaseDetail=resolve;});}
+    return result;
+  }
+  if(query.operation==='source'){
+    const result=source(query.start,query.limit);result.header.selection={...result.header.selection,scope_hash:scope};
+    if(holdSource){holdSource=false;await new Promise<void>(resolve=>{releaseSource=resolve;});}
+    return result;
   }
   if(query.operation==='lock'||query.operation==='unlock'){state=query.operation==='lock'?'locked':'open';return {...status(state),effect:'native_control'};}
   throw new Error('Unexpected operation');
@@ -57,7 +70,23 @@ try{
   await wait(()=>text().includes('2 shown · 3 matching authorized records'));
   check('synthetic_authorized_scope_and_unknown_dates_are_explicit',text().includes('Isolated synthetic read-2')&&text().includes('currently authorized machine revisions')&&text().includes('3 records have unknown event dates'));
   check('record_text_is_literal_not_markup',text().includes('<img id="catalog-injected"')&&!fixture.querySelector('#catalog-injected'));
+  click('Synthetic item 1');await wait(()=>text().includes('Synthetic detail'));
+  check('detail_is_read_without_automatically_reading_source',calls.filter(c=>c.operation==='detail').length===1&&!calls.some(c=>c.operation==='source'));
+  click('Read quoted source');await wait(()=>!!fixture.querySelector('section[aria-label="Quoted source excerpt"]'));
+  check('exact_unicode_source_is_literal_and_attributed',text().includes(quote)&&!fixture.querySelector('#catalog-source-injected')&&text().includes('synthetic-conversation')&&text().includes('synthetic-message'));
+  failDetail=true;click('Refresh record detail');await wait(()=>!!fixture.querySelector('section[aria-label="Catalog record detail"] [role=alert]'));
+  check('detail_failure_withdraws_previous_source',!fixture.querySelector('section[aria-label="Quoted source excerpt"]'));
+  click('Refresh record detail');await wait(()=>!!button('Read quoted source'));
+  holdSource=true;click('Read quoted source');await wait(()=>releaseSource!==null);
+  click('调试偏好');await wait(()=>!!button('Read quoted source'));
+  releaseSource!();releaseSource=null;await sleep(40);
+  check('late_source_cannot_publish_under_another_record',!fixture.querySelector('section[aria-label="Quoted source excerpt"]'));
+  holdDetail=true;click('Synthetic item 1');await wait(()=>releaseDetail!==null);
+  click('调试偏好');await wait(()=>!!button('Read quoted source'));
+  releaseDetail!();releaseDetail=null;await sleep(40);
+  check('late_detail_cannot_replace_current_record',fixture.querySelector('section[aria-label="Catalog record detail"]')!.textContent!.includes('synthetic-memory-2')&&!fixture.querySelector('section[aria-label="Catalog record detail"]')!.textContent!.includes('synthetic-memory-1'));
   click('Next catalog page');await wait(()=>text().includes('1 shown · 3 matching authorized records'));
+  check('page_change_withdraws_detail_and_source',!fixture.querySelector('section[aria-label="Catalog record detail"]'));
   check('next_page_uses_core_cursor_and_replaces_rows',!text().includes('Synthetic item 1')&&text().includes('Synthetic item 3')&&!button('Next catalog page')&&calls.filter(c=>c.operation==='page').at(-1)!.cursor.after==='synthetic-memory-2');
   const input=fixture.querySelector<HTMLInputElement>('input')!;
   Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(input,'调试');
@@ -81,9 +110,12 @@ try{
   releaseStats!();releaseStats=null;await sleep(60);
   check('late_counts_do_not_reappear_after_external_lock',!fixture.querySelector('li')&&!text().includes('matching authorized records')&&input.value==='调试');
   click('Unlock synthetic library');await wait(()=>text().includes('1 shown · 1 matching authorized records'));
+  click('调试偏好');await wait(()=>!!button('Read quoted source'));
+  holdSource=true;click('Read quoted source');await wait(()=>releaseSource!==null);
   holdStatus=true;await wait(()=>releaseStatus!==null);
   click('Lock synthetic library');await wait(()=>text().includes('Library: locked'));
-  releaseStatus!();releaseStatus=null;await sleep(60);
+  releaseStatus!();releaseStatus=null;releaseSource!();releaseSource=null;await sleep(60);
+  check('late_source_cannot_reappear_after_lock',!fixture.querySelector('section[aria-label="Catalog record detail"]')&&!fixture.querySelector('section[aria-label="Quoted source excerpt"]'));
   check('late_open_status_cannot_reverse_local_lock',text().includes('Library: locked')&&!fixture.querySelector('li'));
   check('lock_control_was_sent_once',calls.filter(c=>c.operation==='lock').length===1);
   click('Unlock synthetic library');await wait(()=>text().includes('1 shown · 1 matching authorized records'));
@@ -118,6 +150,6 @@ try{
   const noRecords='This synthetic catalog has no records in the current authorized scope.';
   let emptyCatalog=false;for(let n=0;n<100&&!emptyCatalog;n++){emptyCatalog=text().includes(noRecords)&&calls.filter(c=>c.operation==='page').at(-1)!.filter.text==='';await sleep(20);}
   check('empty_catalog_without_search_says_no_records',emptyCatalog&&!text().includes(noMatch));
-  check('only_closed_read2_operations_were_used',calls.every(c=>['status','page','stats','lock','unlock'].includes(c.operation)));
+  check('only_closed_read2_operations_were_used',calls.every(c=>['status','page','stats','detail','source','lock','unlock'].includes(c.operation)));
 }catch(error){checks.push({id:String(error),ok:false});}
-finally{releaseStats?.();releaseStatus?.();root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.every(c=>c.ok),calls});}
+finally{releaseStats?.();releaseStatus?.();releaseDetail?.();releaseSource?.();root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.every(c=>c.ok),calls});}

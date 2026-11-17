@@ -1,7 +1,11 @@
 //! Opt-in synthetic segmented read-2. Independent of Workspace v1/read-1.
 mod fixture;
 use enouia_memory_contract::{
-    common::Sensitivity, error::Violation, json::canonical_bytes, next::*,
+    common::{Sensitivity, SourceRevisionRef},
+    error::Violation,
+    ids::MemoryId,
+    json::canonical_bytes,
+    next::*,
 };
 use enouia_memory_host::automation::{
     application::ApplicationFault,
@@ -60,6 +64,15 @@ enum CatalogQuery {
     Stats {
         filter: CatalogFilter,
         selection: CatalogSelection,
+    },
+    Detail {
+        filter: CatalogFilter,
+        memory_id: MemoryId,
+    },
+    Source {
+        source: SourceRevisionRef,
+        start: u32,
+        limit: u32,
     },
     Lock,
     Unlock,
@@ -152,6 +165,23 @@ impl NativeCatalog {
             .ok()
             .and_then(|mut state| state.fixture.take());
         drop(fixture);
+    }
+    // Match read-1's bounded observation wait: status polling and an explicit
+    // page/detail read can contend on this binding. Never replay controls.
+    fn call_waiting(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
+        let read = matches!(
+            value["query"]["operation"].as_str(),
+            Some("status" | "page" | "stats" | "detail" | "source")
+        );
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        loop {
+            match self.call(window, value) {
+                Err("catalog_busy") if read && std::time::Instant::now() < until => {
+                    std::thread::sleep(std::time::Duration::from_millis(20));
+                }
+                result => return result,
+            }
+        }
     }
     pub fn call(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
         if window != "main" {
@@ -286,6 +316,49 @@ impl NativeCatalog {
                     )
                     .map_err(fault)?,
             ),
+            CatalogQuery::Detail { filter, memory_id } => serde_json::to_value(
+                fixture
+                    .reader
+                    .memory_detail_native(
+                        &CatalogReadRequest {
+                            profile: &fixture.profile,
+                            filter: &filter,
+                            options: CatalogReadOptions {
+                                limit: 32,
+                                max_bytes: MAX_DOCUMENT_BYTES,
+                                max_sensitivity: Sensitivity::Private,
+                                include_facets: false,
+                            },
+                        },
+                        &memory_id,
+                        None,
+                    )
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Source {
+                source,
+                start,
+                limit,
+            } => serde_json::to_value(
+                fixture
+                    .reader
+                    .memory_source_excerpt_native(
+                        &CatalogReadRequest {
+                            profile: &fixture.profile,
+                            filter: &CatalogFilter::default(),
+                            options: CatalogReadOptions {
+                                limit: 1,
+                                max_bytes: MAX_DOCUMENT_BYTES,
+                                max_sensitivity: Sensitivity::Private,
+                                include_facets: false,
+                            },
+                        },
+                        &source,
+                        start,
+                        limit,
+                    )
+                    .map_err(fault)?,
+            ),
             _ => return Err("catalog_invalid_request"),
         }
         .map_err(|_| "catalog_read_refused")?;
@@ -311,7 +384,7 @@ pub async fn memory_catalog(
     }
     let native = host.catalog().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        native.call("main", &request).map_err(str::to_owned)
+        native.call_waiting("main", &request).map_err(str::to_owned)
     })
     .await
     .map_err(|_| "worker_failed".to_owned())?
