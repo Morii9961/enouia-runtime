@@ -1,6 +1,21 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Registered library open": "登録済みライブラリは開いています",
+  "Registered library closed": "登録済みライブラリは閉じています",
+  "Opening registered library": "登録済みライブラリを開いています",
+  "No registered library open": "登録済みライブラリは開かれていません",
+  "Registered library unavailable": "登録済みライブラリは利用できません",
+  "Closing registered library": "登録済みライブラリを閉じています",
+  "Registered library status unknown": "登録済みライブラリの状態は不明です",
+  "Read-only registered library. Sessions, Context and model use are unavailable.": "登録済みライブラリの読み取り専用入口です。セッション、コンテキスト、モデルは利用できません。",
+  "Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.": "「記憶 → ネイティブ記憶カタログ」で記録と引用元を読めます。この入口ではワークスペースの編集、セッション、コンテキスト、モデル設定は利用できません。",
+  "Read-only records and quoted sources are available in the native catalog.": "ネイティブカタログで記録と引用元を読み取れます。",
+  "Open native memory catalog": "ネイティブ記憶カタログを開く",
+  "Open a record to inspect its quoted source.": "記録を開くと引用元を確認できます。",
+  "Unavailable in this read-only entry": "この読み取り専用入口では利用できません",
+  "Read-only library · no time trace is available": "読み取り専用ライブラリ · 時間トレースは利用できません",
+  "read-only registered library": "登録済みの読み取り専用ライブラリ",
   "Native memory catalog": "ネイティブ記憶カタログ",
   "Registered Owner · read only": "登録済み Owner · 読み取り専用",
   "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here.": "この入口は明示的に登録されたライブラリのみを読み取ります。記録や権限の作成、モデルへの送信はできません。セッションとコンテキストは利用できません。",

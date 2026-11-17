@@ -6,10 +6,10 @@ import { clearViews, useTimeView } from '../theme/timeview';
 import { DAY, nativeDate, observedCommit } from '../theme/nativeTime';
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
-type Props = { nav: J; timeline: MapSpec; now: number; open: boolean; vault: J; reviewLine: string; label: string; phase: string };
+type Props = { nav: J; timeline: MapSpec; now: number; open: boolean; vault: J; reviewLine: string; label: string; phase: string; readonlyEntry?: boolean };
 
 /** The selected Home composition, with only what the current status receipt knows. */
-export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase }: Props) {
+export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase, readonlyEntry = false }: Props) {
   const view = useTimeView(timeline.key, timeline.init);
   useEffect(() => () => clearViews(timeline.key), [timeline.key]);
   const [start, end] = view.domain;
@@ -18,7 +18,12 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
   const fraction = commit == null ? 0 : (commit - start) / (end - start);
   const layer = { width: `${(end - start) / view.span * 100}%`, transform: `translateX(${-(view.start - start) / (end - start) * 100}%)` };
   const clock = nativeDate(now, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).split(':');
-  const notes = [
+  const notes = readonlyEntry ? [
+    { title: t('Native memory catalog'), line: reviewLine, route: nav.memory, detail: phase, time: '—' },
+    { title: t('Sources'), line: t('Open a record to inspect its quoted source.'), route: nav.memory, detail: '—', time: '—' },
+    { title: t('Context'), line: t('Unavailable in this read-only entry'), route: nav.context, detail: '—', time: '—' },
+    { title: t('Sessions'), line: t('Unavailable in this read-only entry'), route: nav.sessions, detail: '—', time: '—' },
+  ] : [
     { title: t('Memory Vault'), line: reviewLine, route: nav.memory, detail: phase, time: commit == null ? '—' : nativeDate(commit, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) },
     { title: t('Context'), line: t('Read saved Capsules in Context'), route: nav.context, detail: '—', time: '—' },
     { title: t('Sessions'), line: t('Read saved conversations in Sessions'), route: nav.sessions, detail: '—', time: '—' },
@@ -38,13 +43,13 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
           <div className="bg-pan bg-pan-grid" style={layer} aria-hidden="true">
             {Array.from({ length: 21 }, (_, i) => <span key={i} className="bg-day" style={{ left: `${i / 21 * 100}%` }}>{nativeDate(start + i * DAY, { month: 'short', day: 'numeric' })}</span>)}
           </div>
-          <div className="bg-draw" role="img" aria-label={t('Latest Vault commit only; continuous trace unavailable')}>
+          <div className="bg-draw" role="img" aria-label={t(readonlyEntry ? 'Read-only library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}>
             <div className="bg-pan bg-pan-ink" style={layer}>
               {commit != null && commit >= start && commit < end ? <span className="bg-mark" data-kind="vault-commit" style={{ left: `${fraction * 100}%`, top: '60%' }} /> : null}
             </div>
           </div>
           <h1 className="qr2 bg-here" lang="en">I'm here.</h1>
-          <p className="bg-native-trace-note">{t('Latest Vault commit only; continuous trace unavailable')}</p>
+          <p className="bg-native-trace-note">{t(readonlyEntry ? 'Read-only library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}</p>
         </div>
         {inView ? <svg key={view.seq} className="bg-leaders bg-native-leader" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
           <path d={`M${(0.58 * (commit - view.start) / view.span * 1000).toFixed(1)} 600 L587 46 H605`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />

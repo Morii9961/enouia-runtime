@@ -8,7 +8,7 @@ R1已实施并完成本机合成验证：Memory采用已合并PR111的a543c1eb81
 
 Morii在11月17日要求继续按路线持续推进，最小只读范围据此继续。PR181已采用已有System catalog的memory_detail_native与memory_source_excerpt_native，不能再把它们误报为Memory契约缺失；原生42/42，见docs/validation/Catalog-native-detail-source-2026-11-17.md。PR182已明确两个ADR037的引用别名。随后ADR038切片增加显式受信任原生启动参数，读取原OS账户/home/operation登记的同一Owner根，锁定释放句柄，页面不能重认证；桌面合成14/14，见docs/validation/Registered-owner-readonly-2026-11-17.md和docs/integration/REGISTERED_OWNER_READONLY.md。先核对该切片当前PR/main，不重复实现。
 
-下一片统一独立只读入口的壳层状态和Home/Settings提示，保持旧Workspace真实为none，不能把新根伪装成v1 Vault或承诺Context/Sessions已接通。图形目录选择的认证入口仍另核；不能把页面请求路由到bootstrap CLI，也不能用同账户进程事实单独证明人的授权。不创建OwnerReadGrant或复用形成策略授予长期读取；个人库打开/迁移、真实Provider、安装或部署仍不在当前开发执行范围。
+独立只读入口的壳层、Home/Settings状态已统一，见docs/validation/Registered-owner-shell-status-2026-11-17.md；先核对当前PR/main，不重复实现。锁定回执撤回旧打开观察，旧Workspace仍真实为none；不能把新根伪装成v1 Vault或承诺Context/Sessions已接通。下一步准备R3验收分流与证据清单，核对Memory公开工程交付，门槛未满足不产出新生产候选。图形目录选择的认证入口仍另核；不能把页面请求路由到bootstrap CLI，也不能用同账户进程事实单独证明人的授权。不创建OwnerReadGrant或复用形成策略授予长期读取；个人库打开/迁移、真实Provider、安装或部署仍不在当前开发执行范围。
 
 Memory另一个会话负责真实建库、工程交付与独立恢复，不修改Memory仓库或合并其待审PR、不重做fresh驱动。Runtime只核对公共工程交付，不读取私人材料。旧5175284仍含731edd56，不是新Owner候选；本片构建程序也不是R3交付包。新候选和日用验收按R3边界；云端、自动采集另排，不操作Dashboard或刷新手动状态快照。
 

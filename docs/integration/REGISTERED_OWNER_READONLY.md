@@ -45,9 +45,13 @@ Owner 接口；不能用旧包测试新库。新生产候选待 R3 与 Memory �
 
 ## 当前界面范围
 
-目录明确标记“已登记 Owner · 只读”，不标成虚构示例。旧 Workspace 仍为 none，
-所以本切片的全局旧 Workspace 徽标、Home/Settings 仍有待下一片统一表达；这不表示
-新根被旧 Workspace 打开。图形目录选择与全局壳层状态是后续接入项。
+目录与全局徽标明确标记“已登记 Owner · 只读”，Home 和 Settings 显示独立的原生
+打开/关闭/未知状态。Memory 默认进入原生记忆目录；锁定回执会更新徽标，晚到的旧
+状态不能覆盖它。读取失败不恢复旧库写入或模型配置控件。旧 Workspace 仍为 none，
+不将新根伪装成 v1 Vault，也不虚构提交点或连续时间迹线。
+
+Context、Sessions 和旧 Workspace 页面会说明本入口的限制；Settings 不提供 Provider
+配置。图形目录选择、其他 Owner 表面及记住上次打开的库均未实现。
 
 真实个人库验收须等待 Memory 的形成、重开、查询/来源及独立备份恢复证明，并由 Morii
 在明确批准的入口操作。当前合成演练不能替代这些结果。

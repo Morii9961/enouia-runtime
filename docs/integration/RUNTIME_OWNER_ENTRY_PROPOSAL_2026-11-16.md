@@ -4,7 +4,7 @@
 
 进一步追踪 catalog 的 process 子模块发现，当前 pin 已有 `memory_detail_native` 和 `memory_source_excerpt_native`。此前将详情/来源列为 Memory 缺失契约不准确，现纠正；不要求 Memory 重做这些能力。R2 首片将它们接到已有合成 read-2 页面，详情采用 process header v2，来源范围按 Unicode 标量计数，不是字节范围。
 
-接续结果：PR181 已合并详情/来源合成接入。第二片采用 [ADR-038](../adr/038-registered-owner-readonly-entry.md) 的显式受信任本机启动，不新增页面认证工具；同一原生登记库的真实 OS 账户合成演练通过，桌面跨进程读取/关闭重开为 14/14，见[报告](../validation/Registered-owner-readonly-2026-11-17.md)。使用方式和限制见[本机只读入口](REGISTERED_OWNER_READONLY.md)。下一片统一独立只读入口的壳层状态，图形目录选择和个人库验收仍独立。
+接续结果：PR181 已合并详情/来源合成接入。PR183 采用 [ADR-038](../adr/038-registered-owner-readonly-entry.md) 的显式受信任本机启动，不新增页面认证工具；同一原生登记库的真实 OS 账户合成演练通过，桌面跨进程读取/关闭重开为 14/14，见[报告](../validation/Registered-owner-readonly-2026-11-17.md)。随后统一独立只读入口的壳层、Home/Settings 状态，旧 Workspace 保持 none，见[验证](../validation/Registered-owner-shell-status-2026-11-17.md)。使用方式和限制见[本机只读入口](REGISTERED_OWNER_READONLY.md)。下一步准备 R3 的只读验收分流；图形目录选择和个人库验收仍独立。
 
 ## 建议首片：同一 Owner 根的只读入口
 

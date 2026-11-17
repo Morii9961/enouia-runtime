@@ -79,6 +79,7 @@ impl ShellState {
             "overlay": "available",
             "hotkey": self.hotkey_status.lock().unwrap_or_else(PoisonError::into_inner).clone(),
             "vaultAdmissionError": host.admission_error(),
+            "memoryEntry": if host.catalog().registered_owner_mode() { "registered_owner_readonly" } else { "workspace" },
         })
     }
 }
@@ -428,13 +429,18 @@ mod tests {
         let state = ShellState::default();
         assert_eq!(
             state.status(&host),
-            json!({"tray":"unavailable", "closeBehavior":"hide", "closing":false, "locking":false, "vaultChanging":false, "error":null, "overlay":"available", "hotkey":null,"vaultAdmissionError":null})
+            json!({"tray":"unavailable", "closeBehavior":"hide", "closing":false, "locking":false, "vaultChanging":false, "error":null, "overlay":"available", "hotkey":null,"vaultAdmissionError":null,"memoryEntry":"workspace"})
         );
         state.tray_ready.store(true, Ordering::SeqCst);
         state.error(Some("lock_failed"));
         host.begin_close();
         assert_eq!(state.status(&host)["closing"], true);
         assert_eq!(state.status(&host)["error"], "lock_failed");
+        host.catalog().request_owner_mode();
+        assert_eq!(
+            state.status(&host)["memoryEntry"],
+            "registered_owner_readonly"
+        );
     }
 
     #[test]

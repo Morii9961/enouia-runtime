@@ -1207,10 +1207,17 @@ async function registeredOwnerChecks() {
   const status=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
   check('OWNER.registered_root_and_readonly_mode',status.mode==='registered_owner_readonly'&&status.selection.snapshot.vault_id===manifest.vault_id);
   check('OWNER.workspace_is_not_reinterpreted_as_owner_root',(await statusOf(s)).vault.state==='none');
+  check('OWNER.shell_reports_independent_readonly_entry',(await s.evaluate("__t.invoke('shell_status')")).ok.memoryEntry==='registered_owner_readonly');
+  await waitFor(s,"document.querySelector('.qr224')?.textContent.includes('Registered library open')",'registered shell status');
+  check('OWNER.home_has_no_workspace_commit_or_create_prompt',await s.evaluate(`!${has('Open or create a Vault to begin')} && !document.querySelector('[data-kind="vault-commit"]') && ${has('Read-only records and quoted sources are available in the native catalog.')}`));
+  await nav(s,'Settings');
+  await waitFor(s,has('Open native memory catalog'),'registered Settings');
+  check('OWNER.settings_offers_only_native_catalog',await s.evaluate(`!${has('Open an existing Vault…')} && !${has('Create Vault…')} && !${has('Model configuration draft')} && ${has('Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.')}`));
   const first=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:2}).then(r=>r.ok)`);
   check('OWNER.actual_registered_records',first.matched_in_scope===3&&first.items.length===2);
-  await nav(s,'Memory');await rail(s,'Native memory catalog');
+  await nav(s,'Memory');
   await waitFor(s,has('2 shown · 3 matching authorized records'),'registered catalog panel');
+  check('OWNER.memory_defaults_to_native_catalog',await s.evaluate("document.querySelector('[data-screen-label=\"Memory Vault\"] button[aria-pressed=true]')?.textContent==='Native memory catalog'"));
   check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered Owner · read only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
   await s.evaluate("document.querySelector('.qr44 .mem-list h3 button').click()");
   await waitFor(s,"!!document.querySelector('section[aria-label=\"Catalog record detail\"] blockquote')",'registered detail');
@@ -1222,6 +1229,7 @@ async function registeredOwnerChecks() {
   check('OWNER.workspace_write_refused',refused.err==='catalog_owner_readonly');
   await shot(s,'owner-01-readonly');
   await click(s,'button','Lock registered library');await waitFor(s,has('Library: locked'),'registered close');
+  check('OWNER.lock_receipt_updates_shell',await s.evaluate("document.querySelector('.qr224')?.textContent.includes('Registered library closed')"));
   const locked=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
   check('OWNER.lock_withdraws_and_requires_native_reopen',locked.state==='locked'&&!locked.available&&await s.evaluate("!document.querySelector('section[aria-label=\"Quoted source excerpt\"]') && ![...document.querySelectorAll('button')].some(b=>b.textContent.includes('Unlock synthetic library'))"));
   check('OWNER.page_cannot_reauthenticate',(await s.evaluate("__t.catalog({operation:'unlock'})")).err==='catalog_owner_reopen_required');
@@ -1236,6 +1244,7 @@ async function registeredOwnerChecks() {
   const autoPort=await unusedPort();app=launch(['--autostart',...launchArgs],{port:autoPort,profile:'owner-autostart'});s=await connect(false,autoPort);await s.evaluate(helpers);
   const ignored=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
   check('OWNER.autostart_does_not_open_registration',ignored.state==='disabled'&&!ignored.available&&(await statusOf(s)).vault.state==='none');
+  check('OWNER.autostart_retains_readonly_entry_metadata',(await s.evaluate("__t.invoke('shell_status')")).ok.memoryEntry==='registered_owner_readonly');
   void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);check('OWNER.autostart_exit',(await waitForExit(app,20000))===0);s.close();
 }
 

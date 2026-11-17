@@ -1,6 +1,21 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Registered library open": "已登记库已打开",
+  "Registered library closed": "已登记库已关闭",
+  "Opening registered library": "正在打开已登记库",
+  "No registered library open": "没有打开已登记库",
+  "Registered library unavailable": "已登记库不可用",
+  "Closing registered library": "正在关闭已登记库",
+  "Registered library status unknown": "已登记库状态未知",
+  "Read-only registered library. Sessions, Context and model use are unavailable.": "已登记库的只读入口，不提供会话、上下文或模型功能。",
+  "Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.": "请在“记忆 → 原生记忆目录”中阅读记录和引文来源。此入口不提供工作区编辑、会话、上下文或模型配置。",
+  "Read-only records and quoted sources are available in the native catalog.": "可在原生目录中只读查看记录和引文来源。",
+  "Open native memory catalog": "打开原生记忆目录",
+  "Open a record to inspect its quoted source.": "打开一条记录，查看它的引文来源。",
+  "Unavailable in this read-only entry": "此只读入口不提供",
+  "Read-only library · no time trace is available": "只读库 · 暂无时间迹线",
+  "read-only registered library": "只读的已登记库",
   "Native memory catalog": "原生记忆目录",
   "Registered Owner · read only": "已登记 Owner · 只读",
   "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here.": "此入口只读取明确登记的库，不能创建记录、授予权限或向模型发送内容；会话和上下文在此入口不可用。",
