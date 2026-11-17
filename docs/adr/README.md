@@ -1,6 +1,8 @@
 # Architecture decision register — v0.3
 
-[ADR-037](037-activity-usage-desktop-retirement.md) retires the desktop Activity / Usage native hosts and command grants. Standalone backend retirement and installed-data changes wait for the Moriium migration.
+[ADR-037 — Retire Activity / Usage from the desktop host](037-activity-usage-desktop-retirement.md) retires the desktop Activity / Usage native hosts and command grants. Standalone backend retirement and installed-data changes wait for the Moriium migration.
+
+Two historical records share number 037. Cite their full titles or file paths: **ADR-037 (desktop retirement)** means [`037-activity-usage-desktop-retirement.md`](037-activity-usage-desktop-retirement.md); **ADR-037 (synthetic Memory)** means [`037-synthetic-native-memory-adoption.md`](037-synthetic-native-memory-adoption.md). These short aliases only disambiguate references. Neither record is renumbered, and no implementation or activation gate changes.
 
 Date: 2026-09-26. These are phase design decisions, not claims of implemented behavior. “Adopted” means the current implementation specification chooses this direction; “Deferred” means no implementation of that topic is authorized by this phase. Changes require recording what supersedes a decision and updating the architecture, affected contracts, and tests together.
 
@@ -238,4 +240,4 @@ Activity is untouched. The installer followed in ADR-027.
 [ADR-036](036-manual-usage-desktop.md) adds the owner's explicitly requested manual desktop continuation: native directory grants, independent hash-checked Usage runner, count/coverage inspection, paged evidence-bound conflict review and offline export within Activity's private view. No Runtime domain crate enters the desktop graph; no personal source, Memory path, schedule or transmission is activated. [Runner evidence](../validation/AI-usage-ledger-U1-backend.md) separates the synthetic backend gate from desktop and owner acceptance.
 ## ADR-037 — Explicit synthetic native Memory adoption (isolated synthetic slice complete)
 
-[ADR-037](037-synthetic-native-memory-adoption.md) adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 owner records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.
+[ADR-037 — Explicit synthetic native Memory adoption](037-synthetic-native-memory-adoption.md), also called ADR-037 (synthetic Memory), adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 owner records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.
