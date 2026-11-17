@@ -24,8 +24,8 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 
 | 材料 | 本轮确认结果 / 后续需填内容 |
 | --- | --- |
-| Memory 形成版本及读兼容性 | 公共 main 已核对到 `d0e7f9f0298e8b5c4c178dc2649a647c28e8596e`；新增初始化标题投影/准备性能修复不改变 reader、存储格式或 Runtime surface，当前 pin 保持不变 |
-| 全量计划及 journal 生命周期容量 | 待 Memory 提供真实整轮预检结论；局部合成性能结果不替代它 |
+| Memory 形成版本及读兼容性 | 公共 main 已核对到 PR117 / ADR149 的 `17a369e010f670baacaeec98306854fd4d14afc5`；grouped decisions 新字段要求升级 reader，aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，仍61命令。当前 Runtime pin 尚未采用该能力；待容量方案最终合并后核对最小兼容采用，不能先打开新字段库 |
+| 全量计划及 journal 生命周期容量 | 隔壁交付会话报告原清单43计划/351记录准入通过，但 queued journal 21,793,549字节、lifecycle 上界30,865,623字节，超过16,777,216字节（16 MiB），尚未创建真实 Vault。Memory 正按其新获授权准备紧凑 journal 的最小ADR/合成PR，最终容量通过结果待交付；Runtime 未读取私人清单或重跑此预检 |
 | 真实形成、关闭重开、查询与精确来源 | 待 Memory 提供工程结果及未完成项；PR 合并不等于已形成真实库 |
 | 独立备份、验证与隔离恢复 | 待 Memory 提供已完成的工程证明；同盘合成往返不替代独立恢复 |
 | 同根身份与允许读取范围 | Memory 确认原生登记及兼容布局，Morii 保管实际启动参数；当前允许的读取范围与期限另核，不由 Runtime 续期 |
@@ -36,6 +36,9 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 仍保留当日基线与待交库步骤，不能从它推断现在已 ready。[标题投影](https://github.com/Morii9961/enouia-memory/blob/d0e7f9f0298e8b5c4c178dc2649a647c28e8596e/docs/validation/Fresh-conversation-title-projection.md)
 和[性能验证](https://github.com/Morii9961/enouia-memory/blob/d0e7f9f0298e8b5c4c178dc2649a647c28e8596e/docs/validation/Fresh-preparation-performance.md)
 明确只报告合成结果。以上材料未齐时继续独立开发准备，不生成生产候选或启动个人库验收。
+
+随后 PR117 已合并，公共[ADR149 集成说明](https://github.com/Morii9961/enouia-memory/blob/17a369e010f670baacaeec98306854fd4d14afc5/docs/integration/RUNTIME.md)
+明确新增 reader 采用门槛；容量失败与两边分工见[路线接续](integration/RUNTIME_ROADMAP_2026-11-16.md#11月17日跨会话接续准入通过容量未通过)。不能继续沿用“后续仅初始化变更，无需更新 reader”的旧判断。
 
 ## 候选交付后的只读操作
 
