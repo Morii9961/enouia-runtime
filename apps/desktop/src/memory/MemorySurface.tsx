@@ -25,7 +25,7 @@ type Collection = "inbox" | "current" | "history" | "import" | "persona" | "vaul
 
 const TITLES: Record<Collection, string> = labels({
   automated: msg("Synthetic automatic memories"),
-  catalog: msg("Segmented synthetic catalog"),
+  catalog: msg("Native memory catalog"),
   capture: msg("Synthetic Runtime capture"),
   inbox: msg("Candidate inbox"),
   current: msg("Current memories"),
@@ -53,8 +53,8 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = [
     { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },
-    { label: t("Automatic"), items: [["automated", TITLES.automated], ["catalog", TITLES.catalog], ["capture", TITLES.capture]] },
-    { label: t("Vault"), items: [["import", TITLES.import], ["persona", TITLES.persona], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
+    { label: t("Automatic"), items: [["automated", TITLES.automated], ["capture", TITLES.capture]] },
+    { label: t("Vault"), items: [["catalog", TITLES.catalog], ["import", TITLES.import], ["persona", TITLES.persona], ["vault", TITLES.vault, status?.vault?.state ?? "—"]] },
   ];
   const explorer = collection === "current" || collection === "history";
   // A switch can finish between two status polls without an observed change;

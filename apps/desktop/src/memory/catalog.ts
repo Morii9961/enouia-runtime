@@ -12,8 +12,8 @@ export type CatalogSelection = {
   scope_hash: string; query_hash: string; evaluated_at: string;
 };
 export type CatalogCursor = { selection: CatalogSelection; after: string };
-export type CatalogStatus = { kind: "runtime_memory_catalog_status"; mode: "synthetic_segmented_only";
-  state: "disabled" | "initializing" | "open" | "locked" | "failed" | "closing"; available: boolean; selection?: CatalogSelection };
+export type CatalogStatus = { kind: "runtime_memory_catalog_status"; mode: "synthetic_segmented_only" | "registered_owner_readonly";
+  state: "disabled" | "initializing" | "open" | "locked" | "failed" | "closing"; available: boolean; selection?: CatalogSelection; reason?: string };
 export type CatalogItem = { title: string; content_lang: string; base: {
   memory: { memory_id: string; revision: number }; content: string; system_actor: { actor_type: "system" };
   dimensions: { kind: string }; knowledge: string; adoption: string; validity: string; attention: string;
@@ -62,7 +62,8 @@ export async function catalogRead<K extends keyof Queries>(query: { operation: K
   if (!value || value.schema_version !== 2 || value.capability !== "memory-native-read-2" ||
       value.effect !== (control ? "native_control" : "native_read") || value.kind !== kind) throw "catalog_response_unsupported";
   if (kind === "runtime_memory_catalog_status") {
-    if (value.mode !== "synthetic_segmented_only" || !["disabled", "initializing", "open", "locked", "failed", "closing"].includes(value.state) ||
+    if (!["synthetic_segmented_only", "registered_owner_readonly"].includes(value.mode) || !["disabled", "initializing", "open", "locked", "failed", "closing"].includes(value.state) ||
+        (value.reason !== undefined && typeof value.reason !== "string") ||
         value.available !== (value.state === "open")) throw "catalog_response_unsupported";
     if (!control && value.state === "open") selection(value.selection);
   } else if (kind === "native_memory_detail" || kind === "native_source_excerpt") {

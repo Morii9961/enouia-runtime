@@ -8,33 +8,23 @@ use enouia_memory_vault::{
     OsIdSource, RootPolicy, SystemClock, automation::segmented::SegmentedAutomationVault,
     fault::Faults, verify_data_root,
 };
-use std::{
-    path::PathBuf,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
 };
 
-pub(super) struct Fixture {
-    pub reader: SegmentedMemoryReader,
-    pub profile: AttentionProfile,
-    pub system: ActorRef,
-    pub _root: PathBuf,
-}
+use super::Library;
 fn load<T: serde::de::DeserializeOwned>(text: &str) -> Result<T, &'static str> {
     serde_json::from_str(text).map_err(|_| "catalog_fixture_invalid")
 }
-pub(super) fn create(stop: &AtomicBool) -> Result<Fixture, &'static str> {
+pub(super) fn create(stop: &AtomicBool) -> Result<Library, &'static str> {
     create_with_clock(stop, Arc::new(SystemClock))
 }
 pub(super) fn create_with_clock(
     stop: &AtomicBool,
     clock: Arc<dyn Clock + Send + Sync>,
-) -> Result<Fixture, &'static str> {
+) -> Result<Library, &'static str> {
     let ids = Arc::new(OsIdSource);
-    let now_ms = clock.now_unix_ms();
-    let now = Timestamp::from_unix_ms(now_ms).ok_or("catalog_fixture_invalid")?;
     let mut descriptor: AutomationDescriptor =
         load(include_str!("../../tests/fixtures/core8/descriptor.json"))?;
     descriptor.layout = AutomationLayout::SegmentedV1;
@@ -42,21 +32,6 @@ pub(super) fn create_with_clock(
     descriptor.host_id = DeviceId::from_random(ids.random_16());
     descriptor.created_by.actor_id = PrincipalId::from_random(ids.random_16());
     descriptor.system_actor.actor_id = PrincipalId::from_random(ids.random_16());
-    let mut policy: AutomationPolicy =
-        load(include_str!("../../tests/fixtures/core8/policy.json"))?;
-    policy.vault_id = descriptor.vault_id.clone();
-    policy.system_actor = descriptor.system_actor.clone();
-    policy.subject_id = SubjectId::from_random(ids.random_16());
-    policy.policy_id = PolicyId::from_random(ids.random_16());
-    policy.access_policy_id = PolicyId::from_random(ids.random_16());
-    policy.egress_policy_id = PolicyId::from_random(ids.random_16());
-    policy.target_ids.clear();
-    policy.source_ids = (0..3)
-        .map(|_| SourceId::from_random(ids.random_16()))
-        .collect();
-    policy.valid_from = now.clone();
-    policy.valid_until =
-        Timestamp::from_unix_ms(now_ms + 3_600_000).ok_or("catalog_fixture_invalid")?;
     if stop.load(Ordering::SeqCst) {
         return Err("catalog_locked");
     }
@@ -68,9 +43,57 @@ pub(super) fn create_with_clock(
     let verified =
         verify_data_root(&root, &RootPolicy::default()).map_err(|_| "catalog_fixture_storage")?;
     let vault = Arc::new(
-        SegmentedAutomationVault::create(&verified, descriptor.clone(), clock, ids, Faults::none())
-            .map_err(|_| "catalog_fixture_storage")?,
+        SegmentedAutomationVault::create(
+            &verified,
+            descriptor.clone(),
+            clock.clone(),
+            ids,
+            Faults::none(),
+        )
+        .map_err(|_| "catalog_fixture_storage")?,
     );
+    seed(&vault, &descriptor, clock.now_unix_ms(), stop)?;
+    let reader =
+        SegmentedMemoryReader::from_authenticated_system(vault, descriptor.system_actor.clone())
+            .map_err(|_| "catalog_fixture_invalid")?;
+    Ok(Library {
+        reader,
+        profile: load(include_str!("../../tests/fixtures/core8/profile.json"))?,
+        system: descriptor.system_actor,
+        _root: root,
+        _lease: None,
+    })
+    // Retain only this fresh bounded example for diagnosis. Never reopen it.
+}
+
+// Shared only by fixed synthetic creation and the explicit native-Owner test.
+// The registered production opener never seeds records or policies.
+pub(super) fn seed(
+    vault: &Arc<SegmentedAutomationVault>,
+    descriptor: &AutomationDescriptor,
+    now_ms: i64,
+    stop: &AtomicBool,
+) -> Result<(), &'static str> {
+    let ids = OsIdSource;
+    let now = Timestamp::from_unix_ms(now_ms).ok_or("catalog_fixture_invalid")?;
+    let mut policy: AutomationPolicy =
+        load(include_str!("../../tests/fixtures/core8/policy.json"))?;
+    policy.vault_id = descriptor.vault_id.clone();
+    policy.system_actor = descriptor.system_actor.clone();
+    policy.subject_id = descriptor
+        .owner_subject_id
+        .clone()
+        .unwrap_or_else(|| SubjectId::from_random(ids.random_16()));
+    policy.policy_id = PolicyId::from_random(ids.random_16());
+    policy.access_policy_id = PolicyId::from_random(ids.random_16());
+    policy.egress_policy_id = PolicyId::from_random(ids.random_16());
+    policy.target_ids.clear();
+    policy.source_ids = (0..3)
+        .map(|_| SourceId::from_random(ids.random_16()))
+        .collect();
+    policy.valid_from = now.clone();
+    policy.valid_until =
+        Timestamp::from_unix_ms(now_ms + 3_600_000).ok_or("catalog_fixture_invalid")?;
     vault
         .set_policy(&descriptor.created_by, policy.clone())
         .map_err(|_| "catalog_fixture_policy")?;
@@ -203,14 +226,5 @@ pub(super) fn create_with_clock(
             )
             .map_err(|_| "catalog_fixture_apply")?;
     }
-    let reader =
-        SegmentedMemoryReader::from_authenticated_system(vault, descriptor.system_actor.clone())
-            .map_err(|_| "catalog_fixture_invalid")?;
-    Ok(Fixture {
-        reader,
-        profile: load(include_str!("../../tests/fixtures/core8/profile.json"))?,
-        system: descriptor.system_actor,
-        _root: root,
-    })
-    // Retain only this fresh bounded example for diagnosis. Never reopen it.
+    Ok(())
 }

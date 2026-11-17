@@ -66,8 +66,8 @@ const check = (id, ok, detail = '') => {
 };
 
 function launch(args, { port = PORT, profile = 'webview2' } = {}) {
-  const synthetic = args.includes('--memory-synthetic') || args.includes('--memory-catalog-synthetic');
-  const nativeLog = synthetic ? openSync(join(out, args.includes('--memory-catalog-synthetic') ? 'catalog-native-process.log' : 'core8-native-process.log'), 'a') : null;
+  const synthetic = args.includes('--memory-synthetic') || args.includes('--memory-catalog-synthetic') || args.includes('--memory-owner-readonly');
+  const nativeLog = synthetic ? openSync(join(out, args.includes('--memory-owner-readonly') ? 'registered-owner-native-process.log' : args.includes('--memory-catalog-synthetic') ? 'catalog-native-process.log' : 'core8-native-process.log'), 'a') : null;
   const child = spawn(exe, [...args, '--hotkey-key', 'Q', '--activity-settings', join(out, 'activity-install.json')], {
     env: {
       ...process.env,
@@ -274,7 +274,7 @@ async function connect(overlay = false, port = PORT) {
           await s.evaluate(HELPERS);
           // This focused English journey owns fresh profiles. Use existing UI
           // controls, keeping translated accessible names in the application.
-          if (['--quick-only', '--automatic-only', '--catalog-only', '--capture-only'].includes(process.argv[6])) {
+          if (['--quick-only', '--automatic-only', '--catalog-only', '--capture-only', '--owner-readonly-only'].includes(process.argv[6])) {
             if (!overlay) {
               await s.evaluate("document.querySelectorAll('.bg-nav-item')[5].click()");
               await waitFor(s, "!!document.querySelector('button[lang=en]')", 'fixture language controls');
@@ -1189,6 +1189,56 @@ async function automaticMemoryChecks() {
   }
 }
 
+async function registeredOwnerChecks() {
+  // Only the manifest emitted by the explicit durable synthetic native test.
+  // This mode must never be pointed at a personal home/registration.
+  const manifest = JSON.parse(readFileSync(importFile,'utf8'));
+  if (manifest.synthetic_validation_only !== true || resolve(manifest.home) !== vault ||
+      !basename(vault).startsWith('enouia-runtime-owner-synthetic-') || lstatSync(vault).isSymbolicLink() ||
+      JSON.parse(readFileSync(join(vault,'.enouia-owner-data.json'),'utf8')).synthetic_validation_only !== true) throw new Error('Owner readonly smoke requires its explicit synthetic native registration');
+  const currentPath = join(manifest.root,'vault','CURRENT');
+  const current = readFileSync(currentPath);
+  const launchArgs = ['--memory-owner-readonly','--memory-owner-home',vault,'--memory-owner-operation',manifest.operation];
+  const helpers = `__t.catalog = query => __t.invoke('memory_catalog',{request:{schema_version:2,capability:'memory-native-read-2',query}})`;
+  const filter = {text:'',form:null,state:null,knowledge:null,adoption:null,validity:null,attention:null,entity:null,project:null,theme:null,time_axis:null,time_window:null,include_unknown_time:false};
+  let app=launch(launchArgs),s=await connect();
+  await s.evaluate(helpers);
+  await waitFor(s,"__t.catalog({operation:'status'}).then(r=>r.ok?.state==='open')",'registered synthetic Owner root');
+  const status=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
+  check('OWNER.registered_root_and_readonly_mode',status.mode==='registered_owner_readonly'&&status.selection.snapshot.vault_id===manifest.vault_id);
+  check('OWNER.workspace_is_not_reinterpreted_as_owner_root',(await statusOf(s)).vault.state==='none');
+  const first=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:2}).then(r=>r.ok)`);
+  check('OWNER.actual_registered_records',first.matched_in_scope===3&&first.items.length===2);
+  await nav(s,'Memory');await rail(s,'Native memory catalog');
+  await waitFor(s,has('2 shown · 3 matching authorized records'),'registered catalog panel');
+  check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered Owner · read only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
+  await s.evaluate("document.querySelector('.qr44 .mem-list h3 button').click()");
+  await waitFor(s,"!!document.querySelector('section[aria-label=\"Catalog record detail\"] blockquote')",'registered detail');
+  const quote=await s.evaluate("document.querySelector('section[aria-label=\"Catalog record detail\"] blockquote').textContent");
+  await click(s,'button','Read quoted source');
+  await waitFor(s,"!!document.querySelector('section[aria-label=\"Quoted source excerpt\"] blockquote')",'registered exact source');
+  check('OWNER.registered_source_matches_quote',await s.evaluate(`document.querySelector('section[aria-label="Quoted source excerpt"] blockquote').textContent===${JSON.stringify(quote)}`));
+  const refused=await s.evaluate("__t.invoke('memory_call',{request:{schemaVersion:1,requestId:'req_00000000-0000-4000-8000-000000000001',command:'remember',idempotencyKey:'ui-owner-never-write',arguments:{text:'Synthetic attempt must be refused'}}})");
+  check('OWNER.workspace_write_refused',refused.err==='catalog_owner_readonly');
+  await shot(s,'owner-01-readonly');
+  await click(s,'button','Lock registered library');await waitFor(s,has('Library: locked'),'registered close');
+  const locked=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
+  check('OWNER.lock_withdraws_and_requires_native_reopen',locked.state==='locked'&&!locked.available&&await s.evaluate("!document.querySelector('section[aria-label=\"Quoted source excerpt\"]') && ![...document.querySelectorAll('button')].some(b=>b.textContent.includes('Unlock synthetic library'))"));
+  check('OWNER.page_cannot_reauthenticate',(await s.evaluate("__t.catalog({operation:'unlock'})")).err==='catalog_owner_reopen_required');
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);
+  check('OWNER.first_exit',(await waitForExit(app,20000))===0);s.close();
+  const restartPort=await unusedPort();app=launch(launchArgs,{port:restartPort,profile:'owner-reopen'});s=await connect(false,restartPort);await s.evaluate(helpers);
+  await waitFor(s,"__t.catalog({operation:'status'}).then(r=>r.ok?.state==='open')",'same registered root after process restart');
+  const reopened=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:2}).then(r=>r.ok)`);
+  check('OWNER.reopen_reads_same_vault_without_new_records',reopened.selection.snapshot.vault_id===manifest.vault_id&&reopened.matched_in_scope===3&&JSON.stringify(reopened.items.map(item=>[item.base.memory,item.base.content]))===JSON.stringify(first.items.map(item=>[item.base.memory,item.base.content])));
+  check('OWNER.reads_preserve_current',readFileSync(currentPath).equals(current));
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);check('OWNER.reopened_exit',(await waitForExit(app,20000))===0);s.close();
+  const autoPort=await unusedPort();app=launch(['--autostart',...launchArgs],{port:autoPort,profile:'owner-autostart'});s=await connect(false,autoPort);await s.evaluate(helpers);
+  const ignored=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
+  check('OWNER.autostart_does_not_open_registration',ignored.state==='disabled'&&!ignored.available&&(await statusOf(s)).vault.state==='none');
+  void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);check('OWNER.autostart_exit',(await waitForExit(app,20000))===0);s.close();
+}
+
 async function catalogMemoryChecks() {
   const fixture = resolve(out, '..');
   if (!fixture.startsWith(resolve(tmpdir()) + sep) || !basename(fixture).startsWith('enouia-runtime-catalog-smoke-') || lstatSync(fixture).isSymbolicLink()) throw new Error('Catalog smoke requires its dedicated temporary fixture');
@@ -1221,7 +1271,7 @@ async function catalogMemoryChecks() {
   const filtered = await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(changed)},cursor:null,limit:1}).then(r=>r.ok)`);
   check('CATALOG.literal_chinese_filter_reads_actual_record', filtered.matched_in_scope === 1 && filtered.items[0].title === '调试偏好');
   await s.evaluate("document.querySelector('button[data-runtime-page=memory]').click()");
-  await rail(s,'Segmented synthetic catalog');
+  await rail(s,'Native memory catalog');
   await waitFor(s,has('2 shown · 3 matching authorized records'),'read-2 panel and same-selection stats');
   check('CATALOG.native_panel_is_explicitly_synthetic_and_scoped',await s.evaluate(`${has('Isolated synthetic read-2')} && ${has('Counts cover currently authorized machine revisions for this selection.')} && ${has('Page statistics were read for the same selection.')}`));
   const detail = await s.evaluate(`__t.catalog({operation:'detail',filter:${JSON.stringify(filter)},memory_id:${JSON.stringify(first.items[0].base.memory.memory_id)}}).then(r=>r.ok)`);
@@ -1235,7 +1285,7 @@ async function catalogMemoryChecks() {
   await waitFor(s,"!!document.querySelector('section[aria-label=\"Quoted source excerpt\"] blockquote')",'native quoted source');
   check('CATALOG.native_source_inspector_is_literal', await s.evaluate(`document.querySelector('section[aria-label="Quoted source excerpt"] blockquote').textContent === ${JSON.stringify(quote.quote)} && !document.querySelector('section[aria-label="Quoted source excerpt"] blockquote img')`));
   await shot(s,'catalog-01-list');
-  await surfaceMatrix(s,app,'CATALOG','catalog',{'zh-Hans':'分段合成目录',ja:'分割形式の合成カタログ',en:'Segmented synthetic catalog'},
+  await surfaceMatrix(s,app,'CATALOG','catalog',{'zh-Hans':'原生记忆目录',ja:'ネイティブ記憶カタログ',en:'Native memory catalog'},
     "[...document.querySelectorAll('.qr44 .mem-list li')].map(n=>[n.querySelector('h3').textContent,n.querySelector('p').textContent,n.querySelector('.mem-row-meta').textContent].join(' / ')).join('|')");
   await click(s,'button','Next catalog page');
   await waitFor(s,has('1 shown · 3 matching authorized records'),'read-2 next page');
@@ -1389,6 +1439,7 @@ async function captureMemoryChecks() {
 }
 
 async function main() {
+  if (process.argv[6] === '--owner-readonly-only') return registeredOwnerChecks();
   if (process.argv[6] === '--catalog-only') return catalogMemoryChecks();
   if (process.argv[6] === '--capture-only') return captureMemoryChecks();
   if (process.argv[6] === '--automatic-only') return automaticMemoryChecks();

@@ -1,6 +1,18 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Native memory catalog": "原生记忆目录",
+  "Registered Owner · read only": "已登记 Owner · 只读",
+  "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here.": "此入口只读取明确登记的库，不能创建记录、授予权限或向模型发送内容；会话和上下文在此入口不可用。",
+  "No registered library was opened at startup.": "启动时没有打开已登记的库。",
+  "The registered library could not be opened. No other library was selected.": "未能打开已登记的库，也没有转而选择其他库。",
+  "The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.": "库已关闭。请退出 Runtime，再明确启动已登记的库以重新打开。",
+  "Lock registered library": "锁定已登记的库",
+  "Records and source excerpts come from the same registered library. Formed records are not independent verification.": "记录与来源摘录来自同一个已登记的库。形成记录不代表独立核实。",
+  "The registered library launch is incomplete or conflicts with another entry.": "已登记库的启动信息不完整，或与其他入口冲突。",
+  "The registered library could not be authenticated for this account.": "无法为当前账户认证这个已登记的库。",
+  "The registered library could not be opened. It may be in use or need explicit recovery.": "无法打开已登记的库，它可能正在使用中，或需要显式恢复。",
+  "This registered library entry is read only.": "这个已登记库入口为只读。",
   "Read catalog detail: {title}": "查看目录详情：{title}",
   "Catalog record detail": "目录记录详情",
   "Refresh record detail": "刷新记录详情",
@@ -1780,7 +1792,6 @@ const dict: Record<string, string> = {
   "Observed {time}": "观察时间：{time}",
   "Operation {id}": "操作 {id}",
   "Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.": "模型调用只在本地停止。服务方可能已经收到请求；重新打开后，请先读取保存的会话结果，再决定是否发送。",
-  "Segmented synthetic catalog": "分段合成目录",
   "Isolated synthetic read-2": "隔离合成 read-2",
   "This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.": "此库包含固定的虚构记录，不会打开 Owner 记忆库或持续形成记忆。",
   "No segmented synthetic library is enabled in this session.": "本次会话未启用分段合成库。",

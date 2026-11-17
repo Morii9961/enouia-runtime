@@ -102,6 +102,9 @@ impl MemoryHost {
     /// Serialize configuration reloads and key changes without queuing a
     /// second native prompt. Core still owns admission against active sends.
     pub fn provider_update(&self) -> Result<MutexGuard<'_, ()>, &'static str> {
+        if self.catalog.registered_owner_mode() {
+            return Err("catalog_owner_readonly");
+        }
         if self.automation.enabled() || self.catalog.enabled() || self.capture.enabled() {
             return Err("automation_synthetic_mode");
         }
@@ -162,6 +165,9 @@ impl MemoryHost {
     /// Paths come only from our native dialog, never request fields. This
     /// bounded table adds host admission without replacing Core token rules.
     pub fn register_pick(&self, kind: PickKind, path: &Path) -> Value {
+        if self.catalog.registered_owner_mode() {
+            return json!({"error":{"code":"permission_denied","retryable":false,"rules":["runtime.owner_readonly"]}});
+        }
         match self.core.register_pick(kind, path) {
             Ok(pick) => {
                 if kind == PickKind::VaultRoot {
@@ -228,9 +234,15 @@ impl MemoryHost {
     /// Native tray actions and page calls share the same lifecycle gate.
     /// Once exit begins, only observations may still reach the Core.
     pub fn forward(&self, request: &Value) -> Result<Value, String> {
+        let command = request["command"].as_str().unwrap_or("");
+        if self.catalog.registered_owner_mode()
+            && (is_write(command)
+                || matches!(command, "vault_open" | "vault_create" | "vault_unlock"))
+        {
+            return Err("catalog_owner_readonly".into());
+        }
         let _lifecycle = self.lifecycle_guard(request);
         let invoke = || {
-            let command = request.get("command").and_then(Value::as_str).unwrap_or("");
             if command == "memory_search" && self.lifecycle_busy() {
                 return Err("runtime_busy".into());
             }
@@ -275,6 +287,13 @@ impl MemoryHost {
     /// Open a root named on the command line by the owner. A rejected root
     /// leaves no Vault open; the page shows that state.
     pub fn open_root(&self, root: &Path) {
+        if self.catalog.registered_owner_mode() {
+            *self
+                .admission_error
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner) = Some("catalog_owner_readonly");
+            return;
+        }
         let _exclusive = self.gate.write().unwrap_or_else(PoisonError::into_inner);
         let admitted = Directory::inspect(root).and_then(RootLease::acquire);
         let error = match admitted {
@@ -422,6 +441,9 @@ pub async fn memory_pick(
 ) -> Result<Value, String> {
     if surface(window.label()) != Some(HostSurface::Workspace) {
         return Err("permission_denied".to_owned());
+    }
+    if host.catalog().registered_owner_mode() {
+        return Err("catalog_owner_readonly".to_owned());
     }
     if host.is_closing() {
         return Err("runtime_closing".to_owned());

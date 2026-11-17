@@ -7,6 +7,7 @@ import { t } from "../i18n";
 
 export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRead }) {
   const [status, setStatus] = useState<CatalogStatus | null>(null);
+  const [mode, setMode] = useState<CatalogStatus["mode"] | null>(null);
   const [page, setPage] = useState<CatalogPage | null>(null);
   const [stats, setStats] = useState<CatalogStats | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -36,7 +37,7 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
         if (controlling.current) return;
         const next = await read({ operation: "status" });
         if (stopped || controlling.current || current !== epoch.current) return;
-        setStatus(next); setObservationError(null);
+        setStatus(next); setMode(next.mode); setObservationError(null);
         const scope = next.state === "open" && next.selection ? catalogScopeKey(next.selection) : null;
         if (scope === null) { observedScope.current = null; clear(); }
         else if (scope !== observedScope.current) { clear(); observedScope.current = scope; await load(); }
@@ -58,23 +59,26 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
     finally { controlling.current = false; epoch.current += 1; }
   };
   const open = status?.state === "open";
+  const owner = mode === "registered_owner_readonly";
   return <>
     <div className="qr45" aria-busy={reads.busy}>
-      <div className="qr31"><h2 className="qr29">{t("Segmented synthetic catalog")}</h2><Tag tone="warn">{t("Isolated synthetic read-2")}</Tag></div>
+      <div className="qr31"><h2 className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered Owner · read only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
       <div className="qr44 mem-pad">
-        <p className="mem-content">{t("This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.")}</p>
+        {mode && <p className="mem-content">{t(owner ? "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here." : "This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.")}</p>}
         {observationError && <p role="alert">{describe(observationError.cause)}</p>}
         <ErrorBox error={reads.error} />
         <p role="status">{status ? t("Library: {state}", { state: status.state }) : observationError ? t("Library state is unknown.") : t("Reading library state…")}</p>
         {open && reads.busy && <p role="status">{t("Reading catalog page and statistics…")}</p>}
-        {status?.state === "disabled" && <p className="mem-content">{t("No segmented synthetic library is enabled in this session.")}</p>}
-        {status?.state === "failed" && <p className="mem-content">{t("The synthetic library is unavailable. Start a new synthetic session to recover.")}</p>}
+        {status?.reason && <p role="alert">{describe(status.reason)}</p>}
+        {status?.state === "disabled" && <p className="mem-content">{t(owner ? "No registered library was opened at startup." : "No segmented synthetic library is enabled in this session.")}</p>}
+        {status?.state === "failed" && <p className="mem-content">{t(owner ? "The registered library could not be opened. No other library was selected." : "The synthetic library is unavailable. Start a new synthetic session to recover.")}</p>}
+        {owner && status?.state === "locked" && <p className="mem-content">{t("The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.")}</p>}
           <form className="mem-stack" role="search" onSubmit={event => { event.preventDefault(); if (!open || reads.pending.current) return; epoch.current += 1; observedScope.current = null; clear(); setFilter({ ...CATALOG_FILTER, text: draft }); }}>
             <label className="mem-label">{t("Literal catalog search")} <input className="mem-input" value={draft} maxLength={512} autoComplete="off" onChange={event => setDraft(event.target.value)} /></label>
             <button className="mem-button" disabled={!open || reads.busy}>{t("Search catalog")}</button>
           </form>
         {open && <button className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Refresh catalog")}</button>}
-        {(open || status?.state === "locked") && <button className="mem-button" disabled={reads.busy} onClick={() => void control(open ? "lock" : "unlock")}>{t(open ? "Lock synthetic library" : "Unlock synthetic library")}</button>}
+        {(open || (!owner && status?.state === "locked")) && <button className="mem-button" disabled={reads.busy} onClick={() => void control(open ? "lock" : "unlock")}>{t(owner ? "Lock registered library" : open ? "Lock synthetic library" : "Unlock synthetic library")}</button>}
         {open && page && stats && <>
           <p className="mem-content">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: stats.matched_in_scope })}</p>
           <p className="mem-content">{t("Counts cover currently authorized machine revisions for this selection.")}</p>
@@ -90,7 +94,7 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
         </>}
       </div>
     </div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p>
       {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} />}
     </div></aside>
   </>;

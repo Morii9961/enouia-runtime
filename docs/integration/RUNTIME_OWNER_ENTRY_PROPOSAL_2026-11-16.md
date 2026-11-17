@@ -4,6 +4,8 @@
 
 进一步追踪 catalog 的 process 子模块发现，当前 pin 已有 `memory_detail_native` 和 `memory_source_excerpt_native`。此前将详情/来源列为 Memory 缺失契约不准确，现纠正；不要求 Memory 重做这些能力。R2 首片将它们接到已有合成 read-2 页面，详情采用 process header v2，来源范围按 Unicode 标量计数，不是字节范围。
 
+接续结果：PR181 已合并详情/来源合成接入。第二片采用 [ADR-038](../adr/038-registered-owner-readonly-entry.md) 的显式受信任本机启动，不新增页面认证工具；同一原生登记库的真实 OS 账户合成演练通过，桌面跨进程读取/关闭重开为 14/14，见[报告](../validation/Registered-owner-readonly-2026-11-17.md)。使用方式和限制见[本机只读入口](REGISTERED_OWNER_READONLY.md)。下一片统一独立只读入口的壳层状态，图形目录选择和个人库验收仍独立。
+
 ## 建议首片：同一 Owner 根的只读入口
 
 建议先在现有 Memory Vault 表面提供“选择已初始化 Owner 库 → 有界列表与文字检索 → 单条详情 → 精确来源 → 锁定 → 重新认证并打开”的完整路径。沿用既有 Windows 壳和布局，浏览器仍标注虚构示例；不承诺同时接通六种领域视图、Context、Sessions、形成、纠正或删除。
@@ -21,13 +23,13 @@
 
 ## 已有能力与缺口
 
-核对的 Memory 文件：[catalog.rs](https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/crates/enouia-memory-host/src/automation/catalog.rs)、[qualified_agent.rs](https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/crates/enouia-memory-host/src/automation/qualified_agent.rs)、[owner_bootstrap/mod.rs](https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/crates/enouia-memory-host/src/owner_bootstrap/mod.rs)。Runtime 当前实现在 `apps/desktop/src-tauri/src/memory_catalog.rs` 与其 `fixture.rs`，仍是新建固定合成根，不会打开 Owner 根。
+核对的 Memory 文件：[catalog.rs](https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/crates/enouia-memory-host/src/automation/catalog.rs)、[qualified_agent.rs](https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/crates/enouia-memory-host/src/automation/qualified_agent.rs)、[owner_bootstrap/mod.rs](https://github.com/Morii9961/enouia-memory/blob/a543c1eb81e5d7150ebe7820592eea35a9042697/crates/enouia-memory-host/src/owner_bootstrap/mod.rs)。Runtime 适配器在 `apps/desktop/src-tauri/src/memory_catalog.rs`；`fixture.rs` 仅供固定合成根及显式原生合成测试使用，登记库的生产打开路径不调用夹具写入。
 
-Memory 的 `registered_owner_root` 可以在受信任原生 CLI 中重新认证已登记的 bootstrap 操作和根；R1 仅带入此助手，没有把它接入桌面。`SegmentedAutomationVault::open` 不自动执行恢复；恢复根仍须经过 Memory 的显式激活，RecoveryRequired 也不应由普通“打开”偷偷修复。
+Memory 的 `registered_owner_root` 可以在受信任原生 CLI 中重新认证已登记的 bootstrap 操作和根；R1 仅带入此助手，R2 的 ADR-038 才通过明确本机启动采用它。`SegmentedAutomationVault::open` 不自动执行恢复；恢复根仍须经过 Memory 的显式激活，RecoveryRequired 也不应由普通“打开”偷偷修复。
 
 无需借用 `QualifiedAgentHost` 的 Agent 通道：System catalog 已有详情与来源接口。第一片不创建 Agent/OwnerReadGrant、不复制形成策略作为长期读取权限。原生 Host 的 System 身份必须来自已认证根；页面不能填写 ActorRef、敏感度上限、profile 或根路径。
 
-正式打开仍需遵守 ADR110/145：`registered_owner_root` 目前明确属于受信任原生 CLI/启动器，不能将不可信页面请求路由到 bootstrap CLI。后续应先核实采用原生显式启动入口还是 Memory 另行确认的桌面选择接口，不把文件选择、descriptor 或同账户进程事实单独当作人的授权。当前合成接入不越过该边界。
+正式打开继续遵守 ADR110/145：`registered_owner_root` 属于受信任原生 CLI/启动器，不能将不可信页面请求路由到 bootstrap CLI。本片选择原生显式启动；图形目录选择另核认证契约。不把文件选择、descriptor 或同账户进程事实单独当作人的授权。
 
 ## 实施与验收顺序
 

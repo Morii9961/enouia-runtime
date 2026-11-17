@@ -7,6 +7,7 @@ import { status, page, stats, detail, source, quote } from './fixtures/catalog.m
 const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:Record<string,any>[]=[];
 let state='disabled',holdStats=false,holdStatus=false,failStats=false,busyStatus=false,expired=false,scope='b'.repeat(64);
+let mode='synthetic_segmented_only';
 let releaseStats:(()=>void)|null=null,releaseStatus:(()=>void)|null=null;
 let holdDetail=false,holdSource=false,failDetail=false;
 let releaseDetail:(()=>void)|null=null,releaseSource:(()=>void)|null=null;
@@ -14,7 +15,7 @@ setCatalogTransport(async(command,args)=>{
   if(command!=='memory_catalog')throw new Error('Unexpected channel');
   const query=(args as any).request.query;calls.push(structuredClone(query));
   if(query.operation==='status'){
-    const result=status(state);
+    const result={...status(state),mode};
     if(result.selection)result.selection={...result.selection,scope_hash:scope};
     if(busyStatus){busyStatus=false;throw 'catalog_busy';}
     if(holdStatus){holdStatus=false;await new Promise<void>(resolve=>{releaseStatus=resolve;});}
@@ -41,7 +42,7 @@ setCatalogTransport(async(command,args)=>{
     if(holdSource){holdSource=false;await new Promise<void>(resolve=>{releaseSource=resolve;});}
     return result;
   }
-  if(query.operation==='lock'||query.operation==='unlock'){state=query.operation==='lock'?'locked':'open';return {...status(state),effect:'native_control'};}
+  if(query.operation==='lock'||query.operation==='unlock'){state=query.operation==='lock'?'locked':'open';return {...status(state),mode,effect:'native_control'};}
   throw new Error('Unexpected operation');
 });
 const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -92,7 +93,7 @@ try{
   Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(input,'调试');
   input.dispatchEvent(new Event('input',{bubbles:true}));await sleep(30);input.focus();
   const beforeLanguage=reads(),row=fixture.querySelector('li');
-  for(const [language,heading] of [['zh-Hans','分段合成目录'],['ja','分割形式の合成カタログ'],['en','Segmented synthetic catalog']]){
+  for(const [language,heading] of [['zh-Hans','原生记忆目录'],['ja','ネイティブ記憶カタログ'],['en','Native memory catalog']]){
     await setLang(language as Lang);await wait(()=>text().includes(heading));
     check(`${language}_language_preserves_rows_draft_focus_and_requests`,fixture.querySelector('li')===row&&fixture.querySelector('input')===input&&input.value==='调试'&&document.activeElement===input&&reads()===beforeLanguage);
   }
@@ -150,6 +151,11 @@ try{
   const noRecords='This synthetic catalog has no records in the current authorized scope.';
   let emptyCatalog=false;for(let n=0;n<100&&!emptyCatalog;n++){emptyCatalog=text().includes(noRecords)&&calls.filter(c=>c.operation==='page').at(-1)!.filter.text==='';await sleep(20);}
   check('empty_catalog_without_search_says_no_records',emptyCatalog&&!text().includes(noMatch));
+  mode='registered_owner_readonly';scope='f'.repeat(64);
+  await wait(()=>text().includes('Registered Owner · read only'));
+  check('registered_mode_is_explicit_without_fictional_library_claim',text().includes('explicitly registered library')&&!text().includes('fixed fictional records')&&!text().includes('synthetic subject'));
+  click('Lock registered library');await wait(()=>text().includes('Library: locked'));
+  check('registered_lock_requires_explicit_native_reopen_without_page_unlock',!button('Unlock synthetic library')&&text().includes('Exit Runtime')&&!fixture.querySelector('li'));
   check('only_closed_read2_operations_were_used',calls.every(c=>['status','page','stats','detail','source','lock','unlock'].includes(c.operation)));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{releaseStats?.();releaseStatus?.();releaseDetail?.();releaseSource?.();root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.every(c=>c.ok),calls});}
