@@ -69,8 +69,10 @@ Morii 明确要求查看并协调隔壁“推进 Memory 纯文本新库交付”
 
 - PR117 / ADR149 已按该会话收到的明确授权合并至 `17a369e010f670baacaeec98306854fd4d14afc5`。`AdmissionInput.support_origin_groups` 保留重复文字的全部原始出现，并记录同一支持来源分组；旧 `a543c1e` 的封闭读取器可能拒绝这些持久决策，**必须先完成兼容采用才能打开此类新库**。新 aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，Workspace 仍为61命令。公共依据为该 revision 的 `docs/integration/RUNTIME.md` 与 `docs/validation/Grouped-support-origins.md`。
 - 隔壁已从合并主线重建 CLI，原始全量清单 **43计划 / 351记录**通过准入检查；容量预检报告 queued journal **21,793,549字节**、lifecycle bound **30,865,623字节**，超过 **16,777,216字节（16 MiB）**。这是该会话提供的工程摘要，Runtime 未读取私人清单或自行重跑；尚未 bootstrap / 创建真实 Vault，形成、重开/来源、独立恢复仍未完成，也没有 ready、grant 或新候选。
-- Memory 确认主人已明确授权紧凑 journal 的最小 ADR、合成实现和 PR：仅新 fresh 运行将不可变计划移入既有 hash-bound Raw，可变日志保持16 MiB及原 request/response/key/binding/receipt/state，旧日志原样读取；不删源、截断或抬预算。该片尚无 PR / 最终 revision，预计是 initializer 私有 journal 格式；若备份验证、持久回放或 surface 实际改变，随 PR 给准确影响。新增能力仍遵守 Memory 自己的合并门槛，Runtime 不代为放行。
-- Runtime 负责 reader 兼容差异清单与候选准备；暂不在容量方案未定时重复采用中间 pin。待 Memory 明确最终合并 revision、aggregate、持久回放/恢复兼容影响及实际预检结果，再完成一次最小兼容采用。只交换工程摘要，不传原文、私人路径、登记参数或凭据。
+- Memory 确认主人已明确授权紧凑 journal 的最小 ADR、合成实现和 PR：仅新 fresh 运行将不可变计划移入既有 hash-bound Raw，可变日志保持16 MiB及原 request/response/key/binding/receipt/state，旧日志原样读取；不删源、截断或抬预算。该片已交付候选 [PR118](https://github.com/Morii9961/enouia-memory/pull/118) / ADR150，审阅 head 为 `53a60cdd430fa4f9b848315702579cd6f8b0b183`，本次核对仍 open / 未合并，不能采用候选 pin 或用于真实资料。
+- 候选 PR 的公开说明确认仅 initializer 私有 journal v2 改变；原生 decisions/reader/admission、Owner backup格式、61命令及 aggregate 均不变。现有备份保留同路径 journal 和全部 Raw，新 fresh 工具负责验证计划对象；旧 fresh 程序不能接续 journal v2。Runtime 仍只需 ADR149 的 reader 门槛，没有额外 reader 门槛。
+- 上游报告77项 initializer 合成检查（含显式 Windows 账户 CLI bootstrap/restore）和严格 Clippy 通过。1024记录合成轮次 inline lifecycle为39,841,194字节，compact mutable为11,497,570字节，最大单Plan Raw为3,482,650字节，仍分别受16 MiB约束，超大mutable仍拒绝。这不是原始真实清单的新容量结果，Runtime 未重跑这些上游检查；真实清单仍只有17a369e的容量拒绝证据。
+- Runtime 负责 reader 兼容差异清单与候选准备；暂不采用未合并容量片。待主人批准合并、Memory给出正式revision及最终兼容摘要后，最小 pin 采用可与其正式CLI重建/全量预检并行，不必等待真实形成和恢复全部结束；生产候选和个人UI验收仍等实际ready。只交换工程摘要，不传原文、私人路径、登记参数或凭据。
 
 此次协调不改现有 pin、读取授权、个人库接入、安装或部署边界，也不更新手动状态快照。
 
