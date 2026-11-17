@@ -87,11 +87,12 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
 
 /** Native strip: a real commit marker, never a fabricated continuous trace. */
 export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode }) {
-  const { status, vaultChanging, timeline, now } = useStatus();
+  const { status, vaultChanging, timeline, now, entry } = useStatus();
   const lent = useLentMap();
   const state = status?.vault?.state;
-  const stopped = (!status || exiting(status) || vaultChanging || state !== 'open');
-  const why = t(!status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open');
+  const readonly = entry === 'registered_owner_readonly';
+  const stopped = (readonly || !status || exiting(status) || vaultChanging || state !== 'open');
+  const why = t(readonly ? 'read-only registered library' : !status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open');
   const commit = stopped ? null : observedCommit(status.vault);
   const { domain: [start, end] } = timeline.init();
   const spec = { ...timeline, ticks: commit != null && commit >= start && commit < end ? [{ at: (commit - start) / (end - start), tall: true }] : [] };
@@ -100,7 +101,7 @@ export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode })
     <div className="bg-strip" data-page={page} data-drum={stopped ? 'stopped' : undefined}>
       <div className="bg-strip-head">
         {nav}
-        <div className="bg-strip-meta"><b>{t("Live shell")}</b> · {t('Latest Vault commit only; continuous trace unavailable')}</div>
+        <div className="bg-strip-meta"><b>{t("Live shell")}</b> · {t(readonly ? 'Read-only library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}</div>
       </div>
       {page === 'home' ? null : (
         <div className="bg-strip-chart">

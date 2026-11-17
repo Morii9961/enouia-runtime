@@ -5,7 +5,7 @@ import { useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
 import { t } from "../i18n";
 
-export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRead }) {
+export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof catalogRead; onControl?: (next: CatalogStatus | null) => void }) {
   const [status, setStatus] = useState<CatalogStatus | null>(null);
   const [mode, setMode] = useState<CatalogStatus["mode"] | null>(null);
   const [page, setPage] = useState<CatalogPage | null>(null);
@@ -54,8 +54,9 @@ export function CatalogMemory({ read = catalogRead }: { read?: typeof catalogRea
   const control = async (operation: "lock" | "unlock") => {
     if (controlling.current) return;
     controlling.current = true; epoch.current += 1; observedScope.current = null;
+    onControl?.(null);
     clear(); setStatus(null);
-    try { await reads.run(() => read({ operation }), setStatus); }
+    try { await reads.run(() => read({ operation }), result => { setStatus(result); onControl?.(result); }); }
     finally { controlling.current = false; epoch.current += 1; }
   };
   const open = status?.state === "open";

@@ -4,6 +4,7 @@
 // the latest request may publish its result, error or busy state.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { call, describe, newKey, retryable, shell, type J } from "./client";
+import { catalogRead, type CatalogStatus } from "./catalog";
 
 export type Failure = { text: string; retry?: () => void } | null;
 
@@ -77,17 +78,40 @@ export function useLatestRead() {
 export function useMemoryStatus(readStatus: typeof call = call) {
   const [status, setStatus] = useState<J>(null);
   const [vaultChanging, setVaultChanging] = useState(false);
+  const [entry, setEntry] = useState<"workspace" | "registered_owner_readonly" | null>(null);
+  const [nativeStatus, setNativeStatus] = useState<CatalogStatus | null>(null);
+  const [nativeError, setNativeError] = useState<Failure>(null);
   const reads = useLatestRead();
+  const observeNativeControl = useCallback((next: CatalogStatus | null) => {
+    reads.clear();
+    if (next && next.mode !== "registered_owner_readonly") {
+      setNativeStatus(null);
+      setNativeError({ get text() { return describe("catalog_response_unsupported"); } });
+      return;
+    }
+    setNativeStatus(next);
+    setNativeError(null);
+  }, [reads.clear]);
   const refresh = useCallback(
     () => reads.run(async () => {
       const next = await readStatus("workspace_status");
       // Read host admission after Core status: Core can already say locked
       // while Runtime is still joining an uncancellable operation.
       const host = await shell.lifecycleStatus();
-      return { next, changing: host.vaultChanging === true };
-    }, ({ next, changing }) => {
-      setStatus(next); setVaultChanging(changing);
-    }, () => { setStatus(null); setVaultChanging(false); }),
+      const selectedEntry = host.memoryEntry === "registered_owner_readonly" ? "registered_owner_readonly" : "workspace";
+      // This is immutable native launch configuration, not a Vault slot.
+      // Retain it if a later read fails so write controls cannot reappear.
+      setEntry(selectedEntry);
+      const native: { status: CatalogStatus | null; cause: unknown } = selectedEntry === "registered_owner_readonly"
+        ? await catalogRead({ operation: "status" }).then(
+          value => value.mode === selectedEntry ? { status: value, cause: null } : { status: null, cause: "catalog_response_unsupported" },
+          cause => ({ status: null, cause }),
+        ) : { status: null, cause: null };
+      return { next, changing: host.vaultChanging === true, native };
+    }, ({ next, changing, native }) => {
+      setStatus(next); setVaultChanging(changing); setNativeStatus(native.status);
+      setNativeError(native.cause === null ? null : { get text() { return describe(native.cause); } });
+    }, () => { setStatus(null); setVaultChanging(false); setNativeStatus(null); setNativeError(null); }),
     [readStatus, reads.run],
   );
   useEffect(() => {
@@ -100,5 +124,5 @@ export function useMemoryStatus(readStatus: typeof call = call) {
     void poll();
     return () => { stopped = true; clearTimeout(timer); };
   }, [refresh]);
-  return { status, vaultChanging, error: reads.error, refresh };
+  return { status, vaultChanging, entry, nativeStatus, nativeError, observeNativeControl, error: reads.error, refresh };
 }

@@ -2,11 +2,11 @@
 
 本文件是当前接续入口，取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
-2026-11-17 接续：R1 的 Memory `a543c1e` / aggregate `723ec245…` / 61 命令已随 PR180 合并；[证据](../validation/Memory-pin-a543c1e-2026-11-16.md)保留原失败。R2 的[详情/来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已随 PR181 合并（原生 42/42），ADR037 引用澄清已随 PR182 合并。按 Morii 持续推进指令，进一步完成 [ADR-038 显式登记库只读启动](REGISTERED_OWNER_READONLY.md)开发与合成验证（桌面 14/14）；下一片统一独立只读入口的壳层状态，见 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。图形选择、个人库验收及 R3 候选仍有独立边界。以下审计基线不是当前 pin，手动状态快照保持原证据基线。
+2026-11-17 接续：R1 的 Memory `a543c1e` / aggregate `723ec245…` / 61 命令已随 PR180 合并；[证据](../validation/Memory-pin-a543c1e-2026-11-16.md)保留原失败。R2 的[详情/来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已随 PR181 合并（原生 42/42），ADR037 引用澄清已随 PR182 合并。PR183 合并 [ADR-038 显式登记库只读启动](REGISTERED_OWNER_READONLY.md)（桌面 14/14）；随后完成独立只读入口的壳层、Home/Settings 状态统一，见[验证](../validation/Registered-owner-shell-status-2026-11-17.md)及 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。下一步准备 R3 的只读验收分流与证据清单，真实库和新候选等待对应门槛。图形选择、个人库验收及 R3 候选仍有独立边界。以下审计基线不是当前 pin，手动状态快照保持原证据基线。
 
 ## 基线与下一交付目标
 
-建议首个交付点：新Owner库可在Windows桌面打开、检索、查看精确来源、锁定并重开，并有Memory独立备份恢复证明。正式Owner首个入口仍待Morii确定，不能把建议当作已批准设计。
+首个交付点：新Owner库可在Windows桌面打开、检索、查看精确来源、锁定并重开，并有Memory独立备份恢复证明。显式受信任本机启动已按持续开发指令完成合成接入；图形目录选择及真实库验收仍独立。
 
 - 审计时Runtime本地/云端main均为`19ff0d1c53649f16bef97c131cfd755d1d39afdc`，云端仅main、open PR为0；本地三个功能分支均合并，仅一个登记工作树。后续文档提交及引用清理不改变代码证据基线。
 - 当前Memory pin为`eb7050961cceaac04d4aec79257524331be6c7b0`，aggregate为`39cc2a820fd132770397e3cef37674b8fca17280c8977bcd161622a43ad54c52`，Workspace v1仍为61命令。
@@ -53,7 +53,7 @@ Memory形成库及领域契约；Runtime采用兼容Core并提供Windows客户�
 
 ## R2：正式Owner首个入口
 
-R1期间可只读核对实际契约，准备打开/检索/来源/锁定重开的最小接入建议。入口未选定时先交具体可审阅设计，再请Morii决定；不提前实现正式Owner GUI、自创转接层或授予读取/写入权限。入口确定后，合成接入可与Memory交付并行，真实库UI验收等待M完成。
+最小只读接入已采用现有 Memory 原生 CLI/启动器认证边界，完成目录、来源、锁定/跨进程重开与壳层一致状态；不新增页面认证工具、图形目录选择或读取/写入授权。合成接入结果不替代 M 的真实库工程交付与 UI 验收。
 
 ## R3：新候选与日用验收
 
@@ -67,4 +67,4 @@ R1期间可只读核对实际契约，准备打开/检索/来源/锁定重开的
 
 待决定：正式Owner入口范围、Windows环境、星图视觉/首版门槛、公开人设默认及Memory契约§5、合成枚举/时间翻译、必要时改键入口。Runtime自动合并授权不能扩大到Memory待审PR、个人库、安装/部署、真实读取授权或Provider。
 
-R1 的接续结果见本文顶部；下一步审阅具体 R2 设计，未确定范围前不实现正式入口。跨仓库优先读取公共交接和已有审计结果，不创建重复Memory实现任务。手动状态快照仅在Morii要求时更新。
+R1/R2 的接续结果见本文顶部；下一步准备 R3 的只读验收分流，核对公共工程交付与实际待决定项。跨仓库优先读取公共交接和已有审计结果，不创建重复Memory实现任务。手动状态快照仅在Morii要求时更新。

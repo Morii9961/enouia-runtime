@@ -44,8 +44,9 @@ function dayOf(iso: string): string {
 export default function MemorySurface({ initialCollection = "current", openSession }: {
   initialCollection?: "current" | "inbox"; openSession?: (vaultId: string, sessionId: string) => void;
 }) {
-  const { status, vaultChanging } = useStatus();
-  const [collection, setCollection] = useState<Collection>(initialCollection);
+  const { status, vaultChanging, entry, observeNativeControl } = useStatus();
+  const [chosenCollection, setCollection] = useState<Collection | null>(null);
+  const collection = chosenCollection ?? (entry === "registered_owner_readonly" ? "catalog" : initialCollection);
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState({ text: "", seq: 0 });
   const open = status?.vault?.state === "open";
@@ -93,7 +94,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           </div>
         ))}
       </aside>
-      {collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <Suspense fallback={<StatusPending />}><CatalogMemory /></Suspense> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
+      {collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <Suspense fallback={<StatusPending />}><CatalogMemory onControl={entry === "registered_owner_readonly" ? observeNativeControl : undefined} /></Suspense> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>

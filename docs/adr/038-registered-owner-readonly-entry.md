@@ -55,7 +55,10 @@ the same root across process restart and autostart refusal. See [evidence](../va
 
 This amends the Runtime seam of ADR025/ADR037 (synthetic Memory) only for this
 explicit read-only entry. It does not activate personal libraries or amend
-Memory's authentication rules. A graphical home picker, unified shell status,
-other Owner surfaces and any persistent opening preference are separate Runtime
-work. Real-library readiness and independent backup proof belong to Memory;
+Memory's authentication rules. The shell observes a separate typed catalog
+status for this entry; Home, Settings and the header do not reinterpret it as a
+Workspace Vault, invent commit traces or offer Workspace writes and Provider
+configuration. Catalog lock receipts invalidate earlier shell reads. A graphical
+home picker, other Owner surfaces and any persistent opening preference remain
+separate Runtime work. Real-library readiness and independent backup proof belong to Memory;
 personal GUI acceptance, installation and deployment need their own authorization.

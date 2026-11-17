@@ -1,8 +1,11 @@
 // Memory status shared by the connected surfaces: one serial poll of
 // `workspace_status`, the header badge, the Home and Settings panels, and the
 // gate that keeps Vault-dependent surfaces closed until a Vault is open.
+// A configured registered entry has its own typed status; it never replaces
+// the canonical Workspace slot with a fabricated v1 Vault.
 import { lazy, Suspense, createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { call, pick, shell, type J } from "./client";
+import { call, describe, pick, shell, type J } from "./client";
+import type { CatalogStatus } from "./catalog";
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
@@ -14,7 +17,9 @@ import { labels, msg, t, tj, tn } from '../i18n/index.ts';
 const ProviderConfigDraft = lazy(() => import("./ProviderConfigDraft").then(module => ({ default: module.ProviderConfigDraft })));
 const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").then(module => ({ default: module.ProviderSettingsStatus })));
 
-type StatusValue = { status: J; vaultChanging: boolean; error: Failure; refresh: () => Promise<void>; now: number; timeline: MapSpec };
+type StatusValue = { status: J; vaultChanging: boolean; entry: "workspace" | "registered_owner_readonly" | null;
+  nativeStatus: CatalogStatus | null; nativeError: Failure; observeNativeControl: (next: CatalogStatus | null) => void;
+  error: Failure; refresh: () => Promise<void>; now: number; timeline: MapSpec };
 const StatusContext = createContext<StatusValue | null>(null);
 
 export function MemoryStatusProvider({ children }: { children: ReactNode }) {
@@ -39,6 +44,15 @@ export function useStatus(): StatusValue {
 }
 
 const VAULT: Record<string, string> = labels({ open: msg("Vault open"), locked: msg("Vault locked"), none: msg("No Vault open") });
+const OWNER: Record<CatalogStatus["state"], string> = labels({
+  open: msg("Registered library open"), locked: msg("Registered library closed"),
+  initializing: msg("Opening registered library"), disabled: msg("No registered library open"),
+  failed: msg("Registered library unavailable"), closing: msg("Closing registered library"),
+});
+
+export function registeredLabel(status: CatalogStatus | null): string {
+  return status ? t(OWNER[status.state]) : t("Registered library status unknown");
+}
 
 export function vaultLabel(status: J, vaultChanging = false): string {
   if (!status) return t("Memory status unknown");
@@ -64,7 +78,11 @@ export function StatusPending() {
 
 /** Header badge: what this window is connected to, stated plainly. */
 export function MemoryBadge() {
-  const { status, error, vaultChanging } = useStatus();
+  const { status, error, vaultChanging, entry, nativeStatus } = useStatus();
+  if (entry === "registered_owner_readonly") return <div className="qr224" role="status" title={t("Read-only registered library. Sessions, Context and model use are unavailable.")}>
+    <span className="qr223" style={{ background: nativeStatus?.state === "open" ? "var(--ok)" : "var(--pending)" }} />
+    {t("Memory")} · {registeredLabel(nativeStatus)}<span className="qr4">·</span>{t("Registered Owner · read only")}
+  </div>;
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const text = status ? `${t("Memory")} · ${vaultLabel(status, vaultChanging)}` : error ? t("Memory status unavailable") : t("Memory · checking…");
   return (
@@ -95,7 +113,7 @@ export function ComponentList({ status }: { status: J }) {
 
 /** Open, create or unlock a Vault. Folders are chosen in a native dialog. */
 export function VaultConnect() {
-  const { status, refresh, vaultChanging } = useStatus();
+  const { status, refresh, vaultChanging, entry } = useStatus();
   const [phrase, setPhrase] = useState("");
   const action = useAction();
   const heading = useRef<HTMLHeadingElement>(null);
@@ -112,6 +130,7 @@ export function VaultConnect() {
   }, []);
   const v = status?.vault ?? {};
   const after = (f: () => Promise<unknown>) => void action.run(async () => { await f(); await refresh(); });
+  if (entry === "registered_owner_readonly") return <RegisteredEntryNotice />;
   if (vaultChanging) return <VaultLifecycleWait />;
   return (
     <div className="mem-card">
@@ -147,7 +166,8 @@ export function VaultConnect() {
 
 /** Children render only while a Vault is open; otherwise the connect card. */
 export function VaultGate({ children }: { children: ReactNode }) {
-  const { status, error, vaultChanging } = useStatus();
+  const { status, error, vaultChanging, entry } = useStatus();
+  if (entry === "registered_owner_readonly") return <div className="mem-gate"><RegisteredEntryNotice /></div>;
   if (!status) {
     return <div className="mem-gate"><ErrorBox error={error} /><StatusPending /></div>;
   }
@@ -155,6 +175,18 @@ export function VaultGate({ children }: { children: ReactNode }) {
   if (vaultChanging) return <div className="mem-gate"><VaultLifecycleWait /></div>;
   if (status.vault?.state !== "open") return <div className="mem-gate"><VaultConnect /></div>;
   return <>{children}</>;
+}
+
+function RegisteredEntryNotice() {
+  const { nativeStatus, nativeError, error } = useStatus();
+  return <div className="mem-card mem-stack">
+    <h2 className="mem-h2">{t("Registered Owner · read only")}</h2>
+    <p role="status">{registeredLabel(nativeStatus)}</p>
+    <p className="mem-muted">{t("Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.")}</p>
+    {nativeStatus?.state === "locked" && <p className="mem-muted">{t("The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.")}</p>}
+    {nativeStatus?.reason && <p role="alert">{describe(nativeStatus.reason)}</p>}
+    <ErrorBox error={nativeError ?? error} />
+  </div>;
 }
 
 /** Core's detached slot does not mean Runtime has finished releasing it. */
@@ -197,7 +229,10 @@ export function VaultLifecycleWait() {
 
 /** Home in the native shell: real Memory status and plain routes. */
 export function ConnectedHome({ nav }: { nav: J; ring: ReactNode }) {
-  const { status, vaultChanging, now, timeline } = useStatus();
+  const { status, vaultChanging, now, timeline, entry, nativeStatus, nativeError, error } = useStatus();
+  if (entry === "registered_owner_readonly") return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null}
+    readonlyEntry label={registeredLabel(nativeStatus)} phase={t("Registered Owner · read only")}
+    reviewLine={nativeError ? nativeError.text : error ? error.text : nativeStatus?.reason ? describe(nativeStatus.reason) : nativeStatus?.state === "open" ? t("Read-only records and quoted sources are available in the native catalog.") : registeredLabel(nativeStatus)} />;
   const v = status?.vault;
   const stopping = exiting(status);
   const open = v?.state === "open" && !vaultChanging && !stopping;
@@ -228,8 +263,15 @@ function Row({ k, children }: { k: string; children: ReactNode }) {
 
 /** Settings rows for the Vault, replacing the demo's pending adapter row. */
 export function MemorySettings({ openMemory }: { openMemory: () => void }) {
-  const { status, vaultChanging } = useStatus();
+  const { status, vaultChanging, entry, nativeStatus } = useStatus();
   const v = status?.vault ?? {};
+  if (entry === "registered_owner_readonly") return <div className="qr65">
+    <div className="qr198">{t("Memory Vault")}</div>
+    <Row k={t("State")}>{registeredLabel(nativeStatus)}</Row>
+    <RegisteredEntryNotice />
+    <div className="qr216"><span className="qr35">{t("Manage")}</span><button type="button" className="mem-link" onClick={openMemory}>{t("Open native memory catalog")}</button></div>
+    <CompanionSettings status={status} />
+  </div>;
   return (
     <><div className="qr65">
       <div className="qr198">{t("Memory Vault")}</div>
@@ -250,12 +292,13 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
       </div>
       <CompanionSettings status={status} />
     </div>
-    <Suspense fallback={<p role="status" className="mem-muted">{t("Loading panel…")}</p>}>
+    {entry === null ? <StatusPending /> : <><Suspense fallback={<p role="status" className="mem-muted">{t("Loading panel…")}</p>}>
       <ProviderConfigDraft disabled={exiting(status)} />
     </Suspense>
     <Suspense fallback={<p role="status" className="mem-muted">{t("Loading panel…")}</p>}>
       <ProviderSettingsStatus disabled={exiting(status)} />
-    </Suspense></>
+    </Suspense></>}
+    </>
   );
 }
 
