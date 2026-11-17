@@ -63,6 +63,24 @@ Memory形成库及领域契约；Runtime采用兼容Core并提供Windows客户�
 
 PR184/185/186 已分别合并壳层状态、验收分流与[登记空范围文案修正](../validation/Registered-owner-empty-state-2026-11-17.md)。[三语最小窗口观察](../validation/Registered-owner-minimum-layout-2026-11-17.md)复用 PR184 程序核对 1100×700 的 Home/Settings/Memory，未复现新徽标遮挡，不增加样式改动；它不是 HEAD 全套原生复验。下一有效出口为 Memory 的真实交付工程摘要，再核对候选生成条件，不重做已通过检查维持进度。
 
+### 11月17日跨会话接续：准入通过，容量未通过
+
+Morii 明确要求查看并协调隔壁“推进 Memory 纯文本新库交付”。已核对该会话最新工程进度和公共 main：
+
+- PR117 / ADR149 已按该会话收到的明确授权合并至 `17a369e010f670baacaeec98306854fd4d14afc5`。`AdmissionInput.support_origin_groups` 保留重复文字的全部原始出现，并记录同一支持来源分组；旧 `a543c1e` 的封闭读取器可能拒绝这些持久决策，**必须先完成兼容采用才能打开此类新库**。新 aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，Workspace 仍为61命令。公共依据为该 revision 的 `docs/integration/RUNTIME.md` 与 `docs/validation/Grouped-support-origins.md`。
+- 隔壁已从合并主线重建 CLI，原始全量清单 **43计划 / 351记录**通过准入检查；容量预检报告 queued journal **21,793,549字节**、lifecycle bound **30,865,623字节**，超过 **16,777,216字节（16 MiB）**。这是该会话提供的工程摘要，Runtime 未读取私人清单或自行重跑；尚未 bootstrap / 创建真实 Vault，形成、重开/来源、独立恢复仍未完成，也没有 ready、grant 或新候选。
+- Memory 确认主人已明确授权紧凑 journal 的最小 ADR、合成实现和 PR：仅新 fresh 运行将不可变计划移入既有 hash-bound Raw，可变日志保持16 MiB及原 request/response/key/binding/receipt/state，旧日志原样读取；不删源、截断或抬预算。该片尚无 PR / 最终 revision，预计是 initializer 私有 journal 格式；若备份验证、持久回放或 surface 实际改变，随 PR 给准确影响。新增能力仍遵守 Memory 自己的合并门槛，Runtime 不代为放行。
+- Runtime 负责 reader 兼容差异清单与候选准备；暂不在容量方案未定时重复采用中间 pin。待 Memory 明确最终合并 revision、aggregate、持久回放/恢复兼容影响及实际预检结果，再完成一次最小兼容采用。只交换工程摘要，不传原文、私人路径、登记参数或凭据。
+
+此次协调不改现有 pin、读取授权、个人库接入、安装或部署边界，也不更新手动状态快照。
+
+Runtime 的具体采用准备（未执行 pin 变更或产品测试）：
+
+1. 最终版本须同时核对六个 Cargo Git 依赖、九个 lock source 与 `memory-pin.json` 的 revision/aggregate；不按中间 aggregate 直接构建生产候选。
+2. 本地 `memory_catalog/fixture.rs` 与 `memory_automation/fixture.rs` 从既有 JSON 反序列化 `AdmissionInput`，没有需要补字段的 Rust 结构体字面量。新字段 default/空值省略保留旧输入行为，不为兼容而给旧合成来源编造分组。
+3. 生产目录详情/来源调用现有 System reader 并序列化其完整返回值，没有 Runtime 重建持久 AdmissionInput 的中间层；现有前端只展示授权记录数和各自引文，不声称引文数是独立佐证数。采用时保持这个边界。
+4. 针对最终 pin 运行集成配方中的相关消费者/原生读取检查及必须的 Memory surface 守卫；新增证据应覆盖 grouped decision 的原生重放、同根读取及两个原始精确来源，旧输入/权限拒绝保持原义。Memory 已有合成分组回归可作对照，不把其118项结果记成 Runtime HEAD 已执行。
+
 补安装/托盘/热键/登录启动及真实工作流未完成项。个人库由Morii在批准入口接入；实际安装、Provider、部署遵守各自边界。没有新问题不重复已有有效矩阵。首版之后另排星图及云端能力。
 
 ## 排期和待决定项

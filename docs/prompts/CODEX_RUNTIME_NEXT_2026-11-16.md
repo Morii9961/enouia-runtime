@@ -14,6 +14,8 @@ R3只读验收分流与证据清单已准备在docs/RUNTIME_OWNER_READONLY_ACCEP
 
 11月17日后续：PR184壳层状态、PR185验收分流、PR186登记空范围文案均已合并。空状态组件回归先复现四项失败，再修正为46/46，见docs/validation/Registered-owner-empty-state-2026-11-17.md。复用PR184程序的1100×700三语/三页定向布局观察通过，见docs/validation/Registered-owner-minimum-layout-2026-11-17.md；没有因此改样式或冒称HEAD原生复验。接续不重做这些切片。下一有效出口是Memory不含私人内容的真实形成/关闭重开/来源/独立恢复工程摘要，再按R3核对候选与授权条件；摘要缺失时保持待交付，不以重复测试或扩展未批准入口补进度。
 
+最新跨会话协调覆盖上述d0e7f9f判断：Memory PR117/ADR149已按其会话的主人授权合并至17a369e010f670baacaeec98306854fd4d14afc5。support_origin_groups进入持久准入决策，旧a543c1e reader可能拒绝，必须先采用兼容pin才能打开此类库；aggregate=df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53，仍61命令。隔壁正式主线CLI对原始全量清单的准入已通过，但queued journal约21.79MB/lifecycle约30.87MB超过16MiB，尚未创建真实Vault；这来自隔壁工程进度，不是Runtime读取私人清单所得。Memory正在评估不可变计划移入既有hash-bound Raw的有界方案，Runtime负责兼容差异与候选准备；待其最终合并revision/aggregate和回放/恢复兼容影响明确后统一采用，避免中间pin重复构建。不改Memory checkout、不代合并其新能力、不传私人路径/原文/登记参数。详细分工见路线“11月17日跨会话接续”。
+
 Memory另一个会话负责真实建库、工程交付与独立恢复，不修改Memory仓库或合并其待审PR、不重做fresh驱动。Runtime只核对公共工程交付，不读取私人材料。旧5175284仍含731edd56，不是新Owner候选；本片构建程序也不是R3交付包。新候选和日用验收按R3边界；云端、自动采集另排，不操作Dashboard或刷新手动状态快照。
 
 真实验收另核授权。专用登记合成home在非Git/非临时目录，由显式ignored测试创建，带synthetic_validation_only及保留标识，不能当缓存删除；本地忽略manifest只指向该测试的假库，不用它选择私人根。新切片执行必要集成检查（必须node scripts/check-memory-integration.mjs），按实际风险验证，提交时保留Codex co-author trailer；Runtime既有授权允许验证后推送、开PR与合并，无需逐PR重问。不要靠重复构建或扩张范围维持工作。
