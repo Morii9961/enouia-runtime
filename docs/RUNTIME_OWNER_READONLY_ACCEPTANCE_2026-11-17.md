@@ -27,7 +27,7 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 | --- | --- |
 | Memory 形成版本及读兼容性 | PR118 已获主人批准并合并至 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，Runtime 本片采用该正式 pin。ADR149 grouped decisions 的 reader 门槛由此满足，aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，仍61命令；ADR150只改变独立fresh工具的私有journal，没有额外Runtime reader门槛 |
 | 全量计划及 journal 生命周期容量 | Memory交付会话已从正式506d23d重建CLI并报告原始完整清单容量通过：43计划、351记录、2,149个选入来源完整保留，mutable lifecycle上界约9.13 MB、最大Plan对象约0.675 MB，均低于各自16 MiB。Runtime仅核对工程摘要，未读取私人清单或自行执行；早期17a369e的容量拒绝仍保留为历史结果。容量通过不等于建库/ready |
-| 真实形成、关闭重开、查询与精确来源 | 待 Memory 提供工程结果及未完成项；PR 合并不等于已形成真实库 |
+| 真实形成、关闭重开、查询与精确来源 | Memory随后报告同一bootstrap操作已创建并登记空Vault，351条真实记录形成正在运行。形成完成、原生重开、全量来源/引文对账及未完成项仍待工程结果；空库登记不等于已形成完整新库 |
 | 独立备份、验证与隔离恢复 | 待 Memory 提供已完成的工程证明；同盘合成往返不替代独立恢复 |
 | 同根身份与允许读取范围 | Memory 确认原生登记及兼容布局，Morii 保管实际启动参数；当前允许的读取范围与期限另核，不由 Runtime 续期 |
 | 新候选 | 待记录 Runtime 完整源码提交、精确 Memory pin/aggregate、程序与相邻 DLL/安装包位置及发行记录；当前没有可填写的新包 |
