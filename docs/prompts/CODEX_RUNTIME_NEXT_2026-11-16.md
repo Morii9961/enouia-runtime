@@ -4,6 +4,8 @@
 
 当前最新兼容采用为Memory 506d23dc174a3e927d323f8f8d0b8ecfc9d1726d（已合并PR118），aggregate=df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53，仍61命令；见docs/validation/Memory-pin-506d23d-2026-11-17.md。先核对本片PR/main再接续，不重复采用，也不把旧a543c1e或5175284当成支持ADR149的程序。以下早期段落保留此前证据范围，以本段和末次协调为当前入口。
 
+兼容采用已随Runtime PR190合并至ecc9bb57593f13581962d58d6b4e88c820d9dbb1。Memory随后报告正式506d23d对原始完整清单容量预检通过，43计划/351记录/2149选入来源完整保留，mutable lifecycle约9.13MB、最大Plan约0.675MB，均低于16MiB；这是隔壁工程摘要，Runtime未读私人材料或重跑。Memory正在处理bootstrap的本机ACL/标识准备，后续真实形成、关闭重开/精确来源、独立恢复与ready仍待完成。接续R3须核对其新实际出口，不再按旧容量失败安排重复实现，也不提前构建生产候选。
+
 R1已实施并完成本机合成验证：Memory采用已合并PR111的a543c1eb81e5d7150ebe7820592eea35a9042697，aggregate为723ec245e7ddcd0c5a5a81b84ac1cb7bbd794c99dab0ed99e4e88b480971d50f，仍为61命令。先核对本地/云端Git和本片PR是否已合并，不重复做兼容采用。证据在docs/validation/Memory-pin-a543c1e-2026-11-16.md；包括最终原生目录39/39，也保留先前权限失败、进程中断、归属拒绝与busy超时，不能宣称偶发问题已修复。
 
 先核对本地/在线main、工作树与未提交修改，保留.claude和不明资料。清理已在新会话创建前执行，以启动消息为准。构建缓存缺失时按锁文件恢复，不升级依赖，不把缓存缺失误认作业务回归；不共用其他工作树target或调用未知CLI。
