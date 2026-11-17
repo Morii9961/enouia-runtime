@@ -241,3 +241,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-037 — Explicit synthetic native Memory adoption (isolated synthetic slice complete)
 
 [ADR-037 — Explicit synthetic native Memory adoption](037-synthetic-native-memory-adoption.md), also called ADR-037 (synthetic Memory), adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 owner records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.
+
+## ADR-038 — Explicit registered Owner read-only native entry
+
+[ADR-038](038-registered-owner-readonly-entry.md) adds an explicit trusted native launch for the original registered Owner home/operation. It uses Memory's existing reauthentication and System catalog/process APIs, with no page bootstrap, Agent grant, Workspace reinterpretation, recovery or write path. Lock releases the Core and directory reservation; reopening requires another trusted launch. Synthetic native and desktop verification activates the development capability on merge; personal-library use, a production candidate, graphical selection and human acceptance remain separate.

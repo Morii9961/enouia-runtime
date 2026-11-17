@@ -100,6 +100,8 @@ Dependency rule: `enouia-activity` may depend on `enouia-common` and `enouia-act
 
 2026-10-04 follow-up (ADR-025): instead of a Runtime `enouia-core` (never created), `apps/desktop/src-tauri` embeds Enouia Memory's `enouia-memory-workspace` at a pinned revision behind a Runtime-owned adapter, until Memory MV-8's Host replaces it. The Runtime-local `enouia-memory`, `enouia-context`, `enouia-session`, `enouia-provider` and `enouia-core-contract` crates are frozen history. The Activity modules and their dependency rule are unchanged.
 
+2026-11-17 follow-up ([ADR-038](docs/adr/038-registered-owner-readonly-entry.md)): an explicit trusted native launch can additionally reauthenticate the original registered Owner home/operation through the same pinned Memory Host and read that exact segmented root through its System catalog/process APIs. Workspace v1 remains closed in this read-only entry. No Runtime Memory domain, page bootstrap, Agent grant, write, recovery or cloud stage is introduced. Synthetic verification activates the development capability; personal-library use and production acceptance remain separate gates.
+
 ## 5. Target repository and installed data layout
 
 Create directories only as their milestone needs them. The following is the target, not a claim that scaffold code already exists.

@@ -1,10 +1,10 @@
 //! Opt-in synthetic segmented read-2. Independent of Workspace v1/read-1.
 mod fixture;
 use enouia_memory_contract::{
-    common::{Sensitivity, SourceRevisionRef},
+    common::{ActorRef, Sensitivity, SourceRevisionRef},
     error::Violation,
-    ids::MemoryId,
-    json::canonical_bytes,
+    ids::{MemoryId, OperationId},
+    json::{Revision, canonical_bytes},
     next::*,
 };
 use enouia_memory_host::automation::{
@@ -14,6 +14,7 @@ use enouia_memory_host::automation::{
 use enouia_memory_vault::automation::AutomationFault;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use std::path::PathBuf;
 use std::sync::{
     Arc, Mutex,
     atomic::{AtomicBool, Ordering},
@@ -24,6 +25,7 @@ pub struct NativeCatalog(Arc<Inner>);
 #[derive(Default)]
 struct Inner {
     requested: AtomicBool,
+    owner_requested: AtomicBool,
     started: AtomicBool,
     closing: AtomicBool,
     withdrawn: AtomicBool,
@@ -38,7 +40,8 @@ mod tests;
 struct Binding {
     initializing: bool,
     failed: bool,
-    fixture: Option<fixture::Fixture>,
+    library: Option<Library>,
+    reason: Option<&'static str>,
 }
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -77,10 +80,68 @@ enum CatalogQuery {
     Lock,
     Unlock,
 }
-fn status(phase: &str) -> Value {
-    json!({"schema_version":2,"kind":"runtime_memory_catalog_status","capability":"memory-native-read-2",
-        "effect":"native_read","mode":"synthetic_segmented_only","state":phase,"available":phase=="open"})
+struct Library {
+    reader: enouia_memory_host::automation::catalog::SegmentedMemoryReader,
+    profile: AttentionProfile,
+    system: ActorRef,
+    _root: PathBuf,
+    _lease: Option<crate::root_lease::RootLease>,
 }
+
+/// Only the native process launch supplies this binding; no page operation opens it.
+pub struct OwnerLaunch {
+    pub home: PathBuf,
+    pub operation: OperationId,
+}
+pub fn owner_launch(args: &[String]) -> Option<Result<OwnerLaunch, &'static str>> {
+    if !args.iter().any(|arg| arg.starts_with("--memory-owner")) {
+        return None;
+    }
+    let mut home = None;
+    let mut operation = None;
+    let mut readonly = false;
+    let mut values = args.iter();
+    while let Some(arg) = values.next() {
+        match arg.as_str() {
+            "--memory-owner-readonly" if !readonly => readonly = true,
+            "--memory-owner-home" if home.is_none() => {
+                let Some(value) = values.next() else {
+                    return Some(Err("catalog_owner_launch_invalid"));
+                };
+                let path = PathBuf::from(value);
+                if !path.is_absolute() {
+                    return Some(Err("catalog_owner_launch_invalid"));
+                }
+                home = Some(path);
+            }
+            "--memory-owner-operation" if operation.is_none() => {
+                let Some(value) = values.next() else {
+                    return Some(Err("catalog_owner_launch_invalid"));
+                };
+                let Ok(parsed) = OperationId::parse(value) else {
+                    return Some(Err("catalog_owner_launch_invalid"));
+                };
+                operation = Some(parsed);
+            }
+            "--memory-owner-readonly"
+            | "--memory-owner-home"
+            | "--memory-owner-operation"
+            | "--memory-vault"
+            | "--memory-synthetic"
+            | "--memory-catalog-synthetic"
+            | "--memory-capture-synthetic" => return Some(Err("catalog_owner_launch_invalid")),
+            value if value.starts_with("--memory-owner") => {
+                return Some(Err("catalog_owner_launch_invalid"));
+            }
+            _ => {}
+        }
+    }
+    Some(match (readonly, home, operation) {
+        (true, Some(home), Some(operation)) => Ok(OwnerLaunch { home, operation }),
+        _ => Err("catalog_owner_launch_invalid"),
+    })
+}
+
 fn fault(error: ApplicationFault) -> &'static str {
     match error {
         ApplicationFault::Locked => "catalog_locked",
@@ -90,6 +151,69 @@ fn fault(error: ApplicationFault) -> &'static str {
     }
 }
 impl NativeCatalog {
+    fn status(&self, phase: &str) -> Value {
+        json!({"schema_version":2,"kind":"runtime_memory_catalog_status","capability":"memory-native-read-2",
+            "effect":"native_read","mode":if self.registered_owner_mode() { "registered_owner_readonly" } else { "synthetic_segmented_only" },
+            "state":phase,"available":phase=="open"})
+    }
+    pub fn registered_owner_mode(&self) -> bool {
+        self.0.owner_requested.load(Ordering::SeqCst)
+    }
+    pub fn request_owner_mode(&self) {
+        self.0.owner_requested.store(true, Ordering::SeqCst);
+        self.0.requested.store(true, Ordering::SeqCst);
+    }
+    pub fn initialize_registered(
+        &self,
+        launch: Result<OwnerLaunch, &'static str>,
+    ) -> Result<(), &'static str> {
+        self.request_owner_mode();
+        self.initialize_with(|stop| {
+            let launch = launch?;
+            let (root, descriptor) =
+                enouia_memory_host::owner_bootstrap::registered_owner_root(&launch.home, &launch.operation)
+                    .map_err(|_| "catalog_owner_authentication_failed")?;
+            if stop.load(Ordering::SeqCst) {
+                return Err("catalog_locked");
+            }
+            let lease = crate::root_lease::RootLease::acquire(
+                crate::root_lease::Directory::inspect(root.path())?,
+            )?;
+            let vault = Arc::new(
+                enouia_memory_vault::automation::segmented::SegmentedAutomationVault::open(
+                    &root,
+                    descriptor.host_id,
+                    Arc::new(enouia_memory_vault::SystemClock),
+                    Arc::new(enouia_memory_vault::OsIdSource),
+                    enouia_memory_vault::fault::Faults::none(),
+                ).map_err(|_| "catalog_owner_open_refused")?,
+            );
+            let reader = enouia_memory_host::automation::catalog::SegmentedMemoryReader::from_authenticated_system(
+                vault, descriptor.system_actor.clone(),
+            ).map_err(fault)?;
+            Ok(Library {
+                reader,
+                system: descriptor.system_actor,
+                _root: root.path().to_path_buf(),
+                _lease: Some(lease),
+                profile: AttentionProfile {
+                    schema_version: NextVersion,
+                    kind: AttentionProfileKind::AttentionProfile,
+                    revision: Revision::new(1).unwrap(),
+                    algorithm: AttentionAlgorithm::V1,
+                    fade_after_days: 30,
+                    archive_after_days: 180,
+                    protected_forms: vec![FormationKind::Episode, FormationKind::RelationshipExperience],
+                    protected_ids: vec![],
+                    aliases: vec![],
+                    max_items: 32,
+                    max_bytes: 65536,
+                    maintenance_interval_ms: 1000,
+                },
+            })
+        })
+    }
+
     pub fn enabled(&self) -> bool {
         self.0.requested.load(Ordering::SeqCst)
     }
@@ -101,7 +225,7 @@ impl NativeCatalog {
     }
     fn initialize_with(
         &self,
-        create: impl FnOnce(&AtomicBool) -> Result<fixture::Fixture, &'static str>,
+        create: impl FnOnce(&AtomicBool) -> Result<Library, &'static str>,
     ) -> Result<(), &'static str> {
         if self.0.closing.load(Ordering::SeqCst) {
             return Err("runtime_closing");
@@ -131,11 +255,12 @@ impl NativeCatalog {
         }
         match result {
             Ok(fixture) => {
-                state.fixture = Some(fixture);
+                state.library = Some(fixture);
                 Ok(())
             }
             Err(error) => {
                 state.failed = true;
+                state.reason = Some(error);
                 Err(error)
             }
         }
@@ -150,10 +275,14 @@ impl NativeCatalog {
     }
     pub fn lock(&self) {
         self.0.withdrawn.store(true, Ordering::SeqCst);
-        if let Ok(state) = self.0.state.lock()
-            && let Some(fixture) = &state.fixture
-        {
-            let _ = fixture.reader.lock();
+        if let Ok(mut state) = self.0.state.lock() {
+            if self.registered_owner_mode() {
+                // Drop the reader before its directory lease. Reopening requires
+                // another explicit trusted native invocation, never a page unlock.
+                drop(state.library.take());
+            } else if let Some(library) = &state.library {
+                let _ = library.reader.lock();
+            }
         }
     }
     pub fn shutdown(&self) {
@@ -163,7 +292,7 @@ impl NativeCatalog {
             .state
             .lock()
             .ok()
-            .and_then(|mut state| state.fixture.take());
+            .and_then(|mut state| state.library.take());
         drop(fixture);
     }
     // Match read-1's bounded observation wait: status polling and an explicit
@@ -198,14 +327,14 @@ impl NativeCatalog {
         let is_status = matches!(request.query, CatalogQuery::Status);
         if self.0.closing.load(Ordering::SeqCst) {
             return if is_status {
-                Ok(status("closing"))
+                Ok(self.status("closing"))
             } else {
                 Err("runtime_closing")
             };
         }
         if self.0.unavailable.load(Ordering::SeqCst) {
             return if is_status {
-                Ok(status("failed"))
+                Ok(self.status("failed"))
             } else {
                 Err("catalog_read_refused")
             };
@@ -215,7 +344,7 @@ impl NativeCatalog {
                 return Err("catalog_not_enabled");
             }
             self.lock();
-            let mut view = status("locked");
+            let mut view = self.status("locked");
             view["effect"] = json!("native_control");
             return Ok(view);
         }
@@ -229,14 +358,17 @@ impl NativeCatalog {
                 "failed"
             } else if self.0.withdrawn.load(Ordering::SeqCst) {
                 "locked"
-            } else if state.fixture.is_some() {
+            } else if state.library.is_some() {
                 "open"
             } else {
                 "disabled"
             };
-            let mut view = status(phase);
+            let mut view = self.status(phase);
+            if let Some(reason) = state.reason {
+                view["reason"] = json!(reason);
+            }
             if phase == "open" {
-                let fixture = state.fixture.as_ref().ok_or("catalog_not_enabled")?;
+                let fixture = state.library.as_ref().ok_or("catalog_not_enabled")?;
                 let page = fixture
                     .reader
                     .memory_page_native(
@@ -254,21 +386,28 @@ impl NativeCatalog {
                     )
                     .map_err(fault)?;
                 if self.0.closing.load(Ordering::SeqCst) {
-                    return Ok(status("closing"));
+                    return Ok(self.status("closing"));
                 }
                 if self.0.withdrawn.load(Ordering::SeqCst) {
-                    return Ok(status("locked"));
+                    return Ok(self.status("locked"));
                 }
                 view["selection"] =
                     serde_json::to_value(page.selection).map_err(|_| "catalog_read_refused")?;
             }
             return Ok(view);
         }
-        let fixture = state.fixture.as_ref().ok_or("catalog_not_enabled")?;
+        if matches!(request.query, CatalogQuery::Unlock) && self.registered_owner_mode() {
+            return Err("catalog_owner_reopen_required");
+        }
+        if self.0.withdrawn.load(Ordering::SeqCst) && !matches!(request.query, CatalogQuery::Unlock)
+        {
+            return Err("catalog_locked");
+        }
+        let fixture = state.library.as_ref().ok_or("catalog_not_enabled")?;
         if matches!(request.query, CatalogQuery::Unlock) {
             fixture.reader.unlock(&fixture.system).map_err(fault)?;
             self.0.withdrawn.store(false, Ordering::SeqCst);
-            let mut view = status("open");
+            let mut view = self.status("open");
             view["effect"] = json!("native_control");
             return Ok(view);
         }

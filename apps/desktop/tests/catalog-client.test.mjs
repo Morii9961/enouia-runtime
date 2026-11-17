@@ -39,6 +39,13 @@ test('controls require their native-control acknowledgement',async()=>{
   setCatalogTransport(async()=>status('locked'));await assert.rejects(catalogRead({operation:'lock'}));
 });
 
+test('registered read-only entry has an explicit mode and bounded failure reason',async()=>{
+  setCatalogTransport(async()=>({...status('failed'),mode:'registered_owner_readonly',reason:'catalog_owner_authentication_failed'}));
+  assert.equal((await catalogRead({operation:'status'})).mode,'registered_owner_readonly');
+  setCatalogTransport(async()=>({...status('failed'),mode:'registered_owner_readonly',reason:{home:'untrusted'}}));
+  await assert.rejects(catalogRead({operation:'status'}));
+});
+
 test('native detail and scalar source ranges use read-2 without a source read on detail',async()=>{
   const sent=[];
   setCatalogTransport(async(command,args)=>{sent.push(args.request.query);return args.request.query.operation==='detail'?detail():source(args.request.query.start,args.request.query.limit);});

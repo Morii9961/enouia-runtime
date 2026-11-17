@@ -1,6 +1,18 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Native memory catalog": "ネイティブ記憶カタログ",
+  "Registered Owner · read only": "登録済み Owner · 読み取り専用",
+  "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here.": "この入口は明示的に登録されたライブラリのみを読み取ります。記録や権限の作成、モデルへの送信はできません。セッションとコンテキストは利用できません。",
+  "No registered library was opened at startup.": "起動時に登録済みライブラリは開かれていません。",
+  "The registered library could not be opened. No other library was selected.": "登録済みライブラリを開けませんでした。別のライブラリは選択されていません。",
+  "The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.": "ライブラリは閉じています。Runtime を終了し、登録済みライブラリを明示的に起動し直してください。",
+  "Lock registered library": "登録済みライブラリをロック",
+  "Records and source excerpts come from the same registered library. Formed records are not independent verification.": "記録と引用元の抜粋は同じ登録済みライブラリに由来します。形成された記録は独立した検証ではありません。",
+  "The registered library launch is incomplete or conflicts with another entry.": "登録済みライブラリの起動情報が不完全か、別の入口と競合しています。",
+  "The registered library could not be authenticated for this account.": "このアカウントでは登録済みライブラリを認証できません。",
+  "The registered library could not be opened. It may be in use or need explicit recovery.": "登録済みライブラリを開けません。使用中か、明示的な復旧が必要です。",
+  "This registered library entry is read only.": "この登録済みライブラリの入口は読み取り専用です。",
   "Read catalog detail: {title}": "カタログの詳細を読む：{title}",
   "Catalog record detail": "カタログ記録の詳細",
   "Refresh record detail": "記録の詳細を更新",
@@ -1780,7 +1792,6 @@ const dict: Record<string, string> = {
   "Observed {time}": "観測日時：{time}",
   "Operation {id}": "操作 {id}",
   "Model calls stop locally. The service may have received the request; after reopening, read the saved session outcome before sending again.": "モデルの呼び出しはローカルで停止します。サービスがリクエストを受け取っている可能性があります。再度開いたら、再送信する前に保存済みのセッションの結果を読んでください。",
-  "Segmented synthetic catalog": "分割形式の合成カタログ",
   "Isolated synthetic read-2": "隔離された合成 read-2",
   "This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.": "このライブラリには固定の架空レコードが含まれます。Owner Vault を開くことも、記憶を連続して形成することもありません。",
   "No segmented synthetic library is enabled in this session.": "このセッションでは分割形式の合成ライブラリが有効になっていません。",

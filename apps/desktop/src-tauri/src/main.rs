@@ -31,6 +31,8 @@ fn main() {
     let host = MemoryHost::new();
     let args: Vec<String> = std::env::args().collect();
     let autostart = args.iter().any(|arg| arg == "--autostart");
+    let owner_launch = memory_catalog::owner_launch(&args);
+    let owner_requested = owner_launch.is_some();
     let catalog_requested = args.iter().any(|arg| arg == "--memory-catalog-synthetic");
     // Precedence when several synthetic flags are supplied: catalog, capture,
     // then the read-1 automatic example. Only one synthetic entry starts.
@@ -39,8 +41,10 @@ fn main() {
     let synthetic_requested = catalog_requested
         || capture_requested
         || args.iter().any(|arg| arg == "--memory-synthetic");
-    let synthetic = !autostart && synthetic_requested;
-    if synthetic_requested {
+    let synthetic = !autostart && !owner_requested && synthetic_requested;
+    if owner_requested {
+        host.catalog().request_owner_mode();
+    } else if synthetic_requested {
         if catalog_requested {
             host.catalog().request_synthetic_mode();
         } else if capture_requested {
@@ -50,6 +54,7 @@ fn main() {
         }
     }
     if !autostart
+        && !owner_requested
         && !synthetic
         && let Some(root) = memory::vault_argument(&args)
     {
@@ -96,7 +101,14 @@ fn main() {
         .setup(move |app| {
             // Native Provider sending stays off without the owner's
             // settings file (ADR-032).
-            if synthetic_requested {
+            if let Some(launch) = owner_launch {
+                if !autostart {
+                    let native = app.state::<MemoryHost>().catalog().clone();
+                    tauri::async_runtime::spawn_blocking(move || {
+                        let _ = native.initialize_registered(launch);
+                    });
+                }
+            } else if synthetic_requested {
                 if synthetic {
                     if catalog_requested {
                         let native = app.state::<MemoryHost>().catalog().clone();

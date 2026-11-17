@@ -2,7 +2,7 @@
 
 本文件是当前接续入口，取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
-2026-11-17 接续：R1 已采用已合并 Memory `a543c1e` / aggregate `723ec245…`，仍为 61 命令，PR180 已合并。详见[采用证据与失败记录](../validation/Memory-pin-a543c1e-2026-11-16.md)。Morii 随后要求继续按路线推进，R2 最小只读范围据此继续；[详情/精确来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已完成定向验证（原生 42/42），使用现有 System catalog/process 接口，不是 Memory 契约缺失。下一步核实正式打开的受信任原生认证边界，见 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。不重复 R1，不把以下11月16日审计基线当作当前 pin。手动状态快照保持原证据基线。
+2026-11-17 接续：R1 的 Memory `a543c1e` / aggregate `723ec245…` / 61 命令已随 PR180 合并；[证据](../validation/Memory-pin-a543c1e-2026-11-16.md)保留原失败。R2 的[详情/来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已随 PR181 合并（原生 42/42），ADR037 引用澄清已随 PR182 合并。按 Morii 持续推进指令，进一步完成 [ADR-038 显式登记库只读启动](REGISTERED_OWNER_READONLY.md)开发与合成验证（桌面 14/14）；下一片统一独立只读入口的壳层状态，见 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。图形选择、个人库验收及 R3 候选仍有独立边界。以下审计基线不是当前 pin，手动状态快照保持原证据基线。
 
 ## 基线与下一交付目标
 
