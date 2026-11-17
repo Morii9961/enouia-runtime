@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { catalogRead, catalogSelectionKey, catalogScopeKey, CATALOG_FILTER, setCatalogTransport } from '../src/memory/catalog.ts';
-import { status, page, stats, selection } from '../e2e/fixtures/catalog.mjs';
+import { status, page, stats, selection, detail, source, sourceRef, quote } from '../e2e/fixtures/catalog.mjs';
 
 test('read-2 uses its separate native port and retains exact selection for stats',async()=>{
   const sent=[];
@@ -37,4 +37,35 @@ test('controls require their native-control acknowledgement',async()=>{
   assert.equal((await catalogRead({operation:'lock'})).state,'locked');
   await assert.rejects(catalogRead({operation:'status'}));
   setCatalogTransport(async()=>status('locked'));await assert.rejects(catalogRead({operation:'lock'}));
+});
+
+test('native detail and scalar source ranges use read-2 without a source read on detail',async()=>{
+  const sent=[];
+  setCatalogTransport(async(command,args)=>{sent.push(args.request.query);return args.request.query.operation==='detail'?detail():source(args.request.query.start,args.request.query.limit);});
+  const result=await catalogRead({operation:'detail',filter:CATALOG_FILTER,memory_id:'synthetic-memory-1'});
+  assert.equal(result.fields.evidence[0].quote,quote);
+  assert.deepEqual(sent.map(q=>q.operation),['detail']);
+  let recovered='',start=0;
+  for(;;){
+    const part=await catalogRead({operation:'source',source:sourceRef,start,limit:3});
+    recovered+=part.excerpt;
+    if(part.complete_in_scope)break;
+    start=part.end;
+  }
+  assert.equal(recovered,quote);
+});
+
+test('wrong detail identity, old process headers and malformed source ranges refuse',async()=>{
+  for(const bad of [detail('synthetic-memory-2'),{...detail(),header:{...detail().header,version:1}},
+    {...detail(),fields:{title:'bad',evidence:[{...detail().fields.evidence[0],end:999}]}}]){
+    setCatalogTransport(async()=>bad);
+    await assert.rejects(catalogRead({operation:'detail',filter:CATALOG_FILTER,memory_id:'synthetic-memory-1'}));
+  }
+  for(const bad of [{...source(),source:{...sourceRef,source_revision:2}},{...source(),start:1},
+    {...source(),end:999},{...source(),complete_in_scope:false},{...source(),excerpt:'cut text'}]){
+    setCatalogTransport(async()=>bad);
+    await assert.rejects(catalogRead({operation:'source',source:sourceRef,start:0,limit:4096}));
+  }
+  setCatalogTransport(async()=>({...source(),source:null,source_record:null,excerpt:null,start:0,end:0,total_characters:0,complete_in_scope:true}));
+  assert.equal((await catalogRead({operation:'source',source:sourceRef,start:0,limit:3})).source,null);
 });

@@ -2,7 +2,7 @@
 
 本文件是当前接续入口，取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
-2026-11-17 接续：R1 已实施并完成本机合成验证，采用已合并 Memory `a543c1e` / aggregate `723ec245…`，仍为 61 命令。详见[采用证据与失败记录](../validation/Memory-pin-a543c1e-2026-11-16.md)。后续从 [R2 最小只读入口建议](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)的产品范围及 Memory 认证/详情/来源契约确认继续，不重复 R1，也不把以下11月16日审计基线当作当前 pin。手动状态快照保持原证据基线。
+2026-11-17 接续：R1 已采用已合并 Memory `a543c1e` / aggregate `723ec245…`，仍为 61 命令，PR180 已合并。详见[采用证据与失败记录](../validation/Memory-pin-a543c1e-2026-11-16.md)。Morii 随后要求继续按路线推进，R2 最小只读范围据此继续；[详情/精确来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已完成定向验证（原生 42/42），使用现有 System catalog/process 接口，不是 Memory 契约缺失。下一步核实正式打开的受信任原生认证边界，见 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。不重复 R1，不把以下11月16日审计基线当作当前 pin。手动状态快照保持原证据基线。
 
 ## 基线与下一交付目标
 

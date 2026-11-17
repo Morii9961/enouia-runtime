@@ -3,6 +3,39 @@ fn packet(query: Value) -> Value {
     json!({"schema_version":2,"capability":"memory-native-read-2","query":query})
 }
 #[test]
+fn observation_contention_is_bounded_and_close_is_rechecked_without_replaying_controls() {
+    let native = NativeCatalog::default();
+    native.initialize_synthetic().unwrap();
+    let guard = native.0.state.lock().unwrap();
+    let worker = native.clone();
+    let task = std::thread::spawn(move || {
+        worker.call_waiting("main", &page(CatalogFilter::default(), Value::Null))
+    });
+    native.begin_close();
+    drop(guard);
+    assert_eq!(task.join().unwrap(), Err("runtime_closing"));
+    let native = NativeCatalog::default();
+    let guard = native.0.state.lock().unwrap();
+    let start = std::time::Instant::now();
+    assert_eq!(
+        native.call_waiting("main", &packet(json!({"operation":"unlock"}))),
+        Err("catalog_busy")
+    );
+    assert!(start.elapsed() < std::time::Duration::from_secs(1));
+    assert_eq!(
+        native.call_waiting("main", &packet(json!({"operation":"status"}))),
+        Err("catalog_busy")
+    );
+    assert!(start.elapsed() < std::time::Duration::from_secs(4));
+    drop(guard);
+    assert_eq!(
+        native
+            .call_waiting("main", &packet(json!({"operation":"status"})))
+            .unwrap()["state"],
+        "disabled"
+    );
+}
+#[test]
 fn status_reauthorizes_when_policy_expires_without_a_new_commit() {
     const NOW: i64 = 1_793_664_000_000;
     let clock = Arc::new(enouia_memory_contract::foundation::FakeClock::new(NOW));
@@ -139,6 +172,70 @@ fn segmented_pages_and_stats_share_selection_without_advancing_current_then_lock
     let selected = native.call("main", &page(different, Value::Null)).unwrap();
     assert_eq!(selected["matched_in_scope"], 1);
     assert_eq!(selected["items"][0]["title"], "调试偏好");
+    let detail_request = packet(
+        json!({"operation":"detail","filter":CatalogFilter::default(),
+        "memory_id":selected["items"][0]["base"]["memory"]["memory_id"]}),
+    );
+    let detail = native.call("main", &detail_request).unwrap();
+    let parsed: NativeMemoryDetail = parse_document(&canonical_bytes(&detail).unwrap()).unwrap();
+    assert_eq!(parsed.header.version.get(), 2);
+    assert_eq!(parsed.fields.as_ref().unwrap().title, "调试偏好");
+    let quote = &parsed.fields.as_ref().unwrap().evidence[0];
+    let source = SourceRevisionRef {
+        source_id: quote.reference.source_id.clone(),
+        source_revision: quote.reference.source_revision,
+    };
+    let source_request = packet(json!({"operation":"source","source":source,"start":0,"limit":3}));
+    let mut recovered = String::new();
+    let mut start = 0;
+    loop {
+        let result = native
+            .call(
+                "main",
+                &packet(json!({"operation":"source","source":source,"start":start,"limit":3})),
+            )
+            .unwrap();
+        let excerpt: NativeSourceExcerpt =
+            parse_document(&canonical_bytes(&result).unwrap()).unwrap();
+        assert_eq!(excerpt.source.as_ref(), Some(&source));
+        assert_eq!(excerpt.start, start);
+        recovered.push_str(excerpt.excerpt.as_ref().unwrap());
+        if excerpt.complete_in_scope {
+            break;
+        }
+        assert!(excerpt.end > start);
+        start = excerpt.end;
+    }
+    assert_eq!(
+        recovered,
+        selected["items"][0]["base"]["content"].as_str().unwrap()
+    );
+    assert_eq!(
+        recovered
+            .chars()
+            .skip(quote.start as usize)
+            .take((quote.end - quote.start) as usize)
+            .collect::<String>(),
+        quote.quote
+    );
+    let missing_revision = packet(
+        json!({"operation":"source","source":{"source_id":source.source_id,"source_revision":999},"start":0,"limit":3}),
+    );
+    assert!(native.call("main", &missing_revision).unwrap()["source"].is_null());
+    for limit in [0, 4097] {
+        assert!(
+            native
+                .call(
+                    "main",
+                    &packet(json!({"operation":"source","source":source,"start":0,"limit":limit}))
+                )
+                .is_err()
+        );
+    }
+    assert_eq!(
+        native.call("overlay", &source_request),
+        Err("permission_denied")
+    );
     let mut over_limit = page(filter.clone(), Value::Null);
     over_limit["query"]["limit"] = json!(101);
     assert!(native.call("main", &over_limit).is_err());
@@ -153,6 +250,8 @@ fn segmented_pages_and_stats_share_selection_without_advancing_current_then_lock
         native.call("main", &page(filter.clone(), Value::Null)),
         Err("catalog_locked")
     );
+    assert_eq!(native.call("main", &detail_request), Err("catalog_locked"));
+    assert_eq!(native.call("main", &source_request), Err("catalog_locked"));
     assert_eq!(
         native
             .call("main", &packet(json!({"operation":"status"})))

@@ -1,6 +1,16 @@
 // Japanese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Read catalog detail: {title}": "カタログの詳細を読む：{title}",
+  "Catalog record detail": "カタログ記録の詳細",
+  "Refresh record detail": "記録の詳細を更新",
+  "Reading record detail…": "記録の詳細を読み込み中…",
+  "This record is no longer available in the current scope.": "この記録は現在の範囲では読み取れません。",
+  "Quoted text evidence; attachment content is not read.": "引用された文字の証拠です。添付ファイルの内容は読み取りません。",
+  "Read quoted source": "引用元を読む",
+  "Reading quoted source…": "引用元を読み込み中…",
+  "This source revision is no longer available.": "この版の引用元は読み取れません。",
+  "Quoted source excerpt": "引用元の抜粋",
   "Held hypotheses": "保留中の仮説",
   "held until new evidence": "新たな裏付けを待つ",
   "Held hypotheses in this sample wait for new evidence and are not used for recall. This is a reading list, not an approval queue.": "このサンプルの保留中の仮説は新しい裏付けを待ち、想起には使われません。読み取り用の一覧であり、承認待ちの一覧ではありません。",

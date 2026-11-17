@@ -4,7 +4,7 @@
 // behaviour is ported from Memory's reference workspace: stale-read guards,
 // one idempotency key per submission, drafts kept across retries, plan
 // dialogs that confirm only the shown diff.
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { call, pick, type J, type Picked } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { ComponentList, StatusPending, VaultConnect, VaultGate, exiting, useStatus } from "./status";
@@ -16,11 +16,11 @@ import { validImportAlias } from "./importAlias";
 import { ImportReport } from "./ImportReport";
 import { HistoryTasks, useHistoryTasks } from "./HistoryTaskPanel";
 import { AutomaticMemory } from "./AutomaticMemory";
-import { CatalogMemory } from "./CatalogMemory";
 import { CaptureMemory } from "./CaptureMemory";
 import { PersonaExport } from "./PersonaExport";
 
 import { labels, locale, msg, t, tn } from '../i18n/index.ts';
+const CatalogMemory = lazy(() => import("./CatalogMemory").then(module => ({ default: module.CatalogMemory })));
 type Collection = "inbox" | "current" | "history" | "import" | "persona" | "vault" | "automated" | "catalog" | "capture";
 
 const TITLES: Record<Collection, string> = labels({
@@ -93,7 +93,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           </div>
         ))}
       </aside>
-      {collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <CatalogMemory /> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
+      {collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <Suspense fallback={<StatusPending />}><CatalogMemory /></Suspense> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>

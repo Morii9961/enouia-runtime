@@ -1,6 +1,16 @@
 // Simplified Chinese interface text, keyed by the English source (i18n/index.ts). tests/i18n.test.mjs
 // checks that every key the source uses is here and that placeholders match.
 const dict: Record<string, string> = {
+  "Read catalog detail: {title}": "查看目录详情：{title}",
+  "Catalog record detail": "目录记录详情",
+  "Refresh record detail": "刷新记录详情",
+  "Reading record detail…": "正在读取记录详情…",
+  "This record is no longer available in the current scope.": "当前范围内已无法读取这条记录。",
+  "Quoted text evidence; attachment content is not read.": "以下是文字引文证据，不读取附件内容。",
+  "Read quoted source": "读取引文来源",
+  "Reading quoted source…": "正在读取引文来源…",
+  "This source revision is no longer available.": "已无法读取这一来源修订。",
+  "Quoted source excerpt": "引文来源摘录",
   "Held hypotheses": "暂存假说",
   "held until new evidence": "等待新证据",
   "Held hypotheses in this sample wait for new evidence and are not used for recall. This is a reading list, not an approval queue.": "此示例的暂存假说等待新证据，未用于召回。这是阅读列表，不是批准队列。",
