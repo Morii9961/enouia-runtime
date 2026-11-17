@@ -1,6 +1,9 @@
 # ADR-037 — Explicit synthetic native Memory adoption
 
 Date: 2026-10-25. Status: accepted for the isolated synthetic adoption slice. Production adoption is not activated.
+
+Reference clarification (2026-11-17): this record is **ADR-037 (synthetic Memory)**, file `037-synthetic-native-memory-adoption.md`. The distinct [ADR-037 — Retire Activity / Usage from the desktop host](037-activity-usage-desktop-retirement.md) shares its historical number. The alias does not renumber either record or activate production adoption.
+
 Authority: Morii explicitly authorized Core-8 independent Runtime adoption after Core-7.
 ADR-035/036 are already used by the parallel Activity work; this decision preserves that work.
 

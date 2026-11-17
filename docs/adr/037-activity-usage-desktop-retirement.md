@@ -2,6 +2,8 @@
 
 Date: 2026-10-25. Status: implemented as a backend change; frontend removal and production migration are separate.
 
+Reference clarification (2026-11-17): this record is **ADR-037 (desktop retirement)**, file `037-activity-usage-desktop-retirement.md`. The distinct [ADR-037 — Explicit synthetic native Memory adoption](037-synthetic-native-memory-adoption.md) shares its historical number. The alias does not renumber either record or authorize standalone producer/data cleanup.
+
 Morii explicitly asked Claude to remove both Activity and private Usage from the ongoing frontend redesign, and asked Codex to implement the Moriium and Runtime backend changes. This supersedes ADR-028 / ADR-036 for the desktop host.
 
 The native desktop no longer compiles the Activity / Usage adapters, manages their hosts, registers their five commands or grants their permissions. Their unused direct SHA dependency is removed. Memory, its pin, Provider setup, shell lifecycle and synthetic automation are unchanged. Calls from an older frontend are denied by the absent command/capability rather than launching a collector or reading saved package/source choices.
