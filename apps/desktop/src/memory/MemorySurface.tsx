@@ -68,16 +68,18 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           <h1 className="qr18">{t("Memory Vault")}</h1>
           <div className="qr19">{t("What I keep, and why.")}</div>
         </div>
-        <form role="search" className="qr22" onSubmit={(e) => {
-          e.preventDefault();
-          if (!explorer) setCollection("current");
-          setSubmitted((s) => ({ text: query, seq: s.seq + 1 }));
-        }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7F8D9A" strokeWidth="1.2" aria-hidden="true">
-            <circle cx="6" cy="6" r="4.2" /><path d="M9.2 9.2L12.5 12.5" />
-          </svg>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("Literal search · Enter")} aria-label={t("Search memories")} className="qr21" autoComplete="off" />
-        </form>
+        {entry === "workspace" && (
+          <form role="search" className="qr22" onSubmit={(e) => {
+            e.preventDefault();
+            if (!explorer) setCollection("current");
+            setSubmitted((s) => ({ text: query, seq: s.seq + 1 }));
+          }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7F8D9A" strokeWidth="1.2" aria-hidden="true">
+              <circle cx="6" cy="6" r="4.2" /><path d="M9.2 9.2L12.5 12.5" />
+            </svg>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("Literal search · Enter")} aria-label={t("Search memories")} className="qr21" autoComplete="off" />
+          </form>
+        )}
         {groups.map((g) => (
           <div className="qr27" key={g.items[0][0]}>
             <div className="qr23">{g.label}</div>
