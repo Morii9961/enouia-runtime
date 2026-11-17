@@ -12,6 +12,8 @@ Morii在11月17日要求继续按路线持续推进，最小只读范围据此�
 
 R3只读验收分流与证据清单已准备在docs/RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md，旧指南已加分流链接。核对公共Memory main至d0e7f9f：新提交是初始化标题投影/准备性能，无reader/存储格式/Runtime surface变化；没有因此更新pin。公开交接未提供真实形成与独立恢复ready证明，新候选/真实验收仍未执行。不要把准备稿或合并当作门槛完成。
 
+11月17日后续：PR184壳层状态、PR185验收分流、PR186登记空范围文案均已合并。空状态组件回归先复现四项失败，再修正为46/46，见docs/validation/Registered-owner-empty-state-2026-11-17.md。复用PR184程序的1100×700三语/三页定向布局观察通过，见docs/validation/Registered-owner-minimum-layout-2026-11-17.md；没有因此改样式或冒称HEAD原生复验。接续不重做这些切片。下一有效出口是Memory不含私人内容的真实形成/关闭重开/来源/独立恢复工程摘要，再按R3核对候选与授权条件；摘要缺失时保持待交付，不以重复测试或扩展未批准入口补进度。
+
 Memory另一个会话负责真实建库、工程交付与独立恢复，不修改Memory仓库或合并其待审PR、不重做fresh驱动。Runtime只核对公共工程交付，不读取私人材料。旧5175284仍含731edd56，不是新Owner候选；本片构建程序也不是R3交付包。新候选和日用验收按R3边界；云端、自动采集另排，不操作Dashboard或刷新手动状态快照。
 
 真实验收另核授权。专用登记合成home在非Git/非临时目录，由显式ignored测试创建，带synthetic_validation_only及保留标识，不能当缓存删除；本地忽略manifest只指向该测试的假库，不用它选择私人根。新切片执行必要集成检查（必须node scripts/check-memory-integration.mjs），按实际风险验证，提交时保留Codex co-author trailer；Runtime既有授权允许验证后推送、开PR与合并，无需逐PR重问。不要靠重复构建或扩张范围维持工作。
