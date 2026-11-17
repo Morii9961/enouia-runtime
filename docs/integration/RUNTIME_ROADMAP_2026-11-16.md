@@ -2,6 +2,8 @@
 
 本文件是当前接续入口，取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
+最新兼容采用为已合并 Memory `506d23d` / aggregate `df3248e7…` / 61命令，满足ADR149分组决策reader门槛；[本轮验证](../validation/Memory-pin-506d23d-2026-11-17.md)包含新程序原生20/20。它与Memory真实全量预检并行，不等于真实库/生产候选完成；下文早期pin与候选均保留原证据范围。
+
 2026-11-17 接续：R1 的 Memory `a543c1e` / aggregate `723ec245…` / 61 命令已随 PR180 合并；[证据](../validation/Memory-pin-a543c1e-2026-11-16.md)保留原失败。R2 的[详情/来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已随 PR181 合并（原生 42/42），ADR037 引用澄清已随 PR182 合并。PR183 合并 [ADR-038 显式登记库只读启动](REGISTERED_OWNER_READONLY.md)（桌面 14/14）；随后完成独立只读入口的壳层、Home/Settings 状态统一，见[验证](../validation/Registered-owner-shell-status-2026-11-17.md)及 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。R3 的[只读验收分流与证据清单](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)已准备，真实库和新候选等待对应门槛。图形选择、个人库验收及 R3 候选仍有独立边界。以下审计基线不是当前 pin，手动状态快照保持原证据基线。
 
 ## 基线与下一交付目标
@@ -69,14 +71,14 @@ Morii 明确要求查看并协调隔壁“推进 Memory 纯文本新库交付”
 
 - PR117 / ADR149 已按该会话收到的明确授权合并至 `17a369e010f670baacaeec98306854fd4d14afc5`。`AdmissionInput.support_origin_groups` 保留重复文字的全部原始出现，并记录同一支持来源分组；旧 `a543c1e` 的封闭读取器可能拒绝这些持久决策，**必须先完成兼容采用才能打开此类新库**。新 aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，Workspace 仍为61命令。公共依据为该 revision 的 `docs/integration/RUNTIME.md` 与 `docs/validation/Grouped-support-origins.md`。
 - 隔壁已从合并主线重建 CLI，原始全量清单 **43计划 / 351记录**通过准入检查；容量预检报告 queued journal **21,793,549字节**、lifecycle bound **30,865,623字节**，超过 **16,777,216字节（16 MiB）**。这是该会话提供的工程摘要，Runtime 未读取私人清单或自行重跑；尚未 bootstrap / 创建真实 Vault，形成、重开/来源、独立恢复仍未完成，也没有 ready、grant 或新候选。
-- Memory 确认主人已明确授权紧凑 journal 的最小 ADR、合成实现和 PR：仅新 fresh 运行将不可变计划移入既有 hash-bound Raw，可变日志保持16 MiB及原 request/response/key/binding/receipt/state，旧日志原样读取；不删源、截断或抬预算。该片已交付候选 [PR118](https://github.com/Morii9961/enouia-memory/pull/118) / ADR150，审阅 head 为 `53a60cdd430fa4f9b848315702579cd6f8b0b183`，本次核对仍 open / 未合并，不能采用候选 pin 或用于真实资料。
+- Memory 确认主人已明确授权紧凑 journal 的最小 ADR、合成实现和 PR：仅新 fresh 运行将不可变计划移入既有 hash-bound Raw，可变日志保持16 MiB及原 request/response/key/binding/receipt/state，旧日志原样读取；不删源、截断或抬预算。该片 [PR118](https://github.com/Morii9961/enouia-memory/pull/118) / ADR150 已获主人批准并合并至 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`；原审阅 head 为 `53a60cdd430fa4f9b848315702579cd6f8b0b183`。仅采用正式合并版本，不采用原候选 pin。
 - 候选 PR 的公开说明确认仅 initializer 私有 journal v2 改变；原生 decisions/reader/admission、Owner backup格式、61命令及 aggregate 均不变。现有备份保留同路径 journal 和全部 Raw，新 fresh 工具负责验证计划对象；旧 fresh 程序不能接续 journal v2。Runtime 仍只需 ADR149 的 reader 门槛，没有额外 reader 门槛。
 - 上游报告77项 initializer 合成检查（含显式 Windows 账户 CLI bootstrap/restore）和严格 Clippy 通过。1024记录合成轮次 inline lifecycle为39,841,194字节，compact mutable为11,497,570字节，最大单Plan Raw为3,482,650字节，仍分别受16 MiB约束，超大mutable仍拒绝。这不是原始真实清单的新容量结果，Runtime 未重跑这些上游检查；真实清单仍只有17a369e的容量拒绝证据。
-- Runtime 负责 reader 兼容差异清单与候选准备；暂不采用未合并容量片。待主人批准合并、Memory给出正式revision及最终兼容摘要后，最小 pin 采用可与其正式CLI重建/全量预检并行，不必等待真实形成和恢复全部结束；生产候选和个人UI验收仍等实际ready。只交换工程摘要，不传原文、私人路径、登记参数或凭据。
+- Runtime 按已协调分工采用正式 `506d23d` / aggregate `df3248e7…` / 61命令，见[采用证据](../validation/Memory-pin-506d23d-2026-11-17.md)。此次兼容采用与 Memory 正式CLI重建/全量预检并行，不必等待真实形成和恢复全部结束；生产候选和个人UI验收仍等实际ready。只交换工程摘要，不传原文、私人路径、登记参数或凭据。
 
 此次协调不改现有 pin、读取授权、个人库接入、安装或部署边界，也不更新手动状态快照。
 
-Runtime 的具体采用准备（未执行 pin 变更或产品测试）：
+此前具体采用准备（当时未执行 pin 变更或产品测试；本次正式采用结果见上方证据）：
 
 1. 最终版本须同时核对六个 Cargo Git 依赖、九个 lock source 与 `memory-pin.json` 的 revision/aggregate；不按中间 aggregate 直接构建生产候选。
 2. 本地 `memory_catalog/fixture.rs` 与 `memory_automation/fixture.rs` 从既有 JSON 反序列化 `AdmissionInput`，没有需要补字段的 Rust 结构体字面量。新字段 default/空值省略保留旧输入行为，不为兼容而给旧合成来源编造分组。
@@ -92,3 +94,5 @@ Runtime 的具体采用准备（未执行 pin 变更或产品测试）：
 待决定：是否扩展图形Owner入口/其他表面、Windows环境、星图视觉/首版门槛、公开人设默认及Memory契约§5、合成枚举/时间翻译、必要时改键入口。Runtime自动合并授权不能扩大到Memory待审PR、个人库、安装/部署、真实读取授权或Provider。
 
 R1/R2 的接续结果见本文顶部；R3 只读验收分流已准备，接续核对公共工程交付与实际待决定项。跨仓库优先读取公共交接和已有审计结果，不创建重复Memory实现任务。手动状态快照仅在Morii要求时更新。
+
+本次兼容采用后的接续点：reader门槛已在新源码中满足，旧安装候选仍无该能力。Memory负责新版本真实整轮容量及后续形成/恢复工程摘要，Runtime不自行读取私人输入，也不把本片合成验证写成真实ready。手动状态快照保持原基线。
