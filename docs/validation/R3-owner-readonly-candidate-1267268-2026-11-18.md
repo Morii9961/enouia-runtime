@@ -41,6 +41,14 @@ release 和 NSIS 打包均通过。三份产物在冒烟完成后再次校验了
 日志 `workspace-native-rapid-nav.log`、`workspace-native-layout.log` 和报告位置记录均在候选目录。
 使用的是新初始化的 Workspace v1 合成库，测试只操作候选自己的窗口。
 
+同一候选随后通过 `--accessibility-only` **27/27** 和 `--keyboard-journey-only` **17/17**。
+前者核对六个界面的 Windows UI Automation 名称、跳转链接和确认弹窗焦点；后者通过 WebView2
+窗口内按键，从保存候选、批准、读引文走到本地 Mock 会话和 Context，并核对保存的回执。
+两个模式各使用一个全新的合成库。辅助功能首次在 Runtime 页因窗口句柄归属校验中止
+（8/9）；用原脚本完整复测通过，未修改窗口归属校验或产品。结果见候选目录的
+`workspace-native-accessibility-final.log`、`workspace-native-keyboard-journey-final.log`
+和对应报告位置记录。
+
 首次 `--layout-only` 在 179 字符的合成根中打开库，准备数据的 `remember` 返回
 `storage_failed`；随后在沙箱环境复跑，两项均未连上测试进程的主窗口。保留原失败日志。
 
