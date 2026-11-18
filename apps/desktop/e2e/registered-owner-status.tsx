@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { MemoryStatusProvider, MemoryBadge, ConnectedHome, MemorySettings, VaultConnect, useStatus } from '../src/memory/status';
 import MemorySurface from '../src/memory/MemorySurface';
 import { NativeStrip } from '../src/theme/RecordStrip';
+import RuntimeSurface from '../src/runtime/RuntimeSurface';
 import { setTransport } from '../src/memory/client';
 import { setCatalogTransport } from '../src/memory/catalog';
 import { status, page, stats } from './fixtures/catalog.mjs';
@@ -39,7 +40,7 @@ setCatalogTransport(async(_command,args)=>{
 });
 function Control(){const value=useStatus();return <button id="refresh" data-workspace={value.status?.vault?.state??'unknown'} data-error={value.nativeError?.text??value.error?.text??''} onClick={()=>void value.refresh()}>Fixture refresh</button>;}
 const nav=Object.fromEntries(['memory','context','sessions'].map(name=>[name,{go:()=>{}}]));
-root.render(<MemoryStatusProvider><Control/><MemoryBadge/><NativeStrip page="home" nav={<nav/>}/><ConnectedHome nav={nav} ring={null}/><MemorySettings openMemory={()=>{}}/><VaultConnect/><MemorySurface/></MemoryStatusProvider>);
+root.render(<MemoryStatusProvider><Control/><MemoryBadge/><NativeStrip page="home" nav={<nav/>}/><ConnectedHome nav={nav} ring={null}/><MemorySettings openMemory={()=>{}}/><VaultConnect/><MemorySurface/><RuntimeSurface/></MemoryStatusProvider>);
 const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
 const text=()=>fixture.textContent??'';
 const badge=()=>fixture.querySelector('.qr224')?.textContent??'';
@@ -53,6 +54,8 @@ try{
   await wait(()=>badge().includes('Registered library open')&&text().includes('2 shown · 3 matching authorized records'));
   check('real_native_status_does_not_rewrite_workspace_slot',fixture.querySelector('#refresh')?.getAttribute('data-workspace')==='none');
   check('badge_is_readonly_not_connected_workspace',badge().includes('Registered Owner · read only')&&!badge().includes('Connected workspace'));
+  const inspector=fixture.querySelector('[data-screen-label="Runtime Inspector"]')!;
+  check('inspector_reports_native_scope_and_unavailable_operations',inspector.querySelector('#runtime-memory-panel')!.textContent!.includes('Registered library open')&&inspector.querySelector('#runtime-operations-panel')!.textContent!.includes('Unavailable in this read-only entry')&&!inspector.textContent!.includes('No Vault open'));
   check('home_does_not_offer_review_queue_or_saved_context',!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Open or create a Vault')&&!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Read saved Capsules')&&text().includes('Unavailable in this read-only entry'));
   check('no_fabricated_commit_or_time_trace',!fixture.querySelector('[data-kind="vault-commit"]')&&text().includes('Read-only library · no time trace is available'));
   check('settings_and_gates_do_not_offer_writes_or_model_configuration',!text().includes('Create Vault…')&&!text().includes('Open an existing Vault…')&&!calls.some(c=>c.startsWith('memory_provider_')));
@@ -77,6 +80,7 @@ try{
   check('late_open_status_cannot_replace_newer_close',badge().includes('Registered library closed'));
   fail=true;refresh();await wait(()=>badge().includes('Registered library status unknown'));
   check('failure_retains_readonly_configuration_but_withdraws_open_claim',!badge().includes('Registered library open')&&!text().includes('Create Vault…')&&!calls.some(c=>c.startsWith('memory_provider_'))&&fixture.querySelector('#refresh')?.getAttribute('data-workspace')==='none');
+  check('inspector_withdraws_open_state_and_reports_native_error',inspector.querySelector('#runtime-memory-panel')!.textContent!.includes('Registered library status unknown')&&inspector.querySelector('#runtime-memory-panel [role=alert]')?.textContent==='The automatic Memory read was refused');
   fail=false;mismatch=true;refresh();await wait(()=>fixture.querySelector('#refresh')?.getAttribute('data-error')==='This automatic Memory version is unsupported');
   check('synthetic_status_cannot_impersonate_registered_entry',badge().includes('Registered library status unknown'));
   mismatch=false;state='open';refresh();await wait(()=>badge().includes('Registered library open'));
