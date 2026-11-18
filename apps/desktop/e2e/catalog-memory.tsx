@@ -11,6 +11,7 @@ let mode='synthetic_segmented_only';
 let releaseStats:(()=>void)|null=null,releaseStatus:(()=>void)|null=null;
 let holdDetail=false,holdSource=false,failDetail=false;
 let releaseDetail:(()=>void)|null=null,releaseSource:(()=>void)|null=null;
+const secondSourceRef={source_id:'synthetic-second-source',source_revision:1};
 setCatalogTransport(async(command,args)=>{
   if(command!=='memory_catalog')throw new Error('Unexpected channel');
   const query=(args as any).request.query;calls.push(structuredClone(query));
@@ -34,11 +35,19 @@ setCatalogTransport(async(command,args)=>{
   if(query.operation==='detail'){
     if(failDetail){failDetail=false;throw 'catalog_busy';}
     const result=detail(query.memory_id);result.header.selection={...result.header.selection,scope_hash:scope};
+    if(query.memory_id==='synthetic-memory-1'){
+      const first=result.fields.evidence[0];
+      result.fields.evidence.push({...first,reference:{...first.reference,...secondSourceRef}});
+    }
     if(holdDetail){holdDetail=false;await new Promise<void>(resolve=>{releaseDetail=resolve;});}
     return result;
   }
   if(query.operation==='source'){
     const result=source(query.start,query.limit);result.header.selection={...result.header.selection,scope_hash:scope};
+    if(query.source.source_id===secondSourceRef.source_id){
+      result.source=secondSourceRef;
+      result.source_record={...result.source_record,reference:secondSourceRef,original_message_id:'synthetic-second-message'};
+    }
     if(holdSource){holdSource=false;await new Promise<void>(resolve=>{releaseSource=resolve;});}
     return result;
   }
@@ -75,6 +84,11 @@ try{
   check('detail_is_read_without_automatically_reading_source',calls.filter(c=>c.operation==='detail').length===1&&!calls.some(c=>c.operation==='source'));
   click('Read quoted source');await wait(()=>!!fixture.querySelector('section[aria-label="Quoted source excerpt"]'));
   check('exact_unicode_source_is_literal_and_attributed',text().includes(quote)&&!fixture.querySelector('#catalog-source-injected')&&text().includes('synthetic-conversation')&&text().includes('synthetic-message'));
+  const sourceButtons=[...fixture.querySelectorAll<HTMLButtonElement>('section[aria-label="Catalog record detail"] li button')];
+  check('identical_quotes_have_distinct_accessible_actions',sourceButtons.map(b=>b.getAttribute('aria-label')).join('|')==='Read quoted source 1|Read quoted source 2');
+  sourceButtons[1].click();
+  await wait(()=>fixture.querySelector('section[aria-label="Quoted source excerpt"]')?.textContent?.includes('synthetic-second-message')===true);
+  check('identical_quote_reads_the_selected_second_origin',calls.at(-1)?.source?.source_id===secondSourceRef.source_id&&fixture.querySelector('section[aria-label="Quoted source excerpt"] blockquote')?.textContent===quote);
   failDetail=true;click('Refresh record detail');await wait(()=>!!fixture.querySelector('section[aria-label="Catalog record detail"] [role=alert]'));
   check('detail_failure_withdraws_previous_source',!fixture.querySelector('section[aria-label="Quoted source excerpt"]'));
   click('Refresh record detail');await wait(()=>!!button('Read quoted source'));
