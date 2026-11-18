@@ -5,6 +5,8 @@
 pin 为 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，aggregate `df3248e7…`，Workspace 61 命令，
 见[新 pin 证据](validation/Memory-pin-506d23d-2026-11-17.md)。此前合成原生检查 20/20 的范围与
 首轮失败见[壳层状态报告](validation/Registered-owner-shell-status-2026-11-17.md)，不改写为本次执行。
+11月18日构建另通过合成 WebView2 **23/23**，包含侧栏、目录搜索和引文按钮的新增断言。
+[本次窗口验证](validation/Registered-owner-catalog-navigation-2026-11-18.md)
 
 ## 先选对流程
 
