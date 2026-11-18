@@ -10,9 +10,14 @@ import { status, page, stats } from './fixtures/catalog.mjs';
 const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:string[]=[];
 let state='open',fail=false,mismatch=false,hold=false,release:(()=>void)|null=null;
+let releaseEntry:(()=>void)|null=null;
+const initialEntry=new Promise<void>(resolve=>{releaseEntry=resolve;});
 setTransport(async(command,args)=>{
   calls.push(command==='memory_call'?(args as any).request.command:command);
-  if(command==='shell_status')return {vaultChanging:false,memoryEntry:'registered_owner_readonly'};
+  if(command==='shell_status'){
+    await initialEntry;
+    return {vaultChanging:false,memoryEntry:'registered_owner_readonly'};
+  }
   if(command==='startup_status')return {supported:false,enabled:false};
   if(command==='memory_call'&&(args as any).request.command==='workspace_status')return {
     kind:'memory_page',result:{vault:{state:'none'},pendingCandidates:0,components:[],companion:{exiting:false}}
@@ -42,6 +47,9 @@ async function wait(test:()=>boolean){for(let i=0;i<350;i++){if(test())return;aw
 function check(id:string,ok:boolean){checks.push({id,ok});}
 function refresh(){fixture.querySelector<HTMLButtonElement>('#refresh')!.click();}
 try{
+  await wait(()=>calls.includes('shell_status'));
+  check('unknown_launch_mode_does_not_offer_workspace_navigation',!fixture.querySelector('[data-screen-label="Memory Vault"] .qr28 button'));
+  releaseEntry!();
   await wait(()=>badge().includes('Registered library open')&&text().includes('2 shown · 3 matching authorized records'));
   check('real_native_status_does_not_rewrite_workspace_slot',fixture.querySelector('#refresh')?.getAttribute('data-workspace')==='none');
   check('badge_is_readonly_not_connected_workspace',badge().includes('Registered Owner · read only')&&!badge().includes('Connected workspace'));
@@ -50,6 +58,7 @@ try{
   check('settings_and_gates_do_not_offer_writes_or_model_configuration',!text().includes('Create Vault…')&&!text().includes('Open an existing Vault…')&&!calls.some(c=>c.startsWith('memory_provider_')));
   check('memory_defaults_to_native_catalog',fixture.querySelector('[data-screen-label="Memory Vault"] button[aria-pressed=true]')?.textContent==='Native memory catalog');
   const memory=fixture.querySelector('[data-screen-label="Memory Vault"]')!;
+  check('registered_entry_only_offers_catalog_navigation',[...memory.querySelectorAll('.qr28 button')].map(button=>button.textContent).join('|')==='Native memory catalog');
   check('registered_entry_only_offers_catalog_search',!memory.querySelector('.qr28 form[role=search]'));
   const catalogSearch=memory.querySelector<HTMLFormElement>('form:not(.qr22)')!;
   const input=catalogSearch.querySelector('input')!;

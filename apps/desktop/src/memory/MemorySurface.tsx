@@ -45,13 +45,16 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   initialCollection?: "current" | "inbox"; openSession?: (vaultId: string, sessionId: string) => void;
 }) {
   const { status, vaultChanging, entry, observeNativeControl } = useStatus();
+  const registered = entry === "registered_owner_readonly";
   const [chosenCollection, setCollection] = useState<Collection | null>(null);
-  const collection = chosenCollection ?? (entry === "registered_owner_readonly" ? "catalog" : initialCollection);
+  const collection = registered ? "catalog" : chosenCollection ?? initialCollection;
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState({ text: "", seq: 0 });
   const open = status?.vault?.state === "open";
   const pending: number | null = status?.pendingCandidates ?? null;
-  const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = [
+  const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = entry === null ? [] : registered ? [
+    { label: t("Vault"), items: [["catalog", TITLES.catalog]] },
+  ] : [
     { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },
     { label: t("Automatic"), items: [["automated", TITLES.automated], ["capture", TITLES.capture]] },
@@ -96,7 +99,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           </div>
         ))}
       </aside>
-      {collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <Suspense fallback={<StatusPending />}><CatalogMemory onControl={entry === "registered_owner_readonly" ? observeNativeControl : undefined} /></Suspense> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
+      {entry === null ? <div className="qr45"><div className="mem-gate"><StatusPending /></div></div> : collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <Suspense fallback={<StatusPending />}><CatalogMemory onControl={registered ? observeNativeControl : undefined} /></Suspense> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>
