@@ -2,7 +2,7 @@
 
 在Enouia Runtime项目工作，使用中文。先读AGENTS.md、docs/integration/RUNTIME_ROADMAP_2026-11-16.md、docs/MEMORY_INTEGRATION_v1.md和docs/integration/memory-pin.json；状态快照不是已安装状态。
 
-11月18日最新接续点：Memory afefa61 完成351条真实形成、重开/精确来源、同盘验证备份与隔离恢复，恢复副本重跑的CURRENT与journal哈希保持原样。Runtime 1267268已生成R3本地候选，NSIS生成模板26/26、候选合成WebView2 24/24。候选位置和哈希见docs/validation/R3-owner-readonly-candidate-1267268-2026-11-18.md。接续docs/RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md的人工回执；个人库操作、安装、发布和长期读取授权保持各自范围，独立介质故障恢复待验证。以下旧待生成候选与形成中记录属于先前时点。
+11月18日最新接续点：Memory afefa61 完成351条真实形成、重开/精确来源、同盘验证备份与隔离恢复，恢复副本重跑的CURRENT与journal哈希保持原样。Runtime 1267268已生成R3本地候选，NSIS生成模板26/26、候选合成WebView2 24/24。候选位置和哈希见docs/validation/R3-owner-readonly-candidate-1267268-2026-11-18.md；其中代理回执记录真实库的打开、检索、引文、锁定及同根重开通过，259条为现有桌面授权范围。接续docs/RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md的Morii人工回执，不重复代理验收；个人库操作、安装、发布和长期读取授权保持各自范围，独立介质故障恢复待验证。以下旧待生成候选与形成中记录属于先前时点。
 
 当前最新兼容采用为Memory 506d23dc174a3e927d323f8f8d0b8ecfc9d1726d（已合并PR118），aggregate=df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53，仍61命令；见docs/validation/Memory-pin-506d23d-2026-11-17.md。先核对本片PR/main再接续，不重复采用，也不把旧a543c1e或5175284当成支持ADR149的程序。以下早期段落保留此前证据范围，以本段和末次协调为当前入口。
 
