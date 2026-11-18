@@ -35,6 +35,7 @@ const dict: Record<string, string> = {
   "This record is no longer available in the current scope.": "この記録は現在の範囲では読み取れません。",
   "Quoted text evidence; attachment content is not read.": "引用された文字の証拠です。添付ファイルの内容は読み取りません。",
   "Read quoted source": "引用元を読む",
+  "Read quoted source {n}": "引用元を読む {n}",
   "Reading quoted source…": "引用元を読み込み中…",
   "This source revision is no longer available.": "この版の引用元は読み取れません。",
   "Quoted source excerpt": "引用元の抜粋",

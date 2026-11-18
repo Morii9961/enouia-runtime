@@ -35,6 +35,7 @@ const dict: Record<string, string> = {
   "This record is no longer available in the current scope.": "当前范围内已无法读取这条记录。",
   "Quoted text evidence; attachment content is not read.": "以下是文字引文证据，不读取附件内容。",
   "Read quoted source": "读取引文来源",
+  "Read quoted source {n}": "读取引文来源 {n}",
   "Reading quoted source…": "正在读取引文来源…",
   "This source revision is no longer available.": "已无法读取这一来源修订。",
   "Quoted source excerpt": "引文来源摘录",

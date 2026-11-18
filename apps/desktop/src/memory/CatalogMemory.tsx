@@ -137,7 +137,8 @@ function CatalogDetailPanel({ memoryId, filter, selection, read }: { memoryId: s
       <ul className="mem-list">{detail.fields.evidence.map((evidence, index) => <li key={index}>
         <blockquote className="mem-content">{evidence.quote}</blockquote>
         <p className="mem-row-meta mem-content">{evidence.reference.source_id} · r{evidence.reference.source_revision} · {evidence.start}–{evidence.end}</p>
-        <button type="button" className="mem-link" disabled={sources.busy} onClick={() => quoted(evidence)}>{t("Read quoted source")}</button>
+        <button type="button" className="mem-link" disabled={sources.busy}
+          aria-label={t("Read quoted source {n}", { n: index + 1 })} onClick={() => quoted(evidence)}>{t("Read quoted source")}</button>
       </li>)}</ul>
     </>}
     {sources.busy && <p role="status">{t("Reading quoted source…")}</p>}
