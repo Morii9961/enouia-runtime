@@ -1,7 +1,7 @@
 // Native Inspector: observations through the existing host facades only.
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { shell, describe, type J } from "../memory/client";
-import { ComponentList, exiting, useStatus, vaultLabel } from "../memory/status";
+import { ComponentList, exiting, registeredLabel, useStatus, vaultLabel } from "../memory/status";
 import { when } from "../memory/ui";
 import { WorkspaceOperations } from "./WorkspaceOperations";
 
@@ -67,13 +67,16 @@ function ReadStatus({ busy, error, observedAt, refresh, label }: {
 
 export default function RuntimeSurface() {
   const [selected, setSelected] = useState('memory');
-  const { status, error, vaultChanging, refresh } = useStatus();
+  const { status, error, vaultChanging, refresh, entry, nativeStatus, nativeError } = useStatus();
   const host = useSnapshot<J>(shell.lifecycleStatus, describe);
   const hostStatus = host.snapshot?.value;
-  const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
+  const registered = entry === "registered_owner_readonly";
+  const open = !registered && status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const operationsAvailable = open && typeof status.vault.vaultId === 'string' && status.vault.vaultId.length > 0;
-  const memoryState = vaultLabel(status, vaultChanging);
-  const operationsState = open ? `${t('Running operations')} · ${status.operationsRunning ?? t('unknown')}` : memoryState;
+  const memoryState = registered ? registeredLabel(nativeStatus) : vaultLabel(status, vaultChanging);
+  const memoryError = registered && nativeStatus?.reason ? describe(nativeStatus.reason) : (registered ? nativeError ?? error : error)?.text;
+  const operationsState = registered ? t('Unavailable in this read-only entry')
+    : open ? `${t('Running operations')} · ${status.operationsRunning ?? t('unknown')}` : memoryState;
   const shellState = host.busy ? t('Reading {what}…', { what: t('shell status') }) : host.error ? t('Status unavailable')
     : host.snapshot ? t('Observed {when}', { when: when(host.snapshot.observedAt) }) : t('Status unknown');
   const components = [
@@ -100,10 +103,10 @@ export default function RuntimeSurface() {
       </div>
       <section id="runtime-memory-panel" className="mem-stack runtime-panel" hidden={selected !== 'memory'} aria-labelledby="runtime-memory-title">
         <h2 id="runtime-memory-title" className="qr194">{t("Memory Core")}</h2>
-        <p role="status" className="mem-muted">{vaultLabel(status, vaultChanging)}</p>
+        <p role="status" className="mem-muted">{memoryState}</p>
         <button type="button" className="mem-button" onClick={() => void refresh()}>{t("Read Memory status again")}</button>
-        {error && <p role="alert" className="mem-error">{error.text}</p>}
-        {status && !exiting(status) && !vaultChanging && <>
+        {memoryError && <p role="alert" className="mem-error">{memoryError}</p>}
+        {!registered && status && !exiting(status) && !vaultChanging && <>
           <ComponentList status={status} />
           {open && <>
             <Fact name={t("Vault")}>{status.vault.rootName}</Fact>
@@ -115,7 +118,7 @@ export default function RuntimeSurface() {
       </section>
       <div id="runtime-operations-panel" className="runtime-panel" hidden={selected !== 'operations'}>
         {operationsAvailable ? <WorkspaceOperations key={status.vault.vaultId} /> : <section className="mem-stack" aria-labelledby="runtime-operations-title">
-          <h2 id="runtime-operations-title" className="qr194">{t('Memory operations')}</h2><p role="status" className="mem-muted">{memoryState}</p>
+          <h2 id="runtime-operations-title" className="qr194">{t('Memory operations')}</h2><p role="status" className="mem-muted">{operationsState}</p>
         </section>}
       </div>
       <section id="runtime-shell-panel" className="mem-stack runtime-panel" hidden={selected !== 'shell'} aria-labelledby="runtime-shell-title">
