@@ -27,9 +27,9 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 
 | 材料 | 本轮确认结果 / 后续需填内容 |
 | --- | --- |
-| Memory 形成版本及读兼容性 | PR118 已获主人批准并合并至 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，Runtime 本片采用该正式 pin。ADR149 grouped decisions 的 reader 门槛由此满足，aggregate 为 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，仍61命令；ADR150只改变独立fresh工具的私有journal，没有额外Runtime reader门槛 |
+| Memory 形成版本及读兼容性 | 正式续跑工具来自 Memory `afefa61`（PR119 / ADR151）。Runtime `506d23d` 已满足 ADR149 的分组决策读取要求。ADR151 只改 initializer，读取与备份契约、61 个 Workspace 命令和 aggregate `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53` 保持原值 |
 | 全量计划及 journal 生命周期容量 | Memory交付会话已从正式506d23d重建CLI并报告原始完整清单容量通过：43计划、351记录、2,149个选入来源完整保留，queued journal 62,174字节、生命周期上界9,134,248字节、最大Plan对象674,906字节，均低于各自16 MiB。Runtime仅核对工程摘要，未读取私人清单或自行执行；早期17a369e的容量拒绝仍保留为历史结果。容量通过不等于建库/ready |
-| 真实形成、关闭重开、查询与精确来源 | 同一登记 Vault 已提交 3 条，剩余 348 条排队。Memory 在合成库复现了 `fresh.step: Denied`：第二批给已捕获的原始来源分配了新 SourceId。同一原始定位必须复用来源身份，整轮有 164 个跨批重复引用。Memory 正在验证保留既有回执的原地续跑方案。形成、重开、查询及全量来源与引文对账仍待实际结果 |
+| 真实形成、关闭重开、查询与精确来源 | 初次在第二批来源捕获时因跨批来源身份重复遇到 `fresh.step: Denied`。PR119 合并后，正式工具全量预检通过。续跑准备保留 3 个原回执与 Vault 第 7 个提交，随后用同一清单和登记操作启动剩余记录的形成。形成结果、重开、查询及来源与引文对账仍待报告 |
 | 独立备份、验证与隔离恢复 | 待 Memory 提供已完成的工程证明；同盘合成往返不替代独立恢复 |
 | 同根身份与允许读取范围 | Memory 确认原生登记及兼容布局，Morii 保管实际启动参数。安排验收时按 Memory 交付摘要核对可读范围和有效截止时间，见下文 |
 | 新候选 | 待记录 Runtime 完整源码提交、精确 Memory pin/aggregate、程序与相邻 DLL/安装包位置及发行记录；当前没有可填写的新包 |
