@@ -2,6 +2,8 @@
 
 在Enouia Runtime项目工作，使用中文。先读AGENTS.md、docs/integration/RUNTIME_ROADMAP_2026-11-16.md、docs/MEMORY_INTEGRATION_v1.md和docs/integration/memory-pin.json；状态快照不是已安装状态。
 
+11月18日最新接续点：Memory afefa61 完成351条真实形成、重开/精确来源、同盘验证备份与隔离恢复，恢复副本重跑的CURRENT与journal哈希保持原样。Runtime 1267268已生成R3本地候选，NSIS生成模板26/26、候选合成WebView2 24/24。候选位置和哈希见docs/validation/R3-owner-readonly-candidate-1267268-2026-11-18.md。接续docs/RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md的人工回执；个人库操作、安装、发布和长期读取授权保持各自范围，独立介质故障恢复待验证。以下旧待生成候选与形成中记录属于先前时点。
+
 当前最新兼容采用为Memory 506d23dc174a3e927d323f8f8d0b8ecfc9d1726d（已合并PR118），aggregate=df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53，仍61命令；见docs/validation/Memory-pin-506d23d-2026-11-17.md。先核对本片PR/main再接续，不重复采用，也不把旧a543c1e或5175284当成支持ADR149的程序。以下早期段落保留此前证据范围，以本段和末次协调为当前入口。
 
 兼容采用已随Runtime PR190合并至ecc9bb57593f13581962d58d6b4e88c820d9dbb1。Memory随后报告正式506d23d对原始完整清单容量预检通过，43计划/351记录/2149选入来源完整保留，mutable lifecycle约9.13MB、最大Plan约0.675MB，均低于16MiB；这是隔壁工程摘要，Runtime未读私人材料或重跑。同一bootstrap操作已创建并登记Vault。11月18日Memory报告原运行已提交3条、348条排队，第二批来源捕获完成前返回 `fresh.step: Denied`，保留原journal、packet、key和回执，由该会话定位拒绝原因。形成完成、关闭重开、精确来源、独立恢复与ready仍待实际结果。接续R3须核对其新实际出口，不再按旧容量失败安排重复实现，也不提前构建生产候选。

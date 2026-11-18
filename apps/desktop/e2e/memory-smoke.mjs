@@ -1213,6 +1213,11 @@ async function registeredOwnerChecks() {
   await nav(s,'Settings');
   await waitFor(s,has('Open native memory catalog'),'registered Settings');
   check('OWNER.settings_offers_only_native_catalog',await s.evaluate(`!${has('Open an existing Vault…')} && !${has('Create Vault…')} && !${has('Model configuration draft')} && ${has('Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.')}`));
+  await nav(s,'Runtime');
+  await waitFor(s,'!!document.querySelector("#runtime-memory-panel")','runtime inspector');
+  check('OWNER.inspector_reports_registered_catalog',await s.evaluate(`
+    document.querySelector('#runtime-memory-panel [role=status]')?.textContent==='Registered library open' &&
+    document.querySelector('#runtime-operations-panel [role=status]')?.textContent==='Unavailable in this read-only entry'`));
   const first=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:2}).then(r=>r.ok)`);
   check('OWNER.actual_registered_records',first.matched_in_scope===3&&first.items.length===2);
   await nav(s,'Memory');

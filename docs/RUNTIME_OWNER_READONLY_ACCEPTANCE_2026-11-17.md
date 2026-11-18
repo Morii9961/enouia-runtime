@@ -1,12 +1,8 @@
-# 已登记 Owner 只读入口验收准备（2026-11-17）
+# 已登记 Owner 只读入口验收（2026-11-18）
 
-供 Morii 在新候选交付后验收同一个已登记库。目前是准备稿：**没有新安装候选，也没有
-个人库验收结果。** 只读壳层实现基线为 Runtime `d7791aa`（PR184）；当前兼容采用的 Memory
-pin 为 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，aggregate `df3248e7…`，Workspace 61 命令，
-见[新 pin 证据](validation/Memory-pin-506d23d-2026-11-17.md)。此前合成原生检查 20/20 的范围与
-首轮失败见[壳层状态报告](validation/Registered-owner-shell-status-2026-11-17.md)，不改写为本次执行。
-11月18日构建另通过合成 WebView2 **23/23**，包含侧栏、目录搜索和引文按钮的新增断言。
-[本次窗口验证](validation/Registered-owner-catalog-navigation-2026-11-18.md)
+候选 `1267268` 已在本机构建并通过合成 WebView2 **24/24**。Morii 可用候选目录中相邻的
+`enouia-desktop.exe` 和 `WebView2Loader.dll` 免安装验收同一个已登记库。安装包也保存在该目录，
+Windows 人工验收回执待填写。[候选位置、哈希及验证范围](validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)
 
 ## 先选对流程
 
@@ -14,7 +10,7 @@ pin 为 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，aggregate `df3248e7…`，W
 | --- | --- |
 | 旧候选 `5175284` 与兼容的 Workspace v1 库 | [旧人工指南](RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)。其中第 6、9 步会写入或导出，只适用于旧库 |
 | 已登记的分段 Owner 库 | 本文的只读流程；由受信任本机启动指定原登记 home/operation，页面不提供开库或解锁 |
-| 新安装、升级、托盘、热键、登录启动 | 等对应新候选和独立验收安排；旧候选结果不能代替新程序的检查 |
+| 新安装、升级、托盘、热键、登录启动 | 使用新候选，按各项独立验收安排执行。合成冒烟覆盖了自启动拒绝开库 |
 
 本入口不接通记住/批准/纠正/遗忘、导入、公开人设导出、Context、Sessions、Provider 或
 Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新根，也不把新根选给旧的
@@ -29,21 +25,21 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 | --- | --- |
 | Memory 形成版本及读兼容性 | 正式续跑工具来自 Memory `afefa61`（PR119 / ADR151）。Runtime `506d23d` 已满足 ADR149 的分组决策读取要求。ADR151 只改 initializer，读取与备份契约、61 个 Workspace 命令和 aggregate `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53` 保持原值 |
 | 全量计划及 journal 生命周期容量 | Memory交付会话已从正式506d23d重建CLI并报告原始完整清单容量通过：43计划、351记录、2,149个选入来源完整保留，queued journal 62,174字节、生命周期上界9,134,248字节、最大Plan对象674,906字节，均低于各自16 MiB。Runtime仅核对工程摘要，未读取私人清单或自行执行；早期17a369e的容量拒绝仍保留为历史结果。容量通过不等于建库/ready |
-| 真实形成、关闭重开、查询与精确来源 | 初次在第二批来源捕获时因跨批来源身份重复遇到 `fresh.step: Denied`。PR119 合并后，正式工具全量预检通过。续跑准备保留 3 个原回执与 Vault 第 7 个提交，随后用同一清单和登记操作启动剩余记录的形成。形成结果、重开、查询及来源与引文对账仍待报告 |
-| 独立备份、验证与隔离恢复 | 待 Memory 提供已完成的工程证明；同盘合成往返不替代独立恢复 |
+| 真实形成、关闭重开、查询与精确来源 | Memory 报告同一运行形成 351 条并保留首批 3 个回执。重开、11 页、查询、2,149 个来源、2,347 条直接引文和 86 条上下文引文的核对均通过 |
+| 备份、验证与隔离恢复 | Memory 报告主人选定的本机同盘导出已验证 678 个文件，隔离恢复审计一致，同一清单重跑保持 `CURRENT` 与 journal 哈希。独立介质故障恢复待验证 |
 | 同根身份与允许读取范围 | Memory 确认原生登记及兼容布局，Morii 保管实际启动参数。安排验收时按 Memory 交付摘要核对可读范围和有效截止时间，见下文 |
-| 新候选 | 待记录 Runtime 完整源码提交、精确 Memory pin/aggregate、程序与相邻 DLL/安装包位置及发行记录；当前没有可填写的新包 |
+| 新候选 | `apps/desktop/target/candidate-1267268/`。运行免安装副本时让 `WebView2Loader.dll` 保持在程序旁，按候选记录核对哈希 |
 | 人工验收环境 | 待安排 Windows 账户、安装/免安装方式、语言和需要检查的屏幕/DPI；没有本轮人工通过结论 |
 
 公共源码中 [11月16日交付路线](https://github.com/Morii9961/enouia-memory/blob/d0e7f9f0298e8b5c4c178dc2649a647c28e8596e/docs/handoff/MEMORY_DELIVERY_ROUTE_2026-11-16.md)
 仍保留当日基线与待交库步骤，不能从它推断现在已 ready。[标题投影](https://github.com/Morii9961/enouia-memory/blob/d0e7f9f0298e8b5c4c178dc2649a647c28e8596e/docs/validation/Fresh-conversation-title-projection.md)
 和[性能验证](https://github.com/Morii9961/enouia-memory/blob/d0e7f9f0298e8b5c4c178dc2649a647c28e8596e/docs/validation/Fresh-preparation-performance.md)
-明确只报告合成结果。以上材料未齐时继续独立开发准备，不生成生产候选或启动个人库验收。
+记录的是此前的合成结果。11月18日的真实交付工程摘要和候选证据见上表。
 
 随后 PR117 已合并，公共[ADR149 集成说明](https://github.com/Morii9961/enouia-memory/blob/17a369e010f670baacaeec98306854fd4d14afc5/docs/integration/RUNTIME.md)
 明确新增 reader 采用门槛；历史容量失败、新版本容量通过及两边分工见[路线接续](integration/RUNTIME_ROADMAP_2026-11-16.md#11月17日跨会话接续准入通过容量未通过)。不能继续沿用“后续仅初始化变更，无需更新 reader”的旧判断。
 
-## 候选交付后的只读操作
+## 用候选验收只读入口
 
 以下由 Morii 在批准的同一登记库和读取范围内操作。每项记通过/不通过/阻塞；反馈只需
 界面现象与错误码，避免粘贴来源正文、完整路径或登记参数。
@@ -83,7 +79,7 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 
 ## 回执
 
-新候选源码/pin：待交付；Memory ready 摘要：待交付；人工环境：待安排。
+候选源码 `1267268`，Memory pin `506d23d`。Memory CLI 与隔离恢复验收已通过，人工环境待填写。
 
 | 项目 | 结果 | 现象 / 错误码 / 时间 |
 | --- | --- | --- |
