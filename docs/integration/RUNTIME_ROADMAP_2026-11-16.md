@@ -2,6 +2,8 @@
 
 本文件是当前接续入口，取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
+2026-11-18，Memory 完成 351 条真实形成、重开与来源核验，并通过主人选择的同盘备份验证、隔离恢复与幂等重跑。Runtime 已从 `1267268` 构建[本地 R3 候选](../validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)，生成 NSIS 模板 26/26、候选程序合成 WebView2 24/24 通过。接续[登记只读人工验收](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)。独立介质故障恢复与人工验收待执行，下文的早期候选状态保留原时点。
+
 最新兼容采用为已合并 Memory `506d23d` / aggregate `df3248e7…` / 61命令，满足ADR149分组决策reader门槛；[本轮验证](../validation/Memory-pin-506d23d-2026-11-17.md)包含新程序原生20/20。它与Memory真实全量预检并行，不等于真实库/生产候选完成；下文早期pin与候选均保留原证据范围。
 
 2026-11-17 接续：R1 的 Memory `a543c1e` / aggregate `723ec245…` / 61 命令已随 PR180 合并；[证据](../validation/Memory-pin-a543c1e-2026-11-16.md)保留原失败。R2 的[详情/来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已随 PR181 合并（原生 42/42），ADR037 引用澄清已随 PR182 合并。PR183 合并 [ADR-038 显式登记库只读启动](REGISTERED_OWNER_READONLY.md)（桌面 14/14）；随后完成独立只读入口的壳层、Home/Settings 状态统一，见[验证](../validation/Registered-owner-shell-status-2026-11-17.md)及 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。R3 的[只读验收分流与证据清单](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)已准备，真实库和新候选等待对应门槛。图形选择、个人库验收及 R3 候选仍有独立边界。以下审计基线不是当前 pin，手动状态快照保持原证据基线。
