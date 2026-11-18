@@ -1218,10 +1218,20 @@ async function registeredOwnerChecks() {
   await nav(s,'Memory');
   await waitFor(s,has('2 shown · 3 matching authorized records'),'registered catalog panel');
   check('OWNER.memory_defaults_to_native_catalog',await s.evaluate("document.querySelector('[data-screen-label=\"Memory Vault\"] button[aria-pressed=true]')?.textContent==='Native memory catalog'"));
+  check('OWNER.sidebar_offers_only_registered_catalog',await s.evaluate(`
+    [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog' &&
+    !document.querySelector('[data-screen-label="Memory Vault"] .qr28 form')`));
   check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered Owner · read only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
+  await set(s,'.qr44 form[role=search] input','Blue pottery cup');
+  await click(s,'button','Search catalog');
+  await waitFor(s,has('1 shown · 1 matching authorized records'),'registered catalog search');
+  check('OWNER.catalog_search_stays_in_registered_entry',await s.evaluate(`
+    document.querySelector('[data-screen-label="Memory Vault"] button[aria-pressed=true]')?.textContent==='Native memory catalog' &&
+    document.querySelector('.qr44 .mem-list h3')?.textContent==='Blue pottery cup'`));
   await s.evaluate("document.querySelector('.qr44 .mem-list h3 button').click()");
   await waitFor(s,"!!document.querySelector('section[aria-label=\"Catalog record detail\"] blockquote')",'registered detail');
   const quote=await s.evaluate("document.querySelector('section[aria-label=\"Catalog record detail\"] blockquote').textContent");
+  check('OWNER.quoted_source_has_numbered_accessible_name',await s.evaluate(`!!document.querySelector('button[aria-label="Read quoted source 1"]')`));
   await click(s,'button','Read quoted source');
   await waitFor(s,"!!document.querySelector('section[aria-label=\"Quoted source excerpt\"] blockquote')",'registered exact source');
   check('OWNER.registered_source_matches_quote',await s.evaluate(`document.querySelector('section[aria-label="Quoted source excerpt"] blockquote').textContent===${JSON.stringify(quote)}`));
