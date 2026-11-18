@@ -31,15 +31,24 @@ release 和 NSIS 打包均通过。三份产物在冒烟完成后再次校验了
 和报告位置见 `catalog-smoke.log` 与 `catalog-location.txt`。随后再次核对三份候选产物的大小
 和 SHA-256，均与上表一致。
 
-普通 Workspace 的两项定向回归未完成。`--layout-only` 在 179 字符的合成根中启动候选并打开库，
-但准备布局数据的 `remember` 返回 `storage_failed`，未进入布局断言。随后使用另一批合成根复跑，
-布局与 `--rapid-nav-only` 均未连上测试进程的主窗口，没有得到界面结果。失败日志保存在候选目录。
+普通 Workspace 在普通 Windows 桌面使用短路径合成根及新 WebView2 配置复测通过：
+
+| 模式 | 结果 | 覆盖范围 |
+| --- | --- | --- |
+| `--rapid-nav-only` | 6/6 | 启用页面转场时，连续快捷键以最后一次为准；测试进程正常退出 |
+| `--layout-only` | 33/33 | 1100×700 和 1600×700 下六个主界面，含长文本来源、可达的更正输入框、本地 Mock 会话及 Context |
+
+日志 `workspace-native-rapid-nav.log`、`workspace-native-layout.log` 和报告位置记录均在候选目录。
+使用的是新初始化的 Workspace v1 合成库，测试只操作候选自己的窗口。
+
+首次 `--layout-only` 在 179 字符的合成根中打开库，准备数据的 `remember` 返回
+`storage_failed`；随后在沙箱环境复跑，两项均未连上测试进程的主窗口。保留原失败日志。
 
 用 `506d23d` 的 Windows CLI 在同一临时父目录新建四个合成根，提交同一条合成文本：142 字符根
 的 `init`、`assert`、`verify` 均通过；165、179、192 字符根初始化通过，`assert` 均返回
 `storage_failed`（`NotFound`），`verify` 仍通过，并确认库停在初始化提交。这个写入失败可脱离
-Runtime 复现；测试长度不是通用路径上限。Memory 负责定位写入故障，普通 Workspace 的布局和
-连续导航回归需补测。三份候选文件的大小和 SHA-256 复核通过。
+Runtime 复现；测试长度不是通用路径上限。长路径写入仍由 Memory 定位，两项短路径回归
+不构成长路径修复证据。三份候选文件在原生复测后再次核对大小和 SHA-256，均与上表一致。
 
 Memory 会话在独立于 Runtime 的本机流程提供真实工程验收。`afefa61`（PR119）完成同一原始运行的
 351 条形成，原生重开后 11 页、查询、2,149 个来源、2,347 条直接引文、86 条上下文引文及 969 条
