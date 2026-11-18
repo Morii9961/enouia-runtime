@@ -2,7 +2,7 @@
 
 本文件是当前接续入口，取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
-2026-11-18，Memory 完成 351 条真实形成、重开与来源核验，并通过主人选择的同盘备份验证、隔离恢复与幂等重跑。Runtime 已从 `1267268` 构建[本地 R3 候选](../validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)，生成 NSIS 模板 26/26、候选程序合成 WebView2 24/24 通过。接续[登记只读人工验收](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)。交付会话确认，用原登记的 Windows 登录账户运行时，Memory 原生登记检查通过；Runtime 界面复验及检索、引文、锁定和同根重开待完成。独立介质故障恢复也待执行，下文的早期候选状态保留原时点。
+2026-11-18，Memory 完成 351 条真实形成、重开与来源核验，并通过主人选择的同盘备份验证、隔离恢复与幂等重跑。Runtime 已从 `1267268` 构建[本地 R3 候选](../validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)，生成 NSIS 模板 26/26、候选程序合成 WebView2 24/24 通过。Memory 交付会话以原登记的 Windows 账户完成[真实库本机代理实测](../validation/R3-owner-readonly-candidate-1267268-2026-11-18.md#真实登记库的本机代理实测)：打开、检索、引文、锁定与同根重开通过；桌面显示的是当前授权范围（259 条）。接续[Morii 人工验收](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)，独立介质故障恢复另待验证。下文的早期候选状态保留原时点。
 
 最新兼容采用为已合并 Memory `506d23d` / aggregate `df3248e7…` / 61命令，满足ADR149分组决策reader门槛；[本轮验证](../validation/Memory-pin-506d23d-2026-11-17.md)包含新程序原生20/20。它与Memory真实全量预检并行，不等于真实库/生产候选完成；下文早期pin与候选均保留原证据范围。
 
@@ -61,7 +61,7 @@ Memory形成库及领域契约；Runtime采用兼容Core并提供Windows客户�
 
 ## R3：新候选与日用验收
 
-接入完成、Memory交付契约明确后，按验收配方生成新候选，记录源码与pin。[只读验收准备](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)已区分旧Workspace步骤与新Owner入口，[旧人工指南](../RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)顶部提供分流，不直接复制旧第6/9步。新候选和真实库人工验收仍未执行。
+接入完成、Memory交付契约明确后，按验收配方生成新候选，记录源码与pin。[只读验收准备](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)已区分旧Workspace步骤与新Owner入口，[旧人工指南](../RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)顶部提供分流，不直接复制旧第6/9步。候选和代理实测的最新结果见本文顶部；真实库的 Morii 人工验收仍待执行。
 
 11月17日核对公共 Memory main `d0e7f9f`：#110/#112/#113/#114/#115/#116 已进入主线；新增初始化标题投影与准备性能变化不涉及 reader/格式/Runtime surface，本片不追最新 pin。公共交付路线仍是11月16日计划，未提供真实整轮形成与独立恢复的 ready 证明；只记录“待 Memory 交付工程摘要”，不从 PR 合并推断真实库完成。
 
@@ -95,7 +95,7 @@ Morii 明确要求查看并协调隔壁“推进 Memory 纯文本新库交付”
 
 待决定：是否扩展图形Owner入口/其他表面、Windows环境、星图视觉/首版门槛、公开人设默认及Memory契约§5、合成枚举/时间翻译、必要时改键入口。Runtime自动合并授权不能扩大到Memory待审PR、个人库、安装/部署、真实读取授权或Provider。
 
-R1/R2 的接续结果见本文顶部；R3 只读验收分流已准备，接续核对公共工程交付与实际待决定项。跨仓库优先读取公共交接和已有审计结果，不创建重复Memory实现任务。手动状态快照仅在Morii要求时更新。
+R1/R2 和 R3 的最新证据见本文顶部；R3 接续 Morii 人工验收及其余待决定项。跨仓库优先读取公共交接和已有审计结果，不创建重复Memory实现任务。手动状态快照仅在Morii要求时更新。
 
 本次兼容采用后的接续点：reader门槛已在新源码中满足，旧安装候选仍无该能力。Memory负责新版本真实整轮容量及后续形成/恢复工程摘要，Runtime不自行读取私人输入，也不把本片合成验证写成真实ready。手动状态快照保持原基线。
 
