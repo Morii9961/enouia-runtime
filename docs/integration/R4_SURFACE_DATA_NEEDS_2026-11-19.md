@@ -20,9 +20,9 @@
 | G04 | 全库图与带类型边 | 部分：节点 ≤5,000、事实边与算法建议边分开；语义近邻明确不可用 | `memory_graph_native`、`memory_neighbors_native` | 未转发 |
 | G05 | 主题成员规模 | 已满足：共享实体族投影，可分页 | `memory_theme_members_native` | 未转发 |
 | G06 | 文字检索、筛选与计数 | 已满足：文字、种类、四条状态轴、实体、项目、主题、时间窗；每轴分面计数 | `CatalogFilter`、`memory_facets_native`、page `include_facets` | 只有文字检索，无筛选与分面 |
-| G07 | 形成活动流 | 部分：材料、形成、重评、合成、纠正、回退、状态变化、主人动作；由时间推出的淡出 / 归档事件不可用 | `memory_activity_feed_native` | 未转发 |
-| G08 | 主人动作 | 端口已有（`NativeMemoryOwner` 计划 / 确认 / 提交），属写入 | Morii execution | R4.3 门槛 |
-| G09 | 实体与参与者 | 已满足：条目带 `entities[]`（角色、主人合并 / 拆分证明） | 读取条目 `entities` | 未显示 |
+| G07 | 形成活动流 | 部分：材料、形成、重评、合成、纠正、回退、状态变化、人工纠正动作；由时间推出的淡出 / 归档事件不可用 | `memory_activity_feed_native` | 未转发 |
+| G08 | 人工纠正动作 | 端口已有（`NativeMemoryOwner` 计划 / 确认 / 提交），属写入 | Morii execution | R4.3 门槛 |
+| G09 | 实体与参与者 | 已满足：条目带 `entities[]`（角色、人工合并 / 拆分证明） | 读取条目 `entities` | 未显示 |
 | G10 | 事件时间精度 | 已满足：`event_time` / `valid_time` 为 `RecordTime` | 读取条目 | 未显示 |
 | G11 | 真实 Vault 采用 | 已由 ADR-038 登记只读入口完成读取侧 | — | 已接入 |
 | G12 | MCP 进入新库 | Memory 有分段 Agent 管线；接入属 MCP 授权 | — | R4.3 门槛 |

@@ -115,6 +115,8 @@ Morii 2026-11-19 要求：交接任务完成后新开会话，把 Runtime 原有
 
 2026-11-19 R4.0：[缺口复核与逐界面数据需求表](R4_SURFACE_DATA_NEEDS_2026-11-19.md)显示现行 pin `368634b` 已含 G03–G07、G13–G16、G19、G23 的只读端口，R4.1/R4.2 的大部分界面不需升级 pin，只需 Runtime 转发；Memory 侧只剩 G22 只读召回预览（阻塞 Context 与召回实验）及读取窗口续期，清单已交 Memory 会话。
 
+2026-11-19 R4.1：[登记模式界面接入真实目录](../validation/R4-1-registered-surfaces-2026-11-19.md)——记忆格 / 列表筛选与分面计数、详情、时间、关联、形成、Sessions、Home、Quick Search 与 Inspector 读数改读真实库；原生合成 33/33 与 42/42，真实库桌面走查 19/19。仍缺 Context 与召回实验（等 Memory 的只读召回预览）。写入、Provider、MCP、迁移的授权门槛见[一页汇总](R4_AUTHORIZATION_GATES_2026-11-19.md)。
+
 规则：每个界面接入前后都要有合成验证；只有在原生程序里对真实库实际读通后，才去掉“虚构”标识。界面与 Memory 契约冲突时，以 Memory 为准。Runtime 不自行实现 Memory 领域逻辑。读取窗口 2026-11-24 到期，最终验收前需由 Memory 续期。
 
 ## 排期和待决定项

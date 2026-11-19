@@ -6,10 +6,11 @@ import { clearViews, useTimeView } from '../theme/timeview';
 import { DAY, nativeDate, observedCommit } from '../theme/nativeTime';
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
-type Props = { nav: J; timeline: MapSpec; now: number; open: boolean; vault: J; reviewLine: string; label: string; phase: string; readonlyEntry?: boolean };
+type Note = { title: string; line: string; route: { go: () => void }; detail: string; time: string };
+type Props = { nav: J; timeline: MapSpec; now: number; open: boolean; vault: J; reviewLine: string; label: string; phase: string; readonlyEntry?: boolean; readonlyNotes?: Note[] };
 
 /** The selected Home composition, with only what the current status receipt knows. */
-export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase, readonlyEntry = false }: Props) {
+export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase, readonlyEntry = false, readonlyNotes }: Props) {
   const view = useTimeView(timeline.key, timeline.init);
   useEffect(() => () => clearViews(timeline.key), [timeline.key]);
   const [start, end] = view.domain;
@@ -18,7 +19,7 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
   const fraction = commit == null ? 0 : (commit - start) / (end - start);
   const layer = { width: `${(end - start) / view.span * 100}%`, transform: `translateX(${-(view.start - start) / (end - start) * 100}%)` };
   const clock = nativeDate(now, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).split(':');
-  const notes = readonlyEntry ? [
+  const notes = readonlyNotes ?? (readonlyEntry ? [
     { title: t('Native memory catalog'), line: reviewLine, route: nav.memory, detail: phase, time: '—' },
     { title: t('Sources'), line: t('Open a record to inspect its quoted source.'), route: nav.memory, detail: '—', time: '—' },
     { title: t('Context'), line: t('Unavailable in this read-only entry'), route: nav.context, detail: '—', time: '—' },
@@ -28,7 +29,7 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
     { title: t('Context'), line: t('Read saved Capsules in Context'), route: nav.context, detail: '—', time: '—' },
     { title: t('Sessions'), line: t('Read saved conversations in Sessions'), route: nav.sessions, detail: '—', time: '—' },
     { title: t('Checkpoint'), line: t('Read saved checkpoints in Sessions'), route: nav.sessions, detail: '—', time: '—' },
-  ];
+  ]);
   return <section data-screen-label="Home" className="qr17 bg-home bg-native-home">
     <div className="bg-home-head">
       <div className="bg-readout">

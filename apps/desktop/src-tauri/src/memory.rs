@@ -235,6 +235,10 @@ impl MemoryHost {
     /// Once exit begins, only observations may still reach the Core.
     pub fn forward(&self, request: &Value) -> Result<Value, String> {
         let command = request["command"].as_str().unwrap_or("");
+        if self.catalog.registered_owner_mode() && command == "memory_search" {
+            let query = request["arguments"]["query"].as_str().unwrap_or("");
+            return self.catalog.search(query).map_err(str::to_owned);
+        }
         if self.catalog.registered_owner_mode()
             && (is_write(command)
                 || matches!(command, "vault_open" | "vault_create" | "vault_unlock"))
