@@ -349,6 +349,13 @@ impl NativeCatalog {
             return Ok(view);
         }
         let state = self.0.state.try_lock().map_err(|_| "catalog_busy")?;
+        // Morii authorized the registered Owner entry to read every sensitivity
+        // (2026-11-19); the fixed synthetic entry keeps its Private ceiling.
+        let ceiling = if self.registered_owner_mode() {
+            Sensitivity::HighlySensitive
+        } else {
+            Sensitivity::Private
+        };
         if is_status {
             let phase = if !self.enabled() {
                 "disabled"
@@ -378,7 +385,7 @@ impl NativeCatalog {
                             options: CatalogReadOptions {
                                 limit: 1,
                                 max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: Sensitivity::Private,
+                                max_sensitivity: ceiling,
                                 include_facets: false,
                             },
                         },
@@ -429,7 +436,7 @@ impl NativeCatalog {
                             options: CatalogReadOptions {
                                 limit,
                                 max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: Sensitivity::Private,
+                                max_sensitivity: ceiling,
                                 include_facets: false,
                             },
                         },
@@ -447,7 +454,7 @@ impl NativeCatalog {
                             options: CatalogReadOptions {
                                 limit: 100,
                                 max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: Sensitivity::Private,
+                                max_sensitivity: ceiling,
                                 include_facets: false,
                             },
                         },
@@ -465,7 +472,7 @@ impl NativeCatalog {
                             options: CatalogReadOptions {
                                 limit: 32,
                                 max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: Sensitivity::Private,
+                                max_sensitivity: ceiling,
                                 include_facets: false,
                             },
                         },
@@ -488,7 +495,7 @@ impl NativeCatalog {
                             options: CatalogReadOptions {
                                 limit: 1,
                                 max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: Sensitivity::Private,
+                                max_sensitivity: ceiling,
                                 include_facets: false,
                             },
                         },

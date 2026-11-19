@@ -10,6 +10,8 @@
 
 2026-11-19 存放整理：Morii 确认永久删除旧 v1 重初始化输入（含附件原件存档，附件原件已无法从新库取回）、11-17 同盘导出与隔离恢复副本，以及 Memory/Runtime 的合成验证目录。主库仍在原登记 home，内容未变；**目前没有任何备份**，Memory 将在候选关闭后按 ADR136 重新导出，目标与时间由 Morii 决定。Morii 指定将来统一存放到单一目录，但原生登记绑定 home 完整路径、账户、operation 与描述符，不能直接搬移或手改；迁移需 Memory 新开切片并经 Morii 授权，Runtime 届时再采用新入口。之前的备份与恢复验证结论保留为历史证据。
 
+2026-11-19：Morii 授权登记 Owner 入口读取全部敏感级别，原生上限由 `Private` 改为 `HighlySensitive`（仅登记模式），见 [ADR-038 补充](../adr/038-registered-owner-readonly-entry.md#owner-decision-full-sensitivity-ceiling-2026-11-19) 与[验证](../validation/Registered-owner-full-sensitivity-2026-11-19.md)。尚未生成新安装候选。
+
 此前兼容采用为已合并 Memory `506d23d` / aggregate `df3248e7…` / 61命令，满足ADR149分组决策reader门槛；[本轮验证](../validation/Memory-pin-506d23d-2026-11-17.md)包含新程序原生20/20。它与Memory真实全量预检并行，不等于真实库/生产候选完成；下文早期pin与候选均保留原证据范围。
 
 2026-11-17 接续：R1 的 Memory `a543c1e` / aggregate `723ec245…` / 61 命令已随 PR180 合并；[证据](../validation/Memory-pin-a543c1e-2026-11-16.md)保留原失败。R2 的[详情/来源合成接入](../validation/Catalog-native-detail-source-2026-11-17.md)已随 PR181 合并（原生 42/42），ADR037 引用澄清已随 PR182 合并。PR183 合并 [ADR-038 显式登记库只读启动](REGISTERED_OWNER_READONLY.md)（桌面 14/14）；随后完成独立只读入口的壳层、Home/Settings 状态统一，见[验证](../validation/Registered-owner-shell-status-2026-11-17.md)及 [R2 接入记录](RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md)。R3 的[只读验收分流与证据清单](../RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md)已准备，真实库和新候选等待对应门槛。图形选择、个人库验收及 R3 候选仍有独立边界。以下审计基线不是当前 pin，手动状态快照保持原证据基线。

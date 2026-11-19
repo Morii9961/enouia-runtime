@@ -37,7 +37,8 @@ The host fixes a read-time `attention-rank-1` profile: revision 1, fade 30 days,
 archive 180 days, protected episode/relationship-experience forms, no aliases or
 protected IDs, 32 items and 65,536 bytes. These are display/selection parameters,
 not durable maintenance or authority. No maintenance worker is started. The
-native ceiling remains Private and the page cannot widen it.
+native ceiling is HighlySensitive for this entry (owner decision below) and the
+page cannot change it.
 
 Lock withdraws observations, drops the reader/Core and releases the directory
 reservation; a page Unlock is refused. Reopening requires a new explicitly
@@ -62,3 +63,15 @@ configuration. Catalog lock receipts invalidate earlier shell reads. A graphical
 home picker, other Owner surfaces and any persistent opening preference remain
 separate Runtime work. Real-library readiness and independent backup proof belong to Memory;
 personal GUI acceptance, installation and deployment need their own authorization.
+
+## Owner decision: full sensitivity ceiling (2026-11-19)
+
+Morii explicitly authorized the registered Owner entry to read every sensitivity
+level of the library: it is his own single-user desktop and the Private ceiling
+hid records without telling him. The native binding now passes
+`HighlySensitive` as the read ceiling for page, stats, detail, source and status
+in registered Owner mode only. The fixed synthetic entry keeps `Private`.
+Packets still cannot set the ceiling, and Core keeps enforcing subject, source,
+policy, deletion and expiry checks, so policy expiry still narrows what is
+visible. This adds no write, grant, Provider, Context or Sessions path. See
+[evidence](../validation/Registered-owner-full-sensitivity-2026-11-19.md).

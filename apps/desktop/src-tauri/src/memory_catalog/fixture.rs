@@ -52,7 +52,7 @@ pub(super) fn create_with_clock(
         )
         .map_err(|_| "catalog_fixture_storage")?,
     );
-    seed(&vault, &descriptor, clock.now_unix_ms(), stop)?;
+    seed(&vault, &descriptor, clock.now_unix_ms(), stop, false)?;
     let reader =
         SegmentedMemoryReader::from_authenticated_system(vault, descriptor.system_actor.clone())
             .map_err(|_| "catalog_fixture_invalid")?;
@@ -73,6 +73,7 @@ pub(super) fn seed(
     descriptor: &AutomationDescriptor,
     now_ms: i64,
     stop: &AtomicBool,
+    highly_sensitive_last: bool,
 ) -> Result<(), &'static str> {
     let ids = OsIdSource;
     let now = Timestamp::from_unix_ms(now_ms).ok_or("catalog_fixture_invalid")?;
@@ -94,6 +95,9 @@ pub(super) fn seed(
     policy.valid_from = now.clone();
     policy.valid_until =
         Timestamp::from_unix_ms(now_ms + 3_600_000).ok_or("catalog_fixture_invalid")?;
+    if highly_sensitive_last {
+        policy.max_sensitivity = Sensitivity::HighlySensitive;
+    }
     vault
         .set_policy(&descriptor.created_by, policy.clone())
         .map_err(|_| "catalog_fixture_policy")?;
@@ -137,6 +141,12 @@ pub(super) fn seed(
         source.record.original_conversation_id = None;
         source.record.original_message_id = None;
         source.record.branch_id = Knowable::Known(None);
+        let sensitivity = if highly_sensitive_last && index == 2 {
+            Sensitivity::HighlySensitive
+        } else {
+            Sensitivity::Private
+        };
+        source.record.sensitivity = sensitivity;
         source.text = text.into();
         source.record.content_hash = sha256(source.text.as_bytes());
         source.attributed_subject = Some(policy.subject_id.clone());
@@ -163,6 +173,7 @@ pub(super) fn seed(
         input.policy = policy.reference();
         input.input_refs = vec![source.reference()];
         input.content = text.into();
+        input.sensitivity = sensitivity;
         input.evidence = vec![EvidenceRef {
             source_id: source.record.source_id.clone(),
             source_revision: source.record.revision,
