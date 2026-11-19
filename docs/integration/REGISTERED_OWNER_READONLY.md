@@ -19,8 +19,9 @@
 Owner 接口；旧包仅用于旧 Workspace 验收。当前可使用本地 R3 候选 `1267268` 的程序和相邻 DLL
 免安装验收。[候选记录](../validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)
 
-包含 ADR149 来源分组决策的库还要求兼容 reader；当前采用的是已合并 Memory `506d23d`，
-见[pin 验证](../validation/Memory-pin-506d23d-2026-11-17.md)。早期 `a543c1e` 的 R2 验证程序
+包含 ADR149 来源分组决策的库还要求兼容 reader；`506d23d` 起即满足，见[pin 验证](../validation/Memory-pin-506d23d-2026-11-17.md)。
+当前源码采用 Memory `368634b`，Runtime 链接的代码只多了 Windows 长路径持久重命名修复，见[采用验证](../validation/Memory-pin-368634b-2026-11-19.md)；
+R3 候选 `1e96a6d` 与 `1267268` 都仍嵌 `506d23d`。早期 `a543c1e` 的 R2 验证程序
 也不能因此当作分组新库的兼容程序。独立 fresh 工具的 journal v2 接续由 Memory 管理。
 
 在已授权的受信任本机启动中显式指定原来登记的 home 与 bootstrap operation：
