@@ -854,6 +854,31 @@ fn projection_and_process_reads_forward_core_documents_without_writing() {
         assert_eq!(value["kind"], kind);
         assert_eq!(value["effect"], "native_read");
     }
+    let at = first["authorized_at"].clone();
+    let status = native
+        .call("main", &packet(json!({"operation":"status"})))
+        .unwrap();
+    assert_eq!(
+        status["recall_limits"],
+        json!({"max_items":8,"max_bytes":16384})
+    );
+    let recall = native
+        .call("main", &packet(json!({"operation":"recall_preview","query":{"text":"","conditions":[],"event_window":null,"at":at,"intent":"browse","limit":8,"max_bytes":16384}})))
+        .unwrap();
+    assert_eq!(recall["kind"], "native_recall_preview");
+    assert_eq!(recall["effect"], "native_read");
+    assert!(
+        recall["trace"]["selected"].is_array()
+            && recall["trace_coverage"]["reason_counts"].is_object()
+    );
+    if std::env::var_os("ENOUIA_PRINT_RECALL_SHAPE").is_some() {
+        println!("{}", serde_json::to_string_pretty(&recall).unwrap());
+    }
+    // A profile-exceeding limit is Core's refusal, not a clamp.
+    assert_eq!(
+        native.call("main", &packet(json!({"operation":"recall_preview","query":{"text":"","conditions":[],"event_window":null,"at":at,"intent":"browse","limit":9,"max_bytes":16384}}))),
+        Err("catalog_read_refused")
+    );
     // Page-owned limits outside Core's bounds are refused, not clamped.
     assert_eq!(
         native.call(

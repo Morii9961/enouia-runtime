@@ -35,7 +35,7 @@
 | G19 | 为什么形成 | 已满足：`formation_reason`（解释类型、规则 / 提示 / 模型版本、附注） | 读取条目 | 未显示 |
 | G20 | 新旧两个库 | 登记入口与 Workspace 互斥，状态牌分开 | — | 已接入 |
 | G21 | 一条记录一个陈述 | 归初始化规则 | — | 不处理 |
-| G22 | Context 新格式 | **缺**：分段库的召回只在 Agent 宿主上（`SegmentedAgentHost::recall`，需 Agent 登记）；System 只读读者没有召回预览 | — | Context 仍走 Workspace v1 |
+| G22 | Context 新格式 | **2026-11-19 由 Memory #125 / ADR-MEM-152 补齐，pin `009b7bc` 已采用**；此前缺：分段库的召回只在 Agent 宿主上（`SegmentedAgentHost::recall`，需 Agent 登记）；System 只读读者没有召回预览 | — | Context 仍走 Workspace v1 |
 | G23 | 全库统计 | 已满足：各轴计数（每轴 ≤16 值，可再分页） | `memory_stats_native` | 只用了总数 |
 | G24 | 回看建议、保存实验 | 以后 | — | 保持“不可用” |
 
