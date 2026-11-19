@@ -32,15 +32,15 @@ const appAt = (page, state = {}) => {
   return app;
 };
 
-test('native Settings exposes a non-secret configuration draft even before opening a Vault', async () => {
+test('native Settings withholds model configuration until the shell reports its entry', async () => {
+  // The first render cannot know whether this launch is the read-only registered
+  // entry, so it shows the pending status instead of any configuration control.
+  // e2e/settings-exit-ownership.tsx covers the draft once the workspace entry is read.
   const stream = await renderToReadableStream(createElement(App, { startPage: 'settings', memoryConnected: true, breathing: false }));
   await stream.allReady;
   const html = await new Response(stream).text();
-  assert.match(html, /Model configuration draft/);
-  assert.match(html, /Generate settings draft/);
-  assert.match(html, /Loaded model settings/);
-  assert.match(html, /Reload model settings/);
-  assert.match(html, /Generating and copying do not save the file, reload settings or activate/);
+  assert.match(html, /Reading the Memory status…/);
+  assert.doesNotMatch(html, /Model configuration draft|Generate settings draft|Loaded model settings|Reload model settings/);
   assert.doesNotMatch(html, /type="password"|Draft memory-providers\.json|Copy settings draft/);
   assert.doesNotMatch(html, /Loading panel…/);
 });
