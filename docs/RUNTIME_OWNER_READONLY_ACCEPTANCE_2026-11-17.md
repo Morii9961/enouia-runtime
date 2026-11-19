@@ -1,8 +1,11 @@
 # 已登记 Owner 只读入口验收（2026-11-18）
 
-候选 `1267268` 已在本机构建并通过合成 WebView2 **24/24**。Morii 可用候选目录中相邻的
-`enouia-desktop.exe` 和 `WebView2Loader.dll` 免安装验收同一个已登记库。安装包也保存在该目录，
-交付会话已完成真实库的本机代理实测；Morii 的人工验收回执待填写。[候选位置、哈希及验证范围](validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)
+2026-11-19 起人工验收改用新候选 `1e96a6d`（收入键盘锁定焦点修复）：候选目录中相邻的
+`enouia-desktop.exe` 和 `WebView2Loader.dll` 可免安装验收同一个已登记库，合成登记只读冒烟 **25/25**。
+[候选位置、哈希及验证范围](validation/R3-owner-readonly-candidate-1e96a6d-2026-11-19.md)。
+
+上一候选 `1267268` 通过合成 WebView2 **24/24**，交付会话已用它完成真实库的本机代理实测，
+[候选记录](validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)保留。代理实测不转记到新候选；Morii 的人工验收回执待填写。
 
 ## 先选对流程
 
@@ -28,7 +31,7 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 | 真实形成、关闭重开、查询与精确来源 | Memory 报告同一运行形成 351 条并保留首批 3 个回执。重开、11 页、查询、2,149 个来源、2,347 条直接引文和 86 条上下文引文的核对均通过 |
 | 备份、验证与隔离恢复 | Memory 报告主人选定的本机同盘导出已验证 678 个文件，隔离恢复审计一致，同一清单重跑保持 `CURRENT` 与 journal 哈希。独立介质故障恢复待验证 |
 | 同根身份与允许读取范围 | Memory 确认原生登记及兼容布局，Morii 保管实际启动参数。安排验收时按 Memory 交付摘要核对可读范围和有效截止时间，见下文 |
-| 新候选 | `apps/desktop/target/candidate-1267268/`。运行免安装副本时让 `WebView2Loader.dll` 保持在程序旁，按候选记录核对哈希 |
+| 新候选 | `apps/desktop/target/candidate-1e96a6d/`（上一候选 `candidate-1267268/` 保留）。运行免安装副本时让 `WebView2Loader.dll` 保持在程序旁，按候选记录核对哈希 |
 | 人工验收环境 | 按原登记的 Windows 登录账户免安装启动。代理已按此方式实测，Morii 的人工验收待执行 |
 
 公共源码中 [11月16日交付路线](https://github.com/Morii9961/enouia-memory/blob/d0e7f9f0298e8b5c4c178dc2649a647c28e8596e/docs/handoff/MEMORY_DELIVERY_ROUTE_2026-11-16.md)
@@ -90,11 +93,9 @@ Windows 登录账户后，Memory 原生检查确认了同一个登记操作。�
 
 ## Morii 人工验收回执
 
-候选源码 `1267268`，Memory pin `506d23d`。Memory CLI 与隔离恢复验收已通过，人工环境待填写。
-
-已知问题：在该候选里用键盘 Enter 锁定后，焦点会落到页面顶层，需重新 Tab 进入目录。
-main `67f26d7` 已修复（[验证](validation/R3-owner-lock-keyboard-focus-2026-11-19.md)），尚未进入候选；
-人工验收遇到此现象时照实记录，不影响撤回与重开判断。
+候选源码 `1e96a6d`，Memory pin `506d23d`。Memory CLI 与隔离恢复验收已通过，人工环境待填写。
+若改用上一候选 `1267268` 验收，请在此注明；该候选用键盘 Enter 锁定后焦点会落到页面顶层，
+`1e96a6d` 已修复（[验证](validation/R3-owner-lock-keyboard-focus-2026-11-19.md)）。
 
 | 项目 | 结果 | 现象 / 错误码 / 时间 |
 | --- | --- | --- |
