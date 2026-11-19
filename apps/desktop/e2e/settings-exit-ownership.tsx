@@ -7,7 +7,7 @@ import '../src/memory/memory.css';
 
 const fixture = document.getElementById('fixture')!, root = createRoot(fixture);
 const checks: { id: string; ok: boolean }[] = [], calls: { command: string; args: Record<string, unknown> }[] = [];
-let exiting = false, changing = false, failWrite = true, failRead = false, enabled = false, holdExit = false, holdRead = false;
+let vaultOpen = true, exiting = false, changing = false, failWrite = true, failRead = false, enabled = false, holdExit = false, holdRead = false;
 let release: (() => void) | null = null;
 const releasePending = () => { const resolve = release; release = null; resolve?.(); };
 const startup = () => ({ supported: true, state: enabled ? 'enabled' : 'disabled', enabled });
@@ -29,7 +29,8 @@ setTransport(async (native, args) => {
     case 'memory_call': {
       const request = args.request as { command: string };
       if (request.command !== 'workspace_status') throw new Error(`Unexpected Core ${request.command}`);
-      return { kind: 'memory_page', result: { vault: { state: 'open', rootName: 'Synthetic Vault', health: 'clean', headSequence: 7, ownerOnlyAcl: true, lastCommitAt: '2026-10-16T00:00:00Z' }, companion: { exiting }, components: [] } };
+      const vault = vaultOpen ? { state: 'open', rootName: 'Synthetic Vault', health: 'clean', headSequence: 7, ownerOnlyAcl: true, lastCommitAt: '2026-10-16T00:00:00Z' } : { state: 'none' };
+      return { kind: 'memory_page', result: { vault, companion: { exiting }, components: [] } };
     }
     default: throw new Error(`Unexpected native ${native}`);
   }
@@ -92,6 +93,12 @@ try {
     failRead = false; click(button('Read startup setting again')); await wait(() => toggle()?.disabled === false);
     check('successful_reread_restores_control_without_writing', toggle()?.getAttribute('aria-checked') === 'true' && writes().length === beforeReadRetry);
   }
+  // Once the shell reports the workspace entry, model configuration is available before any Vault is opened.
+  vaultOpen = false; exiting = false; failRead = false; await mount('no-vault');
+  await wait(() => text().includes('Reload model settings'));
+  check('workspace_entry_offers_non_secret_model_draft_without_a_vault', text().includes('No Vault open') && text().includes('Model configuration draft') &&
+    !!button('Generate settings draft') && text().includes('Loaded model settings') && text().includes('Generating and copying do not save the file, reload settings or activate') &&
+    !fixture.querySelector('input[type="password"]') && !text().includes('Draft memory-providers.json') && !button('Copy settings draft') && !text().includes('Loading panel…'));
   check('fixture_uses_only_status_startup_and_synthetic_exit', calls.every(c => ['shell_status', 'startup_status', 'startup_set', 'exit_app', 'memory_call', 'memory_provider_setup'].includes(c.command)));
 } catch (error) { checks.push({ id: String(error), ok: false }); }
 finally { releasePending(); root.unmount(); document.getElementById('results')!.textContent = JSON.stringify({ checks, passed: checks.every(c => c.ok), startupWrites: calls.filter(c => c.command === 'startup_set') }, null, 2); }
