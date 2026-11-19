@@ -3,10 +3,11 @@
 // was sent, and the verified actual request of each dispatch. Ported from
 // Memory's reference workspace. A new preview clears the old view and
 // invalidates pending reads, and a dispatch view cannot outlive its capsule.
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
-import { VaultGate } from "./status";
+import { VaultGate, useStatus } from "./status";
+const RegisteredContext = lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredContext })));
 import { ErrorBox, Tag, shortId, when } from "./ui";
 import { capsuleObservation, dispatchObservation } from "./observationIdentity";
 
@@ -26,6 +27,8 @@ const DELIVERY: Record<string, string> = labels({
 });
 
 export default function ContextSurface({ capsuleId }: { capsuleId: string | null }) {
+  const { entry } = useStatus();
+  if (entry === "registered_owner_readonly") return <Suspense fallback={null}><RegisteredContext /></Suspense>;
   return (
     <VaultGate>
       <Context key={capsuleId ?? "none"} capsuleId={capsuleId} />

@@ -15,7 +15,7 @@ export type CatalogSelection = {
 };
 export type CatalogCursor = { selection: CatalogSelection; after: string };
 export type CatalogStatus = { kind: "runtime_memory_catalog_status"; mode: "synthetic_segmented_only" | "registered_owner_readonly";
-  state: "disabled" | "initializing" | "open" | "locked" | "failed" | "closing"; available: boolean; selection?: CatalogSelection; reason?: string };
+  state: "disabled" | "initializing" | "open" | "locked" | "failed" | "closing"; available: boolean; selection?: CatalogSelection; reason?: string; recall_limits?: { max_items: number; max_bytes: number } };
 export type CatalogItem = { title: string; content_lang: string; base: {
   memory: { memory_id: string; revision: number }; content: string; system_actor: { actor_type: "system" };
   dimensions: { kind: string }; knowledge: string; adoption: string; validity: string; attention: string;
@@ -86,6 +86,24 @@ export async function catalogView<K extends keyof ViewQueries>(query: { operatio
   const lists = { time_buckets: "buckets", graph: "nodes", activity: "items", neighbors: "items", conflicts: "items", conversations: "items", conversation_detail: "turns" } as const;
   if (!Array.isArray(value[lists[query.operation]])) throw "catalog_response_unsupported";
   return value as ViewResults[K];
+}
+// ADR-MEM-152 System recall preview: the Agent host's recall without a Capsule,
+// stored context or Agent enrollment. Core's document has no process header.
+export type RecallQuery = { text: string; conditions: string[]; event_window: null; at: string; intent: "current" | "historical" | "browse"; limit: number; max_bytes: number };
+export type RecallPreview = { kind: "native_recall_preview"; complete_in_scope: boolean; rendered_context: string;
+  trace: { at: string; authorized_at: string; considered: number; rendered_bytes: number;
+    selected: { memory: { memory_id: string; revision: number }; attention: string; score: number; reasons: string[] }[];
+    excluded: [{ memory_id: string; revision: number }, string][] };
+  trace_coverage: { excluded_in_scope: number; excluded_returned: number; complete: boolean; reason_counts: Record<string, number> };
+  items: { base: { memory: { memory_id: string; revision: number }; content: string }; record: { fields: { title: string } } }[] };
+export async function catalogRecall(query: RecallQuery): Promise<RecallPreview> {
+  const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: { operation: "recall_preview", query: structuredClone(query) } } }) as J;
+  if (!value || value.schema_version !== 2 || value.capability !== "memory-native-read-2" || value.effect !== "native_read" || value.kind !== "native_recall_preview" ||
+      !Array.isArray(value.trace?.selected) || !Array.isArray(value.trace?.excluded) || !Array.isArray(value.items) ||
+      value.items.length !== value.trace.selected.length || typeof value.rendered_context !== "string" ||
+      typeof value.trace_coverage?.reason_counts !== "object" || !Number.isSafeInteger(value.trace.considered)) throw "catalog_response_unsupported";
+  snapshotKey(value.trace.snapshot);
+  return value as RecallPreview;
 }
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);

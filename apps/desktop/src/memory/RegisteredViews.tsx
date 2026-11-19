@@ -3,7 +3,7 @@
 // the same registered catalog, renders only what Core returns and withdraws its
 // data when the library closes or its scope changes. Nothing here writes.
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { CATALOG_FILTER, catalogRead, catalogScopeKey, catalogView, type ActivityPage, type CatalogFilter, type CatalogPage, type CatalogSelection, type Conflicts,
+import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogView, type RecallPreview, type RecallQuery, type ActivityPage, type CatalogFilter, type CatalogPage, type CatalogSelection, type Conflicts,
   type CatalogSource, type CatalogStats, type ConversationDetail, type Conversations, type GraphPage, type Neighbors, type TimeBuckets } from "./catalog";
 import { CatalogDetailPanel } from "./CatalogMemory";
 import { recordTimeText, word } from "./catalogWords";
@@ -236,10 +236,57 @@ function ConflictGroup({ memoryId }: { memoryId: string }) {
 
 // ---- Recall ------------------------------------------------------------------
 export function RegisteredRecall() {
-  return <div className="qr45"><div className="mem-gate"><div className="mem-card mem-stack">
-    <h2 className="mem-h2">{t("Recall")}</h2>
-    <p className="mem-content">{t("A read-only recall preview for this library is not available yet. Memory is adding it; until then no recall result is shown here, real or invented.")}</p>
-  </div></div></div>;
+  return <Open title={t("Recall")}>{() => <RecallView mode="recall" />}</Open>;
+}
+/** Context in the registered entry: the same recall an Agent would receive, previewed without saving. */
+export function RegisteredContext() {
+  return <section data-screen-label="Context Surface" className="qr89 mem-registered-context"><Open title={t("Context")}>{() => <RecallView mode="context" />}</Open></section>;
+}
+const INTENTS = [["current", msg("Current memories")], ["historical", msg("Including history")], ["browse", msg("Browse without a cue")]] as const;
+function RecallView({ mode }: { mode: "recall" | "context" }) {
+  const { nativeStatus } = useStatus();
+  const limits = nativeStatus?.recall_limits;
+  const [text, setText] = useState("");
+  const [intent, setIntent] = useState<RecallQuery["intent"]>("current");
+  const [preview, setPreview] = useState<RecallPreview | null>(null);
+  const reads = useLatestRead();
+  const run = () => {
+    if (!limits || (intent !== "browse" && !text.trim())) return;
+    setPreview(null);
+    void reads.run(() => catalogRecall({ text, conditions: [], event_window: null, at: new Date().toISOString(), intent, limit: limits.max_items, max_bytes: limits.max_bytes }), setPreview);
+  };
+  const reasons = preview ? Object.entries(preview.trace_coverage.reason_counts) : [];
+  return <>
+    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack">
+      <h2 className="qr29">{t(mode === "context" ? "Context" : "Recall")}</h2>
+      <p className="mem-content">{t(mode === "context" ? "Preview the context an Agent would receive for a cue. It uses the same recall as the Agent and saves nothing." : "Why these records come to mind for a cue: the same recall an Agent uses, previewed without saving.")}</p>
+      <form className="mem-stack" onSubmit={event => { event.preventDefault(); run(); }}>
+        <label className="mem-label">{t("Cue")} <input className="mem-input" value={text} maxLength={2048} autoComplete="off" onChange={event => setText(event.target.value)} /></label>
+        <label className="mem-label">{t("Scope")} <select className="mem-input" value={intent} onChange={event => setIntent(event.target.value as RecallQuery["intent"])}>
+          {INTENTS.map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}</select></label>
+        <button className="mem-button" disabled={reads.busy || !limits || (intent !== "browse" && !text.trim())}>{t("Preview recall")}</button>
+      </form>
+      {limits && <p className="mem-row-meta">{t("Up to {items} records and {bytes} bytes, the limits of this entry.", { items: limits.max_items, bytes: limits.max_bytes })}</p>}
+      {reads.busy && <p role="status">{t("Previewing recall…")}</p>}
+      <ErrorBox error={reads.error} />
+      {preview && <>
+        <Observed at={preview.trace.authorized_at} />
+        <p className="mem-content">{t("{considered} considered · {selected} selected · {excluded} excluded · {bytes} bytes", { considered: preview.trace.considered, selected: preview.trace.selected.length, excluded: preview.trace_coverage.excluded_in_scope, bytes: preview.trace.rendered_bytes })}</p>
+        {!preview.complete_in_scope && <p role="status">{t("The byte budget ran out; more records matched than were included.")}</p>}
+        {preview.trace.selected.length === 0 ? <p className="mem-content">{t("Nothing was selected for this cue.")}</p> :
+          <ol className="mem-list">{preview.trace.selected.map((s, i) => <li key={s.memory.memory_id}>
+            <span className="mem-content">{preview.items[i].record.fields.title}</span>
+            <p className="mem-row-meta">{t("score {score}", { score: s.score })} · {word(s.attention)} · {s.reasons.map(word).join(" · ")}</p>
+          </li>)}</ol>}
+        {reasons.length > 0 && <><h3>{t("Why others were left out")}</h3>
+          <ul className="mem-list">{reasons.map(([reason, n]) => <li key={reason} className="mem-row-meta">{word(reason)} · {n}</li>)}</ul></>}
+        <details open={mode === "context"}><summary>{t("Rendered context")}</summary><pre className="mem-content mem-rendered">{preview.rendered_context}</pre></details>
+      </>}
+    </div></div>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
+      <p className="mem-content">{t("Nothing is written: no Capsule is saved and no Agent is enrolled. Selection order and reasons come from Memory's recall algorithm.")}</p>
+    </div></aside>
+  </>;
 }
 
 // ---- Sessions ----------------------------------------------------------------
@@ -339,7 +386,7 @@ export function RegisteredHome({ nav, timeline, now, phase }: { nav: { memory: {
       line: readings ? readings.latest ? t("Latest: {title}", { title: readings.latest.title ?? t("Source material") }) : t("No recorded events.") : fallback },
     { title: t("Sessions"), route: nav.sessions, detail: "—", time: "—",
       line: readings ? t("{n} captured conversations", { n: readings.conversations }) : fallback },
-    { title: t("Context"), route: nav.context, detail: "—", time: "—", line: t("Waiting for a read-only recall preview from Memory") },
+    { title: t("Context"), route: nav.context, detail: "—", time: "—", line: t("Preview the context an Agent would receive") },
   ];
   return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry readonlyNotes={notes}
     label={readings ? t("{label} · {n} records", { label: registeredLabel(nativeStatus), n: readings.stats.matched_in_scope }) : registeredLabel(nativeStatus)} phase={phase} reviewLine={fallback} />;

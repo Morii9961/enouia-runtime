@@ -87,3 +87,4 @@
 .mem-time-grid thead th{text-align:center;padding:0 0 2px}
 .mem-time-cell[aria-pressed="true"]{outline:2px solid var(--primary);outline-offset:1px}
 .mem-time-empty{display:inline-block;width:30px;text-align:center;color:var(--tertiary)}
+.mem-rendered{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:420px;overflow:auto;border:1px solid var(--hairline);padding:10px;margin:6px 0 0}

@@ -142,8 +142,30 @@ enum CatalogQuery {
         cursor: Option<ConversationTurnCursor>,
         limit: usize,
     },
+    RecallPreview {
+        query: RecallRequest,
+    },
     Lock,
     Unlock,
+}
+/// Wire form of Core's `RecallQuery`, which has no serde derive.
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RecallRequest {
+    text: String,
+    conditions: Vec<String>,
+    event_window: Option<FormationTime>,
+    at: enouia_memory_contract::time::Timestamp,
+    intent: RecallIntentWire,
+    limit: usize,
+    max_bytes: usize,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum RecallIntentWire {
+    Current,
+    Historical,
+    Browse,
 }
 struct Library {
     reader: enouia_memory_host::automation::catalog::SegmentedMemoryReader,
@@ -496,6 +518,9 @@ impl NativeCatalog {
                 }
                 view["selection"] =
                     serde_json::to_value(page.selection).map_err(|_| "catalog_read_refused")?;
+                // The host owns the read-time attention profile; a recall preview
+                // must stay within its item and byte bounds.
+                view["recall_limits"] = json!({"max_items": fixture.profile.max_items, "max_bytes": fixture.profile.max_bytes});
             }
             return Ok(view);
         }
@@ -703,6 +728,34 @@ impl NativeCatalog {
                     )
                     .map_err(fault)?,
             ),
+            // ADR-MEM-152: the same recall the Agent host runs, without a
+            // Capsule, stored context or Agent enrollment. Runtime adds only
+            // the read-2 envelope around Core's document.
+            CatalogQuery::RecallPreview { query } => {
+                let mut value = reader
+                    .recall_preview_native(
+                        &fixture.profile,
+                        &RecallQuery {
+                            text: query.text,
+                            conditions: query.conditions,
+                            event_window: query.event_window,
+                            at: query.at,
+                            intent: match query.intent {
+                                RecallIntentWire::Current => RecallIntent::Current,
+                                RecallIntentWire::Historical => RecallIntent::Historical,
+                                RecallIntentWire::Browse => RecallIntent::Browse,
+                            },
+                            limit: query.limit,
+                            max_bytes: query.max_bytes,
+                        },
+                        ceiling,
+                    )
+                    .map_err(fault)?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("native_recall_preview");
+                Ok(value)
+            }
             _ => return Err("catalog_invalid_request"),
         }
         .map_err(|_| "catalog_read_refused")?;

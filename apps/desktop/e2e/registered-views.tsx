@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { MemoryStatusProvider, ConnectedHome } from '../src/memory/status';
 import MemorySurface from '../src/memory/MemorySurface';
 import SessionsSurface from '../src/memory/SessionsSurface';
+import ContextSurface from '../src/memory/ContextSurface';
 import RuntimeSurface from '../src/runtime/RuntimeSurface';
 import { setTransport } from '../src/memory/client';
 import { setCatalogTransport } from '../src/memory/catalog';
@@ -26,7 +27,7 @@ setTransport(async(command,args)=>{
 });
 setCatalogTransport(async(_command,args)=>{
   const q=(args as any).request.query;calls.push(`catalog:${q.operation}`);
-  if(q.operation==='status')return {...status(state),mode:'registered_owner_readonly'};
+  if(q.operation==='status'){const r:any={...status(state),mode:'registered_owner_readonly'};if(state==='open')r.recall_limits={max_items:8,max_bytes:16384};return r;}
   if(state!=='open')throw 'catalog_locked';
   if(q.operation==='page'){const p:any=page(q.filter.text,q.cursor);p.items=p.items.slice(0,q.filter.time_window?1:q.limit);return p;}
   if(q.operation==='stats')return {...stats(q.selection,3),groups:[{axis:'adoption',count_scope:'matched',values:[{value:'adopted',label:'adopted',count:2},{value:'staged',label:'staged',count:1}],total_values:2}]};
@@ -48,10 +49,16 @@ setCatalogTransport(async(_command,args)=>{
   if(q.operation==='conversation_detail')return {...envelope,kind:'native_conversation_detail',header,conversation:{conversation_id:'ses_synthetic',platform:'synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},
     visible_captured_turns:1,visible_captured_sources:1,next:null,platform_complete_not_claimed:true,
     turns:[{turn:{turn_id:'turn_1',sequence:1,source:{source_id:'synthetic-source',source_revision:1}},source_record:{reference:{source_id:'synthetic-source',source_revision:1},speaker:'user',source_kind:'export_message'},fields:{}}]};
+  if(q.operation==='recall_preview'){recalls.push(q.query);return {...envelope,kind:'native_recall_preview',complete_in_scope:true,rendered_context:'Synthetic rendered context',
+    trace:{algorithm:'attention-rank-1',snapshot:selection.snapshot,profile_hash:'a'.repeat(64),at:q.query.at,authorized_at:selection.evaluated_at,considered:3,rendered_bytes:120,
+      selected:[{memory:{memory_id:'synthetic-memory-2',revision:1},attention:'active',score:900,reasons:['lexical']}],excluded:[[{memory_id:'synthetic-memory-1',revision:1},'no_cue']]},
+    trace_coverage:{excluded_in_scope:2,excluded_returned:1,complete:true,reason_counts:{no_cue:2}},
+    items:[{base:{memory:{memory_id:'synthetic-memory-2',revision:1},content:'合成示例'},record:{fields:{title:'调试偏好'}}}]};}
   throw new Error(`Unexpected catalog query ${q.operation}`);
 });
+const recalls:any[]=[];
 const nav=Object.fromEntries(['memory','context','sessions'].map(name=>[name,{go:()=>{}}]));
-root.render(<MemoryStatusProvider><ConnectedHome nav={nav} ring={null}/><MemorySurface/><SessionsSurface inspect={()=>{}}/><RuntimeSurface/></MemoryStatusProvider>);
+root.render(<MemoryStatusProvider><ConnectedHome nav={nav} ring={null}/><MemorySurface/><SessionsSurface inspect={()=>{}}/><ContextSurface capsuleId={null}/><RuntimeSurface/></MemoryStatusProvider>);
 const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
 const text=()=>fixture.textContent??'';
 const within=(label:string)=>fixture.querySelector(`[data-screen-label="${label}"]`)?.textContent??'';
@@ -86,8 +93,15 @@ try{
   await wait(()=>memory.textContent!.includes('No contradicting record is held.'));
   check('formation_event_opens_detail_and_conflict_group',memory.textContent!.includes('Catalog record detail')&&memory.textContent!.includes('Fading and archiving by time are not recorded as events yet.'));
   click('Recall',memory.querySelector('.qr28')!);
-  await wait(()=>memory.textContent!.includes('A read-only recall preview'));
-  check('recall_is_explicitly_unavailable_without_fiction',!memory.textContent!.includes('Synthetic preview'));
+  await wait(()=>!!memory.querySelector('.qr44 form input'));
+  const cue=memory.querySelector<HTMLInputElement>('.qr44 form input')!;
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(cue,'调试');cue.dispatchEvent(new Event('input',{bubbles:true}));
+  await sleep(30);memory.querySelector('.qr44 form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+  await wait(()=>memory.textContent!.includes('3 considered · 1 selected · 2 excluded · 120 bytes'));
+  check('recall_preview_uses_entry_limits_and_lists_core_selection',recalls.at(-1)?.limit===8&&recalls.at(-1)?.max_bytes===16384&&recalls.at(-1)?.text==='调试'&&memory.textContent!.includes('调试偏好')&&memory.textContent!.includes('Matched words')&&memory.textContent!.includes('No cue match · 2'));
+  check('recall_preview_states_nothing_is_written',memory.textContent!.includes('no Capsule is saved')&&!memory.textContent!.includes('Synthetic preview'));
+  const context=fixture.querySelector('[data-screen-label="Context Surface"]')!;
+  check('context_offers_the_same_preview_not_saved_capsules',!!context.querySelector('form input')&&context.textContent!.includes('saves nothing')&&!context.textContent!.includes('Read saved Capsules'));
   await wait(()=>within('Sessions').includes('Synthetic conversation'));
   click('Synthetic conversation',fixture.querySelector('[data-screen-label="Sessions"]')!);
   await wait(()=>within('Sessions').includes('合成原文'));
