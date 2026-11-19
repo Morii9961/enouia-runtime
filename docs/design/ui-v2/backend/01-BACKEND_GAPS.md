@@ -105,7 +105,7 @@
 ### G07 · 形成活动流
 
 - 现在：只能看单条记录的历史与收据。
-- 前端要：按时间倒序的事件流：收到材料、形成、采用、暂存、重评、合成、替代、纠正、淡出、归档、删除；每条带对象 ID、标题、时间、执行者（System 规则 / Owner）。
+- 前端要：按时间倒序的事件流：收到材料、形成、采用、暂存、重评、合成、替代、纠正、淡出、归档、删除；每条带对象 ID、标题、时间、执行者（System 规则 / Morii）。
 - 修法：只读端口，暂名 `memory_activity_feed_native`，从提交、收据和作业日志推出，分页；只含授权条目的元数据，不含正文。
 - 验收：合成闭环跑一轮，流里的每个事件都能对应到一个收据或作业记录；锁定 / 删除后不再显示被删条目的标题。
 
@@ -132,7 +132,7 @@
 
 ### G11 · 真实 Vault 采用
 
-- 现在：Runtime 原生的自动记忆视图走 `memory_automation`（`memory-native-read-1`），只接受 `mode: synthetic_only`；真实 Vault 仍是旧的 owner-review 路径。
+- 现在：Runtime 原生的自动记忆视图走 `memory_automation`（`memory-native-read-1`），只接受 `mode: synthetic_only`；真实 Vault 仍是旧的 Morii-review 路径。
 - 修法：Core-8，由 Runtime 的独立采用切片做（升 pin、适配器、整机生命周期），需要 Morii 另外授权。这里只列为出口。
 
 ### G12 · MCP 进不了自动化根

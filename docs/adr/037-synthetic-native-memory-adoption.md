@@ -10,7 +10,7 @@ ADR-035/036 are already used by the parallel Activity work; this decision preser
 ## Decision
 
 Amend ADR-025's Workspace-only seam for one explicit synthetic capability. The
-normal desktop still uses workspace IPC v1 and existing owner records. Pin every
+normal desktop still uses workspace IPC v1 and existing Morii records. Pin every
 Memory dependency to `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`, including the
 Memory-owned Host/Vault libraries needed by the native adapter. Do not add local
 paths, branches, patches, Runtime domain dependencies or Memory business rules.
@@ -30,7 +30,7 @@ actor, profile or sensitivity ceiling. Core-7 returns authorized pages/details,
 selected sources/history and native recall simulation; unsupported global views
 remain unavailable. Native controls only lock/unlock the synthetic binding.
 Read outputs carry `native_read`; lifecycle acknowledgements carry
-`native_control` and never claim a memory commit or owner confirmation.
+`native_control` and never claim a memory commit or Morii confirmation.
 
 Only pure reads may wait on explicit pre-read Busy in the native blocking worker,
 with a two-second retry budget and no binding/writer lock held between attempts.

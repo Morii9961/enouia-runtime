@@ -8,7 +8,7 @@ import { labels, msg, t } from '../i18n/index.ts';
 const hints: Record<string, string> = labels({
   ExactRepeat: msg("Exact repeat hint"), DatedDifference: msg("Dated difference hint"), UnorderedDifference: msg("Unordered difference hint"),
   SamePath: msg("Same source path"), Divergent: msg("Different branches"), SeparateContexts: msg("Separate contexts"), Unknown: msg("Unknown branch relationship"),
-  UnknownTime: msg("Unknown source time"), NonUserEvidence: msg("Not user evidence"), OwnerEdited: msg("Owner edited candidate"),
+  UnknownTime: msg("Unknown source time"), NonUserEvidence: msg("Not user evidence"), OwnerEdited: msg("Candidate edited by Morii"),
   ReviewedOrWithdrawn: msg("Already reviewed or withdrawn"), Suppressed: msg("Suppressed proposal"),
 });
 export function HistoryComparisonPanel({ vaultId, choices, enabled, request = call }: {

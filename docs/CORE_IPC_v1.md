@@ -13,7 +13,7 @@ Date: 2026-10-01. Scope: A1.1 typed local interface contract. No Tauri handler, 
 | `core_review_candidate` | candidateId, review | Require actual human approve/edit/reject interaction; preserve original proposal and provenance |
 | `core_undo_supersession` | memoryId | Revalidate current successor/predecessor and preserve both meanings |
 | `core_create_session` | title | Allocate session identity and backend creation time |
-| `core_get_session` | sessionId | Resolve ownership and return a provenance-validated session |
+| `core_get_session` | sessionId | Resolve responsibility and return a provenance-validated session |
 | `core_append_user_turn` | sessionId, content | Allocate immutable turn/source/time and sequence; user role only |
 | `core_create_checkpoint` | sessionId, coveredTurns, lastState, openLoops | Resolve existing ordered turns; validate canonical checkpoint and append its event |
 

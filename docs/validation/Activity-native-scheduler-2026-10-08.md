@@ -1,6 +1,6 @@
 # Native Activity reads an actual isolated task
 
-Date: 2026-10-08. Base revision: `603a38b`. Scope: the existing ADR-028 read-only schedule boundary, using the owner-authorized temporary sandbox task. Product source, runner, desktop binary and Memory pin are unchanged.
+Date: 2026-10-08. Base revision: `603a38b`. Scope: the existing ADR-028 read-only schedule boundary, using the Morii-authorized temporary sandbox task. Product source, runner, desktop binary and Memory pin are unchanged.
 
 The live packaging harness now accepts `-NativeDesktop <absolute exe>` with `-LiveScheduler`. It checks the package's registered-but-disabled state through the real desktop, enables the owned task through the packaging module, then checks its registered-and-enabled state through a second isolated desktop process. The Activity page never changes the task. Both page runs use the package's real runner and native adapter, not modeled IPC replies.
 
@@ -18,7 +18,7 @@ Each native run checks:
 - Scheduler enable/disable IPC requests are refused with `contract_invalid`.
 - Repeated reads preserve the public payload hash, task state and private path redaction.
 
-The parent harness independently verifies byte-identical Activity files around each UI run and queries the actual owned task state afterward. After both native processes exit, the scheduler advances sequence 50 to 51 with the desktop closed. Delivery stays disabled, all three source histories survive unavailable collectors, and the second invocation retains the exact pending bytes without reserving another sequence. Both task invocations return 4 (unresolved delivery). Ownership-checked uninstall removes the idle test task and preserves files before guarded cleanup of its disposable root.
+The parent harness independently verifies byte-identical Activity files around each UI run and queries the actual owned task state afterward. After both native processes exit, the scheduler advances sequence 50 to 51 with the desktop closed. Delivery stays disabled, all three source histories survive unavailable collectors, and the second invocation retains the exact pending bytes without reserving another sequence. Both task invocations return 4 (unresolved delivery). Provenance-checked uninstall removes the idle test task and preserves files before guarded cleanup of its disposable root.
 
 ## Identities and limits
 

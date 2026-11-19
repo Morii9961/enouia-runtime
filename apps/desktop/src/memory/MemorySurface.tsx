@@ -34,6 +34,9 @@ const TITLES: Record<Collection, string> = labels({
   persona: msg("Public persona export"),
   vault: msg("Vault & recovery"),
 });
+// Memory's role-named protocol values; every other value stays as reported.
+const PROTOCOL_TEXT: Record<string, string> = labels({ owner_manual: msg("Entered by Morii"), owner_correction: msg("Correction by Morii") });
+const protocolText = (value: string) => PROTOCOL_TEXT[value] ? t(PROTOCOL_TEXT[value]) : value;
 
 function dayOf(iso: string): string {
   const d = new Date(iso);
@@ -445,14 +448,14 @@ export function Inbox({ readPage = call }: { readPage?: typeof call }) {
               <div className="mem-row-meta">
                 <code title={c.candidateId}>{shortId(c.candidateId)}</code><span>r{c.revision}</span>
                 <Tag>{c.proposalKind}</Tag><Tag>{c.proposedType}</Tag><Tag>{c.sensitivity}</Tag>
-                <span className="mem-muted">{c.originKind} · {when(c.createdAt)}</span>
+                <span className="mem-muted">{protocolText(c.originKind)} · {when(c.createdAt)}</span>
                 {["P0", "P1", "P2"].includes(c.details?.priority) && <Tag>{t("Proposed priority {priority}", { priority: c.details.priority })}</Tag>}
               </div>
               {typeof c.details?.title === "string" && <h3 className="mem-h3">{c.details.title}</h3>}
               {typeof c.reason === "string" && c.reason.length > 0 && <details className="mem-stack mem-reason">
                 <summary>{t("Saved proposal reason")}</summary>
                 <p className="mem-muted">{t("A recorded explanation for this proposal. Compare it with the source and reported conflicts before deciding.")}</p>
-                <p className="mem-content">{c.reason}</p>
+                <p className="mem-content">{protocolText(c.reason)}</p>
               </details>}
               {c.target && <p className="mem-old">{t("Current fact (r{revision}): {content}", { revision: c.target.revision, content: c.target.content })}</p>}
               <label htmlFor={`mem-e-${c.candidateId}`} className="mem-sr">{t("Candidate content")}</label>
@@ -731,7 +734,7 @@ function VaultPanel() {
             <dt>{t("Vault health")}</dt><dd>{v.health}</dd>
             <dt>{t("Latest commit")}</dt><dd>#{v.headSequence} · {when(v.lastCommitAt)}</dd>
             <dt>{t("Free space")}</dt><dd>{v.freeBytes != null ? `${(v.freeBytes / 2 ** 30).toFixed(1)} GiB` : t("unknown")}</dd>
-            <dt>{t("Owner-only access")}</dt><dd>{v.ownerOnlyAcl == null ? t("unknown") : v.ownerOnlyAcl ? t("yes") : t("no (the Memory CLI can protect it)")}</dd>
+            <dt>{t("Access limited to this account")}</dt><dd>{v.ownerOnlyAcl == null ? t("unknown") : v.ownerOnlyAcl ? t("yes") : t("no (the Memory CLI can protect it)")}</dd>
             <dt>{t("Last backup")}</dt><dd>{status.lastBackup ? `${status.lastBackup.state} ${status.lastBackup.result?.commitId ?? ""}` : t("none in this run; the Vault does not record backups")}</dd>
             <dt>{t("Last verified restore")}</dt><dd>{t("not recorded (restore preview checks the backup only)")}</dd>
           </dl>

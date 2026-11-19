@@ -1,14 +1,14 @@
 # Enouia Runtime v0.3 — implementation plan
 
-Date: 2026-10-02, current progress updated 2026-10-10. M0.1 and Activity B1-B3 implementation are present and locally verified. Memory follows its owner repository's MV stages; J1 and B4 remain partial and B5 production activation remains pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seventy-two recorded reports, preserves the original unresolved counts, records [ADR-031](adr/031-strict-activity-validation-compatibility.md)'s current explicit safety classifications, actual closed-UI scheduler, independent installed-package and pinned-Core rebuild/missing-cache/malformed-cache/file-sharing isolation evidence, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
+Date: 2026-10-02, current progress updated 2026-10-10. M0.1 and Activity B1-B3 implementation are present and locally verified. Memory follows its own repository's MV stages; J1 and B4 remain partial and B5 production activation remains pending. The [C01-C18 evidence index](validation/B4-coverage.md) links seventy-two recorded reports, preserves the original unresolved counts, records [ADR-031](adr/031-strict-activity-validation-compatibility.md)'s current explicit safety classifications, actual closed-UI scheduler, independent installed-package and pinned-Core rebuild/missing-cache/malformed-cache/file-sharing isolation evidence, and names the remaining acceptance gates. It does not sign off any matrix row or activate production.
 
 Status note (2026-10-04, [ADR-025](adr/025-enouia-memory-integration.md)): the Enouia Memory repository now owns the Memory domain. Track A is replaced by Memory's MV stages plus Runtime integration slices, and the desktop shell embeds Memory's workspace Core at a pinned revision ([Memory integration v1](MEMORY_INTEGRATION_v1.md)). Track B, J1 as the join point, B4 and B5 are unchanged. The scope paragraph below predates the frontend and Memory integration work; [AGENTS.md](../AGENTS.md) holds the current scope.
 
-Current implementation follows the latest [AGENTS.md](../AGENTS.md) scope: the desktop frontend is authorized, Memory stays in its owner repository, and Activity remains Runtime's independent domain. The [combined Activity validation](validation/Activity-unified-2026-10-08.md) records the integration of Claude's remaining Runtime work with the native surface. Production and personal migration gates remain separate.
+Current implementation follows the latest [AGENTS.md](../AGENTS.md) scope: the desktop frontend is authorized, Memory stays in its own repository, and Activity remains Runtime's independent domain. The [combined Activity validation](validation/Activity-unified-2026-10-08.md) records the integration of Claude's remaining Runtime work with the native surface. Production and personal migration gates remain separate.
 
 Activity currently includes strict three-source adapters, generation storage/recovery, persisted pause and exact-pending retries, migration inspection/import/export, restricted transport with public observation, and scheduler packaging. Development evidence covers frozen comparison, isolated legacy handback, pinned native ccusage on synthetic stores, store/publisher process death, and ready tool-tree cleanup after release-runner death. Live inventory/authentication, deployment, scheduler triggers/battery/resume, full storage durability and UI acceptance still require evidence. Individual B1-B3 validation reports remain under docs/validation.
 
-Authority: [Architecture v0.3](../Enouia_Runtime_Architecture_v0.3.md). Procedure: [Activity migration runbook](ACTIVITY_MIGRATION_v0.3.md). Decisions: [ADR register](adr/README.md). Read the original handoff as evidence, but use v0.3 for current ownership and design. Architecture v0.3 is not the future product 0.3 provider milestone.
+Authority: [Architecture v0.3](../Enouia_Runtime_Architecture_v0.3.md). Procedure: [Activity migration runbook](ACTIVITY_MIGRATION_v0.3.md). Decisions: [ADR register](adr/README.md). Read the original handoff as evidence, but use v0.3 for current responsibility and design. Architecture v0.3 is not the future product 0.3 provider milestone.
 
 The [Core continuation baseline](CORE_NEXT_STEPS.md) records implemented pure models/ports, historical verification and current backend design progress. It is a handoff, not full milestone acceptance.
 
@@ -25,11 +25,11 @@ M0 shared scaffold/contracts
                                                                      B5 cutover/observation
 ```
 
-B2 may start after B1's pure contracts/fixtures are stable while remaining adapters are implemented. B3 consumes the fake ports before real tooling is available. “Parallel tracks” describes independently schedulable work and module ownership; it does not authorize starting agents, tasks, uploads, or background processes in this documentation pass.
+B2 may start after B1's pure contracts/fixtures are stable while remaining adapters are implemented. B3 consumes the fake ports before real tooling is available. “Parallel tracks” describes independently schedulable work and module responsibility; it does not authorize starting agents, tasks, uploads, or background processes in this documentation pass.
 
 ## 2. Final milestone plan
 
-| Milestone | Work and ownership | Dependencies | Exit evidence |
+| Milestone | Work and responsibility | Dependencies | Exit evidence |
 |---|---|---|---|
 | M0 — repository and contracts | Git baseline, Rust workspace foundations, contract schemas, synthetic fixtures, shared health/clock/error ports, documented commands | Current design | Offline contract tests, source/hash manifest, dependency-boundary check; no production reads/writes |
 | A1 — durable Memory and Session | Canonical JSON, Markdown Identity, provenance/candidates/supersession, file sessions/checkpoints, rebuildable SQLite/FTS | M0 | Round trips, recovery/index rebuild, retained history, candidate isolation |
@@ -46,13 +46,13 @@ Do not collapse B4 into “unit tests pass,” B5 into “code merged,” or J1 
 
 ## 3. Track A — Runtime Core work packages
 
-2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): Track A is replaced by Enouia Memory's MV stages plus Runtime integration slices. The A1/A2 packages below are history for Runtime's frozen local Core crates; Memory implemented their equivalents in its MV-1 to MV-6. A3's owner path is `apps/desktop`, not `apps/windows`. Its remaining Runtime work is the pending parity rows in [Memory integration v1](MEMORY_INTEGRATION_v1.md); the companion shell shipped in [ADR-026](adr/026-companion-shell.md) and the installer in [ADR-027](adr/027-desktop-installer.md).
+2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): Track A is replaced by Enouia Memory's MV stages plus Runtime integration slices. The A1/A2 packages below are history for Runtime's frozen local Core crates; Memory implemented their equivalents in its MV-1 to MV-6. A3's home path is `apps/desktop`, not `apps/windows`. Its remaining Runtime work is the pending parity rows in [Memory integration v1](MEMORY_INTEGRATION_v1.md); the companion shell shipped in [ADR-026](adr/026-companion-shell.md) and the installer in [ADR-027](adr/027-desktop-installer.md).
 
 ### A1.1 Models and provenance
 
 Progress: [Memory/source/candidate models](MEMORY_MODELS_v1.md), [Session events/checkpoint linkage](SESSION_MODELS_v1.md), [local Core IPC DTOs](CORE_IPC_v1.md) and [Capsule/budget policy](CONTEXT_CAPSULE_v1.md) are implemented with synthetic schemas and lifecycle tests. The pure model boundary is established; Vault paths, OS entropy, cross-file recovery and actual Context/Provider handlers still need implementation/acceptance before A1/A2 completion.
 
-Owner paths: `crates/enouia-memory`, `crates/enouia-session`, `contracts/{memory,ipc}`, `tests/fixtures/memory`.
+Morii paths: `crates/enouia-memory`, `crates/enouia-session`, `contracts/{memory,ipc}`, `tests/fixtures/memory`.
 
 Freeze schema v1 for all five memory kinds, source registry records, candidates, conversation events, and checkpoints. Use one JSON record per memory and Markdown Identity. Define ID generation, timestamp/status invariants, validation errors, explicit manual-commit vs inferred-candidate entry points, and reversible supersession. Complete schema details before writing migrations; do not store required fields solely in SQLite.
 
@@ -62,7 +62,7 @@ Acceptance/tests: all kinds round-trip without lossy fields; a source ID resolve
 
 Design progress: [ADR-020](adr/020-core-vault-generations.md) selects complete immutable Core generations and one pinned selector. [Storage v1](VAULT_STORAGE_v1.md) defines closed field/path contracts, legal transitions, commit observation, retained ambiguity and index binding; [V01-V22](VAULT_RECOVERY_MATRIX_v1.md) defines required evidence. [Index v1](MEMORY_INDEX_v1.md) and [ADR-021](adr/021-index-and-retrieval.md) now define the disposable SQL schema, projection checks and rebuild/publication boundaries, with an isolated in-memory design probe. No Vault adapter, persisted index or executed recovery row is implemented by this design.
 
-Owner paths: Memory/Session persistence and `enouia-common` atomic-file utility, with shared changes reviewed at M0 boundaries.
+Morii paths: Memory/Session persistence and `enouia-common` atomic-file utility, with shared changes reviewed at M0 boundaries.
 
 Implement versioned paths, atomic writes, update/rebuild of SQLite FTS and metadata indexes, durable conversations/checkpoints, and a backup/export inventory. Indexing must be cancellable and not block the UI. Invalid config must produce recoverable diagnostics without erasing old files.
 
@@ -74,7 +74,7 @@ Progress: pure [ranked Capsule assembly](CONTEXT_CAPSULE_v1.md) and [offline Moc
 
 [Retrieval v1](MEMORY_RETRIEVAL_v1.md) now specifies literal query normalization, CJK short-term handling, deterministic scoped lanes and rank ordinals, canonical eligibility, explanations and stale/cancel refusal. Its 18-case SQL probe is a design check, not a Runtime retrieval implementation, full Context-lane test or performance measurement. Capsule invocation/orchestration contracts are the next backend design slice.
 
-Owner paths: `enouia-context`, `enouia-provider`, `contracts/{context,provider}`.
+Morii paths: `enouia-context`, `enouia-provider`, `contracts/{context,provider}`.
 
 Implement FTS/metadata retrieval, stable ranking, deterministic budget truncation and reasons for exclusion, actual capsule inspection, and Mock Provider. Freeze the initial conservative token-estimation rule and overflow behavior in A1/M0 schema follow-up; do not add a real provider or embedding dependency. Each provider invocation consumes the recorded capsule rather than assembling hidden context.
 
@@ -88,7 +88,7 @@ Acceptance: automated MoriMeta demo from Architecture section 6, before and afte
 
 ### A3 Windows shell
 
-Owner paths: `apps/windows` except `features/activity`, which Track B integrates at J1 through the agreed facade.
+Morii paths: `apps/windows` except `features/activity`, which Track B integrates at J1 through the agreed facade.
 
 Build conversation, Memory Inspector, Context Inspector, tray, configurable hotkey, minimal overlay, config and health views. React gets typed DTOs only. `src-tauri` adapts commands and launches the worker; domain decisions stay in crates. Pin toolchains/dependency versions when scaffolding the actual app and record supported Windows environment in the build instructions.
 
@@ -98,7 +98,7 @@ Acceptance: manual ProjectState creation and retrieval, actual capsule view, res
 
 ### B1.1 Pure contract and merge
 
-Owner paths: `enouia-activity-contract`, `enouia-activity/merge`, `contracts/activity`, `tests/fixtures/activity`.
+Morii paths: `enouia-activity-contract`, `enouia-activity/merge`, `contracts/activity`, `tests/fixtures/activity`.
 
 Implement both validators, public allowlist reconstruction, sorted days and compatible data-byte serializer, checked arithmetic, and per-source success/failure merge. Unit input is `previous + three SourceAttempt values + fixed clock`; output is complete ActivityData plus local deltas. No filesystem/CLI/network code in this package.
 
@@ -154,11 +154,11 @@ Progress (2026-10-08): [ADR-028](adr/028-activity-surface.md) connects the nativ
 
 Later [consolidated evidence](validation/Activity-unified-2026-10-08.md) includes real disabled/enabled task reads, corrected explicit production confirmation, independently installed management, healthy Core index rebuild and missing-cache recovery. The latest [native malformed-cache workflow](validation/Activity-malformed-index-2026-10-08.md) passes 45/45 with search refusal/recovery while preserving canonical Vault and Activity bytes. Every report keeps its exact artifact and acceptance limits.
 
-Owner paths: `apps/desktop/src/activity`, `apps/desktop/src-tauri/src/activity.rs`, Activity read facade/IPC and health adapters. Runtime owns global navigation/lifecycle; the independent Activity domain owns source meaning, DTO content, and Activity operations. Agree on the route and DTOs at M0, avoid shared-file ownership ambiguity.
+Morii paths: `apps/desktop/src/activity`, `apps/desktop/src-tauri/src/activity.rs`, Activity read facade/IPC and health adapters. Runtime owns global navigation/lifecycle; the independent Activity domain owns source meaning, DTO content, and Activity operations. Agree on the route and DTOs at M0, avoid shared-file responsibility ambiguity.
 
 Acceptance: three source calendars/tables and separate time boundaries; totals/recorded days/last success/last attempt; failure and stale retention; schedule/pending/transport/publication indicators; safe manual actions and payload preview. No raw paths/titles/tokens in exported diagnostics, no sequence reset UI. Kill UI during a headless run and verify state; degrade Activity while performing the Track A demo. Test pending wait does not block the UI thread.
 
-## 5. Interfaces and integration ownership
+## 5. Interfaces and integration responsibility
 
 Future Activity extension (recorded after the v0.3 baseline): [ADR-019](adr/019-claude-design-usage.md) and the [Claude Design integration note](CLAUDE_DESIGN_USAGE.md) target official `claude_design` product tokens in the existing Claude daily series. This is outside B1's three-source compatibility acceptance. It needs separate component history, UTC-hour to Shanghai-day aggregation, controlled overlap checks, old-archive reconciliation, and a coordinated Moriium label change before any public value changes. Do not treat this note as a fourth-source schema change or a reason to block the baseline B1/B4 work.
 
@@ -190,9 +190,9 @@ Use the runbook's C01–C18 matrix as the B4 checklist. Store sanitized evidence
 
 ## 7. ADRs and unresolved decisions
 
-Phase design decisions are settled in the [ADR register](adr/README.md), including independent Activity domain, local-only ownership, one-shot Windows execution, contract/merge, transactional outbox, existing SSH transport, and two-track delivery. The following are **remaining environment facts or bounded later decisions**, not open invitations to redesign these boundaries:
+Phase design decisions are settled in the [ADR register](adr/README.md), including independent Activity domain, local-only responsibility, one-shot Windows execution, contract/merge, transactional outbox, existing SSH transport, and two-track delivery. The following are **remaining environment facts or bounded later decisions**, not open invitations to redesign these boundaries:
 
-| ID | Unresolved item | Owner / deadline | Safe default and blocked operation |
+| ID | Unresolved item | Responsible / deadline | Safe default and blocked operation |
 |---|---|---|---|
 | O1 | Actual old scheduled tasks, work root, latest complete archive, pending and local high-water | Migration operator, before B4 rehearsal/B5 final freeze | Read-only inventory; block production import/cutover until established |
 | O2 | Live receiver/publisher deployment, max accepted/published sequence, restricted SSH alias/key/host key, static origin and manifest URL | Moriium operator, before B3 live diagnostics/B5 | Isolated fake endpoint; no guessed credentials, no production send |
@@ -201,9 +201,9 @@ Phase design decisions are settled in the [ADR register](adr/README.md), includi
 | O5 | Exact Rust/Node/frontend versions and Windows atomic replacement/flush implementation | Sol, M0 for tooling; B2 for persistence | Pin supported versions based on primary docs/local capability and prove Windows semantics; block durability claims until tested |
 | O6 | Delivery confirmation when public endpoint is inaccessible or an old sequence is indistinguishable | Moriium + Runtime operator, before automatic cutover | Keep pending and require manual evidence; protocol redesign is outside phase |
 | O7 | Archive-generation pruning policy, backup destination/frequency, encryption at rest | User/maintainer, after B4 and before retention feature | Retain generations; user-only ACLs; no encryption claim, no credential backup |
-| O8 | Future daemon, Runtime heartbeat transport, MCP auth/topology, warm replica selection/conflict policy | Future phase owner | Deferred; not prerequisites for this local producer and Core slice |
+| O8 | Future daemon, Runtime heartbeat transport, MCP auth/topology, warm replica selection/conflict policy | Future phase | Deferred; not prerequisites for this local producer and Core slice |
 
-O1–O4/O6 may block production activation but do not block offline implementation. Sol resolves O5 as routine implementation work with evidence, rather than asking for approval of every library choice. Any proposed change to settled domain ownership or the public protocol requires a new ADR and coordinated review.
+O1–O4/O6 may block production activation but do not block offline implementation. Sol resolves O5 as routine implementation work with evidence, rather than asking for approval of every library choice. Any proposed change to settled domain responsibility or the public protocol requires a new ADR and coordinated review.
 
 ## 8. Exact first implementation task for Sol
 
@@ -261,7 +261,7 @@ The [cooperative rebuild cancellation workflow](validation/Activity-rebuild-canc
 
 The [partial-index recovery workflow](validation/Activity-rebuild-partial-2026-10-08.md) passes 49/49 with retained watermark 256, ordinary search catch-up to 496 and successful fresh rebuild, preserving canonical Vault and Activity bytes.
 
-The [persistent index recovery guidance fix](validation/Index-recovery-guidance-2026-10-08.md) distinguishes temporary contention from persistent unavailable indexes and names the existing rebuild controls. Current desktop native checks pass 48/48, frontend 38, host/Core 31+3 and rendered/source installer ownership 26/26. Core and its pin are unchanged.
+The [persistent index recovery guidance fix](validation/Index-recovery-guidance-2026-10-08.md) distinguishes temporary contention from persistent unavailable indexes and names the existing rebuild controls. Current desktop native checks pass 48/48, frontend 38, host/Core 31+3 and rendered/source installer responsibility 26/26. Core and its pin are unchanged.
 
 The [running-Core producer mutation workflow](validation/Activity-rebuild-mutations-2026-10-08.md) passes 47/47: actual Activity pause/resume commits during a running rebuild, preserving canonical Vault and Activity domain data with expected new operational generations.
 

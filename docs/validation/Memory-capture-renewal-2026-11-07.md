@@ -1,6 +1,6 @@
 # Synthetic capture enrollment renewal, 2026-11-07
 
-Runtime branch baseline: `9ead6c3` (origin/main, capture panel merged). Memory bounds one Owner-root producer enrollment to five minutes; before this slice an expired synthetic capture entry needed a restart.
+Runtime branch baseline: `9ead6c3` (origin/main, capture panel merged). Memory bounds one Morii-root producer enrollment to five minutes; before this slice an expired synthetic capture entry needed a restart.
 
 ## Change
 

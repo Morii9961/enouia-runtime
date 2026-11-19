@@ -61,7 +61,7 @@
 ## 2026-11-02 · 导入恢复与 Vault 作用范围说明接入三语
 
 - 决定：翻译导入预览、失败/等待/重复提示与 Vault 的还原/锁库/退出说明；警告码、ID、原字节和账户别名保持原样。
-- 边界：语言切换保留失败后草稿、焦点和写入阻止条件，不读取/重放导入；保留进行中操作 owner，不执行实际锁库或退出。
+- 边界：语言切换保留失败后草稿、焦点和写入阻止条件，不读取/重放导入；保留进行中操作 持有方，不执行实际锁库或退出。
 - 依据：导入28项、Vault12项、完整1215项DOM检查及12组合成浏览器复核。浏览器语言驱动的重复模块问题与42组旧证据重跑已单独记录，见 `validation/UI-v2-native-import-recovery-copy-2026-11-02.md`。
 - 状态：定稿
 
@@ -75,7 +75,7 @@
 ## 2026-11-02 · 已保存建议与队列等待说明接入三语
 
 - 决定：建议数量用既有复数接口；引文/所选文本/当前候选只翻译前缀，完整保存内容不翻译。已保存任务的等待与暂停说明使用完整句子。
-- 边界：不把来源对应性写成事实真实或审批；语言切换不改变保存任务，不解除进行中操作的 owner/busy，不读取或重放恢复命令。
+- 边界：不把来源对应性写成事实真实或审批；语言切换不改变保存任务，不解除进行中操作的持有方/busy，不读取或重放恢复命令。
 - 依据：`suggestion-resume` 23项与完整前端检查，见 `validation/UI-v2-native-suggestion-copy-2026-11-02.md`。
 - 状态：定稿
 
@@ -144,10 +144,10 @@
 - 依据：W2 的中日导航可访问名称记录、当前 `App.tsx` 和 `memory-smoke.mjs`。
 - 状态：定稿
 
-## 2026-11-01 · 原生 Inspector 按组件选择，观察 owner 不随选择重建
+## 2026-11-01 · 原生 Inspector 按组件选择，观察 持有方 不随选择重建
 
 - 决定：左侧提供 Memory Core / Memory operations / Windows shell 三个组件入口，右侧保留各组件既有观察与显式读取。顶部只汇总现有回执，不复制浏览器演示中的虚构健康、验证或缺口状态。
-- 所有权：选择只改变可见面板，三个观察 owner 保持挂载；不会丢失选中操作、重启轮询或重复请求。Vault 生命周期仍按原规则卸载 Vault 依赖操作。无 Vault 时操作面板明确显示不可用。
+- 所有权：选择只改变可见面板，三个观察 持有方 保持挂载；不会丢失选中操作、重启轮询或重复请求。Vault 生命周期仍按原规则卸载 Vault 依赖操作。无 Vault 时操作面板明确显示不可用。
 - 影响：原生 Runtime Inspector 的信息层级与布局；不改变后端、IPC、读取范围或 Activity 退休边界。
 - 依据：选定 UI v2 左侧组件选择/右侧状态结构、当前 `RuntimeSurface` 与 `WorkspaceOperations` 观察语义。
 - 状态：定稿
@@ -165,7 +165,7 @@
 - 决定：沿用 UI v2 的大时刻、58% 记录纸、四条注记和底部图例。大时刻标明设备时钟、UTC+8；21 个日历日中显示 4 日，复用现有小地图的拖动、点击和键盘平移。原生其他表面的 7 日记录带显示实际日期。
 - 数据口径：只用现有 `workspace_status` 的 `lastCommitAt` / `headSequence` 标记最新 Vault 提交，不解释为记忆写入、候选、检查点、连续波形或完整历史。只有这个已观察时刻能有引线。Context / Sessions / Checkpoint 保留明确读取入口，未知摘要时间写「—」。
 - 生命周期：状态失败、锁库、切库、退出时立即撤下提交和可操作小地图，保留设备日历与纸面结构；不自动开库、不请求额外领域摘要、不回退到 demo。
-- 影响：原生 Home、共用记录带；浏览器原演示不变。沿用已实现的 UTC+8 试验口径，不替 owner 确认全局时区或新增数据契约。F1/F2 为部分修复，完整迹线和其余三条真实时间注记仍需 Memory 的字段/口径支持，Sessions 的时间尺另片推进。
+- 影响：原生 Home、共用记录带；浏览器原演示不变。沿用已实现的 UTC+8 试验口径，不替 Morii 确认全局时区或新增数据契约。F1/F2 为部分修复，完整迹线和其余三条真实时间注记仍需 Memory 的字段/口径支持，Sessions 的时间尺另片推进。
 - 依据：`DESIGN.md` §5/§6、`SCREENS.md` §1.1；2026-10-29 本机逐屏审计；[本片验证](validation/UI-v2-native-home-2026-11-01.md)。
 - 状态：定稿（已有数据的呈现与空缺说明；未定义未来波形）
 
@@ -175,7 +175,7 @@
 - 理由：原生日文两行的行高合计超过固定 30px，文字越过边框。侧栏已有滚动，应让内容决定按钮高度。
 - 影响：保留字号、字体、padding、按键、事件及类名契约；多行按钮可自然增长。
 - 依据：[12 格前后原生测量、读取交互及六项检查](validation/UI-v2-23-button-wrap-2026-10-29.md)。
-- 状态：定稿（已复现按钮的隔离验证；owner 人工验收待定）
+- 状态：定稿（已复现按钮的隔离验证；Morii 人工验收待定）
 
 ## 2026-10-29 · #22 原生无库与空库文案使用既有 i18n
 
@@ -183,7 +183,7 @@
 - 理由：字典覆盖检查无法发现未标记 JSX 和模板字符串；W2 及本片原生截图已经显示这些路径的裸英文。
 - 影响：各新增 15 个译文键；按既有脚本重生成标签与正文切片，总 CJK 9,691,824 B，比 W4 增加 172 B。字体字形、四条栈、授权与业务/键盘契约不变。
 - 依据：[最终六项检查及 60 格原生复验](validation/UI-v2-22-native-copy-2026-10-29.md)；不等于所有动态/错误文案的完整审计，#23 单独处理。
-- 状态：定稿（本片已观察路径与隔离验证；owner 人工验收待定）
+- 状态：定稿（本片已观察路径与隔离验证；Morii 人工验收待定）
 
 ## 2026-10-29 · W7 热键 smoke 使用标记临时库与真实 OS 输入保护
 
@@ -191,7 +191,7 @@
 - 理由：UI v2 的翻译与大写外观不能成为旧英文 smoke 的隐含状态协议；焦点失败应先留下诊断，不能改断言掩盖失败。
 - 影响：仅测试 harness 与验证文档；产品默认键仍是 Ctrl+Alt+M，应用与 Memory pin 不变。
 - 依据：[37/37 原生验证及原始失败记录](validation/UI-v2-W7-hotkey-2026-10-29.md)。默认 M 在本机实际冲突，保护停止且未发送按键。
-- 状态：定稿（测试 Q 的本机合成验证；默认键与 owner 验收保留）
+- 状态：定稿（测试 Q 的本机合成验证；默认键与 Morii 验收保留）
 
 ## 2026-10-28 · W7 安装器增加日语，沿用现有卸载保护
 
@@ -199,7 +199,7 @@
 - 理由：应用已支持三语，安装器也应提供对应语言。采用本机 Tauri 2.12.0 / NSIS 自带的日语资源，不新增自译安装文案。
 - 影响：只改安装配置的语言列表；版本仍为 0.1.0，不替换历史双语安装验证的结论。
 - 依据：[本片构建与验证记录](validation/UI-v2-W7-installer-2026-10-28.md)。
-- 状态：定稿（配置；候选包不代表安装或 owner 验收）
+- 状态：定稿（配置；候选包不代表安装或 Morii 验收）
 
 ## 2026-10-28 · W7 双窗口共用语言偏好，主窗口管理原生标题
 
@@ -207,15 +207,15 @@
 - 理由：不同 WebView 的 JS store 需要同步；将收到的旧事件再次持久化会覆盖后来的选择。语言切换应保留检索草稿，不附带搜索或 Memory 动作。
 - 影响：语言 store、窗口标题发布器、原生退出等待文字；不改布局、键盘、Memory pin 或任何真实数据启用。
 - 依据：[双窗口验证](validation/UI-v2-W7-window-language-2026-10-28.md)，真实连续切换的失败与修复、三语/系统/重启、六项检查与 Rust 定向检查。
-- 状态：定稿（实现与隔离验证；OS 标题/长操作和 owner 验收边界见记录）
+- 状态：定稿（实现与隔离验证；OS 标题/长操作和 Morii 验收边界见记录）
 
-## 2026-10-27 · W6 #18 延后面板视图，保留历史任务 owner
+## 2026-10-27 · W6 #18 延后面板视图，保留历史任务 持有方
 
-- 决定：历史任务视图、Provider 配置、Provider 状态用 React.lazy/Suspense 独立加载；历史 owner hook 继续留在 Import 的原位置，不把请求生命周期绑到视图下载。
+- 决定：历史任务视图、Provider 配置、Provider 状态用 React.lazy/Suspense 独立加载；历史 持有方 hook 继续留在 Import 的原位置，不把请求生命周期绑到视图下载。
 - 理由：主包从 503.47 kB 降为 436.15 kB，保持已有请求、重试与批次选择边界。生产冷首页不请求这三个面板；全部首屏 JS 含共享包仍为 502,123 B，不等同于主包大小。
 - 影响：新增 HistoryTaskView、两个 lazy 入口、一条三语加载提示；Settings 渲染检查等待异步内容完成，保留原有安全断言。字体重生成内容不变，不改依赖或警告阈值。
-- 依据：[W6 #18 记录](validation/UI-v2-W6-18-lazy-panels-2026-10-27.md)，完整六项检查、重点 owner/请求/退出检查、12 张 mock 截图及生产首屏请求。
-- 状态：定稿（实现与本地验证，不代表 owner 人工验收）
+- 依据：[W6 #18 记录](validation/UI-v2-W6-18-lazy-panels-2026-10-27.md)，完整六项检查、重点持有方/请求/退出检查、12 张 mock 截图及生产首屏请求。
+- 状态：定稿（实现与本地验证，不代表 Morii 人工验收）
 
 ## 2026-10-27 · W6 #16 Runtime 组件状态放到下一行
 
@@ -255,7 +255,7 @@
 - 理由：主题不应被视图模型携带的旧颜色覆盖；样式状态也不能从翻译后的标签推导。
 - 影响：App、demo fixture/type、Memory/Context/Sessions/Runtime JSX 与三处 CSS 优先级；现有类名/data 属性及键盘行为保留。
 - 依据：[W6 #7 记录](validation/UI-v2-W6-07-view-state-2026-10-27.md)，三语两主题共 30 张浏览器截图。
-- 状态：定稿（实现记录，不代表 owner 人工验收）
+- 状态：定稿（实现记录，不代表 Morii 人工验收）
 
 ## 2026-10-27 · W5 星图性能以完整绘制间隔记录
 
@@ -271,7 +271,7 @@
 - 理由：保留选定字形、任意正文覆盖与 IPA 恢复权利，同时让英文启动仍只加载原有 67,892 B 拉丁字体。中文无库首页实测 474,908 B，日文 313,536 B（均含拉丁）。
 - 影响：生成脚本、字体与 manifest、语言加载器、CJK 栈及 Settings；无新产品依赖、Memory pin 或原生权限变更。M PLUS 缺少的全角「／」「：」由 Zen 正文覆盖。
 - 依据：[W4 原生/浏览器验证](validation/UI-v2-W4-fonts-2026-10-27.md)，完整来源、内部版本差异及生成方法见字体 README。
-- 状态：定稿（实现与本地验证；不代表 owner 人工验收）
+- 状态：定稿（实现与本地验证；不代表 Morii 人工验收）
 
 ## 2026-10-26 · W4 IPA 字体派生、改名与恢复入口
 
@@ -284,7 +284,7 @@
 ## 2026-10-26 · W3 原生启动底色
 
 - 决定：Tauri 创建窗口之前，通过现有 Windows Registry API 只读查询 `AppsUseLightTheme`，将主窗口和 Quick Search 的 `background_color` 设为黛蓝 `#0F1C23` 或宣纸 `#F1F0EB`；缺失/不可读时使用 Windows 默认浅色。JSON 留浅色保底。HTML 用两条带 `media` 的 `theme-color` 和极小的头部样式，在模块脚本运行前使用同样的纸色。这是 DESIGN.md §2 颜色集中规则的启动阶段例外。
-- 理由：首帧不能等 React 或 `.setup()` 再改变窗口底色；owner 已在本轮明确批准相关原生修改。
+- 理由：首帧不能等 React 或 `.setup()` 再改变窗口底色；Morii 已在本轮明确批准相关原生修改。
 - 影响：`src-tauri/src/appearance.rs`、`main.rs`、`tauri.conf.json` 与 `index.html`；无新依赖、权限或 Memory 路由变更。
 - 依据：锁定的 Tauri 2.12.0 / tauri-utils 2.10.1 源码、[WindowConfig](https://docs.rs/tauri-utils/2.10.1/tauri_utils/config/struct.WindowConfig.html#structfield.background_color)、[Context::config_mut](https://docs.rs/tauri/2.12.0/tauri/struct.Context.html#method.config_mut)、[RegGetValueW](https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew)、[HTML theme-color 媒体查询](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/theme-color)；[本机 W3 验证与测量边界](validation/UI-v2-W3-background-2026-10-26.md)。
 - 状态：定稿
@@ -341,7 +341,7 @@
 
 - 决定：Runtime 前端删除公开 Activity 与私有用量账本的全部界面：导航项（原第 5 项）、Activity 页（浏览器演示与原生 `src/activity/`）、统计卡与操作入口；Home（原生）的 Activity 入口与「Activity uses a separate producer」、Settings 的「Activity producer · Pause scheduled runs」、Runtime Inspector 的「Activity producer」组件与「activity ipc」读数、标题栏状态牌与退出说明里的 Activity 句子；只服务它们的前端状态（`actFilter`、`actOpen`、`paused`）、演示数据（`D.ACT`、`DemoActivity`）、记录带的「第二条胶片」、CSS（`activity.css`、`.act-*`、`.bg-act-*`、`.bg-reading*`、`.qr172`–`.qr186` 中的 Activity 部分）、单元测试与驱动该页的 e2e 脚本。不留占位页，不新增 tokens.ci 面板。导航变为六项，Ctrl+1…6。
 - 理由：Moriium 的 token 用量分析以后不集成到 Enouia Runtime；Runtime 前端只服务 Enouia Memory（Morii，2026-10-25）。
-- 影响：保留不动的是 Activity / Usage 的后端、原生命令（`src-tauri/src/activity.rs` 与其 capability）、采集与同步程序、调度、数据与 `scripts/` 下的相关脚本（包括已无前端用途的 `prepare-activity-surface-sandbox.mjs`），等 Moriium 替代链路完成后另行清理；不停任务、不删账本、不归档，不处理其他分支或 PR。`docs/validation/` 里引用已删文件的历史记录不改。AGENTS.md 仍写「seven surfaces」与 ADR-028 的 Activity 页面，需要 owner 更新（OPEN_ISSUES #12）。
+- 影响：保留不动的是 Activity / Usage 的后端、原生命令（`src-tauri/src/activity.rs` 与其 capability）、采集与同步程序、调度、数据与 `scripts/` 下的相关脚本（包括已无前端用途的 `prepare-activity-surface-sandbox.mjs`），等 Moriium 替代链路完成后另行清理；不停任务、不删账本、不归档，不处理其他分支或 PR。`docs/validation/` 里引用已删文件的历史记录不改。AGENTS.md 仍写「seven surfaces」与 ADR-028 的 Activity 页面，需要 Morii 更新（OPEN_ISSUES #12）。
 - 依据：`npm run check`、`npm test`（node 60/60，DOM 58/58）、`npm run build`、`node scripts/check-memory-integration.mjs` 全过；重截两套主题。
 - 状态：定稿
 
@@ -361,7 +361,7 @@
 - 依据：Memory UI 规格 §1–§11；参考图 ref-01…ref-09（REFERENCES.md）；`.design/shots/v2/`。
 - 状态：定稿
 
-## 2026-10-25 · 本轮统一口径（待 owner 最终确认）
+## 2026-10-25 · 本轮统一口径（待 Morii 最终确认）
 
 - 决定：① 星图的 `+ / −` 是缩放（0.85–1.5，另有「重置」）；② 所有时间按 Asia/Shanghai（UTC+8）显示，并在 Inspector 的时间区写明；③ 自动记忆合成预览用 `React.lazy` 懒加载（主 JS 475.3 kB，预览 57.8 kB 另包）。
 - 理由：① Memory UI 规格 §10「缩放有 + / − / 重置按钮」；② 规格 §5 不按浏览器时区猜，演示数据本身是 Asia/Shanghai；③ 主 JS 回到 Vite 500 kB 警告线以下。
@@ -401,7 +401,7 @@
 
 ## 2026-11-04 · #14 旧 Vault 浏览器空状态
 
-实现记录：空库样本同时没有记忆、候选、会话和 Capsule；仅候选样本包含两条独立导入候选，保留原始 fixture，缺失引用以空状态呈现。模块级 `vault-dataset` 参数只服务浏览器，SDK 原生标记下忽略；显式恢复链接回原始兼容列表。这不构成 Memory 契约或 Owner 采用。证据见 [验证](validation/UI-v2-empty-vault-demo-2026-11-04.md)。
+实现记录：空库样本同时没有记忆、候选、会话和 Capsule；仅候选样本包含两条独立导入候选，保留原始 fixture，缺失引用以空状态呈现。模块级 `vault-dataset` 参数只服务浏览器，SDK 原生标记下忽略；显式恢复链接回原始兼容列表。这不构成 Memory 契约或 Morii 采用。证据见 [验证](validation/UI-v2-empty-vault-demo-2026-11-04.md)。
 
 ## 2026-11-05 · 时间工作区的月／日浏览与覆盖口径
 
@@ -439,7 +439,7 @@ Morii 在核对现有 Memory 能力后同意按以下方向继续。默认按月
 
 ## 2026-11-05 · 旧 Vault 合成兼容列表的窄视口
 
-三种虚构 Vault 状态的窄视口均保持 1100px 文档并把详情留在屏外。沿用前一片纵向阅读，将集合导航→已加载列表→Inspector 放入页面流，显式区块跳转只改变焦点与滚动；宽窗口三栏、审批/编辑/保存回调和草稿所有权不改。将已复用的阅读焦点函数移到无 Memory 数据依赖的主题模块，避免旧 Vault 为阅读链接提前加载自动记忆预览。仍限浏览器合成 Memory 区域，不采用真实 Owner 或原生缩放。
+三种虚构 Vault 状态的窄视口均保持 1100px 文档并把详情留在屏外。沿用前一片纵向阅读，将集合导航→已加载列表→Inspector 放入页面流，显式区块跳转只改变焦点与滚动；宽窗口三栏、审批/编辑/保存回调和草稿所有权不改。将已复用的阅读焦点函数移到无 Memory 数据依赖的主题模块，避免旧 Vault 为阅读链接提前加载自动记忆预览。仍限浏览器合成 Memory 区域，不采用真实 Morii 或原生缩放。
 
 ## 2026-11-05 · 合成 Context/Sessions 窄视口保留阅读滚动
 

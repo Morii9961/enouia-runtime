@@ -1,6 +1,6 @@
 # Synthetic capture: correction consumption, 2026-11-08
 
-Runtime branch baseline: `b00034d` (origin/main, capture entry, panel and renewal merged; Memory pinned at `b9faf544da272bfe821c621d59a979b1a434e355`). This slice adopts Memory's correction consumption (ADR-MEM-121/122) in the synthetic Owner capture entry, still with fixed fictional data and no model.
+Runtime branch baseline: `b00034d` (origin/main, capture entry, panel and renewal merged; Memory pinned at `b9faf544da272bfe821c621d59a979b1a434e355`). This slice adopts Memory's correction consumption (ADR-MEM-121/122) in the synthetic Morii capture entry, still with fixed fictional data and no model.
 
 ## Change
 

@@ -30,7 +30,7 @@ export default function Memory({ view }: { view: DemoView }) {
   </nav>
   {workspace === 'memories' ? <div className="am-views memory-view-nav" role="group" aria-label={t("Memory workspace views")}>
     <button type="button" className="am-view" data-memory-view="grid" aria-pressed={memoryView === 'grid'} onClick={() => setMemoryView('grid')}><span className="am-vn">{t("Automatic memory")}</span></button>
-    <button type="button" className="am-view" data-memory-view="vault" aria-pressed={memoryView === 'vault'} onClick={() => setMemoryView('vault')}><span className="am-vn">{t("Vault list · owner review compatibility")}</span></button>
+    <button type="button" className="am-view" data-memory-view="vault" aria-pressed={memoryView === 'vault'} onClick={() => setMemoryView('vault')}><span className="am-vn">{t("Vault list · Morii review compatibility")}</span></button>
   </div> : null}
   <div className="memory-region-body">
   {preview ? <React.Suspense fallback={<section className="am-loading" aria-busy="true"><p>{t("Loading the synthetic preview…")}</p></section>}><AutoMemory workspace={workspace} /></React.Suspense> : (

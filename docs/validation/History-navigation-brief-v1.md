@@ -5,7 +5,7 @@ Memory source is draft #50, exact 08892702d0d0104b2d23240f89d2130c4dc1d323,
 surface a7dc389a9e7073e26bcb17ac644c9949693a24e3ebf358513de58d2e2ecc52e7,
 57 commands. Upstream merge remains required before final delivery.
 
-The brief owner binds an explicitly observed comparison and exact saved batches.
+The brief holder binds an explicitly observed comparison and exact saved batches.
 One explicit null-key read requests all selected topics under a 128 KiB default.
 Result base, native child IDs, requested budget and exact UTF-8 hash must match.
 The reply is copied before async hashing, and generation is rechecked after the
@@ -22,9 +22,9 @@ Actual focused checks:
   selection/unmount races and explicit null-key calls only.
 - Production TypeScript and exact pin/surface consistency pass.
 - The matching new-pin Runtime native scenario is prepared, but has NOT run:
-  automatic approval refused fetching 0889270 because prior owner approval named
+  automatic approval refused fetching 0889270 because prior Morii approval named
   comparison source 20cbb2f only. No source-fetch workaround is used. New-pin
-  metadata/native adapter/Core/Clippy checks remain deferred. The owner asked to
+  metadata/native adapter/Core/Clippy checks remain deferred. Morii asked to
   continue implementation and reuse evidence rather than repeat validation.
 
 Memory's own #50 checks are separately saved, not Runtime native evidence.
@@ -33,9 +33,9 @@ relabeled as checks at this new pin. Logs are under target/history-brief/.
 No full workspace/frontend/package/smoke/performance/Usage-conformance rerun,
 app installation, personal data, real Provider, Host/MCP/cloud activation or
 manual status refresh. Product entry, physical interaction, real-data/model
-quality and owner acceptance remain open.
+quality and Morii acceptance remain open.
 
-Local navigation follow-up: exact project/topic display filters preserve the original comparison and all selected-response coverage/brief data. A fresh read resets the filter. No protocol, pin, backend or stylesheet changes. Per owner instruction, prior evidence is reused and no suite is rerun for these reversible display controls.
+Local navigation follow-up: exact project/topic display filters preserve the original comparison and all selected-response coverage/brief data. A fresh read resets the filter. No protocol, pin, backend or stylesheet changes. Per Morii instruction, prior evidence is reused and no suite is rerun for these reversible display controls.
 
 Coverage navigation follow-up adds selected-response/occurrence/unique-span/uncited/zero-suggestion counts and local gap views. Unique identity is source ID/revision/start/end; repeated spans remain in occurrence totals. These are source-navigation counts, not quality/completeness metrics. Existing evidence is reused; only TypeScript is checked for the local display change, without new tests or native/protocol runs.
 
@@ -59,6 +59,6 @@ hash/base binding, including rejection of an old comparison head. Fake ports
 supply synthetic saved output; local reads do not send a real Provider request.
 
 This resolves the earlier source-cache/native-scenario gap. New-pin Clippy,
-physical Windows UI, Claude product entry integration and real-data/owner
+physical Windows UI, Claude product entry integration and real-data/Morii
 acceptance are not implied. No full suite, app build/package, installation,
 activation or real-account activity was performed.

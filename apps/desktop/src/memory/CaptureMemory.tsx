@@ -103,9 +103,9 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
   };
   return <>
     <div className="qr45" aria-busy={reads.busy}>
-      <div className="qr31"><h2 className="qr29">{t("Synthetic Runtime capture")}</h2><Tag tone="warn">{t("Isolated synthetic Owner root")}</Tag></div>
+      <div className="qr31"><h2 className="qr29">{t("Synthetic Runtime capture")}</h2><Tag tone="warn">{t("Isolated synthetic data root")}</Tag></div>
       <div className="qr44 mem-pad">
-        <p className="mem-content">{t("Runtime captures fixed fictional conversations into a fresh Owner root. Memory's background worker forms memories from the user turns and applies a synthetic Agent's correction report. No model, Provider or personal data is used.")}</p>
+        <p className="mem-content">{t("Runtime captures fixed fictional conversations into a fresh synthetic data root. Memory's background worker forms memories from the user turns and applies a synthetic Agent's correction report. No model, Provider or personal data is used.")}</p>
         {statusError != null && <p role="alert">{describe(statusError)}</p>}
         <p role="status">{status ? t("Capture: {state}", { state: status.state }) : statusError != null ? t("Capture state is unknown.") : t("Reading capture state…")}</p>
         {status?.state === "disabled" && <p className="mem-content">{t("No synthetic capture is enabled in this session.")}</p>}
@@ -153,7 +153,7 @@ export function CaptureMemory({ call = captureCall }: { call?: typeof captureCal
     </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
       <p className="mem-content">{t("Job status shows states and counts only, never conversation text.")}</p>
-      <p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p>
+      <p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
     </div></aside>
   </>;
 }

@@ -10,4 +10,4 @@
 
 截图复核发现原首个 00:00 居中被裁掉、两行主题名加说明会越过泳道。随后仅将首刻度左对齐、泳道/收到/形成标签最小高度设为容纳四行的 60px；再跑受影响的中日文、宽/窄、原始/开放端、日/月 12 项与 12 张截图，标签无越界，首刻度完整，页面错误零、退出 0；TypeScript 和原始数据集缩放 DOM 13 项复查通过。64 项矩阵先于这两处布局修正，不冒充全部在最终状态重跑。最终复核日文日视图与中文窄视口自然月截图。
 
-复现：`node e2e/timeline-scale-diagnostics.mjs <Edge executable> target/<owned-directory>`；加 `--labels-only` 为标签定向检查。原始输出在桌面包忽略的 target，仓库 JSON 保存结构化结果。预热耗时不代表产品性能。半宽视口只证明等效布局空间，未做实际浏览器/Windows 缩放。没有完整 npm test、构建、Rust、原生 smoke、真实 Vault/Owner/Provider、持续形成、迁移、部署或物理 shell 验收；Memory pin 不变。
+复现：`node e2e/timeline-scale-diagnostics.mjs <Edge executable> target/<owned-directory>`；加 `--labels-only` 为标签定向检查。原始输出在桌面包忽略的 target，仓库 JSON 保存结构化结果。预热耗时不代表产品性能。半宽视口只证明等效布局空间，未做实际浏览器/Windows 缩放。没有完整 npm test、构建、Rust、原生 smoke、真实 Vault/Morii/Provider、持续形成、迁移、部署或物理 shell 验收；Memory pin 不变。

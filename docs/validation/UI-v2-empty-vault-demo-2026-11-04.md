@@ -1,6 +1,6 @@
 # UI v2 #14 接续：旧 Vault 整屏空库与仅候选
 
-基线 `a1f882f`（#124）。只扩展浏览器设计样本，不创建磁盘 Vault、Owner 或 Provider，不升级 pin。
+基线 `a1f882f`（#124）。只扩展浏览器设计样本，不创建磁盘 Vault、Morii 或 Provider，不升级 pin。
 
 ## 改动
 

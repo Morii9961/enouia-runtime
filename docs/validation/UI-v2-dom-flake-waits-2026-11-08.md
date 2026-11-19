@@ -38,4 +38,4 @@
 
 ## 边界
 
-另有 31 个 fixture 也在旅程中途调用 `root.render`，可能有同类空档。它们在这次 330 次加压中都没有失败，所以没有改。以后再出现偶发失败，先按本记录的办法转译、对行号、做微任务复现，再决定修法。这次没有截图、Rust、原生 smoke、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
+另有 31 个 fixture 也在旅程中途调用 `root.render`，可能有同类空档。它们在这次 330 次加压中都没有失败，所以没有改。以后再出现偶发失败，先按本记录的办法转译、对行号、做微任务复现，再决定修法。这次没有截图、Rust、原生 smoke、个人 Vault、Morii、Provider、迁移或部署；Memory pin 不变。

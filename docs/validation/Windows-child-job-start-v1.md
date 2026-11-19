@@ -18,7 +18,7 @@ Only enouia-windows-process sources and the existing windows-sys 0.61.2 feature 
 
 - [Microsoft suspended thread semantics](https://learn.microsoft.com/en-us/windows/win32/procthread/suspending-thread-execution): a thread created suspended does not execute until resumed.
 - [Process creation flags](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags), [AssignProcessToJobObject](https://learn.microsoft.com/en-us/windows/win32/api/jobapi2/nf-jobapi2-assignprocesstojobobject) and [ResumeThread](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread): the startup barrier and its explicit suspend-count check.
-- [Thread32First](https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32first) and [GetProcessIdOfThread](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessidofthread): metadata discovery followed by handle-based owner verification.
+- [Thread32First](https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32first) and [GetProcessIdOfThread](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessidofthread): metadata discovery followed by handle-based owning-process verification.
 - [Microsoft's process ID lifetime explanation](https://devblogs.microsoft.com/oldnewthing/20110107-00/?p=11803): retaining the process handle retains the process object's ID. No identifier-only termination is used.
 
 ## Checks actually run

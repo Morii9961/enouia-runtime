@@ -65,7 +65,7 @@ try {
   exiting = true; await refresh();
   check('observed_exit_closes_startup_switch', toggle()?.disabled === true && !retry());
   check('exit_badge_is_not_open_indicator', !badgeOpen() && text().includes('Exiting, finishing operations'));
-  check('settings_exit_withholds_current_open_details', !text().includes('Last commit') && !text().includes('Owner-only access'));
+  check('settings_exit_withholds_current_open_details', !text().includes('Last commit') && !text().includes('Access limited to this account'));
   check('observing_exit_never_replays_startup_write', writes().length === 1);
   exiting = false; changing = true; await refresh();
   check('host_change_withholds_open_details_and_indicator', !badgeOpen() && !text().includes('Last commit'));

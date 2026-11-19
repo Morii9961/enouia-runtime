@@ -16,7 +16,7 @@ Memory PR [#39](https://github.com/Morii9961/enouia-memory/pull/39) 本轮两次
 
 保存任务中的批次提供显式请求入口。页面选择已有 extraction grant 和输出上限，仅向 `history_batch_prepare` 传原 taskId、原 batchIndex、policyId、outputTokens。命令是带幂等键的同步本地写；Core 派生原 child/run，准备可提交 Context 并改变 head，不读取凭据、不调用 transport。Runtime 核对 task/batch/session/run/input、API/模型、输出上限、handle/hash 和 TTL 后，显示实际 body、endpoint、模型、callId、wireHash 及 token 估计。文本保持普通文本节点。
 
-请求状态独立于 head 预览。进程内、按 Vault 分隔的 owner 保存参数草稿、原键、选择和已提交标记；参数变化使用不同键，恢复相同参数保留原键。任务重读、组件重挂载、锁定/重开和选择变化不会把另一批次的回执认作当前请求。切换、锁定、Provider/grant 变化、状态读取失败或过期撤下旧 body/handle/确认。完整进程退出不持久化这份 UI 元数据，重开必须重新发现保存任务并检查新请求；不得把 UI 恢复测试当作跨进程保存私有请求的证明。
+请求状态独立于 head 预览。进程内、按 Vault 分隔的 持有方 保存参数草稿、原键、选择和已提交标记；参数变化使用不同键，恢复相同参数保留原键。任务重读、组件重挂载、锁定/重开和选择变化不会把另一批次的回执认作当前请求。切换、锁定、Provider/grant 变化、状态读取失败或过期撤下旧 body/handle/确认。完整进程退出不持久化这份 UI 元数据，重开必须重新发现保存任务并检查新请求；不得把 UI 恢复测试当作跨进程保存私有请求的证明。
 
 发送另需勾选当前确切请求并单独点击。发送前重新观察 Provider 和保存任务；`external_send` 使用独立固定键及该 callId/hash。回执不明确只能恢复同一调用，不能靠准备重发。任何已观察 invocation，包括失败、取消、length、unknown，及本进程未确认的已提交调用都阻止重新准备。只有首次发送被 Core 明确以 `provider.call_unknown` / `provider.call_expired` 在 admission 前拒绝时，才撤下 handle、要求重读任务，再允许恢复原准备键；此前不明确的发送不走此路径。缺失 child 仍用已有显式 resume。最终错误要求重新观察任务；不重建另一任务、不入队或批准候选。
 
@@ -35,7 +35,7 @@ Memory PR [#39](https://github.com/Morii9961/enouia-memory/pull/39) 本轮两次
 | 生产 Vite build、Windows no-bundle build、NSIS bundle | 通过；保留既有 chunk >500 kB 非阻断提示 |
 | 精确 pin / committed surface | 通过，8 个负向检查；三个直接依赖、八个 Memory 包 |
 | resolved desktop domain boundary | 通过，7 个负向检查 |
-| 实际 rendered NSIS template ownership | 26/26 通过 |
+| 实际 rendered NSIS template responsibility | 26/26 通过 |
 | runner syntax、JSON 与 diff 检查 | 通过 |
 
 完整69个 DOM journeys 曾一起通过937项；最后增加两项失效 handle 恢复检查并修改请求组件后，复用其余68个未受影响场景的有效证据，重新通过受影响场景31项和全部121个 Node tests，合计939项。没有把分开的证据写成一次未发生的完整门禁运行。

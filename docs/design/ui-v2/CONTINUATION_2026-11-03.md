@@ -48,7 +48,7 @@
 
 保存文本、JSON、哈希、确认码、状态值及原始 ID 保持原样。三处旧语言提示问题有修复前的失败复现，各片记录了范围。新增语言切换检查不自动发送、重读或写入，原有未知结果、锁定及迟到回执保护继续通过。
 
-截至 `e6808fc` 的 PR #115 没有改 Rust、原生权限、安装包、正式状态快照或 Memory pin，当时 pin 为 `bf6bfd1`。后续 #116 更新到 `0d338f12f51a859363e0725071bcf43874b492c7`，#117 新增独立合成原生权限及入口，#118 消费 page + stats；Workspace IPC v1 / schema 1 / 58 命令保持。Owner 根没有采用；后续真实原生合成流程证据见各报告，DOM 与原生证据不代表 Provider 或 Morii 验收。
+截至 `e6808fc` 的 PR #115 没有改 Rust、原生权限、安装包、正式状态快照或 Memory pin，当时 pin 为 `bf6bfd1`。后续 #116 更新到 `0d338f12f51a859363e0725071bcf43874b492c7`，#117 新增独立合成原生权限及入口，#118 消费 page + stats；Workspace IPC v1 / schema 1 / 58 命令保持。Morii 根没有采用；后续真实原生合成流程证据见各报告，DOM 与原生证据不代表 Provider 或 Morii 验收。
 
 接线已按 Memory session 确认的边界采用新 segmented 根和 `SegmentedMemoryReader::from_authenticated_system`，当前限 page + stats；不能复用旧 AutomationHost 根，也不能从 `active_vault` 推导身份或权限。#24 不能靠删主题线或改实线宣称解决，opaque context 诊断也未证明完整呈现性能；视觉取舍仍另行确认。
 

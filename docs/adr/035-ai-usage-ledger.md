@@ -1,6 +1,6 @@
 # ADR-035 — Private AI Usage Ledger and a gated export contract
 
-Date: 2026-10-21; R3 verified 2026-10-22. Status: **R0–R3 synthetic implementation verified; review and personal acceptance pending**. Authority: the owner's AI Usage Ledger request and continuation after the Dashboard author confirmed the 1.1 Schema, fictional fixtures and SHA manifest frozen. No personal collection, scheduler or transmission is activated.
+Date: 2026-10-21; R3 verified 2026-10-22. Status: **R0–R3 synthetic implementation verified; review and personal acceptance pending**. Authority: Morii's AI Usage Ledger request and continuation after the Dashboard author confirmed the 1.1 Schema, fictional fixtures and SHA manifest frozen. No personal collection, scheduler or transmission is activated.
 
 ## Context and compatibility gate
 
@@ -20,7 +20,7 @@ Memory repository/pin/Vault/Provider/session routing, frozen Runtime-local Memor
 
 ### 2. Reuse only compatible mechanisms
 
-Keep ActivityData v1, batch v1, Activity IPC v1, Activity archive/CURRENT, locks, sequence/high-water, pending/retry, SSH destination and scheduler ownership unchanged. Keep ADR-028/029/030 intact. ADR-033/034 recovery also stays Activity-only. The ledger must not open Activity state for writing or reinterpret its numbers as model-level usage.
+Keep ActivityData v1, batch v1, Activity IPC v1, Activity archive/CURRENT, locks, sequence/high-water, pending/retry, SSH destination and scheduler responsibility unchanged. Keep ADR-028/029/030 intact. ADR-033/034 recovery also stays Activity-only. The ledger must not open Activity state for writing or reinterpret its numbers as model-level usage.
 
 Review reusable clock/cancellation/bounded-process ports separately from domain DTOs. Cowork discovery demonstrates path deduplication and fail-closed budgets; its broad roaming/package traversal and unproven concurrent-replacement protection are not suitable as the ledger's source grant boundary. A distinct path can still contain a copied message.
 
@@ -74,11 +74,11 @@ Future export constructs a closed allowlist from pinned aggregate rows; it does 
 
 ## Activation gates and consequences
 
-R0 is complete with this ADR, the compatibility/field-gap study, synthetic scenario specifications and honest verification. The original stop applied while a compatible frozen contract was absent. Dashboard's author has now confirmed the 1.1 exchange package frozen, including finite quality reasons and explicitly unallocated observations. The owner authorized the cross-chat request and continued Runtime work. The [Usage pin](../integration/usage-pin.json) locks the exact publisher-owned bytes; no Runtime protocol variant is invented.
+R0 is complete with this ADR, the compatibility/field-gap study, synthetic scenario specifications and honest verification. The original stop applied while a compatible frozen contract was absent. Dashboard's author has now confirmed the 1.1 exchange package frozen, including finite quality reasons and explicitly unallocated observations. Morii authorized the cross-chat request and continued Runtime work. The [Usage pin](../integration/usage-pin.json) locks the exact publisher-owned bytes; no Runtime protocol variant is invented.
 
 Git publication was pending during R1. Content-addressed immutability was sufficient for isolated synthetic R1 work: verify every Schema/fixture against the publisher's manifest, preserve those files, and fail on drift. This refined R0's unnecessarily Git-only handoff rule without reducing any count, quality or privacy requirement. R3 has reconciled publication: Dashboard PR #43 merged as `b66a472d04da3f7767dc5ba747ba1d5b9c494a9d`; all 43 published Schema/fixture/manifest files match the original frozen hashes. The consumer implementation also matches that published commit. This is protocol conformance, not production integration.
 
-R1 requires an immutable Dashboard schema commit or frozen content-hash package, documented semantic rules, closed enums/bounds, a shared fictional accepted/adversarial fixture corpus and runnable conformance checks. These contract gates are satisfied by the pinned 1.0/1.1 bundle; the narrow Claude parser exception in this ADR applies only to the new usage crate. Verify supported Codex shapes using public source or owner-selected synthetic samples; historical/private CLI versions remain unverified. R1 proves adapters using synthetic data only. See [R1 evidence](../validation/AI-usage-ledger-R1.md).
+R1 requires an immutable Dashboard schema commit or frozen content-hash package, documented semantic rules, closed enums/bounds, a shared fictional accepted/adversarial fixture corpus and runnable conformance checks. These contract gates are satisfied by the pinned 1.0/1.1 bundle; the narrow Claude parser exception in this ADR applies only to the new usage crate. Verify supported Codex shapes using public source or Morii-selected synthetic samples; historical/private CLI versions remain unverified. R1 proves adapters using synthetic data only. See [R1 evidence](../validation/AI-usage-ledger-R1.md).
 
 R2 is implemented with independently selected synthetic private roots, concurrency/rollback/reopen/correction/replay/file-security tests and measured 100,000–1,000,000-line memory/performance trials. The exact layout, conservative source-lock behavior, process-crash limits and scale dataset are recorded in [R2 evidence](../validation/AI-usage-ledger-R2.md). Root selections remain explicit per call; no grant file or automatic discovery is needed. Immutable per-group fact projections replace the proposed eager daily materialization; R3 aggregates them inside a pinned read transaction. [R3 evidence](../validation/AI-usage-ledger-R3.md) records closed 1.1 exports, exact decimals, deterministic fixed-metadata output, correction review, protocol limits, privacy checks and four actual Runtime exports accepted by Dashboard's published validator. The [manual guide](../AI_USAGE_LEDGER.md) describes the separate one-shot commands. Supported legacy facts remain explicitly unallocated, never inferred daily zero.
 

@@ -29,7 +29,7 @@ Claude 探索树、原 checkout、其他并行分支、AGENTS 或手动项目状
 
 `--memory-synthetic` 在新临时目录创建真实 Memory-owned V2 合成事务与 System 回执；
 仅三条固定文本和 fake generator，未连接真实语义模型、Provider 或 embedding。
-正常 v1 入口、owner review 历史和旧 CURRENT 不变。新 native 请求不能携带 root、actor、
+正常 v1 入口、Morii review 历史和旧 CURRENT 不变。新 native 请求不能携带 root、actor、
 profile 或 sensitivity；主窗口双重准入，overlay 拒绝；版本不支持先于操作/根解码拒绝。
 
 Memory 区域显示授权列表、详情/历史、显式来源、支持与分析依赖、独立时间/知识/采用/
@@ -91,4 +91,4 @@ Context/Sessions/Provider/Quick Search 继续自己的 v1 数据路径；本片�
 
 这是最小 Memory 原生能力采用切片。真正完整 Core-8 的模型语义质量、生产 System 身份/输入
 捕获、真实账号/预算、数据范围/固定快照、独立恢复/旧主栅栏与其他消费者的新版能力，需要
-各自明确资源与激活边界。日常逐条主人审核不是这些门槛的替代品；旧 owner 数据保持原义。
+各自明确资源与激活边界。日常逐条主人审核不是这些门槛的替代品；旧 Morii 数据保持原义。

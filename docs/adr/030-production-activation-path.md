@@ -1,6 +1,6 @@
 # ADR-030 — Gated production activation path for the Activity package
 
-Date: 2026-10-07. Status: adopted and implemented. Authority: the owner's 2026-10-07 approval of B5 steps 1–4; [migration runbook](../ACTIVITY_MIGRATION_v0.3.md) Stages 4–5.
+Date: 2026-10-07. Status: adopted and implemented. Authority: Morii's 2026-10-07 approval of B5 steps 1–4; [migration runbook](../ACTIVITY_MIGRATION_v0.3.md) Stages 4–5.
 
 ## Context
 
@@ -12,7 +12,7 @@ B3.2 packaging deliberately refused every production delivery path: installs had
 2. The installed `management/register-activity-production.ps1` takes the install root and the exact task name (`-ConfirmTaskName`, case-sensitive):
    - Without `-Enable` it registers the package's task **disabled**, after checking the binary and config hashes and that the config is production with delivery enabled. An existing task is never replaced.
    - With `-Enable` it enables only that package's own disabled task, and only if a valid production overview shows Boolean sync-resumed and delivery-enabled flags, no pending batch or delivery sequence, and an **observed** publication with a valid public hash and exact UTC observation timestamp. A manual production cycle that published is therefore a precondition, as the runbook requires. A missing/null pause flag or imported receipt without a locally observed publication time cannot satisfy the gate.
-3. Neither step changes Activity data, and uninstall keeps its existing ownership checks.
+3. Neither step changes Activity data, and uninstall keeps its existing responsibility checks.
 
 ## Consequences
 

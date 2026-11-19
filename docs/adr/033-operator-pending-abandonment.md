@@ -1,6 +1,6 @@
 # ADR-033 — Operator abandonment of a refused pending batch
 
-Date: 2026-10-11. Status: adopted and implemented; using it on a real store is an operator decision under the migration runbook. Authority: the operator-reconciliation clause of [ADR-015](README.md#adr-015--existing-restricted-ssh-with-observed-publication-adopted), the C14/C15 gaps in [B4 coverage](../validation/B4-coverage.md) and the owner's instruction to finish the remaining Runtime Activity work. B4 row sign-off and B5 activation remain separate.
+Date: 2026-10-11. Status: adopted and implemented; using it on a real store is an operator decision under the migration runbook. Authority: the operator-reconciliation clause of [ADR-015](README.md#adr-015--existing-restricted-ssh-with-observed-publication-adopted), the C14/C15 gaps in [B4 coverage](../validation/B4-coverage.md) and Morii's instruction to finish the remaining Runtime Activity work. B4 row sign-off and B5 activation remain separate.
 
 ## Context
 

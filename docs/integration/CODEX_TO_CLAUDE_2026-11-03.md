@@ -13,7 +13,7 @@ Morii 最新要求：完成手头 read-2 前端切片后停止开发，整理交
 - `0442ff0`：演示记忆库区分空分组与无匹配。
 - `d6d8dd4`：read-1 也接入同一原生矩阵（共用 `surfaceMatrix`）。
 
-待 Morii 决定：合成面板的库状态 / 枚举 / 时间是否翻译（现按 `413d318` 保持原样）；#24 降成本的视觉取舍；#13 / #3 / #4 / #15 等既有 owner 项。#14 的整屏空库等状态需要一套演示状态，尚未开始。物理托盘、热键冲突、登录启动与安装仍是独立验收项。
+待 Morii 决定：合成面板的库状态 / 枚举 / 时间是否翻译（现按 `413d318` 保持原样）；#24 降成本的视觉取舍；#13 / #3 / #4 / #15 等既有 Morii 项。#14 的整屏空库等状态需要一套演示状态，尚未开始。物理托盘、热键冲突、登录启动与安装仍是独立验收项。
 
 ## 从哪里开始
 
@@ -46,12 +46,12 @@ Morii 最新要求：完成手头 read-2 前端切片后停止开发，整理交
 
 之后继续当前 UI v2 的保留内容、等待与恢复分支审阅；字典覆盖并不证明所有动态路径完成。#24 的下一步应提出新的完整渲染链路假设并测量；视觉取舍要 Morii 决定。`OPEN_ISSUES.md` 还保留物理托盘 #25、安装/升级 #27、默认 Ctrl+Alt+M 冲突 #28、真实登录启动及 Morii 接受等独立待办；不要把测试 Q 成功或构建候选包等同这些项目完成。
 
-read-2 尚未做 facets、时间分桶、图投影、完整 record 详情、持续 formation、Agent/Runtime capture 或 Owner 接线。这些是后续契约/激活边界，**不是本片遗留未提交代码**；先对齐 Memory 当前路线和所需激活门槛，不擅自扩展。当前 frontend 是固定三条合成记录，不能称日用 Memory 已就绪。
+read-2 尚未做 facets、时间分桶、图投影、完整 record 详情、持续 formation、Agent/Runtime capture 或 Morii 接线。这些是后续契约/激活边界，**不是本片遗留未提交代码**；先对齐 Memory 当前路线和所需激活门槛，不擅自扩展。当前 frontend 是固定三条合成记录，不能称日用 Memory 已就绪。
 
 ## 必须保留的边界与协同信息
 
 - `AGENTS.md`、`DESIGN.md`、[Memory integration v1](../MEMORY_INTEGRATION_v1.md) 是约束。Runtime 只维护宿主/适配器/前端；Memory 域归 `Morii9961/enouia-memory`，冻结 Runtime-local Memory crates 不扩展。只用 exact Git pin，不提交本地路径、branch 或 patch。
-- 没有打开个人 Vault、Owner enrollment/adoption、真实 Provider、生产迁移/部署；合成 descriptor 内的 owner 记账不是正式 Owner 身份。`active_vault` 也不是 Runtime adoption 或授权凭据。
+- 没有打开个人 Vault、Morii enrollment/adoption、真实 Provider、生产迁移/部署；合成 descriptor 内的 Morii 记账不是正式 Morii 身份。`active_vault` 也不是 Runtime adoption 或授权凭据。
 - Activity/Usage 已退役，不得恢复 UI/命令；保留独立旧 producers/任务/ledger，未经单独授权不清理。
 - Memory 协同 session ID：`01a19eb6-e2df-77b1-8e7d-ff2496997649`。对方最后确认 main 为 `0d338f1`；PR #83 已推至 `06b0e3e`，pipe-6 仍在其分支验收，不影响当前 read-2。此为接收时快照，后续需重新核实；不要自动采用未合并 #83。
 - 对方已确认新合成接线使用新根的 `SegmentedMemoryReader::from_authenticated_system`，不能复用旧 HostV2。fixture 的 occurred_at/time_precision 不一致已由本 session 修正（未知日期用 Unknown）；Memory 无需为此改代码。

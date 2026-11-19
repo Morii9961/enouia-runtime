@@ -12,7 +12,7 @@
 | --- | --- |
 | `cde091c` | Home 大时刻、记录纸、四注记及日历；只标实际最新 Vault 提交。[验证](../../validation/UI-v2-native-home-2026-11-01.md) |
 | `d1dd29d` | Sessions 保存事件时间尺、按已知时间的间距及加载转录地图；未知/倒序时间停用地图。[验证](../../validation/UI-v2-native-sessions-2026-11-01.md) |
-| `5f4fc9b` | Inspector 左侧组件选择、顶部观察摘要及右侧详情；切换不重建读取/操作 owner。[验证](../../validation/UI-v2-native-inspector-2026-11-01.md) |
+| `5f4fc9b` | Inspector 左侧组件选择、顶部观察摘要及右侧详情；切换不重建读取/操作 持有方。[验证](../../validation/UI-v2-native-inspector-2026-11-01.md) |
 | `62a649f` | 主导航固定测试挂钩与本地化可访问名称分开，修正两处 smoke 选择器。[验证](../../validation/UI-v2-native-nav-2026-11-01.md) |
 | `4619c64` | Context 当前保存 Capsule 分区导航、三栏与实际预算单段刻度。[验证](../../validation/UI-v2-native-context-2026-11-01.md) |
 | `b7a8225` | Sessions/Context 有内容分支的24项界面文案三语化，保存内容保留原样。[验证](../../validation/UI-v2-native-loaded-copy-2026-11-01.md) |
@@ -39,19 +39,19 @@
 ## 不能据此宣称完成的内容
 
 - **全设计保真**：Home 没有连续真实迹线或最近 Capsule/会话/检查点摘要；Memory 没有全库项目/种类/来源分类；Context 没有完整 Capsule 索引。不能用当前一页记录冒充全库，也不能用生成内容填空。
-- **新 Memory 能力**：[pin](../../integration/memory-pin.json) 仍是 `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`，常规记忆/Context/Sessions 使用 Workspace IPC v1 / schema 1 / 58命令。MemoryListArgs / SearchArgs 拒绝未知筛选字段；行字段与检查点覆盖的依据已记录在上表链接。本轮没有采用或读取 Owner Vault。
-- **既有隔离自动记忆入口**：Memory 左栏另有已合入的 `AutomaticMemory`，走独立 `memory_automation` / `memory-native-read-1`，请求封装 schema 2；它只接受显式 `--memory-synthetic` 的隔离样本绑定，生产采用未激活，见[原 ADR](../../adr/037-synthetic-native-memory-adoption.md)与[集成协议](../../MEMORY_INTEGRATION_v1.md)。这不是浏览器15条设计预览，也不是新 Owner Vault 的采用。本轮未改动该能力、启动模式或读取边界。
-- **正式可用/验收**：原生 WebView2/DPI/Narrator、物理托盘、默认 Ctrl+Alt+M、真实安装/升级、真实登录启动、个人数据/Provider 及 owner 验收均没有由本轮证实。既有候选包与旧原生报告只适用于原 revision。
+- **新 Memory 能力**：[pin](../../integration/memory-pin.json) 仍是 `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`，常规记忆/Context/Sessions 使用 Workspace IPC v1 / schema 1 / 58命令。MemoryListArgs / SearchArgs 拒绝未知筛选字段；行字段与检查点覆盖的依据已记录在上表链接。本轮没有采用或读取 Morii Vault。
+- **既有隔离自动记忆入口**：Memory 左栏另有已合入的 `AutomaticMemory`，走独立 `memory_automation` / `memory-native-read-1`，请求封装 schema 2；它只接受显式 `--memory-synthetic` 的隔离样本绑定，生产采用未激活，见[原 ADR](../../adr/037-synthetic-native-memory-adoption.md)与[集成协议](../../MEMORY_INTEGRATION_v1.md)。这不是浏览器15条设计预览，也不是新 Morii Vault 的采用。本轮未改动该能力、启动模式或读取边界。
+- **正式可用/验收**：原生 WebView2/DPI/Narrator、物理托盘、默认 Ctrl+Alt+M、真实安装/升级、真实登录启动、个人数据/Provider 及 Morii 验收均没有由本轮证实。既有候选包与旧原生报告只适用于原 revision。
 - **全部文案或性能**：未标记的动态分支仍需逐项检查；#24 的5,000条深色球体/聚类性能缺口仍在，不以小规模截图代替测量。
 
 ## 后续顺序与授权边界
 
 1. 在当前前端范围继续检查已保存内容、等待/失败与恢复分支，保留保存字节、草稿、焦点及操作归属；每片记录实际验证，不把字典覆盖当成全应用无英文。
-2. **已交付**：owner 在 2026-11-02 授权后，切片已经复核、推送并由 PR #113 合入 main。见文末交付复核；原始开发记录不等于当前远端状态。
+2. **已交付**：Morii 在 2026-11-02 授权后，切片已经复核、推送并由 PR #113 合入 main。见文末交付复核；原始开发记录不等于当前远端状态。
 3. 原生候选刷新和 Windows 实际验收、Memory pin/适配器集成各自作为明确的新切片。Memory 领域需求转到其仓库；不在 Runtime 冻结 crate 中扩展，不自行采用 Vault 或启用 Provider。
 
 Activity/Usage 界面及桌面命令/grants 已退役（ADR-037）；独立生产者、任务、账本和历史数据不属于本轮清理范围。没有恢复页面、统计卡、占位链接或 tokens.ci 面板。
 
 ## 2026-11-02 交付复核
 
-Owner 已授权推送、PR、合并和清理。开发阶段的未推送状态已由 PR #113 的实际合并结果替代；本批已完成交付复核，当前结果见 [集成记录](../../validation/UI-v2-integration-2026-11-02.md)。Node 134 通过、3 跳过；DOM 86 场景 / 1,268 断言、前端构建与两项根检查通过。本次未刷新原生候选，未关闭上述后端或人工验收缺口。实际合并为 PR #113 / `a06e042`。
+Morii 已授权推送、PR、合并和清理。开发阶段的未推送状态已由 PR #113 的实际合并结果替代；本批已完成交付复核，当前结果见 [集成记录](../../validation/UI-v2-integration-2026-11-02.md)。Node 134 通过、3 跳过；DOM 86 场景 / 1,268 断言、前端构建与两项根检查通过。本次未刷新原生候选，未关闭上述后端或人工验收缺口。实际合并为 PR #113 / `a06e042`。

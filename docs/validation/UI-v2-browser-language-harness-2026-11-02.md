@@ -21,4 +21,4 @@
 
 54组全部通过原有布局边界；Vault12组与Provider18组另外核实虚构水印可见。各目录的 `capture.mjs`、PNG 和 `visual-results.json` 已按上述条件重生成，目录日期保持原切片名称。受影响的旧验证页链接到本记录，不将旧的不足条件继续作为独立语言/焦点证据。
 
-这是隔离无头 Chrome 与虚构 IPC 的浏览器验证，不是 Windows 原生 WebView2、个人数据、真实 Provider 或 owner 验收。未因驱动修正重复运行产品测试；导入/Vault 文案自身的完整前端检查另见对应记录。
+这是隔离无头 Chrome 与虚构 IPC 的浏览器验证，不是 Windows 原生 WebView2、个人数据、真实 Provider 或 Morii 验收。未因驱动修正重复运行产品测试；导入/Vault 文案自身的完整前端检查另见对应记录。

@@ -31,4 +31,4 @@ node e2e/starmap-diagnostics.mjs <msedge.exe> target/starmap-idle-after-reset --
 
 保留的失败 / 限制：最初缩放正反交替会累计改变取景，改成 zoom-in / Reset；大型像素数组导出导致诊断中断，改为 PNG；第一次静止聚类比较因初始化取景不同而无效，补显式 Reset。早期脚本检查和一次源码写入使用了错误 cwd，未改到目标，随后纠正。旧输出均未删除。失败诊断遗留的浏览器只按本轮明确 profile 核对并停止。
 
-检查：TypeScript `npm run check`、诊断脚本 `node --check`、Memory pin 一致性通过。未跑完整 npm test、构建或 Rust 检查；未读取 Vault、Owner、真实 Provider 或用户浏览器。
+检查：TypeScript `npm run check`、诊断脚本 `node --check`、Memory pin 一致性通过。未跑完整 npm test、构建或 Rust 检查；未读取 Vault、Morii、真实 Provider 或用户浏览器。

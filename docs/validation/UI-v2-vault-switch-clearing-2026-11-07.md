@@ -10,4 +10,4 @@
 
 影响与边界：换库后收件箱的未发送草稿会随旧 Vault 一起清除，这是预期行为（草稿属于旧 Vault 的候选）。不新增状态、请求、轮询或写入。按 AGENTS.md 的原则，这里记明失败场景与成本：发生条件是换库在一次轮询间隔内完成；后果是新 Vault 下显示旧 Vault 的记忆；代价是两个 key。2026-11-07 Morii 在会话中回复“Keep it”，同意保留。
 
-检查：完整 `npm test`：Node 142 项 139 通过 / 3 跳过 / 0 失败；DOM 119 个场景运行、2,470 项全部通过，退出 0。TypeScript 通过。没有字典改动。没有截图、Rust、原生 smoke、真实换库、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
+检查：完整 `npm test`：Node 142 项 139 通过 / 3 跳过 / 0 失败；DOM 119 个场景运行、2,470 项全部通过，退出 0。TypeScript 通过。没有字典改动。没有截图、Rust、原生 smoke、真实换库、个人 Vault、Morii、Provider、迁移或部署；Memory pin 不变。

@@ -23,15 +23,15 @@ The smoke covers the existing Memory surfaces only. The Memory-side rows between
 
 ## Follow-up: native setup (ADR-032) and the Sessions provider panel
 
-`provider.rs` parses the owner's `memory-providers.json` and injects Memory's native setup. Two main-window commands report the setup state and run the native key prompt. The Sessions inspector gains an external provider panel. It explains the off state; when a setup exists it shows the provider/model, a native key set/remove, grant review and revocation by exact content, preparation of the composer text with the exact request body, a single "Send once" operation, the session's Provider calls and local closing of unknown ones.
+`provider.rs` parses Morii's `memory-providers.json` and injects Memory's native setup. Two main-window commands report the setup state and run the native key prompt. The Sessions inspector gains an external provider panel. It explains the off state; when a setup exists it shows the provider/model, a native key set/remove, grant review and revocation by exact content, preparation of the composer text with the exact request body, a single "Send once" operation, the session's Provider calls and local closing of unknown ones.
 
 | Check | Result |
 |---|---|
 | src-tauri `cargo test --locked`, clippy | Passed: 39 + 3 tests, including settings parsing, refusal rules, application to the pinned Core and the fixed credential names. |
-| `npm run check`, `npm test` | Passed 61/61, including native-command shapes, keyed external writes, owner text for the new rules and the panel's initial read state. |
+| `npm run check`, `npm test` | Passed 61/61, including native-command shapes, keyed external writes, Morii text for the new rules and the panel's initial read state. |
 | `npm run desktop:build` + default smoke | First run 99/101: two quick-search hotkey checks failed (the intermittent foreground-focus observation already recorded for this mode), unrelated to Sessions. The rerun on a fresh synthetic Vault passed 101/101. Its Sessions screenshot shows the panel's off-state text. |
 
-Not exercised: a configured setup in the built app, the Windows credential prompt, Credential Manager writes, HTTPS and any provider. No settings file existed in the owner's Runtime configuration folder during the smoke.
+Not exercised: a configured setup in the built app, the Windows credential prompt, Credential Manager writes, HTTPS and any provider. No settings file existed in Morii's Runtime configuration folder during the smoke.
 
 ## Follow-up: pin `8186aed` and source suggestions (extraction, MV-7.4)
 
@@ -42,7 +42,7 @@ The pin moves to Memory `8186aed861af08cf7a2c5d8c912a24eae51b4d66` (surface `5eb
 | src-tauri tests and clippy | Passed: 39 + 3 tests; the lifecycle gate covers the three new writes. |
 | `npm run check`, `npm test` | Passed 62/62, including the extraction panel's initial read state. |
 | `check-memory-integration.mjs --self-test --memory-checkout` | Passed: surface matches the pinned revision. |
-| Default smoke | Not passed in this window: three runs stopped at the first OS key injection because the harness's own guard found another window in the foreground (`test process is not foreground`; the owner was using the desktop). These steps only test the global hotkey and quick search, which this change does not touch. The same steps passed 101/101 at `7963150` and `7ba612b` earlier today. |
+| Default smoke | Not passed in this window: three runs stopped at the first OS key injection because the harness's own guard found another window in the foreground (`test process is not foreground`; Morii was using the desktop). These steps only test the global hotkey and quick search, which this change does not touch. The same steps passed 101/101 at `7963150` and `7ba612b` earlier today. |
 | Focused smoke without OS key injection | Passed: `--sessions-only` 19/19, `--source-paging-only` 16/16, `--session-writes-only` 21/21 on fresh synthetic Vaults. |
 
 Not exercised: a configured setup in the built app, extraction against any provider, the credential prompt, Credential Manager and HTTPS.

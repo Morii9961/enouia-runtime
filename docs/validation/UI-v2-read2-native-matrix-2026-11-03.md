@@ -28,4 +28,4 @@
 
 ## 边界
 
-配色是 CDP 媒体模拟，没有改 Windows 主题；窗口缩放只用当前 DPI，不代表其他显示器 / DPI、Narrator 或人工验收。仍是固定三条合成记录，未打开个人 Vault、Owner、真实 Provider，也没有迁移或部署。
+配色是 CDP 媒体模拟，没有改 Windows 主题；窗口缩放只用当前 DPI，不代表其他显示器 / DPI、Narrator 或人工验收。仍是固定三条合成记录，未打开个人 Vault、Morii、真实 Provider，也没有迁移或部署。

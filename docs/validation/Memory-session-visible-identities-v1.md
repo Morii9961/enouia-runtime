@@ -8,4 +8,4 @@ Fresh verification passed: 90 frontend tests, TypeScript/strict affected fixture
 
 The expanded ID-filter Chrome fixture passed 18/18, including visible sibling identities, selection timing, exact full-ID titles, draft retention and row/header overflow checks at 920/1420-pixel content widths using long synthetic identifiers. Seven related fixtures passed 91 checks (109 total). [Browser summary](Memory-session-visible-identities-browser.json) records selected actual DOM results. The content-width probes cover the changed row/header, not full-app physical resize, monitor/DPI, keyboard or Narrator acceptance.
 
-No new command, pin/domain change, personal Vault, Provider HTTP, credential, Activity activation or installer operation occurred. Owner files and manual status snapshots remain untouched.
+No new command, pin/domain change, personal Vault, Provider HTTP, credential, Activity activation or installer operation occurred. Morii files and manual status snapshots remain untouched.

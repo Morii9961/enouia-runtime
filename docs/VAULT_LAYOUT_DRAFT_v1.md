@@ -6,7 +6,7 @@ Date: 2026-10-01. Status: draft for the next implementation step, not a frozen p
 
 Historical proposal retained. On 2026-10-02, [ADR-020](adr/020-core-vault-generations.md) selected complete immutable Core generations with a pinned pointer. [Vault storage v1](VAULT_STORAGE_v1.md) replaces the candidate layout/transaction choice below as the current backend design; [the acceptance matrix](VAULT_RECOVERY_MATRIX_v1.md) specifies pending implementation evidence. No persistence adapter or durability claim is established by that selection.
 
-## Proposed ownership
+## Proposed responsibility
 
 Use an explicitly configured Core-only root. Keep Identity Markdown, immutable raw imports, canonical records, transaction/recovery evidence and the disposable index distinct. No Activity path, producer name, sequence, pending bytes, scheduler or collector config belongs under this root.
 
@@ -26,7 +26,7 @@ Record filenames should derive only from validated opaque IDs, never title/conte
 
 An approval can insert a new memory, preserve/update a previous memory's supersession status, record a candidate decision and append a Session checkpoint reference. Separate atomic replacements are insufficient to establish a complete bundle. Freeze a recovery protocol before implementing this operation.
 
-Evaluate two bounded options against the same crash matrix: journaled multi-file replacement with replay/rollback, or immutable canonical generations selected by an atomic manifest. The latter naturally pins a complete reader snapshot but duplicates files and needs explicit retention/storage-growth policy. The former keeps familiar file locations but requires careful ownership, replay idempotence and durable journal ordering. No option is selected by this draft.
+Evaluate two bounded options against the same crash matrix: journaled multi-file replacement with replay/rollback, or immutable canonical generations selected by an atomic manifest. The latter naturally pins a complete reader snapshot but duplicates files and needs explicit retention/storage-growth policy. The former keeps familiar file locations but requires careful responsibility, replay idempotence and durable journal ordering. No option is selected by this draft.
 
 Required crash points include preparing new files, flushing data, publishing transaction evidence, each canonical replacement/snapshot switch, committing the canonical boundary and updating the index. Every accepted read/restart must expose a complete validated old/new bundle or a recoverable blocked state. It must not silently drop orphan source/candidate/checkpoint records or rewrite source meaning to repair consistency.
 

@@ -8,7 +8,7 @@ Date: 2026-10-11 (Asia/Shanghai). Baseline: Runtime `main@0abe87ef0ac4da7eb9eee9
 - Settings reads stop at 64 KiB plus one probe byte. Missing/invalid configuration removes native setup only after Core accepts the change. Reload/key actions are serialized with a non-queuing host guard; close admission and active Core sends refuse changes. Core refusal preserves the previously observed setup.
 - Sessions supplies setup instructions, field-specific refusal text, **Reload settings**, and **Read status again** after failed observation. Reload is disabled during local sends and held reviews. A failed reload reply still re-observes Core state.
 - The default native command object is stable. The original component recreated it on each render, changing the refresh effect dependency and triggering a render/read loop. Before the UI fix, the browser fixture recorded 672 calls and failed `initial_status_read_once`; after the fix, each initial status/setup read occurs once.
-- Owner configuration still uses a manual JSON file. No settings editor, auto-discovery, credential access, real-provider verification or grant bypass is claimed. See [owner guide](../PROVIDER_SETUP_v1.md).
+- Morii configuration still uses a manual JSON file. No settings editor, auto-discovery, credential access, real-provider verification or grant bypass is claimed. See [Morii guide](../PROVIDER_SETUP_v1.md).
 
 ## Evidence
 
@@ -31,8 +31,8 @@ The browser fixture mounts the actual ExternalPanel with its default native clie
 
 ## Limits and execution prerequisites
 
-Full native Memory smoke, physical input, a configured setup in the built app, Windows credential UI, Credential Manager, HTTPS, real Provider/extraction and owner acceptance were not run. Saved synthetic evidence does not establish daily-use v1 or Memory MV-7 live acceptance. The owner's settings, keys, Vaults and installed Activity scheduler were not accessed by these checks.
+Full native Memory smoke, physical input, a configured setup in the built app, Windows credential UI, Credential Manager, HTTPS, real Provider/extraction and Morii acceptance were not run. Saved synthetic evidence does not establish daily-use v1 or Memory MV-7 live acceptance. Morii's settings, keys, Vaults and installed Activity scheduler were not accessed by these checks.
 
 Sandbox Vite SSR initially failed `module is not defined`; the identical tests passed outside that filesystem sandbox. The first desktop build attempt lacked Cargo in PATH; adding the documented MinGW/Cargo paths resolved it. The domain checker initially lacked its required metadata argument; the corrected metadata-based command passed. Two new test-fixture issues (a type import and read commands receiving a write key) were corrected before the final native suite; a browser text assertion was narrowed to actual buttons and its worker-error text corrected before the final 11/11 run.
 
-Automatic approval rejected `desktop:bundle`, stating installer work requires a separate owner instruction. No installer was built, installed or deployed; the ordinary `desktop:build --no-bundle` check succeeded. The existing status snapshots, AGENTS.md edit and unrelated handoff/prompt files remain separate from this implementation commit.
+Automatic approval rejected `desktop:bundle`, stating installer work requires a separate Morii instruction. No installer was built, installed or deployed; the ordinary `desktop:build --no-bundle` check succeeded. The existing status snapshots, AGENTS.md edit and unrelated handoff/prompt files remain separate from this implementation commit.

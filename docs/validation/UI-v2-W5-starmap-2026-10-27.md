@@ -64,4 +64,4 @@ Edge 初次测量工具错误地要求每组至少 50 次 draw，实际 5,000 �
 Error: invalid active sample {"n":5000,"layout":"sphere","theme":"dark","layoutMs":26.399999976158142,"draw":{"n":48,"median":7.899999976158142,"p95":8.5,"max":10.100000023841858},"step":{"n":48,"median":0.5,"p95":0.6000000238418579,"max":0.7999999523162842},"cpuCombined":{"n":48,"median":8.300000071525574,"p95":9,"max":10.5},"drawInterval":{"n":47,"median":133.60000002384186,"p95":142,"max":144.70000004768372},"hidden":false}
 ```
 
-工具改为保留慢组且只拒绝零样本/隐藏页面，继续未完成组；没有丢弃慢数据或修改星图。首次完整输出在 `edge-measure-initial.log`，最终见 `edge-measure.log`。不代表 owner 验收、真实 Vault 或正式 Windows 安装交付。
+工具改为保留慢组且只拒绝零样本/隐藏页面，继续未完成组；没有丢弃慢数据或修改星图。首次完整输出在 `edge-measure-initial.log`，最终见 `edge-measure.log`。不代表 Morii 验收、真实 Vault 或正式 Windows 安装交付。

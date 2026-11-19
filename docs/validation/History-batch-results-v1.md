@@ -17,7 +17,7 @@
 
 应用键为 `ui-history-apply-v1-` 加上版本化有序 JSON 的 SHA-256，输入是 Vault ID、原 task ID、原 batch index、responseHash、cursor。只有显式确认的一步会写；同一元数据在进程重启后可恢复同一键，不存正文或确认到 WebView storage。
 
-HistoryResultOwner 保留未知写的精确 args/key；同步写成功或未知后均撤回预览，需明确重新读取。新鲜读取若观察到同响应 cursor 已前进，只建立当前进度，不归因哪次写或候选发布。未前进则只允许明确 recover 原请求；没有自动重试、自动选下一 cursor 或遍历所有结果。Web Crypto 等待后的身份复查、A→B→A、锁定/卸载与晚回执均由 generation 和选择 owner 约束。
+HistoryResultOwner 保留未知写的精确 args/key；同步写成功或未知后均撤回预览，需明确重新读取。新鲜读取若观察到同响应 cursor 已前进，只建立当前进度，不归因哪次写或候选发布。未前进则只允许明确 recover 原请求；没有自动重试、自动选下一 cursor 或遍历所有结果。Web Crypto 等待后的身份复查、A→B→A、锁定/卸载与晚回执均由 generation 和选择 持有方 约束。
 
 client.ts 写集合加入 history_batch_apply，preview 保持无 key；新 Core 的 is_write 自动使原生共享写 gate 覆盖 apply。窗口仍 main-only，overlay 继续只允许 memory_search。Core 负责源访问、删除、暂停、幂等、pending 限制和候选治理；Runtime 不读取 Vault 文件或增加 Memory 私有 helper。
 
@@ -72,7 +72,7 @@ Claude 的交接增加可复制组件挂载示例与 enabled/lifecycle 要求。
 
 ## 已保存结果的本地暂停 / 恢复
 
-固定 55 命令已有 `extraction_pause({sessionId, runId, paused})`，返回 `{job}`。本片在独立结果 owner / 面板接入该正式本地控制；身份由已观察的原 task/batch 派生，不添加 Memory 私有逻辑或更新 pin。操作绑定展示的不可变预览和明确确认；成功或未知后都撤回预览。只保留控制参数/键，先明确重读，再作新的状态决定，不自动重发旧控制；不将其冒充候选应用的持久同键回执恢复。未知候选应用的原 hash/cursor/key 始终保留，可在本地恢复并重读后继续 recover 原步骤。
+固定 55 命令已有 `extraction_pause({sessionId, runId, paused})`，返回 `{job}`。本片在独立结果 持有方 / 面板接入该正式本地控制；身份由已观察的原 task/batch 派生，不添加 Memory 私有逻辑或更新 pin。操作绑定展示的不可变预览和明确确认；成功或未知后都撤回预览。只保留控制参数/键，先明确重读，再作新的状态决定，不自动重发旧控制；不将其冒充候选应用的持久同键回执恢复。未知候选应用的原 hash/cursor/key 始终保留，可在本地恢复并重读后继续 recover 原步骤。
 
 实际验证：扩展既有单个 fixed-Core 场景通过（1 pass、7 filtered），暂停后 history_batch_apply 返回 history.batch_paused，preview 保持原 items/hash，恢复后仍 cursor 0；此前的两步候选流程与 ports 1 次 fake secret read / 1 次 fake exchange 断言继续通过。新 Core 输出保存为 target/history-results/paused-core-fields.json，不覆盖初始 fixture。
 

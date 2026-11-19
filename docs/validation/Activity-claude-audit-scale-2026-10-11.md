@@ -1,6 +1,6 @@
 # Activity: write-path audit cost and the summary audit (ADR-034)
 
-Date: 2026-10-11. Branch `claude/activity-audit-scale`, stacked on `f523a070f3fc363905b33590a25b42a5b1bf2fd3` ([PR #35](https://github.com/Morii9961/enouia-runtime/pull/35)). Scope: the Activity store's recovery audit and `recovery-inspect`. [ADR-034](../adr/034-summary-audit-of-older-generations.md) is **proposed and takes effect only if the owner merges it**. J1/B4 remain partial and B5 is inactive.
+Date: 2026-10-11. Branch `claude/activity-audit-scale`, stacked on `f523a070f3fc363905b33590a25b42a5b1bf2fd3` ([PR #35](https://github.com/Morii9961/enouia-runtime/pull/35)). Scope: the Activity store's recovery audit and `recovery-inspect`. [ADR-034](../adr/034-summary-audit-of-older-generations.md) is **proposed and takes effect only if Morii merges it**. J1/B4 remain partial and B5 is inactive.
 
 ## Gap
 

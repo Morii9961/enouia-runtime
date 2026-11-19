@@ -22,7 +22,7 @@ Run now now always opens or retains the production confirmation. The separate Co
 | Desktop fmt and clippy, all targets, warnings denied | Pass |
 | Desktop dependency boundary self-test | 7 pinned Memory packages, 7 negative checks |
 | Memory integration self-test | Exact pin consistent, 8 negative checks |
-| Unsigned current-user NSIS build and ownership checks | Built; **20/20** static checks; not installed |
+| Unsigned current-user NSIS build and responsibility checks | Built; **20/20** static checks; not installed |
 | Harness syntax, default-mode output preflight and Git whitespace | Pass; Git-tree Vault output refused before launch |
 
 New release executable SHA-256: `9067ccb52f321b10ffe2acd1ed6f4f04b43dff2d3e79c124bd557781c3bfad6a`. Unsigned installer SHA-256: `a8c81938be6c825e655386de738ab9035665201871bca998e125df626638d018`. The runner stays `cb665419f42ff088425012f9e43cebf22a21d2647f0a1a19b97df7ca236c8b7a`; Memory stays pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`.

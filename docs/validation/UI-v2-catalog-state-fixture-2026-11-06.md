@@ -12,4 +12,4 @@
 
 截图确认两个后续最小修正点：统计等待仅按钮禁用和 aria-busy，没有可见进度；状态失败仍显示“正在读取库状态…”。本片只保存证据，另片修复反馈，不增加恢复/重试动作。对 .ts 保留反馈的限定审阅未发现新翻译固化问题，不称全部文案已审计。
 
-复现：`node e2e/catalog-state-diagnostics.mjs <Edge executable> target/<owned-directory>`；`--pending-only` 为入口/等待定向矩阵。没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Owner、真实 Provider、持续形成、迁移或部署；保留历史全量结果及其原修订边界。
+复现：`node e2e/catalog-state-diagnostics.mjs <Edge executable> target/<owned-directory>`；`--pending-only` 为入口/等待定向矩阵。没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Morii、真实 Provider、持续形成、迁移或部署；保留历史全量结果及其原修订边界。

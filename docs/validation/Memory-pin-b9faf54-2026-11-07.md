@@ -4,7 +4,7 @@ Runtime branch baseline: `94bbce9` (origin/main). This slice pins Memory to merg
 
 ## Change and compatibility review
 
-All five manifest revisions and nine locked Memory packages use that exact SHA. Workspace v1 retains schema 1 and 58 commands. Between the previous pin `0d338f12f51a859363e0725071bcf43874b492c7` and this pin, `crates/enouia-memory-workspace`, `contracts/ipc/memory-v1.schema.json`, `apps/workspace/src`, `crates/enouia-memory-provider` and every Cargo manifest/lockfile in Memory have no diff. The surface changes are Owner-root Host/Vault/contract files: MCP-4 correction, supersede and forget-request transports and storage, MCP-5 opening prompt/resources and `session_start`, read-boundary enum representation fixes, and the capture-wire refusal of object-tagged `mode`/`kind`/`speaker`. Runtime's typed capture client is not used here and would already send strings. None of these APIs activates itself in Runtime.
+All five manifest revisions and nine locked Memory packages use that exact SHA. Workspace v1 retains schema 1 and 58 commands. Between the previous pin `0d338f12f51a859363e0725071bcf43874b492c7` and this pin, `crates/enouia-memory-workspace`, `contracts/ipc/memory-v1.schema.json`, `apps/workspace/src`, `crates/enouia-memory-provider` and every Cargo manifest/lockfile in Memory have no diff. The surface changes are Morii-root Host/Vault/contract files: MCP-4 correction, supersede and forget-request transports and storage, MCP-5 opening prompt/resources and `session_start`, read-boundary enum representation fixes, and the capture-wire refusal of object-tagged `mode`/`kind`/`speaker`. Runtime's typed capture client is not used here and would already send strings. None of these APIs activates itself in Runtime.
 
 `cargo fetch --locked` accepted the updated lockfile directly: only the nine source revisions changed, with no dependency-edge, registry or package movement. No path, branch or patch source was introduced.
 
@@ -19,8 +19,8 @@ All five manifest revisions and nine locked Memory packages use that exact SHA. 
 - Real owned-process `memory-smoke.mjs --automatic-only`: 36/36 passed on a fresh temporary synthetic root and WebView profile (read-1 IPC, refusals, lock, close-to-tray, worker joins, fresh-root restart).
 - Real owned-process `memory-smoke.mjs --catalog-only`: 39/39 passed on a fresh segmented synthetic root (read-2 page/stats, refusals, lock/unlock, exit, new-root restart, autostart skip). This exercises the changed segmented Vault code path.
 
-Logs remain in ignored local validation output. The normal-mode full smoke was not rerun: Workspace code/schema are unchanged and all eight consumer tests passed. No personal Vault, credential, real Provider, Owner enrollment, production activation, deployment or human acceptance is implied.
+Logs remain in ignored local validation output. The normal-mode full smoke was not rerun: Workspace code/schema are unchanged and all eight consumer tests passed. No personal Vault, credential, real Provider, Morii enrollment, production activation, deployment or human acceptance is implied.
 
 ## Next boundary
 
-This is pin compatibility only. Runtime still exposes Workspace v1 plus the explicit synthetic read-1 and read-2 entries. Adopting the Owner pipeline (Owner initialization, Runtime capture pipe-2 producer, hosted captured worker with corrections, Agent MCP context profile) is a separate integration slice that needs an owner decision on which entry comes first.
+This is pin compatibility only. Runtime still exposes Workspace v1 plus the explicit synthetic read-1 and read-2 entries. Adopting Morii pipeline (Morii initialization, Runtime capture pipe-2 producer, hosted captured worker with corrections, Agent MCP context profile) is a separate integration slice that needs a Morii decision on which entry comes first.

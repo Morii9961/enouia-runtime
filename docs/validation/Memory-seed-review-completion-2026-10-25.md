@@ -11,11 +11,11 @@ The completion branch merges current main into that history, resolves its outdat
 
 ## Resulting behavior
 
-- Candidate citation evidence and recorded input context appear separately. A context dependency is not citation evidence, corroboration, owner approval or complete reading history.
+- Candidate citation evidence and recorded input context appear separately. A context dependency is not citation evidence, corroboration, Morii approval or complete reading history.
 - Opening a source is explicit, exact-revision and byte-bounded. Text remains literal. Hiding, changing the candidate revision and unmounting retire late responses; a wrong source revision cannot replace the shown observation.
 - Empty context lists and missing legacy metadata remain distinct. Evidence classes remain attributed to the source, including model claims.
 - P0 is a proposal annotation. The filter reports total pending, loaded rows and visible P0 rows separately; it does not discover unloaded candidates or approve any of them. Existing plan/confirmation remains required.
-- Paging and filter toggles preserve unsent drafts. Final pages with no P0 no longer tell the owner to use a nonexistent Load more control.
+- Paging and filter toggles preserve unsent drafts. Final pages with no P0 no longer tell Morii to use a nonexistent Load more control.
 
 ## Preserved current main
 
@@ -36,6 +36,6 @@ The original seed worktree, its generated files, all Claude redesign worktrees, 
 
 ## Acceptance and handoff
 
-Engineering integration does not replace the owner's personal review. Reading all personal pages, judging truth/duplication/value, and confirming selected memories remain owner actions. The historical partial inspection is not relabelled as complete. No personal data was reopened to perform this completion.
+Engineering integration does not replace Morii's personal review. Reading all personal pages, judging truth/duplication/value, and confirming selected memories remain Morii actions. The historical partial inspection is not relabelled as complete. No personal data was reopened to perform this completion.
 
 Claude's ongoing redesign should preserve the behaviors in [the integration handoff](../integration/SEED_REVIEW_CONTEXT_CLAUDE_HANDOFF_2026-10-25.md). When the completed branch is merged with a merge commit, both original seed commits will also be ancestors of main; branch cleanup can then use exact-SHA ancestry, without discarding historical work.

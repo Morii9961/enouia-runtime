@@ -1,6 +1,6 @@
 # ADR-034 — Audit unselected generations from their manifest and sequence
 
-Date: 2026-10-11. Status: **proposed; adopted when the owner merges it.** This narrows the [B2.1 recovery audit](../validation/B2.1-recovery-audit.md) policy. Authority: the owner's instruction to finish the remaining Runtime Activity work, and [ADR-018](README.md#adr-018--archive-retention-and-backup-lifecycle-partial-defaults-adopted)'s rule that keeps every generation until a pruning decision.
+Date: 2026-10-11. Status: **proposed; adopted when Morii merges it.** This narrows the [B2.1 recovery audit](../validation/B2.1-recovery-audit.md) policy. Authority: Morii's instruction to finish the remaining Runtime Activity work, and [ADR-018](README.md#adr-018--archive-retention-and-backup-lifecycle-partial-defaults-adopted)'s rule that keeps every generation until a pruning decision.
 
 ## Context
 

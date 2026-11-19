@@ -64,9 +64,9 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   const owner = mode === "registered_owner_readonly";
   return <>
     <div className="qr45" aria-busy={reads.busy}>
-      <div className="qr31"><h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered Owner · read only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
+      <div className="qr31"><h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered library · read only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
       <div className="qr44 mem-pad">
-        {mode && <p className="mem-content">{t(owner ? "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here." : "This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.")}</p>}
+        {mode && <p className="mem-content">{t(owner ? "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here." : "This library contains fixed fictional records. It does not open Morii's Vault or run continuous formation.")}</p>}
         {observationError && <p role="alert">{describe(observationError.cause)}</p>}
         <ErrorBox error={reads.error} />
         <p role="status">{status ? t("Library: {state}", { state: status.state }) : observationError ? t("Library state is unknown.") : t("Reading library state…")}</p>
@@ -99,7 +99,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
         </>}
       </div>
     </div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
       {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} />}
     </div></aside>
   </>;

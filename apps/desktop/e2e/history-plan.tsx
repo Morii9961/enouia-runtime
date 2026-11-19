@@ -54,7 +54,7 @@ try {
   check("opening_the_report_does_not_plan_or_send", calls.length === 0 && details().length === 0);
   click(planButton()); await wait(() => details().length === 10);
   check("explicit_planning_uses_only_observed_archive_revision_and_bounds", calls[0].args.importId === historySelection.importId && calls[0].args.importRevision === 7 && calls[0].args.messagesPerBatch === 15 && calls[0].args.maxPathReferences === 10000 && calls[0].args.cursor === null);
-  check("coverage_unknowns_and_nonapproval_are_explicit", text().includes("Unknown time") && text().includes("Unparseable items") && text().includes("not all platform history") && text().includes("not owner approval"));
+  check("coverage_unknowns_and_nonapproval_are_explicit", text().includes("Unknown time") && text().includes("Unparseable items") && text().includes("not all platform history") && text().includes("not approval by Morii"));
   check("source_roles_and_evidence_are_not_promoted", text().includes("assistant / model_claim") && text().includes("synthetic-source-1") && !button("Send once") && !button("Confirm"));
   const messages=fixture.querySelector<HTMLInputElement>('input[id$="-messages"]')!,firstBatch=details()[0] as HTMLDetailsElement,observedCalls=calls.length;
   messages.focus();firstBatch.open=true;

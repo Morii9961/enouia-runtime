@@ -25,7 +25,7 @@ Companion documents:
 
 ## 2. Product principles retained from v0.2
 
-Enouia is a local-first runtime for identity, memory, context, sessions, tools, and continuity. Models, clients, and servers are replaceable. Model replacement must not reset identity. Windows is the first client surface, not the owner of the domain model.
+Enouia is a local-first runtime for identity, memory, context, sessions, tools, and continuity. Models, clients, and servers are replaceable. Model replacement must not reset identity. Windows is the first client surface, not the home of the domain model.
 
 The Memory Vault is canonical **for the Memory / Context domain**. It is not the canonical store for every Runtime subsystem. Keep raw conversational sources, reviewed canonical memories, and request-specific context capsules separate:
 
@@ -41,9 +41,9 @@ Activity & Usage is a separate domain. It MUST NOT write memory candidates, sess
 
 The first phase delivers two independent vertical slices: Track A proves local memory continuity using a Mock Provider; Track B proves durable activity production and compatible delivery. A failure in Activity must not make a healthy Vault or conversation unavailable, and a missing Vault must not stop the activity runner.
 
-## 3. Ownership and non-goals
+## 3. Responsibility and non-goals
 
-| Responsibility | Owner in this phase | Boundary |
+| Responsibility | Responsible in this phase | Boundary |
 |---|---|---|
 | Identity, Memory, Context, Sessions, Provider abstraction | Enouia Runtime Core | Local canonical files and rebuildable Memory index |
 | GitHub / Codex / Claude collectors and source normalization | Enouia Activity & Usage | Runs on this Windows user account |
@@ -90,7 +90,7 @@ The UI never hosts an hourly timer. The scheduled runner works while the UI is c
 | `enouia-memory` | Canonical records, candidates, provenance, supersession, Vault I/O, SQLite index | Activity data or upload state |
 | `enouia-context` | Retrieval, deterministic ranking, budgets, capsule assembly | Activity archive queries, implicit uploads |
 | `enouia-session` | Conversation events and checkpoints | Activity sessions inferred from CLI logs |
-| `enouia-provider` | Request/response/capabilities, Mock Provider; future model adapters | Identity ownership or automatic memory writes |
+| `enouia-provider` | Request/response/capabilities, Mock Provider; future model adapters | Identity responsibility or automatic memory writes |
 | `enouia-activity-contract` | ActivityData v1, batch v1, normalization/allowlist and compatible serialization | Filesystem, network, UI, Memory |
 | `enouia-activity` | Collector adapters, archive merge, durable store, state machine, scheduler policy, uploader and publication observer | Memory/Context/Provider dependencies |
 | `enouia-activity-runner` | `enouia-activity.exe` commands, exit codes, config selection | Independent domain logic |
@@ -100,7 +100,7 @@ Dependency rule: `enouia-activity` may depend on `enouia-common` and `enouia-act
 
 2026-10-04 follow-up (ADR-025): instead of a Runtime `enouia-core` (never created), `apps/desktop/src-tauri` embeds Enouia Memory's `enouia-memory-workspace` at a pinned revision behind a Runtime-owned adapter, until Memory MV-8's Host replaces it. The Runtime-local `enouia-memory`, `enouia-context`, `enouia-session`, `enouia-provider` and `enouia-core-contract` crates are frozen history. The Activity modules and their dependency rule are unchanged.
 
-2026-11-17 follow-up ([ADR-038](docs/adr/038-registered-owner-readonly-entry.md)): an explicit trusted native launch can additionally reauthenticate the original registered Owner home/operation through the same pinned Memory Host and read that exact segmented root through its System catalog/process APIs. Workspace v1 remains closed in this read-only entry. No Runtime Memory domain, page bootstrap, Agent grant, write, recovery or cloud stage is introduced. Synthetic verification activates the development capability; personal-library use and production acceptance remain separate gates.
+2026-11-17 follow-up ([ADR-038](docs/adr/038-registered-morii-readonly-entry.md)): an explicit trusted native launch can additionally reauthenticate the original registered Morii home/operation through the same pinned Memory Host and read that exact segmented root through its System catalog/process APIs. Workspace v1 remains closed in this read-only entry. No Runtime Memory domain, page bootstrap, Agent grant, write, recovery or cloud stage is introduced. Synthetic verification activates the development capability; personal-library use and production acceptance remain separate gates.
 
 ## 5. Target repository and installed data layout
 
@@ -144,7 +144,7 @@ Default installed data root: `%LOCALAPPDATA%\EnouiaRuntime`. Support an explicit
 
 Core persistence follow-up (2026-10-02): [ADR-020](docs/adr/020-core-vault-generations.md) adopts a complete-generation backend design. [Storage v1](docs/VAULT_STORAGE_v1.md) specifies generation-contained Vault files and a disposable generation-bound index. The illustrative stable Core paths below are superseded only after that ADR's adapter activation gates pass; no data migration or writer is activated. Activity layout remains as specified below. The user's latest work scope is backend design here, with frontend work progressing separately.
 
-2026-10-04 follow-up (ADR-025): Memory's Vault root is an explicit owner choice handled by Enouia Memory, through the native dialog or `--memory-vault`; there is no default or remembered root. Runtime's data root holds Activity only, so the `vault/` and `indexes/` entries below are historical.
+2026-10-04 follow-up (ADR-025): Memory's Vault root is an explicit Morii choice handled by Enouia Memory, through the native dialog or `--memory-vault`; there is no default or remembered root. Runtime's data root holds Activity only, so the `vault/` and `indexes/` entries below are historical.
 
 ```text
 EnouiaRuntime/
@@ -263,7 +263,7 @@ ActivityData validation alone accepts a broader parseable `updatedAt` than the p
 
 Always send full merged data, never a delta. Zero additional days, zero token growth, or an explicit zero-valued day can be successful collection. A structurally empty/malformed upstream response is not evidence of zero usage. All-source failure may send a valid failure batch with retained data and old success times, so freshness is not fabricated. `runtime.json` heartbeats cannot replace this envelope.
 
-Changing `producer`, version, source names, units, or server ownership requires a coordinated Moriium change and compatibility acceptance. v0.3 authorizes none of those changes.
+Changing `producer`, version, source names, units, or server responsibility requires a coordinated Moriium change and compatibility acceptance. v0.3 authorizes none of those changes.
 
 ## 8. Collector ports and adapters
 
@@ -282,7 +282,7 @@ PublicationObserver.observe(expectedDataHash, expectedSourceOutcomes) -> Observa
 Sync.run(trigger) -> RunSummary
 ```
 
-Collectors cannot write the archive, allocate sequences, upload, or acquire a different domain's store. `attemptedAt` is captured once per run for all three source attempts, before collection; `createdAt` is captured after collection. Record separate duration diagnostics locally. Preflight errors become failed attempts, retaining only the affected source. Storage/clock/ownership errors block the whole transaction.
+Collectors cannot write the archive, allocate sequences, upload, or acquire a different domain's store. `attemptedAt` is captured once per run for all three source attempts, before collection; `createdAt` is captured after collection. Record separate duration diagnostics locally. Preflight errors become failed attempts, retaining only the affected source. Storage/clock/responsibility errors block the whole transaction.
 
 Adapters run on this Windows account using explicit resolved executable paths/config. Environment values that contain secrets are only passed to the necessary subprocess/request in memory and never placed on a command line or persisted. No shell concatenation. Kill owned child process trees on timeout/cancellation. Set output bounds and redact stdout/stderr from diagnostics. A normal run has a 10-minute aggregate collection budget, within the 15-minute scheduled job limit; source defaults are GitHub 40 seconds (HTTP 30), Codex 90 seconds, Claude 120 seconds per store subject to the aggregate budget. Incomplete Claude store traversal fails the whole Claude attempt. Tests use fake processes and clock, not personal credentials.
 
@@ -334,7 +334,7 @@ Record these cases in the comparison report. All ordinary valid baseline reports
 
 ## 10. Atomic persistence, sequence, and recovery
 
-One writer lock covers recovery, pending retry, collection, merge, sequence reservation, durable commit, upload disposition, and pause/config mutation. UI manual runs, scheduler runs, imports, exports needing a consistent snapshot, and repair tools use the same canonical data-root identity. Use a process-owned OS exclusive lock; the existence of `sync.lock` alone is not ownership. A crashed OS process releases its handle. Never break a live lock based only on age or a PID file. Legacy stale-lock cleanup remains an operator action with its task stopped.
+One writer lock covers recovery, pending retry, collection, merge, sequence reservation, durable commit, upload disposition, and pause/config mutation. UI manual runs, scheduler runs, imports, exports needing a consistent snapshot, and repair tools use the same canonical data-root identity. Use a process-owned OS exclusive lock; the existence of `sync.lock` alone is not responsibility. A crashed OS process releases its handle. Never break a live lock based only on age or a PID file. Legacy stale-lock cleanup remains an operator action with its task stopped.
 
 Commit protocol:
 
@@ -439,7 +439,7 @@ Retain the longer-term v0.2 route after this phase: product 0.2 conversational C
 
 2026-10-04 follow-up (ADR-025): Enouia Memory's MV-7 to MV-10 (real Provider, Memory Host and MCP, gateway, replicas) replace the Memory items of product 0.3–0.6 above, and conversational import also belongs to Memory. Runtime receives these through pin bumps or, after MV-8, a Host client. Track A is replaced by Memory's MV stages plus Runtime integration slices; J1 stays the join point.
 
-The future bridge must not own canonical Memory or Context Compiler rules. Delete-the-VPS Test means recreating the bridge does not lose canonical Memory; similarly, loss of Moriium delivery availability must not destroy the Activity archive. A warm replica cannot become the only copy of identity, preferences, project state, or checkpoints. These future milestones do not extend this phase's server ownership.
+The future bridge must not own canonical Memory or Context Compiler rules. Delete-the-VPS Test means recreating the bridge does not lose canonical Memory; similarly, loss of Moriium delivery availability must not destroy the Activity archive. A warm replica cannot become the only copy of identity, preferences, project state, or checkpoints. These future milestones do not extend this phase's server responsibility.
 
 ## 17. Completion definition for this design
 

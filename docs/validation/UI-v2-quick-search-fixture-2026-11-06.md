@@ -10,4 +10,4 @@
 
 首次诊断带 ?lang 锁定语言，按既有约定不会接收存储偏好；最终先设置隔离偏好再导航无固定语言 URL。还将前台焦点建立放到合成查询之前，避免按产品规则重新聚焦清空。这两项只修正诊断前提，不改 QuickSearch。
 
-复现入口为本地 Vite 的 `/e2e/quick-search-preview.html?lang=ja&theme=light&state=results`；诊断脚本覆盖完整矩阵。没有完整 npm test、构建、Rust、原生 smoke、真实 Vault/Owner/Provider、物理窗口/热键或托盘接受。旧截图保留其原证据，不追溯贴标。
+复现入口为本地 Vite 的 `/e2e/quick-search-preview.html?lang=ja&theme=light&state=results`；诊断脚本覆盖完整矩阵。没有完整 npm test、构建、Rust、原生 smoke、真实 Vault/Morii/Provider、物理窗口/热键或托盘接受。旧截图保留其原证据，不追溯贴标。

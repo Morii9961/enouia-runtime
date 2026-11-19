@@ -10,4 +10,4 @@ TypeScript 在最后 read-1 文案修改后复查通过。i18n/CJK 12 项在字�
 
 自有 Edge 156/profile、1100×700：read-2 首次读取、统计等待、状态失败，三语双主题 18 项/18 张截图；等待/失败再切三语 36 项，共 54 项通过。读取提示和未知状态文案正确，页面错误与宿主动作均 0，启动器退出 0。原始标题/正文、输入节点、草稿与焦点保持，语言不重发 page/stats。复核日文浅色等待、中文深色失败截图。read-1 本片只有 DOM 证据，不套用 read-2 截图。
 
-复现：`node e2e/catalog-state-diagnostics.mjs <Edge executable> target/<owned-directory> --feedback-only`；DOM 为 `catalog-memory` 与 `automatic-memory` workers。没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Owner、真实 Provider、持续形成、迁移、部署或物理 shell 接受；Memory pin 不变。
+复现：`node e2e/catalog-state-diagnostics.mjs <Edge executable> target/<owned-directory> --feedback-only`；DOM 为 `catalog-memory` 与 `automatic-memory` workers。没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Morii、真实 Provider、持续形成、迁移、部署或物理 shell 接受；Memory pin 不变。

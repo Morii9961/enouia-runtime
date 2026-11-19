@@ -39,4 +39,4 @@ runner 的 worker 里：
 
 ## 边界
 
-这个顺序只存在于 Happy DOM 测试里，不代表真实 WebView2 的时序，也不替代原生 smoke。真实浏览器里同样的空档不到一帧，人点不进去，所以产品代码不改。#160 在 `source-suggestions` 和 `history-plan` 里做的局部修复保留，两层互不冲突。以后新写的 fixture 仍应等自己要断言的东西，不要依赖固定 sleep。这次没有截图、Rust、原生 smoke、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
+这个顺序只存在于 Happy DOM 测试里，不代表真实 WebView2 的时序，也不替代原生 smoke。真实浏览器里同样的空档不到一帧，人点不进去，所以产品代码不改。#160 在 `source-suggestions` 和 `history-plan` 里做的局部修复保留，两层互不冲突。以后新写的 fixture 仍应等自己要断言的东西，不要依赖固定 sleep。这次没有截图、Rust、原生 smoke、个人 Vault、Morii、Provider、迁移或部署；Memory pin 不变。

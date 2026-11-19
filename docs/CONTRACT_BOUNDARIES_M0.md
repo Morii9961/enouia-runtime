@@ -6,7 +6,7 @@ Date: 2026-09-26. This closes M0's shared interface decisions after M0.1. It doe
 
 The machine-readable local DTOs are [common-v1](../contracts/ipc/common-v1.schema.json) and [activity-v1](../contracts/ipc/activity-v1.schema.json). They describe the backend-to-Windows-shell boundary, not the Moriium public batch. The `enouia-common` Rust DTO names and enum values match the common schema. Every Activity response has `schemaVersion: 1` and a discriminating `kind`; frontend code handles a different major version as unsupported. Optional fields may be added within v1 after updating the schema and tests; existing required fields and meanings cannot be repurposed.
 
-| Operation | Arguments | Response kind | Owner |
+| Operation | Arguments | Response kind | Morii |
 |---|---|---|---|
 | `activity_get_overview` | none | `activity_overview` | Activity read facade |
 | `activity_get_days` | source, inclusive `from` and `to` dates | `activity_days` | Activity read facade |
@@ -18,7 +18,7 @@ The machine-readable local DTOs are [common-v1](../contracts/ipc/common-v1.schem
 
 Additive v1 changes (2026-10-07, before any consumer shipped): the overview gains optional `generatedAt`, `producer` (mode, delivery enabled, pause, reserved high-water) and `pending` (sequence, creation time, age, exact hash, failure count, next eligibility, last error code). `schedule.task` reports registration and enablement of the installed task when the shell knows them. `activity_run_status` gains the `running` stage, `operation` and the runner's sanitized `summary`. A one-shot runner cannot report its intermediate stages, so the shell uses `running` between start and exit. The installed runner's `overview` and `preview` commands produce the read DTOs from one lock-free generation read.
 
-Backend validation of `from <= to`, real dates, run-ID ownership, lock state, and permissions remains mandatory; Schema patterns alone cannot prove these. Mutations return a run ID promptly. `activity_get_run` reports sanitized progress without raw tool output. A failed command returns `activity_error` with a structured code, component and retryability. The Activity UI consumes these DTOs through typed IPC; it never opens the archive or invokes a collector itself.
+Backend validation of `from <= to`, real dates, run-ID responsibility, lock state, and permissions remains mandatory; Schema patterns alone cannot prove these. Mutations return a run ID promptly. `activity_get_run` reports sanitized progress without raw tool output. A failed command returns `activity_error` with a structured code, component and retryability. The Activity UI consumes these DTOs through typed IPC; it never opens the archive or invokes a collector itself.
 
 Overview totals are decimal strings so the shell does not round them through JavaScript numbers. `recordedDays` counts actual records; a missing day is not an explicit zero. `lastAttemptAt`, `lastSuccessAt`, transport time, and publication observation are separate facts. Codex's `Codex` day labels remain independent of Claude's `Asia/Shanghai` labels. The default three-hour stale policy is local health policy; a heartbeat or UI refresh cannot advance source success time. Public preview uses the exact ActivityData v1 allowlist and its data-byte hash.
 
@@ -30,9 +30,9 @@ For the Track B handoff, `Collector.collect` yields exactly one local `SourceAtt
 
 ## Track A handoff to A1
 
-2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): the Track A handoff is now Runtime's Memory adapter over Enouia Memory's workspace IPC v1 at the pinned revision ([Memory integration v1](MEMORY_INTEGRATION_v1.md)). The A1 agreement below is history for Runtime's frozen local Core crates. Ownership of the `activity` route is unchanged.
+2026-10-04 note ([ADR-025](adr/025-enouia-memory-integration.md)): the Track A handoff is now Runtime's Memory adapter over Enouia Memory's workspace IPC v1 at the pinned revision ([Memory integration v1](MEMORY_INTEGRATION_v1.md)). The A1 agreement below is history for Runtime's frozen local Core crates. Responsibility of the `activity` route is unchanged.
 
-M0 fixes ownership and names, leaving full persistence schemas to A1 before any Vault write:
+M0 fixes responsibility and names, leaving full persistence schemas to A1 before any Vault write:
 
 - Canonical Memory records are versioned JSON, one record per memory. The five first-phase kinds are `fact`, `preference`, `episode`, `project_state`, and `session_checkpoint`. The required common fields from Architecture §6 remain `schema_version`, `memory_id`, `type`, `content`, `source_id`, `created_at`, `updated_at`, and `status`. ProjectState and checkpoint fields, provenance, validity, confidence, and supersession need full A1 schemas and fixtures.
 - Identity is human-readable Markdown; raw conversations, candidate inbox items, reviewed canonical memories, sessions, checkpoints, and disposable SQLite/FTS indexes remain separate. Inferred memories cannot skip candidate review. A source ID must resolve; a supersession link preserves the earlier record and cannot cycle.

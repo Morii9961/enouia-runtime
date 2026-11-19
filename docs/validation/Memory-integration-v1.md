@@ -91,7 +91,7 @@ Each review had dimension reviewers, and every finding got an adversarial verifi
 - **Companion shell (ADR-026): 9 confirmed, all fixed.**
   - Every path to the main window hides quick search first.
   - Escape works after a click moves focus off the input.
-  - Re-choosing an interrupted import points to Resume, and failed operations show owner text.
+  - Re-choosing an interrupted import points to Resume, and failed operations show Morii text.
   - Exit shows its progress in every window instead of an empty Vault.
   - A disabled startup switch looks disabled.
   - The smoke removes only a Run value it wrote, also on Ctrl+C, and needs an absolute exe.

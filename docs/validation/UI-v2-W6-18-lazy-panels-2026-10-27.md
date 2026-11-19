@@ -4,7 +4,7 @@
 
 ## 改动
 
-`HistoryTaskPanel.tsx` 保留原有 `useHistoryTasks` owner hook 与导出入口，只把视图原样移到 `HistoryTaskView.tsx`，用已有 React.lazy/Suspense 模式按需加载。请求、重试键、批次 owner 与选择对象仍由 Import 持有。`status.tsx` 将 ProviderConfigDraft、ProviderSettingsStatus 分别延后加载；两个组件本身的逻辑不改。加载提示使用 `t()`，补齐中日文字；两种字典各 1,415 键，缺译文 0。
+`HistoryTaskPanel.tsx` 保留原有 `useHistoryTasks` 持有方 hook 与导出入口，只把视图原样移到 `HistoryTaskView.tsx`，用已有 React.lazy/Suspense 模式按需加载。请求、重试键、批次 持有方 与选择对象仍由 Import 持有。`status.tsx` 将 ProviderConfigDraft、ProviderSettingsStatus 分别延后加载；两个组件本身的逻辑不改。加载提示使用 `t()`，补齐中日文字；两种字典各 1,415 键，缺译文 0。
 
 字典变动后重跑既有字体生成器，504 个 WOFF2、9,691,652 B 的内容没有变化；当前字典覆盖检查通过。没有新增依赖、改 Vite 警告阈值、Memory pin、原生命令、领域逻辑或 CSP。
 

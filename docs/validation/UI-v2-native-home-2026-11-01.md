@@ -38,6 +38,6 @@ F1/F2 **部分修复**：首页骨架与日历导航已恢复；没有把完整�
 - 17/17：无文档横向溢出、四注记的文字边界都在按钮内、无虚构波形；已目视查看中文 1440 深色、日文 1100 浅色、英文锁库 1100 深色。
 - 预览与结果留在本机忽略目录 `.design/native-home-2026-11-01/`：`visual-results.json`、17 张 PNG、完整 `tests.log`、最终 `home-final.json` 和 `build-final.log`。最初沙箱浏览器未能启动、外部浏览器无法访问沙箱预览服务；改为仅监听本机的隔离预览服务后完成，未更改产品代码来规避加载问题。
 
-这些是**合成组件、浏览器布局和前端构建验证**。未运行 Rust 测试、原生打包/安装或物理 Windows 操作，未复验 WebView2/DPI/Narrator、安装升级、托盘、默认热键、登录启动；不是 Morii 人工验收。未打开个人 Vault、采用 schema-2 Owner Vault、调用真实 Provider 或部署。
+这些是**合成组件、浏览器布局和前端构建验证**。未运行 Rust 测试、原生打包/安装或物理 Windows 操作，未复验 WebView2/DPI/Narrator、安装升级、托盘、默认热键、登录启动；不是 Morii 人工验收。未打开个人 Vault、采用 schema-2 Morii Vault、调用真实 Provider 或部署。
 
 后续顺序：先移植 Sessions 的真实事件时间尺/间距及选中会话地图；再对照可读字段修复 Memory/Context/Inspector；原生与安装验收、正式 Vault 的 pin 兼容接入各按独立授权边界推进。

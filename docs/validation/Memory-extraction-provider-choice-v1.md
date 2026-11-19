@@ -9,7 +9,7 @@ The panel now names all observed configured provider/model pairs in a labelled s
 Validation:
 
 - `e2e/extraction-provider-choice.html`: 11/11; [record](Memory-extraction-provider-choice-browser.json). Two synthetic destinations, a conversation-only first grant, explicit second-provider choice, no selection side effects, held prepare, exact destination/policy/range, held choice through body/operation/job, one send, no grant/key commands and settled dismissal.
-- Existing source ownership 12/12, queue recovery 14/14 and Provider/extraction feedback 12/12 rerun successfully.
+- Existing source responsibility 12/12, queue recovery 14/14 and Provider/extraction feedback 12/12 rerun successfully.
 - TypeScript, strict affected-fixture checks, all 69 frontend tests and frontend/ordinary release desktop builds passed. Native/backend and dependency-boundary evidence from [cancellation verification](Memory-operation-cancel-ack-v1.md) is reused because those sources and dependencies are unchanged.
 
 The providers, grants and response are synthetic. No real model capability, account entitlement, configured built-app sending, credential access or HTTP is established.

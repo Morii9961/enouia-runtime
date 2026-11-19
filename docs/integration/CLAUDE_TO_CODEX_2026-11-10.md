@@ -38,7 +38,7 @@ Morii 让 Codex 接手后续全部工作。本文接在 [2026-11-07 交接](CLAU
 3. **Morii 尚未决定的事**，在他决定前不推进：
    - OPEN_ISSUES #24：5,000 条星图运动时，主题线是隐藏还是改实线；
    - OPEN_ISSUES #29：公开人设导出的四项保守默认，以及 Memory 契约 §5 的五项（目标文件夹策略会影响使用）；
-   - 2026-11-04 交接里留下的：合成面板枚举 / ISO 是否翻译、Windows 独立验收环境、新 Owner 后端首个采用切片；
+   - 2026-11-04 交接里留下的：合成面板枚举 / ISO 是否翻译、Windows 独立验收环境、新 Morii 后端首个采用切片；
    - 如果以后 Q 也被占：是否在设置里加改键入口（现在只能用启动参数 `--hotkey-key`）。
 
 ## 这两天合并的切片（供追溯）
@@ -131,7 +131,7 @@ done
 
 - 合并任何 PR 前都要 Morii 明确同意。
 - 不要让 Activity/Usage 界面回来。
-- 不打开个人 Vault、Owner 或真实 Provider，不做迁移或部署。
+- 不打开个人 Vault、Morii 或真实 Provider，不做迁移或部署。
 - 不碰其他 session 的工作树（`.claude/worktrees/memory-pin-b9faf54`、`E:/Workteree/Enouia Runtime/public-persona-export-ui-08982c`）。
 - 动了 Memory 适配层或集成界面，要跑 `node scripts/check-memory-integration.mjs` 和 `node scripts/check-activity-retirement.mjs`。
 - 增加复杂度去防范小概率竞态之前，先向 Morii 说明失败场景、概率和成本。

@@ -1,6 +1,6 @@
 # Memory pin 56bc5eb (2026-10-17)
 
-At the owner's request, the embedded Memory Core moves from `8186aed861af08cf7a2c5d8c912a24eae51b4d66` to `56bc5eb8b08fb80cd6df892bf53d200ff23afc4c`, Memory main after its PRs #17–#33 merged. The Memory surface aggregate changes from `5eb04c2b…` to `2c1c064082dc14ea9d14387f982c50cd31855b301d534dfa78908f02a1cfd9d1`. Workspace IPC v1 still has 47 commands.
+At Morii's request, the embedded Memory Core moves from `8186aed861af08cf7a2c5d8c912a24eae51b4d66` to `56bc5eb8b08fb80cd6df892bf53d200ff23afc4c`, Memory main after its PRs #17–#33 merged. The Memory surface aggregate changes from `5eb04c2b…` to `2c1c064082dc14ea9d14387f982c50cd31855b301d534dfa78908f02a1cfd9d1`. Workspace IPC v1 still has 47 commands.
 
 ## What the new rows ask of Runtime
 
@@ -36,4 +36,4 @@ The first default run reached 53 passing checks and then the Node driver exited 
 | `memory-default.json` | `bc7c0edfb510e382714e83a8bba1f6445833b48bae82a4f253f6c2162065b613` |
 | `memory-forget-only.json` | `fe4d48ff10b5d1703e5ab04f359fb6a8b23d9321da3fca91de4264cc4fa417ac` |
 
-All data is synthetic. No personal Vault, credential, real Provider request, installer or deployment was involved, and this is not owner acceptance.
+All data is synthetic. No personal Vault, credential, real Provider request, installer or deployment was involved, and this is not Morii acceptance.

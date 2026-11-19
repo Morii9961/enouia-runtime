@@ -33,8 +33,8 @@
 1. 先读根 `AGENTS.md`、Architecture v0.3 的后续修订、[当前计划](IMPLEMENTATION_PLAN_v0.3.md)、[ADR register](adr/README.md)、Memory integration 和上述报告。旧 Architecture 中“尚无代码”等历史段落不代表当前状态。
 2. Memory pin 仍是 `8186aed861af08cf7a2c5d8c912a24eae51b4d66`、workspace IPC v1 的 47 条命令。Memory、Context、Sessions、Vault、Provider 及云端领域由 `Morii9961/enouia-memory` 负责。Runtime 只处理现有适配器/前端；不延伸冻结的 Runtime 本地 Memory/Session/Context/Provider/Core-contract crates。
 3. Activity & Usage 始终独立，不进入 Memory adapter、Vault 或模型上下文。J1/B4 仍为 partial，C01–C18 未签收，B5 未激活。合并、模拟测试和 SSH 传输成功均不等于真实发布/验收。
-4. 不借交接授权读取个人 Vault、活动原始历史或凭据，不做真实 Provider HTTP、个人迁移、生产采集/上传/计划任务/部署。Memory pin、安装器、新 Windows 集成切片和真实验收需要 owner 单独指令；不把这些门槛作为自动下一步。
-5. 交接前原有 `AGENTS.md` 修改、`docs/ACTIVITY_USAGE_CLAUDE_HANDOFF.md`、`docs/prompts/CLAUDE_ACTIVITY_USAGE_START.md` 是 owner 工作。保留它们，禁止 `git add .`。本次仅更新明确请求的两份 status 文件，旧 Activity 交接保持原样。旧 Activity 提示词的启动基线已过期，不能据此宣称当前缺少已完成代码。
+4. 不借交接授权读取个人 Vault、活动原始历史或凭据，不做真实 Provider HTTP、个人迁移、生产采集/上传/计划任务/部署。Memory pin、安装器、新 Windows 集成切片和真实验收需要 Morii 单独指令；不把这些门槛作为自动下一步。
+5. 交接前原有 `AGENTS.md` 修改、`docs/ACTIVITY_USAGE_CLAUDE_HANDOFF.md`、`docs/prompts/CLAUDE_ACTIVITY_USAGE_START.md` 是 Morii 工作。保留它们，禁止 `git add .`。本次仅更新明确请求的两份 status 文件，旧 Activity 交接保持原样。旧 Activity 提示词的启动基线已过期，不能据此宣称当前缺少已完成代码。
 6. 四个历史分支仍被其他 worktree 占用：`claude/activity-audit-scale`、`claude/activity-integration-work`、`claude/memory-mv7-provider-host`、`codex/activity-choice-atomic-save`。不强删、不切换、不清空其目录；重新检查 `git worktree list` 后再做任何整理。
 
 ## Claude 的下一步

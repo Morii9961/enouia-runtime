@@ -47,10 +47,10 @@ referenced by: capability: main-window, permission: allow-shell-set-tray-labels
 Error: unobserved_list_does_not_claim_empty
 ```
 
-`workspace-operations-inspector` 单独重跑 18/18，随后独立 DOM 79/79。未改该 fixture，也不声称 #5 全部解决。原始输出保留于 `.design/w7-tray/test-dom-first-failure.log`、`workspace-operations-inspector-rerun.log`。早期历史任务与焦点测试失败已在独立 #105 修复，见其[记录](UI-v2-history-owner-wait-2026-10-28.md)。本片检查日志均在 `.design/w7-tray/`。
+`workspace-operations-inspector` 单独重跑 18/18，随后独立 DOM 79/79。未改该 fixture，也不声称 #5 全部解决。原始输出保留于 `.design/w7-tray/test-dom-first-failure.log`、`workspace-operations-inspector-rerun.log`。早期历史任务与焦点测试失败已在独立 #105 修复，见其[记录](UI-v2-history-holder-wait-2026-10-28.md)。本片检查日志均在 `.design/w7-tray/`。
 
 ## 留下的验收边界
 
-本次 Computer Use 未返回可操作的通知区域，无法做物理托盘左键/右键菜单截图与点击。保留为 OPEN_ISSUES #25，不能用命令回执或 Settings 截图替代。真实锁库、系统登录、完整 Windows shell 与 owner 验收仍待后续；本片仅完成菜单本地化实现和上述隔离验证。
+本次 Computer Use 未返回可操作的通知区域，无法做物理托盘左键/右键菜单截图与点击。保留为 OPEN_ISSUES #25，不能用命令回执或 Settings 截图替代。真实锁库、系统登录、完整 Windows shell 与 Morii 验收仍待后续；本片仅完成菜单本地化实现和上述隔离验证。
 
 2026-10-28 证据更正：此前根据受限进程查询未返回 Explorer，误写为没有 Explorer 进程。后续完整权限查询已发现 Explorer；已知限制是窗口工具没有暴露通知区域，不是已证明操作系统不存在托盘。物理验收仍未完成。

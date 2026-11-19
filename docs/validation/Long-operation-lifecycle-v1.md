@@ -42,7 +42,7 @@ No callback receipt is delayed, no worker sleeps are injected and no operation s
 | Memory pin/self-test and pinned surface comparison | Pass; 8 negative checks; same pinned revision |
 | Locked desktop domain boundary | Pass; 7 pinned Memory packages and 7 negative checks |
 | Unsigned x64 NSIS bundle generation | Pass; approximately 7.19 MiB |
-| Installer ownership checks, including rendered template | 26/26 |
+| Installer responsibility checks, including rendered template | 26/26 |
 | Harness syntax and diff checks | Pass |
 
 Final executable SHA-256: `2aa9d860f3c87eadc5312824f486f9f7178611e63d111bc7d6f18e9f1d534223`. Installer SHA-256: `f77d2d7136ecce3b87c4427306bec76f2685b71749f1a0b3987566e37a2dda9f`. The final native backup-waiting screenshot was inspected: the header and waiting card agree, real backup progress is visible, and no Unlock control is present.
@@ -60,4 +60,4 @@ The mode expects the pinned release CLI at `apps/desktop/src-tauri/target/pinned
 
 This establishes actual long-work behavior on this development host through the titlebar, page Lock/Settings Exit and cooperative owned-process Restart Manager routes. The tray shares Runtime admission and Core shutdown, but physical tray-menu invocation is not exercised here. It is not power-loss durability, an actual Windows sign-out/shutdown drill, broader storage-error recovery or performance benchmarking. No whole-system session end is requested. The default regression separately retains its cancelled session-end path on an ordinary fixture.
 
-No personal Vault, migration, actual restore, live Provider, cloud stage, production Activity, real login-startup change, installed-app replacement or owner's uninstall was performed. Narrator, a real Windows contrast theme, actual sign-in startup, signing and physical tray interaction remain acceptance gates. Historical reports retain their original binaries and scopes.
+No personal Vault, migration, actual restore, live Provider, cloud stage, production Activity, real login-startup change, installed-app replacement or Morii's uninstall was performed. Narrator, a real Windows contrast theme, actual sign-in startup, signing and physical tray interaction remain acceptance gates. Historical reports retain their original binaries and scopes.

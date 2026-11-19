@@ -1,4 +1,4 @@
-# Provider session ownership
+# Provider session responsibility
 
 Date: 2026-10-12 (Asia/Shanghai). Baseline: `9ccb396`; branch `codex/memory-provider-operations`. Memory pin and native host remain unchanged.
 
@@ -16,4 +16,4 @@ Validation:
 - New operation/session fixtures also passed strict standalone TypeScript checking with `--ignoreConfig --types vite/client`. Initial direct checking needed those CLI/type declarations; their synthetic envelopes now use explicit types.
 - Memory integration check: pin consistent, 8 negative checks. Unchanged desktop dependency metadata: 7 negative checks passed. Rust source, native configuration and dependencies are unchanged, so the recorded `fcfd06d` host tests/Clippy/format evidence remains applicable.
 
-This is a within-Sessions UI ownership check, not a new Core lock or proof for leaving the entire surface, process death, native input, HTTP, real credentials, or personal workflows. No personal Vault, settings or production Activity was used; no installer or deployment was run.
+This is a within-Sessions UI responsibility check, not a new Core lock or proof for leaving the entire surface, process death, native input, HTTP, real credentials, or personal workflows. No personal Vault, settings or production Activity was used; no installer or deployment was run.

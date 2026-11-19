@@ -76,7 +76,7 @@ export function AutomaticMemory({ read = automationRead }: { read?: typeof autom
     <div className="qr45" aria-busy={reads.busy}>
       <div className="qr31"><h2 className="qr29">{t("Automatic memories")}</h2><Tag tone="warn">{t("Isolated synthetic library")}</Tag></div>
       <div className="qr44 mem-pad">
-        <p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or Owner confirmation.")}</p>
+        <p className="mem-content">{t("System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
         <p className="mem-content">{t("This isolated library is separate from the Vault used by Context and Sessions.")}</p>
         {observationError && <p role="alert">{describe(observationError.cause)}</p>}
         <ErrorBox error={reads.error} />
