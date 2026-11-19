@@ -4,7 +4,7 @@
 
 ## 用哪个程序
 
-候选从 Runtime main 构建，内嵌 Memory pin `f9ac21d`（全历史读取），见[候选记录](validation/R4-5-candidate-2026-11-19.md)（含路径与 SHA-256；2026-11-19 晚重新构建，旧候选 `218df03` 作废）。
+候选从 Runtime main 构建，内嵌 Memory pin `f9ac21d`（全历史读取），见[候选记录](validation/R4-5-candidate-2026-11-19.md)（候选 `884c015`，含路径与 SHA-256；旧候选 `218df03` 作废）。
 
 - **免安装验收（推荐先做）**：候选目录里相邻的 `enouia-desktop.exe` 与 `WebView2Loader.dll` 一起使用，不改动已安装的旧版本。
 - **安装、升级、托盘、热键、登录启动**：用同一候选的安装包，单独记在文末第二张表。安装会替换本机旧版本，按你的安排做。
