@@ -1243,7 +1243,17 @@ async function registeredOwnerChecks() {
   const refused=await s.evaluate("__t.invoke('memory_call',{request:{schemaVersion:1,requestId:'req_00000000-0000-4000-8000-000000000001',command:'remember',idempotencyKey:'ui-owner-never-write',arguments:{text:'Synthetic attempt must be refused'}}})");
   check('OWNER.workspace_write_refused',refused.err==='catalog_owner_readonly');
   await shot(s,'owner-01-readonly');
-  await click(s,'button','Lock registered library');await waitFor(s,has('Library: locked'),'registered close');
+  const lockButton = "[...document.querySelectorAll('button')].find(button=>button.textContent==='Lock registered library')";
+  await waitFor(s,`!(${lockButton})?.disabled && !!(${lockButton})`,'registered lock ready');
+  await s.evaluate(`(${lockButton}).focus()`);
+  if (!await s.evaluate(`document.activeElement===(${lockButton})`)) throw new Error('registered lock did not take keyboard focus');
+  for (const type of ['keyDown','keyUp']) {
+    const reply=await s.send('Input.dispatchKeyEvent',{type,key:'Enter',code:'Enter',windowsVirtualKeyCode:13,...(type==='keyDown'?{text:'\r',unmodifiedText:'\r'}:{})});
+    if (reply.error) throw new Error(reply.error.message);
+  }
+  await waitFor(s,has('Library: locked'),'registered close');
+  const lockFocus=await s.evaluate("({tag:document.activeElement.tagName,text:document.activeElement.tagName==='H2'?document.activeElement.textContent:''})");
+  check('OWNER.keyboard_lock_keeps_focus_in_catalog',lockFocus.tag==='H2'&&lockFocus.text==='Native memory catalog',JSON.stringify(lockFocus));
   check('OWNER.lock_receipt_updates_shell',await s.evaluate("document.querySelector('.qr224')?.textContent.includes('Registered library closed')"));
   const locked=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
   check('OWNER.lock_withdraws_and_requires_native_reopen',locked.state==='locked'&&!locked.available&&await s.evaluate("!document.querySelector('section[aria-label=\"Quoted source excerpt\"]') && ![...document.querySelectorAll('button')].some(b=>b.textContent.includes('Unlock synthetic library'))"));
