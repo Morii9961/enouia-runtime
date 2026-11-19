@@ -472,7 +472,7 @@ fn status_reauthorizes_when_policy_expires_without_a_new_commit() {
     let clock = Arc::new(enouia_memory_contract::foundation::FakeClock::new(NOW));
     let native = NativeCatalog::default();
     native
-        .initialize_with(|stop| fixture::create_with_clock(stop, clock.clone()))
+        .initialize_with(|stop| fixture::create_with_clock(stop, clock.clone(), false))
         .unwrap();
     let before = native
         .call("main", &packet(json!({"operation":"status"})))
@@ -499,6 +499,32 @@ fn status_reauthorizes_when_policy_expires_without_a_new_commit() {
         0
     );
     assert!(native.call("main", &packet(json!({"operation":"stats","filter":CatalogFilter::default(),"selection":first["selection"]}))).is_err());
+    native.shutdown();
+}
+#[test]
+fn full_history_reader_keeps_records_after_their_policy_window_ends() {
+    const NOW: i64 = 1_793_664_000_000;
+    let clock = Arc::new(enouia_memory_contract::foundation::FakeClock::new(NOW));
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| fixture::create_with_clock(stop, clock.clone(), true))
+        .unwrap();
+    let all = CatalogFilter::default();
+    assert_eq!(
+        native
+            .call("main", &page(all.clone(), Value::Null))
+            .unwrap()["matched_in_scope"],
+        3
+    );
+    clock.set(NOW + 3_600_001);
+    let after = native
+        .call("main", &page(all.clone(), Value::Null))
+        .unwrap();
+    assert_eq!(after["matched_in_scope"], 3);
+    let recall = native
+        .call("main", &packet(json!({"operation":"recall_preview","query":{"text":"","conditions":[],"event_window":null,"at":after["authorized_at"],"intent":"browse","limit":8,"max_bytes":16384}})))
+        .unwrap();
+    assert_eq!(recall["trace"]["considered"], 3);
     native.shutdown();
 }
 fn page(filter: CatalogFilter, cursor: Value) -> Value {

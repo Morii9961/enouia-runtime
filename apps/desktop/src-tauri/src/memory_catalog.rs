@@ -275,7 +275,10 @@ impl NativeCatalog {
                     enouia_memory_vault::fault::Faults::none(),
                 ).map_err(|_| "catalog_owner_open_refused")?,
             );
-            let reader = enouia_memory_host::automation::catalog::SegmentedMemoryReader::from_authenticated_system(
+            // ADR-MEM-153: Morii's registered native entry reads every committed
+            // policy revision, so ended formation windows no longer hide records.
+            // Deletion, withdrawal, forget barriers and the ceiling still apply.
+            let reader = enouia_memory_host::automation::catalog::SegmentedMemoryReader::from_authenticated_system_full_history(
                 vault, descriptor.system_actor.clone(),
             ).map_err(fault)?;
             Ok(Library {
