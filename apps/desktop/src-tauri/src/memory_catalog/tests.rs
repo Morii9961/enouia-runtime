@@ -99,6 +99,11 @@ fn owner_mode_refuses_workspace_writes_picks_and_provider_without_opening_a_root
         );
     }
     assert!(!host.catalog().0.withdrawn.load(Ordering::SeqCst));
+    // Quick Search reads the registered catalog, never the closed Workspace.
+    assert_eq!(
+        host.forward(&json!({"command":"memory_search","arguments":{"query":"x"}})),
+        Err("catalog_not_enabled".into())
+    );
     assert!(matches!(
         host.provider_update(),
         Err("catalog_owner_readonly")
@@ -115,6 +120,205 @@ fn owner_mode_refuses_workspace_writes_picks_and_provider_without_opening_a_root
     host.shutdown();
 }
 
+/// R4 read probe: open an explicitly named registered home read-only and call
+/// every catalog operation once. Prints only kinds, counts and refusal codes,
+/// never titles, content, quotes or identifiers, and asserts CURRENT is unchanged.
+#[test]
+#[ignore = "requires explicit ENOUIA_REGISTERED_PROBE_HOME and ENOUIA_REGISTERED_PROBE_OPERATION"]
+fn registered_read_probe_reports_every_operation_without_content() {
+    let home = PathBuf::from(std::env::var_os("ENOUIA_REGISTERED_PROBE_HOME").expect("home"));
+    let operation =
+        OperationId::parse(&std::env::var("ENOUIA_REGISTERED_PROBE_OPERATION").expect("operation"))
+            .unwrap();
+    let (root, _) =
+        enouia_memory_host::owner_bootstrap::registered_owner_root(&home, &operation).unwrap();
+    let current_path = root.path().join("vault/CURRENT");
+    let current = std::fs::read(&current_path).unwrap();
+    let sequence = |bytes: &[u8]| {
+        serde_json::from_slice::<Value>(bytes)
+            .ok()
+            .and_then(|v| v.get("sequence").cloned())
+            .unwrap_or(Value::Null)
+    };
+    println!("CURRENT sequence before: {}", sequence(&current));
+    let native = NativeCatalog::default();
+    native
+        .initialize_registered(Ok(OwnerLaunch { home, operation }))
+        .unwrap();
+    let all = CatalogFilter::default();
+    let report = |name: &str, query: Value| -> Option<Value> {
+        let started = std::time::Instant::now();
+        match native.call_waiting("main", &packet(query)) {
+            Ok(value) => {
+                let counts: Vec<String> = [
+                    "matched_in_scope",
+                    "unknown_time_in_scope",
+                    "complete_in_scope",
+                    "visible_captured_turns",
+                    "visible_captured_sources",
+                ]
+                .iter()
+                .filter_map(|key| value.get(*key).map(|v| format!("{key}={v}")))
+                .chain(
+                    [
+                        "items",
+                        "buckets",
+                        "nodes",
+                        "edges",
+                        "events",
+                        "members",
+                        "groups",
+                        "facets",
+                        "conversations",
+                        "turns",
+                        "neighbors",
+                        "revisions",
+                        "history",
+                        "fields_changed",
+                        "changed",
+                        "members_in_scope",
+                    ]
+                    .iter()
+                    .filter_map(|key| {
+                        value
+                            .get(*key)
+                            .and_then(Value::as_array)
+                            .map(|a| format!("{key}[{}]", a.len()))
+                    }),
+                )
+                .collect();
+                println!(
+                    "{name}: ok kind={} {} ({} ms)",
+                    value["kind"],
+                    counts.join(" "),
+                    started.elapsed().as_millis()
+                );
+                Some(value)
+            }
+            Err(code) => {
+                println!("{name}: refused {code}");
+                None
+            }
+        }
+    };
+    let page = report(
+        "page",
+        json!({"operation":"page","filter":all,"cursor":null,"limit":100,"facets":true}),
+    )
+    .unwrap();
+    for group in page["facets"].as_array().unwrap() {
+        println!(
+            "  facet {} values={} total={}",
+            group["axis"],
+            group["values"].as_array().unwrap().len(),
+            group["total_values"]
+        );
+    }
+    let selection = page["selection"].clone();
+    if let Some(stats) = report(
+        "stats",
+        json!({"operation":"stats","filter":all,"selection":selection}),
+    ) {
+        for group in stats["groups"].as_array().unwrap() {
+            let counts: Vec<String> = group["values"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|_| !matches!(group["axis"].as_str(), Some("entity" | "project" | "theme")))
+                .map(|v| format!("{}={}", v["value"], v["count"]))
+                .collect();
+            println!(
+                "  stats {} total_values={} {}",
+                group["axis"],
+                group["total_values"],
+                counts.join(" ")
+            );
+        }
+    }
+    let items = page["items"].as_array().unwrap();
+    let entities = items
+        .iter()
+        .filter(|i| !i["entities"].as_array().unwrap().is_empty())
+        .count();
+    let projects = items
+        .iter()
+        .filter(|i| !i["base"]["project_id"].is_null())
+        .count();
+    let reasons = items
+        .iter()
+        .filter(|i| !i["formation_reason"].is_null())
+        .count();
+    let unknown = items
+        .iter()
+        .filter(|i| i["event_time"]["precision"] == "unknown" || i["event_time"].is_null())
+        .count();
+    println!(
+        "  first page rows with entities={entities} project={projects} reason={reasons} unknown_event={unknown}"
+    );
+    report(
+        "facets.form",
+        json!({"operation":"facets","filter":all,"axis":"form","count_scope":"matched","cursor":null,"selection":selection,"limit":100}),
+    );
+    for (axis, granularity, from, until) in [
+        ("event", "month", "2000-01-01", "2027-01-01"),
+        ("learned", "day", "2026-10-01", "2026-12-01"),
+        ("source_captured", "month", "2000-01-01", "2027-01-01"),
+    ] {
+        report(
+            &format!("time_buckets.{axis}.{granularity}"),
+            json!({"operation":"time_buckets","filter":all,"query":{"axis":axis,"timezone":"Asia/Shanghai","granularity":granularity,"from_date":from,"until_date":until},"selection":null}),
+        );
+    }
+    report(
+        "graph",
+        json!({"operation":"graph","filter":all,"query":{"node_limit":5000,"edge_limit_per_kind":20000},"cursor":null}),
+    );
+    report(
+        "activity",
+        json!({"operation":"activity","filter":all,"query":{"memory":null,"event_kind":null,"include_sources":false},"cursor":null,"limit":100}),
+    );
+    report("changes", json!({"operation":"changes","anchor":null}));
+    report(
+        "conversations",
+        json!({"operation":"conversations","cursor":null,"limit":100}),
+    );
+    if let Some(first) = items.first() {
+        let id = &first["base"]["memory"]["memory_id"];
+        let detail = report(
+            "detail",
+            json!({"operation":"detail","filter":all,"memory_id":id}),
+        );
+        report(
+            "neighbors",
+            json!({"operation":"neighbors","filter":all,"memory_id":id,"include_suggestions":true,"cursor":null,"limit":32}),
+        );
+        report(
+            "conflicts",
+            json!({"operation":"conflicts","filter":all,"memory_id":id,"cursor":null,"limit":32}),
+        );
+        if let Some(quote) = detail.as_ref().and_then(|d| d["fields"]["evidence"].get(0)) {
+            report(
+                "source",
+                json!({"operation":"source","source":{"source_id":quote["reference"]["source_id"],"source_revision":quote["reference"]["source_revision"]},"start":quote["start"],"limit":quote["end"].as_u64().unwrap()-quote["start"].as_u64().unwrap()}),
+            );
+        }
+    }
+    if let Some(theme) = items
+        .iter()
+        .find(|i| i["base"]["dimensions"]["kind"] == "theme")
+    {
+        report(
+            "theme_members",
+            json!({"operation":"theme_members","filter":all,"theme":theme["base"]["memory"]["memory_id"],"cursor":null,"limit":100}),
+        );
+    } else {
+        println!("theme_members: no theme record on the first page");
+    }
+    native.lock();
+    let after = std::fs::read(&current_path).unwrap();
+    println!("CURRENT sequence after: {}", sequence(&after));
+    assert_eq!(after, current, "read-only probe must not change CURRENT");
+}
 #[test]
 #[ignore = "requires explicit ENOUIA_SYNTHETIC_DURABLE_PARENT; retains a protected synthetic home"]
 fn registered_native_owner_opens_same_root_reads_closes_and_reauthenticates() {
@@ -585,4 +789,86 @@ fn startup_provider_and_shutdown_use_the_same_catalog_lifecycle() {
     host.shutdown();
     second.shutdown();
     assert!(host.catalog().0.state.lock().unwrap().library.is_none());
+}
+#[test]
+fn projection_and_process_reads_forward_core_documents_without_writing() {
+    let native = NativeCatalog::default();
+    native.initialize_synthetic().unwrap();
+    let root = native
+        .0
+        .state
+        .lock()
+        .unwrap()
+        .library
+        .as_ref()
+        .unwrap()
+        ._root
+        .clone();
+    let before = std::fs::read(root.join("vault/CURRENT")).unwrap();
+    let all = CatalogFilter::default();
+    let first = native
+        .call(
+            "main",
+            &packet(
+                json!({"operation":"page","filter":all,"cursor":null,"limit":100,"facets":true}),
+            ),
+        )
+        .unwrap();
+    assert_eq!(first["facets"].as_array().unwrap().len(), 9);
+    let id = first["items"][0]["base"]["memory"]["memory_id"].clone();
+    for (query, kind) in [
+        (
+            json!({"operation":"time_buckets","filter":all,"query":{"axis":"learned","timezone":"Asia/Shanghai","granularity":"month","from_date":"2020-01-01","until_date":"2030-01-01"},"selection":null}),
+            "memory_time_buckets",
+        ),
+        (
+            json!({"operation":"graph","filter":all,"query":{"node_limit":5000,"edge_limit_per_kind":20000},"cursor":null}),
+            "memory_graph_page",
+        ),
+        (
+            json!({"operation":"activity","filter":all,"query":{"memory":null,"event_kind":null,"include_sources":false},"cursor":null,"limit":50}),
+            "memory_activity_page",
+        ),
+        (
+            json!({"operation":"changes","anchor":null}),
+            "memory_changes",
+        ),
+        (
+            json!({"operation":"conversations","cursor":null,"limit":50}),
+            "native_conversation_page",
+        ),
+        (
+            json!({"operation":"neighbors","filter":all,"memory_id":id,"include_suggestions":true,"cursor":null,"limit":32}),
+            "native_memory_neighbors",
+        ),
+        (
+            json!({"operation":"conflicts","filter":all,"memory_id":id,"cursor":null,"limit":16}),
+            "memory_conflict_group",
+        ),
+        (
+            json!({"operation":"facets","filter":all,"axis":"form","count_scope":"matched","cursor":null,"selection":null,"limit":16}),
+            "catalog_memory_facets",
+        ),
+    ] {
+        let value = native.call("main", &packet(query)).unwrap();
+        assert_eq!(value["kind"], kind);
+        assert_eq!(value["effect"], "native_read");
+    }
+    // Page-owned limits outside Core's bounds are refused, not clamped.
+    assert_eq!(
+        native.call(
+            "main",
+            &packet(json!({"operation":"conversations","cursor":null,"limit":0}))
+        ),
+        Err("catalog_read_refused")
+    );
+    let search = native.search("合成").unwrap();
+    assert_eq!(search["result"]["kind"], "registered_catalog_search");
+    assert!(search["result"]["items"].as_array().unwrap().len() <= 8);
+    native.lock();
+    assert_eq!(
+        native.call("main", &packet(json!({"operation":"graph","filter":all,"query":{"node_limit":10,"edge_limit_per_kind":10},"cursor":null}))),
+        Err("catalog_locked")
+    );
+    assert_eq!(std::fs::read(root.join("vault/CURRENT")).unwrap(), before);
 }

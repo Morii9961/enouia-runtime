@@ -3,9 +3,11 @@ import { invoke } from "@tauri-apps/api/core";
 import type { J } from "./client";
 import { snapshotKey } from "./automation.ts";
 
-export const CATALOG_FILTER = { text: "", form: null, state: null, knowledge: null, adoption: null, validity: null, attention: null,
+export type CatalogFilter = { text: string; form: string | null; state: string | null; knowledge: string | null; adoption: string | null;
+  validity: string | null; attention: string | null; entity: string | null; project: string | null; theme: string | null;
+  time_axis: string | null; time_window: { from: string; until: string | null } | null; include_unknown_time: boolean };
+export const CATALOG_FILTER: CatalogFilter = { text: "", form: null, state: null, knowledge: null, adoption: null, validity: null, attention: null,
   entity: null, project: null, theme: null, time_axis: null, time_window: null, include_unknown_time: false };
-export type CatalogFilter = typeof CATALOG_FILTER;
 export type CatalogSelection = {
   algorithm: "owner-qualified-catalog-4"; version: 4; profile_hash: string; withdrawal_watermark: number;
   snapshot: { vault_id: string; base_commit_id: string; primary_epoch: number; policy_watermark: number; deletion_watermark: number };
@@ -17,22 +19,74 @@ export type CatalogStatus = { kind: "runtime_memory_catalog_status"; mode: "synt
 export type CatalogItem = { title: string; content_lang: string; base: {
   memory: { memory_id: string; revision: number }; content: string; system_actor: { actor_type: "system" };
   dimensions: { kind: string }; knowledge: string; adoption: string; validity: string; attention: string;
-} };
+  project_id?: string | null; learned_at?: string; source_captured_at?: string;
+}; event_time?: RecordTime; valid_time?: RecordTime; entities?: { entity_id: string; role: string }[]; effective_sensitivity?: string;
+  formation_reason?: { interpretation: string; rule_version: string; prompt_version: string; model_version: string | null; mode: string; note: string | null; note_is_machine_annotation: boolean } };
 export type CatalogPage = { kind: "catalog_memory_page"; selection: CatalogSelection; authorized_at: string; matched_in_scope: number;
-  unknown_time_in_scope: number; items: CatalogItem[]; complete_in_scope: boolean; next: CatalogCursor | null };
-export type CatalogStats = { kind: "catalog_memory_stats"; selection: CatalogSelection; authorized_at: string; matched_in_scope: number };
+  unknown_time_in_scope: number; items: CatalogItem[]; complete_in_scope: boolean; next: CatalogCursor | null; facets?: FacetGroup[] };
+export type CatalogStats = { kind: "catalog_memory_stats"; selection: CatalogSelection; authorized_at: string; matched_in_scope: number; groups?: FacetGroup[] };
 export type CatalogEvidence = { reference: { source_id: string; source_revision: number; object_hash: string }; quote: string; speaker: string; start: number; end: number };
 export type CatalogDetail = { kind: "native_memory_detail"; header: { selection: CatalogSelection }; item: CatalogItem | null;
-  fields: { title: string; evidence: CatalogEvidence[] } | null };
+  fields: { title: string; evidence: CatalogEvidence[] } | null; history?: RevisionSummary[]; history_count_in_scope?: number };
 export type CatalogSourceRef = { source_id: string; source_revision: number };
 export type CatalogSource = { kind: "native_source_excerpt"; header: { selection: CatalogSelection }; source: CatalogSourceRef | null;
   source_record: { reference: CatalogSourceRef; speaker: string; source_kind: string; evidence_class: string; anchor_hash: string;
     original_conversation_id: string | null; original_message_id: string | null } | null;
   excerpt: string | null; start: number; end: number; total_characters: number; complete_in_scope: boolean };
-type Queries = { status: object; page: { filter: CatalogFilter; cursor: CatalogCursor | null; limit: number };
+type Queries = { status: object; page: { filter: CatalogFilter; cursor: CatalogCursor | null; limit: number; facets?: boolean };
   stats: { filter: CatalogFilter; selection: CatalogSelection }; detail: { filter: CatalogFilter; memory_id: string };
   source: { source: CatalogSourceRef; start: number; limit: number }; lock: object; unlock: object };
 type Results = { status: CatalogStatus; page: CatalogPage; stats: CatalogStats; detail: CatalogDetail; source: CatalogSource; lock: CatalogStatus; unlock: CatalogStatus };
+// Projection and process reads already in the pinned SegmentedMemoryReader
+// (ADR-MEM-100/101/103). Runtime forwards them unchanged; Core owns counts,
+// coverage and authorization. Only fields the surfaces read are typed.
+export type RecordTime = { from: string | null; until: string | null; precision: string; bound: string; tz: string | null; basis: string };
+export type FacetGroup = { axis: string; count_scope: string; values: { value: string; label: string; count: number }[]; total_values: number };
+export type ViewHeader = { selection: CatalogSelection; algorithm: string; authorized_at: string; scope: string;
+  matched_inputs?: number; included_inputs?: number; complete_in_scope?: boolean; limits?: string[] };
+export type TargetRef = { memory: { memory_id: string; revision: number }; hash: string };
+export type RevisionSummary = { memory: TargetRef; title: string; knowledge: string; adoption: string;
+  interpretation: string; change: string; learned_at: string; effective_sensitivity: string };
+export type TimeBuckets = { kind: "memory_time_buckets"; header: ViewHeader; unknown_time_in_scope: number; interval_rule: string;
+  material_scope: string; buckets: { local_start: string; from: string; until: string; possible_records: number; staged: number; adopted: number; captured_material: number }[] };
+export type GraphPage = { kind: "memory_graph_page"; header: ViewHeader; nodes: { memory: TargetRef; title: string; form: string; entities: string[] }[];
+  edges: { from: string; to: string; relation: string; class: string }[]; edge_coverage: { relation: string; candidates: number; retained: number }[];
+  semantic_neighbors_available: boolean; next: unknown | null };
+export type ActivityPage = { kind: "memory_activity_page"; header: ViewHeader; matched_in_scope: number; complete_in_scope: boolean; next: unknown | null;
+  time_derived_events_available: boolean; items: { event_id: string; event_kind: string; memory: { memory_id: string; revision: number } | null;
+    title: string | null; change: string | null; adoption: string | null; effective_sensitivity: string; proof: { written_at: string } }[] };
+export type Neighbors = { kind: "native_memory_neighbors"; header: ViewHeader; matched_in_scope: number;
+  items: { other: RevisionSummary; relations: { relation: string; class: string; direction: string; witness_count_in_scope: number }[] }[]; next: unknown | null };
+export type Conflicts = { kind: "memory_conflict_group"; header: ViewHeader; basis: string; matched_in_scope: number; items: CatalogItem[] };
+export type ConversationMeta = { conversation_id: string; platform: string; title: string | null; started_at: RecordTime; ended_at: RecordTime; original_conversation_id: string | null };
+export type Conversations = { kind: "native_conversation_page"; header: ViewHeader; matched_in_scope: number; next: unknown | null;
+  items: { conversation: ConversationMeta; visible_captured_turns: number; visible_captured_sources: number; effective_sensitivity: string }[] };
+export type ConversationDetail = { kind: "native_conversation_detail"; header: ViewHeader; conversation: ConversationMeta | null;
+  visible_captured_turns: number; visible_captured_sources: number; next: unknown | null;
+  turns: { turn: { turn_id: string; sequence: number; source: CatalogSourceRef }; source_record: { reference: CatalogSourceRef; speaker: string; source_kind: string } }[] };
+type ViewQueries = {
+  time_buckets: { filter: CatalogFilter; query: { axis: string; timezone: string; granularity: "day" | "month"; from_date: string; until_date: string }; selection: CatalogSelection | null };
+  graph: { filter: CatalogFilter; query: { node_limit: number; edge_limit_per_kind: number }; cursor: unknown | null };
+  activity: { filter: CatalogFilter; query: { memory: string | null; event_kind: string | null; include_sources: boolean }; cursor: unknown | null; limit: number };
+  neighbors: { filter: CatalogFilter; memory_id: string; include_suggestions: boolean; cursor: unknown | null; limit: number };
+  conflicts: { filter: CatalogFilter; memory_id: string; cursor: unknown | null; limit: number };
+  conversations: { cursor: unknown | null; limit: number };
+  conversation_detail: { conversation_id: string; cursor: unknown | null; limit: number };
+};
+type ViewResults = { time_buckets: TimeBuckets; graph: GraphPage; activity: ActivityPage; neighbors: Neighbors; conflicts: Conflicts;
+  conversations: Conversations; conversation_detail: ConversationDetail };
+const VIEW_KIND: Record<keyof ViewQueries, string> = { time_buckets: "memory_time_buckets", graph: "memory_graph_page", activity: "memory_activity_page",
+  neighbors: "native_memory_neighbors", conflicts: "memory_conflict_group", conversations: "native_conversation_page", conversation_detail: "native_conversation_detail" };
+/** One boundary check per projection read: envelope, kind and a typed selection. */
+export async function catalogView<K extends keyof ViewQueries>(query: { operation: K } & ViewQueries[K]): Promise<ViewResults[K]> {
+  const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: structuredClone(query) } }) as J;
+  if (!value || value.schema_version !== 2 || value.capability !== "memory-native-read-2" || value.effect !== "native_read" ||
+      value.kind !== VIEW_KIND[query.operation] || typeof value.header?.authorized_at !== "string" || typeof value.header?.scope !== "string") throw "catalog_response_unsupported";
+  selection(value.header.selection);
+  const lists = { time_buckets: "buckets", graph: "nodes", activity: "items", neighbors: "items", conflicts: "items", conversations: "items", conversation_detail: "turns" } as const;
+  if (!Array.isArray(value[lists[query.operation]])) throw "catalog_response_unsupported";
+  return value as ViewResults[K];
+}
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);
 export function setCatalogTransport(next: Transport): void { transport = next; }

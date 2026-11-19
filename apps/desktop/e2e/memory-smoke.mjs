@@ -1209,7 +1209,8 @@ async function registeredOwnerChecks() {
   check('OWNER.workspace_is_not_reinterpreted_as_owner_root',(await statusOf(s)).vault.state==='none');
   check('OWNER.shell_reports_independent_readonly_entry',(await s.evaluate("__t.invoke('shell_status')")).ok.memoryEntry==='registered_owner_readonly');
   await waitFor(s,"document.querySelector('.qr224')?.textContent.includes('Registered library open')",'registered shell status');
-  check('OWNER.home_has_no_workspace_commit_or_create_prompt',await s.evaluate(`!${has('Open or create a Vault to begin')} && !document.querySelector('[data-kind="vault-commit"]') && ${has('Read-only records and quoted sources are available in the native catalog.')}`));
+  await waitFor(s,has('3 records · '),'registered Home readings');
+  check('OWNER.home_has_no_workspace_commit_or_create_prompt',await s.evaluate(`!${has('Open or create a Vault to begin')} && !document.querySelector('[data-kind="vault-commit"]') && ${has('captured conversations')} && !${has('Read saved Capsules')}`));
   await nav(s,'Settings');
   await waitFor(s,has('Open native memory catalog'),'registered Settings');
   check('OWNER.settings_offers_only_native_catalog',await s.evaluate(`!${has('Open an existing Vault…')} && !${has('Create Vault…')} && !${has('Model configuration draft')} && ${has('Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.')}`));
@@ -1218,13 +1219,15 @@ async function registeredOwnerChecks() {
   check('OWNER.inspector_reports_registered_catalog',await s.evaluate(`
     document.querySelector('#runtime-memory-panel [role=status]')?.textContent==='Registered library open' &&
     document.querySelector('#runtime-operations-panel [role=status]')?.textContent==='Unavailable in this read-only entry'`));
+  await waitFor(s,"document.querySelector('#runtime-memory-panel')?.textContent.includes('Authorized records')",'registered Inspector readings');
+  check('OWNER.inspector_reads_registered_totals',await s.evaluate(`document.querySelector('#runtime-memory-panel').textContent.includes('memory-native-read-2') && document.querySelector('#runtime-memory-panel').textContent.includes(${JSON.stringify(status.selection.snapshot.base_commit_id)})`));
   const first=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:2}).then(r=>r.ok)`);
   check('OWNER.actual_registered_records',first.matched_in_scope===3&&first.items.length===2);
   await nav(s,'Memory');
-  await waitFor(s,has('2 shown · 3 matching authorized records'),'registered catalog panel');
+  await waitFor(s,has('3 shown · 3 matching authorized records'),'registered catalog panel');
   check('OWNER.memory_defaults_to_native_catalog',await s.evaluate("document.querySelector('[data-screen-label=\"Memory Vault\"] button[aria-pressed=true]')?.textContent==='Native memory catalog'"));
   check('OWNER.sidebar_offers_only_registered_catalog',await s.evaluate(`
-    [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog' &&
+    [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog|Time|Connections|Formation|Recall' &&
     !document.querySelector('[data-screen-label="Memory Vault"] .qr28 form')`));
   check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered library · read only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
   await set(s,'.qr44 form[role=search] input','Blue pottery cup');
@@ -1240,6 +1243,28 @@ async function registeredOwnerChecks() {
   await click(s,'button','Read quoted source');
   await waitFor(s,"!!document.querySelector('section[aria-label=\"Quoted source excerpt\"] blockquote')",'registered exact source');
   check('OWNER.registered_source_matches_quote',await s.evaluate(`document.querySelector('section[aria-label="Quoted source excerpt"] blockquote').textContent===${JSON.stringify(quote)}`));
+  check('OWNER.filters_offer_core_facets',await s.evaluate(`!!document.querySelector('.qr44 fieldset select') && ${has('Counts follow the other active filters')}`));
+  const quick=await s.evaluate("__t.invoke('memory_call',{request:{schemaVersion:1,requestId:'req_00000000-0000-4000-8000-000000000002',command:'memory_search',idempotencyKey:null,arguments:{query:'Blue pottery cup',includeHistorical:false,cursor:null,limit:8}}})");
+  check('OWNER.quick_search_reads_registered_catalog',quick.ok?.result?.kind==='registered_catalog_search'&&quick.ok.result.matched===1&&quick.ok.result.items[0]?.title==='Blue pottery cup',JSON.stringify(quick).slice(0,300));
+  await rail(s,'Time');
+  await waitFor(s,`!!document.querySelector('.mem-time-cell') || ${has('No dated records on this axis.')}`,'registered time buckets');
+  check('OWNER.time_reads_core_buckets',await s.evaluate(`${has('have no recorded time on this axis')}`));
+  await rail(s,'Connections');
+  await waitFor(s,has('relations loaded.'),'registered graph');
+  check('OWNER.connections_read_core_graph',await s.evaluate(`${has('3 records and')}`));
+  await rail(s,'Formation');
+  await waitFor(s,has('events shown, newest first.'),'registered activity');
+  check('OWNER.formation_reads_core_activity',await s.evaluate(`!${has('Synthetic preview')}`));
+  await rail(s,'Recall');
+  await waitFor(s,has('A read-only recall preview for this library is not available yet.'),'registered recall gap');
+  check('OWNER.recall_states_memory_gap_without_fiction',true);
+  await nav(s,'Sessions');
+  await waitFor(s,`${has('conversations')} && !${has('Reading conversations…')}`,'registered conversations');
+  check('OWNER.sessions_read_core_conversations',await s.evaluate(`!!document.querySelector('[data-screen-label="Sessions"]') && !${has('Read saved conversations in Sessions')}`));
+  await shot(s,'owner-02-sessions');
+  await nav(s,'Memory');
+  await rail(s,'Native memory catalog');
+  await waitFor(s,"!!document.querySelector('.qr44 .mem-list')",'registered catalog again');
   const refused=await s.evaluate("__t.invoke('memory_call',{request:{schemaVersion:1,requestId:'req_00000000-0000-4000-8000-000000000001',command:'remember',idempotencyKey:'ui-owner-never-write',arguments:{text:'Synthetic attempt must be refused'}}})");
   check('OWNER.workspace_write_refused',refused.err==='catalog_owner_readonly');
   await shot(s,'owner-01-readonly');
@@ -1306,7 +1331,7 @@ async function catalogMemoryChecks() {
   check('CATALOG.literal_chinese_filter_reads_actual_record', filtered.matched_in_scope === 1 && filtered.items[0].title === '调试偏好');
   await s.evaluate("document.querySelector('button[data-runtime-page=memory]').click()");
   await rail(s,'Native memory catalog');
-  await waitFor(s,has('2 shown · 3 matching authorized records'),'read-2 panel and same-selection stats');
+  await waitFor(s,has('3 shown · 3 matching authorized records'),'read-2 panel and same-selection stats');
   check('CATALOG.native_panel_is_explicitly_synthetic_and_scoped',await s.evaluate(`${has('Isolated synthetic read-2')} && ${has('Counts cover currently authorized machine revisions for this selection.')} && ${has('Page statistics were read for the same selection.')}`));
   const detail = await s.evaluate(`__t.catalog({operation:'detail',filter:${JSON.stringify(filter)},memory_id:${JSON.stringify(first.items[0].base.memory.memory_id)}}).then(r=>r.ok)`);
   check('CATALOG.detail_uses_native_process_header_and_exact_record', detail?.header?.version === 2 && detail.header.algorithm === 'authorized-native-detail-2' && detail.item.base.memory.memory_id === first.items[0].base.memory.memory_id && detail.fields.evidence.length > 0);
@@ -1321,9 +1346,8 @@ async function catalogMemoryChecks() {
   await shot(s,'catalog-01-list');
   await surfaceMatrix(s,app,'CATALOG','catalog',{'zh-Hans':'原生记忆目录',ja:'ネイティブ記憶カタログ',en:'Native memory catalog'},
     "[...document.querySelectorAll('.qr44 .mem-list li')].map(n=>[n.querySelector('h3').textContent,n.querySelector('p').textContent,n.querySelector('.mem-row-meta').textContent].join(' / ')).join('|')");
-  await click(s,'button','Next catalog page');
-  await waitFor(s,has('1 shown · 3 matching authorized records'),'read-2 next page');
-  check('CATALOG.native_panel_pages_actual_records',await s.evaluate("document.querySelectorAll('.qr44 .mem-list li').length===1"));
+  // Fifty-record pages hold all three synthetic records; cursor paging stays covered above and in the DOM fixture.
+  check('CATALOG.native_panel_shows_actual_records_without_extra_page',await s.evaluate("document.querySelectorAll('.qr44 .mem-list li').length===3 && ![...document.querySelectorAll('button')].some(b=>b.textContent==='Next catalog page')"));
   await set(s,'.qr44 form input','调试');
   await click(s,'button','Search catalog');
   await waitFor(s,has('1 shown · 1 matching authorized records'),'read-2 filtered count');

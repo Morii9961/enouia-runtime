@@ -15,6 +15,7 @@ import type { MapSpec } from '../theme/TimeMap';
 
 import { labels, msg, t, tj, tn } from '../i18n/index.ts';
 const ProviderConfigDraft = lazy(() => import("./ProviderConfigDraft").then(module => ({ default: module.ProviderConfigDraft })));
+const RegisteredHome = lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredHome })));
 const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").then(module => ({ default: module.ProviderSettingsStatus })));
 
 type StatusValue = { status: J; vaultChanging: boolean; entry: "workspace" | "registered_owner_readonly" | null;
@@ -230,9 +231,11 @@ export function VaultLifecycleWait() {
 /** Home in the native shell: real Memory status and plain routes. */
 export function ConnectedHome({ nav }: { nav: J; ring: ReactNode }) {
   const { status, vaultChanging, now, timeline, entry, nativeStatus, nativeError, error } = useStatus();
-  if (entry === "registered_owner_readonly") return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null}
-    readonlyEntry label={registeredLabel(nativeStatus)} phase={t("Registered library · read only")}
-    reviewLine={nativeError ? nativeError.text : error ? error.text : nativeStatus?.reason ? describe(nativeStatus.reason) : nativeStatus?.state === "open" ? t("Read-only records and quoted sources are available in the native catalog.") : registeredLabel(nativeStatus)} />;
+  if (entry === "registered_owner_readonly") {
+    const reviewLine = nativeError ? nativeError.text : error ? error.text : nativeStatus?.reason ? describe(nativeStatus.reason) : nativeStatus?.state === "open" ? t("Read-only records and quoted sources are available in the native catalog.") : registeredLabel(nativeStatus);
+    const plain = <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry label={registeredLabel(nativeStatus)} phase={t("Registered library · read only")} reviewLine={reviewLine} />;
+    return nativeStatus?.state === "open" ? <Suspense fallback={plain}><RegisteredHome nav={nav} timeline={timeline} now={now} phase={t("Registered library · read only")} /></Suspense> : plain;
+  }
   const v = status?.vault;
   const stopping = exiting(status);
   const open = v?.state === "open" && !vaultChanging && !stopping;

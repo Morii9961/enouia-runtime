@@ -21,7 +21,14 @@ import { PersonaExport } from "./PersonaExport";
 
 import { labels, locale, msg, t, tn } from '../i18n/index.ts';
 const CatalogMemory = lazy(() => import("./CatalogMemory").then(module => ({ default: module.CatalogMemory })));
-type Collection = "inbox" | "current" | "history" | "import" | "persona" | "vault" | "automated" | "catalog" | "capture";
+const Registered = {
+  time: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredTime }))),
+  connections: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredConnections }))),
+  formation: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredFormation }))),
+  recall: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredRecall }))),
+};
+type RegisteredView = keyof typeof Registered;
+type Collection = "inbox" | "current" | "history" | "import" | "persona" | "vault" | "automated" | "catalog" | "capture" | RegisteredView;
 
 const TITLES: Record<Collection, string> = labels({
   automated: msg("Synthetic automatic memories"),
@@ -33,6 +40,10 @@ const TITLES: Record<Collection, string> = labels({
   import: msg("Import"),
   persona: msg("Public persona export"),
   vault: msg("Vault & recovery"),
+  time: msg("Time"),
+  connections: msg("Connections"),
+  formation: msg("Formation"),
+  recall: msg("Recall"),
 });
 // Memory's role-named protocol values; every other value stays as reported.
 const PROTOCOL_TEXT: Record<string, string> = labels({ owner_manual: msg("Entered by Morii"), owner_correction: msg("Correction by Morii") });
@@ -50,13 +61,13 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   const { status, vaultChanging, entry, observeNativeControl } = useStatus();
   const registered = entry === "registered_owner_readonly";
   const [chosenCollection, setCollection] = useState<Collection | null>(null);
-  const collection = registered ? "catalog" : chosenCollection ?? initialCollection;
+  const collection = registered ? (chosenCollection && (chosenCollection === "catalog" || chosenCollection in Registered) ? chosenCollection : "catalog") : chosenCollection ?? initialCollection;
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState({ text: "", seq: 0 });
   const open = status?.vault?.state === "open";
   const pending: number | null = status?.pendingCandidates ?? null;
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = entry === null ? [] : registered ? [
-    { label: t("Vault"), items: [["catalog", TITLES.catalog]] },
+    { label: t("Memories"), items: [["catalog", TITLES.catalog], ["time", TITLES.time], ["connections", TITLES.connections], ["formation", TITLES.formation], ["recall", TITLES.recall]] },
   ] : [
     { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },
@@ -102,7 +113,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
           </div>
         ))}
       </aside>
-      {entry === null ? <div className="qr45"><div className="mem-gate"><StatusPending /></div></div> : collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <Suspense fallback={<StatusPending />}><CatalogMemory onControl={registered ? observeNativeControl : undefined} /></Suspense> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
+      {entry === null ? <div className="qr45"><div className="mem-gate"><StatusPending /></div></div> : collection === "capture" ? <CaptureMemory /> : collection === "catalog" ? <Suspense fallback={<StatusPending />}><CatalogMemory onControl={registered ? observeNativeControl : undefined} /></Suspense> : registered && collection in Registered ? <Suspense fallback={<StatusPending />}>{(() => { const View = Registered[collection as RegisteredView]; return <View />; })()}</Suspense> : collection === "automated" ? <AutomaticMemory /> : status && (vaultChanging || exiting(status)) ? (
         <>
           <div className="qr45"><VaultGate>{null}</VaultGate></div>
           <Inspector><ComponentList status={status} /></Inspector>

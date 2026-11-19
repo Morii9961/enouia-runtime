@@ -11,11 +11,13 @@ import { t } from '../i18n/index.ts';
 export default function QuickSearch({ readPage = call }: { readPage?: typeof call }) {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<J[]>([]);
+  // The registered entry answers with the catalog's matched total; Workspace does not.
+  const [matched, setMatched] = useState<number | null>(null);
   const reads = useLatestRead();
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const clear = () => { reads.clear(); setItems([]); setQuery(""); };
+    const clear = () => { reads.clear(); setItems([]); setMatched(null); setQuery(""); };
     const focus = () => { clear(); input.current?.focus(); };
     // On the window, not the page root: a click on text or padding moves
     // focus to <body>, outside React's container.
@@ -33,12 +35,14 @@ export default function QuickSearch({ readPage = call }: { readPage?: typeof cal
     };
   }, [reads.clear]);
 
-  const clear = () => { reads.clear(); setItems([]); setQuery(""); };
+  const clear = () => { reads.clear(); setItems([]); setMatched(null); setQuery(""); };
   const run = (e: FormEvent) => {
     e.preventDefault();
     if (!query.trim()) { clear(); return; }
-    setItems([]);
-    void reads.run(() => readPage("memory_search", { query, includeHistorical: false, cursor: null, limit: 8 }), (page) => setItems(page.items));
+    setItems([]); setMatched(null);
+    void reads.run(() => readPage("memory_search", { query, includeHistorical: false, cursor: null, limit: 8 }), (page) => {
+      setItems(page.items); setMatched(page.kind === "registered_catalog_search" ? page.matched : null);
+    });
   };
 
   return (
@@ -54,10 +58,11 @@ export default function QuickSearch({ readPage = call }: { readPage?: typeof cal
       </form>
       <ErrorBox error={reads.error} />
       {reads.busy && <p role="status" className="mem-muted">{t("Searching…")}</p>}
+      {matched !== null && <p role="status" className="mem-muted">{t("{shown} of {matched} matching records in the registered library", { shown: items.length, matched })}</p>}
       <ul className="mem-quick-results" aria-live="polite">
         {items.map((h) => (
           <li key={h.memoryId}>
-            {h.currency && h.currency !== "current" && <Tag>{h.currency}</Tag>} <span className="mem-content">{h.snippet}</span>
+            {h.currency && h.currency !== "current" && <Tag>{h.currency}</Tag>} {h.title && <strong className="mem-content">{h.title}</strong>} <span className="mem-content">{h.snippet}{h.truncated ? " …" : ""}</span>
           </li>
         ))}
       </ul>

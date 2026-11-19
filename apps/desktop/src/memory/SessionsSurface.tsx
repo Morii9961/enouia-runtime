@@ -4,7 +4,7 @@
 // - Drafts are kept per session branch across switches and retries.
 // - An acknowledgement clears a draft only if it is unchanged.
 // - A write blocks branch switching until it settles.
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { call, type J } from "./client";
 import { useAction, useLatestRead } from "./hooks";
 import { VaultGate, useStatus } from "./status";
@@ -14,6 +14,7 @@ import { ExternalPanel } from "./ExternalPanel";
 import { WorkspaceProviderCalls } from "./WorkspaceProviderCalls";
 import { SavedExtractionJobs } from "./SavedExtractionJobs";
 import { sessionObservation } from "./observationIdentity";
+const RegisteredSessions = lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredSessions })));
 
 import { t, tn } from '../i18n/index.ts';
 type Branch = { sessionId: string; branchId: string };
@@ -22,7 +23,8 @@ export type SessionTarget = { vaultId: string; sessionId: string };
 export default function SessionsSurface({ inspect, reviewCandidates, target }: {
   inspect: (capsuleId: string) => void; reviewCandidates?: () => void; target?: SessionTarget | null;
 }) {
-  const { status } = useStatus();
+  const { status, entry } = useStatus();
+  if (entry === "registered_owner_readonly") return <Suspense fallback={null}><RegisteredSessions /></Suspense>;
   return (
     <VaultGate>
       <Sessions key={status?.vault?.vaultId} inspect={inspect} reviewCandidates={reviewCandidates}

@@ -3,7 +3,7 @@ mod fixture;
 use enouia_memory_contract::{
     common::{ActorRef, Sensitivity, SourceRevisionRef},
     error::Violation,
-    ids::{MemoryId, OperationId},
+    ids::{MemoryId, OperationId, SessionId},
     json::{Revision, canonical_bytes},
     next::*,
 };
@@ -63,19 +63,84 @@ enum CatalogQuery {
         filter: CatalogFilter,
         cursor: Option<CatalogCursor>,
         limit: usize,
+        #[serde(default)]
+        facets: bool,
     },
     Stats {
         filter: CatalogFilter,
         selection: CatalogSelection,
     },
+    Facets {
+        filter: CatalogFilter,
+        axis: CatalogFacetAxis,
+        count_scope: FacetCountScope,
+        cursor: Option<CatalogFacetCursor>,
+        selection: Option<CatalogSelection>,
+        limit: usize,
+    },
     Detail {
         filter: CatalogFilter,
         memory_id: MemoryId,
+        #[serde(default)]
+        cursor: Option<HistoryCursor>,
     },
     Source {
         source: SourceRevisionRef,
         start: u32,
         limit: u32,
+    },
+    TimeBuckets {
+        filter: CatalogFilter,
+        query: TimeBucketQuery,
+        selection: Option<CatalogSelection>,
+    },
+    ThemeMembers {
+        filter: CatalogFilter,
+        theme: MemoryId,
+        cursor: Option<ThemeCursor>,
+        limit: usize,
+    },
+    Graph {
+        filter: CatalogFilter,
+        query: GraphQuery,
+        cursor: Option<GraphCursor>,
+    },
+    Activity {
+        filter: CatalogFilter,
+        query: ActivityQuery,
+        cursor: Option<ActivityCursor>,
+        limit: usize,
+    },
+    Changes {
+        anchor: Option<ChangeAnchor>,
+    },
+    Neighbors {
+        filter: CatalogFilter,
+        memory_id: MemoryId,
+        include_suggestions: bool,
+        cursor: Option<NeighborCursor>,
+        limit: usize,
+    },
+    Conflicts {
+        filter: CatalogFilter,
+        memory_id: MemoryId,
+        cursor: Option<ConflictCursor>,
+        limit: usize,
+    },
+    RevisionDiff {
+        filter: CatalogFilter,
+        memory_id: MemoryId,
+        before: Revision,
+        after: Revision,
+    },
+    Conversations {
+        cursor: Option<ConversationCursor>,
+        limit: usize,
+    },
+    ConversationDetail {
+        conversation_id: SessionId,
+        cursor: Option<ConversationTurnCursor>,
+        limit: usize,
     },
     Lock,
     Unlock,
@@ -298,9 +363,9 @@ impl NativeCatalog {
     // Match read-1's bounded observation wait: status polling and an explicit
     // page/detail read can contend on this binding. Never replay controls.
     fn call_waiting(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
-        let read = matches!(
+        let read = !matches!(
             value["query"]["operation"].as_str(),
-            Some("status" | "page" | "stats" | "detail" | "source")
+            Some("lock" | "unlock") | None
         );
         let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
         loop {
@@ -311,6 +376,37 @@ impl NativeCatalog {
                 result => return result,
             }
         }
+    }
+    /// Quick Search in the registered entry: a bounded literal page of the same
+    /// catalog, trimmed for the overlay. The overlay never receives cursors,
+    /// selections or controls.
+    pub fn search(&self, text: &str) -> Result<Value, &'static str> {
+        let filter = CatalogFilter {
+            text: text.to_owned(),
+            ..CatalogFilter::default()
+        };
+        let page = self.call_waiting(
+            "main",
+            &json!({"schema_version":2,"capability":"memory-native-read-2",
+                "query":{"operation":"page","filter":filter,"cursor":null,"limit":8}}),
+        )?;
+        let items: Vec<Value> = page["items"]
+            .as_array()
+            .ok_or("catalog_read_refused")?
+            .iter()
+            .map(|item| {
+                let content = item["base"]["content"].as_str().unwrap_or("");
+                json!({
+                    "memoryId": item["base"]["memory"]["memory_id"],
+                    "title": item["title"],
+                    "snippet": content.chars().take(160).collect::<String>(),
+                    "truncated": content.chars().count() > 160,
+                })
+            })
+            .collect();
+        Ok(json!({"kind":"memory_result","result":{
+            "kind":"registered_catalog_search","items":items,
+            "matched": page["matched_in_scope"],"authorizedAt": page["authorized_at"]}}))
     }
     pub fn call(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
         if window != "main" {
@@ -421,64 +517,63 @@ impl NativeCatalog {
         if self.0.withdrawn.load(Ordering::SeqCst) {
             return Err("catalog_locked");
         }
+        let reader = &fixture.reader;
+        let request_for = |filter, limit| CatalogReadRequest {
+            profile: &fixture.profile,
+            filter,
+            options: CatalogReadOptions {
+                limit,
+                max_bytes: MAX_DOCUMENT_BYTES,
+                max_sensitivity: ceiling,
+                include_facets: false,
+            },
+        };
+        let all = CatalogFilter::default();
         let result = match request.query {
             CatalogQuery::Page {
                 filter,
                 cursor,
                 limit,
-            } => serde_json::to_value(
-                fixture
-                    .reader
-                    .memory_page_native(
-                        &CatalogReadRequest {
-                            profile: &fixture.profile,
-                            filter: &filter,
-                            options: CatalogReadOptions {
-                                limit,
-                                max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: ceiling,
-                                include_facets: false,
-                            },
-                        },
-                        cursor.as_ref(),
-                    )
-                    .map_err(fault)?,
-            ),
+                facets,
+            } => {
+                let mut request = request_for(&filter, limit);
+                request.options.include_facets = facets;
+                serde_json::to_value(
+                    reader
+                        .memory_page_native(&request, cursor.as_ref())
+                        .map_err(fault)?,
+                )
+            }
             CatalogQuery::Stats { filter, selection } => serde_json::to_value(
-                fixture
-                    .reader
-                    .memory_stats_native(
-                        &CatalogReadRequest {
-                            profile: &fixture.profile,
-                            filter: &filter,
-                            options: CatalogReadOptions {
-                                limit: 100,
-                                max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: ceiling,
-                                include_facets: false,
-                            },
-                        },
-                        Some(&selection),
+                reader
+                    .memory_stats_native(&request_for(&filter, 100), Some(&selection))
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Facets {
+                filter,
+                axis,
+                count_scope,
+                cursor,
+                selection,
+                limit,
+            } => serde_json::to_value(
+                reader
+                    .memory_facets_native(
+                        &request_for(&filter, limit),
+                        axis,
+                        count_scope,
+                        cursor.as_ref(),
+                        selection.as_ref(),
                     )
                     .map_err(fault)?,
             ),
-            CatalogQuery::Detail { filter, memory_id } => serde_json::to_value(
-                fixture
-                    .reader
-                    .memory_detail_native(
-                        &CatalogReadRequest {
-                            profile: &fixture.profile,
-                            filter: &filter,
-                            options: CatalogReadOptions {
-                                limit: 32,
-                                max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: ceiling,
-                                include_facets: false,
-                            },
-                        },
-                        &memory_id,
-                        None,
-                    )
+            CatalogQuery::Detail {
+                filter,
+                memory_id,
+                cursor,
+            } => serde_json::to_value(
+                reader
+                    .memory_detail_native(&request_for(&filter, 32), &memory_id, cursor.as_ref())
                     .map_err(fault)?,
             ),
             CatalogQuery::Source {
@@ -486,22 +581,125 @@ impl NativeCatalog {
                 start,
                 limit,
             } => serde_json::to_value(
-                fixture
-                    .reader
-                    .memory_source_excerpt_native(
-                        &CatalogReadRequest {
-                            profile: &fixture.profile,
-                            filter: &CatalogFilter::default(),
-                            options: CatalogReadOptions {
-                                limit: 1,
-                                max_bytes: MAX_DOCUMENT_BYTES,
-                                max_sensitivity: ceiling,
-                                include_facets: false,
-                            },
-                        },
-                        &source,
-                        start,
-                        limit,
+                reader
+                    .memory_source_excerpt_native(&request_for(&all, 1), &source, start, limit)
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::TimeBuckets {
+                filter,
+                query,
+                selection,
+            } => serde_json::to_value(
+                reader
+                    .memory_time_buckets_native(
+                        &request_for(&filter, 100),
+                        &query,
+                        selection.as_ref(),
+                    )
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::ThemeMembers {
+                filter,
+                theme,
+                cursor,
+                limit,
+            } => serde_json::to_value(
+                reader
+                    .memory_theme_members_native(
+                        &request_for(&filter, limit),
+                        &theme,
+                        cursor.as_ref(),
+                    )
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Graph {
+                filter,
+                query,
+                cursor,
+            } => serde_json::to_value(
+                reader
+                    .memory_graph_native(&request_for(&filter, 100), &query, cursor.as_ref())
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Activity {
+                filter,
+                query,
+                cursor,
+                limit,
+            } => serde_json::to_value(
+                reader
+                    .memory_activity_feed_native(
+                        &request_for(&filter, limit),
+                        &query,
+                        cursor.as_ref(),
+                    )
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Changes { anchor } => serde_json::to_value(
+                reader
+                    .memory_changes_since_native(&request_for(&all, 100), anchor.as_ref())
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Neighbors {
+                filter,
+                memory_id,
+                include_suggestions,
+                cursor,
+                limit,
+            } => serde_json::to_value(
+                reader
+                    .memory_neighbors_native(
+                        &request_for(&filter, limit),
+                        &memory_id,
+                        include_suggestions,
+                        cursor.as_ref(),
+                    )
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Conflicts {
+                filter,
+                memory_id,
+                cursor,
+                limit,
+            } => serde_json::to_value(
+                reader
+                    .memory_conflicts_native(
+                        &request_for(&filter, limit),
+                        &memory_id,
+                        cursor.as_ref(),
+                    )
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::RevisionDiff {
+                filter,
+                memory_id,
+                before,
+                after,
+            } => serde_json::to_value(
+                reader
+                    .memory_revision_diff_native(
+                        &request_for(&filter, 1),
+                        &memory_id,
+                        before,
+                        after,
+                    )
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::Conversations { cursor, limit } => serde_json::to_value(
+                reader
+                    .memory_conversations_native(&request_for(&all, limit), cursor.as_ref())
+                    .map_err(fault)?,
+            ),
+            CatalogQuery::ConversationDetail {
+                conversation_id,
+                cursor,
+                limit,
+            } => serde_json::to_value(
+                reader
+                    .memory_conversation_detail_native(
+                        &request_for(&all, limit),
+                        &conversation_id,
+                        cursor.as_ref(),
                     )
                     .map_err(fault)?,
             ),

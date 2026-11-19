@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection } from "./catalog";
+import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection, type FacetGroup } from "./catalog";
+import { recordTimeText, word } from "./catalogWords";
+
+// Filter axes the registered catalog offers; Core returns each axis's values
+// and counts under the other active filters (FacetCountScope::OtherFilters).
+const AXES = ["form", "knowledge", "adoption", "attention", "entity", "project"] as const;
+const PAGE_SIZE = 50;
 import { describe } from "./client";
 import { useLatestRead } from "./hooks";
 import { ErrorBox, Tag, shortId } from "./ui";
@@ -14,6 +20,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   const [draft, setDraft] = useState("");
   const heading = useRef<HTMLHeadingElement>(null);
   const [filter, setFilter] = useState(CATALOG_FILTER);
+  const [facetGroups, setFacetGroups] = useState<FacetGroup[]>([]);
   const [observationError, setObservationError] = useState<{ cause: unknown } | null>(null);
   const reads = useLatestRead();
   const observedScope = useRef<string | null>(null);
@@ -23,11 +30,11 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   const load = useCallback((cursor: CatalogCursor | null = null) => {
     setPage(null); setStats(null); setSelectedId(null);
     return reads.run(async () => {
-      const next = await read({ operation: "page", filter, cursor, limit: 2 });
+      const next = await read({ operation: "page", filter, cursor, limit: PAGE_SIZE, facets: true });
       const counts = await read({ operation: "stats", filter, selection: next.selection });
       if (catalogScopeKey(next.selection) !== observedScope.current || catalogSelectionKey(next.selection) !== catalogSelectionKey(counts.selection) || counts.matched_in_scope !== next.matched_in_scope) throw "catalog_response_unsupported";
       return { next, counts };
-    }, ({ next, counts }) => { setPage(next); setStats(counts); }, () => { setPage(null); setStats(null); });
+    }, ({ next, counts }) => { setPage(next); setStats(counts); if (next.facets?.length) setFacetGroups(next.facets); }, () => { setPage(null); setStats(null); });
   }, [read, filter, reads.run]);
   useEffect(() => {
     let stopped = false;
@@ -40,7 +47,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
         if (stopped || controlling.current || current !== epoch.current) return;
         setStatus(next); setMode(next.mode); setObservationError(null);
         const scope = next.state === "open" && next.selection ? catalogScopeKey(next.selection) : null;
-        if (scope === null) { observedScope.current = null; clear(); }
+        if (scope === null) { observedScope.current = null; clear(); setFacetGroups([]); }
         else if (scope !== observedScope.current) { clear(); observedScope.current = scope; await load(); }
       } catch (cause) {
         if (!stopped && !controlling.current && current === epoch.current) {
@@ -79,6 +86,22 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
             <label className="mem-label">{t("Literal catalog search")} <input className="mem-input" value={draft} maxLength={512} autoComplete="off" onChange={event => setDraft(event.target.value)} /></label>
             <button className="mem-button" disabled={!open || reads.busy}>{t("Search catalog")}</button>
           </form>
+        {open && facetGroups.length > 0 && <fieldset className="mem-stack" disabled={reads.busy}>
+          <legend className="mem-label">{t("Filter records")}</legend>
+          {AXES.map(axis => {
+            const group = facetGroups.find(g => g.axis === axis);
+            if (!group || (group.values.length === 0 && filter[axis] === null)) return null;
+            return <label key={axis} className="mem-label">{word(axis)} <select className="mem-input" value={filter[axis] ?? ""} onChange={event => {
+              if (reads.pending.current) return;
+              epoch.current += 1; observedScope.current = null; clear();
+              setFilter({ ...filter, [axis]: event.target.value || null });
+            }}>
+              <option value="">{t("All")}</option>
+              {group.values.map(v => <option key={v.value} value={v.value}>{`${axis === "entity" || axis === "project" ? v.label : word(v.value)} · ${v.count}`}</option>)}
+            </select></label>;
+          })}
+          <FacetNote groups={facetGroups} />
+        </fieldset>}
         {open && <button className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Refresh catalog")}</button>}
         {(open || (!owner && status?.state === "locked")) && <button className="mem-button" disabled={reads.busy} onClick={event => {
           if (document.activeElement === event.currentTarget) heading.current?.focus();
@@ -91,8 +114,9 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
           <p className="mem-content">{t("State observed at {time}", { time: page.authorized_at })}</p>
           <ul className="mem-list">{page.items.map(item => <li key={`${item.base.memory.memory_id}:${item.base.memory.revision}`}>
             <h3 className="mem-content"><button type="button" className="mem-link" aria-pressed={selectedId === item.base.memory.memory_id} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={() => setSelectedId(item.base.memory.memory_id)}>{item.title}</button></h3><p className="mem-content">{item.base.content}</p>
-            <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: item.base.dimensions.kind, knowledge: item.base.knowledge, adoption: item.base.adoption, validity: item.base.validity, attention: item.base.attention })}</p>
+            <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: word(item.base.dimensions.kind), knowledge: word(item.base.knowledge), adoption: word(item.base.adoption), validity: word(item.base.validity), attention: word(item.base.attention) })}</p>
             <p className="mem-row-meta">{shortId(item.base.memory.memory_id)} · r{item.base.memory.revision} · {item.content_lang}</p>
+            {item.event_time && <p className="mem-row-meta">{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{item.effective_sensitivity ? ` · ${word(item.effective_sensitivity)}` : ""}</p>}
           </li>)}</ul>
           {page.items.length === 0 && !page.next && <p className="mem-content">{t(filter.text ? "No authorized record matches this search. Search with an empty field to see the whole catalog." : owner ? "This registered catalog has no records in the current authorized scope." : "This synthetic catalog has no records in the current authorized scope.")}</p>}
           {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void load(page.next)}>{t("Next catalog page")}</button>}
@@ -100,12 +124,19 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
       </div>
     </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
-      {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} />}
+      {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} entities={facetGroups.find(g => g.axis === "entity")?.values ?? []} />}
     </div></aside>
   </>;
 }
 
-function CatalogDetailPanel({ memoryId, filter, selection, read }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead }) {
+function FacetNote({ groups }: { groups: FacetGroup[] }) {
+  const truncated = groups.some(g => AXES.includes(g.axis as typeof AXES[number]) && g.values.length < g.total_values);
+  return <p className="mem-row-meta">{t(truncated ? "Counts follow the other active filters. Some lists show only their first values." : "Counts follow the other active filters.")}</p>;
+}
+
+const minute = (at: string) => recordTimeText({ from: at, until: null, precision: "minute", bound: "within", tz: null, basis: "source_time" });
+
+export function CatalogDetailPanel({ memoryId, filter, selection, read, entities }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead; entities: FacetGroup["values"] }) {
   const [detail, setDetail] = useState<CatalogDetail | null>(null);
   const [source, setSource] = useState<CatalogSource | null>(null);
   const details = useLatestRead();
@@ -137,6 +168,12 @@ function CatalogDetailPanel({ memoryId, filter, selection, read }: { memoryId: s
     {detail?.item && detail.fields && <>
       <h4 className="mem-content">{detail.fields.title}</h4><p className="mem-content">{detail.item.base.content}</p>
       <p className="mem-row-meta mem-content">{detail.item.base.memory.memory_id} · r{detail.item.base.memory.revision}</p>
+      <RecordFields item={detail.item} entities={entities} />
+      {detail.history && detail.history.length > 0 && <section aria-label={t("Revision history")}>
+        <h4>{t("Revision history")}</h4>
+        <ol className="mem-list">{detail.history.map(h => <li key={h.memory.memory.revision} className="mem-row-meta">r{h.memory.memory.revision} · {word(h.change)} · {word(h.adoption)} · {minute(h.learned_at)}</li>)}</ol>
+        {(detail.history_count_in_scope ?? 0) > detail.history.length && <p className="mem-row-meta">{t("{shown} of {total} revisions shown.", { shown: detail.history.length, total: detail.history_count_in_scope ?? 0 })}</p>}
+      </section>}
       <p>{t("Quoted text evidence; attachment content is not read.")}</p>
       <ul className="mem-list">{detail.fields.evidence.map((evidence, index) => <li key={index}>
         <blockquote className="mem-content">{evidence.quote}</blockquote>
@@ -155,4 +192,17 @@ function CatalogDetailPanel({ memoryId, filter, selection, read }: { memoryId: s
       <p className="mem-content">{source.source_record.original_conversation_id} {source.source_record.original_message_id}</p>
     </section>}
   </section>;
+}
+
+function RecordFields({ item, entities }: { item: NonNullable<CatalogDetail["item"]>; entities: FacetGroup["values"] }) {
+  const reason = item.formation_reason;
+  return <dl className="mem-facts">
+    <dt>{t("Happened")}</dt><dd>{recordTimeText(item.event_time)}</dd>
+    <dt>{t("Valid")}</dt><dd>{item.valid_time && item.valid_time.precision !== "unknown" ? recordTimeText(item.valid_time) : t("No window recorded")}</dd>
+    {item.base.learned_at && <><dt>{t("Learned")}</dt><dd>{minute(item.base.learned_at)}</dd></>}
+    {item.effective_sensitivity && <><dt>{t("Sensitivity")}</dt><dd>{word(item.effective_sensitivity)}</dd></>}
+    {item.entities && item.entities.length > 0 && <><dt>{t("Involves")}</dt><dd>{item.entities.map(e => `${entities.find(v => v.value === e.entity_id)?.label ?? t("Unnamed entity")} (${word(e.role)})`).join(" · ")}</dd></>}
+    {reason && <><dt>{t("Why it formed")}</dt><dd>{word(reason.interpretation)} · {word(reason.mode)} · {reason.rule_version}
+      {reason.note && <><br /><span className="mem-content">{reason.note}</span>{reason.note_is_machine_annotation && <span className="mem-row-meta"> · {t("machine note, not a fact")}</span>}</>}</dd></>}
+  </dl>;
 }

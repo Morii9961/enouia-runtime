@@ -1,11 +1,12 @@
 // Native Inspector: observations through the existing host facades only.
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { shell, describe, type J } from "../memory/client";
 import { ComponentList, exiting, registeredLabel, useStatus, vaultLabel } from "../memory/status";
 import { when } from "../memory/ui";
 import { WorkspaceOperations } from "./WorkspaceOperations";
 
 import { t } from '../i18n/index.ts';
+const RegisteredInspectorFacts = lazy(() => import("../memory/RegisteredViews").then(module => ({ default: module.RegisteredInspectorFacts })));
 type Snapshot<T> = { value: T; observedAt: string };
 
 // One read at a time. Failed reads clear the previous observation, and an
@@ -106,6 +107,7 @@ export default function RuntimeSurface() {
         <p role="status" className="mem-muted">{memoryState}</p>
         <button type="button" className="mem-button" onClick={() => void refresh()}>{t("Read Memory status again")}</button>
         {memoryError && <p role="alert" className="mem-error">{memoryError}</p>}
+        {registered && <Suspense fallback={null}><RegisteredInspectorFacts /></Suspense>}
         {!registered && status && !exiting(status) && !vaultChanging && <>
           <ComponentList status={status} />
           {open && <>
