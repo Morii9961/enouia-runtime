@@ -79,7 +79,7 @@ Morii 要求：整理收尾，合并该合并的内容，交接给 Codex。本�
 ## 不变的边界
 
 - Runtime 只维护宿主、适配器和前端；Memory 域归 `Morii9961/enouia-memory`。只用 exact Git pin，不提交路径依赖、分支或 patch，不扩展冻结的 Runtime 本地 crate。不要自动采用 Memory 未合并的 #83；Memory 协同 session ID 见上一轮交接。
-- 不打开个人 Vault，不采用 Owner，不启用真实 Provider 或持续形成，不迁移、不部署。Activity / Usage 的 UI 和命令不得恢复；旧 producer、任务和 ledger 未经单独授权不清理。
+- 不打开个人 Vault，不采用 Morii，不启用真实 Provider 或持续形成，不迁移、不部署。Activity / Usage 的 UI 和命令不得恢复；旧 producer、任务和 ledger 未经单独授权不清理。
 - 每片按范围验证、提交、推送。Codex 实质参与的提交加 `AGENTS.md` 规定的 Codex trailer；不要给 Claude 的旧提交补 trailer。
 - 新 PR 的合并需要 Morii 明确同意。
 

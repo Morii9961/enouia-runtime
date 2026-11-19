@@ -13,4 +13,4 @@
 
 浏览器截图桩新增 `empty` 态（仍只允许 status/page）。自有 Edge 156、1100×700：第一次运行在首个 `Page.navigate` 上触发脚本 60 秒超时，无行无图；手动重跑一次通过，三语双主题九态 54 张截图，加五态语言切换共 144 行，页面错误 0、宿主动作 0，启动器退出 0。复核中文浅色空库截图。详情已不在范围和召回无选中需要 detail/simulate，截图桩按其范围不放开，这两项只有 DOM 证据。
 
-没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Owner、真实 Provider、持续形成、迁移或部署；Memory pin 不变。
+没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Morii、真实 Provider、持续形成、迁移或部署；Memory pin 不变。

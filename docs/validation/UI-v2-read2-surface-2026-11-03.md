@@ -23,4 +23,4 @@
 
 ## 边界与后续
 
-当前只是固定三条合成记录的 page + stats 消费者。未实现 facets、时间分桶、图投影、完整 UI v2 record 详情、形成工作器或真实数据接线。有限轮询会在下次状态观测时撤下失效范围，不能把本次快照写成持续实时授权证明。未进行全语言/尺寸/DPI 原生矩阵，未更新安装包；没有 Owner enrollment/adoption、个人 Vault、迁移、真实 Provider、生产部署或 Morii 人工接受。
+当前只是固定三条合成记录的 page + stats 消费者。未实现 facets、时间分桶、图投影、完整 UI v2 record 详情、形成工作器或真实数据接线。有限轮询会在下次状态观测时撤下失效范围，不能把本次快照写成持续实时授权证明。未进行全语言/尺寸/DPI 原生矩阵，未更新安装包；没有 Morii enrollment/adoption、个人 Vault、迁移、真实 Provider、生产部署或 Morii 人工接受。

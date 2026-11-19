@@ -1,12 +1,12 @@
 # ADR-029 — Claude history keeps the higher archived day
 
-Date: 2026-10-07. Status: adopted and implemented. Amends Architecture v0.3 section 9, deliberate difference 6. Authority: the owner's 2026-10-07 instruction to continue B4/B5 with the best available choice; real-capability evidence in [B5 preflight](../validation/B5-preflight.md).
+Date: 2026-10-07. Status: adopted and implemented. Amends Architecture v0.3 section 9, deliberate difference 6. Authority: Morii's 2026-10-07 instruction to continue B4/B5 with the best available choice; real-capability evidence in [B5 preflight](../validation/B5-preflight.md).
 
 ## Context
 
 Architecture v0.3 let a complete, validated Claude report replace a higher archived daily value, whereas the legacy collector kept the higher value (`retainHigher`). The rationale was that a validated report is a correction.
 
-The first real-account run on the owner's workstation showed otherwise. The normal Claude Code store now begins on 2026-08-29; earlier transcripts are gone from it. One Cowork task store still holds part of 2026-07-25. The complete, valid report therefore returned a lower value for that day, and Runtime would have replaced the archived value, permanently removing 477,625 tokens of real history from the public page. Moriium's archive notes the same constraint: every source forgets, and a discarded day cannot be collected again.
+The first real-account run on Morii's workstation showed otherwise. The normal Claude Code store now begins on 2026-08-29; earlier transcripts are gone from it. One Cowork task store still holds part of 2026-07-25. The complete, valid report therefore returned a lower value for that day, and Runtime would have replaced the archived value, permanently removing 477,625 tokens of real history from the public page. Moriium's archive notes the same constraint: every source forgets, and a discarded day cannot be collected again.
 
 Claude stores can only lose transcripts between runs; ccusage is pinned and its deduplication does not change. Store-path duplicates, the one historical source of overcounting, are removed by discovery before reports are summed. A lower Claude value for a known day is therefore evidence of upstream loss, not of a smaller day.
 

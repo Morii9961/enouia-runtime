@@ -1,4 +1,4 @@
-# Source range ownership and current candidate observations
+# Source range responsibility and current candidate observations
 
 Date: 2026-10-12 (Asia/Shanghai). Baseline `6adb85e`; Memory pin unchanged.
 
@@ -8,7 +8,7 @@ Suggestion preview now keeps the original proposal and its quoted source literal
 
 Validation:
 
-- `e2e/source-suggestions.html`: 12/12; [record](Memory-source-suggestions-browser.json). The initial fixture failed `held_prepare_keeps_excerpt_selected`. The final fixture waits for state publication before testing held prepare, disabled paging/no extra excerpt read, dismissal, the next exact range, held send admission, running-call ownership, literal original proposal, a separately edited accepted candidate, suppression, terminal release and no automatic application/resend.
+- `e2e/source-suggestions.html`: 12/12; [record](Memory-source-suggestions-browser.json). The initial fixture failed `held_prepare_keeps_excerpt_selected`. The final fixture waits for state publication before testing held prepare, disabled paging/no extra excerpt read, dismissal, the next exact range, held send admission, running-call responsibility, literal original proposal, a separately edited accepted candidate, suppression, terminal release and no automatic application/resend.
 - Extraction queue recovery rerun: 14/14. Its pending candidate fixture now includes the full candidate metadata and checks the neutral candidate label. The prior report retains its original revision.
 - TypeScript, strict changed-fixture checks, all 69 frontend tests and frontend/ordinary release desktop builds passed. Native/backend and dependency-boundary evidence from [cancellation verification](Memory-operation-cancel-ack-v1.md) is reused because those sources and dependencies are unchanged.
 

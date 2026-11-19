@@ -9,7 +9,7 @@ Runtime 从 main `e1e7e922b288c13dbc483c4089e7da146b7596b4` 开始，分支 `cod
 | 文件 | 本片提供 / Claude 接入位置 |
 | --- | --- |
 | apps/desktop/src/memory/HistoryResultPanel.tsx | 可直接挂载的独立结果面板；使用现有 mem-* 控件类，无壳、路由或 CSS 修改。 |
-| apps/desktop/src/memory/historyResults.ts | 生产消费者、观察校验、稳定应用键和恢复 owner，均已验证。 |
+| apps/desktop/src/memory/historyResults.ts | 生产消费者、观察校验、稳定应用键和恢复 持有方，均已验证。 |
 | apps/desktop/src/memory/client.ts | history_batch_apply 已进入写集合；preview 为无 key 只读调用。使用现有 memory_call，无新增 Tauri 命令/权限。 |
 | apps/desktop/src-tauri/src/memory.rs | 生命周期和窗口范围继续采用固定 Core command catalog；新 apply 走共享写 gate，preview 为 read。 |
 | apps/desktop/src/memory/HistoryTaskPanel.tsx 及 Claude 重构后的对应任务详情 | 在已观察的原 task / 原 batch 位置接独立结果面板。此文件本片未改；如何放置、导航、样式由 Claude 决定。 |
@@ -36,11 +36,11 @@ import { HistoryResultPanel } from "./memory/HistoryResultPanel";
 
 面板挂载不发 IPC。只有按钮明确读取保存响应，再由本份预览的勾选确认提交一步；成功和未知后均不自动刷新或推进。它提供源与完整上下文、speaker/evidence、未知 occurredAt、原提议/当前候选、空响应、暂停/完成状态、本地暂停/恢复以及原请求恢复。错误不会退回展示上次正文。读取后将自有焦点移到预览标题，用户移到外部控件时不抢回。
 
-完整 task 观察的可序列化字段、Vault 或原 batch 改变会重挂内部 owner，撤销旧观察。传入内容相同的新对象副本不会重置本次核对。锁定、Exit、失去可用状态或切换 Vault 时，外层必须卸载或令 enabled=false；不要仅用 CSS 隐藏面板。现有生命周期 gate 仍需使用，不由结果面板替代。面板按 Vault 复用进程内恢复 owner，同一 Vault 同时只挂一个结果详情。
+完整 task 观察的可序列化字段、Vault 或原 batch 改变会重挂内部 持有方，撤销旧观察。传入内容相同的新对象副本不会重置本次核对。锁定、Exit、失去可用状态或切换 Vault 时，外层必须卸载或令 enabled=false；不要仅用 CSS 隐藏面板。现有生命周期 gate 仍需使用，不由结果面板替代。面板按 Vault 复用进程内恢复 持有方，同一 Vault 同时只挂一个结果详情。
 
-本片没有修改 HistoryTaskPanel、App.tsx、main.tsx 或共享样式。Claude 只需在现有原任务详情中选择/挂载；可直接复用组件，也可在自己的 UI 中按下列 owner 契约重排。两种方案都不得批量自动消费结果或转成记忆批准。
+本片没有修改 HistoryTaskPanel、App.tsx、main.tsx 或共享样式。Claude 只需在现有原任务详情中选择/挂载；可直接复用组件，也可在自己的 UI 中按下列 Morii 契约重排。两种方案都不得批量自动消费结果或转成记忆批准。
 
-## Owner 的最小使用方式
+## Morii 的最小使用方式
 
 ```ts
 import { historyResultOwner } from "./historyResults";
@@ -58,7 +58,7 @@ await owner.apply(shown, checked === true);
 
 `shown` 必须是用户核对并确认时实际展示的那份不可变预览引用；不要在旧回调中临时取最新 snapshot 替换。apply / recover 都核对引用身份。每次重新 preview、切换或重绑都会撤销旧确认，即使响应 hash 和 cursor 相同。页面同步清空勾选状态。
 
-owner 没有 React 订阅机制。页面用自己的局部状态在显式动作开始/结束时读取 snapshot，并用既有 mounted/selection/lifecycle 防护发布 UI；不能在订阅或 effect 中循环调用 apply。构造、select 和取得 snapshot 均不发 IPC。
+持有方 没有 React 订阅机制。页面用自己的局部状态在显式动作开始/结束时读取 snapshot，并用既有 mounted/selection/lifecycle 防护发布 UI；不能在订阅或 effect 中循环调用 apply。构造、select 和取得 snapshot 均不发 IPC。
 
 | snapshot.phase | 页面责任 |
 | --- | --- |
@@ -67,11 +67,11 @@ owner 没有 React 订阅机制。页面用自己的局部状态在显式动作�
 | inspected | 展示这次预览。ready 才提供单步候选应用；paused 只提供明确的本地恢复，completed 不再写。 |
 | recovery_required | 保留 pending.args 与 pending.key。acknowledged=true 仅表示已收到匹配回执；仍须重读。false 是未知或未确认结果，不能表示失败后未写入。 |
 
-owner 在进程内按 Vault 保留未确认的精确参数/键。任务/批次切换、Vault 切换或锁定、观察到 Exit、卸载结果面板时调用 `owner.invalidate()`，立即撤销预览及确认。原来已经提交的写可能完成；晚回执不会恢复旧页面权限。回到同一 Vault、重新观察同一原 task/batch 后可重绑 owner 并 preview；不新建任务或重新 prepare。
+持有方 在进程内按 Vault 保留未确认的精确参数/键。任务/批次切换、Vault 切换或锁定、观察到 Exit、卸载结果面板时调用 `owner.invalidate()`，立即撤销预览及确认。原来已经提交的写可能完成；晚回执不会恢复旧页面权限。回到同一 Vault、重新观察同一原 task/batch 后可重绑 持有方 并 preview；不新建任务或重新 prepare。
 
 ## 明确恢复与重新开始后的边界
 
-- 未知回执后先 `await owner.preview()`。同一响应的 cursor 已前进（或空响应已 completed）时，owner 只认定当前进度已被观察，不把它归因于本次请求或宣称候选已发布。
+- 未知回执后先 `await owner.preview()`。同一响应的 cursor 已前进（或空响应已 completed）时，Morii 只认定当前进度已被观察，不把它归因于本次请求或宣称候选已发布。
 - 若同一 cursor 仍 ready，pending 保留，调用 `owner.recover(shown, true)` 才重发原 args/key。该动作需要再次明确确认；没有自动重试。
 - 完整进程重启不从 WebView storage 恢复正文、引文、预览或确认。重新读取 task 与响应；同一未推进 hash/cursor 会确定性生成同一 key。若显式保有原参数，可 `owner.recover(shown, true, originalArgs)` 恢复旧步骤；即使 Core 已前进，旧 cursor 的重放也不会消费下一项。
 - hash 不匹配、未来 cursor、来源读取拒绝、删除、锁定或暂停均不能转成成功/空结果。不清除未知写身份后换新键，不自动跳到下一 cursor。
@@ -79,7 +79,7 @@ owner 在进程内按 Vault 保留未确认的精确参数/键。任务/批次�
 
 ## 本地暂停与恢复
 
-独立面板已提供“Pause / Resume local result processing”，均需核对本次保存预览后单独确认。若自己重排 UI，调用 `owner.setPaused(shown, true, checked)` 暂停，或 `owner.setPaused(shown, false, checked)` 恢复。owner 从原 task/batch 的不可变观察生成 sessionId/runId；不传响应正文、来源、Provider 或另一 child 身份。
+独立面板已提供“Pause / Resume local result processing”，均需核对本次保存预览后单独确认。若自己重排 UI，调用 `owner.setPaused(shown, true, checked)` 暂停，或 `owner.setPaused(shown, false, checked)` 恢复。Morii 从原 task/batch 的不可变观察生成 sessionId/runId；不传响应正文、来源、Provider 或另一 child 身份。
 
 `setPaused` 成功或未知后均撤回预览，要求再明确读取。snapshot.pausePending 仅保留原 args、responseHash、key、acknowledged；导航/锁定仍保留元数据，正文和确认立即失效。新的同响应观察会清除此控制等待状态，只说明当前状态已被观察，不归因哪个请求提交。暂停控制不同于逐候选应用：不提供自动重放或“同键回执证明”，也不把旧控制重用于后来的暂停/恢复决定；每个重新核对后的明确状态决定用新 key。
 

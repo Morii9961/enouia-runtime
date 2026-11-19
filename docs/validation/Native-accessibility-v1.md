@@ -39,7 +39,7 @@ The native skip-link screenshot was inspected: the link and focus outline are vi
 | Memory pin/self-test and pinned surface comparison | Pass; 8 negative checks; unchanged revision |
 | Locked desktop domain boundary | Pass; 7 pinned Memory packages and 7 negative checks |
 | Unsigned x64 NSIS bundle generation | Pass; approximately 7.19 MiB |
-| Installer ownership checks, including rendered template | 26/26 |
+| Installer responsibility checks, including rendered template | 26/26 |
 | Harness syntax and diff checks | Pass |
 
 Release executable SHA-256: `665dd51adf2b57f954df746bab7f197add6c029b82d82a06fa4d7c8516aec0bb`. Installer SHA-256: `86ea9ee1216d2cf5378a40566512b52afeb589633d285bd5812aba03f598e871`. Memory remains pinned to `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`, surface aggregate `c49bbaa9f82c21a812a34a247e4a5595cd51707ab406bb8205444f8259a17212`.
@@ -56,4 +56,4 @@ For reproduction, initialize an empty temporary `vault` directory through the pi
 
 This is Windows UI Automation property inspection and keyboard behavior in an owned WebView2 page. It is not an actual Narrator reading session, speech/event-order verification, a complete keyboard-only task journey, a real contrast-theme test, a physical tray-menu drill, installed-artifact acceptance or a monitor/DPI matrix. Native control naming passes only for the controls/states exercised here, including the populated session and review states; it does not prove every future record or dialog state.
 
-No personal Vault, real export, migration, live Provider, cloud stage, production Activity, real startup change or owner's installed application was used. The existing [long-work lifecycle report](Long-operation-lifecycle-v1.md) retains its separately verified workload and executable. The full regression preserves the native hotkey, window-scope, lock/exit, startup-read-only, restart and owned-process session-end checks; it does not rerun every historical focused mode.
+No personal Vault, real export, migration, live Provider, cloud stage, production Activity, real startup change or Morii's installed application was used. The existing [long-work lifecycle report](Long-operation-lifecycle-v1.md) retains its separately verified workload and executable. The full regression preserves the native hotkey, window-scope, lock/exit, startup-read-only, restart and owned-process session-end checks; it does not rerun every historical focused mode.

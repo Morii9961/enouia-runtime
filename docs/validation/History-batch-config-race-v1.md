@@ -6,7 +6,7 @@
 
 新增的实际组件 fixture `history-batch-config-race.tsx` 在未修正产品代码时明确得到三个失败：A→B→A 后旧 body 被显示、状态失败/恢复后旧 body 被显示、发送前读取 A→B→A 后发生一次 fake exchange。修正后，配置变更或读取失败会递增不可回退的请求代次；准备、持有的 handle 及发送前检查都绑定捕获的代次。值重新相等不会恢复旧 body、确认或发送前检查。
 
-同一 fixture 的四项断言现通过，旧批次请求 fixture 的31项也通过。重新运行的完整 `npm test` 通过 **121 个 Node tests、70 个隔离 DOM journeys、943 项断言**；这次是同一次完整前端门禁。生产 TypeScript、新 fixture strict TypeScript、runner syntax、Windows no-bundle 与 NSIS build、26/26 实际 rendered installer ownership 检查通过。保留既有大于500 kB的前端 chunk 提示。
+同一 fixture 的四项断言现通过，旧批次请求 fixture 的31项也通过。重新运行的完整 `npm test` 通过 **121 个 Node tests、70 个隔离 DOM journeys、943 项断言**；这次是同一次完整前端门禁。生产 TypeScript、新 fixture strict TypeScript、runner syntax、Windows no-bundle 与 NSIS build、26/26 实际 rendered installer responsibility 检查通过。保留既有大于500 kB的前端 chunk 提示。
 
 没有修改 native、依赖、pin、契约或 Backend。复用 [原验证](History-batch-request-v1.md) 中仍适用的68项 Rust单元测试、8项固定 Core 消费者测试、fmt、严格 Clippy、pin/surface 及 domain boundary 证据；没有把这些未重跑的检查记为本次重跑。新构建的 payload/setup 哈希保存在 [JSON 记录](History-batch-config-race-v1.json)。包未运行或安装。
 

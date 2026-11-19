@@ -1226,7 +1226,7 @@ async function registeredOwnerChecks() {
   check('OWNER.sidebar_offers_only_registered_catalog',await s.evaluate(`
     [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog' &&
     !document.querySelector('[data-screen-label="Memory Vault"] .qr28 form')`));
-  check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered Owner · read only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
+  check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered library · read only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
   await set(s,'.qr44 form[role=search] input','Blue pottery cup');
   await click(s,'button','Search catalog');
   await waitFor(s,has('1 shown · 1 matching authorized records'),'registered catalog search');
@@ -1445,7 +1445,7 @@ async function captureMemoryChecks() {
   await s.evaluate("document.querySelector('button[data-runtime-page=memory]').click()");
   await rail(s,'Synthetic Runtime capture');
   await waitFor(s,has('Capture: open'),'capture panel status');
-  check('CAPTURE.panel_shows_fixed_conversations_and_empty_root', await s.evaluate(`${has('Isolated synthetic Owner root')} && ${has('Conversation 3')} && ${has('合成示例：我上周做了一个蓝色陶杯。')} && ${has('No memory has been formed yet.')}`));
+  check('CAPTURE.panel_shows_fixed_conversations_and_empty_root', await s.evaluate(`${has('Isolated synthetic data root')} && ${has('Conversation 3')} && ${has('合成示例：我上周做了一个蓝色陶杯。')} && ${has('No memory has been formed yet.')}`));
   await shot(s,'capture-01-panel');
   await s.evaluate("[...document.querySelectorAll('ol.mem-list > li')[1].querySelectorAll('button')].find(b=>b.textContent.trim()==='Capture conversation').click()");
   await waitFor(s,has('Captured and queued for formation.'),'panel capture receipt');

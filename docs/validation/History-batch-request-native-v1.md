@@ -4,7 +4,7 @@
 
 新增 `memory-smoke.mjs --history-batch-only`，复用既有归档规划、本地任务与 Sessions 导航的真实 WebView2 harness，增加实际 `history_batch_prepare` 的页面验证。入口要求专用临时目录、空合成 Vault、仅虚构模型配置，以及绑定可执行文件、相邻同构建 `WebView2Loader.dll` 和 app-directory override 的 manifest。Vault 通过测试子进程自己的原生 picker/token 创建；页面不接收路径。测试只控制其启动的 Runtime/WebView2 进程，调试连接先核对进程归属。
 
-最终 [报告](History-batch-request-native.json) **53/53通过**，其中14项是新增批次检查。真实回调被完整转发，只延迟一个准备回执，以验证 Context 提交和共享 head 更新后稳定 owner 仍等待并接收原批次结果。页面逐字显示 Core 的 body、endpoint、model、callId、wireHash；原 child/session/run/input 不变，输出上限256。1100×700窗口检查无横向溢出。
+最终 [报告](History-batch-request-native.json) **53/53通过**，其中14项是新增批次检查。真实回调被完整转发，只延迟一个准备回执，以验证 Context 提交和共享 head 更新后稳定 持有方 仍等待并接收原批次结果。页面逐字显示 Core 的 body、endpoint、model、callId、wireHash；原 child/session/run/input 不变，输出上限256。1100×700窗口检查无横向溢出。
 
 测试勾选请求检查框后仅观察独立 Send 控件变为可用，**不点击 Send**；随后锁定合成 Vault，确认旧 body 和检查状态撤下。解锁后显式重读保存任务、恢复准备，取得同一 child/run/body/hash 的新 handle，检查框重新为空。会话集合不变，没有 `external_send` operation，H1显式 fixture 创建的一个候选仍是唯一候选，正式记忆为0。测试另有捕获事件 guard，拒绝激活 Send。原生 CredentialStore/HTTP 未被测试调用；准备零端口访问的直接计数证据仍来自此前的固定 Core fake-port 消费者测试，不能把本轮 UI 观察写成系统级凭据审计。
 

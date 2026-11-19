@@ -13,7 +13,7 @@
 
 ## 数据与预览边界
 
-1. **当前 pin 的常规能力**：`docs/integration/memory-pin.json` 固定的 Memory Workspace `0d338f12f51a859363e0725071bcf43874b492c7`，Workspace IPC v1 / schema 1 / 58 命令。常规记忆列表/审阅、Context 与 Sessions 使用该契约，仍是 owner 审阅语义；本轮没有升级 pin 或采用新的 Owner Vault。
+1. **当前 pin 的常规能力**：`docs/integration/memory-pin.json` 固定的 Memory Workspace `0d338f12f51a859363e0725071bcf43874b492c7`，Workspace IPC v1 / schema 1 / 58 命令。常规记忆列表/审阅、Context 与 Sessions 使用该契约，仍是 Morii 审阅语义；本轮没有升级 pin 或采用新的 Morii Vault。
 2. **合成预览**：「Automatic memory · synthetic preview」，只在浏览器演示（`connected === false`）里出现，固定标「Synthetic preview · not running」，原始数据是 `screens/automemory/fixture.ts` 的 15 条虚构记忆，另有 `state-fixtures.ts` / `dataset.ts` 的六种状态示例（`auto-dataset` URL 参数），原始 fixture 不改。不调用 IPC、不写存储。
 3. **既有隔离原生样本**：左栏「Synthetic automatic memories」是已合入的 `memory/AutomaticMemory.tsx`，使用独立 `memory_automation` / `memory-native-read-1`，只服务显式 `--memory-synthetic` 创建的隔离样本。它的 schema-2 请求封装与原生样本不代表生产采用，见[原 ADR](../../adr/037-synthetic-native-memory-adoption.md)。本轮未修改或启动该模式。
 4. **以后的受控采用**：Memory 仓库交付生产自动化契约后，由指定的集成负责人一次一处地采用真实数据（Memory UI 规格 §11 的 UI-D / UI-E）。失败或未激活时不得静默回退到浏览器演示；既有隔离原生样本始终保留其合成标签与独立边界。
@@ -52,7 +52,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 
 原生落地（2026-11-01）：设备时钟明确标 UTC+8；纸面/日历只绘制已观察的最新 Vault 提交标记与一条引线，没有连续波形。其余注记是读取入口，不声明已知最近会话、Capsule 或检查点。无库、锁库、切库、退出、读取失败时仍保留首页结构，撤下提交和交互地图。[证据与未完成项](../../validation/UI-v2-native-home-2026-11-01.md)。
 
-### 1.2 Memory Vault（记忆工作区下的 owner 审阅兼容视图）
+### 1.2 Memory Vault（记忆工作区下的 Morii 审阅兼容视图）
 
 - 三栏 `220 | 主列表 | 360–400`：左栏「Memory Vault / What I keep, and why.」、字面检索框（写「Literal search」）、REVIEW（Candidate inbox + 数量）、CANONICAL 按种类、PROJECTS、SOURCES。
 - 主列表：按天分组，日分隔条 = `--ink-3` 底 + 底色字的大写日期；每行：时刻 · 种类 · 项目 · 正文一行 · 来源/会话/turn/conf；选中行反相；↑↓ 移动。
@@ -89,7 +89,7 @@ Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity
 - 原生：「Observed component status」——Memory Core（Vault、最新提交、运行中的操作、待审候选、组件健康）、Memory 操作列表与详情、Windows shell（生命周期、托盘、Quick Search 热键、主窗口）。每块有「Read … again」，失败时清掉旧观察。没有 Activity 一节。
 - 原生 Memory 里另有 main 带来的视图，外观只继承 `.mem-*` 换皮、还没有专门设计：历史任务（计划、批次、结果、比较、简报）、Provider 配置草稿与设置状态、导入报告、「Synthetic automatic memories」集合。它们归入 §3 的「形成」「召回」工作区一起设计。
 
-2026-11-01：原生 Inspector 已恢复左侧三组件选择、顶部观察摘要和右侧详情；切换保持观察 owner 与待返回请求。内容仍来自原有显式观察，不抄录演示的虚构验证状态。[验证记录](../../validation/UI-v2-native-inspector-2026-11-01.md)。
+2026-11-01：原生 Inspector 已恢复左侧三组件选择、顶部观察摘要和右侧详情；切换保持观察 持有方 与待返回请求。内容仍来自原有显式观察，不抄录演示的虚构验证状态。[验证记录](../../validation/UI-v2-native-inspector-2026-11-01.md)。
 
 ### 1.6 Settings
 

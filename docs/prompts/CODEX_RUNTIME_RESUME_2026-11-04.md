@@ -23,6 +23,6 @@
 
 每完成一个切片就按范围验证、提交、推送；新 PR 的合并需要 Morii 明确同意。最近一次完整 `npm test` 是 Node 139 通过 / 3 跳过 / 0 失败，DOM 88 个 fixture / 1,405 项断言；原生 read-1 36/36、read-2 39/39 是更早 `d6d8dd4` 时的结果；本轮没有改 Rust。不要把这些写成合并后的最新全量结果。
 
-只使用显式、自有的合成临时根和隔离 profile。不打开个人 Vault，不采用 Owner，不启用真实 Provider 或持续形成，不迁移、不部署；不要自动采用 Memory 未合并的 #83。Runtime 不实现 Memory 域，不扩展冻结的本地 crate，不恢复 Activity / Usage，不删除旧任务或 ledger。保留原始文本、未知结果和原始 packet / key，不因语言切换或轮询重发操作。
+只使用显式、自有的合成临时根和隔离 profile。不打开个人 Vault，不采用 Morii，不启用真实 Provider 或持续形成，不迁移、不部署；不要自动采用 Memory 未合并的 #83。Runtime 不实现 Memory 域，不扩展冻结的本地 crate，不恢复 Activity / Usage，不删除旧任务或 ledger。保留原始文本、未知结果和原始 packet / key，不因语言切换或轮询重发操作。
 
 合成面板的枚举 / 时间是否翻译仍待 Morii 决定，只记录、不推进。物理托盘、热键冲突、登录启动、安装升级是独立验收项，不能用 smoke 或构建成功代替人工接受。遇到新契约或视觉取舍，先说明具体问题，不做推测性复杂化。

@@ -1,6 +1,6 @@
 # ADR-026 — Companion shell for Memory's local client
 
-Date: 2026-10-05. Status: adopted and implemented in the desktop shell. Authority: the owner's request to continue the Memory integration after [ADR-025](025-enouia-memory-integration.md); Enouia Memory ADR-MEM-44 (companion shell, four stops) and ADR-MEM-45 (Runtime hosts the local client).
+Date: 2026-10-05. Status: adopted and implemented in the desktop shell. Authority: Morii's request to continue the Memory integration after [ADR-025](025-enouia-memory-integration.md); Enouia Memory ADR-MEM-44 (companion shell, four stops) and ADR-MEM-45 (Runtime hosts the local client).
 
 ## Context
 
@@ -11,7 +11,7 @@ ADR-025 connected the Memory, Context and Sessions surfaces to the pinned Memory
 - opt-in login startup
 - "four stops" (close, lock, exit, pause sync) that are different operations
 
-Until Runtime provided these, Runtime and the reference shell each covered part of the local client. One Core per Vault (ADR-MEM-46) means the owner could not run both on the same Vault.
+Until Runtime provided these, Runtime and the reference shell each covered part of the local client. One Core per Vault (ADR-MEM-46) means Morii could not run both on the same Vault.
 
 ## Decision
 
@@ -41,10 +41,10 @@ Until Runtime provided these, Runtime and the reference shell each covered part 
 
 ## Consequences
 
-- Runtime now provides the whole local Memory client; the installer followed in [ADR-027](027-desktop-installer.md). Memory's reference shell stays Memory's acceptance harness, not something the owner needs alongside Runtime.
-- **Closing no longer exits.** An owner who expects close to quit must use Exit. Settings and the Memory Vault page explain the four stops.
+- Runtime now provides the whole local Memory client; the installer followed in [ADR-027](027-desktop-installer.md). Memory's reference shell stays Memory's acceptance harness, not something Morii needs alongside Runtime.
+- **Closing no longer exits.** Morii who expects close to quit must use Exit. Settings and the Memory Vault page explain the four stops.
 - **Hotkey conflicts.** Two Runtime processes, or Runtime and the reference shell, compete for the same hotkey. The second reports a conflict, and the second embedded Core is refused by Memory's host lock.
-- **Installer.** Delivered separately in [ADR-027](027-desktop-installer.md), with Memory's ownership rules and downgrade guard. ADR-027 also confirms that the end of a Windows session, or an installer's Restart Manager close, runs the Memory shutdown through `RunEvent::Exit`.
+- **Installer.** Delivered separately in [ADR-027](027-desktop-installer.md), with Memory's responsibility rules and downgrade guard. ADR-027 also confirms that the end of a Windows session, or an installer's Restart Manager close, runs the Memory shutdown through `RunEvent::Exit`.
 
 ## Evidence
 

@@ -41,14 +41,14 @@ Validation:
   with seven negative checks. No path override, branch dependency or local
   fork was used; Activity remains independent.
 
-The test Vaults and component data are synthetic. The owner's migration and
+The test Vaults and component data are synthetic. Morii's migration and
 recovery are recorded privately and in Memory's aggregate validation report.
 This note does not assert personal-memory approval, real Provider sending,
 cloud activation, an installed upgrade, broader storage-failure recovery,
 Narrator acceptance or a completed personal frontend journey. The existing
-Runtime checkout and its owner's concurrent changes remain separate.
+Runtime checkout and Morii's concurrent changes remain separate.
 
-The owner deferred native window inspection while the old Runtime remained in
+Morii deferred native window inspection while the old Runtime remained in
 the background. Actual rendered personal-Vault acceptance remains pending;
 the new build is delivered separately and the old process is preserved.
 

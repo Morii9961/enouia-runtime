@@ -1,6 +1,6 @@
 # PR #29 brought up to the MV-7 main (2026-10-11)
 
-Claude took over [PR #29](https://github.com/Morii9961/enouia-runtime/pull/29) at the owner's request after Codex's [session handback](Activity-session-handoff-2026-10-10.md). The branch had been cut before [PR #30](https://github.com/Morii9961/enouia-runtime/pull/30) moved the Memory pin from `ff692cc` to `8186aed861af08cf7a2c5d8c912a24eae51b4d66`. Merge commit `0853fc97aea2a56f897d613522777f674d4de5a0` joins Codex's head `64659d93e70eb8b6e1b7ff7ad8c7c833d53779b2` with main `36c65421e46a5bdf76b63b2635585a277e3e3f45`. Git reported no conflicts, and no file was edited during the merge. Both sides changed `apps/desktop/src-tauri`: PR #29 changed `activity.rs` and added the `Win32_System_Pipes` feature, while PR #30 changed the pin, `provider.rs` and the Memory surfaces. The merged product was therefore rebuilt and checked again, and the evidence from either side alone was not reused.
+Claude took over [PR #29](https://github.com/Morii9961/enouia-runtime/pull/29) at Morii's request after Codex's [session handback](Activity-session-handoff-2026-10-10.md). The branch had been cut before [PR #30](https://github.com/Morii9961/enouia-runtime/pull/30) moved the Memory pin from `ff692cc` to `8186aed861af08cf7a2c5d8c912a24eae51b4d66`. Merge commit `0853fc97aea2a56f897d613522777f674d4de5a0` joins Codex's head `64659d93e70eb8b6e1b7ff7ad8c7c833d53779b2` with main `36c65421e46a5bdf76b63b2635585a277e3e3f45`. Git reported no conflicts, and no file was edited during the merge. Both sides changed `apps/desktop/src-tauri`: PR #29 changed `activity.rs` and added the `Win32_System_Pipes` feature, while PR #30 changed the pin, `provider.rs` and the Memory surfaces. The merged product was therefore rebuilt and checked again, and the evidence from either side alone was not reused.
 
 ## Checks on the merged tree
 
@@ -10,7 +10,7 @@ Claude took over [PR #29](https://github.com/Morii9961/enouia-runtime/pull/29) a
 | Root workspace `cargo test --locked --workspace`, `cargo fmt --all -- --check` | Passed: 230 tests. Producer, store and runner sources are identical on both sides. |
 | `npm ci`, `npm test`, `npm run build` (strict TypeScript) | Passed 67/67 (63 Activity-side plus 4 from MV-7). |
 | `npm run desktop:bundle` | Built the release executable and the unsigned NSIS installer. |
-| `template-check.ps1` on the rendered installer | 26/26 ownership checks. |
+| `template-check.ps1` on the rendered installer | 26/26 responsibility checks. |
 | `check-domain-boundaries.mjs --self-test`, `check-memory-integration.mjs --self-test`, `check-activity-evidence.mjs --self-test`, `git diff --check` | Passed: 7, 8 and 79 negative checks respectively. The evidence index is unchanged at 72 reports. |
 
 ## Native runs on the merged build
@@ -27,7 +27,7 @@ The release executable from the merged tree has SHA-256 `bf09c7368e63771460b35d4
 
 The first Memory attempt scored 1/2 in all three modes. The [retained report](Activity-claude-pr29-merge/memory-sessions-only-harness-failure.json) shows the cause: the Vault root folder did not exist, so `enouia-memory init` answered `root_rejected` and the app could not open a Vault. The product was not at fault. Creating the folder before `init` fixed the problem and changed no code.
 
-The default Memory smoke was not run because it sends OS hotkeys, which need the spawned window in the foreground, and the owner was using the desktop. The MV-7 record documents the same limitation. Those steps cover only the global hotkey and quick search, which neither side changed.
+The default Memory smoke was not run because it sends OS hotkeys, which need the spawned window in the foreground, and Morii was using the desktop. The MV-7 record documents the same limitation. Those steps cover only the global hotkey and quick search, which neither side changed.
 
 Raw reports are stored with LF line endings. The table below lists SHA-256 hashes of the committed bytes.
 

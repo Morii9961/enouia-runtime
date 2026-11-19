@@ -7,7 +7,7 @@ import { labels, msg } from '../../i18n/index.ts';
 
 export const AUTO_LABEL = msg('Synthetic preview · not running');
 export const AUTO_NOTE = msg(
-  'Design proposal with invented data. Automatic memory does not run in this build: the real Vault still uses owner review, and nothing here is saved, sent or read from a Vault.');
+  'Design proposal with invented data. Automatic memory does not run in this build: the real Vault still uses review by Morii, and nothing here is saved, sent or read from a Vault.');
 export const AUTO_ENTRY = msg('Automatic memory · synthetic preview');
 
 /** Product narrative states for the preview. Not frozen enums. */

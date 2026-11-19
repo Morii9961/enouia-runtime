@@ -2,7 +2,7 @@
 
 在Enouia Runtime项目工作，使用中文。先读AGENTS.md、docs/integration/RUNTIME_ROADMAP_2026-11-16.md、docs/MEMORY_INTEGRATION_v1.md和docs/integration/memory-pin.json；状态快照不是已安装状态。
 
-11月18日最新接续点：Memory afefa61 完成351条真实形成、重开/精确来源、同盘验证备份与隔离恢复，恢复副本重跑的CURRENT与journal哈希保持原样。Runtime 1267268已生成R3本地候选，NSIS生成模板26/26、候选合成WebView2 24/24。候选位置和哈希见docs/validation/R3-owner-readonly-candidate-1267268-2026-11-18.md；其中代理回执记录真实库的打开、检索、引文、锁定及同根重开通过，259条为现有桌面授权范围。接续docs/RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md的Morii人工回执，不重复代理验收；个人库操作、安装、发布和长期读取授权保持各自范围，独立介质故障恢复待验证。以下旧待生成候选与形成中记录属于先前时点。
+11月18日最新接续点：Memory afefa61 完成351条真实形成、重开/精确来源、同盘验证备份与隔离恢复，恢复副本重跑的CURRENT与journal哈希保持原样。Runtime 1267268已生成R3本地候选，NSIS生成模板26/26、候选合成WebView2 24/24。候选位置和哈希见docs/validation/R3-morii-readonly-candidate-1267268-2026-11-18.md；其中代理回执记录真实库的打开、检索、引文、锁定及同根重开通过，259条为现有桌面授权范围。接续docs/RUNTIME_MORII_READONLY_ACCEPTANCE_2026-11-17.md的Morii人工回执，不重复代理验收；个人库操作、安装、发布和长期读取授权保持各自范围，独立介质故障恢复待验证。以下旧待生成候选与形成中记录属于先前时点。
 
 当前最新兼容采用为Memory 506d23dc174a3e927d323f8f8d0b8ecfc9d1726d（已合并PR118），aggregate=df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53，仍61命令；见docs/validation/Memory-pin-506d23d-2026-11-17.md。先核对本片PR/main再接续，不重复采用，也不把旧a543c1e或5175284当成支持ADR149的程序。以下早期段落保留此前证据范围，以本段和末次协调为当前入口。
 
@@ -12,18 +12,18 @@ R1已实施并完成本机合成验证：Memory采用已合并PR111的a543c1eb81
 
 先核对本地/在线main、工作树与未提交修改，保留.claude和不明资料。清理已在新会话创建前执行，以启动消息为准。构建缓存缺失时按锁文件恢复，不升级依赖，不把缓存缺失误认作业务回归；不共用其他工作树target或调用未知CLI。
 
-Morii在11月17日要求继续按路线持续推进，最小只读范围据此继续。PR181已采用已有System catalog的memory_detail_native与memory_source_excerpt_native，不能再把它们误报为Memory契约缺失；原生42/42，见docs/validation/Catalog-native-detail-source-2026-11-17.md。PR182已明确两个ADR037的引用别名。随后ADR038切片增加显式受信任原生启动参数，读取原OS账户/home/operation登记的同一Owner根，锁定释放句柄，页面不能重认证；桌面合成14/14，见docs/validation/Registered-owner-readonly-2026-11-17.md和docs/integration/REGISTERED_OWNER_READONLY.md。先核对该切片当前PR/main，不重复实现。
+Morii在11月17日要求继续按路线持续推进，最小只读范围据此继续。PR181已采用已有System catalog的memory_detail_native与memory_source_excerpt_native，不能再把它们误报为Memory契约缺失；原生42/42，见docs/validation/Catalog-native-detail-source-2026-11-17.md。PR182已明确两个ADR037的引用别名。随后ADR038切片增加显式受信任原生启动参数，读取原OS账户/home/operation登记的同一Morii根，锁定释放句柄，页面不能重认证；桌面合成14/14，见docs/validation/Registered-morii-readonly-2026-11-17.md和docs/integration/REGISTERED_MORII_READONLY.md。先核对该切片当前PR/main，不重复实现。
 
-独立只读入口的壳层、Home/Settings状态已统一，见docs/validation/Registered-owner-shell-status-2026-11-17.md；先核对当前PR/main，不重复实现。锁定回执撤回旧打开观察，旧Workspace仍真实为none；不能把新根伪装成v1 Vault或承诺Context/Sessions已接通。R3验收准备见下文，继续核对Memory公开工程交付，门槛未满足不产出新生产候选。图形目录选择的认证入口仍另核；不能把页面请求路由到bootstrap CLI，也不能用同账户进程事实单独证明人的授权。不创建OwnerReadGrant或复用形成策略授予长期读取；个人库打开/迁移、真实Provider、安装或部署仍不在当前开发执行范围。
+独立只读入口的壳层、Home/Settings状态已统一，见docs/validation/Registered-morii-shell-status-2026-11-17.md；先核对当前PR/main，不重复实现。锁定回执撤回旧打开观察，旧Workspace仍真实为none；不能把新根伪装成v1 Vault或承诺Context/Sessions已接通。R3验收准备见下文，继续核对Memory公开工程交付，门槛未满足不产出新生产候选。图形目录选择的认证入口仍另核；不能把页面请求路由到bootstrap CLI，也不能用同账户进程事实单独证明人的授权。不创建OwnerReadGrant或复用形成策略授予长期读取；个人库打开/迁移、真实Provider、安装或部署仍不在当前开发执行范围。
 
-R3只读验收分流与证据清单已准备在docs/RUNTIME_OWNER_READONLY_ACCEPTANCE_2026-11-17.md，旧指南已加分流链接。核对公共Memory main至d0e7f9f：新提交是初始化标题投影/准备性能，无reader/存储格式/Runtime surface变化；没有因此更新pin。公开交接未提供真实形成与独立恢复ready证明，新候选/真实验收仍未执行。不要把准备稿或合并当作门槛完成。
+R3只读验收分流与证据清单已准备在docs/RUNTIME_MORII_READONLY_ACCEPTANCE_2026-11-17.md，旧指南已加分流链接。核对公共Memory main至d0e7f9f：新提交是初始化标题投影/准备性能，无reader/存储格式/Runtime surface变化；没有因此更新pin。公开交接未提供真实形成与独立恢复ready证明，新候选/真实验收仍未执行。不要把准备稿或合并当作门槛完成。
 
-11月17日后续：PR184壳层状态、PR185验收分流、PR186登记空范围文案均已合并。空状态组件回归先复现四项失败，再修正为46/46，见docs/validation/Registered-owner-empty-state-2026-11-17.md。复用PR184程序的1100×700三语/三页定向布局观察通过，见docs/validation/Registered-owner-minimum-layout-2026-11-17.md；没有因此改样式或冒称HEAD原生复验。接续不重做这些切片。下一有效出口是Memory不含私人内容的真实形成/关闭重开/来源/独立恢复工程摘要，再按R3核对候选与授权条件；摘要缺失时保持待交付，不以重复测试或扩展未批准入口补进度。
+11月17日后续：PR184壳层状态、PR185验收分流、PR186登记空范围文案均已合并。空状态组件回归先复现四项失败，再修正为46/46，见docs/validation/Registered-morii-empty-state-2026-11-17.md。复用PR184程序的1100×700三语/三页定向布局观察通过，见docs/validation/Registered-morii-minimum-layout-2026-11-17.md；没有因此改样式或冒称HEAD原生复验。接续不重做这些切片。下一有效出口是Memory不含私人内容的真实形成/关闭重开/来源/独立恢复工程摘要，再按R3核对候选与授权条件；摘要缺失时保持待交付，不以重复测试或扩展未批准入口补进度。
 
 最新跨会话协调覆盖上述d0e7f9f判断：Memory PR117/ADR149已按其会话的主人授权合并至17a369e010f670baacaeec98306854fd4d14afc5。support_origin_groups进入持久准入决策，旧a543c1e reader可能拒绝，必须先采用兼容pin才能打开此类库；aggregate=df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53，仍61命令。隔壁正式主线CLI对原始全量清单的准入已通过，但queued journal约21.79MB/lifecycle约30.87MB超过16MiB，尚未创建真实Vault；这来自隔壁工程进度，不是Runtime读取私人清单所得。Memory正在评估不可变计划移入既有hash-bound Raw的有界方案，Runtime负责兼容差异与候选准备；待其最终合并revision/aggregate和回放/恢复兼容影响明确后统一采用，避免中间pin重复构建。不改Memory checkout、不代合并其新能力、不传私人路径/原文/登记参数。详细分工见路线“11月17日跨会话接续”。
 
 容量片PR118/ADR150原候选head=53a60cdd430fa4f9b848315702579cd6f8b0b183，随后已获主人明确批准并合并至506d23dc174a3e927d323f8f8d0b8ecfc9d1726d。公开RUNTIME.md确认仅initializer私有journal v2，backup格式/reader/admission/surface与61命令不变；旧fresh binary不能resume journal v2，Runtime只需ADR149读取兼容门槛。77项上游合成检查及1024记录合成预算通过，不等于43计划/351记录真实容量通过。Runtime已按分工采用正式506d23d，未采用原候选；兼容采用与Memory正式重建/全量预检并行，生产候选与个人验收仍等ready。不采用未合并pin、不代为放行Memory合并。
 
-Memory另一个会话负责真实建库、工程交付与独立恢复，不修改Memory仓库或合并其待审PR、不重做fresh驱动。Runtime只核对公共工程交付，不读取私人材料。旧5175284仍含731edd56，不是新Owner候选；本片构建程序也不是R3交付包。新候选和日用验收按R3边界；云端、自动采集另排，不操作Dashboard或刷新手动状态快照。
+Memory另一个会话负责真实建库、工程交付与独立恢复，不修改Memory仓库或合并其待审PR、不重做fresh驱动。Runtime只核对公共工程交付，不读取私人材料。旧5175284仍含731edd56，不是新Morii候选；本片构建程序也不是R3交付包。新候选和日用验收按R3边界；云端、自动采集另排，不操作Dashboard或刷新手动状态快照。
 
 真实验收另核授权。专用登记合成home在非Git/非临时目录，由显式ignored测试创建，带synthetic_validation_only及保留标识，不能当缓存删除；本地忽略manifest只指向该测试的假库，不用它选择私人根。新切片执行必要集成检查（必须node scripts/check-memory-integration.mjs），按实际风险验证，提交时保留Codex co-author trailer；Runtime既有授权允许验证后推送、开PR与合并，无需逐PR重问。不要靠重复构建或扩张范围维持工作。

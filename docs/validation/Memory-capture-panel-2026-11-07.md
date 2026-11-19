@@ -1,6 +1,6 @@
 # Synthetic capture panel, 2026-11-07
 
-Runtime branch baseline: `e125386` (origin/main, synthetic Owner capture entry merged). This slice adds the frontend panel for that entry under Memory → Automatic → Synthetic Runtime capture, with zh-Hans and ja translations.
+Runtime branch baseline: `e125386` (origin/main, synthetic Morii capture entry merged). This slice adds the frontend panel for that entry under Memory → Automatic → Synthetic Runtime capture, with zh-Hans and ja translations.
 
 ## Changes
 

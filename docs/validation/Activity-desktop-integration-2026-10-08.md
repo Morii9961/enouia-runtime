@@ -22,7 +22,7 @@ The integration preserves the current strict TypeScript gate and shell lifecycle
 | Default native Memory/shell smoke on the release executable | 101/101 passed, exit 0; earlier failed attempts retained below |
 | Desktop `npm run build` | Full strict typecheck and Vite build passed |
 | `npm run desktop:bundle` | Embedded release executable and unsigned current-user NSIS installer built |
-| Installer template ownership check | 20/20 passed |
+| Installer template responsibility check | 20/20 passed |
 | Domain boundary checks | Root: 12 modules, no Memory dependencies, 10 negative checks; desktop: pinned Memory edges, 7 negative checks |
 | Memory pin checker with cached pinned checkout and self-test | Pin/surface consistent, 8 negative checks |
 | Activity evidence-index self-test | Pass; 7 historical reports, 59 links, 0 signed-off rows, 2 unresolved comparisons; B4/B5 false |
@@ -50,7 +50,7 @@ Screenshots of observed publication and retained pending were inspected. All pac
 
 The default Memory smoke also isolates Activity selection with `--activity-settings` and now expects the native connection gate instead of the obsolete fictional timeline. The first attempt reached 33/35 before a real hotkey failed to show the overlay; the second reached 63/64, with its earlier hotkey step passing, then refused a second key send because the test process was not foreground. Both failure reports remain in temporary `enouia-memory-integration-20261008-a` / `-b` directories. No input was sent to an unrelated foreground process.
 
-The harness now waits up to five seconds for Windows foreground ownership after the native show/focus request, then checks ownership again immediately before sending. This changes an acceptance prerequisite only; the application hotkey, clearing behavior and permissions are unchanged. These observations do not establish a product root cause or universal hotkey timing reliability; earlier intermittent observations are recorded in [native window evidence](Native-window-v1.md).
+The harness now waits up to five seconds for Windows foreground responsibility after the native show/focus request, then checks responsibility again immediately before sending. This changes an acceptance prerequisite only; the application hotkey, clearing behavior and permissions are unchanged. These observations do not establish a product root cause or universal hotkey timing reliability; earlier intermittent observations are recorded in [native window evidence](Native-window-v1.md).
 
 The final fresh default run passes **101/101**, exit code 0, with artifacts in temporary `enouia-memory-integration-20261008-c/report`. It covers real synthetic review/import/cancellation/resume/Mock/Context operations, the native Activity connection gate, guarded Windows hotkeys, three repeated search openings, tray hide/show, locked and occupied-root refusals, startup-value readback without changes, clean explicit exit, zero autofill rows, restart persistence and a cooperative Restart Manager shutdown. This is the default script's coverage, not every focused mode or complete W01–W05 acceptance. Final shell/Quick Search screenshots were inspected.
 

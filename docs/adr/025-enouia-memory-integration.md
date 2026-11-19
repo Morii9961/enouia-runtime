@@ -1,6 +1,6 @@
 # ADR-025 — Enouia Memory owns the Memory domain; Runtime hosts its local client
 
-Date: 2026-10-04. Status: adopted; Memory adapter implemented and active in the desktop shell. Authority: the owner's 2026-10-04 request to formally connect Enouia Memory's local part to Runtime; Architecture v0.3 §3 (domain ownership); Implementation plan v0.3 ("Any proposed change to settled domain ownership ... requires a new ADR"). Counterpart: Enouia Memory [ADR-MEM-45](https://github.com/Morii9961/enouia-memory/blob/main/docs/adr/README.md) and its [integration handoff](https://github.com/Morii9961/enouia-memory/blob/main/docs/integration/RUNTIME.md).
+Date: 2026-10-04. Status: adopted; Memory adapter implemented and active in the desktop shell. Authority: Morii's 2026-10-04 request to formally connect Enouia Memory's local part to Runtime; Architecture v0.3 §3 (domain responsibility); Implementation plan v0.3 ("Any proposed change to settled domain responsibility ... requires a new ADR"). Counterpart: Enouia Memory [ADR-MEM-45](https://github.com/Morii9961/enouia-memory/blob/main/docs/adr/README.md) and its [integration handoff](https://github.com/Morii9961/enouia-memory/blob/main/docs/integration/RUNTIME.md).
 
 ## Context
 
@@ -15,7 +15,7 @@ Architecture v0.3 placed Identity, Memory, Context, Sessions and the Provider ab
 - the offline Mock
 - an embedded workspace Core with a typed IPC (workspace IPC v1)
 
-Runtime meanwhile kept designing a parallel Core: the `enouia-memory`, `enouia-session`, `enouia-context`, `enouia-provider` and `enouia-core-contract` crates, ADR-020 to 024, and the hash-frozen design corpus. Its desktop surfaces for Memory, Context and Sessions showed fictional demo data. Two Vault formats and two rule sets would drift. Runtime is the Windows client, and the owner wants Memory's local frontend formally hosted there.
+Runtime meanwhile kept designing a parallel Core: the `enouia-memory`, `enouia-session`, `enouia-context`, `enouia-provider` and `enouia-core-contract` crates, ADR-020 to 024, and the hash-frozen design corpus. Its desktop surfaces for Memory, Context and Sessions showed fictional demo data. Two Vault formats and two rule sets would drift. Runtime is the Windows client, and Morii wants Memory's local frontend formally hosted there.
 
 ## Decision
 
@@ -61,7 +61,7 @@ Runtime meanwhile kept designing a parallel Core: the `enouia-memory`, `enouia-s
   - no paths from the page
   - no logging of request or response bodies
 - The desktop build needs a MinGW C compiler, for Memory's bundled SQLite, and one online fetch per pin before offline builds.
-- There is no default or remembered Vault root. The owner opens or creates one in the native dialog, or names it with `--memory-vault`.
+- There is no default or remembered Vault root. Morii opens or creates one in the native dialog, or names it with `--memory-vault`.
 - Only one embedded Core may have a Vault open at a time. Memory enforces this since ADR-MEM-46: a second Core gets `workspace.vault_in_use`.
 - Tray, global hotkey and quick search, and login startup were ported in [ADR-026](026-companion-shell.md); the installer in [ADR-027](027-desktop-installer.md). The parity list is in [Memory integration v1](../MEMORY_INTEGRATION_v1.md).
 - When Memory MV-8 replaces the embedded Core with the single Memory Host, Runtime's adapter becomes a Host client behind the same envelope. That is a breaking surface change, coordinated through both logs.
@@ -84,4 +84,4 @@ Still pending:
   - an actual Windows sign-in start (the installed artifact is covered by [ADR-027](027-desktop-installer.md))
   - the tray icon and its menu, which no automated run has clicked
 - Signing the installer (the companion features shipped in ADR-026, the unsigned installer in ADR-027).
-- Any real Vault use, which needs the owner's own backup and recovery preparation under Memory's privacy gates.
+- Any real Vault use, which needs Morii's own backup and recovery preparation under Memory's privacy gates.

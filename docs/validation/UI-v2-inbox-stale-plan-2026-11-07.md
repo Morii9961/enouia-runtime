@@ -11,4 +11,4 @@
 
 发现的缺口（下一片处理）：草稿保留后，文本框里只有旧草稿，r2 在别处改成的新内容在卡片上看不到，主人无法比较“别人改了什么”。
 
-检查：新场景 11/11。没有字典、字体或产品代码变动。没有截图、完整 npm test、Rust、原生 smoke、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
+检查：新场景 11/11。没有字典、字体或产品代码变动。没有截图、完整 npm test、Rust、原生 smoke、个人 Vault、Morii、Provider、迁移或部署；Memory pin 不变。

@@ -10,4 +10,4 @@
 
 两次扩展驱动失败分别是 CDP 多行字符串转义与 Node 循环变量未序列化，修正诊断后通过，未为此改产品。结构化证据见同名 JSON。
 
-等效 CSS 布局空间不代表实际浏览器缩放、Windows 缩放或原生接受。其他表面仍待单独切片。没有完整 npm test、构建、Rust 或原生 smoke；个人 Vault、真实 Owner/Provider、未合并 #83 与 Activity/Usage 均未采用或变动。
+等效 CSS 布局空间不代表实际浏览器缩放、Windows 缩放或原生接受。其他表面仍待单独切片。没有完整 npm test、构建、Rust 或原生 smoke；个人 Vault、真实 Morii/Provider、未合并 #83 与 Activity/Usage 均未采用或变动。

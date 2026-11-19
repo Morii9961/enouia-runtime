@@ -18,7 +18,7 @@ function memory(id: string, title: string, statement: string, occurred: Occurred
     support: [{source:source.title,rev:source.revision,role:'imported note',excerpt:statement,received:source.received}],
     contextDeps: [], surfacing: adoption === 'adopted' ? 'sometimes' : 'not offered',
     trail: [ {at:source.received,step:'received',note:'Invented material received.'},
-      {at:known??source.received,step:adoption==='adopted'?'adopted':'held',note:'Invented system decision, not owner approval.'} ],
+      {at:known??source.received,step:adoption==='adopted'?'adopted':'held',note:'Invented system decision, not approval by Morii.'} ],
   };
 }
 export const COVERAGE_MEMORIES: CoverageMemory[] = [

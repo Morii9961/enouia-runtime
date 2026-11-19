@@ -5,7 +5,7 @@ Memory source is draft #49 commit `20cbb2f60c2694e5d7385fce0effb3b5a47f002b`,
 surface `9afc5e9960d438c824d785c6091637041485dd8d89e852dbb607b7b243cfa7f3`.
 The pin records draft adoption and requires upstream merge before final delivery.
 
-The read-only owner binds current-Vault observed task/batch/child identities,
+The read-only holder binds current-Vault observed task/batch/child identities,
 sends only taskId/batchIndex with a null key, and validates result bindings,
 source coverage, quotes, timestamps, candidate states and comparison indices.
 It freezes displayed observations; refresh failures and lifecycle/selection
@@ -33,7 +33,7 @@ Checks actually run:
   reused from an existing matching worktree, without installing packages.
 
 New-pin native evidence:
-- After explicit owner authorization to retrieve only fixed public source,
+- After explicit Morii authorization to retrieve only fixed public source,
   cargo fetch --locked and offline locked metadata succeeded. The lockfile
   changes only eight Memory source revisions, with no registry version changes.
 - The extended Runtime native Core scenario passes: 1 passed, 7 filtered.

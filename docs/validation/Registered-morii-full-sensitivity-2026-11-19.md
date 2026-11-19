@@ -1,17 +1,17 @@
-# 已登记 Owner 入口：读取全部敏感级别（2026-11-19）
+# 已登记 Morii 入口：读取全部敏感级别（2026-11-19）
 
-Morii 在聊天中明确授权：已登记 Owner 只读入口读取库中所有敏感级别的记录。此前原生绑定在
+Morii 在聊天中明确授权：已登记 Morii 只读入口读取库中所有敏感级别的记录。此前原生绑定在
 page、stats、detail、source 和 status 的读取请求中都固定传 `Private` 上限，真实库因此只显示
 259 条；Memory 审计的总数是 351 条，其余记录标为 `HighlySensitive`。
 
 ## 修改
 
-- `apps/desktop/src-tauri/src/memory_catalog.rs`：登记 Owner 模式的读取上限改为
+- `apps/desktop/src-tauri/src/memory_catalog.rs`：登记 Morii 模式的读取上限改为
   `HighlySensitive`，固定合成入口仍为 `Private`。页面请求仍不能指定上限；Core 继续执行主体、来源、
   策略、删除与到期检查。
 - `apps/desktop/src-tauri/src/memory_catalog/fixture.rs`：`seed` 新增参数，用于把第三条合成记录及策略
-  上限标为 `HighlySensitive`。只有显式原生 Owner 测试会开启；固定合成目录不变。
-- `memory_catalog/tests.rs`：原生 Owner 测试开启该参数，并继续断言三条记录全部可见。
+  上限标为 `HighlySensitive`。只有显式原生 Morii 测试会开启；固定合成目录不变。
+- `memory_catalog/tests.rs`：原生 Morii 测试开启该参数，并继续断言三条记录全部可见。
 
 ## 验证
 
@@ -19,7 +19,7 @@ page、stats、detail、source 和 status 的读取请求中都固定传 `Privat
 
 | 检查 | 结果 |
 | --- | --- |
-| 撤掉上限改动、保留高敏感夹具，运行原生 Owner 测试 | 失败：可见 2 条，预期 3 条 |
+| 撤掉上限改动、保留高敏感夹具，运行原生 Morii 测试 | 失败：可见 2 条，预期 3 条 |
 | 加上改动后同一测试 | 通过 |
 | `cargo test --locked` 全部 | 61 通过，1 忽略（即上面的显式测试）；另 9 通过 |
 | `cargo fmt -- --check`、`cargo clippy --all-targets -D warnings`、`node scripts/check-memory-integration.mjs` | 通过 |

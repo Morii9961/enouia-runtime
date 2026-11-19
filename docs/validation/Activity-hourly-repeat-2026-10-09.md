@@ -2,7 +2,7 @@
 
 Date: 2026-10-09. Scope: one independently owned, delivery-disabled synthetic Windows task. B4/J1 remain partial; B5 inactive.
 
-The unchanged timer harness completes its -WaitForHourlyRepeat mode with **27 assertions**, **zero demand starts** and ownership-checked removal. The [raw report](Activity-unified/timed-trigger-hourly.json) records all checks, actual task times/results, sequence, pending hash and exact runner/helper identities. observedAt is the harness start time; the last recorded task phase completes at 02:22:01Z and the report file is finalized at 02:22:14Z.
+The unchanged timer harness completes its -WaitForHourlyRepeat mode with **27 assertions**, **zero demand starts** and provenance-checked removal. The [raw report](Activity-unified/timed-trigger-hourly.json) records all checks, actual task times/results, sequence, pending hash and exact runner/helper identities. observedAt is the harness start time; the last recorded task phase completes at 02:22:01Z and the report file is finalized at 02:22:14Z.
 
 The first paused TimeTrigger runs at 01:21:21Z (09:21:21 Asia/Shanghai), returns 3 and preserves the complete store. After a durable resume, the unmodified PT1H repetition is expected at 02:21:21Z and actually runs at **02:21:23Z**, exactly **3602 seconds** after the first. It returns 4, commits only sequence 51, keeps delivery disabled and retains all three sources' history/success timestamps on unconfigured-source failure. No demand invocation or rearming occurs between this pair.
 

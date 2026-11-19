@@ -2,7 +2,7 @@
 
 Date: 2026-10-07. Baseline: `722f9ba`. Scope: Runtime inspector feedback and acceptance. Core, adapter, pin, Rust and capabilities are unchanged.
 
-The pinned Core saves an owner deletion candidate when preparing a forget/purge plan. Cancelling the confirmation discards the shown plan but retains the candidate. The inspector previously left this unexplained and had no waiting message while preparing the plan. It now describes the pending result, reports the retained deletion candidate after cancellation and refreshes the observed candidate count. Starting another plan clears the preceding cancellation note.
+The pinned Core saves a Morii deletion candidate when preparing a forget/purge plan. Cancelling the confirmation discards the shown plan but retains the candidate. The inspector previously left this unexplained and had no waiting message while preparing the plan. It now describes the pending result, reports the retained deletion candidate after cancellation and refreshes the observed candidate count. Starting another plan clears the preceding cancellation note.
 
 The corrected native baseline passed **13/15**, reproducing the two missing messages. An earlier draft assertion incorrectly expected the original memory content in the purge's write records; the pinned deletion proposal contains the target ID instead. The retained baseline and final probe check that actual target ID and permanent-purge qualification, without claiming that original content is part of the diff.
 

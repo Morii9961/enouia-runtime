@@ -8,4 +8,4 @@ The new 7-assertion `inspector-action-focus` journey runs the actual inspector w
 
 Fresh checks pass: 98 Node/frontend tests; 58 DOM fixtures with 750 assertions, including the 7 new ones; TypeScript and strict typing of the new fixture; runner syntax; web build; desktop no-bundle release build compiling the pinned Memory revision (1 minute 23 seconds); domain/pin guards with seven/eight negative checks reporting `56bc5eb`; diff checks. This slice changes no native source, dependency or pin. Native test, Clippy and format evidence for that pin is in its pin report and was not repeated here.
 
-All replies are synthetic. This establishes no native WebView2 run of this fix, Narrator announcement or Morii acceptance. No personal Vault, Provider HTTP, credentials, Activity activation, startup, installer or status snapshot was used. Owner changes remain preserved.
+All replies are synthetic. This establishes no native WebView2 run of this fix, Narrator announcement or Morii acceptance. No personal Vault, Provider HTTP, credentials, Activity activation, startup, installer or status snapshot was used. Morii changes remain preserved.

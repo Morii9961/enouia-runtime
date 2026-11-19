@@ -1,8 +1,8 @@
-# ADR-038 — Explicit registered Owner read-only native entry
+# ADR-038 — Explicit registered Morii read-only native entry
 
 Date: 2026-11-17. Status: implemented for the R2 development slice, activated on merge after synthetic verification. Personal-data use, a production candidate and human acceptance remain separate gates.
 
-Morii asked Runtime to continue the November 16 roadmap through the minimum read-only R2 entry. Memory's existing ADR110/145 already defines a trusted native CLI/launcher authentication boundary; this slice uses it without inventing a page Owner grant or changing Memory domain code.
+Morii asked Runtime to continue the November 16 roadmap through the minimum read-only R2 entry. Memory's existing ADR110/145 already defines a trusted native CLI/launcher authentication boundary; this slice uses it without inventing a page Morii grant or changing Memory domain code.
 
 ## Decision
 
@@ -10,12 +10,12 @@ An explicitly authorized native invocation must supply all three launch options:
 `--memory-owner-readonly`, `--memory-owner-home <absolute-home>` and
 `--memory-owner-operation <original-bootstrap-operation>`. No home is remembered,
 discovered or selected by default. Incomplete, duplicate, unknown or conflicting
-Owner options fail without falling back to Workspace or a synthetic root.
+Morii options fail without falling back to Workspace or a synthetic root.
 `--autostart` ignores the complete selection and opens nothing.
 
 The native launcher calls the pinned Memory Host's `registered_owner_root`, which
 reauthenticates the original OS-account/home/operation/descriptor binding. It then
-reserves Runtime's native directory identity and opens that exact Owner root using
+reserves Runtime's native directory identity and opens that exact Morii root using
 Memory's recorded Host/System identities. A descriptor, path, CLI flags or the fact
 that a process runs under the same OS account is not independently a human grant:
 the actual invocation must be an authorized trusted native action under Memory's
@@ -24,7 +24,7 @@ ADR110 assumptions. The page receives no home/path/ActorRef or bootstrap tool.
 Existing `memory_catalog` read-2/process APIs provide status, bounded literal
 search, details and exact source quotes. Its additive Runtime status mode is
 `registered_owner_readonly`; the fixed example retains `synthetic_segmented_only`.
-Workspace v1 remains closed and is never reinterpreted as the Owner root. Native
+Workspace v1 remains closed and is never reinterpreted as Morii root. Native
 root selection/authentication cannot be requested through this page channel.
 
 In this mode, Runtime refuses Workspace writes, root creation/open/unlock, picks
@@ -37,7 +37,7 @@ The host fixes a read-time `attention-rank-1` profile: revision 1, fade 30 days,
 archive 180 days, protected episode/relationship-experience forms, no aliases or
 protected IDs, 32 items and 65,536 bytes. These are display/selection parameters,
 not durable maintenance or authority. No maintenance worker is started. The
-native ceiling is HighlySensitive for this entry (owner decision below) and the
+native ceiling is HighlySensitive for this entry (Morii decision below) and the
 page cannot change it.
 
 Lock withdraws observations, drops the reader/Core and releases the directory
@@ -52,7 +52,7 @@ Before merging: native argument/authority refusal and existing consumers pass;
 an explicitly allocated protected **synthetic** home is bootstrapped by the real
 native API, seeded with fixed fictional records, opened/read/closed/reopened
 without changing CURRENT or registration metadata; actual desktop tests cover
-the same root across process restart and autostart refusal. See [evidence](../validation/Registered-owner-readonly-2026-11-17.md).
+the same root across process restart and autostart refusal. See [evidence](../validation/Registered-morii-readonly-2026-11-17.md).
 
 This amends the Runtime seam of ADR025/ADR037 (synthetic Memory) only for this
 explicit read-only entry. It does not activate personal libraries or amend
@@ -60,18 +60,18 @@ Memory's authentication rules. The shell observes a separate typed catalog
 status for this entry; Home, Settings and the header do not reinterpret it as a
 Workspace Vault, invent commit traces or offer Workspace writes and Provider
 configuration. Catalog lock receipts invalidate earlier shell reads. A graphical
-home picker, other Owner surfaces and any persistent opening preference remain
+home picker, other Morii surfaces and any persistent opening preference remain
 separate Runtime work. Real-library readiness and independent backup proof belong to Memory;
 personal GUI acceptance, installation and deployment need their own authorization.
 
-## Owner decision: full sensitivity ceiling (2026-11-19)
+## Morii decision: full sensitivity ceiling (2026-11-19)
 
-Morii explicitly authorized the registered Owner entry to read every sensitivity
+Morii explicitly authorized the registered Morii entry to read every sensitivity
 level of the library: it is his own single-user desktop and the Private ceiling
 hid records without telling him. The native binding now passes
 `HighlySensitive` as the read ceiling for page, stats, detail, source and status
-in registered Owner mode only. The fixed synthetic entry keeps `Private`.
+in registered Morii mode only. The fixed synthetic entry keeps `Private`.
 Packets still cannot set the ceiling, and Core keeps enforcing subject, source,
 policy, deletion and expiry checks, so policy expiry still narrows what is
 visible. This adds no write, grant, Provider, Context or Sessions path. See
-[evidence](../validation/Registered-owner-full-sensitivity-2026-11-19.md).
+[evidence](../validation/Registered-morii-full-sensitivity-2026-11-19.md).

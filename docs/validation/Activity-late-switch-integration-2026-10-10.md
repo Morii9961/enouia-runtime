@@ -1,6 +1,6 @@
 # Store late-switch retraction: integration and native acceptance
 
-Date: 2026-10-10. Integrated into `codex/activity-desktop-integration` by Claude after Codex ran out of quota; the owner explicitly assigned integration, the evidence index, PR #28 and native acceptance to Claude for this round. Common baseline `451d70ed245d1a46166bf7d29a941b69cca3f111`. B4/J1 remain partial; B5 inactive.
+Date: 2026-10-10. Integrated into `codex/activity-desktop-integration` by Claude after Codex ran out of quota; Morii explicitly assigned integration, the evidence index, PR #28 and native acceptance to Claude for this round. Common baseline `451d70ed245d1a46166bf7d29a941b69cca3f111`. B4/J1 remain partial; B5 inactive.
 
 ## What was integrated
 
@@ -61,7 +61,7 @@ Fresh checks on the merged tree, offline:
 - Root workspace: fmt, **230 tests** and clippy with warnings denied.
 - Desktop: fmt, **35 host + 3 pinned-Core tests** and clippy with warnings denied.
 - Frontend: strict TypeScript and **58 frontend tests**.
-- Embedded desktop and unsigned NSIS build, and **26/26 installer ownership checks**.
+- Embedded desktop and unsigned NSIS build, and **26/26 installer responsibility checks**.
 - Domain-boundary guard (**7 negatives**) and Memory integration guard (**8 negatives**).
 - Harness syntax and `git diff --check`.
 

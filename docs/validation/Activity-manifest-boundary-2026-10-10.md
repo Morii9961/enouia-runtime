@@ -25,7 +25,7 @@ The [43 host + 3 pinned-Core test run](Activity-manifest-boundary/tests.json) in
 - An actual file is opened and its initial size observed, then whitespace is appended deterministically. The old size-query/unbounded-read control consumes and parses the oversized JSON. The new helper refuses through that already-open reader. This exercises the read boundary, not a concurrent desktop mutation race.
 - A complete synthetic installed package accepts an exact-limit padded manifest, rejects one extra byte, and retains the refused bytes.
 
-Fresh checks: desktop fmt/clippy, strict TypeScript and frontend build, 58 frontend tests, unsigned native/NSIS build, 26/26 rendered/source installer ownership checks, Memory guard with 8 negatives and resolved domain guard with 7 negatives. The runner is the unchanged independently rebuilt producer from the prior slice; only this desktop is rebuilt.
+Fresh checks: desktop fmt/clippy, strict TypeScript and frontend build, 58 frontend tests, unsigned native/NSIS build, 26/26 rendered/source installer responsibility checks, Memory guard with 8 negatives and resolved domain guard with 7 negatives. The runner is the unchanged independently rebuilt producer from the prior slice; only this desktop is rebuilt.
 
 C17 gains 24 selectors (21 manifest-native checks plus 3 behavioral Rust tests). Evidence integrity is **62 reports / 1,014 selectors / 64 negative checks**. Counts overlap, all 18 rows retain their gaps, and no milestone or production gate is signed off.
 

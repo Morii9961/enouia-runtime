@@ -1,7 +1,7 @@
 # R3 登记只读 Windows 候选 `1e96a6d`（2026-11-19）
 
 应 Morii 要求，从 Runtime main `1e96a6d9e8d5e097c3f45f1d0e9d36a6ef9bc39a` 构建新候选，收入
-[键盘锁定焦点修复](R3-owner-lock-keyboard-focus-2026-11-19.md)。内嵌 Memory pin 仍为
+[键盘锁定焦点修复](R3-morii-lock-keyboard-focus-2026-11-19.md)。内嵌 Memory pin 仍为
 `506d23dc174a3e927d323f8f8d0b8ecfc9d1726d`，aggregate
 `df3248e725f92952d0be265092babd5dbdbe6fec642720a0c400c71cbd9e7e53`，Workspace 61 命令。
 沿用 x64、当前用户 NSIS 安装方式，产品版本 0.1.0，安装包和程序均为 `NotSigned`。产物在本机

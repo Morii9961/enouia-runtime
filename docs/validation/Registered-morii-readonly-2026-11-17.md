@@ -1,4 +1,4 @@
-# R2 已登记 Owner 只读启动验证（2026-11-17）
+# R2 已登记 Morii 只读启动验证（2026-11-17）
 
 基线 Runtime `06fec094af5f9b62892099b0d62273e6dbfa3bce`，Memory 保持已合并 pin `a543c1e` / aggregate `723ec245…` / Workspace 61 命令。Morii 要求持续按路线推进，本片采用现有受信任原生启动契约，接入同一登记根的只读打开、来源读取与关闭重开，不操作个人资料。
 
@@ -26,4 +26,4 @@ Memory ADR110/145 及已合并 `owner_bootstrap::registered_owner_root` 明确�
 
 未打开个人 Vault、原文、备份或初始化分析；无真实 OwnerReadGrant、Provider、安装/部署或手动状态快照更新。实际 OS 账户登记的是新建的合成数据 home，不等于私人库验收。此程序不是 R3 安装候选；旧 `5175284` 仍是旧 pin。
 
-全局 Workspace 徽标仍忠实显示旧 Workspace none，不伪造新根为 v1 Vault。壳层的独立只读入口状态、Home/Settings 的一致提示及图形选择仍未完成；下一片继续统一这些表现层，不冒称整个正式 Owner GUI 或日用 v1 已交付。真实库与独立备份证明仍由 Memory 会话交付。
+全局 Workspace 徽标仍忠实显示旧 Workspace none，不伪造新根为 v1 Vault。壳层的独立只读入口状态、Home/Settings 的一致提示及图形选择仍未完成；下一片继续统一这些表现层，不冒称整个正式 Morii GUI 或日用 v1 已交付。真实库与独立备份证明仍由 Memory 会话交付。

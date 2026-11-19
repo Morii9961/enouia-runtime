@@ -1,6 +1,6 @@
 # ADR-031 — Classify existing strict Activity validation in comparisons
 
-Date: 2026-10-08. Status: adopted clarification; no Runtime behavior or public contract changes. Authority: Architecture v0.3 sections 7–9 and the owner's instruction to finish remaining Runtime Activity work. B4 row sign-off, real-seed reconciliation and B5 activation remain separate.
+Date: 2026-10-08. Status: adopted clarification; no Runtime behavior or public contract changes. Authority: Architecture v0.3 sections 7–9 and Morii's instruction to finish remaining Runtime Activity work. B4 row sign-off, real-seed reconciliation and B5 activation remain separate.
 
 ## Context
 

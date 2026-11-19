@@ -1,20 +1,20 @@
-# 已登记 Owner 只读入口验收（2026-11-18）
+# 已登记 Morii 只读入口验收（2026-11-18）
 
 2026-11-19 起人工验收改用新候选 `1e96a6d`（收入键盘锁定焦点修复）：候选目录中相邻的
 `enouia-desktop.exe` 和 `WebView2Loader.dll` 可免安装验收同一个已登记库，合成登记只读冒烟 **25/25**。
-[候选位置、哈希及验证范围](validation/R3-owner-readonly-candidate-1e96a6d-2026-11-19.md)。
+[候选位置、哈希及验证范围](validation/R3-morii-readonly-candidate-1e96a6d-2026-11-19.md)。
 
-2026-11-19 后续：Morii 授权登记入口读取全部敏感级别。`1e96a6d` 仍只显示 `Private` 范围（259 条），修复后的程序见[验证](validation/Registered-owner-full-sensitivity-2026-11-19.md)，预期显示 Memory 审计的全部记录，以策略授权和到期时间为准。
+2026-11-19 后续：Morii 授权登记入口读取全部敏感级别。`1e96a6d` 仍只显示 `Private` 范围（259 条），修复后的程序见[验证](validation/Registered-morii-full-sensitivity-2026-11-19.md)，预期显示 Memory 审计的全部记录，以策略授权和到期时间为准。
 
 上一候选 `1267268` 通过合成 WebView2 **24/24**，交付会话已用它完成真实库的本机代理实测，
-[候选记录](validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)保留。代理实测不转记到新候选；Morii 的人工验收回执待填写。
+[候选记录](validation/R3-morii-readonly-candidate-1267268-2026-11-18.md)保留。代理实测不转记到新候选；Morii 的人工验收回执待填写。
 
 ## 先选对流程
 
 | 要验收的对象 | 使用的入口和步骤 |
 | --- | --- |
 | 旧候选 `5175284` 与兼容的 Workspace v1 库 | [旧人工指南](RUNTIME_ACCEPTANCE_GUIDE_2026-11-08.md)。其中第 6、9 步会写入或导出，只适用于旧库 |
-| 已登记的分段 Owner 库 | 本文的只读流程；由受信任本机启动指定原登记 home/operation，页面不提供开库或解锁 |
+| 已登记的分段 Morii 库 | 本文的只读流程；由受信任本机启动指定原登记 home/operation，页面不提供开库或解锁 |
 | 新安装、升级、托盘、热键、登录启动 | 使用新候选，按各项独立验收安排执行。合成冒烟覆盖了自启动拒绝开库 |
 
 本入口不接通记住/批准/纠正/遗忘、导入、公开人设导出、Context、Sessions、Provider 或
@@ -57,8 +57,8 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 与[读取筛选](https://github.com/Morii9961/enouia-memory/blob/506d23dc174a3e927d323f8f8d0b8ecfc9d1726d/crates/enouia-memory-vault/src/automation/segmented/catalog.rs#L207)
 见固定版本源码。到期撤回已有[合成原生测试记录](validation/Memory-pin-506d23d-2026-11-17.md)。
 
-1. **显式启动。** 按[本机只读入口说明](integration/REGISTERED_OWNER_READONLY.md)使用
-   对应新程序和原登记参数。顶栏应写“已登记 Owner · 只读”，并显示实际打开/未知/失败
+1. **显式启动。** 按[本机只读入口说明](integration/REGISTERED_MORII_READONLY.md)使用
+   对应新程序和原登记参数。顶栏应写“已登记 Morii · 只读”，并显示实际打开/未知/失败
    状态；失败不能转开其他库。参数缺失或不匹配时停止并记录，不自行改 descriptor 或换根。
 2. **检查 Home 与 Settings。** 打开时应显示已登记库状态；Home 不编造提交点、时间迹线
    或已接通的 Context/Sessions。Settings 提供进入原生记忆目录的入口，不显示旧库新建/
@@ -86,7 +86,7 @@ Quick Search 的分段库检索。不要照旧指南第 6、9 步尝试写入新
 
 11 月 18 日的交付会话已确认：最初启动进程的 Windows 账户与原登记不同；换到原登记的
 Windows 登录账户后，Memory 原生检查确认了同一个登记操作。交付会话随后完成只读桌面
-实测，见[代理回执](validation/R3-owner-readonly-candidate-1267268-2026-11-18.md#真实登记库的本机代理实测)。
+实测，见[代理回执](validation/R3-morii-readonly-candidate-1267268-2026-11-18.md#真实登记库的本机代理实测)。
 该会话报告本次策略窗口到北京时间 11 月 24 日 07:27:13；在此之后验收应先由 Memory 核对
 预期可读范围。现有登记、权限与库内容无需为了验收而改动。
 
@@ -97,7 +97,7 @@ Windows 登录账户后，Memory 原生检查确认了同一个登记操作。�
 
 候选源码 `1e96a6d`，Memory pin `506d23d`。Memory CLI 与隔离恢复验收已通过，人工环境待填写。
 若改用上一候选 `1267268` 验收，请在此注明；该候选用键盘 Enter 锁定后焦点会落到页面顶层，
-`1e96a6d` 已修复（[验证](validation/R3-owner-lock-keyboard-focus-2026-11-19.md)）。
+`1e96a6d` 已修复（[验证](validation/R3-morii-lock-keyboard-focus-2026-11-19.md)）。
 
 | 项目 | 结果 | 现象 / 错误码 / 时间 |
 | --- | --- | --- |

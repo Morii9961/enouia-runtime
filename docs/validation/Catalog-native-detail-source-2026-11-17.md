@@ -1,6 +1,6 @@
 # R2 合成目录：原生详情与精确来源（2026-11-17）
 
-基线 Runtime `47f1a93e748e1de0c820c7a398545f11cab85c01`，Memory pin 保持 `a543c1eb81e5d7150ebe7820592eea35a9042697` / aggregate `723ec245…` / Workspace 61 命令。Morii 要求继续按开发路线推进，本片完成最小只读入口的详情/来源合成接入，不打开正式 Owner 根。
+基线 Runtime `47f1a93e748e1de0c820c7a398545f11cab85c01`，Memory pin 保持 `a543c1eb81e5d7150ebe7820592eea35a9042697` / aggregate `723ec245…` / Workspace 61 命令。Morii 要求继续按开发路线推进，本片完成最小只读入口的详情/来源合成接入，不打开正式 Morii 根。
 
 ## 变化及契约核对
 
@@ -25,6 +25,6 @@
 
 ## 剩余边界
 
-仍是固定虚构 read-2 根，不会选中个人目录或正式 Owner 库；没有 Agent/OwnerReadGrant、Provider、安装/部署、真实恢复或手动状态快照变更。来源摘录的 complete_in_scope 仅描述该来源摘录范围，不提升原始 Partial，也不证明附件内容。
+仍是固定虚构 read-2 根，不会选中个人目录或正式 Morii 库；没有 Agent/OwnerReadGrant、Provider、安装/部署、真实恢复或手动状态快照变更。来源摘录的 complete_in_scope 仅描述该来源摘录范围，不提升原始 Partial，也不证明附件内容。
 
-正式 Owner 打开须继续核实受信任原生启动与桌面选择的认证契约。Memory ADR110 明确 bootstrap 不是可被页面调用的工具，同账户 OS 进程事实本身不证明人的授权；本片不借用 Agent 读接口或直接读取磁盘 JSON 来绕过该边界。同一根关闭重开与 R3 新候选/人工验收继续沿 [R2 接入记录](../integration/RUNTIME_OWNER_ENTRY_PROPOSAL_2026-11-16.md) 推进。
+正式 Morii 打开须继续核实受信任原生启动与桌面选择的认证契约。Memory ADR110 明确 bootstrap 不是可被页面调用的工具，同账户 OS 进程事实本身不证明人的授权；本片不借用 Agent 读接口或直接读取磁盘 JSON 来绕过该边界。同一根关闭重开与 R3 新候选/人工验收继续沿 [R2 接入记录](../integration/RUNTIME_MORII_ENTRY_PROPOSAL_2026-11-16.md) 推进。

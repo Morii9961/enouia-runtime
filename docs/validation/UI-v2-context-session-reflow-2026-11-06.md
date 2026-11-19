@@ -10,4 +10,4 @@
 
 上轮交互命令因用量限额未执行，本轮恢复后完成。布局诊断 Vite 预热曾耗时 163/166 秒，服务可响应；本轮交互预热 6,616 ms，这些不是原生启动性能。
 
-等效 CSS 视口不代表实际缩放或原生接受。没有完整 npm test、构建、Rust、原生 smoke、个人 Vault/Owner/Provider 或新领域契约采用；Home、Runtime Inspector、Settings 的窄视口仍待后续切片。
+等效 CSS 视口不代表实际缩放或原生接受。没有完整 npm test、构建、Rust、原生 smoke、个人 Vault/Morii/Provider 或新领域契约采用；Home、Runtime Inspector、Settings 的窄视口仍待后续切片。

@@ -118,4 +118,4 @@ All labels, IDs, models and counts below are fictional. These are scenario defin
 
 ## Handoff and acceptance
 
-Morii or the Dashboard owner provides the frozen contract package and resolves the mapping gaps. Resume R1 with synthetic adapters only after that package and ADR adoption; then independently verify R2 durability/security and R3 export. A real local sample requires Morii to choose exact read roots/ranges separately. Production scheduling, live monitoring, VPS upload, actual API valuation and Memory changes remain outside this task's authorization.
+Morii or the Dashboard maintainer provides the frozen contract package and resolves the mapping gaps. Resume R1 with synthetic adapters only after that package and ADR adoption; then independently verify R2 durability/security and R3 export. A real local sample requires Morii to choose exact read roots/ranges separately. Production scheduling, live monitoring, VPS upload, actual API valuation and Memory changes remain outside this task's authorization.

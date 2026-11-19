@@ -5,14 +5,14 @@
 ## 改动
 
 - 左侧选择 Memory Core / Memory operations / Windows shell，名称和状态分行；右侧显示对应观察与显式读取，顶部汇总现有回执。
-- 选择只改变面板可见性。三个观察 owner 保持挂载，操作的选中状态、本地分页和待返回请求不因切换重建或重复发送。
+- 选择只改变面板可见性。三个观察 持有方 保持挂载，操作的选中状态、本地分页和待返回请求不因切换重建或重复发送。
 - 面板使用 `aria-controls`、`aria-labelledby`、`aria-pressed` 和实际 `hidden`，隐藏面板不占布局或进入浏览器可访问树。
 - 原有 `section[aria-label="Memory operations"]` 契约保留；没有可用 Vault 时仅显示不可用说明，不伪装成一个已观察的空操作列表。Vault 切换和关闭仍按原规则卸载其操作观察。
 - 观察失败仍撤下旧数据，不把执行完成说成验证通过，不复制演示中的虚构组件或状态，Activity 不回归。
 
 ## 验证
 
-定向 `runtime-inspector` 18/18；`workspace-operations-inspector` 22/22，其中新增四项覆盖默认可见面板、选择的无障碍关系与无请求副作用、带有待返回请求的隐藏 owner、返回后选中项与分页保留。原有外来回执、晚到回执、失败、Vault 生命周期和仅读取断言均通过。
+定向 `runtime-inspector` 18/18；`workspace-operations-inspector` 22/22，其中新增四项覆盖默认可见面板、选择的无障碍关系与无请求副作用、带有待返回请求的隐藏 Morii、返回后选中项与分页保留。原有外来回执、晚到回执、失败、Vault 生命周期和仅读取断言均通过。
 
 `npm run build`（含类型检查）通过，主 JS 446.46 kB（十进制）。两个根检查通过，Memory pin 仍为 `bf6bfd10…`，Activity/Usage 原生命令与授权仍退休。Node gate 为131通过、3跳过、0失败。首次完整 DOM gate 在未改动的 `panel-action-focus` 发生一次既有等待超时；该场景单独重跑7/7通过，随后完整 DOM 重跑81场景、1097项断言全部通过。首轮失败保存于 `tests.log`，重跑明细保存于 `dom-rerun.log`，未将失败写成通过。
 

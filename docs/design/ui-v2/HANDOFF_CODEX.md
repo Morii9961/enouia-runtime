@@ -10,9 +10,9 @@
 
 续作起点为 PR #112 / `d0208eb`；21 个功能/修复切片（24 个原始提交）及交付记录现已通过 [PR #113](https://github.com/Morii9961/enouia-runtime/pull/113) 合入 main / `a06e042`。原续作分支已归档清理，后续从 main 开始。本轮已经恢复 Home、Sessions、Inspector、Context 的前端结构，并补齐保存行字段与多处动态文案。逐片提交、验证和剩余边界见 [2026-11-02 接续记录](CONTINUATION_2026-11-02.md)。
 
-当前 pin 仍为 `bf6bfd10…`，Workspace IPC v1 / schema 1 / 58命令；未采用新 Owner Vault。保存记录、请求与技术值保持原样，无法读取时不回退到演示。新增截图都是带虚构水印的浏览器 fixture，不代表原生 WebView2、安装/升级、物理托盘、默认热键、登录启动或 owner 验收。
+当前 pin 仍为 `bf6bfd10…`，Workspace IPC v1 / schema 1 / 58命令；未采用新 Morii Vault。保存记录、请求与技术值保持原样，无法读取时不回退到演示。新增截图都是带虚构水印的浏览器 fixture，不代表原生 WebView2、安装/升级、物理托盘、默认热键、登录启动或 Morii 验收。
 
-另保留既有显式 `--memory-synthetic` 的隔离原生 AutomaticMemory 能力（独立 schema-2 封装）；它与浏览器设计预览、常规 Workspace 及 Owner Vault 分开，见接续记录。本轮没有修改、启动或生产激活该能力。
+另保留既有显式 `--memory-synthetic` 的隔离原生 AutomaticMemory 能力（独立 schema-2 封装）；它与浏览器设计预览、常规 Workspace 及 Morii Vault 分开，见接续记录。本轮没有修改、启动或生产激活该能力。
 
 以下为 W1–W7 的历史落地记录；其中测试数字、候选包和原生结论只适用于各自原报告的 revision，后续工作以接续记录与逐片 validation 为准。
 
@@ -25,7 +25,7 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 | 代码位置 | UI v2 基线通过 PR #103 合入 `main`（`4dc502b`）；W2–W6 的十个提交已通过 [PR #104](https://github.com/Morii9961/enouia-runtime/pull/104) 合入 `main`（`af9846c`），合并树与通过检查的 `ce87e78` 完全一致。各片证据见 validation。 |
 | 与 main 的关系 | W1 已完成（2026-10-26）：合入 main 的 6 个提交（PR #101、#102，到 `39a6081`），4 个冲突已解决，main 新增的 20 条界面文字已补中日译文（1,404 条），§4 检查全部通过（node 124 / 3 跳过，DOM 77/77）。`src-tauri/tests/memory_core.rs` 来自 main，Rust 测试没有在这一步重跑。 |
 | 原生壳 | W3 已获授权并实现系统明暗对应的启动底色（`65e6e3a`）；见 [W3 验证](../../validation/UI-v2-W3-background-2026-10-26.md)与首帧测量边界。 |
-| 验证 | W2 已完成三语、两尺寸、两主题、实机 100/125/150% DPI 验证并记录发现；见 [W2](../../validation/UI-v2-W2-native-2026-10-26.md)。W6 最终 Node 127 通过 / 3 跳过、DOM 78/78、build、两个根检查通过；真实原始 IPA 字体恢复成功、个人数据及 owner 验收仍未完成。W5 的 5,000 条性能缺口见 #24。 |
+| 验证 | W2 已完成三语、两尺寸、两主题、实机 100/125/150% DPI 验证并记录发现；见 [W2](../../validation/UI-v2-W2-native-2026-10-26.md)。W6 最终 Node 127 通过 / 3 跳过、DOM 78/78、build、两个根检查通过；真实原始 IPA 字体恢复成功、个人数据及 Morii 验收仍未完成。W5 的 5,000 条性能缺口见 #24。 |
 | 真实数据 | 原生里的 Memory、Context、Sessions 仍走 Memory 适配器（pin 的 Memory Core），这一轮只换了皮。合成预览（自动记忆、记忆星图）只在浏览器演示里出现，原生不显示，失败也不得回退到演示。 |
 | 字体 | W4 已打包 504 个 CJK WOFF2，保留定稿字形；IPA 派生中文正文改名 Enouia Text SC，并附完整授权与恢复入口。中日定义及切片按需加载，英文字体流量仍为 67,892 B。见 [W4 验证](../../validation/UI-v2-W4-fonts-2026-10-27.md)。 |
 
@@ -41,7 +41,7 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 | `585a716` | 星图默认改为三维球体，新增螺旋星系；删除旧力导向 |
 | 字体定稿提交 | 中日字体定稿与「I'm here.」不翻译（代码、DESIGN.md、决定记录、本页 W4） |
 
-## 3. 落地顺序（每一片单独验证、单独提交；推送与开 PR 要 owner 同意）
+## 3. 落地顺序（每一片单独验证、单独提交；推送与开 PR 要 Morii 同意）
 
 ### W1 · 合并到最新 main（已完成，2026-10-26）
 - 在 `ui-v2/merge-main` 上合并了 `origin/main`（`39a6081`）。冲突处理：`CandidateSource.tsx`、`MemorySurface.tsx` 以 main 的行为为准（上下文来源模式、P0 核心筛选），再包上 `t()`；`dom-fixtures.mjs` 保留 main 新增的两个 fixture、保留 UI v2 删除的 `usage-manual`；`AGENTS.md` 保留 main 的文字与项目状态快照一节，加上 UI v2 的「只服务 Memory」范围段落，删除已结束的设计探索流程一节。
@@ -58,11 +58,11 @@ UI v2 不是一份设计稿，而是已经写进了 `apps/desktop/src`：**这�
 - 星图只在浏览器演示里，原生看不到；它的验证在开发服务器 `starmap.html` 上做（见 W5）。
 - 验收：清单逐项有截图；发现的问题记进 OPEN_ISSUES。
 
-### W3 · 原生首帧底色（需要 owner 授权改 `src-tauri`）
+### W3 · 原生首帧底色（需要 Morii 授权改 `src-tauri`）
 - `tauri.conf.json` 两个窗口的 `backgroundColor` 与 `index.html` 的 `theme-color` 按系统明暗取黛蓝 `#0F1C23` / 宣纸 `#F1F0EB`（OPEN_ISSUES #1）。
 - 验收：浅色系统下打开不闪深色。
 
-### W4 · 中日字体打包（已定稿，owner 已同意下载与使用这些文件）
+### W4 · 中日字体打包（已定稿，Morii 已同意下载与使用这些文件）
 定稿见 DESIGN.md §3 与决定记录「中日字体定稿」。比较页：探索树 `.design/review/fonts2/`。
 
 | 角色 | 字体 | 来源（只从这里取） | 授权 | 用到的字重 | 子集 |
@@ -104,7 +104,7 @@ W6 已完成（2026-10-27），每片独立分支、验证、提交并推送；�
 | #16 | `39b6a81` | [组件名与状态分行](../../validation/UI-v2-W6-16-component-labels-2026-10-27.md) |
 | #18 | `codex/ui-v2-w6-18-lazy-panels` | [懒加载、436.15 kB 主包及 502,123 B 全部首页 JS](../../validation/UI-v2-W6-18-lazy-panels-2026-10-27.md) |
 
-#5 的 DOM 偶发失败仍未宣称全部修好；W7 验证复现的 `history-task-owner` 懒加载等待问题单独修复，见 [等待条件记录](../../validation/UI-v2-history-owner-wait-2026-10-28.md)。#21–23 及 #24 保留为后续范围。
+#5 的 DOM 偶发失败仍未宣称全部修好；W7 验证复现的 `history-task-owner` 懒加载等待问题单独修复，见 [等待条件记录](../../validation/UI-v2-history-holder-wait-2026-10-28.md)。#21–23 及 #24 保留为后续范围。
 
 2026-10-29 已单独修复 #22 中 W2 观察的无库/空库文案及同路径记录带、操作观察说明，各补 15 键；六项检查、字体验证和 60 格原生复验通过，见 [#22 记录](../../validation/UI-v2-22-native-copy-2026-10-29.md)。字体切片更新后 CJK 合计 9,691,824 B；未声明所有动态分支已完成文字审计，#23 仍独立待修。
 
@@ -112,10 +112,10 @@ W6 已完成（2026-10-27），每片独立分支、验证、提交并推送；�
 
 已用含 #22、#23 的前端刷新标准配置未签名 0.1.0 x64 候选包：20,672,647 B（19.71 MiB），生成模板 26/26；旧包按原 SHA 校验并归档。新版身份、路径和未安装边界也在 #23 记录中。
 
-### W7 · Windows 外壳（已获 owner 授权，逐片推进）
-托盘、全局热键、悬浮窗、开机启动、安装包（AGENTS.md：每个 Runtime 集成切片等 owner 开口才开始）。这些表面也要接入 i18n（窗口标题、托盘菜单）。
+### W7 · Windows 外壳（已获 Morii 授权，逐片推进）
+托盘、全局热键、悬浮窗、开机启动、安装包（AGENTS.md：每个 Runtime 集成切片等 Morii 开口才开始）。这些表面也要接入 i18n（窗口标题、托盘菜单）。
 
-Owner 已在当前会话授权继续 W7、推送和合并。先做托盘三语菜单与原生交互验证；热键、悬浮窗、登录启动和安装包仍分别成片，不代表个人数据或生产启用验收。
+Morii 已在当前会话授权继续 W7、推送和合并。先做托盘三语菜单与原生交互验证；热键、悬浮窗、登录启动和安装包仍分别成片，不代表个人数据或生产启用验收。
 
 第一片托盘三语同步已通过 [PR #106](https://github.com/Morii9961/enouia-runtime/pull/106) 合入 main（`270d1fc`），六项检查通过（Node 127 / 3 跳过、DOM 79/79），原生语言调用、重启记忆、跟随系统、隐藏启动、关闭/显示/搜索/退出入口与 overlay 权限拒绝已验证。物理托盘菜单因窗口工具未暴露可操作通知区域，仍待验收（#25）；已更正此前对 Explorer 进程的受限观察。详见 [W7 托盘记录](../../validation/UI-v2-W7-tray-language-2026-10-28.md)。
 
@@ -179,4 +179,4 @@ DOM 测试曾经偶发失败（OPEN_ISSUES #5，Runtime Inspector 那一项已�
 
 ## 7. 不能做的事
 
-沿用 README「不能动的契约」与 AGENTS.md。另外：不改 Memory 领域代码、不碰 Memory pin、不打开个人 Vault、不做个人迁移或生产启用；密钥只在原生；前端不能把「人工已确认」显示成「系统已采用」；推送、开 PR、合并都要 owner 同意。
+沿用 README「不能动的契约」与 AGENTS.md。另外：不改 Memory 领域代码、不碰 Memory pin、不打开个人 Vault、不做个人迁移或生产启用；密钥只在原生；前端不能把「人工已确认」显示成「系统已采用」；推送、开 PR、合并都要 Morii 同意。

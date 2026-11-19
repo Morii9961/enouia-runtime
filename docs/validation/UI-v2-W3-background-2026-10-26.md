@@ -1,6 +1,6 @@
 # UI v2 W3 · 启动底色
 
-2026-10-26，基线 W2 `5f00ce0`，分支 `codex/ui-v2-w3-native-background`。owner 已批准继续、推送及本轮相关原生修改。
+2026-10-26，基线 W2 `5f00ce0`，分支 `codex/ui-v2-w3-native-background`。Morii 已批准继续、推送及本轮相关原生修改。
 
 在 `tauri::generate_context!()` 后、创建窗口前，读取 Windows 的应用主题，将两个窗口的原生窗口/WebView 底色设为 DESIGN.md 的黛蓝或宣纸。使用已有 `windows-sys` Registry 功能，不写系统配置、不新增权限或依赖。`index.html` 的早期内联样式与两条媒体查询 `theme-color` 保持一致。Memory pin、适配器和领域代码未改。
 

@@ -9,7 +9,7 @@ The watcher now consumes the Core cancellation status immediately and requires t
 Validation:
 
 - `e2e/operation-cancel.html`: 13/13; [record](Memory-operation-cancel-ack-browser.json). Held older reads, immediate acknowledgement, separate eventual cancellation, an already completed cancellation reply, one terminal callback, foreign operation rejection, a fresh local recovery action and observation resumed after read failure. Commands are only `operation_get` and `operation_cancel`.
-- Existing Provider/extraction flow 12/12, workspace-call recovery 13/13 and session ownership/recovery 18/18 passed with the shared watcher. The Provider fixture now returns the complete cancellation DTO.
+- Existing Provider/extraction flow 12/12, workspace-call recovery 13/13 and session responsibility/recovery 18/18 passed with the shared watcher. The Provider fixture now returns the complete cancellation DTO.
 - Native synthetic held-transport test asserts that the pinned Core's cancellation reply contains the requested ID, external-send kind, cancellation flag and progress object. Full native tests: 61 host + 3 pinned-Core tests; formatting and strict Clippy passed. No transport HTTP or credential store access.
 - Frontend tests 69/69; TypeScript, strict changed-fixture checks, frontend build and the ordinary release desktop build passed. Integration pin/boundary checks passed (8 + 7 negative checks).
 

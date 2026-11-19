@@ -1,4 +1,4 @@
-# Native Home status and ownership copy
+# Native Home status and responsibility copy
 
 Date: 2026-10-16 (Asia/Shanghai). Baseline `438c28fad72211c98eea782c8f609a561911084c`; Memory pin remains `8186aed861af08cf7a2c5d8c912a24eae51b4d66`.
 
@@ -8,4 +8,4 @@ Home now describes Activity as using a separate producer, without asserting prod
 
 Fresh checks passed: 15/15 Home fixture checks, 48 related synthetic browser checks (Memory lifecycle 24, Context 14, saved suggestions ten), 95 frontend tests, TypeScript/strict fixture typing, desktop no-bundle release build, pin and dependency guards (eight + seven negatives), JSON/diff checks. [Browser summary](Home-status-observation-browser.json) records selected actual results. Native sources/dependencies/pin and Rust formatting are unchanged from [the preceding verified slice](Memory-lifecycle-gate-v1.md); host/Core tests and Clippy reuse the saved evidence described there and were not rerun.
 
-The fixture mounts actual ConnectedHome and MemoryStatusProvider with synthetic status, observes only `workspace_status` through a mock host, and records local navigation callbacks. It does not perform a real Exit, lock, Vault access, Provider call, producer connection, Activity activation, installer or personal-data access. Browser checks do not establish physical Windows or Morii acceptance. Owner files and manual project snapshots are untouched.
+The fixture mounts actual ConnectedHome and MemoryStatusProvider with synthetic status, observes only `workspace_status` through a mock host, and records local navigation callbacks. It does not perform a real Exit, lock, Vault access, Provider call, producer connection, Activity activation, installer or personal-data access. Browser checks do not establish physical Windows or Morii acceptance. Morii files and manual project snapshots are untouched.

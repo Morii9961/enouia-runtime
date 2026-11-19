@@ -37,7 +37,7 @@ Only a sanitized summary and synthetic fixtures go into Git. Local paths and dia
 6. Resolve pending by original-sequence delivery or explicit operator reconciliation ([`pending-abandon`](ACTIVITY_RUNNER.md#abandoning-a-refused-pending-batch), ADR-033). If remote high-water is higher, compare remote data and all corrections before declaring pending superseded. Preserve the exact pending bytes and evidence in the migration bundle even after resolution.
 7. Run the converter offline and verify its exported legacy trio matches the intended archive/high-water/pending. Seed writes do not mean upload is enabled.
 
-If the receiver/publisher has not been deployed, B5 waits for a separately accepted Moriium deployment. Runtime does not take over server ownership to bypass that gate.
+If the receiver/publisher has not been deployed, B5 waits for a separately accepted Moriium deployment. Runtime does not take over server responsibility to bypass that gate.
 
 ## 4. Old/new comparison method
 
@@ -134,7 +134,7 @@ Triggers include lost/changed historical values without explanation, invalid sou
 
 A generation that was published but never selected, left behind by process death, is not corruption. `recovery-inspect` and `recovery-retract` handle it without deleting anything. If the active generation is corrupt or no authoritative high-water is available, keep both writers off. Recover archive history from verified snapshots/remote published data with explicit conflict review, obtain server high-water evidence, and only then resume. The last valid static public files remain the serving fallback. A paused producer may become stale publicly; that is preferable to claiming fresh data or reusing an old sequence.
 
-Rollback does not require changing producer ID, public JSON schema, About markup, VPS ownership, Memory Vault, or author database. Database/Memory restore operations must never implicitly reset Activity delivery state.
+Rollback does not require changing producer ID, public JSON schema, About markup, VPS responsibility, Memory Vault, or author database. Database/Memory restore operations must never implicitly reset Activity delivery state.
 
 ## 8. Cutover report template
 
@@ -155,5 +155,5 @@ zh / ja / en; no-JS snapshot; JS static requests; author Node independence:
 New task enabled; old task disabled:
 Actual scheduled run evidence:
 Rollback bundle + export validation:
-Remaining blockers / next owner:
+Remaining blockers / next responsible party:
 ```

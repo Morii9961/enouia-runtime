@@ -78,7 +78,7 @@ export function HistoryPlan({ vaultId, importId, importRevision, request = call,
         ? t("Showing batches {v0}–{v1} of {batches}", { v0: plan.batches[0].batchIndex + 1, v1: plan.batches.at(-1).batchIndex + 1, batches: summary.batches })
         : t("No history batches on this page")}</p>
       <p className="mem-muted">{tj("Observed {when} · import revision {revision} · head {head}", { when: when(observedAt), revision: importRevision, head: <span className="mem-mono" title={plan.identity.commitId}>{shortId(plan.identity.commitId)}</span> })}</p>
-      <p className="mem-muted">{t("This describes the received archive, not all platform history or extraction quality. Unknown dates stay unknown; export branch selection is not owner approval.")}</p>
+      <p className="mem-muted">{t("This describes the received archive, not all platform history or extraction quality. Unknown dates stay unknown; export branch selection is not approval by Morii.")}</p>
       <dl className="mem-facts">
         <dt>{t("Parsed messages")}</dt><dd>{summary.messages}</dd><dt>{t("Dated")}</dt><dd>{summary.dated}</dd><dt>{t("Unknown time")}</dt><dd>{summary.undated}</dd>
         <dt>{t("Observed range")}</dt><dd>{when(summary.earliest)} — {when(summary.latest)}</dd>

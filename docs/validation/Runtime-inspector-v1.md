@@ -1,6 +1,6 @@
 # Native Runtime Inspector
 
-Date: 2026-10-18 (Asia/Shanghai). Product baseline: `main@b8254d8a8a88d67cd92e7f0d8ce72964a62f344e`. Memory remains pinned at `56bc5eb8b08fb80cd6df892bf53d200ff23afc4c`, workspace IPC v1, 47 commands. Work follows the [desktop v1 delivery plan](../RUNTIME_V1_DELIVERY_PLAN.md); the owner confirmed that general-purpose model tools belong to a later stage.
+Date: 2026-10-18 (Asia/Shanghai). Product baseline: `main@b8254d8a8a88d67cd92e7f0d8ce72964a62f344e`. Memory remains pinned at `56bc5eb8b08fb80cd6df892bf53d200ff23afc4c`, workspace IPC v1, 47 commands. Work follows the [desktop v1 delivery plan](../RUNTIME_V1_DELIVERY_PLAN.md); Morii confirmed that general-purpose model tools belong to a later stage.
 
 ## Behavior
 
@@ -23,7 +23,7 @@ The header now says Connected workspace. Browser App routing keeps its labelled 
 | Resolved dependency boundary | Offline locked Cargo metadata plus `check-domain-boundaries.mjs --self-test`: desktop boundaries passed, same pin, 7 negative checks. |
 | Native tests/Clippy/format | Reuse the unchanged native-source/dependency/pin evidence in [the pin report](Memory-pin-56bc5eb-2026-10-17.md). No new native test run is claimed. |
 
-The Inspector fixture mounts the actual App, so it verifies connected/browser routing, not just an isolated replacement component. Its allowlisted mock transports admit only `workspace_status`, `shell_status`, `activity_setup:status` and `activity_get_overview`. It covers pending/absent setup, component health and counts, failure isolation and recovery, locking/change/exit gates, scheduler/publication distinctions, double-click admission, focus ownership and delayed replies across unmount/remount.
+The Inspector fixture mounts the actual App, so it verifies connected/browser routing, not just an isolated replacement component. Its allowlisted mock transports admit only `workspace_status`, `shell_status`, `activity_setup:status` and `activity_get_overview`. It covers pending/absent setup, component health and counts, failure isolation and recovery, locking/change/exit gates, scheduler/publication distinctions, double-click admission, focus responsibility and delayed replies across unmount/remount.
 
 All IPC replies in this journey are synthetic. No personal Vault, raw Activity history, credential prompt, real Provider, package selection, collection, upload, task registration, installer or deployment was used. Happy DOM focus loss is explicitly simulated; this does not establish physical keyboard/Narrator behavior, native layout or Morii acceptance. Unified acceptance remains pending.
 

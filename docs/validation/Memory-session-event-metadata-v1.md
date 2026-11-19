@@ -10,4 +10,4 @@ Fresh verification passed: 90 frontend tests; TypeScript and strict new-fixture 
 
 The new Chrome fixture passed 9/9, including all canonical labels, exact ISO offsets, literal message bytes, fixed fallback labels, retained stale observations/drafts and fresh readback. Eleven related fixtures passed 152 further checks (161 total). [Browser summary](Memory-session-event-metadata-browser.json) records selected actual DOM results. These are synthetic browser/Core consumer checks, not physical Windows keyboard, Narrator, real Provider or Morii acceptance.
 
-No personal Vault, Provider HTTP, credentials, Activity activation, installer or Memory-domain/pin change was introduced. Owner changes and manual status snapshots remain untouched.
+No personal Vault, Provider HTTP, credentials, Activity activation, installer or Memory-domain/pin change was introduced. Morii changes and manual status snapshots remain untouched.

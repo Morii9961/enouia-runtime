@@ -8,4 +8,4 @@ read-2 目录读完一页零记录且没有下一页时，原来只有“0 条�
 
 read-2 浏览器截图桩新增 `empty` 态（默认空检索词，仍只允许 status/page/stats）。自有 Edge 156、1100×700：一次通过，三语双主题九态 54 张截图，加五态语言切换共 144 行，页面错误 0、宿主动作 0，启动器退出 0。复核日文深色空目录截图。检索无匹配只有 DOM 证据。
 
-没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Owner、真实 Provider、持续形成、迁移或部署；Memory pin 不变。
+没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Morii、真实 Provider、持续形成、迁移或部署；Memory pin 不变。

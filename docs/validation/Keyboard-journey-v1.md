@@ -30,7 +30,7 @@ The separate session-write probe passes **21/21**, exit 0. It observes actual Co
 - Rust: formatting, **24** unit tests plus **3** pinned-Core integration tests, and Clippy with warnings denied passed.
 - Fresh locked dependency metadata: domain boundaries passed, **7** Memory packages and **7** negative checks.
 - Pin verifier: **8** negative checks passed; the committed surface aggregate matches the exact pinned Memory revision `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`.
-- Unsigned current-user NSIS bundle built; static and rendered installer ownership checks passed **26/26**.
+- Unsigned current-user NSIS bundle built; static and rendered installer responsibility checks passed **26/26**.
 - Default native regression: **33/34**, exit 1, on each of two fresh fixtures. Review/source/retry/paging/import cancellation and resume, session/local Mock, Context and overlay command refusals passed before the existing OS hotkey guard stopped the run. No key was sent: the expected Runtime PID was not the Windows foreground PID. The remaining default checks were not reached in these runs; the previous release's 101/101 report is historical evidence, not a current all-pass claim.
 - Executable SHA-256: `4421811ca4b9177e2e39174665b3f3fda6d2ee29d80ab399fafc47b6484c253a`.
 - Installer SHA-256: `e79589b9d215ea3247edd08b3c77d9a75a2630714b90a7b8007e89a2decc8a4c`.

@@ -10,7 +10,7 @@ References: [Architecture v0.3](../../Enouia_Runtime_Architecture_v0.3.md), [imp
 
 Since [ADR-025](025-enouia-memory-integration.md) (2026-10-04), the Enouia Memory repository owns the Memory domain. Changes to that domain are recorded in the [Memory register](https://github.com/Morii9961/enouia-memory/blob/main/docs/adr/README.md) as ADR-MEM-NN, whose numbers are unrelated to Runtime's. This register keeps Runtime's side of the boundary, the Memory adapter and Activity & Usage. The entries below state which parts ADR-025 amends or supersedes.
 
-## ADR-001 — Local canonical ownership (Adopted; amended by ADR-025)
+## ADR-001 — Local canonical responsibility (Adopted; amended by ADR-025)
 
 Context: providers and clients must be replaceable without loss of continuity. Activity adds durable state that does not represent canonical Memory.
 
@@ -102,7 +102,7 @@ Amendment (2026-10-04, ADR-025): the embedded Core is Enouia Memory's workspace 
 
 Decision: Enouia owns collection, archive/merge, local durability, scheduling, sequence, pending/retry, upload, and local Activity UI. Moriium retains About presentation, public validation, VPS receiver/publisher, and static JSON contract.
 
-Consequences: no Activity-to-Memory/Context dependency, no runtime Moriium repo/build/database dependency, and no copied credentials. Existing `runtime.json` is a separate presence input; this phase adds no heartbeat transport. No unilateral producer-name/version/server-ownership changes. Tests isolate domain failure and run a packaged worker without repository access.
+Consequences: no Activity-to-Memory/Context dependency, no runtime Moriium repo/build/database dependency, and no copied credentials. Existing `runtime.json` is a separate presence input; this phase adds no heartbeat transport. No unilateral producer-name/version/server-responsibility changes. Tests isolate domain failure and run a packaged worker without repository access.
 
 ## ADR-013 — Frozen v1 wire contract and correction-preserving merge (Adopted)
 
@@ -122,7 +122,7 @@ Decision: use current producer/receiver v1 and local OpenSSH, stdin-only batch, 
 
 Context: receiver CLI exits successfully even when it ignores an old/equal sequence; manifest exposes no sequence receipt. Runtime must not invent a stronger acknowledgment or claim SSH success means publication.
 
-Consequences: public observation is a read-only consumer of existing static files, not server ownership. Ambiguity blocks new collection; an operator may inspect server state through Moriium operations, never by broadening the producer key. Future receipt protocol requires coordinated change. Tests cover old-sequence exit 0, lost acknowledgments, all-failed same-data hashes, stale manifests, and conflicting remote high-water.
+Consequences: public observation is a read-only consumer of existing static files, not server responsibility. Ambiguity blocks new collection; an operator may inspect server state through Moriium operations, never by broadening the producer key. Future receipt protocol requires coordinated change. Tests cover old-sequence exit 0, lost acknowledgments, all-failed same-data hashes, stale manifests, and conflicting remote high-water.
 
 ## ADR-016 — Two-track delivery and reversible cutover (Adopted; amended by ADR-025)
 
@@ -221,7 +221,7 @@ Activity is untouched. The installer followed in ADR-027.
 
 ## ADR-032 — Native setup for Memory's text Provider path (Adopted implementation; real use pending)
 
-[ADR-032](032-memory-native-provider-setup.md) supplies the native half of Enouia Memory ADR-MEM-48. Sending stays off unless the owner writes `memory-providers.json` with explicit models and limits. Keys are entered only in the native Windows credential prompt and stored in Credential Manager. The page sees setup state and rules only. This amends ADR-025's "no Provider call": Runtime hosts Memory's Provider path and implements no protocol of its own.
+[ADR-032](032-memory-native-provider-setup.md) supplies the native half of Enouia Memory ADR-MEM-48. Sending stays off unless Morii writes `memory-providers.json` with explicit models and limits. Keys are entered only in the native Windows credential prompt and stored in Credential Manager. The page sees setup state and rules only. This amends ADR-025's "no Provider call": Runtime hosts Memory's Provider path and implements no protocol of its own.
 
 ## ADR-033 — Operator abandonment of a refused pending batch (Adopted; implemented)
 
@@ -235,13 +235,13 @@ Activity is untouched. The installer followed in ADR-027.
 
 [ADR-035](035-ai-usage-ledger.md) separates local usage facts, deduplication, revisions and offline exports from public ActivityData v1 and all Memory paths. The independent `enouia-usage` crate now supplies count adapters, a private transactional ledger, bounded manual scans, reviewed corrections and allowlist UsageSnapshot 1.1 export. The [pin](../integration/usage-pin.json) records Dashboard's merged `b66a472` protocol; [R1](../validation/AI-usage-ledger-R1.md), [R2](../validation/AI-usage-ledger-R2.md), [R3](../validation/AI-usage-ledger-R3.md) and the [manual guide](../AI_USAGE_LEDGER.md) record scope and limits. Legacy observations without proven request dates stay unallocated. Existing ccusage collection, Activity state, Memory pin and scheduling stay unchanged; personal and production acceptance remain pending.
 
-## ADR-036 — Manual private Usage workspace (Owner-authorized implementation)
+## ADR-036 — Manual private Usage workspace (Morii-authorized implementation)
 
-[ADR-036](036-manual-usage-desktop.md) adds the owner's explicitly requested manual desktop continuation: native directory grants, independent hash-checked Usage runner, count/coverage inspection, paged evidence-bound conflict review and offline export within Activity's private view. No Runtime domain crate enters the desktop graph; no personal source, Memory path, schedule or transmission is activated. [Runner evidence](../validation/AI-usage-ledger-U1-backend.md) separates the synthetic backend gate from desktop and owner acceptance.
+[ADR-036](036-manual-usage-desktop.md) adds Morii's explicitly requested manual desktop continuation: native directory grants, independent hash-checked Usage runner, count/coverage inspection, paged evidence-bound conflict review and offline export within Activity's private view. No Runtime domain crate enters the desktop graph; no personal source, Memory path, schedule or transmission is activated. [Runner evidence](../validation/AI-usage-ledger-U1-backend.md) separates the synthetic backend gate from desktop and Morii acceptance.
 ## ADR-037 — Explicit synthetic native Memory adoption (isolated synthetic slice complete)
 
-[ADR-037 — Explicit synthetic native Memory adoption](037-synthetic-native-memory-adoption.md), also called ADR-037 (synthetic Memory), adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 owner records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.
+[ADR-037 — Explicit synthetic native Memory adoption](037-synthetic-native-memory-adoption.md), also called ADR-037 (synthetic Memory), adds a main-only Core-7 read capability at the exact Memory pin, fresh opt-in synthetic roots and separate read/control effects. It preserves v1 Morii records and consumer routes, refuses real Provider setup in synthetic mode, and binds initialization, lock and shutdown. Production System use, real quality and migration remain separate gates. ADR-035/036 remain owned by the parallel Activity work.
 
-## ADR-038 — Explicit registered Owner read-only native entry
+## ADR-038 — Explicit registered Morii read-only native entry
 
-[ADR-038](038-registered-owner-readonly-entry.md) adds an explicit trusted native launch for the original registered Owner home/operation. It uses Memory's existing reauthentication and System catalog/process APIs, with no page bootstrap, Agent grant, Workspace reinterpretation, recovery or write path. Lock releases the Core and directory reservation; reopening requires another trusted launch. Synthetic native and desktop verification activates the development capability on merge; personal-library use, a production candidate, graphical selection and human acceptance remain separate.
+[ADR-038](038-registered-morii-readonly-entry.md) adds an explicit trusted native launch for the original registered Morii home/operation. It uses Memory's existing reauthentication and System catalog/process APIs, with no page bootstrap, Agent grant, Workspace reinterpretation, recovery or write path. Lock releases the Core and directory reservation; reopening requires another trusted launch. Synthetic native and desktop verification activates the development capability on merge; personal-library use, a production candidate, graphical selection and human acceptance remain separate.

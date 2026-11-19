@@ -21,7 +21,7 @@ Memory pin stays `bf6bfd10bf3c870ae2ce7ceb5c6bd635b08bf327`, with all five depen
 - `check-memory-integration.mjs --self-test` passed (8 negative checks).
 - `check-activity-retirement.mjs` and `git diff --check` passed.
 
-Verification used the already pinned frontend dependencies and installed GNU Rust 1.98.1/MinGW environment. The release cache is development output, not a newly installed owner application. No new dependency or Memory pin update occurred.
+Verification used the already pinned frontend dependencies and installed GNU Rust 1.98.1/MinGW environment. The release cache is development output, not a newly installed Morii application. No new dependency or Memory pin update occurred.
 
 ## Moriium counterpart and remaining work
 

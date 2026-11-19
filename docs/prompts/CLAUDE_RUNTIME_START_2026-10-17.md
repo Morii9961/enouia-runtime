@@ -9,7 +9,7 @@ PR #65–68 已合并，自己的工作分支已清理。当前保存证据是 9
 
 Memory 仍固定 8186aed861af08cf7a2c5d8c912a24eae51b4d66、47 条 IPC 命令。领域实现由 enouia-memory 仓库负责；Runtime 冻结的旧领域 crates 不延伸。Activity 保持独立，J1/B4 未签收、B5 未激活。不要从旧 Activity 交接的过期基线重新开发，也不要自动启动 pin 更新、安装器或新 Windows 集成阶段。
 
-保留 owner 的 AGENTS.md 修改、旧 Activity 交接/提示词及其他 worktree，不用 git add .。真实账号、凭据、个人 Vault/活动档案、Provider HTTP、个人迁移、生产采集/上传/计划任务和部署均不在本次范围。若下一步依赖这些授权，列出明确门槛后停止。
+保留 Morii 的 AGENTS.md 修改、旧 Activity 交接/提示词及其他 worktree，不用 git add .。真实账号、凭据、个人 Vault/活动档案、Provider HTTP、个人迁移、生产采集/上传/计划任务和部署均不在本次范围。若下一步依赖这些授权，列出明确门槛后停止。
 
 遵守仓库贡献署名及验证要求。完成一个切片后推送、创建可审阅 PR、确认实际 head 与检查状态，再合并并核实 main；只清理该切片自己的分支。不要以“创建 PR”代替完成合并。状态快照只有 Morii 明确要求时才更新，Markdown/JSON 同步并遵守 Project Status Protocol v1；本次已有 docs/status/project-status.json 供 Dashboard 手动导入，不连接 Dashboard 或建立同步服务。
 ```

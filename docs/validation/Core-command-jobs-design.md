@@ -8,7 +8,7 @@ Executed `python scripts/check-command-design.py`: six create-Session digest com
 
 The helper deliberately supports the single closed create-Session example; it is not a JSON Schema engine or a validator for every operation. Incoming object key order/action token do not alter that semantic request digest; changed title, exact original whitespace and expected generation do. Future Rust typed digest fixtures must cover every command before activation.
 
-Reviewed the existing v1 IPC drafts/results, Session provenance, complete-generation commit, invocation state rules and index ownership. Added submission cancellation for the saved-input-before-preparation gap and distinct user/assistant source references. No raw SQL/path/client-generated canonical identities or blanket client approval marker are introduced.
+Reviewed the existing v1 IPC drafts/results, Session provenance, complete-generation commit, invocation state rules and index responsibility. Added submission cancellation for the saved-input-before-preparation gap and distinct user/assistant source references. No raw SQL/path/client-generated canonical identities or blanket client approval marker are introduced.
 
 Local Markdown link/fence, JSON/schema-reference and Python syntax checks passed; staged whitespace checks passed. Rust sources/dependencies and v1 DTO/schema files are unchanged. Actual read/result serialization, full shape conformance, canonical receipt uniqueness/CAS, simultaneous retries, authorization, async cancellation/races/cursors/process restart and Activity filesystem isolation remain unverified. No Runtime write, frontend edit, service or account operation occurred.
 

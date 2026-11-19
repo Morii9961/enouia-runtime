@@ -3,7 +3,7 @@
 ## Scope and diagnosis
 
 W7 verification exposed a timing failure in the W6 #18 deferred history view.
-The owner hook can accept a request before `HistoryTaskView` has loaded and
+The holder hook can accept a request before `HistoryTaskView` has loaded and
 committed. `history-task-owner` slept for 20 ms after closing the import report,
 then required the deferred receipt text to be visible. A standalone rerun failed
 at the same assertion. Temporary diagnostic output showed:

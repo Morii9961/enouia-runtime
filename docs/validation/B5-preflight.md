@@ -2,7 +2,7 @@
 
 Historical report from Claude's 2026-10-07 branch. Its described account inventory, private files, authorization and server observations were not repeated or adopted as new operational authorization by the 2026-10-08 integration. The [current combined validation](Activity-unified-2026-10-08.md) confirms that read-only requests to the actual public hostname fail during TLS with curl exit 35 and no HTTP response; the old 404/deployment finding cannot be freshly confirmed from this workstation. Code integration and synthetic acceptance do not establish B5 activation.
 
-Date: 2026-10-07. Authority: the owner's 2026-10-07 authorization to continue toward B5. Scope: [migration runbook](../ACTIVITY_MIGRATION_v0.3.md) Stage 0, read-only inventory, plus one real-account collection into a private sandbox store with delivery disabled. Nothing was uploaded, no task was registered, and neither Moriium nor any server was changed. Private details (paths, values, raw comparison reports) stay in a private bundle outside both repositories; this summary keeps only counts and outcomes.
+Date: 2026-10-07. Authority: Morii's 2026-10-07 authorization to continue toward B5. Scope: [migration runbook](../ACTIVITY_MIGRATION_v0.3.md) Stage 0, read-only inventory, plus one real-account collection into a private sandbox store with delivery disabled. Nothing was uploaded, no task was registered, and neither Moriium nor any server was changed. Private details (paths, values, raw comparison reports) stay in a private bundle outside both repositories; this summary keeps only counts and outcomes.
 
 ## Inventory
 
@@ -28,7 +28,7 @@ This is the first real C01/C02/C04/C07/C08 capability evidence on the target wor
 
 ## B5 execution attempt (2026-10-07)
 
-The owner approved all four production steps. Done locally:
+Morii approved all four production steps. Done locally:
 
 - [ADR-030](../adr/030-production-activation-path.md) production install and registration path, with package tests (54 checks, scheduler doubles).
 - PowerShell 7.6.6 installed from the official winget source (the Store build; tests now use `$PSHOME`, because the PATH entry is an app-execution alias).
@@ -42,7 +42,7 @@ Stopped:
 
 ## Gates still blocking B5
 
-- **O2:** deploy the Moriium receiver/publisher (`/status-data/`), the restricted SSH account and alias, and nginx routing. This is Moriium-owned work, and the Moriium checkout currently holds someone else's uncommitted deployment changes and handoff notes for it. Runtime does not take over server ownership.
+- **O2:** deploy the Moriium receiver/publisher (`/status-data/`), the restricted SSH account and alias, and nginx routing. This is Moriium-owned work, and the Moriium checkout currently holds someone else's uncommitted deployment changes and handoff notes for it. Runtime does not take over server responsibility.
 - **O6 reachability:** this workstation must be able to read `https://morii9961.top/status-data/current.json` (directly or through the user-level proxy that curl inherits). Complete the ICP filing, or route the domain through a proxy path that actually reaches it, then confirm with `curl.exe -sS https://morii9961.top/zh/`.
 - **Stage 3–5:** after O2, a production config (mode `production`, real origin, SSH alias) with delivery enabled, import of the reviewed seed, one manual production cycle with observed publication and zh/ja/en About checks, then registration and enablement of the scheduled task and one observed scheduled run.
 - **Cutover hygiene:** freeze manual `pnpm activity:refresh` writes to the checked-in snapshot during cutover, or keep it as the documented separate build-snapshot path.

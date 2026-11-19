@@ -43,7 +43,7 @@
 - 行为：浏览器演示的虚构标注（「Demo · local only」「Fictional」）、原生里 Memory/Context/Sessions 走 Memory 适配器、Quick Search 的独立窗口与权限、1100×700 最小窗口、CSP、键盘（Ctrl+1…6、↑↓）、减少动画（系统设置与 `data-motion="reduced"`）。
 - 三种状态分开（SCREENS.md 开头）：旧 pin 真实能力 / 合成预览 / 以后的受控采用。合成内容只在浏览器演示里出现，原生失败不得回退到演示。
 - Activity / Usage 界面已移除，不要加回；它的后端与原生命令暂留，前端不调用。
-- 不改 `apps/desktop/src-tauri`、Memory pin、后端契约，除非 owner 另行授权（OPEN_ISSUES #1 需要的原生改动也一样）。
+- 不改 `apps/desktop/src-tauri`、Memory pin、后端契约，除非 Morii 另行授权（OPEN_ISSUES #1 需要的原生改动也一样）。
 
 ## 每次界面改动后的检查
 

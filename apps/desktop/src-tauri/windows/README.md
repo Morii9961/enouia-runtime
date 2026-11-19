@@ -1,4 +1,4 @@
-# Installer ownership boundary
+# Installer responsibility boundary
 
 Runtime's current-user installer ([ADR-027](../../../../docs/adr/027-desktop-installer.md)) follows Enouia Memory's reference installer.
 
@@ -10,7 +10,7 @@ That file is derived from the MIT-licensed [Tauri CLI 2.12.0 template](https://g
 
 Two sections are removed. Nothing else in upstream's behavior changes:
 
-- **The "delete app data" checkbox** on the uninstall confirmation page, with its callbacks. Vault and backup locations are chosen by the owner and may sit inside a folder the generic template treats as application data.
+- **The "delete app data" checkbox** on the uninstall confirmation page, with its callbacks. Vault and backup locations are chosen by Morii and may sit inside a folder the generic template treats as application data.
 - **Two deletions in the uninstall section:**
   - the generic product-name Run value;
   - the recursive deletion of `%APPDATA%` and `%LOCALAPPDATA%\com.enouia.runtime`.

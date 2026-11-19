@@ -53,7 +53,7 @@ try{
   releaseEntry!();
   await wait(()=>badge().includes('Registered library open')&&text().includes('2 shown · 3 matching authorized records'));
   check('real_native_status_does_not_rewrite_workspace_slot',fixture.querySelector('#refresh')?.getAttribute('data-workspace')==='none');
-  check('badge_is_readonly_not_connected_workspace',badge().includes('Registered Owner · read only')&&!badge().includes('Connected workspace'));
+  check('badge_is_readonly_not_connected_workspace',badge().includes('Registered library · read only')&&!badge().includes('Connected workspace'));
   const inspector=fixture.querySelector('[data-screen-label="Runtime Inspector"]')!;
   check('inspector_reports_native_scope_and_unavailable_operations',inspector.querySelector('#runtime-memory-panel')!.textContent!.includes('Registered library open')&&inspector.querySelector('#runtime-operations-panel')!.textContent!.includes('Unavailable in this read-only entry')&&!inspector.textContent!.includes('No Vault open'));
   check('home_does_not_offer_review_queue_or_saved_context',!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Open or create a Vault')&&!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Read saved Capsules')&&text().includes('Unavailable in this read-only entry'));

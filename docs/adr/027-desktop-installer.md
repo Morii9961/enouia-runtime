@@ -1,6 +1,6 @@
 # ADR-027 — Current-user installer for the desktop shell
 
-Date: 2026-10-06. Status: adopted and implemented. Authority: the owner's request to continue with the next pending step after [ADR-026](026-companion-shell.md); Enouia Memory's reference installer (MV-6 follow-up and upgrade evidence) and ADR-MEM-45.
+Date: 2026-10-06. Status: adopted and implemented. Authority: Morii's request to continue with the next pending step after [ADR-026](026-companion-shell.md); Enouia Memory's reference installer (MV-6 follow-up and upgrade evidence) and ADR-MEM-45.
 
 ## Context
 
@@ -44,10 +44,10 @@ Both were fixed first in Memory's reference installer (Memory `bdceb41` and `090
 
 ## Consequences
 
-- **Owner data is never inferred from a path.**
+- **Morii data is never inferred from a path.**
   - Uninstall leaves Vaults, backups, the WebView2 profile under `%LOCALAPPDATA%\com.enouia.runtime` and Activity data in place. The template check and the template's missing deletions establish this; no drill observes the real profile folder.
   - Deleting Memory data remains a reviewed Core operation.
-- **Startup across upgrades.** A silent upgrade keeps the startup value. On the interactive reinstall page, choosing "uninstall before installing" is the default for upgrades. It runs a real uninstall, which removes the value, as upstream does. The owner turns startup on again in Settings.
+- **Startup across upgrades.** A silent upgrade keeps the startup value. On the interactive reinstall page, choosing "uninstall before installing" is the default for upgrades. It runs a real uninstall, which removes the value, as upstream does. Morii turns startup on again in Settings.
 - **Upgrade right after launch.** An upgrade started in the first seconds after Runtime starts can find its executable still locked. It then fails with exit code 2, leaves the installed version and its registration unchanged, and can simply be rerun.
 - **Long work can delay a session end.** Install, upgrade, sign-out and shutdown wait for a running verify or backup, because those cannot be cancelled. Restart Manager forces termination after its timeout, and the Vault's crash safety covers that case.
 - **Template changes are routed.** Memory's Runtime surface manifest now lists the reference installer. A change there arrives as a RUNTIME.md log row, and Runtime adopts it by copying again and rerunning the drills.
@@ -57,7 +57,7 @@ Both were fixed first in Memory's reference installer (Memory `bdceb41` and `090
 
 The [installer validation report](../validation/Desktop-installer-v1.md) covers:
 
-- 26 static ownership checks;
+- 26 static responsibility checks;
 - 7 version-guard cases, 5 startup-cleanup cases and 2 locked-file cases;
 - an 8-check install and uninstall drill;
 - a 26-check upgrade drill on real packages. It covers:

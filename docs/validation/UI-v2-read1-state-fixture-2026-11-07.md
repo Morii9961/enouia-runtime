@@ -10,4 +10,4 @@
 
 自有 Edge 156/profile、1100×700：第一次运行在 `Page.enable` 上触发脚本自身的 60 秒 CDP 超时，没有截图，按脚本约定不自动重试；手动重跑一次通过。三语双主题八态 48 行/48 张截图，四态再各切三语 72 行，共 120 行。页面错误 0，宿主动作 0，读取只有 status/page，启动器退出 0。语言切换保留输入节点、焦点、草稿和行节点，不重发 page。复核日文浅色页面等待、中文深色打开截图。
 
-复现：`node e2e/read1-state-diagnostics.mjs <Edge executable> target/<owned-directory>`（cwd `apps/desktop`），`--pending-only` 只跑页面等待/打开。没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Owner、真实 Provider、持续形成、迁移或部署；Memory pin 不变。
+复现：`node e2e/read1-state-diagnostics.mjs <Edge executable> target/<owned-directory>`（cwd `apps/desktop`），`--pending-only` 只跑页面等待/打开。没有完整 npm test、构建、Rust、原生 smoke、实际缩放、个人 Vault、Morii、真实 Provider、持续形成、迁移或部署；Memory pin 不变。

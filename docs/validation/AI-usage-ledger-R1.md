@@ -4,7 +4,7 @@ Date: 2026-10-21, Asia/Shanghai. Scope: new independent `enouia-usage` crate, fr
 
 ## Protocol handoff
 
-The owner retained the requirement for detailed quality reasons and authorized messaging the Dashboard chat. Its author confirmed UsageSnapshot 1.1 Schema/fixtures/SHA frozen, while explicitly reporting Git commit/push not executed. The source remains the publisher's content-hash frozen local bundle, not a new Runtime format. [usage-pin.json](../integration/usage-pin.json) records that publication limitation and hashes all 43 mirrored public files. Upstream base `fede141` contains 1.0 only; it must not be cited as the 1.1 commit.
+Morii retained the requirement for detailed quality reasons and authorized messaging the Dashboard chat. Its author confirmed UsageSnapshot 1.1 Schema/fixtures/SHA frozen, while explicitly reporting Git commit/push not executed. The source remains the publisher's content-hash frozen local bundle, not a new Runtime format. [usage-pin.json](../integration/usage-pin.json) records that publication limitation and hashes all 43 mirrored public files. Upstream base `fede141` contains 1.0 only; it must not be cited as the 1.1 commit.
 
 The 1.1 extension supplies 15 finite reasons, affected-object units, explicit dataset-wide unallocated measurements and no inferred request-start dates. Unknown request dates do not enter Shanghai daily/weekly usage. Both 1.0 and 1.1 fictional corpora are mirrored unchanged in `contracts/usage/dashboard/`; Runtime implements its own closed structural and semantic validation rather than executing Dashboard code at runtime.
 

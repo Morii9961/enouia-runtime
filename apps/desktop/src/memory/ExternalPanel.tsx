@@ -18,7 +18,7 @@ type Native = { setup: typeof providerSetup; reload: typeof providerReload; key:
 const NATIVE: Native = { setup: providerSetup, reload: providerReload, key: providerKey };
 
 const SETUP_TEXT: Record<string, string> = labels({
-  absent: msg("External providers are off. To turn them on, the owner writes memory-providers.json in Runtime's settings folder with the exact models and limits they verified."),
+  absent: msg("External providers are off. To turn them on, Morii writes memory-providers.json in Runtime's settings folder with the exact models and limits Morii verified."),
   invalid: msg("memory-providers.json was refused, so external providers stay off."),
 });
 

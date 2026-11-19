@@ -81,7 +81,7 @@ export default function AutoMemory({ onExit, workspace }: { onExit?: () => void;
         <div className="am-head-row">
           <h1 className="am-h1" tabIndex={-1} ref={head}>{t("Automatic memory")} <span>{t("synthetic preview")}</span></h1>
           <p className="am-stamp bg-inv">{t(AUTO_LABEL)}</p>
-          {onExit ? <button type="button" className="am-back" onClick={onExit}>{t("Back to Vault · owner review")}</button> : null}
+          {onExit ? <button type="button" className="am-back" onClick={onExit}>{t("Back to Vault · Morii review")}</button> : null}
         </div>
         <p className="am-note">{t(AUTO_NOTE)}</p>
         <div className="am-demo-states" role="group" aria-label={t("Demo state")}>

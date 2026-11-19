@@ -10,4 +10,4 @@ Fresh verification: all 80 frontend tests including four new send-envelope/ident
 
 The new browser fixture passed 20/20; seven affected fixtures passed 12/12, 18/18, 14/14, 10/10, 7/7, 14/14 and 11/11 (106 checks total including the new fixture). At the unchanged baseline, the previously unavailable confirmation and operation-identity fixtures additionally passed 9/9 and 11/11; related off-ledger/setup/status regressions also passed. Captured counts and failures are selected from the actual `#results` DOM in [browser summary](Memory-provider-recovery-browser-2026-10-14.json). Receipt timing and responses are synthetic, not physical Windows/Narrator or Morii acceptance.
 
-No personal Vault, actual credentials, live Provider, Activity activation, installer, Memory-domain change or pin bump occurred. Owner changes and manual status snapshots remain excluded.
+No personal Vault, actual credentials, live Provider, Activity activation, installer, Memory-domain change or pin bump occurred. Morii changes and manual status snapshots remain excluded.

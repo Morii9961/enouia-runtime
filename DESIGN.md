@@ -158,7 +158,7 @@
 - 中文用「你」，不用「您」；日文用です・ます，标签用名词。中文标点全角，日文引号用「」，中文引号用“”。用语对照：Vault 记忆库 / 保管庫，canonical 正式，candidate 候选 / 候補，session 会话 / セッション，capsule 胶囊 / カプセル，provider 模型服务商 / プロバイダー，evidence 证据 / 根拠，grant 授权 / 許可，Adopted by system 系统已采用 / システムが採用，Corrected by you 你纠正过 / あなたが訂正，Star map 记忆星图 / 記憶の星図，Tile Blue 黛蓝 / タイルブルー，Xuan Paper 宣纸 / 宣紙。
 - 日期：英文保持原格式（「1 Oct 2026」「THU 1 OCT」）；中文与日文用 Intl（zh-CN / ja-JP），记录带写「10月1日 周四」/「10月1日 木」，日历日仍按 Asia/Shanghai。
 - 示例：
-  - 按钮：「Edit · creates a revision」「Back to Vault · owner review」「Copy ID」
+  - 按钮：「Edit · creates a revision」「Back to Vault · Morii review」「Copy ID」
   - 空状态：「Nothing waiting for review.」「Nothing here matches. No reading on this strip for that text.」
   - 错误：「Review queue could not be read」「Could not copy. Select the ID and copy it manually.」
 - 诚实规则（契约）：系统自动采用写「Adopted by system」，不写 approved/confirmed；演示永远标「Demo · local only」/「Fictional」；合成预览永远标「Synthetic preview · not running」；字面检索写「Literal search」，不叫语义检索。

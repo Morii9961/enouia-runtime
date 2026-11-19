@@ -10,7 +10,7 @@ Update (2026-10-07, [ADR-028](adr/028-activity-surface.md)): inside the native s
 
 Update (2026-10-18): the native Runtime Inspector now shows observed Memory, Windows shell and Activity component status through existing read-only facades. Browser previews retain the fictional Inspector described below. See [the delivery plan](RUNTIME_V1_DELIVERY_PLAN.md) and [validation](validation/Runtime-inspector-v1.md).
 
-Update (2026-10-06): [Runtime Vault admission](validation/Root-admission-v1.md) reserves a Vault directory for cooperating Runtime processes and explains refused startup choices. Locking retains the reservation until switching Vaults or exiting. Other Memory clients still require explicit ownership separation.
+Update (2026-10-06): [Runtime Vault admission](validation/Root-admission-v1.md) reserves a Vault directory for cooperating Runtime processes and explains refused startup choices. Locking retains the reservation until switching Vaults or exiting. Other Memory clients still require explicit responsibility separation.
 
 ## Implemented surface
 

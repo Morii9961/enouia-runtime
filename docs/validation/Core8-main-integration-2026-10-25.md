@@ -58,4 +58,4 @@ entire production memory goal. Keep existing v1 data and approval provenance.
 A new-format personal library requires separately selected source scope,
 identity/capture, model/budget policy, independent recovery and migration/fencing
 validation. Do not run legacy init over an existing root or pretend old
-candidates were owner approved. No initialization is performed by this merge.
+candidates were Morii approved. No initialization is performed by this merge.

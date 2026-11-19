@@ -8,4 +8,4 @@
 
 完整 `npm test`（改样式类之前，文本与条件相同）：Node 142 项 139 通过 / 3 跳过 / 0 失败；DOM 118 个场景运行、2,464 项全部通过，退出 0。改为 `mem-muted` 后复跑本场景 16/16 与 TypeScript。i18n/CJK 12 项通过。
 
-没有截图（该场景结束时卸载组件），没有 Rust、原生 smoke、个人 Vault、Owner、Provider、迁移或部署；Memory pin 不变。
+没有截图（该场景结束时卸载组件），没有 Rust、原生 smoke、个人 Vault、Morii、Provider、迁移或部署；Memory pin 不变。

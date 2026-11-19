@@ -6,20 +6,20 @@ The current baseline is **architecture v0.3**. M0 provides an offline Rust works
 
 The [Quiet Runtime desktop surface](docs/FRONTEND_IMPLEMENTATION_v1.md) implements the Claude Design seven-page frontend in `apps/desktop`, with a separate Tauri Windows shell. Inside the native shell, Memory, Context, Sessions and the Vault status on Home and Settings use Enouia Memory's pinned workspace Core ([ADR-025](docs/adr/025-enouia-memory-integration.md), [Memory integration v1](docs/MEMORY_INTEGRATION_v1.md)). Browser previews stay explicitly fictional; the native [Runtime Inspector](docs/validation/Runtime-inspector-v1.md) displays observed Memory, Windows shell and Activity status. The native Activity surface reads the separately installed producer through its runner ([ADR-028](docs/adr/028-activity-surface.md)). The [companion shell](docs/adr/026-companion-shell.md) provides one tray, close-to-tray, scoped Quick Search and opt-in login startup; explicit Exit releases the Vault. Runtime additionally reserves Vault directory identities ([root admission evidence](docs/validation/Root-admission-v1.md)). The unsigned [current-user installer](docs/adr/027-desktop-installer.md) (`npm run desktop:bundle`) owns application files only. Signing, remaining native acceptance, full J1 acceptance and production activation remain pending. See [Activity integration evidence](docs/validation/Activity-desktop-integration-2026-10-08.md). [Frontend validation](docs/validation/Frontend-surface-v1.md) records the demo baseline; the [Memory integration report](docs/validation/Memory-integration-v1.md) and its linked follow-ups preserve evidence for each native release.
 
-The [desktop v1 delivery plan](docs/RUNTIME_V1_DELIVERY_PLAN.md) tracks Memory, conversation and desktop work toward one combined owner acceptance. General-purpose model tools are a later stage.
+The [desktop v1 delivery plan](docs/RUNTIME_V1_DELIVERY_PLAN.md) tracks Memory, conversation and desktop work toward one combined Morii acceptance. General-purpose model tools are a later stage.
 
 The [2026-10-08 combined Activity validation](docs/validation/Activity-unified-2026-10-08.md) integrates the remaining Claude work (migration preflight, publisher regression checks, Claude history retention/discovery and explicit production packaging) with the current native desktop shell. It also closes two reproduced validation gaps. B4 compatibility acceptance and B5 deployment/activation remain open; merging implementation is not production cutover.
 
 Read in this order:
 
-1. [Architecture v0.3](Enouia_Runtime_Architecture_v0.3.md) — domain ownership, repository/data layout, contracts, durability, UI, health, and future scope.
+1. [Architecture v0.3](Enouia_Runtime_Architecture_v0.3.md) — domain responsibility, repository/data layout, contracts, durability, UI, health, and future scope.
 2. [Implementation plan](docs/IMPLEMENTATION_PLAN_v0.3.md) — parallel Track A / Track B, acceptance tests, unresolved gates, and the exact M0.1 task for Sol.
 3. [Activity migration runbook](docs/ACTIVITY_MIGRATION_v0.3.md) — comparison matrix, seed/high-water reconciliation, cutover, and rollback.
 4. [ADR register](docs/adr/README.md) — adopted decisions and deferred work.
 5. [ADR-025](docs/adr/025-enouia-memory-integration.md) — Enouia Memory owns the Memory domain; Runtime hosts its local client.
 6. [Memory integration v1](docs/MEMORY_INTEGRATION_v1.md) — pinned revision, adapter, desktop surfaces, build checks and pin bumps.
 7. [ADR-026](docs/adr/026-companion-shell.md) — tray, quick search, login startup and the four stops.
-8. [ADR-027](docs/adr/027-desktop-installer.md) — current-user installer, ownership rules and session-end shutdown.
+8. [ADR-027](docs/adr/027-desktop-installer.md) — current-user installer, responsibility rules and session-end shutdown.
 
 [Design validation evidence](docs/DESIGN_VALIDATION_v0.3.md) records preserved-input hashes, protocol-source hashes, checks performed, and the limits of this design pass.
 
@@ -122,7 +122,7 @@ The paragraphs below, from A1 Memory model v1 through the selected orchestration
 
 [All-command digest vectors](docs/COMMAND_DIGEST_VECTORS_v2_DESIGN.md) now freeze 22 byte examples across twelve proposed command kinds, shared defaults and nested field order. `python scripts/check-command-digests-design.py` verifies 132 comparisons, four text/array/numeric distinctions and 22 refusal examples; [validation](docs/validation/Core-command-digests-design.md) records that Rust/f64 parity and durable retries remain unaccepted.
 
-[Selected orchestration histories](docs/ORCHESTRATION_TRACES_v1_DESIGN.md) freeze 26 symbolic cancellation/retry/restart/ownership histories with 164 observations. `python scripts/check-orchestration-traces-design.py` checks those expected histories and false completion/invariant cases; [validation](docs/validation/Core-orchestration-traces-design.md) explicitly excludes actual calls, process restart, canonical files and durability.
+[Selected orchestration histories](docs/ORCHESTRATION_TRACES_v1_DESIGN.md) freeze 26 symbolic cancellation/retry/restart/responsibility histories with 164 observations. `python scripts/check-orchestration-traces-design.py` checks those expected histories and false completion/invariant cases; [validation](docs/validation/Core-orchestration-traces-design.md) explicitly excludes actual calls, process restart, canonical files and durability.
 
 [Private AI Usage Ledger](docs/AI_USAGE_LEDGER.md) provides separate manual count-only scans, durable revisions and offline UsageSnapshot 1.1 exports. It uses explicit source roots and never starts with Activity or desktop. [Synthetic verification](docs/validation/AI-usage-ledger-R3.md) includes the frozen Dashboard contract, process recovery and bounded scale trials; personal collection and production activation remain unperformed.
 

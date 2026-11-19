@@ -100,7 +100,7 @@ Co-authored-by: Codex <267193182+codex@users.noreply.github.com>
 
 ## 范围与额度
 
-Activity 公开源只有 github/codex/claude，不合并 AI 总量、不改变单位/日边界。Memory/Context/Sessions/Core/Provider/云属于 Enouia Memory；Runtime pin 保持 `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`，不升级、不延伸冻结的 Runtime Memory crates。新 tray/login/installer 集成切片需要 owner 单独要求。
+Activity 公开源只有 github/codex/claude，不合并 AI 总量、不改变单位/日边界。Memory/Context/Sessions/Core/Provider/云属于 Enouia Memory；Runtime pin 保持 `ff692ccb6fbc1c387254d5ffbef41b105eeb2a84`，不升级、不延伸冻结的 Runtime Memory crates。新 tray/login/installer 集成切片需要 Morii 单独要求。
 
 本次续作仅授权本地合成实施/验收：不触碰个人档案/Vault/凭据，不启用真实账户采集、生产上传/调度、种子切换，不修改 Moriium checkout、不部署服务器。临时 Vault 必须通过实际 Core picker/命令建立；不直接改规范文件。ACL 验收只使用新合成对象、保存/恢复完整 SDDL 并比较；helper 有限时退出，Temp 默认保留。B4/J1 partial、B5 false；真实登录/电源/电池、磁盘满/断电、持续压力、真实远端收据/发布观察保持未验证门槛。
 
