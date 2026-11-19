@@ -1,6 +1,6 @@
 # Runtime 交付路线与问题清单（2026-11-16）
 
-本文件是当前接续入口，取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
+本文件是当前接续入口（R4 最新状态见下文“R4：原有界面接入真实库”一节，最终验收见 [R4 一次性验收指南](../RUNTIME_R4_ACCEPTANCE_2026-11-19.md)），取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
 2026-11-18，Memory 完成 351 条真实形成、重开与来源核验，并通过主人选择的同盘备份验证、隔离恢复与幂等重跑。Runtime 已从 `1267268` 构建[本地 R3 候选](../validation/R3-morii-readonly-candidate-1267268-2026-11-18.md)，生成 NSIS 模板 26/26、候选程序合成 WebView2 24/24 通过。Memory 交付会话以原登记的 Windows 账户完成[真实库本机代理实测](../validation/R3-morii-readonly-candidate-1267268-2026-11-18.md#真实登记库的本机代理实测)：打开、检索、引文、锁定与同根重开通过；桌面显示的是当前授权范围（259 条）。接续[Morii 人工验收](../RUNTIME_MORII_READONLY_ACCEPTANCE_2026-11-17.md)，独立介质故障恢复另待验证。下文的早期候选状态保留原时点。
 
@@ -118,6 +118,8 @@ Morii 2026-11-19 要求：交接任务完成后新开会话，把 Runtime 原有
 2026-11-19 R4.1：[登记模式界面接入真实目录](../validation/R4-1-registered-surfaces-2026-11-19.md)——记忆格 / 列表筛选与分面计数、详情、时间、关联、形成、Sessions、Home、Quick Search 与 Inspector 读数改读真实库；原生合成 33/33 与 42/42，真实库桌面走查 19/19。仍缺 Context 与召回实验（等 Memory 的只读召回预览）。写入、Provider、MCP、迁移的授权门槛见[一页汇总](R4_AUTHORIZATION_GATES_2026-11-19.md)。
 
 2026-11-19 R4.2：Memory #125（ADR-MEM-152）交付 G22 后，pin 升至 `009b7bc`，[Context 与召回实验接入真实库](../validation/R4-2-recall-preview-009b7bc-2026-11-19.md)（原生合成 34/34、42/42，真实库走查 20/20）。至此 R4.0–R4.2 的只读界面全部改读真实库；R4.3/R4.4 等待授权，R4.5 从 main 打候选。
+
+2026-11-19 R4.5：从 main `218df03` 构建[候选](../validation/R4-5-candidate-2026-11-19.md)（NSIS 模板 26/26、合成 34/34 与 42/42、候选程序真实库走查 20/20），Morii 按[一次性验收指南](../RUNTIME_R4_ACCEPTANCE_2026-11-19.md)验收；R3 的人工回执并入该指南。
 
 规则：每个界面接入前后都要有合成验证；只有在原生程序里对真实库实际读通后，才去掉“虚构”标识。界面与 Memory 契约冲突时，以 Memory 为准。Runtime 不自行实现 Memory 领域逻辑。读取窗口 2026-11-24 到期，最终验收前需由 Memory 续期。
 
