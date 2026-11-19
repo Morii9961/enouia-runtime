@@ -18,11 +18,14 @@ fn load<T: serde::de::DeserializeOwned>(text: &str) -> Result<T, &'static str> {
     serde_json::from_str(text).map_err(|_| "catalog_fixture_invalid")
 }
 pub(super) fn create(stop: &AtomicBool) -> Result<Library, &'static str> {
-    create_with_clock(stop, Arc::new(SystemClock))
+    create_with_clock(stop, Arc::new(SystemClock), false)
 }
+/// `full_history` selects the registered entry's reader (ADR-MEM-153) so tests
+/// can show ended policy windows no longer hide records there.
 pub(super) fn create_with_clock(
     stop: &AtomicBool,
     clock: Arc<dyn Clock + Send + Sync>,
+    full_history: bool,
 ) -> Result<Library, &'static str> {
     let ids = Arc::new(OsIdSource);
     let mut descriptor: AutomationDescriptor =
@@ -53,9 +56,15 @@ pub(super) fn create_with_clock(
         .map_err(|_| "catalog_fixture_storage")?,
     );
     seed(&vault, &descriptor, clock.now_unix_ms(), stop, false)?;
-    let reader =
+    let reader = if full_history {
+        SegmentedMemoryReader::from_authenticated_system_full_history(
+            vault,
+            descriptor.system_actor.clone(),
+        )
+    } else {
         SegmentedMemoryReader::from_authenticated_system(vault, descriptor.system_actor.clone())
-            .map_err(|_| "catalog_fixture_invalid")?;
+    }
+    .map_err(|_| "catalog_fixture_invalid")?;
     Ok(Library {
         reader,
         profile: load(include_str!("../../tests/fixtures/core8/profile.json"))?,
