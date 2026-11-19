@@ -12,6 +12,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   const [stats, setStats] = useState<CatalogStats | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const heading = useRef<HTMLHeadingElement>(null);
   const [filter, setFilter] = useState(CATALOG_FILTER);
   const [observationError, setObservationError] = useState<{ cause: unknown } | null>(null);
   const reads = useLatestRead();
@@ -63,7 +64,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   const owner = mode === "registered_owner_readonly";
   return <>
     <div className="qr45" aria-busy={reads.busy}>
-      <div className="qr31"><h2 className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered Owner · read only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
+      <div className="qr31"><h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered Owner · read only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
       <div className="qr44 mem-pad">
         {mode && <p className="mem-content">{t(owner ? "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here." : "This library contains fixed fictional records. It does not open an Owner Vault or run continuous formation.")}</p>}
         {observationError && <p role="alert">{describe(observationError.cause)}</p>}
@@ -79,7 +80,10 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
             <button className="mem-button" disabled={!open || reads.busy}>{t("Search catalog")}</button>
           </form>
         {open && <button className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Refresh catalog")}</button>}
-        {(open || (!owner && status?.state === "locked")) && <button className="mem-button" disabled={reads.busy} onClick={() => void control(open ? "lock" : "unlock")}>{t(owner ? "Lock registered library" : open ? "Lock synthetic library" : "Unlock synthetic library")}</button>}
+        {(open || (!owner && status?.state === "locked")) && <button className="mem-button" disabled={reads.busy} onClick={event => {
+          if (document.activeElement === event.currentTarget) heading.current?.focus();
+          void control(open ? "lock" : "unlock");
+        }}>{t(owner ? "Lock registered library" : open ? "Lock synthetic library" : "Unlock synthetic library")}</button>}
         {open && page && stats && <>
           <p className="mem-content">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: stats.matched_in_scope })}</p>
           <p className="mem-content">{t("Counts cover currently authorized machine revisions for this selection.")}</p>
