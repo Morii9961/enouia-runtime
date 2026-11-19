@@ -19,7 +19,7 @@
 
 ## 验证
 
-源码为 Runtime main `6e6bb8f`（PR215 合并）加本分支。被测程序 `--no-bundle` `enouia-desktop.exe`，SHA-256 `525afde444721e21d4a3ca2069294fa5af3e5685b515bc88c4087ad70c87ef13`，不是安装候选。
+源码为 Runtime main `6e6bb8f`（PR215 合并）加本分支；合并前变基到 `70806f8`（PR216 只改两个测试文件），变基后 `npm` 单元测试 151/151 通过。被测程序 `--no-bundle` `enouia-desktop.exe`，SHA-256 `525afde444721e21d4a3ca2069294fa5af3e5685b515bc88c4087ad70c87ef13`，不是安装候选。
 
 | 检查 | 结果 |
 | --- | --- |
