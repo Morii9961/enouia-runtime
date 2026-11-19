@@ -56,3 +56,5 @@ Workspace 61 命令。`npm run desktop:build -- -- --offline --locked`（`--no-b
 
 候选 `1267268` 的既有成绩和真实库代理回执仍归属该候选，不转到本补丁。本补丁没有重跑 NSIS、
 Workspace 布局/无障碍/键盘矩阵，也不构成 Morii 人工验收、实际安装或新候选。
+
+2026-11-19 后续：按 Morii 指示清理了 `E:\EnouiaRuntimeSyntheticValidation` 及其中的合成登记。复跑时须重新创建仅用于合成验证的上级目录（测试要求其已存在），再按上文生成新登记。
