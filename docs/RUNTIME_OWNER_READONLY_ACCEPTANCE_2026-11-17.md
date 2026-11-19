@@ -4,6 +4,8 @@
 `enouia-desktop.exe` 和 `WebView2Loader.dll` 可免安装验收同一个已登记库，合成登记只读冒烟 **25/25**。
 [候选位置、哈希及验证范围](validation/R3-owner-readonly-candidate-1e96a6d-2026-11-19.md)。
 
+2026-11-19 后续：Morii 授权登记入口读取全部敏感级别。`1e96a6d` 仍只显示 `Private` 范围（259 条），修复后的程序见[验证](validation/Registered-owner-full-sensitivity-2026-11-19.md)，预期显示 Memory 审计的全部记录，以策略授权和到期时间为准。
+
 上一候选 `1267268` 通过合成 WebView2 **24/24**，交付会话已用它完成真实库的本机代理实测，
 [候选记录](validation/R3-owner-readonly-candidate-1267268-2026-11-18.md)保留。代理实测不转记到新候选；Morii 的人工验收回执待填写。
 

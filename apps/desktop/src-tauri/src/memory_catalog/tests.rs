@@ -169,6 +169,7 @@ fn registered_native_owner_opens_same_root_reads_closes_and_reauthenticates() {
             &descriptor,
             SystemClock.now_unix_ms(),
             &AtomicBool::new(false),
+            true,
         )
         .unwrap();
     }
