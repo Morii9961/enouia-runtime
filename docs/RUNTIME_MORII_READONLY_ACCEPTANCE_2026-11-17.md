@@ -1,5 +1,7 @@
 # 已登记 Morii 只读入口验收（2026-11-18）
 
+2026-11-19 更新：R4 完成后，人工验收改用 [R4 一次性验收指南](RUNTIME_R4_ACCEPTANCE_2026-11-19.md)与候选 `218df03`；下文 R3 回执不再单独填写。
+
 2026-11-19 起人工验收改用新候选 `1e96a6d`（收入键盘锁定焦点修复）：候选目录中相邻的
 `enouia-desktop.exe` 和 `WebView2Loader.dll` 可免安装验收同一个已登记库，合成登记只读冒烟 **25/25**。
 [候选位置、哈希及验证范围](validation/R3-morii-readonly-candidate-1e96a6d-2026-11-19.md)。
