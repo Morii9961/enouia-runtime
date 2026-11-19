@@ -45,3 +45,5 @@
 
 Morii 人工验收、实际安装与升级、托盘、全局热键、登录启动和分发仍待执行。上一候选
 `apps/desktop/target/candidate-1267268/` 及其证据保留，用于对照。
+
+2026-11-19 后续：按 Morii 指示清理了 `E:\EnouiaRuntimeSyntheticValidation` 及其中的合成登记。复跑时须重新创建仅用于合成验证的上级目录（测试要求其已存在），再按上文生成新登记。
