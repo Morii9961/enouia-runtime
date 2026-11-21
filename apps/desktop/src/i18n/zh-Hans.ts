@@ -2229,5 +2229,8 @@ const dict: Record<string, string> = {
   "Planning the change…": "正在生成修改计划…",
   "kept": "保留",
   "not kept": "不保留",
+  "Extracted by ChatGPT · {model}": "ChatGPT 提取 · {model}",
+  "Extracted by ChatGPT": "ChatGPT 提取",
+  "ChatGPT note, not a fact": "ChatGPT 的附注，不是事实",
 };
 export default dict;

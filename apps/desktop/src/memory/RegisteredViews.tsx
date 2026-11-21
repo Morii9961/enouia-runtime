@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogView, type RecallPreview, type RecallQuery, type ActivityPage, type CatalogFilter, type CatalogPage, type CatalogSelection, type Conflicts,
   type CatalogSource, type CatalogStats, type ConversationDetail, type Conversations, type GraphPage, type Neighbors, type TimeBuckets } from "./catalog";
 import { CatalogDetailPanel } from "./CatalogMemory";
-import { recordTimeText, word } from "./catalogWords";
+import { analystText, recordTimeText, word } from "./catalogWords";
 import { useLatestRead } from "./hooks";
 import { useStatus, registeredLabel } from "./status";
 import { ErrorBox } from "./ui";
@@ -207,7 +207,7 @@ function FormationView() {
         <p className="mem-content">{t("{shown} of {matched} events shown, newest first.", { shown: events.length, matched: pages[0].matched_in_scope })}</p>
         {!pages[0].time_derived_events_available && <p className="mem-row-meta">{t("Fading and archiving by time are not recorded as events yet.")}</p>}
         <ol className="mem-list">{events.map(e => <li key={e.event_id}>
-          <span className="mem-row-meta">{stamp(e.proof.written_at)} · {word(e.event_kind)}{e.change ? ` · ${word(e.change)}` : ""}{e.adoption ? ` · ${word(e.adoption)}` : ""}</span><br />
+          <span className="mem-row-meta">{stamp(e.proof.written_at)} · {word(e.event_kind)}{e.change ? ` · ${word(e.change)}` : ""}{e.adoption ? ` · ${word(e.adoption)}` : ""}{analystText(e.formation_reason) ? ` · ${analystText(e.formation_reason)}` : ""}</span><br />
           {e.memory ? <button type="button" className="mem-link" aria-pressed={selected?.id === e.memory.memory_id} onClick={() => setSelected({ id: e.memory!.memory_id, selection: pages[0].header.selection })}>{e.title ?? e.memory.memory_id}</button>
             : <span className="mem-content">{e.title ?? t("Source material")}</span>}
         </li>)}</ol>
@@ -322,7 +322,7 @@ function SessionsView() {
       <ErrorBox error={reads.error} />
       <ul className="mem-list mem-pad">{items.map(c => <li key={c.conversation.conversation_id}>
         <button type="button" className="mem-link" aria-pressed={chosen === c.conversation.conversation_id} onClick={() => open(c.conversation.conversation_id)}>{c.conversation.title ?? t("Untitled conversation")}</button>
-        <p className="mem-row-meta">{recordTimeText(c.conversation.started_at)} · {c.conversation.platform} · {t("{n} captured turns", { n: c.visible_captured_turns })}</p>
+        <p className="mem-row-meta">{recordTimeText(c.conversation.started_at)} · {c.conversation.platform}{c.conversation.account_scope ? ` · ${c.conversation.account_scope}` : ""} · {t("{n} captured turns", { n: c.visible_captured_turns })}</p>
       </li>)}</ul>
       {last?.next != null && <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show more conversations")}</button>}
     </aside>
