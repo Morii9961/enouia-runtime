@@ -194,6 +194,9 @@ struct Library {
     reader: enouia_memory_host::automation::catalog::SegmentedMemoryReader,
     /// Present only for an authenticated Morii-layout root (ADR-039).
     owner: Option<enouia_memory_host::automation::owner::NativeMemoryOwner>,
+    /// The opened root; only native tests use it to seed synthetic captures.
+    #[cfg_attr(not(test), allow(dead_code))]
+    vault: Option<Arc<enouia_memory_vault::automation::segmented::SegmentedAutomationVault>>,
     profile: AttentionProfile,
     system: ActorRef,
     _root: PathBuf,
@@ -320,12 +323,14 @@ impl NativeCatalog {
             let owner = enouia_memory_host::automation::owner::NativeMemoryOwner::from_authenticated_owner(
                 vault.clone(), descriptor.created_by.clone(),
             ).ok();
+            let opened = vault.clone();
             let reader = enouia_memory_host::automation::catalog::SegmentedMemoryReader::from_authenticated_system_full_history(
                 vault, descriptor.system_actor.clone(),
             ).map_err(fault)?;
             Ok(Library {
                 reader,
                 owner,
+                vault: Some(opened),
                 system: descriptor.system_actor,
                 _root: root.path().to_path_buf(),
                 _lease: Some(lease),

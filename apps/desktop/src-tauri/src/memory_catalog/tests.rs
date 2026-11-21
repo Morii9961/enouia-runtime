@@ -1079,3 +1079,161 @@ fn corrections_still_reach_records_after_their_policy_window_ends() {
     assert_eq!(outcome["action"], "attention");
     native.shutdown();
 }
+/// ADR-MEM-157 seeding: a synthetic ChatGPT submission formed by Memory's own
+/// connector path, read back through the registered catalog Runtime displays.
+#[test]
+fn chatgpt_extracted_memory_carries_its_analyst_model_and_note() {
+    use enouia_memory_contract::common::SpeakerRole;
+    use enouia_memory_contract::{foundation::Clock, ports::IdSource, time::Timestamp};
+    use enouia_memory_host::automation::{
+        connector_formation::{self, ConnectorStatement, ConnectorSubmission, SubmittedAnalyzer},
+        runtime_capture::RuntimeCaptureHost,
+    };
+    use enouia_memory_vault::automation::segmented::RuntimeCaptureScope;
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
+        })
+        .unwrap();
+    let (vault, created_by, window) = {
+        let state = native.0.state.lock().unwrap();
+        let library = state.library.as_ref().unwrap();
+        let vault = library.vault.clone().unwrap();
+        let created_by = vault.descriptor().created_by.clone();
+        let window = library
+            .owner
+            .as_ref()
+            .unwrap()
+            .open_capture_window(30, Sensitivity::Private, vec![FormationKind::Preference])
+            .unwrap();
+        (vault, created_by, window)
+    };
+    let now = enouia_memory_vault::SystemClock.now_unix_ms();
+    let host = RuntimeCaptureHost::enroll_owner(
+        vault,
+        &created_by,
+        std::process::id(),
+        ActorRef {
+            actor_type: enouia_memory_contract::common::ActorType::Client,
+            actor_id: enouia_memory_contract::ids::PrincipalId::from_random(
+                enouia_memory_vault::OsIdSource.random_16(),
+            ),
+        },
+        RuntimeCaptureScope {
+            policy_id: window.policy.policy_id.clone(),
+            source_ids: window.unused_source_ids.clone(),
+            max_sensitivity: Sensitivity::Private,
+            platform: "enouia-runtime".into(),
+            account_scope: "chatgpt-connector-synthetic".into(),
+            default_timezone: "Asia/Shanghai".into(),
+            valid_until: Timestamp::from_unix_ms(now + 240_000).unwrap(),
+        },
+    )
+    .unwrap();
+    let analyzer = SubmittedAnalyzer::default();
+    let host = Arc::new(host);
+    let worker = host
+        .start_worker(analyzer.clone(), std::time::Duration::from_secs(30))
+        .unwrap();
+    let user = "Synthetic ChatGPT turn: I prefer green tea in the afternoon.";
+    let unknown = RecordTime {
+        from: None,
+        until: None,
+        precision: RecordPrecision::Unknown,
+        bound: TimeBound::Within,
+        tz: None,
+        basis: TimeBasis::Unknown,
+    };
+    let turn = |n: u32, speaker, text: &str| RuntimeCaptureTurn {
+        message_id: format!("m{n}"),
+        parent_message_id: (n > 1).then(|| format!("m{}", n - 1)),
+        branch_id: "main".into(),
+        sequence: n,
+        speaker,
+        text: text.into(),
+        original_time: None,
+        original_timezone: None,
+        occurred_at: None,
+        content_lang: "en".into(),
+        assistant_model: None,
+        attachments: vec![],
+    };
+    let submission = ConnectorSubmission {
+        request: RuntimeCaptureRequest {
+            schema_version: NextVersion,
+            kind: RuntimeCaptureKind::Capture,
+            capability: RuntimeCaptureCapability::OwnerV1,
+            request_id: enouia_memory_contract::ids::RequestId::from_random(
+                enouia_memory_vault::OsIdSource.random_16(),
+            ),
+            conversation_id: "chatgpt-synthetic-1".into(),
+            title: None,
+            turns: vec![
+                turn(1, SpeakerRole::User, user),
+                turn(2, SpeakerRole::Assistant, "Synthetic assistant reply."),
+            ],
+        },
+        analyst_model: "gpt-synthetic-1".into(),
+        statements: vec![ConnectorStatement {
+            message_id: "m1".into(),
+            quote: "I prefer green tea in the afternoon.".into(),
+            title: "green tea in the afternoon".into(),
+            interpretation: Interpretation::ClearSelfReport,
+            kind: FormationKind::Preference,
+            event_time: unknown.clone(),
+            valid_time: unknown,
+            note: Some("Synthetic ChatGPT note.".into()),
+        }],
+    };
+    connector_formation::submit(&host, &analyzer, &submission, false).unwrap();
+    let all = CatalogFilter::default();
+    let mut formed = Value::Null;
+    for _ in 0..200 {
+        let Ok(page) = native.call_waiting(
+            "main",
+            &packet(json!({"operation":"page","filter":all,"cursor":null,"limit":100})),
+        ) else {
+            continue;
+        };
+        if let Some(item) = page["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|i| i["base"]["content"] == "I prefer green tea in the afternoon.")
+        {
+            formed = item.clone();
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+    assert_eq!(
+        formed["formation_reason"]["prompt_version"],
+        connector_formation::PROMPT_VERSION,
+        "{formed}"
+    );
+    assert_eq!(
+        formed["formation_reason"]["model_version"],
+        "gpt-synthetic-1"
+    );
+    assert_eq!(
+        formed["formation_reason"]["note"],
+        "Synthetic ChatGPT note."
+    );
+    let conversations = native
+        .call_waiting(
+            "main",
+            &packet(json!({"operation":"conversations","cursor":null,"limit":50})),
+        )
+        .unwrap();
+    assert!(
+        conversations["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|c| c["conversation"]["account_scope"] == "chatgpt-connector-synthetic")
+    );
+    host.revoke();
+    let _ = worker.shutdown();
+    native.shutdown();
+}

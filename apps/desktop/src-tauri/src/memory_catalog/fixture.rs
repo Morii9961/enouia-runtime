@@ -72,6 +72,7 @@ pub(super) fn create_with_clock(
         })
         .transpose()
         .map_err(|_| "catalog_fixture_invalid")?;
+    let opened = vault.clone();
     let reader = if full_history {
         SegmentedMemoryReader::from_authenticated_system_full_history(
             vault,
@@ -84,6 +85,7 @@ pub(super) fn create_with_clock(
     Ok(Library {
         reader,
         owner,
+        vault: Some(opened),
         profile: load(include_str!("../../tests/fixtures/core8/profile.json"))?,
         system: descriptor.system_actor,
         _root: root,

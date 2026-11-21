@@ -2229,5 +2229,8 @@ const dict: Record<string, string> = {
   "Planning the change…": "変更を計画中…",
   "kept": "保持",
   "not kept": "保持しない",
+  "Extracted by ChatGPT · {model}": "ChatGPT が抽出 · {model}",
+  "Extracted by ChatGPT": "ChatGPT が抽出",
+  "ChatGPT note, not a fact": "ChatGPT の注記で、事実ではありません",
 };
 export default dict;

@@ -54,11 +54,11 @@ export type GraphPage = { kind: "memory_graph_page"; header: ViewHeader; nodes: 
   semantic_neighbors_available: boolean; next: unknown | null };
 export type ActivityPage = { kind: "memory_activity_page"; header: ViewHeader; matched_in_scope: number; complete_in_scope: boolean; next: unknown | null;
   time_derived_events_available: boolean; items: { event_id: string; event_kind: string; memory: { memory_id: string; revision: number } | null;
-    title: string | null; change: string | null; adoption: string | null; effective_sensitivity: string; proof: { written_at: string } }[] };
+    title: string | null; change: string | null; adoption: string | null; effective_sensitivity: string; proof: { written_at: string }; formation_reason?: { prompt_version: string; model_version: string | null } | null }[] };
 export type Neighbors = { kind: "native_memory_neighbors"; header: ViewHeader; matched_in_scope: number;
   items: { other: RevisionSummary; relations: { relation: string; class: string; direction: string; witness_count_in_scope: number }[] }[]; next: unknown | null };
 export type Conflicts = { kind: "memory_conflict_group"; header: ViewHeader; basis: string; matched_in_scope: number; items: CatalogItem[] };
-export type ConversationMeta = { conversation_id: string; platform: string; title: string | null; started_at: RecordTime; ended_at: RecordTime; original_conversation_id: string | null };
+export type ConversationMeta = { conversation_id: string; platform: string; account_scope?: string; title: string | null; started_at: RecordTime; ended_at: RecordTime; original_conversation_id: string | null };
 export type Conversations = { kind: "native_conversation_page"; header: ViewHeader; matched_in_scope: number; next: unknown | null;
   items: { conversation: ConversationMeta; visible_captured_turns: number; visible_captured_sources: number; effective_sensitivity: string }[] };
 export type ConversationDetail = { kind: "native_conversation_detail"; header: ViewHeader; conversation: ConversationMeta | null;

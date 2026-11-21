@@ -13,7 +13,7 @@ setCatalogTransport(async(_command,args)=>{
   if(q.operation==='status')return {...status('open'),mode:'registered_owner_readonly',corrections};
   if(q.operation==='page')return page(q.filter.text,q.cursor);
   if(q.operation==='stats')return stats(q.selection,3);
-  if(q.operation==='detail'){const d:any=detail(q.memory_id);d.history=[{memory:{...target,memory:{memory_id:q.memory_id,revision:1}},title:'t',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:'initial',learned_at:'2026-11-03T00:00:00.000Z',effective_sensitivity:'private'}];d.history_count_in_scope=1;return d;}
+  if(q.operation==='detail'){const d:any=detail(q.memory_id);if(d.item)d.item.formation_reason={interpretation:'clear_self_report',rule_version:'admission-rules-3',prompt_version:'chatgpt-connector-authored-1',model_version:'gpt-synthetic-1',mode:'live',note:'Synthetic ChatGPT note.',note_is_machine_annotation:true};d.history=[{memory:{...target,memory:{memory_id:q.memory_id,revision:1}},title:'t',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:'initial',learned_at:'2026-11-03T00:00:00.000Z',effective_sensitivity:'private'}];d.history_count_in_scope=1;return d;}
   const envelope={schema_version:2,capability:'memory-native-read-2'};
   if(q.operation==='plan_action'){lastPlan=`op_${calls.length}`;}
   if(q.operation==='plan_action')return {...envelope,kind:'native_owner_preview',effect:'native_plan',plan:{operation_id:lastPlan},plan_hash:'a'.repeat(64),effects_hash:'b'.repeat(64),
@@ -35,6 +35,7 @@ try{
   await wait(()=>text().includes('Synthetic item 1'));
   click('Synthetic item 1');
   await wait(()=>text().includes('Change this record'));
+  check('chatgpt_extracted_record_names_analyst_model_and_note',text().includes('Extracted by ChatGPT · gpt-synthetic-1')&&text().includes('ChatGPT note, not a fact'));
   check('registered_entry_offers_planned_changes',['Correct…','Withdraw…','Forget…','Protect','Pin'].every(l=>text().includes(l)));
   click('Correct…');
   await wait(()=>!!fixture.querySelector('section[aria-label="Change this record"] textarea'));

@@ -22,6 +22,12 @@ const WORDS: Record<string, string> = labels({
   recorded_relation: msg("Recorded relation"), algorithm_suggestion: msg("Algorithm suggestion"),
 });
 export const word = (value: string | null | undefined): string => value == null ? "—" : WORDS[value] ?? value;
+/** Memory ADR-MEM-157: memories ChatGPT distilled through the connector carry this prompt version. */
+export const CHATGPT_PROMPT = "chatgpt-connector-authored-1";
+export function analystText(reason: { prompt_version: string; model_version: string | null } | undefined | null): string | null {
+  if (reason?.prompt_version !== CHATGPT_PROMPT) return null;
+  return reason.model_version ? t("Extracted by ChatGPT · {model}", { model: reason.model_version }) : t("Extracted by ChatGPT");
+}
 
 const PRECISION: Record<string, Intl.DateTimeFormatOptions> = {
   instant: { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" },

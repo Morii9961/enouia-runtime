@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection, type FacetGroup } from "./catalog";
-import { recordTimeText, word } from "./catalogWords";
+import { analystText, recordTimeText, word } from "./catalogWords";
 import { CorrectionPanel } from "./CorrectionPanel";
 
 // Filter axes the registered catalog offers; Core returns each axis's values
@@ -117,7 +117,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
             <h3 className="mem-content"><button type="button" className="mem-link" aria-pressed={selectedId === item.base.memory.memory_id} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={() => setSelectedId(item.base.memory.memory_id)}>{item.title}</button></h3><p className="mem-content">{item.base.content}</p>
             <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: word(item.base.dimensions.kind), knowledge: word(item.base.knowledge), adoption: word(item.base.adoption), validity: word(item.base.validity), attention: word(item.base.attention) })}</p>
             <p className="mem-row-meta">{shortId(item.base.memory.memory_id)} · r{item.base.memory.revision} · {item.content_lang}</p>
-            {item.event_time && <p className="mem-row-meta">{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{item.effective_sensitivity ? ` · ${word(item.effective_sensitivity)}` : ""}</p>}
+            {item.event_time && <p className="mem-row-meta">{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{item.effective_sensitivity ? ` · ${word(item.effective_sensitivity)}` : ""}{analystText(item.formation_reason) ? ` · ${analystText(item.formation_reason)}` : ""}</p>}
           </li>)}</ul>
           {page.items.length === 0 && !page.next && <p className="mem-content">{t(filter.text ? "No authorized record matches this search. Search with an empty field to see the whole catalog." : owner ? "This registered catalog has no records in the current authorized scope." : "This synthetic catalog has no records in the current authorized scope.")}</p>}
           {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void load(page.next)}>{t("Next catalog page")}</button>}
@@ -204,7 +204,7 @@ function RecordFields({ item, entities }: { item: NonNullable<CatalogDetail["ite
     {item.base.learned_at && <><dt>{t("Learned")}</dt><dd>{minute(item.base.learned_at)}</dd></>}
     {item.effective_sensitivity && <><dt>{t("Sensitivity")}</dt><dd>{word(item.effective_sensitivity)}</dd></>}
     {item.entities && item.entities.length > 0 && <><dt>{t("Involves")}</dt><dd>{item.entities.map(e => `${entities.find(v => v.value === e.entity_id)?.label ?? t("Unnamed entity")} (${word(e.role)})`).join(" · ")}</dd></>}
-    {reason && <><dt>{t("Why it formed")}</dt><dd>{word(reason.interpretation)} · {word(reason.mode)} · {reason.rule_version}
-      {reason.note && <><br /><span className="mem-content">{reason.note}</span>{reason.note_is_machine_annotation && <span className="mem-row-meta"> · {t("machine note, not a fact")}</span>}</>}</dd></>}
+    {reason && <><dt>{t("Why it formed")}</dt><dd>{analystText(reason) && <strong>{analystText(reason)} · </strong>}{word(reason.interpretation)} · {word(reason.mode)} · {reason.rule_version}
+      {reason.note && <><br /><span className="mem-content">{reason.note}</span>{reason.note_is_machine_annotation && <span className="mem-row-meta"> · {t(analystText(reason) ? "ChatGPT note, not a fact" : "machine note, not a fact")}</span>}</>}</dd></>}
   </dl>;
 }
