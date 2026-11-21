@@ -109,7 +109,7 @@ Morii 2026-11-19 要求：交接任务完成后新开会话，把 Runtime 原有
 | R4.1 | 先接 read-2 已能覆盖的部分：记忆格/列表的筛选与计数、详情与来源抽屉、Home 读数、Quick Search 检索登记库、Inspector 记忆读数；登记模式下这些界面改读真实目录，不再显示虚构数据 | Runtime | 无 |
 | M-R4 | 新格式补齐只读投影：时间分桶与覆盖日历（G03）、全库图投影与带类型的边（G04/G05）、形成活动流与变更游标（G07/G13）、会话/轮次与跳回 Sessions（G14）、冲突组与修订差异（G15）、有效敏感度与“为什么形成”（G16/G19）、全库统计（G23）、Context 改走新格式（G22） | Memory 会话，各项自带 ADR、合成验证与 PR | Memory 自行排期 |
 | R4.2 | 每交付一项 Memory 能力，就升级 pin，把对应界面从演示或旧接口切换到真实库：时间线与覆盖日历、星图与关联、形成视图、Sessions 与 Context 读取、召回实验的真实一栏 | Runtime | 对应 M-R4 项合并 |
-| R4.3 | 写入与日常使用：纠正、撤回、保护、遗忘（G08）、Sessions 写入、本地 Mock / 真实 Provider、新记忆形成（G12） | Memory + Runtime | 各自的授权门槛：写入真实库、Provider、MCP |
+| R4.3 | 写入与日常使用：纠正、撤回、保护、遗忘（G08，已完成，ADR-039）；日常记忆改由 ChatGPT 经远程 MCP 提炼、Memory 校验入库（B 新方向，C 取消）；Claude Code / Codex 本地 MCP（D） | Memory + Runtime | Morii 已授权 A、B、D（2026-11-21）；B 真实接通另需 VPS 部署授权 |
 | R4.4 | 迁移到统一存放目录后改用新登记入口；读取策略续期 | Memory 切片 → Runtime 采用 | Memory 迁移切片 |
 | R4.5 | 新候选与一次性验收：全部界面在真实库上的回执，与安装、升级、托盘、热键、登录启动分别记录 | Runtime + Morii | 以上完成；安装类仍需授权 |
 
@@ -122,6 +122,8 @@ Morii 2026-11-19 要求：交接任务完成后新开会话，把 Runtime 原有
 2026-11-19 晚：Memory #127（ADR-MEM-153/154）合并后，pin 升至 `f9ac21d`，登记入口改为全历史读取，数据区已迁到统一目录（启动只换 home）；[候选](../validation/R4-5-candidate-2026-11-19.md)改从 main `884c015` 重建（模板 26/26、合成 34/34 与 42/42、新 home 真实库走查 20/20），`218df03` 作废。
 
 2026-11-19 R4.5：从 main `218df03` 构建[候选](../validation/R4-5-candidate-2026-11-19.md)（NSIS 模板 26/26、合成 34/34 与 42/42、候选程序真实库走查 20/20），Morii 按[一次性验收指南](../RUNTIME_R4_ACCEPTANCE_2026-11-19.md)验收；R3 的人工回执并入该指南。
+
+2026-11-21 R4.3：A 已合并（[确认后写入](../validation/R4-3a-confirmed-corrections-2026-11-21.md)，pin `f7c2a81`，真实库只做过不确认的计划）。Morii 决定日常记忆“改成 ChatGPT 提炼”：C（Provider / Mock）取消；B 改为 ChatGPT 通过远程 MCP 采集并提炼、Memory 校验入库，Runtime 待 Memory 写入工具交付后升级 pin 并显示提炼记忆、来源标注、只读的 ChatGPT 会话和连接器状态；此前的桌面输入框 + Mock 方案放弃、未合并。D 的 Claude Code / Codex 本地 MCP 按原默认值与 Memory 协调推进。详见[授权门槛](R4_AUTHORIZATION_GATES_2026-11-19.md)。
 
 规则：每个界面接入前后都要有合成验证；只有在原生程序里对真实库实际读通后，才去掉“虚构”标识。界面与 Memory 契约冲突时，以 Memory 为准。Runtime 不自行实现 Memory 领域逻辑。读取窗口 2026-11-24 到期，最终验收前需由 Memory 续期。
 
