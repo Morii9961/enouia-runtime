@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection, type FacetGroup } from "./catalog";
 import { recordTimeText, word } from "./catalogWords";
+import { CorrectionPanel } from "./CorrectionPanel";
 
 // Filter axes the registered catalog offers; Core returns each axis's values
 // and counts under the other active filters (FacetCountScope::OtherFilters).
@@ -71,9 +72,9 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   const owner = mode === "registered_owner_readonly";
   return <>
     <div className="qr45" aria-busy={reads.busy}>
-      <div className="qr31"><h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered library · read only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
+      <div className="qr31"><h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered library · confirmed changes only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
       <div className="qr44 mem-pad">
-        {mode && <p className="mem-content">{t(owner ? "This entry reads the explicitly registered library. It cannot create records, grants or send to a model. Sessions and Context remain unavailable here." : "This library contains fixed fictional records. It does not open Morii's Vault or run continuous formation.")}</p>}
+        {mode && <p className="mem-content">{t(owner ? "This entry reads the explicitly registered library. A change is planned first and written only after you confirm it. Nothing is sent to a model." : "This library contains fixed fictional records. It does not open Morii's Vault or run continuous formation.")}</p>}
         {observationError && <p role="alert">{describe(observationError.cause)}</p>}
         <ErrorBox error={reads.error} />
         <p role="status">{status ? t("Library: {state}", { state: status.state }) : observationError ? t("Library state is unknown.") : t("Reading library state…")}</p>
@@ -124,7 +125,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
       </div>
     </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
-      {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} entities={facetGroups.find(g => g.axis === "entity")?.values ?? []} />}
+      {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} entities={facetGroups.find(g => g.axis === "entity")?.values ?? []} corrections={status?.corrections === true} />}
     </div></aside>
   </>;
 }
@@ -136,7 +137,7 @@ function FacetNote({ groups }: { groups: FacetGroup[] }) {
 
 const minute = (at: string) => recordTimeText({ from: at, until: null, precision: "minute", bound: "within", tz: null, basis: "source_time" });
 
-export function CatalogDetailPanel({ memoryId, filter, selection, read, entities }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead; entities: FacetGroup["values"] }) {
+export function CatalogDetailPanel({ memoryId, filter, selection, read, entities, corrections = false }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead; entities: FacetGroup["values"]; corrections?: boolean }) {
   const [detail, setDetail] = useState<CatalogDetail | null>(null);
   const [source, setSource] = useState<CatalogSource | null>(null);
   const details = useLatestRead();
@@ -174,6 +175,7 @@ export function CatalogDetailPanel({ memoryId, filter, selection, read, entities
         <ol className="mem-list">{detail.history.map(h => <li key={h.memory.memory.revision} className="mem-row-meta">r{h.memory.memory.revision} · {word(h.change)} · {word(h.adoption)} · {minute(h.learned_at)}</li>)}</ol>
         {(detail.history_count_in_scope ?? 0) > detail.history.length && <p className="mem-row-meta">{t("{shown} of {total} revisions shown.", { shown: detail.history.length, total: detail.history_count_in_scope ?? 0 })}</p>}
       </section>}
+      {corrections && <CorrectionPanel key={`${detail.item.base.memory.memory_id}:${detail.item.base.memory.revision}`} detail={detail} entities={entities} />}
       <p>{t("Quoted text evidence; attachment content is not read.")}</p>
       <ul className="mem-list">{detail.fields.evidence.map((evidence, index) => <li key={index}>
         <blockquote className="mem-content">{evidence.quote}</blockquote>

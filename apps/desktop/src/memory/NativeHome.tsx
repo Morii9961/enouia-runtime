@@ -44,13 +44,13 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
           <div className="bg-pan bg-pan-grid" style={layer} aria-hidden="true">
             {Array.from({ length: 21 }, (_, i) => <span key={i} className="bg-day" style={{ left: `${i / 21 * 100}%` }}>{nativeDate(start + i * DAY, { month: 'short', day: 'numeric' })}</span>)}
           </div>
-          <div className="bg-draw" role="img" aria-label={t(readonlyEntry ? 'Read-only library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}>
+          <div className="bg-draw" role="img" aria-label={t(readonlyEntry ? 'Registered library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}>
             <div className="bg-pan bg-pan-ink" style={layer}>
               {commit != null && commit >= start && commit < end ? <span className="bg-mark" data-kind="vault-commit" style={{ left: `${fraction * 100}%`, top: '60%' }} /> : null}
             </div>
           </div>
           <h1 className="qr2 bg-here" lang="en">I'm here.</h1>
-          <p className="bg-native-trace-note">{t(readonlyEntry ? 'Read-only library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}</p>
+          <p className="bg-native-trace-note">{t(readonlyEntry ? 'Registered library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}</p>
         </div>
         {inView ? <svg key={view.seq} className="bg-leaders bg-native-leader" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
           <path d={`M${(0.58 * (commit - view.start) / view.span * 1000).toFixed(1)} 600 L587 46 H605`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />
