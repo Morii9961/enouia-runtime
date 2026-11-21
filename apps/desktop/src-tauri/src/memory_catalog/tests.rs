@@ -923,3 +923,159 @@ fn projection_and_process_reads_forward_core_documents_without_writing() {
     );
     assert_eq!(std::fs::read(root.join("vault/CURRENT")).unwrap(), before);
 }
+#[test]
+fn native_corrections_plan_confirm_once_and_commit_through_core() {
+    const NOW: i64 = 1_793_664_000_000;
+    let clock = Arc::new(enouia_memory_contract::foundation::FakeClock::new(NOW));
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| fixture::create_with_clock(stop, clock.clone(), true))
+        .unwrap();
+    let root = native
+        .0
+        .state
+        .lock()
+        .unwrap()
+        .library
+        .as_ref()
+        .unwrap()
+        ._root
+        .clone();
+    let all = CatalogFilter::default();
+    let target = |native: &NativeCatalog, index: usize| {
+        let page = native
+            .call(
+                "main",
+                &packet(json!({"operation":"page","filter":all,"cursor":null,"limit":100})),
+            )
+            .unwrap();
+        let id = page["items"][index]["base"]["memory"]["memory_id"].clone();
+        let detail = native
+            .call(
+                "main",
+                &packet(json!({"operation":"detail","filter":all,"memory_id":id})),
+            )
+            .unwrap();
+        detail["history"][0]["memory"].clone()
+    };
+    let current = || std::fs::read(root.join("vault/CURRENT")).unwrap();
+    // Withdraw: the plan writes nothing; one confirm commits; a replay is refused.
+    let before = current();
+    let withdraw = target(&native, 0);
+    let plan = native
+        .call("main", &packet(json!({"operation":"plan_action","action":{"action":"withdraw","target":withdraw,"reason":null},"correction":null})))
+        .unwrap();
+    assert_eq!(plan["kind"], "native_owner_preview");
+    assert_eq!(plan["affected_count_in_scope"], 1);
+    assert_eq!(plan["physical_purge"], false);
+    assert_eq!(current(), before, "planning must not write");
+    let confirm = json!({"operation":"confirm_action","operation_id":plan["plan"]["operation_id"],"plan_hash":plan["plan_hash"],"effects_hash":plan["effects_hash"]});
+    let outcome = native.call("main", &packet(confirm.clone())).unwrap();
+    assert_eq!(outcome["kind"], "native_owner_outcome");
+    assert_eq!(outcome["action"], "withdraw");
+    assert_eq!(outcome["actor"]["actor_type"], "owner");
+    assert_ne!(current(), before);
+    assert!(
+        native.call("main", &packet(confirm)).is_err(),
+        "consent is one-use"
+    );
+    let after = native
+        .call("main", &page(all.clone(), Value::Null))
+        .unwrap();
+    assert_eq!(after["matched_in_scope"], 2);
+    let lookup = native
+        .call(
+            "main",
+            &packet(json!({"operation":"action_outcome","operation_id":outcome["operation_id"]})),
+        )
+        .unwrap();
+    assert_eq!(lookup["outcome"]["committed_in"], outcome["committed_in"]);
+    // Correct: Morii's literal text becomes the next revision of the record.
+    let fix = target(&native, 0);
+    let plan = native
+        .call("main", &packet(json!({"operation":"plan_action",
+            "action":{"action":"correct","target":fix,"source_id":"src_00000000-0000-4000-8000-000000000999","assertion_text":"合成纠正：我更喜欢早上散步。"},
+            "correction":{"title":"合成纠正","content_lang":"zh-Hans","sensitivity":"private","interpretation":"clear_self_report"}})))
+        .unwrap();
+    assert!(plan["proposed_correction"].is_object());
+    let outcome = native
+        .call("main", &packet(json!({"operation":"confirm_action","operation_id":plan["plan"]["operation_id"],"plan_hash":plan["plan_hash"],"effects_hash":plan["effects_hash"]})))
+        .unwrap();
+    assert_eq!(outcome["action"], "correct");
+    assert_eq!(outcome["memory_result"]["revision"], 2);
+    let corrected = native
+        .call("main", &packet(json!({"operation":"detail","filter":all,"memory_id":outcome["memory_result"]["memory_id"]})))
+        .unwrap();
+    assert_eq!(
+        corrected["item"]["base"]["content"],
+        "合成纠正：我更喜欢早上散步。"
+    );
+    assert_eq!(corrected["item"]["title"], "合成纠正");
+    // A tampered plan hash is Core's refusal, not a commit.
+    let protect = target(&native, 1);
+    let plan = native
+        .call("main", &packet(json!({"operation":"plan_action","action":{"action":"attention","target":protect,"annotation":"protect","until":null},"correction":null})))
+        .unwrap();
+    assert!(native.call("main", &packet(json!({"operation":"confirm_action","operation_id":plan["plan"]["operation_id"],"plan_hash":"0".repeat(64),"effects_hash":plan["effects_hash"]}))).is_err());
+    // Lock discards pending plans with the library.
+    native.lock();
+    assert_eq!(
+        native.call("main", &packet(json!({"operation":"confirm_action","operation_id":plan["plan"]["operation_id"],"plan_hash":plan["plan_hash"],"effects_hash":plan["effects_hash"]}))),
+        Err("catalog_locked")
+    );
+    native.shutdown();
+}
+#[test]
+fn ordinary_segmented_entry_offers_no_corrections() {
+    let native = NativeCatalog::default();
+    native.initialize_synthetic().unwrap();
+    let all = CatalogFilter::default();
+    let page = native
+        .call("main", &page(all.clone(), Value::Null))
+        .unwrap();
+    let id = page["items"][0]["base"]["memory"]["memory_id"].clone();
+    let detail = native
+        .call(
+            "main",
+            &packet(json!({"operation":"detail","filter":all,"memory_id":id})),
+        )
+        .unwrap();
+    assert_eq!(
+        native.call("main", &packet(json!({"operation":"plan_action","action":{"action":"withdraw","target":detail["history"][0]["memory"],"reason":null},"correction":null}))),
+        Err("correction_unavailable")
+    );
+    native.shutdown();
+}
+#[test]
+fn corrections_still_reach_records_after_their_policy_window_ends() {
+    const NOW: i64 = 1_793_664_000_000;
+    let clock = Arc::new(enouia_memory_contract::foundation::FakeClock::new(NOW));
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| fixture::create_with_clock(stop, clock.clone(), true))
+        .unwrap();
+    clock.set(NOW + 3_600_001);
+    let all = CatalogFilter::default();
+    let page = native
+        .call(
+            "main",
+            &packet(json!({"operation":"page","filter":all,"cursor":null,"limit":100})),
+        )
+        .unwrap();
+    assert_eq!(page["matched_in_scope"], 3);
+    let id = page["items"][0]["base"]["memory"]["memory_id"].clone();
+    let detail = native
+        .call(
+            "main",
+            &packet(json!({"operation":"detail","filter":all,"memory_id":id})),
+        )
+        .unwrap();
+    let plan = native
+        .call("main", &packet(json!({"operation":"plan_action","action":{"action":"attention","target":detail["history"][0]["memory"],"annotation":"protect","until":null},"correction":null})))
+        .unwrap();
+    let outcome = native
+        .call("main", &packet(json!({"operation":"confirm_action","operation_id":plan["plan"]["operation_id"],"plan_hash":plan["plan_hash"],"effects_hash":plan["effects_hash"]})))
+        .unwrap();
+    assert_eq!(outcome["action"], "attention");
+    native.shutdown();
+}

@@ -166,7 +166,7 @@ try{
   let emptyCatalog=false;for(let n=0;n<100&&!emptyCatalog;n++){emptyCatalog=text().includes(noRecords)&&calls.filter(c=>c.operation==='page').at(-1)!.filter.text==='';await sleep(20);}
   check('empty_catalog_without_search_says_no_records',emptyCatalog&&!text().includes(noMatch));
   mode='registered_owner_readonly';scope='f'.repeat(64);
-  await wait(()=>text().includes('Registered library · read only'));
+  await wait(()=>text().includes('Registered library · confirmed changes only'));
   await wait(()=>text().includes('0 shown · 0 matching authorized records'));
   check('registered_mode_is_explicit_without_fictional_library_claim',text().includes('explicitly registered library')&&!text().includes('fixed fictional records')&&!text().includes('synthetic subject'));
   const registeredEmpty='This registered catalog has no records in the current authorized scope.';

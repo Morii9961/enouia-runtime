@@ -1,7 +1,7 @@
 //! Opt-in synthetic segmented read-2. Independent of Workspace v1/read-1.
 mod fixture;
 use enouia_memory_contract::{
-    common::{ActorRef, Sensitivity, SourceRevisionRef},
+    common::{ActorRef, Sensitivity, SourceRevisionRef, TrustedSurface},
     error::Violation,
     ids::{MemoryId, OperationId, SessionId},
     json::{Revision, canonical_bytes},
@@ -145,8 +145,31 @@ enum CatalogQuery {
     RecallPreview {
         query: RecallRequest,
     },
+    /// ADR-039: plan one native correction. Writes no root data.
+    PlanAction {
+        action: OwnerAction,
+        correction: Option<CorrectionRequest>,
+    },
+    /// ADR-039: the main window's confirm click on a shown plan. Never replayed.
+    ConfirmAction {
+        operation_id: OperationId,
+        plan_hash: enouia_memory_contract::hash::Sha256Hex,
+        effects_hash: enouia_memory_contract::hash::Sha256Hex,
+    },
+    ActionOutcome {
+        operation_id: OperationId,
+    },
     Lock,
     Unlock,
+}
+/// What Morii confirms for a correction; dimensions come from the current record.
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CorrectionRequest {
+    title: String,
+    content_lang: String,
+    sensitivity: Sensitivity,
+    interpretation: Interpretation,
 }
 /// Wire form of Core's `RecallQuery`, which has no serde derive.
 #[derive(Serialize, Deserialize)]
@@ -169,6 +192,8 @@ enum RecallIntentWire {
 }
 struct Library {
     reader: enouia_memory_host::automation::catalog::SegmentedMemoryReader,
+    /// Present only for an authenticated Morii-layout root (ADR-039).
+    owner: Option<enouia_memory_host::automation::owner::NativeMemoryOwner>,
     profile: AttentionProfile,
     system: ActorRef,
     _root: PathBuf,
@@ -237,6 +262,18 @@ fn fault(error: ApplicationFault) -> &'static str {
         _ => "catalog_read_refused",
     }
 }
+/// Correction faults keep an unknown publication distinct: the page must
+/// query the original operation, never plan or confirm it again.
+fn action_fault(error: ApplicationFault) -> &'static str {
+    match error {
+        ApplicationFault::Vault(AutomationFault::OutcomeUnknown) => "correction_outcome_unknown",
+        ApplicationFault::Vault(AutomationFault::Stale | AutomationFault::Conflict) => {
+            "correction_stale"
+        }
+        ApplicationFault::Vault(AutomationFault::Capacity) => "correction_capacity",
+        other => fault(other),
+    }
+}
 impl NativeCatalog {
     fn status(&self, phase: &str) -> Value {
         json!({"schema_version":2,"kind":"runtime_memory_catalog_status","capability":"memory-native-read-2",
@@ -278,11 +315,17 @@ impl NativeCatalog {
             // ADR-MEM-153: Morii's registered native entry reads every committed
             // policy revision, so ended formation windows no longer hide records.
             // Deletion, withdrawal, forget barriers and the ceiling still apply.
+            // ADR-039: the same authenticated registration supplies the native
+            // Morii principal; the page never names it.
+            let owner = enouia_memory_host::automation::owner::NativeMemoryOwner::from_authenticated_owner(
+                vault.clone(), descriptor.created_by.clone(),
+            ).ok();
             let reader = enouia_memory_host::automation::catalog::SegmentedMemoryReader::from_authenticated_system_full_history(
                 vault, descriptor.system_actor.clone(),
             ).map_err(fault)?;
             Ok(Library {
                 reader,
+                owner,
                 system: descriptor.system_actor,
                 _root: root.path().to_path_buf(),
                 _lease: Some(lease),
@@ -390,7 +433,7 @@ impl NativeCatalog {
     fn call_waiting(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
         let read = !matches!(
             value["query"]["operation"].as_str(),
-            Some("lock" | "unlock") | None
+            Some("lock" | "unlock" | "plan_action" | "confirm_action") | None
         );
         let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
         loop {
@@ -524,6 +567,8 @@ impl NativeCatalog {
                 // The host owns the read-time attention profile; a recall preview
                 // must stay within its item and byte bounds.
                 view["recall_limits"] = json!({"max_items": fixture.profile.max_items, "max_bytes": fixture.profile.max_bytes});
+                // ADR-039: whether this entry can plan and confirm native corrections.
+                view["corrections"] = json!(fixture.owner.is_some());
             }
             return Ok(view);
         }
@@ -758,6 +803,85 @@ impl NativeCatalog {
                 value["capability"] = json!("memory-native-read-2");
                 value["kind"] = json!("native_recall_preview");
                 Ok(value)
+            }
+            CatalogQuery::PlanAction { action, correction } => {
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                let metadata = match (&action, correction) {
+                    (OwnerAction::Correct { target, .. }, Some(c)) => {
+                        let detail = reader
+                            .memory_detail_native(&request_for(&all, 1), &target.memory.memory_id, None)
+                            .map_err(fault)?;
+                        let mut dimensions = detail
+                            .item
+                            .ok_or("catalog_stale")?
+                            .base
+                            .dimensions;
+                        // A literal correction starts a new revision of the same
+                        // record: no inherited derivation, counter-source or time.
+                        dimensions.change = FormationChange::Correction;
+                        dimensions.event_time = None;
+                        dimensions.valid_time = None;
+                        dimensions.derived_from.clear();
+                        dimensions.counter_sources.clear();
+                        dimensions.reverts_to = None;
+                        let unknown = RecordTime {
+                            from: None,
+                            until: None,
+                            precision: RecordPrecision::Unknown,
+                            bound: TimeBound::Within,
+                            tz: None,
+                            basis: TimeBasis::Unknown,
+                        };
+                        Some(OwnerCorrectionMetadata {
+                            title: c.title,
+                            content_lang: c.content_lang,
+                            sensitivity: c.sensitivity,
+                            interpretation: c.interpretation,
+                            dimensions,
+                            event_time: unknown.clone(),
+                            valid_time: unknown,
+                            entities: vec![],
+                        })
+                    }
+                    (OwnerAction::Correct { .. }, None) => return Err("catalog_invalid_request"),
+                    (_, Some(_)) => return Err("catalog_invalid_request"),
+                    (_, None) => None,
+                };
+                let preview = owner.plan(action, ceiling, metadata).map_err(action_fault)?;
+                let plan_hash = digest(&preview.plan);
+                let mut value = serde_json::to_value(&preview).map_err(|_| "correction_refused")?;
+                value["plan_hash"] = json!(plan_hash);
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("native_owner_preview");
+                value["effect"] = json!("native_plan");
+                Ok(value)
+            }
+            CatalogQuery::ConfirmAction {
+                operation_id,
+                plan_hash,
+                effects_hash,
+            } => {
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                let consent = owner
+                    .confirm_from_owner_gesture(
+                        &operation_id,
+                        &plan_hash,
+                        &effects_hash,
+                        TrustedSurface::TrustedWindowsApp,
+                    )
+                    .map_err(action_fault)?;
+                let outcome = owner.commit(consent).map_err(action_fault)?;
+                let mut value = serde_json::to_value(&outcome).map_err(|_| "correction_refused")?;
+                value["capability"] = json!("memory-native-read-2");
+                value["effect"] = json!("native_write");
+                Ok(value)
+            }
+            CatalogQuery::ActionOutcome { operation_id } => {
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                let outcome = owner.outcome(&operation_id, ceiling).map_err(action_fault)?;
+                Ok(json!({"schema_version":2,"capability":"memory-native-read-2","kind":"native_owner_outcome_lookup",
+                    "effect":"native_read","outcome":outcome}))
             }
             _ => return Err("catalog_invalid_request"),
         }

@@ -80,9 +80,9 @@ export function StatusPending() {
 /** Header badge: what this window is connected to, stated plainly. */
 export function MemoryBadge() {
   const { status, error, vaultChanging, entry, nativeStatus } = useStatus();
-  if (entry === "registered_owner_readonly") return <div className="qr224" role="status" title={t("Read-only registered library. Sessions, Context and model use are unavailable.")}>
+  if (entry === "registered_owner_readonly") return <div className="qr224" role="status" title={t("Registered library. Changes are written only after you confirm them; model use is unavailable.")}>
     <span className="qr223" style={{ background: nativeStatus?.state === "open" ? "var(--ok)" : "var(--pending)" }} />
-    {t("Memory")} · {registeredLabel(nativeStatus)}<span className="qr4">·</span>{t("Registered library · read only")}
+    {t("Memory")} · {registeredLabel(nativeStatus)}<span className="qr4">·</span>{t("Registered library · confirmed changes only")}
   </div>;
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const text = status ? `${t("Memory")} · ${vaultLabel(status, vaultChanging)}` : error ? t("Memory status unavailable") : t("Memory · checking…");
@@ -181,9 +181,9 @@ export function VaultGate({ children }: { children: ReactNode }) {
 function RegisteredEntryNotice() {
   const { nativeStatus, nativeError, error } = useStatus();
   return <div className="mem-card mem-stack">
-    <h2 className="mem-h2">{t("Registered library · read only")}</h2>
+    <h2 className="mem-h2">{t("Registered library · confirmed changes only")}</h2>
     <p role="status">{registeredLabel(nativeStatus)}</p>
-    <p className="mem-muted">{t("Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.")}</p>
+    <p className="mem-muted">{t("Read and correct records in Memory → Native memory catalog. Every change is written only after you confirm its plan. This entry does not offer Workspace editing or model configuration.")}</p>
     {nativeStatus?.state === "locked" && <p className="mem-muted">{t("The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.")}</p>}
     {nativeStatus?.reason && <p role="alert">{describe(nativeStatus.reason)}</p>}
     <ErrorBox error={nativeError ?? error} />
@@ -233,8 +233,8 @@ export function ConnectedHome({ nav }: { nav: J; ring: ReactNode }) {
   const { status, vaultChanging, now, timeline, entry, nativeStatus, nativeError, error } = useStatus();
   if (entry === "registered_owner_readonly") {
     const reviewLine = nativeError ? nativeError.text : error ? error.text : nativeStatus?.reason ? describe(nativeStatus.reason) : nativeStatus?.state === "open" ? t("Read-only records and quoted sources are available in the native catalog.") : registeredLabel(nativeStatus);
-    const plain = <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry label={registeredLabel(nativeStatus)} phase={t("Registered library · read only")} reviewLine={reviewLine} />;
-    return nativeStatus?.state === "open" ? <Suspense fallback={plain}><RegisteredHome nav={nav} timeline={timeline} now={now} phase={t("Registered library · read only")} /></Suspense> : plain;
+    const plain = <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry label={registeredLabel(nativeStatus)} phase={t("Registered library · confirmed changes only")} reviewLine={reviewLine} />;
+    return nativeStatus?.state === "open" ? <Suspense fallback={plain}><RegisteredHome nav={nav} timeline={timeline} now={now} phase={t("Registered library · confirmed changes only")} /></Suspense> : plain;
   }
   const v = status?.vault;
   const stopping = exiting(status);

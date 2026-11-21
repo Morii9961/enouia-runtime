@@ -30,7 +30,14 @@ pub(super) fn create_with_clock(
     let ids = Arc::new(OsIdSource);
     let mut descriptor: AutomationDescriptor =
         load(include_str!("../../tests/fixtures/core8/descriptor.json"))?;
-    descriptor.layout = AutomationLayout::SegmentedV1;
+    descriptor.layout = if full_history {
+        AutomationLayout::SegmentedOwnerV1
+    } else {
+        AutomationLayout::SegmentedV1
+    };
+    if full_history {
+        descriptor.owner_subject_id = Some(SubjectId::from_random(ids.random_16()));
+    }
     descriptor.vault_id = VaultId::from_random(ids.random_16());
     descriptor.host_id = DeviceId::from_random(ids.random_16());
     descriptor.created_by.actor_id = PrincipalId::from_random(ids.random_16());
@@ -56,6 +63,15 @@ pub(super) fn create_with_clock(
         .map_err(|_| "catalog_fixture_storage")?,
     );
     seed(&vault, &descriptor, clock.now_unix_ms(), stop, false)?;
+    let owner = full_history
+        .then(|| {
+            enouia_memory_host::automation::owner::NativeMemoryOwner::from_authenticated_owner(
+                vault.clone(),
+                descriptor.created_by.clone(),
+            )
+        })
+        .transpose()
+        .map_err(|_| "catalog_fixture_invalid")?;
     let reader = if full_history {
         SegmentedMemoryReader::from_authenticated_system_full_history(
             vault,
@@ -67,6 +83,7 @@ pub(super) fn create_with_clock(
     .map_err(|_| "catalog_fixture_invalid")?;
     Ok(Library {
         reader,
+        owner,
         profile: load(include_str!("../../tests/fixtures/core8/profile.json"))?,
         system: descriptor.system_actor,
         _root: root,

@@ -1213,7 +1213,7 @@ async function registeredOwnerChecks() {
   check('OWNER.home_has_no_workspace_commit_or_create_prompt',await s.evaluate(`!${has('Open or create a Vault to begin')} && !document.querySelector('[data-kind="vault-commit"]') && ${has('captured conversations')} && !${has('Read saved Capsules')}`));
   await nav(s,'Settings');
   await waitFor(s,has('Open native memory catalog'),'registered Settings');
-  check('OWNER.settings_offers_only_native_catalog',await s.evaluate(`!${has('Open an existing Vault…')} && !${has('Create Vault…')} && !${has('Model configuration draft')} && ${has('Read records and quoted sources in Memory → Native memory catalog. This entry does not offer Workspace editing, Sessions, Context or model configuration.')}`));
+  check('OWNER.settings_offers_only_native_catalog',await s.evaluate(`!${has('Open an existing Vault…')} && !${has('Create Vault…')} && !${has('Model configuration draft')} && ${has('Read and correct records in Memory → Native memory catalog. Every change is written only after you confirm its plan. This entry does not offer Workspace editing or model configuration.')}`));
   await nav(s,'Runtime');
   await waitFor(s,'!!document.querySelector("#runtime-memory-panel")','runtime inspector');
   check('OWNER.inspector_reports_registered_catalog',await s.evaluate(`
@@ -1229,7 +1229,7 @@ async function registeredOwnerChecks() {
   check('OWNER.sidebar_offers_only_registered_catalog',await s.evaluate(`
     [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog|Time|Connections|Formation|Recall' &&
     !document.querySelector('[data-screen-label="Memory Vault"] .qr28 form')`));
-  check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered library · read only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
+  check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered library · confirmed changes only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
   await set(s,'.qr44 form[role=search] input','Blue pottery cup');
   await click(s,'button','Search catalog');
   await waitFor(s,has('1 shown · 1 matching authorized records'),'registered catalog search');
@@ -1297,6 +1297,21 @@ async function registeredOwnerChecks() {
   const reopened=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:2}).then(r=>r.ok)`);
   check('OWNER.reopen_reads_same_vault_without_new_records',reopened.selection.snapshot.vault_id===manifest.vault_id&&reopened.matched_in_scope===3&&JSON.stringify(reopened.items.map(item=>[item.base.memory,item.base.content]))===JSON.stringify(first.items.map(item=>[item.base.memory,item.base.content])));
   check('OWNER.reads_preserve_current',readFileSync(currentPath).equals(current));
+  // ADR-039: a confirmed native change through the UI on this synthetic root only.
+  await nav(s,'Memory');
+  await waitFor(s,"!!document.querySelector('.qr44 .mem-list h3 button')",'registered catalog before change');
+  await s.evaluate("document.querySelector('.qr44 .mem-list h3 button').click()");
+  await waitFor(s,has('Change this record'),'change controls');
+  await click(s,'button','Withdraw…');
+  await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent==='Preview change')",'withdraw form');
+  await click(s,'button','Preview change');
+  await waitFor(s,has('Planned change'),'withdraw plan');
+  check('OWNER.plan_writes_nothing',readFileSync(currentPath).equals(current));
+  await click(s,'button','Confirm and write');
+  await waitFor(s,has('Written: withdraw in commit'),'confirmed withdraw');
+  const changed=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:10}).then(r=>r.ok)`);
+  check('OWNER.confirmed_change_commits_once',!readFileSync(currentPath).equals(current)&&changed.matched_in_scope===2);
+  await shot(s,'owner-03-change');
   void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);check('OWNER.reopened_exit',(await waitForExit(app,20000))===0);s.close();
   const autoPort=await unusedPort();app=launch(['--autostart',...launchArgs],{port:autoPort,profile:'owner-autostart'});s=await connect(false,autoPort);await s.evaluate(helpers);
   const ignored=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
