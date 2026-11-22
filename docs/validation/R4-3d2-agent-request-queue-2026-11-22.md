@@ -28,5 +28,5 @@
 
 ## 边界
 
-- Claude Code / Codex 真正连上（管道托管，D1b）尚未实现：等 Memory 回答 Enrollment 5 分钟期限与静态 MCP 配置里的宿主 PID 两个接口问题，并等 #138（许可原地续期）合并。
+- Claude Code / Codex 真正连上（管道托管，D1b）不在本片：接口由 Memory ADR-MEM-165（授权支撑的连接不再受 5 分钟限制，桥接可不带 `--host-pid`）和 ADR-MEM-166（合并协议，待做）提供，下一片接入。
 - 真实库上的第一次请求处理由 Morii 验收时确认（验收指南第 16 步）。
