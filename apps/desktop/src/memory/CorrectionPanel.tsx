@@ -18,14 +18,16 @@ const SENSITIVITIES = ["public", "normal", "private", "highly_sensitive"];
 const INTERPRETATIONS = ["clear_self_report", "inference", "ambiguous", "conflicting"];
 const NEW_SOURCE = "src_00000000-0000-4000-8000-000000000000"; // Core replaces it with a fresh native ID.
 
-export function CorrectionPanel({ detail, entities }: { detail: CatalogDetail; entities: FacetGroup["values"] }) {
+// `start` opens one action prefilled (ADR-042: an Agent request Morii reviews);
+// `onDone` runs after a confirmed write.
+export function CorrectionPanel({ detail, entities, start, onDone }: { detail: CatalogDetail; entities: FacetGroup["values"]; start?: { kind: "correct" | "forget"; text?: string }; onDone?: () => void }) {
   const item = detail.item!;
   const evidence = detail.fields?.evidence ?? [];
   const target: TargetRef | undefined = detail.history?.find(h => h.memory.memory.revision === item.base.memory.revision)?.memory;
   const theme = item.base.dimensions.kind === "theme";
   const mine = item.entities ?? [];
-  const [kind, setKind] = useState<Kind | null>(null);
-  const [text, setText] = useState(item.base.content);
+  const [kind, setKind] = useState<Kind | null>(start?.kind ?? null);
+  const [text, setText] = useState(start?.text ?? item.base.content);
   const [fields, setFields] = useState<CorrectionFields>({ title: item.title, content_lang: item.content_lang, sensitivity: item.effective_sensitivity ?? "private", interpretation: "clear_self_report" });
   const [reason, setReason] = useState("");
   const [name, setName] = useState(item.title);
@@ -71,7 +73,7 @@ export function CorrectionPanel({ detail, entities }: { detail: CatalogDetail; e
     setBusy(true); setError(null);
     try {
       setOutcome(await catalogAction({ operation: "confirm_action", operation_id: preview.plan.operation_id, plan_hash: preview.plan_hash, effects_hash: preview.effects_hash }));
-      setPreview(null);
+      setPreview(null); onDone?.();
     } catch (cause) {
       if (cause === "correction_outcome_unknown") setUnknown(preview.plan.operation_id);
       setPreview(null); setError(describe(cause));
@@ -80,11 +82,11 @@ export function CorrectionPanel({ detail, entities }: { detail: CatalogDetail; e
   const lookup = async () => {
     if (!unknown || busy) return;
     setBusy(true); setError(null);
-    try { const found = await catalogAction({ operation: "action_outcome", operation_id: unknown }); if (found.outcome) { setOutcome(found.outcome); setUnknown(null); } else setError(t("No committed result was found for this operation yet.")); }
+    try { const found = await catalogAction({ operation: "action_outcome", operation_id: unknown }); if (found.outcome) { setOutcome(found.outcome); setUnknown(null); onDone?.(); } else setError(t("No committed result was found for this operation yet.")); }
     catch (cause) { setError(describe(cause)); }
     finally { setBusy(false); }
   };
-  const kinds: Kind[] = theme ? ["theme_rename", "theme_pin", "theme_dissolve", "withdraw"] :
+  const kinds: Kind[] = start ? [start.kind] : theme ? ["theme_rename", "theme_pin", "theme_dissolve", "withdraw"] :
     ["correct", "withdraw", "forget", "protect", "pin", ...(entities.length > 1 && mine.length ? ["entity_merge", "entity_split"] as Kind[] : [])];
   const label = (id: string) => entities.find(e => e.value === id)?.label ?? t("Unnamed entity");
   return <section className="mem-stack" aria-label={t("Change this record")} aria-busy={busy}>

@@ -37,8 +37,8 @@ setCatalogTransport(async(_command,args)=>{
     buckets:[{local_start:'2026-02-01',from:'2026-01-31T16:00:00Z',until:'2026-02-28T16:00:00Z',possible_records:0,staged:0,adopted:0,captured_material:0},
       {local_start:'2026-03-01',from:'2026-02-28T16:00:00Z',until:'2026-03-31T16:00:00Z',possible_records:1,staged:0,adopted:1,captured_material:2}]};
   if(q.operation==='graph'){const more=!!q.cursor;return {...envelope,kind:'memory_graph_page',header,nodes:more?[node(3)]:[node(1),node(2)],
-    edges:more?[{from:'synthetic-memory-1',to:'synthetic-memory-3',relation:'same_conversation',class:'recorded_relation',witness:'w',score_milli:null}]:[],
-    edge_coverage:[{relation:'same_conversation',candidates:1,retained:1}],semantic_neighbors_available:false,next:more?null:{opaque:1}};}
+    edges:more?[{from:'synthetic-memory-1',to:'synthetic-memory-3',relation:'same_conversation',class:'recorded_relation',witness:'w',score_milli:null}]:[{from:'synthetic-memory-1',to:'synthetic-memory-2',relation:'lexical_neighbor',class:'algorithm_suggestion',witness:'shared_terms:alps,hiking',score_milli:420}],
+    edge_coverage:[{relation:'same_conversation',candidates:1,retained:1},{relation:'lexical_neighbor',candidates:1,retained:1}],semantic_neighbors_available:false,next:more?null:{opaque:1}};}
   if(q.operation==='neighbors')return {...envelope,kind:'native_memory_neighbors',header,selected:null,matched_in_scope:1,next:null,
     items:[{other:{memory:{memory:{memory_id:'synthetic-memory-3',revision:1},hash:'e'.repeat(64)},title:'Synthetic item 3',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:'new',learned_at:selection.evaluated_at,effective_sensitivity:'private'},relations:[{relation:'same_conversation',class:'recorded_relation',direction:'both',witnesses:[],witness_count_in_scope:1,witnesses_complete:true}]}]};
   if(q.operation==='activity')return {...envelope,kind:'memory_activity_page',header,matched_in_scope:1,complete_in_scope:true,next:null,time_derived_events_available:false,
@@ -84,9 +84,10 @@ try{
   const windowed=calls.filter(c=>c==='catalog:page').length;
   check('month_choice_reads_records_with_core_time_window',windowed>0&&memory.textContent!.includes('Synthetic item 1'));
   click('Connections',memory.querySelector('.qr28')!);
-  await wait(()=>memory.textContent!.includes('3 records and 1 relations loaded.'));
+  await wait(()=>memory.textContent!.includes('3 records and 2 relations loaded.'));
   check('most_connected_records_are_named_by_title',[...memory.querySelectorAll('.qr44 .mem-list button')].map(b=>b.textContent).includes('Synthetic item 3')&&![...memory.querySelectorAll('.qr44 .mem-list button')].some(b=>b.textContent?.startsWith('synthetic-memory')));
   check('graph_reads_every_core_chunk_and_states_semantic_gap',calls.filter(c=>c==='catalog:graph').length>=2&&memory.textContent!.includes('Semantic neighbours are not available yet.'));
+  check('shared_word_suggestions_name_terms_and_stay_suggestions',memory.textContent!.includes('Shared-word suggestions')&&memory.textContent!.includes('shared: alps, hiking · score 0.42')&&memory.textContent!.includes('not a recorded or semantic relation'));
   click('Synthetic item 1',memory);
   await wait(()=>memory.textContent!.includes('1 connected records'));
   check('neighbors_name_recorded_relation',memory.textContent!.includes('Same conversation · Recorded relation'));

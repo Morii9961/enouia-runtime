@@ -50,7 +50,7 @@ export type RevisionSummary = { memory: TargetRef; title: string; knowledge: str
 export type TimeBuckets = { kind: "memory_time_buckets"; header: ViewHeader; unknown_time_in_scope: number; interval_rule: string;
   material_scope: string; buckets: { local_start: string; from: string; until: string; possible_records: number; staged: number; adopted: number; captured_material: number }[] };
 export type GraphPage = { kind: "memory_graph_page"; header: ViewHeader; nodes: { memory: TargetRef; title: string; form: string; entities: string[] }[];
-  edges: { from: string; to: string; relation: string; class: string }[]; edge_coverage: { relation: string; candidates: number; retained: number }[];
+  edges: { from: string; to: string; relation: string; class: string; witness: string; score_milli: number | null }[]; edge_coverage: { relation: string; candidates: number; retained: number }[];
   semantic_neighbors_available: boolean; next: unknown | null };
 export type ActivityPage = { kind: "memory_activity_page"; header: ViewHeader; matched_in_scope: number; complete_in_scope: boolean; next: unknown | null;
   time_derived_events_available: boolean; items: { event_id: string; event_kind: string; memory: { memory_id: string; revision: number } | null;
@@ -162,15 +162,23 @@ export type AgentGrantPlan = { kind: "runtime_agent_grant_plan"; plan_id: string
 export async function catalogAgents(query: { operation: "agent_status" }): Promise<AgentGrants>;
 export async function catalogAgents(query: { operation: "agent_plan"; agent: string; action: string }): Promise<AgentGrantPlan>;
 export async function catalogAgents(query: { operation: "agent_commit"; plan_id: string }): Promise<AgentGrants>;
+export async function catalogAgents(query: { operation: "agent_requests" }): Promise<AgentRequests>;
+export async function catalogAgents(query: { operation: "agent_request_ignore"; key: string; ignored: boolean }): Promise<AgentRequests>;
 export async function catalogAgents(query: { operation: string } & Record<string, unknown>): Promise<unknown> {
   const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: structuredClone(query) } }) as J;
-  const ok = query.operation === "agent_plan"
+  const ok = query.operation === "agent_requests" || query.operation === "agent_request_ignore"
+    ? value?.kind === "runtime_agent_requests" && value.effect === (query.operation === "agent_requests" ? "native_read" : "local_write") && Array.isArray(value.items)
+    : query.operation === "agent_plan"
     ? value?.kind === "runtime_agent_grant_plan" && value.effect === "native_plan" && typeof value.plan_id === "string" && Number.isSafeInteger(value.sources)
     : value?.kind === "runtime_agent_grants" && value.effect === (query.operation === "agent_commit" ? "native_write" : "native_read") &&
       Array.isArray(value.agents) && Array.isArray(value.other_grants);
   if (!ok) throw "catalog_response_unsupported";
   return value;
 }
+// ADR-042 (D2): saved Agent requests. `text` is the Agent's untrusted proposal.
+export type AgentRequest = { kind: "correction" | "forget"; key: string; request_id: string; agent: string | null; target: TargetRef;
+  evidence: CatalogEvidence; text: string; committed_in: string; pending: boolean; ignored: boolean };
+export type AgentRequests = { kind: "runtime_agent_requests"; items: AgentRequest[] };
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);
 export function setCatalogTransport(next: Transport): void { transport = next; }

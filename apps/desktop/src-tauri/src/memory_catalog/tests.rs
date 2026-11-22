@@ -1334,3 +1334,285 @@ fn agent_grants_plan_then_commit_and_keep_names_local() {
     );
     native.shutdown();
 }
+
+#[test]
+fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions() {
+    use enouia_memory_contract::{
+        common::{ActorRef, ActorType},
+        ids::{PolicyId, RequestId},
+    };
+    use enouia_memory_host::automation::qualified_agent::QualifiedAgentHost;
+    use enouia_memory_vault::automation::segmented::{
+        AgentCorrectionRequest, AgentForgetRequest, SegmentedAgentScope,
+    };
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
+        })
+        .unwrap();
+    let (root, vault) = {
+        let state = native.0.state.lock().unwrap();
+        let library = state.library.as_ref().unwrap();
+        (library._root.clone(), library.vault.clone().unwrap())
+    };
+    let current = || std::fs::read(root.join("vault/CURRENT")).unwrap();
+    // Agents may only cite Runtime-captured user statements: capture two
+    // synthetic ChatGPT turns through the connector first.
+    {
+        use enouia_memory_contract::{common::SpeakerRole, foundation::Clock, ports::IdSource};
+        use enouia_memory_host::automation::connector_formation::{
+            ConnectorConfig, ConnectorStatement, ConnectorSubmission, ConnectorWriter,
+        };
+        let writer = ConnectorWriter::new(
+            vault.clone(),
+            vault.descriptor().created_by.clone(),
+            ActorRef {
+                actor_type: ActorType::Client,
+                actor_id: enouia_memory_contract::ids::PrincipalId::from_random(
+                    enouia_memory_vault::OsIdSource.random_16(),
+                ),
+            },
+            ConnectorConfig {
+                account_scope: "chatgpt-connector-synthetic".into(),
+                default_timezone: "Asia/Shanghai".into(),
+                max_sensitivity: Sensitivity::Private,
+                allowed_forms: vec![FormationKind::Preference],
+                window_days: 30,
+            },
+        )
+        .unwrap();
+        let unknown = RecordTime {
+            from: None,
+            until: None,
+            precision: RecordPrecision::Unknown,
+            bound: TimeBound::Within,
+            tz: None,
+            basis: TimeBasis::Unknown,
+        };
+        let turn = |n: u32, speaker, text: &str| RuntimeCaptureTurn {
+            message_id: format!("m{n}"),
+            parent_message_id: (n > 1).then(|| format!("m{}", n - 1)),
+            branch_id: "main".into(),
+            sequence: n,
+            speaker,
+            text: text.into(),
+            original_time: None,
+            original_timezone: None,
+            occurred_at: None,
+            content_lang: "en".into(),
+            assistant_model: None,
+            attachments: vec![],
+        };
+        let statement = |m: &str, quote: &str| ConnectorStatement {
+            message_id: m.into(),
+            quote: quote.into(),
+            title: quote.trim_end_matches('.').into(),
+            interpretation: Interpretation::ClearSelfReport,
+            kind: FormationKind::Preference,
+            event_time: unknown.clone(),
+            valid_time: unknown.clone(),
+            note: None,
+        };
+        writer
+            .submit(
+                &ConnectorSubmission {
+                    request: RuntimeCaptureRequest {
+                        schema_version: NextVersion,
+                        kind: RuntimeCaptureKind::Capture,
+                        capability: RuntimeCaptureCapability::OwnerV1,
+                        request_id: RequestId::from_random(
+                            enouia_memory_vault::OsIdSource.random_16(),
+                        ),
+                        conversation_id: "chatgpt-synthetic-requests".into(),
+                        title: None,
+                        turns: vec![
+                            turn(1, SpeakerRole::User, "Synthetic turn: I prefer green tea."),
+                            turn(2, SpeakerRole::Assistant, "Synthetic reply."),
+                            turn(
+                                3,
+                                SpeakerRole::User,
+                                "Synthetic turn: I prefer quiet trains.",
+                            ),
+                        ],
+                    },
+                    analyst_model: "gpt-synthetic-1".into(),
+                    statements: vec![
+                        statement("m1", "I prefer green tea."),
+                        statement("m3", "I prefer quiet trains."),
+                    ],
+                },
+                false,
+                enouia_memory_vault::SystemClock.now_unix_ms(),
+            )
+            .unwrap();
+    }
+    let empty = native
+        .call_waiting("main", &packet(json!({"operation":"agent_requests"})))
+        .unwrap();
+    assert_eq!(empty["items"], json!([]));
+    let plan = native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_plan","agent":"claude_code","action":"register"})),
+        )
+        .unwrap();
+    native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_commit","plan_id":plan["plan_id"]})),
+        )
+        .unwrap();
+    let local: Value =
+        serde_json::from_slice(&std::fs::read(root.join("registered-agents.json")).unwrap())
+            .unwrap();
+    let claude = &local.as_object().unwrap().values().next().unwrap()["claude_code"];
+    let principal = ActorRef {
+        actor_type: ActorType::Agent,
+        actor_id: serde_json::from_value(claude["principal"].clone()).unwrap(),
+    };
+    let grant_id: PolicyId = serde_json::from_value(claude["grant_id"].clone()).unwrap();
+    let owner = vault.descriptor().created_by.clone();
+    let grant = vault
+        .owner_read_status(&owner)
+        .unwrap()
+        .grants
+        .into_iter()
+        .find(|g| g.grant_id == grant_id)
+        .unwrap();
+    let now =
+        enouia_memory_contract::foundation::Clock::now_unix_ms(&enouia_memory_vault::SystemClock);
+    let scope = SegmentedAgentScope {
+        subject_id: grant.subject_id.clone(),
+        project_id: None,
+        policy_ids: grant.policies.iter().map(|r| r.policy_id.clone()).collect(),
+        source_ids: grant.source_ids.clone(),
+        max_sensitivity: Sensitivity::Private,
+        source_read: true,
+        valid_until: enouia_memory_contract::time::Timestamp::from_unix_ms(now + 120_000).unwrap(),
+    };
+    let all = CatalogFilter::default();
+    let mut page = Value::Null;
+    for _ in 0..200 {
+        if let Ok(next) = native.call_waiting(
+            "main",
+            &packet(json!({"operation":"page","filter":all,"cursor":null,"limit":100})),
+        ) && next["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|i| {
+                i["base"]["content"].as_str().is_some_and(|c| {
+                    c.ends_with("prefer quiet trains.") || c.ends_with("prefer green tea.")
+                })
+            })
+            .count()
+            == 2
+        {
+            page = next;
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+    let cited = |content: &str| {
+        let id = page["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|i| i["base"]["content"] == content)
+            .unwrap_or_else(|| panic!("{content} not formed"))["base"]["memory"]["memory_id"]
+            .clone();
+        let detail = native
+            .call(
+                "main",
+                &packet(json!({"operation":"detail","filter":all,"memory_id":id})),
+            )
+            .unwrap();
+        let evidence = &detail["fields"]["evidence"][0];
+        (
+            serde_json::from_value::<TargetRef>(detail["history"][0]["memory"].clone()).unwrap(),
+            enouia_memory_contract::common::SourceRevisionRef {
+                source_id: serde_json::from_value(evidence["reference"]["source_id"].clone())
+                    .unwrap(),
+                source_revision: serde_json::from_value(
+                    evidence["reference"]["source_revision"].clone(),
+                )
+                .unwrap(),
+            },
+            evidence["quote"].as_str().unwrap().to_owned(),
+        )
+    };
+    let request_id = || {
+        RequestId::from_random(enouia_memory_contract::ports::IdSource::random_16(
+            &enouia_memory_vault::OsIdSource,
+        ))
+    };
+    let host =
+        QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone())
+            .unwrap();
+    let (target, source, quote_hint) = cited("I prefer green tea.");
+    host.correction_reporter_with_owner_grant(&owner, principal.clone(), &grant_id, scope.clone())
+        .unwrap()
+        .submit(&AgentCorrectionRequest {
+            request_id: request_id(),
+            target,
+            source,
+            quote_hint,
+            correction: "Synthetic proposed correction.".into(),
+        })
+        .unwrap();
+    let (forget_target, source, quote_hint) = cited("I prefer quiet trains.");
+    host.forget_requester_with_owner_grant(&owner, principal, &grant_id, scope)
+        .unwrap()
+        .submit(&AgentForgetRequest {
+            request_id: request_id(),
+            target: forget_target.clone(),
+            source,
+            quote_hint,
+            forget: "Synthetic forget reason.".into(),
+        })
+        .unwrap();
+    drop(host);
+    let queue = native
+        .call("main", &packet(json!({"operation":"agent_requests"})))
+        .unwrap();
+    assert_eq!(queue["effect"], "native_read");
+    let items = queue["items"].as_array().unwrap();
+    assert_eq!(items.len(), 2);
+    assert_eq!(items[0]["kind"], "correction");
+    assert_eq!(items[0]["agent"], "Claude Code");
+    assert_eq!(items[0]["text"], "Synthetic proposed correction.");
+    assert_eq!(items[1]["kind"], "forget");
+    assert!(
+        items
+            .iter()
+            .all(|i| i["pending"] == true && i["ignored"] == false)
+    );
+    // Ignoring is a local mark: the library does not change.
+    let before = current();
+    let ignored = native
+        .call(
+            "main",
+            &packet(
+                json!({"operation":"agent_request_ignore","key":items[0]["key"],"ignored":true}),
+            ),
+        )
+        .unwrap();
+    assert_eq!(ignored["effect"], "local_write");
+    assert_eq!(ignored["items"][0]["ignored"], true);
+    assert_eq!(current(), before);
+    assert!(root.join("ignored-agent-requests.json").exists());
+    // Acting on the forget request is an ordinary planned, confirmed forget.
+    let plan = native
+        .call("main", &packet(json!({"operation":"plan_action","action":{"action":"forget","target":forget_target,"impact_preview_hash":"0".repeat(64)},"correction":null})))
+        .unwrap();
+    native
+        .call("main", &packet(json!({"operation":"confirm_action","operation_id":plan["plan"]["operation_id"],"plan_hash":plan["plan_hash"],"effects_hash":plan["effects_hash"]})))
+        .unwrap();
+    let after = native
+        .call("main", &packet(json!({"operation":"agent_requests"})))
+        .unwrap();
+    assert_eq!(after["items"][1]["pending"], false);
+    assert_eq!(after["items"][0]["pending"], true);
+    native.shutdown();
+}

@@ -18,7 +18,7 @@ const WORDS: Record<string, string> = labels({
   not_adopted: msg("Not adopted"), validity: msg("Validity"), no_cue: msg("No cue match"), budget: msg("Byte budget"),
   material_captured: msg("Material captured"), formation: msg("Formation"), reevaluation: msg("Re-evaluation"), synthesis: msg("Synthesis"),
   correction: msg("Correction"), reversion: msg("Reversion"), state_change: msg("State change"),
-  derived_from: msg("Derived from"), same_conversation: msg("Same conversation"), same_entity: msg("Same entity"), theme_cooccurrence: msg("Theme co-occurrence"),
+  derived_from: msg("Derived from"), same_conversation: msg("Same conversation"), same_entity: msg("Same entity"), theme_cooccurrence: msg("Theme co-occurrence"), lexical_neighbor: msg("Shared words"),
   recorded_relation: msg("Recorded relation"), algorithm_suggestion: msg("Algorithm suggestion"),
 });
 export const word = (value: string | null | undefined): string => value == null ? "—" : WORDS[value] ?? value;

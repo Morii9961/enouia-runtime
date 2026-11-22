@@ -2,8 +2,9 @@
 // grants on the registered library. Each change is planned by Core first and
 // written only when Morii confirms the shown plan. Connecting an Agent's MCP
 // pipe is a later step; this panel says so instead of implying a connection.
-import { useCallback, useEffect, useState } from "react";
-import { catalogAgents, type AgentGrantPlan, type AgentGrants } from "./catalog";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { CATALOG_FILTER, catalogAgents, catalogRead, type AgentGrantPlan, type AgentGrants, type AgentRequest, type AgentRequests, type CatalogDetail } from "./catalog";
+import { CorrectionPanel } from "./CorrectionPanel";
 import { describe } from "./client";
 import { recordTimeText, word } from "./catalogWords";
 import { labels, msg, t } from "../i18n";
@@ -42,6 +43,61 @@ export function AgentGrantsPanel() {
         <span className="mem-actions"><button type="button" className="mem-button mem-danger" disabled={busy} onClick={() => void confirm()}>{t("Confirm and write")}</button>
           <button type="button" className="mem-link" disabled={busy} onClick={() => setPlan(null)}>{t("Cancel")}</button></span>
       </span>}
+      {error && <span role="alert">{error}</span>}
+    </span></div>
+  </section>;
+}
+
+// ADR-042 (D2): correction and forget requests the Agents saved. A request
+// changes nothing by itself; Morii reviews it as an ordinary planned change
+// (prefilled from the Agent's proposal, editable) or ignores it on this computer.
+export function AgentRequestsPanel() {
+  const [queue, setQueue] = useState<AgentRequests | null>(null);
+  const [review, setReview] = useState<{ request: AgentRequest; detail: CatalogDetail } | null>(null);
+  const [showIgnored, setShowIgnored] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const run = useCallback(async (work: () => Promise<void>) => {
+    setBusy(true); setError(null);
+    try { await work(); } catch (cause) { setError(describe(cause)); } finally { setBusy(false); }
+  }, []);
+  const load = useCallback(() => run(async () => setQueue(await catalogAgents({ operation: "agent_requests" }))), [run]);
+  useEffect(() => { void load(); }, [load]);
+  const open = (request: AgentRequest) => run(async () => {
+    setNotice(null);
+    setReview({ request, detail: await catalogRead({ operation: "detail", filter: CATALOG_FILTER, memory_id: request.target.memory.memory_id }) });
+  });
+  const ignore = (request: AgentRequest, ignored: boolean) => run(async () => {
+    setQueue(await catalogAgents({ operation: "agent_request_ignore", key: request.key, ignored }));
+    if (review?.request.key === request.key) setReview(null);
+  });
+  const done = () => { setReview(null); setNotice(t("Written. The request is resolved and leaves the queue.")); void load(); };
+  const items = queue?.items ?? [];
+  const waiting = items.filter(r => r.pending && !r.ignored);
+  const ignored = items.filter(r => r.pending && r.ignored);
+  const resolved = items.length - waiting.length - ignored.length;
+  const kind = (r: AgentRequest) => t(r.kind === "correction" ? "Correction request" : "Forget request");
+  const row = (r: AgentRequest, actions: ReactNode) => <li key={r.key} className="mem-card mem-stack">
+    <strong>{t("{agent}: {kind}", { agent: r.agent ?? t("Unnamed Agent"), kind: kind(r) })}</strong>
+    <span className="mem-row-meta mem-content">{r.target.memory.memory_id} · r{r.target.memory.revision}</span>
+    <span className="mem-label">{t("Your words it cites")}</span><blockquote className="mem-content">{r.evidence.quote}</blockquote>
+    <span className="mem-label">{t(r.kind === "correction" ? "Its proposed correction (not checked)" : "Its reason (not checked)")}</span><p className="mem-content">{r.text}</p>
+    <span className="mem-actions">{actions}</span>
+  </li>;
+  return <section className="mem-stack" aria-label={t("Agent requests")} aria-busy={busy}>
+    <div className="qr216"><span className="qr35">{t("Agent requests")}</span><span className="mem-stack">
+      <span className="mem-muted">{t("Agents can only ask. Nothing changes until you review a request and confirm the planned change here.")}</span>
+      {queue && <span role="status" className="mem-row-meta">{t("{open} waiting · {ignored} ignored · {resolved} resolved", { open: waiting.length, ignored: ignored.length, resolved })}</span>}
+      {waiting.length > 0 && <ul className="mem-list">{waiting.map(r => row(r, <>
+        <button type="button" className="mem-button" disabled={busy} onClick={() => void open(r)}>{t("Review…")}</button>
+        <button type="button" className="mem-link" disabled={busy} onClick={() => void ignore(r, true)}>{t("Ignore")}</button></>))}</ul>}
+      {review && <CorrectionPanel key={review.request.key} detail={review.detail} entities={[]} onDone={done}
+        start={review.request.kind === "correction" ? { kind: "correct", text: review.request.text } : { kind: "forget" }} />}
+      {review && !review.detail.item && <span role="status">{t("This record is no longer available in the current scope.")}</span>}
+      {ignored.length > 0 && <button type="button" className="mem-link" aria-expanded={showIgnored} onClick={() => setShowIgnored(!showIgnored)}>{t(showIgnored ? "Hide ignored" : "Show ignored")}</button>}
+      {showIgnored && <ul className="mem-list">{ignored.map(r => row(r, <button type="button" className="mem-link" disabled={busy} onClick={() => void ignore(r, false)}>{t("Return to queue")}</button>))}</ul>}
+      {notice && <span role="status">{notice}</span>}
       {error && <span role="alert">{error}</span>}
     </span></div>
   </section>;
