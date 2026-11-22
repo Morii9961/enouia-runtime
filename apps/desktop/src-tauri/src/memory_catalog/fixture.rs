@@ -84,6 +84,9 @@ pub(super) fn create_with_clock(
     .map_err(|_| "catalog_fixture_invalid")?;
     Ok(Library {
         reader,
+        agents: owner
+            .as_ref()
+            .map(|_| crate::memory_agents::Agents::new(Some(root.join("registered-agents.json")))),
         owner,
         vault: Some(opened),
         profile: load(include_str!("../../tests/fixtures/core8/profile.json"))?,

@@ -31,6 +31,7 @@ struct Inner {
     withdrawn: AtomicBool,
     unavailable: AtomicBool,
     state: Mutex<Binding>,
+    agents_file: Mutex<Option<PathBuf>>,
 }
 
 #[cfg(test)]
@@ -161,6 +162,15 @@ enum CatalogQuery {
     },
     /// Memory ADR-MEM-158: the connector's open capture windows (read only).
     ConnectorStatus,
+    /// ADR-041 local Agent grants: status, plan (writes nothing), confirm.
+    AgentStatus,
+    AgentPlan {
+        agent: String,
+        action: String,
+    },
+    AgentCommit {
+        plan_id: String,
+    },
     Lock,
     Unlock,
 }
@@ -196,9 +206,9 @@ struct Library {
     reader: enouia_memory_host::automation::catalog::SegmentedMemoryReader,
     /// Present only for an authenticated Morii-layout root (ADR-039).
     owner: Option<enouia_memory_host::automation::owner::NativeMemoryOwner>,
-    /// The opened root; only native tests use it to seed synthetic captures.
-    #[cfg_attr(not(test), allow(dead_code))]
+    /// The opened root: Agent grants (ADR-041) and native test seeding use it.
     vault: Option<Arc<enouia_memory_vault::automation::segmented::SegmentedAutomationVault>>,
+    agents: Option<crate::memory_agents::Agents>,
     profile: AttentionProfile,
     system: ActorRef,
     _root: PathBuf,
@@ -285,6 +295,11 @@ impl NativeCatalog {
             "effect":"native_read","mode":if self.registered_owner_mode() { "registered_owner_readonly" } else { "synthetic_segmented_only" },
             "state":phase,"available":phase=="open"})
     }
+    pub fn set_agents_file(&self, file: Option<PathBuf>) {
+        if let Ok(mut slot) = self.0.agents_file.lock() {
+            *slot = file;
+        }
+    }
     pub fn registered_owner_mode(&self) -> bool {
         self.0.owner_requested.load(Ordering::SeqCst)
     }
@@ -331,6 +346,9 @@ impl NativeCatalog {
             ).map_err(fault)?;
             Ok(Library {
                 reader,
+                agents: owner.as_ref().map(|_| crate::memory_agents::Agents::new(
+                    self.0.agents_file.lock().ok().and_then(|f| f.clone()),
+                )),
                 owner,
                 vault: Some(opened),
                 system: descriptor.system_actor,
@@ -440,7 +458,14 @@ impl NativeCatalog {
     fn call_waiting(&self, window: &str, value: &Value) -> Result<Value, &'static str> {
         let read = !matches!(
             value["query"]["operation"].as_str(),
-            Some("lock" | "unlock" | "plan_action" | "confirm_action") | None
+            Some(
+                "lock"
+                    | "unlock"
+                    | "plan_action"
+                    | "confirm_action"
+                    | "agent_plan"
+                    | "agent_commit"
+            ) | None
         );
         let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
         loop {
@@ -881,6 +906,44 @@ impl NativeCatalog {
                 let outcome = owner.commit(consent).map_err(action_fault)?;
                 let mut value = serde_json::to_value(&outcome).map_err(|_| "correction_refused")?;
                 value["capability"] = json!("memory-native-read-2");
+                value["effect"] = json!("native_write");
+                Ok(value)
+            }
+            CatalogQuery::AgentStatus => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                let mut value = agents.status(vault)?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("runtime_agent_grants");
+                value["effect"] = json!("native_read");
+                Ok(value)
+            }
+            CatalogQuery::AgentPlan { agent, action } => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                // Reserved but uncaptured connector slots are not sources yet.
+                let unused: Vec<_> = fixture
+                    .owner
+                    .as_ref()
+                    .ok_or("correction_unavailable")?
+                    .capture_windows()
+                    .map_err(fault)?
+                    .into_iter()
+                    .flat_map(|w| w.unused_source_ids)
+                    .collect();
+                let now = enouia_memory_contract::foundation::Clock::now_unix_ms(&enouia_memory_vault::SystemClock);
+                let mut value = agents.plan(vault, &unused, &agent, &action, now)?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("runtime_agent_grant_plan");
+                value["effect"] = json!("native_plan");
+                Ok(value)
+            }
+            CatalogQuery::AgentCommit { plan_id } => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                let mut value = agents.commit(vault, &plan_id)?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("runtime_agent_grants");
                 value["effect"] = json!("native_write");
                 Ok(value)
             }

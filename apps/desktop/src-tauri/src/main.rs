@@ -16,6 +16,7 @@ mod appearance;
 mod companion;
 mod hotkey;
 mod memory;
+mod memory_agents;
 mod memory_automation;
 mod memory_capture;
 mod memory_catalog;
@@ -104,6 +105,13 @@ fn main() {
             if let Some(launch) = owner_launch {
                 if !autostart {
                     let native = app.state::<MemoryHost>().catalog().clone();
+                    // ADR-041: local Agent names stay in Runtime's own config.
+                    native.set_agents_file(
+                        app.path()
+                            .app_config_dir()
+                            .ok()
+                            .map(|dir| dir.join("registered-agents.json")),
+                    );
                     tauri::async_runtime::spawn_blocking(move || {
                         let _ = native.initialize_registered(launch);
                     });

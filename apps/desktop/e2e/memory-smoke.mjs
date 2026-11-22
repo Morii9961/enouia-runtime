@@ -1314,6 +1314,15 @@ async function registeredOwnerChecks() {
   const changed=await s.evaluate(`__t.catalog({operation:'page',filter:${JSON.stringify(filter)},cursor:null,limit:10}).then(r=>r.ok)`);
   check('OWNER.confirmed_change_commits_once',!readFileSync(currentPath).equals(current)&&changed.matched_in_scope===2);
   await shot(s,'owner-03-change');
+  // ADR-041: register Claude Code's grant through Settings on this synthetic root.
+  await nav(s,'Settings');
+  await waitFor(s,has('Local Agents'),'agents panel');
+  await click(s,'button','Register…');
+  await waitFor(s,has('Planned grant: Claude Code'),'grant plan');
+  const beforeGrant=readFileSync(currentPath);
+  await click(s,'button','Confirm and write');
+  await waitFor(s,has('Registered · until'),'registered agent');
+  check('OWNER.agent_grant_planned_then_committed',!readFileSync(currentPath).equals(beforeGrant)&&await s.evaluate(`${has('Renew for 90 days…')} && ${has('not available yet')}`));
   void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);check('OWNER.reopened_exit',(await waitForExit(app,20000))===0);s.close();
   const autoPort=await unusedPort();app=launch(['--autostart',...launchArgs],{port:autoPort,profile:'owner-autostart'});s=await connect(false,autoPort);await s.evaluate(helpers);
   const ignored=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");
