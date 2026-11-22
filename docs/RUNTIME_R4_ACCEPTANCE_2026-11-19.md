@@ -4,9 +4,9 @@
 
 ## 用哪个程序
 
-候选从 Runtime main 构建，内嵌 Memory pin `f9ac21d`（全历史读取），见[候选记录](validation/R4-5-candidate-2026-11-19.md)（候选 `884c015`，含路径与 SHA-256；旧候选 `218df03` 作废）。
+候选从 Runtime main `73983bd` 构建，内嵌 Memory pin `29cbe8d`，见[候选记录](validation/R4-candidate-73983bd-2026-11-23.md)（含路径与 SHA-256）。旧候选 `884c015` 与 `218df03` 作废：`884c015` 在库第一次按新格式写入后就打不开库，也没有纠正、Agent、回看与 MCP 接入。
 
-- **免安装验收（推荐先做）**：候选目录里相邻的 `enouia-desktop.exe` 与 `WebView2Loader.dll` 一起使用，不改动已安装的旧版本。
+- **免安装验收（推荐先做）**：候选目录里相邻的 `enouia-desktop.exe`、`enouia-memory-mcp.exe` 与 `WebView2Loader.dll` 一起使用，不改动已安装的旧版本。
 - **安装、升级、托盘、热键、登录启动**：用同一候选的安装包，单独记在文末第二张表。安装会替换本机旧版本，按你的安排做。
 
 用原登记的 Windows 账户，以只读参数启动（参数由你保管，不写进公开仓库）：
@@ -49,7 +49,7 @@
 
 ## 回执一：真实库界面
 
-候选源码：____ · Memory pin `f9ac21d` · 验收时 CURRENT 序列号：____ · 时间：____
+候选源码：`73983bd` · Memory pin `29cbe8d` · 验收时 CURRENT 序列号：____ · 时间：____
 
 | # | 项目 | 结果 | 现象 / 错误码 |
 | --- | --- | --- | --- |
@@ -68,6 +68,9 @@
 | 13 | 锁定与重开 | 未执行 | |
 | 14 | 修改（预览、确认写入、事件出现） | 未执行 | |
 | 15 | 本机 Agent 授权（登记、续期、撤销） | 未执行 | |
+| 16 | Agent 请求队列（查看、确认写入、跳过） | 未执行 | |
+| 17 | 值得回看与注意力时间表 | 未执行 | |
+| 18 | Claude Code / Codex 经 MCP 接入 | 未执行 | |
 
 ## 回执二：安装与外壳（需你决定何时做）
 
@@ -81,4 +84,4 @@
 
 ## 不在本次验收里
 
-写入真实库（纠正、撤回、遗忘等）、Sessions 写入与新记忆形成、模型调用、MCP 和数据迁移各有授权门槛，见[一页汇总](integration/R4_AUTHORIZATION_GATES_2026-11-19.md)。代理做过的合成验证和真实库只读走查记录在 [R4.1](validation/R4-1-registered-surfaces-2026-11-19.md) 与 [R4.2](validation/R4-2-recall-preview-009b7bc-2026-11-19.md)，不填进上面的人工回执。
+ChatGPT 真实连接（待域名：Memory 远程服务上线后才可连，Settings 如实显示“未连接”）。Sessions 写入与新记忆形成、模型调用和数据迁移各有授权门槛，见[一页汇总](integration/R4_AUTHORIZATION_GATES_2026-11-19.md)。代理做过的合成验证和真实库只读走查记录在 [R4.1](validation/R4-1-registered-surfaces-2026-11-19.md) 与 [R4.2](validation/R4-2-recall-preview-009b7bc-2026-11-19.md)，不填进上面的人工回执。
