@@ -12,9 +12,9 @@ Morii authorized gate D: Claude Code and Codex read the library through local MC
 - Runtime builds Memory's bridge (`mcp::bridge::run`) as its own `enouia-memory-mcp.exe` at the same pin. Settings shows, for each registered Agent, the Claude Code command and the Codex `config.toml` entry with the bridge path beside the running Runtime, the protocol, the pipe and the vault id, and says when the bridge is missing.
 - One connection at a time per Agent: Memory creates the pipe as the first and only instance, so a second concurrent session of the same Agent is refused until the first ends. Settings says so.
 
-## Not in this slice
+## Installation
 
-The installer does not yet place `enouia-memory-mcp.exe` beside the installed Runtime; installation is gate G and stays with Morii's acceptance. The candidate directory carries the bridge next to the executable.
+Tauri's NSIS bundle installs every binary of the package, so the installer places `enouia-memory-mcp.exe` beside the installed Runtime and removes it on uninstall (the ownership template check still passes). Running the installer stays with Morii's acceptance (gate G); the candidate directory also carries the bridge next to the executable.
 
 ## Verification
 
