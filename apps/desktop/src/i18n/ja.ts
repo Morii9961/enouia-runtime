@@ -2271,5 +2271,9 @@ const dict: Record<string, string> = {
   "Hide ignored": "スキップしたものを隠す",
   "Return to queue": "一覧に戻す",
   "Written. The request is resolved and leaves the queue.": "書き込みました。この依頼は対応済みになり、一覧から外れます。",
+  "Shared words": "共通の語",
+  "Shared-word suggestions": "共通の語による提案",
+  "Records that use several of the same words. A suggestion to look at, not a recorded or semantic relation.": "同じ語をいくつも使う記録です。見てみる価値がある提案で、記録された関係でも意味上の関係でもありません。",
+  "shared: {terms} · score {score}": "共通：{terms} · スコア {score}",
 };
 export default dict;

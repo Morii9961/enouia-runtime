@@ -139,6 +139,11 @@ function ConnectionsView() {
     return count;
   }, [graph]);
   const title = new Map(graph?.nodes.map(n => [n.memory.memory.memory_id, n.title]) ?? []);
+  // Memory ADR-MEM-162: term-overlap suggestions, never recorded or semantic relations.
+  const lexical = useMemo(() => (graph?.edges ?? []).filter(e => e.relation === "lexical_neighbor").sort((a, b) => (b.score_milli ?? 0) - (a.score_milli ?? 0)), [graph]);
+  const terms = (witness: string) => witness.startsWith("shared_terms:") ? witness.slice("shared_terms:".length).split(",").map(s => s.trim()).filter(Boolean).join(", ") : witness;
+  const score = (e: { score_milli: number | null }) => e.score_milli == null ? "—" : (e.score_milli / 1000).toFixed(2);
+  const lexicalOf = selected ? lexical.filter(e => e.from === selected || e.to === selected) : [];
   const ranked = [...degree].sort((a, b) => b[1] - a[1]).slice(0, 40);
   const selectedTitle = selected ? title.get(selected) ?? selected : null;
   return <>
@@ -154,6 +159,13 @@ function ConnectionsView() {
         <table className="mem-table"><thead><tr><th>{t("Relation")}</th><th>{t("Candidates")}</th><th>{t("Shown")}</th></tr></thead>
           <tbody>{graph.first.edge_coverage.map(c => <tr key={c.relation}><td>{word(c.relation)}</td><td>{c.candidates}</td><td>{byRelation.get(c.relation) ?? 0}</td></tr>)}</tbody></table>
         <p className="mem-row-meta">{t("Same entity and same conversation are recorded mentions, not independent verification.")}{graph.first.semantic_neighbors_available ? "" : ` ${t("Semantic neighbours are not available yet.")}`}</p>
+        {lexical.length > 0 && <section className="mem-stack" aria-label={t("Shared-word suggestions")}>
+          <h3>{t("Shared-word suggestions")}</h3>
+          <p className="mem-row-meta">{t("Records that use several of the same words. A suggestion to look at, not a recorded or semantic relation.")}</p>
+          <ul className="mem-list">{lexical.slice(0, 40).map(e => <li key={`${e.from}|${e.to}`}>
+            <button type="button" className="mem-link" onClick={() => pick(e.from)}>{title.get(e.from) ?? e.from}</button> ↔ <button type="button" className="mem-link" onClick={() => pick(e.to)}>{title.get(e.to) ?? e.to}</button>
+            <span className="mem-row-meta mem-content"> · {t("shared: {terms} · score {score}", { terms: terms(e.witness), score: score(e) })}</span></li>)}</ul>
+        </section>}
         {ranked.length === 0 ? <p className="mem-content">{t("No relations between the loaded records.")}</p> : <>
           <h3>{t("Most connected records")}</h3>
           <ul className="mem-list">{ranked.map(([id, n]) => <li key={id}><button type="button" className="mem-link" aria-pressed={selected === id} onClick={() => pick(id)}>{title.get(id) ?? id}</button><span className="mem-row-meta"> · {t("{n} relations", { n })}</span></li>)}</ul>
@@ -168,6 +180,12 @@ function ConnectionsView() {
       {selectedTitle && <h3 className="mem-content">{selectedTitle}</h3>}
       {near.busy && <p role="status">{t("Reading connected records…")}</p>}
       <ErrorBox error={near.error} />
+      {lexicalOf.length > 0 && <section aria-label={t("Shared-word suggestions")}>
+        <h4>{t("Shared-word suggestions")}</h4>
+        <ul className="mem-list">{lexicalOf.map(e => { const other = e.from === selected ? e.to : e.from; return <li key={other}>
+          <button type="button" className="mem-link" onClick={() => pick(other)}>{title.get(other) ?? other}</button>
+          <p className="mem-row-meta mem-content">{t("shared: {terms} · score {score}", { terms: terms(e.witness), score: score(e) })}</p></li>; })}</ul>
+      </section>}
       {neighbors && <>
         <p className="mem-row-meta">{t("{n} connected records", { n: neighbors.matched_in_scope })}</p>
         <ul className="mem-list">{neighbors.items.map(item => <li key={item.other.memory.memory.memory_id}>

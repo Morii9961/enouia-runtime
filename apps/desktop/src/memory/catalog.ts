@@ -50,7 +50,7 @@ export type RevisionSummary = { memory: TargetRef; title: string; knowledge: str
 export type TimeBuckets = { kind: "memory_time_buckets"; header: ViewHeader; unknown_time_in_scope: number; interval_rule: string;
   material_scope: string; buckets: { local_start: string; from: string; until: string; possible_records: number; staged: number; adopted: number; captured_material: number }[] };
 export type GraphPage = { kind: "memory_graph_page"; header: ViewHeader; nodes: { memory: TargetRef; title: string; form: string; entities: string[] }[];
-  edges: { from: string; to: string; relation: string; class: string }[]; edge_coverage: { relation: string; candidates: number; retained: number }[];
+  edges: { from: string; to: string; relation: string; class: string; witness: string; score_milli: number | null }[]; edge_coverage: { relation: string; candidates: number; retained: number }[];
   semantic_neighbors_available: boolean; next: unknown | null };
 export type ActivityPage = { kind: "memory_activity_page"; header: ViewHeader; matched_in_scope: number; complete_in_scope: boolean; next: unknown | null;
   time_derived_events_available: boolean; items: { event_id: string; event_kind: string; memory: { memory_id: string; revision: number } | null;

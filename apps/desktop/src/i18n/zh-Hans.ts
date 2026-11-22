@@ -2271,5 +2271,9 @@ const dict: Record<string, string> = {
   "Hide ignored": "隐藏已跳过",
   "Return to queue": "放回队列",
   "Written. The request is resolved and leaves the queue.": "已写入。这条请求已处理，离开队列。",
+  "Shared words": "共同词语",
+  "Shared-word suggestions": "共同词语建议",
+  "Records that use several of the same words. A suggestion to look at, not a recorded or semantic relation.": "用了好几个相同词语的记录。只是值得看看的建议，不是记录下的关系，也不是语义关系。",
+  "shared: {terms} · score {score}": "共同：{terms} · 得分 {score}",
 };
 export default dict;
