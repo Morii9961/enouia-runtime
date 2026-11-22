@@ -2243,7 +2243,6 @@ const dict: Record<string, string> = {
   "Renew for 90 days…": "90 日に更新…",
   "Update source scope…": "出所の範囲を更新…",
   "Local Agents": "ローカルのエージェント",
-  "Claude Code and Codex read this library through MCP under a grant: up to Private, 90 days, and they may only add notes, correction requests and forget requests. Connecting their MCP pipes is not available yet.": "Claude Code と Codex は許可にもとづき MCP でこのライブラリを読みます。上限はプライベート、90 日で、追加できるのはメモ、訂正の依頼、忘れる依頼だけです。MCP のパイプはまだ接続できません。",
   "Not registered": "未登録",
   "Revoked": "取り消し済み",
   "Registered · until {date} · up to {max} · {sources} sources · requests {requests}": "登録済み · {date} まで · 上限 {max} · 出所 {sources} 件 · 依頼{requests}",
@@ -2289,5 +2288,11 @@ const dict: Record<string, string> = {
   "No fading or archiving in the next 90 days.": "今後 90 日に薄れたりアーカイブされたりする記録はありません。",
   "Show later moments": "さらに後の時刻を表示",
   "Choose a record to read it and its quoted sources.": "記録を選ぶと、その内容と引用元を読めます。",
+  "Claude Code and Codex read this library through MCP under a grant: up to Private, 90 days, and they may only add notes, correction requests and forget requests. A registered Agent connects through its own local pipe while this library is open; locking or exiting disconnects it.": "Claude Code と Codex は許可にもとづき MCP でこのライブラリを読みます。上限はプライベート、90 日で、追加できるのはメモ、訂正の依頼、忘れる依頼だけです。登録済みのエージェントは、このライブラリが開いている間それぞれのローカルのパイプで接続し、ロックか終了で切断されます。",
+  "MCP configuration": "MCP の設定",
+  "The bridge program is not next to this copy of Runtime, so the Agent cannot connect from it yet.": "この Runtime と同じフォルダにブリッジのプログラムがないため、エージェントはまだここから接続できません。",
+  "Claude Code: run once in a terminal": "Claude Code：ターミナルで一度実行",
+  "Codex: add to ~/.codex/config.toml": "Codex：~/.codex/config.toml に追加",
+  "One connection at a time per Agent: a second session of the same Agent cannot connect until the first one ends.": "エージェントごとに接続は一度に一つです。同じエージェントの別のセッションは、最初の接続が終わるまで接続できません。",
 };
 export default dict;

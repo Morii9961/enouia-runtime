@@ -8,9 +8,9 @@ import { envelope, status } from './fixtures/catalog.mjs';
 const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:any[]=[];
 let registered=false;
-const grants=()=>({...envelope,kind:'runtime_agent_grants',effect:'native_read',other_grants:[],agents:[
-  {key:'claude_code',name:'Claude Code',registered,grant:registered?{grant_id:'pol_1',revision:1,active:true,max_sensitivity:'private',allow_requests:true,source_read:true,valid_from:'2026-11-22T00:00:00Z',valid_until:'2027-02-20T00:00:00Z',policies:44,sources:2149}:null},
-  {key:'codex',name:'Codex',registered:false,grant:null}]});
+const grants=()=>({...envelope,kind:'runtime_agent_grants',effect:'native_read',other_grants:[],vault_id:'vlt_synthetic',bridge:{path:'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe',present:true,protocol:'automation-agent-v1'},agents:[
+  {key:'claude_code',name:'Claude Code',registered,grant:registered?{grant_id:'pol_1',revision:1,active:true,max_sensitivity:'private',allow_requests:true,source_read:true,valid_from:'2026-11-22T00:00:00Z',valid_until:'2027-02-20T00:00:00Z',policies:44,sources:2149}:null,pipe:registered?'a'.repeat(64):null},
+  {key:'codex',name:'Codex',registered:false,grant:null,pipe:null}]});
 setTransport(async(command)=>{
   if(command==='shell_status')return {vaultChanging:false,memoryEntry:'registered_owner_readonly'};
   if(command==='startup_status')return {supported:false,enabled:false};
@@ -34,7 +34,7 @@ const check=(id:string,ok:boolean)=>checks.push({id,ok});
 const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.trim()===label);
 try{
   await wait(()=>text().includes('Local Agents')&&text().includes('Not registered'));
-  check('agents_listed_with_honest_connection_state',text().includes('Claude Code')&&text().includes('Codex')&&text().includes('not available yet'));
+  check('agents_listed_with_honest_connection_state',text().includes('Claude Code')&&text().includes('Codex')&&text().includes('locking or exiting disconnects it'));
   button('Register…')!.click();
   await wait(()=>text().includes('Planned grant: Claude Code'));
   const plan=calls.find(c=>c.operation==='agent_plan');
@@ -42,6 +42,9 @@ try{
   button('Confirm and write')!.click();
   await wait(()=>text().includes('Registered · until'));
   check('confirm_commits_the_shown_plan_once',calls.filter(c=>c.operation==='agent_commit').length===1&&calls.find(c=>c.operation==='agent_commit').plan_id==='req_plan');
+  const claude=fixture.querySelector('pre[data-agent=claude_code]')?.textContent??'';
+  check('registered_agent_shows_mcp_config_for_its_pipe',claude.includes('claude mcp add enouia-memory -- "C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe" --protocol automation-agent-v1 --pipe '+'a'.repeat(64)+' --vault-id vlt_synthetic')&&
+    text().includes("command = 'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe'")&&text().includes('One connection at a time per Agent')&&!fixture.querySelector('pre[data-agent=codex]'));
   check('registered_agent_offers_renew_refresh_revoke',!!button('Renew for 90 days…')&&!!button('Update source scope…')&&!!button('Revoke…'));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.length>0&&checks.every(c=>c.ok)});}

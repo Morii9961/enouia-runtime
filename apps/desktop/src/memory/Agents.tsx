@@ -27,11 +27,12 @@ export function AgentGrantsPanel() {
   const confirm = () => plan && run(async () => { setGrants(await catalogAgents({ operation: "agent_commit", plan_id: plan.plan_id })); setPlan(null); });
   return <section className="mem-stack" aria-label={t("Local Agents")} aria-busy={busy}>
     <div className="qr216"><span className="qr35">{t("Local Agents")}</span><span className="mem-stack">
-      <span className="mem-muted">{t("Claude Code and Codex read this library through MCP under a grant: up to Private, 90 days, and they may only add notes, correction requests and forget requests. Connecting their MCP pipes is not available yet.")}</span>
+      <span className="mem-muted">{t("Claude Code and Codex read this library through MCP under a grant: up to Private, 90 days, and they may only add notes, correction requests and forget requests. A registered Agent connects through its own local pipe while this library is open; locking or exiting disconnects it.")}</span>
       {grants?.agents.map(a => <span key={a.key} className="mem-stack">
         <strong>{a.name}</strong>
         <span role="status" className="mem-row-meta">{!a.grant ? t("Not registered") : !a.grant.active ? t("Revoked") :
           t("Registered · until {date} · up to {max} · {sources} sources · requests {requests}", { date: day(a.grant.valid_until), max: word(a.grant.max_sensitivity), sources: a.grant.sources, requests: t(a.grant.allow_requests ? "allowed" : "not allowed") })}</span>
+        {a.grant?.active && a.pipe && grants.bridge.path && <McpConfig name={a.key} command={grants.bridge.path} args={["--protocol", grants.bridge.protocol, "--pipe", a.pipe, "--vault-id", grants.vault_id]} present={grants.bridge.present} />}
         <span className="mem-actions">{(!a.grant ? ["register"] : a.grant.active ? ["renew", "refresh", "revoke"] : ["renew"]).map(action =>
           <button key={action} type="button" className="mem-link" disabled={busy || !!plan} onClick={() => void propose(a.key, action as Action)}>{t(ACTIONS[action as Action])}</button>)}</span>
       </span>)}
@@ -46,6 +47,22 @@ export function AgentGrantsPanel() {
       {error && <span role="alert">{error}</span>}
     </span></div>
   </section>;
+}
+
+// ADR-043 (D1b): what to paste into the Agent's own MCP settings. The bridge
+// beside Runtime connects to this Agent's pipe; one connection at a time.
+function McpConfig({ name, command, args, present }: { name: string; command: string; args: string[]; present: boolean }) {
+  const quoted = (v: string) => /[\s"]/.test(v) ? `"${v.replace(/"/g, '\\"')}"` : v;
+  const claude = `claude mcp add enouia-memory -- ${[command, ...args].map(quoted).join(" ")}`;
+  const codex = `[mcp_servers.enouia-memory]\ncommand = '${command}'\nargs = [${args.map(a => JSON.stringify(a)).join(", ")}]`;
+  return <span className="mem-stack" aria-label={t("MCP configuration")}>
+    {!present && <span role="note" className="mem-row-meta">{t("The bridge program is not next to this copy of Runtime, so the Agent cannot connect from it yet.")}</span>}
+    <span className="mem-row-meta">{t("Claude Code: run once in a terminal")}</span>
+    <pre className="mem-content" data-agent={name}>{claude}</pre>
+    <span className="mem-row-meta">{t("Codex: add to ~/.codex/config.toml")}</span>
+    <pre className="mem-content">{codex}</pre>
+    <span className="mem-row-meta">{t("One connection at a time per Agent: a second session of the same Agent cannot connect until the first one ends.")}</span>
+  </span>;
 }
 
 // ADR-042 (D2): correction and forget requests the Agents saved. A request

@@ -82,7 +82,8 @@ pub(super) fn create_with_clock(
         SegmentedMemoryReader::from_authenticated_system(vault, descriptor.system_actor.clone())
     }
     .map_err(|_| "catalog_fixture_invalid")?;
-    Ok(Library {
+    let library = Library {
+        pipes: std::sync::Mutex::new(None),
         reader,
         agents: owner
             .as_ref()
@@ -93,7 +94,9 @@ pub(super) fn create_with_clock(
         system: descriptor.system_actor,
         _root: root,
         _lease: None,
-    })
+    };
+    library.restart_pipes();
+    Ok(library)
     // Retain only this fresh bounded example for diagnosis. Never reopen it.
 }
 

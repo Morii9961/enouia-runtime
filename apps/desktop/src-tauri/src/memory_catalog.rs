@@ -225,6 +225,9 @@ enum RecallIntentWire {
     Browse,
 }
 struct Library {
+    /// ADR-043 Agent pipe listeners; declared first so they stop before the
+    /// vault and its lease are released.
+    pipes: Mutex<Option<crate::memory_pipes::Pipes>>,
     reader: enouia_memory_host::automation::catalog::SegmentedMemoryReader,
     /// Present only for an authenticated Morii-layout root (ADR-039).
     owner: Option<enouia_memory_host::automation::owner::NativeMemoryOwner>,
@@ -235,6 +238,36 @@ struct Library {
     system: ActorRef,
     _root: PathBuf,
     _lease: Option<crate::root_lease::RootLease>,
+}
+impl Library {
+    /// ADR-043: (re)start one pipe listener per locally named Agent. The old
+    /// listeners stop first; Memory checks each grant on every connection.
+    fn restart_pipes(&self) {
+        let (Some(agents), Some(vault)) = (&self.agents, &self.vault) else {
+            return;
+        };
+        let Ok(mut pipes) = self.pipes.lock() else {
+            return;
+        };
+        *pipes = None;
+        let named: Vec<_> = agents
+            .local(vault)
+            .into_values()
+            .map(|a| (a.principal, a.grant_id))
+            .collect();
+        if !named.is_empty() {
+            *pipes = Some(crate::memory_pipes::start(vault, &self.profile, named));
+        }
+    }
+}
+/// ADR-043: the bundled `enouia-memory-mcp` beside this executable, for the
+/// MCP configuration Settings shows.
+fn bridge() -> Value {
+    let path = std::env::current_exe()
+        .ok()
+        .and_then(|exe| exe.parent().map(|dir| dir.join("enouia-memory-mcp.exe")));
+    json!({"path": path.as_ref().map(|p| p.display().to_string()),
+        "present": path.is_some_and(|p| p.is_file()), "protocol": crate::memory_pipes::PROTOCOL})
 }
 
 /// Only the native process launch supplies this binding; no page operation opens it.
@@ -366,7 +399,8 @@ impl NativeCatalog {
             let reader = enouia_memory_host::automation::catalog::SegmentedMemoryReader::from_authenticated_system_full_history(
                 vault, descriptor.system_actor.clone(),
             ).map_err(fault)?;
-            Ok(Library {
+            let library = Library {
+                pipes: Mutex::new(None),
                 reader,
                 agents: owner.as_ref().map(|_| crate::memory_agents::Agents::new(
                     self.0.agents_file.lock().ok().and_then(|f| f.clone()),
@@ -390,7 +424,9 @@ impl NativeCatalog {
                     max_bytes: 65536,
                     maintenance_interval_ms: 1000,
                 },
-            })
+            };
+            library.restart_pipes();
+            Ok(library)
         })
     }
 
@@ -462,6 +498,10 @@ impl NativeCatalog {
                 drop(state.library.take());
             } else if let Some(library) = &state.library {
                 let _ = library.reader.lock();
+                // ADR-043: no Agent connection outlives a lock.
+                if let Ok(mut pipes) = library.pipes.lock() {
+                    *pipes = None;
+                }
             }
         }
     }
@@ -637,6 +677,7 @@ impl NativeCatalog {
         let fixture = state.library.as_ref().ok_or("catalog_not_enabled")?;
         if matches!(request.query, CatalogQuery::Unlock) {
             fixture.reader.unlock(&fixture.system).map_err(fault)?;
+            fixture.restart_pipes();
             self.0.withdrawn.store(false, Ordering::SeqCst);
             let mut view = self.status("open");
             view["effect"] = json!("native_control");
@@ -973,6 +1014,7 @@ impl NativeCatalog {
             CatalogQuery::AgentStatus => {
                 let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
                 let mut value = agents.status(vault)?;
+                value["bridge"] = bridge();
                 value["schema_version"] = json!(2);
                 value["capability"] = json!("memory-native-read-2");
                 value["kind"] = json!("runtime_agent_grants");
@@ -1002,6 +1044,9 @@ impl NativeCatalog {
             CatalogQuery::AgentCommit { plan_id } => {
                 let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
                 let mut value = agents.commit(vault, &plan_id)?;
+                // A new, renewed or revoked grant changes who may connect.
+                fixture.restart_pipes();
+                value["bridge"] = bridge();
                 value["schema_version"] = json!(2);
                 value["capability"] = json!("memory-native-read-2");
                 value["kind"] = json!("runtime_agent_grants");

@@ -1692,3 +1692,84 @@ fn review_suggestions_and_attention_schedule_forward_core_documents() {
     );
     native.shutdown();
 }
+
+#[test]
+fn registered_agent_connects_over_its_pipe_and_lock_cuts_it() {
+    use enouia_memory_contract::workspace::HostSurface;
+    use enouia_memory_host::{
+        mcp::agent::native::Client,
+        windows::{Pipe, ProcessPeer},
+    };
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
+        })
+        .unwrap();
+    let plan = native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_plan","agent":"claude_code","action":"register"})),
+        )
+        .unwrap();
+    let status = native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_commit","plan_id":plan["plan_id"]})),
+        )
+        .unwrap();
+    assert_eq!(status["bridge"]["protocol"], "automation-agent-v1");
+    let pipe: enouia_memory_contract::hash::Sha256Hex =
+        serde_json::from_value(status["agents"][0]["pipe"].clone()).unwrap();
+    let vault: enouia_memory_contract::ids::VaultId =
+        serde_json::from_value(status["vault_id"].clone()).unwrap();
+    assert!(
+        status["agents"][1]["pipe"].is_null(),
+        "Codex is not registered"
+    );
+    let connect = || {
+        for _ in 0..40 {
+            if let Ok(pipe) = Pipe::connect(&pipe) {
+                return pipe;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+        panic!("pipe never listened");
+    };
+    let host = ProcessPeer::enroll(std::process::id(), HostSurface::QuickSearch).unwrap();
+    let mut client =
+        Client::connect(connect(), host, &vault, std::time::Duration::from_secs(10)).unwrap();
+    client
+        .exchange(&json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"synthetic","version":"1"}}}))
+        .unwrap();
+    client
+        .exchange(&json!({"jsonrpc":"2.0","method":"notifications/initialized"}))
+        .unwrap();
+    let tools = client
+        .exchange(&json!({"jsonrpc":"2.0","id":2,"method":"tools/list"}))
+        .unwrap()
+        .unwrap();
+    let names: Vec<_> = tools["result"]["tools"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|t| t["name"].as_str().unwrap().to_owned())
+        .collect();
+    for tool in [
+        "memory_note",
+        "memory_correction_report",
+        "memory_forget_request",
+    ] {
+        assert!(names.iter().any(|n| n == tool), "{tool} in {names:?}");
+    }
+    // Locking releases the library: the listener stops and the connection ends.
+    native.lock();
+    std::thread::sleep(std::time::Duration::from_millis(600));
+    assert!(
+        client
+            .exchange(&json!({"jsonrpc":"2.0","id":3,"method":"tools/list"}))
+            .is_err()
+    );
+    assert!(Pipe::connect(&pipe).is_err(), "no listener after lock");
+    native.shutdown();
+}
