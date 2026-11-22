@@ -1316,7 +1316,7 @@ async function registeredOwnerChecks() {
   await shot(s,'owner-03-change');
   // ADR-041: register Claude Code's grant through Settings on this synthetic root.
   await nav(s,'Settings');
-  await waitFor(s,has('Local Agents'),'agents panel');
+  await waitFor(s,has('Local Agents')+' && '+has('Not registered')+' && '+has('Agent requests'),'agents panel');
   await click(s,'button','Register…');
   await waitFor(s,has('Planned grant: Claude Code'),'grant plan');
   const beforeGrant=readFileSync(currentPath);
