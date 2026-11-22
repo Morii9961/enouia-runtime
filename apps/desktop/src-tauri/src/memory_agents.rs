@@ -228,7 +228,9 @@ impl Agents {
             .ok_or("agents_file_unavailable")?
             .with_file_name(IGNORED_FILE);
         let mut all = self.ignored_all();
-        let keys = all.entry(vault.descriptor().vault_id.to_string()).or_default();
+        let keys = all
+            .entry(vault.descriptor().vault_id.to_string())
+            .or_default();
         if ignored {
             keys.insert(key.to_owned());
         } else {

@@ -1429,7 +1429,11 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
                         turns: vec![
                             turn(1, SpeakerRole::User, "Synthetic turn: I prefer green tea."),
                             turn(2, SpeakerRole::Assistant, "Synthetic reply."),
-                            turn(3, SpeakerRole::User, "Synthetic turn: I prefer quiet trains."),
+                            turn(
+                                3,
+                                SpeakerRole::User,
+                                "Synthetic turn: I prefer quiet trains.",
+                            ),
                         ],
                     },
                     analyst_model: "gpt-synthetic-1".into(),
@@ -1476,7 +1480,8 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
         .into_iter()
         .find(|g| g.grant_id == grant_id)
         .unwrap();
-    let now = enouia_memory_contract::foundation::Clock::now_unix_ms(&enouia_memory_vault::SystemClock);
+    let now =
+        enouia_memory_contract::foundation::Clock::now_unix_ms(&enouia_memory_vault::SystemClock);
     let scope = SegmentedAgentScope {
         subject_id: grant.subject_id.clone(),
         project_id: None,
@@ -1492,7 +1497,17 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
         if let Ok(next) = native.call_waiting(
             "main",
             &packet(json!({"operation":"page","filter":all,"cursor":null,"limit":100})),
-        ) && next["items"].as_array().unwrap().iter().filter(|i| i["base"]["content"].as_str().is_some_and(|c| c.ends_with("prefer quiet trains.") || c.ends_with("prefer green tea."))).count() == 2
+        ) && next["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|i| {
+                i["base"]["content"].as_str().is_some_and(|c| {
+                    c.ends_with("prefer quiet trains.") || c.ends_with("prefer green tea.")
+                })
+            })
+            .count()
+            == 2
         {
             page = next;
             break;
@@ -1532,8 +1547,9 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
             &enouia_memory_vault::OsIdSource,
         ))
     };
-    let host = QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone())
-        .unwrap();
+    let host =
+        QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone())
+            .unwrap();
     let (target, source, quote_hint) = cited("I prefer green tea.");
     host.correction_reporter_with_owner_grant(&owner, principal.clone(), &grant_id, scope.clone())
         .unwrap()
@@ -1567,13 +1583,19 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
     assert_eq!(items[0]["agent"], "Claude Code");
     assert_eq!(items[0]["text"], "Synthetic proposed correction.");
     assert_eq!(items[1]["kind"], "forget");
-    assert!(items.iter().all(|i| i["pending"] == true && i["ignored"] == false));
+    assert!(
+        items
+            .iter()
+            .all(|i| i["pending"] == true && i["ignored"] == false)
+    );
     // Ignoring is a local mark: the library does not change.
     let before = current();
     let ignored = native
         .call(
             "main",
-            &packet(json!({"operation":"agent_request_ignore","key":items[0]["key"],"ignored":true})),
+            &packet(
+                json!({"operation":"agent_request_ignore","key":items[0]["key"],"ignored":true}),
+            ),
         )
         .unwrap();
     assert_eq!(ignored["effect"], "local_write");
