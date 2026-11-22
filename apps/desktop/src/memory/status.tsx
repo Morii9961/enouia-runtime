@@ -15,6 +15,7 @@ import type { MapSpec } from '../theme/TimeMap';
 
 import { labels, msg, t, tj, tn } from '../i18n/index.ts';
 const ProviderConfigDraft = lazy(() => import("./ProviderConfigDraft").then(module => ({ default: module.ProviderConfigDraft })));
+const ConnectorStatus = lazy(() => import("./Connector").then(module => ({ default: module.ConnectorStatus })));
 const RegisteredHome = lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredHome })));
 const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").then(module => ({ default: module.ProviderSettingsStatus })));
 
@@ -273,6 +274,7 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
     <Row k={t("State")}>{registeredLabel(nativeStatus)}</Row>
     <RegisteredEntryNotice />
     <div className="qr216"><span className="qr35">{t("Manage")}</span><button type="button" className="mem-link" onClick={openMemory}>{t("Open native memory catalog")}</button></div>
+    {nativeStatus?.state === "open" && nativeStatus.corrections && <Suspense fallback={null}><ConnectorStatus /></Suspense>}
     <CompanionSettings status={status} />
   </div>;
   return (

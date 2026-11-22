@@ -144,6 +144,15 @@ export async function catalogAction(query: { operation: string } & Record<string
 }
 export type ThemeMembers = { kind: "memory_theme_members"; header: ViewHeader; family: { theme: TargetRef; name: string; member_count: number; pinned: boolean } | null;
   items: { memory: TargetRef; score_milli: number }[]; next: unknown | null };
+export type ConnectorStatus = { kind: "runtime_connector_status"; windows: { policy_id: string; max_sensitivity: string; allowed_forms: string[];
+  valid_from: string; valid_until: string; unused_sources: number; reserved_sources: number }[] };
+/** Read-only: the capture windows Memory's remote connector opened (ADR-MEM-158). */
+export async function catalogConnector(): Promise<ConnectorStatus> {
+  const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: { operation: "connector_status" } } }) as J;
+  if (value?.kind !== "runtime_connector_status" || value.effect !== "native_read" || !Array.isArray(value.windows) ||
+      value.windows.some((w: J) => typeof w?.policy_id !== "string" || !Number.isSafeInteger(w.unused_sources) || !Array.isArray(w.allowed_forms))) throw "catalog_response_unsupported";
+  return value as ConnectorStatus;
+}
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);
 export function setCatalogTransport(next: Transport): void { transport = next; }

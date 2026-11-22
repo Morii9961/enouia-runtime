@@ -2232,5 +2232,12 @@ const dict: Record<string, string> = {
   "Extracted by ChatGPT · {model}": "ChatGPT 提取 · {model}",
   "Extracted by ChatGPT": "ChatGPT 提取",
   "ChatGPT note, not a fact": "ChatGPT 的附注，不是事实",
+  "ChatGPT connector": "ChatGPT 连接器",
+  "Not connected: no capture window has been opened in this library yet.": "未连接：这个库里还没有连接器打开过捕获窗口。",
+  "{n} capture windows opened by the connector": "连接器打开的捕获窗口 {n} 个",
+  "The connector runs in Memory's remote service, which is not deployed yet; connecting it waits for the new domain. Runtime only reads what it has written.": "连接器运行在 Memory 的远程服务里，目前尚未上线，接通要等新域名。Runtime 只读取它写入的内容。",
+  "Until {date} · up to {max} · {forms} · {unused} of {reserved} source slots left": "有效至 {date} · 上限 {max} · {forms} · 剩余 {unused} / {reserved} 个来源编号",
+  "Read connector status again": "重新读取连接器状态",
+  "Captured by": "捕获方",
 };
 export default dict;

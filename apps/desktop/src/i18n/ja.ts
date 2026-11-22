@@ -2232,5 +2232,12 @@ const dict: Record<string, string> = {
   "Extracted by ChatGPT · {model}": "ChatGPT が抽出 · {model}",
   "Extracted by ChatGPT": "ChatGPT が抽出",
   "ChatGPT note, not a fact": "ChatGPT の注記で、事実ではありません",
+  "ChatGPT connector": "ChatGPT コネクタ",
+  "Not connected: no capture window has been opened in this library yet.": "未接続：このライブラリではまだコネクタが取得ウィンドウを開いていません。",
+  "{n} capture windows opened by the connector": "コネクタが開いた取得ウィンドウ {n} 件",
+  "The connector runs in Memory's remote service, which is not deployed yet; connecting it waits for the new domain. Runtime only reads what it has written.": "コネクタは Memory のリモートサービスで動きます。まだ配置されておらず、接続は新しいドメインを待っています。Runtime は書き込まれた内容を読むだけです。",
+  "Until {date} · up to {max} · {forms} · {unused} of {reserved} source slots left": "{date} まで · 上限 {max} · {forms} · 残り {unused} / {reserved} 件の出所の枠",
+  "Read connector status again": "コネクタの状態をもう一度読み込む",
+  "Captured by": "取得元",
 };
 export default dict;

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogView, type RecallPreview, type RecallQuery, type ActivityPage, type CatalogFilter, type CatalogPage, type CatalogSelection, type Conflicts,
   type CatalogSource, type CatalogStats, type ConversationDetail, type Conversations, type GraphPage, type Neighbors, type TimeBuckets } from "./catalog";
 import { CatalogDetailPanel } from "./CatalogMemory";
+import { ConnectorStatus } from "./Connector";
 import { analystText, recordTimeText, word } from "./catalogWords";
 import { useLatestRead } from "./hooks";
 import { useStatus, registeredLabel } from "./status";
@@ -314,12 +315,17 @@ function SessionsView() {
       return { found, bodies };
     }, ({ found, bodies }) => { setDetail(found); setTexts(bodies); });
   };
-  const items = pages.flatMap(p => p.items);
+  const [scope, setScope] = useState("");
+  const loaded = pages.flatMap(p => p.items);
+  const scopes = [...new Set(loaded.map(c => c.conversation.account_scope).filter((v): v is string => !!v))];
+  const items = scope ? loaded.filter(c => c.conversation.account_scope === scope) : loaded;
   const last = pages.at(-1);
   return <>
     <aside className="qr28" aria-busy={reads.busy}><div className="qr20"><h1 className="qr18">{t("Sessions")}</h1>
       <div className="qr19">{pages[0] ? t("{shown} of {matched} conversations", { shown: items.length, matched: pages[0].matched_in_scope }) : t("Reading conversations…")}</div></div>
       <ErrorBox error={reads.error} />
+      {scopes.length > 1 && <label className="mem-label mem-pad">{t("Captured by")} <select className="mem-input" value={scope} onChange={e => setScope(e.target.value)}>
+        <option value="">{t("All")}</option>{scopes.map(v => <option key={v} value={v}>{v}</option>)}</select></label>}
       <ul className="mem-list mem-pad">{items.map(c => <li key={c.conversation.conversation_id}>
         <button type="button" className="mem-link" aria-pressed={chosen === c.conversation.conversation_id} onClick={() => open(c.conversation.conversation_id)}>{c.conversation.title ?? t("Untitled conversation")}</button>
         <p className="mem-row-meta">{recordTimeText(c.conversation.started_at)} · {c.conversation.platform}{c.conversation.account_scope ? ` · ${c.conversation.account_scope}` : ""} · {t("{n} captured turns", { n: c.visible_captured_turns })}</p>
@@ -415,5 +421,6 @@ export function RegisteredInspectorFacts() {
         <dt>{t("Observed")}</dt><dd>{stamp(readings.observedAt)}</dd>
       </>}
     </dl>
+    {nativeStatus?.corrections && <ConnectorStatus />}
   </section>;
 }

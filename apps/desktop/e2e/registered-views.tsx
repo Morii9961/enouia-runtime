@@ -27,7 +27,7 @@ setTransport(async(command,args)=>{
 });
 setCatalogTransport(async(_command,args)=>{
   const q=(args as any).request.query;calls.push(`catalog:${q.operation}`);
-  if(q.operation==='status'){const r:any={...status(state),mode:'registered_owner_readonly'};if(state==='open')r.recall_limits={max_items:8,max_bytes:16384};return r;}
+  if(q.operation==='status'){const r:any={...status(state),mode:'registered_owner_readonly'};if(state==='open'){r.recall_limits={max_items:8,max_bytes:16384};r.corrections=true;}return r;}
   if(state!=='open')throw 'catalog_locked';
   if(q.operation==='page'){const p:any=page(q.filter.text,q.cursor);p.items=p.items.slice(0,q.filter.time_window?1:q.limit);return p;}
   if(q.operation==='stats')return {...stats(q.selection,3),groups:[{axis:'adoption',count_scope:'matched',values:[{value:'adopted',label:'adopted',count:2},{value:'staged',label:'staged',count:1}],total_values:2}]};
@@ -54,6 +54,7 @@ setCatalogTransport(async(_command,args)=>{
       selected:[{memory:{memory_id:'synthetic-memory-2',revision:1},attention:'active',score:900,reasons:['lexical']}],excluded:[[{memory_id:'synthetic-memory-1',revision:1},'no_cue']]},
     trace_coverage:{excluded_in_scope:2,excluded_returned:1,complete:true,reason_counts:{no_cue:2}},
     items:[{base:{memory:{memory_id:'synthetic-memory-2',revision:1},content:'合成示例'},record:{fields:{title:'调试偏好'}}}]};}
+  if(q.operation==='connector_status')return {...envelope,kind:'runtime_connector_status',effect:'native_read',windows:[]};
   throw new Error(`Unexpected catalog query ${q.operation}`);
 });
 const recalls:any[]=[];
@@ -70,6 +71,8 @@ try{
   await wait(()=>within('Home').includes('3 records · 2 adopted · 1 staged'));
   check('home_reads_registered_totals_latest_event_and_conversations',within('Home').includes('Latest: Synthetic item 1')&&within('Home').includes('4 captured conversations')&&!within('Home').includes('Read saved Capsules'));
   await wait(()=>within('Runtime Inspector').includes('Authorized records'));
+  await wait(()=>within('Runtime Inspector').includes('Not connected'));
+  check('connector_is_shown_as_not_connected_not_faked',within('Runtime Inspector').includes('not deployed yet')&&calls.includes('catalog:connector_status'));
   check('inspector_reads_snapshot_and_counts',within('Runtime Inspector').includes('synthetic-commit')&&within('Runtime Inspector').includes('memory-native-read-2'));
   const memory=fixture.querySelector('[data-screen-label="Memory Vault"]')!;
   click('Time',memory.querySelector('.qr28')!);

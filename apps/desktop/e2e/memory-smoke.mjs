@@ -1214,6 +1214,8 @@ async function registeredOwnerChecks() {
   await nav(s,'Settings');
   await waitFor(s,has('Open native memory catalog'),'registered Settings');
   check('OWNER.settings_offers_only_native_catalog',await s.evaluate(`!${has('Open an existing Vault…')} && !${has('Create Vault…')} && !${has('Model configuration draft')} && ${has('Read and correct records in Memory → Native memory catalog. Every change is written only after you confirm its plan. This entry does not offer Workspace editing or model configuration.')}`));
+  await waitFor(s,has('Not connected: no capture window has been opened in this library yet.'),'connector status');
+  check('OWNER.connector_shown_not_connected',await s.evaluate(`${has('not deployed yet')}`));
   await nav(s,'Runtime');
   await waitFor(s,'!!document.querySelector("#runtime-memory-panel")','runtime inspector');
   check('OWNER.inspector_reports_registered_catalog',await s.evaluate(`
