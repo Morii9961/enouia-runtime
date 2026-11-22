@@ -115,6 +115,21 @@ enum CatalogQuery {
     Changes {
         anchor: Option<ChangeAnchor>,
     },
+    /// Memory ADR-MEM-164: derived fade/archive moments and time-based
+    /// review suggestions (read only; nothing is recorded).
+    AttentionSchedule {
+        filter: CatalogFilter,
+        query: enouia_memory_host::automation::catalog::attention_schedule::AttentionScheduleQuery,
+        cursor: Option<
+            enouia_memory_host::automation::catalog::attention_schedule::AttentionScheduleCursor,
+        >,
+        limit: usize,
+    },
+    ReviewSuggestions {
+        filter: CatalogFilter,
+        query: enouia_memory_host::automation::catalog::attention_schedule::ReviewQuery,
+        limit: usize,
+    },
     Neighbors {
         filter: CatalogFilter,
         memory_id: MemoryId,
@@ -748,6 +763,44 @@ impl NativeCatalog {
                     )
                     .map_err(fault)?,
             ),
+            CatalogQuery::AttentionSchedule {
+                filter,
+                query,
+                cursor,
+                limit,
+            } => {
+                // Core's ADR-MEM-164 documents carry no read envelope; add it.
+                let mut value = serde_json::to_value(
+                    reader
+                        .memory_attention_schedule_native(
+                            &request_for(&filter, limit),
+                            &query,
+                            cursor.as_ref(),
+                        )
+                        .map_err(fault)?,
+                )
+                .map_err(|_| "catalog_read_refused")?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["effect"] = json!("native_read");
+                Ok(value)
+            }
+            CatalogQuery::ReviewSuggestions {
+                filter,
+                query,
+                limit,
+            } => {
+                let mut value = serde_json::to_value(
+                    reader
+                        .memory_review_suggestions_native(&request_for(&filter, limit), &query)
+                        .map_err(fault)?,
+                )
+                .map_err(|_| "catalog_read_refused")?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["effect"] = json!("native_read");
+                Ok(value)
+            }
             CatalogQuery::Changes { anchor } => serde_json::to_value(
                 reader
                     .memory_changes_since_native(&request_for(&all, 100), anchor.as_ref())

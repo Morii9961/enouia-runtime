@@ -41,6 +41,10 @@ setCatalogTransport(async(_command,args)=>{
     edge_coverage:[{relation:'same_conversation',candidates:1,retained:1},{relation:'lexical_neighbor',candidates:1,retained:1}],semantic_neighbors_available:false,next:more?null:{opaque:1}};}
   if(q.operation==='neighbors')return {...envelope,kind:'native_memory_neighbors',header,selected:null,matched_in_scope:1,next:null,
     items:[{other:{memory:{memory:{memory_id:'synthetic-memory-3',revision:1},hash:'e'.repeat(64)},title:'Synthetic item 3',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:'new',learned_at:selection.evaluated_at,effective_sensitivity:'private'},relations:[{relation:'same_conversation',class:'recorded_relation',direction:'both',witnesses:[],witness_count_in_scope:1,witnesses_complete:true}]}]};
+  if(q.operation==='review_suggestions')return {...envelope,kind:'memory_review_suggestions',header,query:q.query,total_in_horizon:1,
+    items:[{memory:node(1).memory,title:'Synthetic item 1',attention:'fading',due:'2026-12-01T00:00:00Z',reasons:['archives_soon'],archives_at:'2026-12-01T00:00:00Z',valid_until:null}]};
+  if(q.operation==='attention_schedule')return {...envelope,kind:'memory_attention_schedule',header,query:q.query,fade_after_days:30,archive_after_days:180,protected_in_scope:1,
+    events:[{memory:node(3).memory,title:'Synthetic item 3',transition:'fading',at:'2026-12-10T00:00:00Z',past:false}],next:null};
   if(q.operation==='activity')return {...envelope,kind:'memory_activity_page',header,matched_in_scope:1,complete_in_scope:true,next:null,time_derived_events_available:false,
     items:[{event_id:'a'.repeat(64),event_kind:'formation',memory:{memory_id:'synthetic-memory-1',revision:1},source:null,title:'Synthetic item 1',change:'new',knowledge:'attributed_statement',adoption:'adopted',effective_sensitivity:'private',formation_reason:null,proof:{commit_id:'c',commit_hash:'d'.repeat(64),actor:{actor_type:'system'},written_at:'2026-11-03T00:00:00Z'},receipt:null}]};
   if(q.operation==='conflicts')return {...envelope,kind:'memory_conflict_group',header,selected:null,basis:'qualified',counter_evidence:[],matched_in_scope:0,items:[],next:null};
@@ -96,6 +100,13 @@ try{
   click('Synthetic item 1',memory);
   await wait(()=>memory.textContent!.includes('No contradicting record is held.'));
   check('formation_event_opens_detail_and_conflict_group',memory.textContent!.includes('Catalog record detail')&&memory.textContent!.includes('Fading and archiving by time are not recorded as events yet.'));
+  click('Worth a look',memory.querySelector('.qr28')!);
+  await wait(()=>memory.textContent!.includes('1 of 1 records worth a look in the next 30 days.')&&memory.textContent!.includes('Starts fading'));
+  check('review_suggestions_are_time_based_and_derived',memory.textContent!.includes('Archived soon')&&memory.textContent!.includes('They say nothing about whether a record is right')&&
+    memory.textContent!.includes('These moments are derived, not recorded. 1 protected records never fade.')&&memory.textContent!.includes('Synthetic item 3'));
+  click('Synthetic item 1',memory);
+  await wait(()=>memory.textContent!.includes('Catalog record detail'));
+  check('review_suggestion_opens_its_record',true);
   click('Recall',memory.querySelector('.qr28')!);
   await wait(()=>!!memory.querySelector('.qr44 form input'));
   const cue=memory.querySelector<HTMLInputElement>('.qr44 form input')!;
