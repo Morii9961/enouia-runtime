@@ -26,6 +26,7 @@ const Registered = {
   connections: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredConnections }))),
   formation: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredFormation }))),
   recall: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredRecall }))),
+  review: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredReview }))),
 };
 type RegisteredView = keyof typeof Registered;
 type Collection = "inbox" | "current" | "history" | "import" | "persona" | "vault" | "automated" | "catalog" | "capture" | RegisteredView;
@@ -44,6 +45,7 @@ const TITLES: Record<Collection, string> = labels({
   connections: msg("Connections"),
   formation: msg("Formation"),
   recall: msg("Recall"),
+  review: msg("Worth a look"),
 });
 // Memory's role-named protocol values; every other value stays as reported.
 const PROTOCOL_TEXT: Record<string, string> = labels({ owner_manual: msg("Entered by Morii"), owner_correction: msg("Correction by Morii") });
@@ -67,7 +69,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   const open = status?.vault?.state === "open";
   const pending: number | null = status?.pendingCandidates ?? null;
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = entry === null ? [] : registered ? [
-    { label: t("Memories"), items: [["catalog", TITLES.catalog], ["time", TITLES.time], ["connections", TITLES.connections], ["formation", TITLES.formation], ["recall", TITLES.recall]] },
+    { label: t("Memories"), items: [["catalog", TITLES.catalog], ["time", TITLES.time], ["connections", TITLES.connections], ["formation", TITLES.formation], ["review", TITLES.review], ["recall", TITLES.recall]] },
   ] : [
     { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },

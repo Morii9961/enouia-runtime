@@ -3,7 +3,7 @@
 // the same registered catalog, renders only what Core returns and withdraws its
 // data when the library closes or its scope changes. Nothing here writes.
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogView, type RecallPreview, type RecallQuery, type ActivityPage, type CatalogFilter, type CatalogPage, type CatalogSelection, type Conflicts,
+import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogView, type AttentionSchedule, type ReviewSuggestions, type TargetRef, type RecallPreview, type RecallQuery, type ActivityPage, type CatalogFilter, type CatalogPage, type CatalogSelection, type Conflicts,
   type CatalogSource, type CatalogStats, type ConversationDetail, type Conversations, type GraphPage, type Neighbors, type TimeBuckets } from "./catalog";
 import { CatalogDetailPanel } from "./CatalogMemory";
 import { ConnectorStatus } from "./Connector";
@@ -237,6 +237,63 @@ function FormationView() {
       {selected ? <><CatalogDetailPanel key={selected.id} memoryId={selected.id} filter={CATALOG_FILTER} selection={selected.selection} read={catalogRead} entities={[]} />
         <ConflictGroup key={`c:${selected.id}`} memoryId={selected.id} /></>
         : <p className="mem-content">{t("Choose an event to read its record, quoted sources and any held contradiction.")}</p>}
+    </div></aside>
+  </>;
+}
+// ---- Worth a look (Memory ADR-MEM-164) ------------------------------------------
+const HORIZONS = [7, 14, 30, 90];
+const REASONS: Record<string, string> = { archives_soon: msg("Archived soon"), validity_ends_soon: msg("Validity ends soon") };
+const TRANSITIONS: Record<string, string> = { fading: msg("Starts fading"), archived: msg("Archived") };
+export function RegisteredReview() {
+  return <Open title={t("Worth a look")}>{() => <ReviewView />}</Open>;
+}
+function ReviewView() {
+  const [horizon, setHorizon] = useState(30);
+  const [review, setReview] = useState<ReviewSuggestions | null>(null);
+  const [schedule, setSchedule] = useState<AttentionSchedule[]>([]);
+  const [selected, setSelected] = useState<{ id: string; selection: CatalogSelection } | null>(null);
+  const reads = useLatestRead(), plans = useLatestRead();
+  const load = useCallback(() => reads.run(() => catalogView({ operation: "review_suggestions", filter: CATALOG_FILTER, query: { horizon_days: horizon }, limit: 50 }), setReview), [horizon, reads.run]);
+  const more = useCallback((cursor: unknown | null) => plans.run(() => {
+    const from = new Date(), until = new Date(from.getTime() + 90 * 86_400_000);
+    return catalogView({ operation: "attention_schedule", filter: CATALOG_FILTER, query: { from: from.toISOString(), until: until.toISOString() }, cursor, limit: 50 });
+  }, page => setSchedule(old => cursor ? [...old, page] : [page])), [plans.run]);
+  useEffect(() => { setSelected(null); void load(); }, [load]);
+  useEffect(() => { void more(null); }, [more]);
+  const day = (at: string) => recordTimeText({ from: at, until: null, precision: "day", bound: "within", tz: null, basis: "source_time" });
+  const events = schedule.flatMap(p => p.events);
+  const first = schedule[0], last = schedule.at(-1);
+  const pick = (memory: TargetRef, selection: CatalogSelection) => setSelected({ id: memory.memory.memory_id, selection });
+  return <>
+    <div className="qr45" aria-busy={reads.busy || plans.busy}><div className="qr44 mem-pad mem-stack">
+      <h2 className="qr29">{t("Worth a look")}</h2>
+      <p className="mem-row-meta">{t("Suggestions come from time alone: records about to be archived and recorded validity that is about to end. They say nothing about whether a record is right; protecting, correcting or leaving it is your choice.")}</p>
+      <label className="mem-label">{t("Look ahead")} <select className="mem-input" value={horizon} disabled={reads.busy} onChange={e => setHorizon(Number(e.target.value))}>
+        {HORIZONS.map(h => <option key={h} value={h}>{t("{n} days", { n: h })}</option>)}</select></label>
+      {reads.busy && <p role="status">{t("Reading suggestions…")}</p>}
+      <ErrorBox error={reads.error} />
+      {review && <>
+        <Observed at={review.header.authorized_at} />
+        <p className="mem-content">{t("{shown} of {total} records worth a look in the next {n} days.", { shown: review.items.length, total: review.total_in_horizon, n: horizon })}</p>
+        <ol className="mem-list">{review.items.map(item => <li key={item.memory.memory.memory_id}>
+          <button type="button" className="mem-link" aria-pressed={selected?.id === item.memory.memory.memory_id} onClick={() => pick(item.memory, review.header.selection)}>{item.title}</button>
+          <span className="mem-row-meta"> · {day(item.due)} · {item.reasons.map(r => t(REASONS[r] ?? r)).join(" / ")} · {word(item.attention)}</span>
+        </li>)}</ol>
+      </>}
+      <section className="mem-stack" aria-label={t("Attention schedule")}>
+        <h3>{t("Attention schedule")}</h3>
+        <ErrorBox error={plans.error} />
+        {first && <p className="mem-row-meta">{t("Computed from each record's capture time: it starts fading after {fade} days and is archived after {archive} days. These moments are derived, not recorded. {protected} protected records never fade.", { fade: first.fade_after_days, archive: first.archive_after_days, protected: first.protected_in_scope })}</p>}
+        {first && events.length === 0 && <p className="mem-content">{t("No fading or archiving in the next 90 days.")}</p>}
+        <ol className="mem-list">{events.map(e => <li key={`${e.memory.memory.memory_id}:${e.transition}`}>
+          <span className="mem-row-meta">{day(e.at)} · {t(TRANSITIONS[e.transition] ?? e.transition)}</span> <button type="button" className="mem-link" onClick={() => pick(e.memory, first!.header.selection)}>{e.title}</button>
+        </li>)}</ol>
+        {last?.next != null && <button type="button" className="mem-button" disabled={plans.busy} onClick={() => void more(last.next)}>{t("Show later moments")}</button>}
+      </section>
+    </div></div>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
+      {selected ? <CatalogDetailPanel key={selected.id} memoryId={selected.id} filter={CATALOG_FILTER} selection={selected.selection} read={catalogRead} entities={[]} />
+        : <p className="mem-content">{t("Choose a record to read it and its quoted sources.")}</p>}
     </div></aside>
   </>;
 }

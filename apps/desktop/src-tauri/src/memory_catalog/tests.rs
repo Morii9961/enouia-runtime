@@ -314,6 +314,39 @@ fn registered_read_probe_reports_every_operation_without_content() {
     } else {
         println!("theme_members: no theme record on the first page");
     }
+    // Every record in one graph selection, as the Connections view reads it.
+    if let Some(graph) = report(
+        "graph.all",
+        json!({"operation":"graph","filter":all,"query":{"node_limit":5000,"edge_limit_per_kind":20000},"cursor":null}),
+    ) {
+        for c in graph["edge_coverage"].as_array().into_iter().flatten() {
+            println!(
+                "  edges {} candidates={} retained={}",
+                c["relation"], c["candidates"], c["retained"]
+            );
+        }
+    }
+    let now =
+        enouia_memory_contract::foundation::Clock::now_unix_ms(&enouia_memory_vault::SystemClock);
+    let at = |ms: i64| enouia_memory_contract::time::Timestamp::from_unix_ms(ms).unwrap();
+    if let Some(v) = report(
+        "review_suggestions.30d",
+        json!({"operation":"review_suggestions","filter":all,"query":{"horizon_days":30},"limit":50}),
+    ) {
+        println!("  total_in_horizon={}", v["total_in_horizon"]);
+    }
+    if let Some(v) = report(
+        "attention_schedule.90d",
+        json!({"operation":"attention_schedule","filter":all,"query":{"from":at(now),"until":at(now + 90 * 86_400_000)},"cursor":null,"limit":50}),
+    ) {
+        println!(
+            "  fade={} archive={} protected={} next={}",
+            v["fade_after_days"],
+            v["archive_after_days"],
+            v["protected_in_scope"],
+            !v["next"].is_null()
+        );
+    }
     native.lock();
     let after = std::fs::read(&current_path).unwrap();
     println!("CURRENT sequence after: {}", sequence(&after));
@@ -1614,5 +1647,48 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
         .unwrap();
     assert_eq!(after["items"][1]["pending"], false);
     assert_eq!(after["items"][0]["pending"], true);
+    native.shutdown();
+}
+
+#[test]
+fn review_suggestions_and_attention_schedule_forward_core_documents() {
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), false)
+        })
+        .unwrap();
+    let all = CatalogFilter::default();
+    let now =
+        enouia_memory_contract::foundation::Clock::now_unix_ms(&enouia_memory_vault::SystemClock);
+    let at = |ms: i64| enouia_memory_contract::time::Timestamp::from_unix_ms(ms).unwrap();
+    let review = native
+        .call(
+            "main",
+            &packet(json!({"operation":"review_suggestions","filter":all,"query":{"horizon_days":30},"limit":50})),
+        )
+        .unwrap();
+    assert_eq!(review["kind"], "memory_review_suggestions");
+    assert_eq!(review["effect"], "native_read");
+    assert!(review["items"].is_array());
+    let schedule = native
+        .call(
+            "main",
+            &packet(json!({"operation":"attention_schedule","filter":all,"query":{"from":at(now),"until":at(now + 366 * 86_400_000)},"cursor":null,"limit":50})),
+        )
+        .unwrap();
+    assert_eq!(schedule["kind"], "memory_attention_schedule");
+    // Three fresh unprotected records: each fades and is archived later.
+    let events = schedule["events"].as_array().unwrap();
+    assert!(events.iter().all(|e| e["past"] == false));
+    assert!(schedule["fade_after_days"].as_u64().unwrap() > 0);
+    assert_eq!(
+        native.call(
+            "main",
+            &packet(json!({"operation":"review_suggestions","filter":all,"query":{"horizon_days":91},"limit":50})),
+        ),
+        Err("catalog_read_refused"),
+        "Core refuses a horizon beyond 90 days"
+    );
     native.shutdown();
 }
