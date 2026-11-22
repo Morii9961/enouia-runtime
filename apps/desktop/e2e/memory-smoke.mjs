@@ -1189,6 +1189,28 @@ async function automaticMemoryChecks() {
   }
 }
 
+// ADR-043: one MCP stdio exchange through the bridge; returns the tool names.
+function bridgeTools(bridge, args) {
+  return new Promise((resolveTools, reject) => {
+    const child = spawn(bridge, args, { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+    let buffer = '', names = null;
+    const timer = setTimeout(() => { child.kill(); reject(new Error('bridge timeout')); }, 20000);
+    child.stdout.on('data', chunk => {
+      buffer += chunk;
+      for (let n = buffer.indexOf('\n'); n >= 0; n = buffer.indexOf('\n')) {
+        const line = buffer.slice(0, n).trim(); buffer = buffer.slice(n + 1);
+        if (!line) continue;
+        const message = JSON.parse(line);
+        if (message.id === 2) { names = (message.result?.tools ?? []).map(t => t.name); child.stdin.end(); }
+      }
+    });
+    child.once('exit', () => { clearTimeout(timer); names ? resolveTools(names) : reject(new Error('bridge exited without tools')); });
+    child.stdin.write(JSON.stringify({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'runtime-smoke',version:'1'}}}) + '\n');
+    child.stdin.write(JSON.stringify({jsonrpc:'2.0',method:'notifications/initialized'}) + '\n');
+    child.stdin.write(JSON.stringify({jsonrpc:'2.0',id:2,method:'tools/list'}) + '\n');
+  });
+}
+
 async function registeredOwnerChecks() {
   // Only the manifest emitted by the explicit durable synthetic native test.
   // This mode must never be pointed at a personal home/registration.
@@ -1322,7 +1344,15 @@ async function registeredOwnerChecks() {
   const beforeGrant=readFileSync(currentPath);
   await click(s,'button','Confirm and write');
   await waitFor(s,has('Registered · until'),'registered agent');
-  check('OWNER.agent_grant_planned_then_committed',!readFileSync(currentPath).equals(beforeGrant)&&await s.evaluate(`${has('Renew for 90 days…')} && ${has('not available yet')}`));
+  check('OWNER.agent_grant_planned_then_committed',!readFileSync(currentPath).equals(beforeGrant)&&await s.evaluate(`${has('Renew for 90 days…')} && ${has('locking or exiting disconnects it')}`));
+  // ADR-043: the bundled bridge reaches Claude Code's pipe with exactly the arguments Settings shows.
+  const agentsNow=await s.evaluate("__t.catalog({operation:'agent_status'}).then(r=>r.ok)");
+  const claudePipe=agentsNow.agents.find(a=>a.key==='claude_code').pipe;
+  const bridgeExe=join(dirname(exe),'enouia-memory-mcp.exe');
+  const tools=existsSync(bridgeExe)?await bridgeTools(bridgeExe,['--protocol',agentsNow.bridge.protocol,'--pipe',claudePipe,'--vault-id',agentsNow.vault_id]):[];
+  check('OWNER.bundled_bridge_lists_agent_tools',agentsNow.bridge.present&&['memory_note','memory_correction_report','memory_forget_request'].every(n=>tools.includes(n)),tools.join(','));
+  await nav(s,'Settings');
+  check('OWNER.settings_shows_claude_code_mcp_command',await s.evaluate(`[...document.querySelectorAll('pre[data-agent=claude_code]')].some(p=>p.textContent.includes(${JSON.stringify(claudePipe)}))`));
   void s.evaluate("__t.invoke('shell_exit')").catch(()=>0);check('OWNER.reopened_exit',(await waitForExit(app,20000))===0);s.close();
   const autoPort=await unusedPort();app=launch(['--autostart',...launchArgs],{port:autoPort,profile:'owner-autostart'});s=await connect(false,autoPort);await s.evaluate(helpers);
   const ignored=await s.evaluate("__t.catalog({operation:'status'}).then(r=>r.ok)");

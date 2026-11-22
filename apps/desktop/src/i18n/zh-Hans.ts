@@ -2243,7 +2243,6 @@ const dict: Record<string, string> = {
   "Renew for 90 days…": "续期 90 天…",
   "Update source scope…": "更新来源范围…",
   "Local Agents": "本机 Agent",
-  "Claude Code and Codex read this library through MCP under a grant: up to Private, 90 days, and they may only add notes, correction requests and forget requests. Connecting their MCP pipes is not available yet.": "Claude Code 和 Codex 按授权通过 MCP 读取这个库：上限“个人”、90 天，只能追加备注、纠正请求和遗忘请求。它们的 MCP 连接暂时还不能接通。",
   "Not registered": "未登记",
   "Revoked": "已撤销",
   "Registered · until {date} · up to {max} · {sources} sources · requests {requests}": "已登记 · 有效至 {date} · 上限 {max} · 来源 {sources} 条 · 请求{requests}",
@@ -2289,5 +2288,11 @@ const dict: Record<string, string> = {
   "No fading or archiving in the next 90 days.": "未来 90 天内没有淡出或归档。",
   "Show later moments": "显示更晚的时刻",
   "Choose a record to read it and its quoted sources.": "选一条记录，阅读它和它引用的来源。",
+  "Claude Code and Codex read this library through MCP under a grant: up to Private, 90 days, and they may only add notes, correction requests and forget requests. A registered Agent connects through its own local pipe while this library is open; locking or exiting disconnects it.": "Claude Code 和 Codex 按授权通过 MCP 读取这个库：上限“个人”、90 天，只能追加备注、纠正请求和遗忘请求。已登记的 Agent 在这个库打开时通过各自的本机通路连接；锁定或退出就会断开。",
+  "MCP configuration": "MCP 配置",
+  "The bridge program is not next to this copy of Runtime, so the Agent cannot connect from it yet.": "这份 Runtime 所在的文件夹里没有连接程序，Agent 暂时无法从这里连接。",
+  "Claude Code: run once in a terminal": "Claude Code：在命令行里运行一次",
+  "Codex: add to ~/.codex/config.toml": "Codex：加到 ~/.codex/config.toml",
+  "One connection at a time per Agent: a second session of the same Agent cannot connect until the first one ends.": "每个 Agent 同时只能有一条连接：同一个 Agent 的第二个会话要等第一个结束才能连上。",
 };
 export default dict;

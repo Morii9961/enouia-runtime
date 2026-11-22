@@ -94,7 +94,10 @@ impl Agents {
                 let grant = local
                     .get(*key)
                     .and_then(|a| status.grants.iter().find(|g| g.grant_id == a.grant_id));
-                json!({"key":key,"name":name,"registered":grant.is_some(),"grant":grant.map(view)})
+                let pipe = local
+                    .get(*key)
+                    .map(|a| crate::memory_pipes::pipe_id(&vault.descriptor().vault_id, &a.principal));
+                json!({"key":key,"name":name,"registered":grant.is_some(),"grant":grant.map(view),"pipe":pipe})
             })
             .collect();
         let named: Vec<&PolicyId> = local.values().map(|a| &a.grant_id).collect();
@@ -106,7 +109,7 @@ impl Agents {
             .collect();
         Ok(
             json!({"agents":agents,"other_grants":other,"now":status.now,
-            "library_policies":status.policy_refs.len()}),
+            "library_policies":status.policy_refs.len(),"vault_id":vault.descriptor().vault_id}),
         )
     }
     /// Build one grant revision for `action` and ask Core to plan it. Nothing
