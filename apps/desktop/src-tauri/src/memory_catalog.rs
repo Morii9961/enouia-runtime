@@ -171,6 +171,13 @@ enum CatalogQuery {
     AgentCommit {
         plan_id: String,
     },
+    /// ADR-042 (D2): saved Agent correction and forget requests for Morii's
+    /// desktop queue (read only), and the local "ignore" mark on one of them.
+    AgentRequests,
+    AgentRequestIgnore {
+        key: String,
+        ignored: bool,
+    },
     Lock,
     Unlock,
 }
@@ -465,6 +472,7 @@ impl NativeCatalog {
                     | "confirm_action"
                     | "agent_plan"
                     | "agent_commit"
+                    | "agent_request_ignore"
             ) | None
         );
         let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
@@ -945,6 +953,29 @@ impl NativeCatalog {
                 value["capability"] = json!("memory-native-read-2");
                 value["kind"] = json!("runtime_agent_grants");
                 value["effect"] = json!("native_write");
+                Ok(value)
+            }
+            CatalogQuery::AgentRequests => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                let requests = owner.agent_requests(ceiling).map_err(fault)?;
+                let mut value = agents.requests(vault, requests)?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("runtime_agent_requests");
+                value["effect"] = json!("native_read");
+                Ok(value)
+            }
+            CatalogQuery::AgentRequestIgnore { key, ignored } => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                agents.set_ignored(vault, &key, ignored)?;
+                let requests = owner.agent_requests(ceiling).map_err(fault)?;
+                let mut value = agents.requests(vault, requests)?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("runtime_agent_requests");
+                value["effect"] = json!("local_write");
                 Ok(value)
             }
             CatalogQuery::ConnectorStatus => {

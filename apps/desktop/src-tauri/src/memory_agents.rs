@@ -8,11 +8,15 @@ use enouia_memory_contract::{
 };
 use enouia_memory_vault::{
     OsIdSource,
-    automation::segmented::{OwnerReadGrantPlan, SegmentedAutomationVault},
+    automation::segmented::{AgentRequestView, OwnerReadGrantPlan, SegmentedAutomationVault},
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, path::PathBuf, sync::Mutex};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    path::PathBuf,
+    sync::Mutex,
+};
 
 /// Defaults recorded in ADR-041 (Morii may change them).
 pub const AGENTS: [(&str, &str); 2] = [("claude_code", "Claude Code"), ("codex", "Codex")];
@@ -27,6 +31,9 @@ pub struct LocalAgent {
 }
 /// Local file: vault id → agent key → identity. Never written into the library.
 type LocalAgents = BTreeMap<String, BTreeMap<String, LocalAgent>>;
+/// Local file beside it: vault id → request keys Morii chose to ignore (ADR-042).
+type IgnoredRequests = BTreeMap<String, BTreeSet<String>>;
+const IGNORED_FILE: &str = "ignored-agent-requests.json";
 /// A planned grant held natively: agent key, Core's plan, a new identity for register.
 type PendingPlans = BTreeMap<String, (String, OwnerReadGrantPlan, Option<LocalAgent>)>;
 
@@ -199,6 +206,66 @@ impl Agents {
             .map_err(|_| "catalog_busy")?
             .insert(plan_id, (key.to_owned(), plan, identity));
         Ok(summary)
+    }
+    fn ignored_all(&self) -> IgnoredRequests {
+        self.file
+            .as_ref()
+            .and_then(|f| std::fs::read(f.with_file_name(IGNORED_FILE)).ok())
+            .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+            .unwrap_or_default()
+    }
+    /// ADR-042: mark one saved request as ignored (or not) on this computer.
+    /// Nothing is written into the library; the request stays there.
+    pub fn set_ignored(
+        &self,
+        vault: &SegmentedAutomationVault,
+        key: &str,
+        ignored: bool,
+    ) -> Result<(), &'static str> {
+        let file = self
+            .file
+            .as_ref()
+            .ok_or("agents_file_unavailable")?
+            .with_file_name(IGNORED_FILE);
+        let mut all = self.ignored_all();
+        let keys = all.entry(vault.descriptor().vault_id.to_string()).or_default();
+        if ignored {
+            keys.insert(key.to_owned());
+        } else {
+            keys.remove(key);
+        }
+        if let Some(dir) = file.parent() {
+            std::fs::create_dir_all(dir).map_err(|_| "agents_file_unavailable")?;
+        }
+        let bytes = serde_json::to_vec_pretty(&all).map_err(|_| "agents_file_unavailable")?;
+        std::fs::write(file, bytes).map_err(|_| "agents_file_unavailable")
+    }
+    /// ADR-042: Core's saved requests with the local Agent name (when this
+    /// computer registered the principal) and the local ignore mark.
+    pub fn requests(
+        &self,
+        vault: &SegmentedAutomationVault,
+        requests: Vec<AgentRequestView>,
+    ) -> Result<Value, &'static str> {
+        let local = self.local(vault);
+        let ignored = self
+            .ignored_all()
+            .remove(&vault.descriptor().vault_id.to_string())
+            .unwrap_or_default();
+        let mut items = Vec::new();
+        for r in requests {
+            let agent = local
+                .iter()
+                .find(|(_, a)| a.principal == r.principal.actor_id)
+                .and_then(|(key, _)| AGENTS.iter().find(|(k, _)| k == key))
+                .map(|(_, name)| *name);
+            let skip = ignored.contains(&r.key.to_string());
+            let mut value = serde_json::to_value(&r).map_err(|_| "catalog_read_refused")?;
+            value["agent"] = json!(agent);
+            value["ignored"] = json!(skip);
+            items.push(value);
+        }
+        Ok(json!({"items":items}))
     }
     /// The main window's confirm click on a shown plan. One use.
     pub fn commit(

@@ -17,6 +17,7 @@ import { labels, msg, t, tj, tn } from '../i18n/index.ts';
 const ProviderConfigDraft = lazy(() => import("./ProviderConfigDraft").then(module => ({ default: module.ProviderConfigDraft })));
 const ConnectorStatus = lazy(() => import("./Connector").then(module => ({ default: module.ConnectorStatus })));
 const AgentGrantsPanel = lazy(() => import("./Agents").then(module => ({ default: module.AgentGrantsPanel })));
+const AgentRequestsPanel = lazy(() => import("./Agents").then(module => ({ default: module.AgentRequestsPanel })));
 const RegisteredHome = lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredHome })));
 const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").then(module => ({ default: module.ProviderSettingsStatus })));
 
@@ -275,7 +276,7 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
     <Row k={t("State")}>{registeredLabel(nativeStatus)}</Row>
     <RegisteredEntryNotice />
     <div className="qr216"><span className="qr35">{t("Manage")}</span><button type="button" className="mem-link" onClick={openMemory}>{t("Open native memory catalog")}</button></div>
-    {nativeStatus?.state === "open" && nativeStatus.corrections && <Suspense fallback={null}><ConnectorStatus /><AgentGrantsPanel /></Suspense>}
+    {nativeStatus?.state === "open" && nativeStatus.corrections && <Suspense fallback={null}><ConnectorStatus /><AgentGrantsPanel /><AgentRequestsPanel /></Suspense>}
     <CompanionSettings status={status} />
   </div>;
   return (
