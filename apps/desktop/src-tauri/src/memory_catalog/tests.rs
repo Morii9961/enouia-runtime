@@ -1240,3 +1240,97 @@ fn chatgpt_extracted_memory_carries_its_analyst_model_and_note() {
     );
     native.shutdown();
 }
+#[test]
+fn agent_grants_plan_then_commit_and_keep_names_local() {
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
+        })
+        .unwrap();
+    let root = native
+        .0
+        .state
+        .lock()
+        .unwrap()
+        .library
+        .as_ref()
+        .unwrap()
+        ._root
+        .clone();
+    let current = || std::fs::read(root.join("vault/CURRENT")).unwrap();
+    let status = native
+        .call("main", &packet(json!({"operation":"agent_status"})))
+        .unwrap();
+    assert_eq!(status["agents"][0]["key"], "claude_code");
+    assert_eq!(status["agents"][0]["registered"], false);
+    let before = current();
+    let plan = native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_plan","agent":"claude_code","action":"register"})),
+        )
+        .unwrap();
+    assert_eq!(plan["max_sensitivity"], "private");
+    assert_eq!(plan["allow_requests"], true);
+    assert!(plan["sources"].as_u64().unwrap() > 0);
+    assert_eq!(current(), before, "planning writes nothing");
+    let committed = native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_commit","plan_id":plan["plan_id"]})),
+        )
+        .unwrap();
+    assert_ne!(current(), before);
+    let claude = &committed["agents"][0];
+    assert_eq!(claude["registered"], true);
+    assert_eq!(claude["grant"]["active"], true);
+    assert_eq!(claude["grant"]["revision"], 1);
+    assert_eq!(committed["agents"][1]["registered"], false);
+    let local: Value =
+        serde_json::from_slice(&std::fs::read(root.join("registered-agents.json")).unwrap())
+            .unwrap();
+    assert!(
+        local.as_object().unwrap().values().next().unwrap()["claude_code"]["principal"].is_string()
+    );
+    assert_eq!(
+        native.call(
+            "main",
+            &packet(json!({"operation":"agent_commit","plan_id":plan["plan_id"]}))
+        ),
+        Err("grant_stale"),
+        "a plan is committed once"
+    );
+    for (action, revision, active) in [
+        ("renew", 2, true),
+        ("refresh", 3, true),
+        ("revoke", 4, false),
+    ] {
+        let plan = native
+            .call(
+                "main",
+                &packet(json!({"operation":"agent_plan","agent":"claude_code","action":action})),
+            )
+            .unwrap();
+        let status = native
+            .call(
+                "main",
+                &packet(json!({"operation":"agent_commit","plan_id":plan["plan_id"]})),
+            )
+            .unwrap();
+        assert_eq!(
+            status["agents"][0]["grant"]["revision"], revision,
+            "{action}"
+        );
+        assert_eq!(status["agents"][0]["grant"]["active"], active, "{action}");
+    }
+    assert_eq!(
+        native.call(
+            "main",
+            &packet(json!({"operation":"agent_plan","agent":"codex","action":"revoke"}))
+        ),
+        Err("catalog_invalid_request"),
+        "an unregistered Agent has nothing to revoke"
+    );
+    native.shutdown();
+}

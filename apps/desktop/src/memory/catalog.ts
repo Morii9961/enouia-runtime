@@ -153,6 +153,24 @@ export async function catalogConnector(): Promise<ConnectorStatus> {
       value.windows.some((w: J) => typeof w?.policy_id !== "string" || !Number.isSafeInteger(w.unused_sources) || !Array.isArray(w.allowed_forms))) throw "catalog_response_unsupported";
   return value as ConnectorStatus;
 }
+// ADR-041 local Agent grants. Plans stay native; the page only confirms one.
+type AgentGrantView = { grant_id: string; revision: number; active: boolean; max_sensitivity: string; allow_requests: boolean; source_read: boolean;
+  valid_from: string; valid_until: string; policies: number; sources: number };
+export type AgentGrants = { kind: "runtime_agent_grants"; agents: { key: string; name: string; registered: boolean; grant: AgentGrantView | null }[]; other_grants: AgentGrantView[] };
+export type AgentGrantPlan = { kind: "runtime_agent_grant_plan"; plan_id: string; agent: string; action: string; revision: number; active: boolean;
+  max_sensitivity: string; allow_requests: boolean; valid_until: string; expires_at: string; policies: number; sources: number };
+export async function catalogAgents(query: { operation: "agent_status" }): Promise<AgentGrants>;
+export async function catalogAgents(query: { operation: "agent_plan"; agent: string; action: string }): Promise<AgentGrantPlan>;
+export async function catalogAgents(query: { operation: "agent_commit"; plan_id: string }): Promise<AgentGrants>;
+export async function catalogAgents(query: { operation: string } & Record<string, unknown>): Promise<unknown> {
+  const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: structuredClone(query) } }) as J;
+  const ok = query.operation === "agent_plan"
+    ? value?.kind === "runtime_agent_grant_plan" && value.effect === "native_plan" && typeof value.plan_id === "string" && Number.isSafeInteger(value.sources)
+    : value?.kind === "runtime_agent_grants" && value.effect === (query.operation === "agent_commit" ? "native_write" : "native_read") &&
+      Array.isArray(value.agents) && Array.isArray(value.other_grants);
+  if (!ok) throw "catalog_response_unsupported";
+  return value;
+}
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);
 export function setCatalogTransport(next: Transport): void { transport = next; }
