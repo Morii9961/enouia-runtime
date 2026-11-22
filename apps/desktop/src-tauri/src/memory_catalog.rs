@@ -159,6 +159,8 @@ enum CatalogQuery {
     ActionOutcome {
         operation_id: OperationId,
     },
+    /// Memory ADR-MEM-158: the connector's open capture windows (read only).
+    ConnectorStatus,
     Lock,
     Unlock,
 }
@@ -881,6 +883,20 @@ impl NativeCatalog {
                 value["capability"] = json!("memory-native-read-2");
                 value["effect"] = json!("native_write");
                 Ok(value)
+            }
+            CatalogQuery::ConnectorStatus => {
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                let windows: Vec<Value> = owner
+                    .capture_windows()
+                    .map_err(fault)?
+                    .into_iter()
+                    .map(|w| json!({"policy_id":w.policy.policy_id,"max_sensitivity":w.policy.max_sensitivity,
+                        "allowed_forms":w.policy.allowed_forms,"valid_from":w.policy.valid_from,
+                        "valid_until":w.policy.valid_until,"unused_sources":w.unused_source_ids.len(),
+                        "reserved_sources":w.policy.source_ids.len()}))
+                    .collect();
+                Ok(json!({"schema_version":2,"capability":"memory-native-read-2","kind":"runtime_connector_status",
+                    "effect":"native_read","windows":windows}))
             }
             CatalogQuery::ActionOutcome { operation_id } => {
                 let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;

@@ -1084,58 +1084,39 @@ fn corrections_still_reach_records_after_their_policy_window_ends() {
 #[test]
 fn chatgpt_extracted_memory_carries_its_analyst_model_and_note() {
     use enouia_memory_contract::common::SpeakerRole;
-    use enouia_memory_contract::{foundation::Clock, ports::IdSource, time::Timestamp};
-    use enouia_memory_host::automation::{
-        connector_formation::{self, ConnectorStatement, ConnectorSubmission, SubmittedAnalyzer},
-        runtime_capture::RuntimeCaptureHost,
+    use enouia_memory_contract::{foundation::Clock, ports::IdSource};
+    use enouia_memory_host::automation::connector_formation::{
+        self, ConnectorConfig, ConnectorStatement, ConnectorSubmission, ConnectorWriter,
     };
-    use enouia_memory_vault::automation::segmented::RuntimeCaptureScope;
     let native = NativeCatalog::default();
     native
         .initialize_with(|stop| {
             fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
         })
         .unwrap();
-    let (vault, created_by, window) = {
+    let vault = {
         let state = native.0.state.lock().unwrap();
-        let library = state.library.as_ref().unwrap();
-        let vault = library.vault.clone().unwrap();
-        let created_by = vault.descriptor().created_by.clone();
-        let window = library
-            .owner
-            .as_ref()
-            .unwrap()
-            .open_capture_window(30, Sensitivity::Private, vec![FormationKind::Preference])
-            .unwrap();
-        (vault, created_by, window)
+        state.library.as_ref().unwrap().vault.clone().unwrap()
     };
-    let now = enouia_memory_vault::SystemClock.now_unix_ms();
-    let host = RuntimeCaptureHost::enroll_owner(
+    let created_by = vault.descriptor().created_by.clone();
+    let writer = ConnectorWriter::new(
         vault,
-        &created_by,
-        std::process::id(),
+        created_by,
         ActorRef {
             actor_type: enouia_memory_contract::common::ActorType::Client,
             actor_id: enouia_memory_contract::ids::PrincipalId::from_random(
                 enouia_memory_vault::OsIdSource.random_16(),
             ),
         },
-        RuntimeCaptureScope {
-            policy_id: window.policy.policy_id.clone(),
-            source_ids: window.unused_source_ids.clone(),
-            max_sensitivity: Sensitivity::Private,
-            platform: "enouia-runtime".into(),
+        ConnectorConfig {
             account_scope: "chatgpt-connector-synthetic".into(),
             default_timezone: "Asia/Shanghai".into(),
-            valid_until: Timestamp::from_unix_ms(now + 240_000).unwrap(),
+            max_sensitivity: Sensitivity::Private,
+            allowed_forms: vec![FormationKind::Preference],
+            window_days: 30,
         },
     )
     .unwrap();
-    let analyzer = SubmittedAnalyzer::default();
-    let host = Arc::new(host);
-    let worker = host
-        .start_worker(analyzer.clone(), std::time::Duration::from_secs(30))
-        .unwrap();
     let user = "Synthetic ChatGPT turn: I prefer green tea in the afternoon.";
     let unknown = RecordTime {
         from: None,
@@ -1186,7 +1167,31 @@ fn chatgpt_extracted_memory_carries_its_analyst_model_and_note() {
             note: Some("Synthetic ChatGPT note.".into()),
         }],
     };
-    connector_formation::submit(&host, &analyzer, &submission, false).unwrap();
+    let before = native
+        .call("main", &packet(json!({"operation":"connector_status"})))
+        .unwrap();
+    assert_eq!(
+        before["windows"].as_array().unwrap().len(),
+        0,
+        "not connected yet"
+    );
+    writer
+        .submit(
+            &submission,
+            false,
+            enouia_memory_vault::SystemClock.now_unix_ms(),
+        )
+        .unwrap();
+    let after = native
+        .call_waiting("main", &packet(json!({"operation":"connector_status"})))
+        .unwrap();
+    let window = &after["windows"][0];
+    assert_eq!(window["max_sensitivity"], "private");
+    assert_eq!(window["allowed_forms"], json!(["preference"]));
+    assert_eq!(
+        window["unused_sources"].as_u64().unwrap() + 2,
+        window["reserved_sources"].as_u64().unwrap()
+    );
     let all = CatalogFilter::default();
     let mut formed = Value::Null;
     for _ in 0..200 {
@@ -1233,7 +1238,5 @@ fn chatgpt_extracted_memory_carries_its_analyst_model_and_note() {
             .iter()
             .any(|c| c["conversation"]["account_scope"] == "chatgpt-connector-synthetic")
     );
-    host.revoke();
-    let _ = worker.shutdown();
     native.shutdown();
 }
