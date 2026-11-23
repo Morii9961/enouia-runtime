@@ -63,7 +63,7 @@ export type Conversations = { kind: "native_conversation_page"; header: ViewHead
   items: { conversation: ConversationMeta; visible_captured_turns: number; visible_captured_sources: number; effective_sensitivity: string }[] };
 export type ConversationDetail = { kind: "native_conversation_detail"; header: ViewHeader; conversation: ConversationMeta | null;
   visible_captured_turns: number; visible_captured_sources: number; next: unknown | null;
-  turns: { turn: { turn_id: string; sequence: number; source: CatalogSourceRef }; source_record: { reference: CatalogSourceRef; speaker: string; source_kind: string } }[] };
+  turns: { turn: { turn_id: string; sequence: number; source: CatalogSourceRef }; source_record: { reference: CatalogSourceRef; speaker: string; source_kind: string; occurred_at?: string | null; captured_at?: string | null } }[] };
 type ViewQueries = {
   time_buckets: { filter: CatalogFilter; query: { axis: string; timezone: string; granularity: "day" | "month"; from_date: string; until_date: string }; selection: CatalogSelection | null };
   graph: { filter: CatalogFilter; query: { node_limit: number; edge_limit_per_kind: number }; cursor: unknown | null };
@@ -102,7 +102,7 @@ export async function catalogView<K extends keyof ViewQueries>(query: { operatio
 // ADR-MEM-152 System recall preview: the Agent host's recall without a Capsule,
 // stored context or Agent enrollment. Core's document has no process header.
 export type RecallQuery = { text: string; conditions: string[]; event_window: null; at: string; intent: "current" | "historical" | "browse"; limit: number; max_bytes: number };
-export type RecallPreview = { kind: "native_recall_preview"; complete_in_scope: boolean; rendered_context: string;
+export type RecallPreview = { kind: "native_recall_preview"; complete_in_scope: boolean; rendered_context: string; selected_targets: TargetRef[];
   trace: { at: string; authorized_at: string; considered: number; rendered_bytes: number;
     selected: { memory: { memory_id: string; revision: number }; attention: string; score: number; reasons: string[] }[];
     excluded: [{ memory_id: string; revision: number }, string][] };
@@ -112,7 +112,7 @@ export async function catalogRecall(query: RecallQuery): Promise<RecallPreview> 
   const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: { operation: "recall_preview", query: structuredClone(query) } } }) as J;
   if (!value || value.schema_version !== 2 || value.capability !== "memory-native-read-2" || value.effect !== "native_read" || value.kind !== "native_recall_preview" ||
       !Array.isArray(value.trace?.selected) || !Array.isArray(value.trace?.excluded) || !Array.isArray(value.items) ||
-      value.items.length !== value.trace.selected.length || typeof value.rendered_context !== "string" ||
+      value.items.length !== value.trace.selected.length || !Array.isArray(value.selected_targets) || value.selected_targets.length !== value.trace.selected.length || typeof value.rendered_context !== "string" ||
       typeof value.trace_coverage?.reason_counts !== "object" || !Number.isSafeInteger(value.trace.considered)) throw "catalog_response_unsupported";
   snapshotKey(value.trace.snapshot);
   return value as RecallPreview;
@@ -168,7 +168,7 @@ export async function catalogConnector(): Promise<ConnectorStatus> {
 // ADR-041 local Agent grants. Plans stay native; the page only confirms one.
 type AgentGrantView = { grant_id: string; revision: number; active: boolean; max_sensitivity: string; allow_requests: boolean; source_read: boolean;
   valid_from: string; valid_until: string; policies: number; sources: number; follow_new_sources: boolean };
-export type AgentGrants = { kind: "runtime_agent_grants"; agents: { key: string; name: string; registered: boolean; grant: AgentGrantView | null; pipe: string | null;
+export type AgentGrants = { kind: "runtime_agent_grants"; connector: (AgentGrantView & { coverage: { policies: number; sources: number; refreshable: boolean } | null }) | null; agents: { key: string; name: string; registered: boolean; grant: AgentGrantView | null; pipe: string | null;
     coverage: { policies: number; sources: number; refreshable: boolean } | null }[]; other_grants: AgentGrantView[];
   vault_id: string; bridge: { path: string | null; present: boolean; protocol: string } };
 export type AgentGrantPlan = { kind: "runtime_agent_grant_plan"; plan_id: string; agent: string; action: string; revision: number; active: boolean;
@@ -206,7 +206,7 @@ export async function catalogCapsules(enabled?: boolean): Promise<SavedCapsules>
   if (value?.kind !== "runtime_capsules" || value.effect !== "native_read" || !Array.isArray(value.capsules)) throw "catalog_response_unsupported";
   return value;
 }
-export async function catalogCapsulePlan(name: string, query: string, members: { memory_id: string; revision: number }[]): Promise<OwnerPreview> {
+export async function catalogCapsulePlan(name: string, query: string, members: TargetRef[]): Promise<OwnerPreview> {
   const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: { operation: "plan_capsule", name, query, members } } }) as J;
   if (value?.kind !== "native_owner_preview" || value.effect !== "native_plan" || typeof value.plan?.operation_id !== "string" || !hex64(value.plan_hash) || !hex64(value.effects_hash)) throw "catalog_response_unsupported";
   return value;

@@ -39,6 +39,15 @@ export function AgentGrantsPanel() {
         <span className="mem-actions">{(!a.grant ? ["register"] : a.grant.active ? ["renew", ...(a.grant.follow_new_sources ? [] : ["follow"]), ...(a.coverage?.refreshable ? ["refresh"] : []), "revoke"] : ["renew"]).map(action =>
           <button key={action} type="button" className="mem-link" disabled={busy || !!plan} onClick={() => void propose(a.key, action as Action)}>{t(ACTIONS[action as Action])}</button>)}</span>
       </span>)}
+      {grants && <span className="mem-stack" data-connector-grant>
+        <strong>{t("ChatGPT connector")}</strong>
+        <span role="status" className="mem-row-meta">{!grants.connector ? t("No connector grant on this library yet.") : !grants.connector.active ? t("Revoked") :
+          t("Granted · until {date} · up to {max} · {sources} sources", { date: day(grants.connector.valid_until), max: word(grants.connector.max_sensitivity), sources: grants.connector.sources })}</span>
+        {grants.connector?.active && <span className="mem-row-meta">{grants.connector.follow_new_sources ? t("New windows and sources are included automatically; the ceiling and expiry stay the same.")
+          : grants.connector.coverage && grants.connector.coverage.policies + grants.connector.coverage.sources > 0
+            ? t("Missing {windows} new windows and {sources} new sources captured since this grant was written.", { windows: grants.connector.coverage.policies, sources: grants.connector.coverage.sources })
+            : t("Covers every current window and source.")}</span>}
+      </span>}
       {grants && grants.other_grants.length > 0 && <span className="mem-row-meta">{t("{n} other grants exist on this library without a name on this computer.", { n: grants.other_grants.length })}</span>}
       {plan && <span className="mem-card mem-stack" aria-label={t("Planned grant")}>
         <strong>{t("Planned grant: {agent} · {action}", { agent: grants?.agents.find(a => a.key === plan.agent)?.name ?? plan.agent, action: t(ACTIONS[plan.action as Action] ?? plan.action) })}</strong>

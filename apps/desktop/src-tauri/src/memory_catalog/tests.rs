@@ -2034,7 +2034,12 @@ fn capsules_stay_off_until_turned_on_then_save_list_and_delete() {
         .as_array()
         .unwrap()
         .iter()
-        .map(|i| json!({"memory_id":i["base"]["memory"]["memory_id"],"revision":i["base"]["memory"]["revision"]}))
+        .map(|i| {
+            native
+                .call("main", &packet(json!({"operation":"detail","filter":all,"memory_id":i["base"]["memory"]["memory_id"]})))
+                .unwrap()["history"][0]["memory"]
+                .clone()
+        })
         .collect();
     let plan = |members: &Vec<Value>| {
         native.call("main", &packet(json!({"operation":"plan_capsule","name":"Synthetic capsule","query":"pottery","members":members})))

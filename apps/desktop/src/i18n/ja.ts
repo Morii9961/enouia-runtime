@@ -2389,5 +2389,7 @@ const dict: Record<string, string> = {
   "Hide postponed suggestions": "隠した提案をたたむ",
   "Show postponed suggestions": "隠した提案を表示",
   "Postponing only hides a suggestion on this computer; the record and the library do not change.": "隠すのはこのコンピュータの中だけで、記録とライブラリは変わりません。",
+  "No connector grant on this library yet.": "このライブラリにはまだコネクタの許可がありません。",
+  "Granted · until {date} · up to {max} · {sources} sources": "許可済み · {date} まで · 上限 {max} · 出所 {sources} 件",
 };
 export default dict;

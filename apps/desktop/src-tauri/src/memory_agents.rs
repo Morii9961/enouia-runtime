@@ -107,15 +107,29 @@ impl Agents {
                 json!({"key":key,"name":name,"registered":grant.is_some(),"grant":grant.map(view),"pipe":pipe,"coverage":coverage})
             })
             .collect();
+        // Memory ADR-MEM-175: the ChatGPT connector's grant carries a purpose tag.
+        let connector = status
+            .grants
+            .iter()
+            .find(|g| g.purpose.as_deref() == Some("chatgpt_connector"))
+            .map(|g| {
+                let mut v = view(g);
+                v["coverage"] = vault.owner_read_grant_coverage(&owner, &g.grant_id).ok().map(|c| {
+                    json!({"policies":c.uncovered_policies.len(),"sources":c.uncovered_sources.len(),"refreshable":c.refreshed.is_some()})
+                }).unwrap_or(Value::Null);
+                v
+            });
         let named: Vec<&PolicyId> = local.values().map(|a| &a.grant_id).collect();
         let other: Vec<Value> = status
             .grants
             .iter()
-            .filter(|g| !named.contains(&&g.grant_id))
+            .filter(|g| {
+                !named.contains(&&g.grant_id) && g.purpose.as_deref() != Some("chatgpt_connector")
+            })
             .map(view)
             .collect();
         Ok(
-            json!({"agents":agents,"other_grants":other,"now":status.now,
+            json!({"agents":agents,"other_grants":other,"connector":connector,"now":status.now,
             "library_policies":status.policy_refs.len(),"vault_id":vault.descriptor().vault_id}),
         )
     }
@@ -188,6 +202,7 @@ impl Agents {
                         // Memory ADR-MEM-170 (Morii's choice): later windows and
                         // captured sources of the same subject join automatically.
                         follow_new_sources: true,
+                        purpose: None,
                     },
                     Some(identity),
                 )

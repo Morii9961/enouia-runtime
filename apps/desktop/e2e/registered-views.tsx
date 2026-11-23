@@ -62,7 +62,7 @@ setCatalogTransport(async(_command,args)=>{
   if(q.operation==='conversation_detail')return {...envelope,kind:'native_conversation_detail',header,conversation:{conversation_id:'ses_synthetic',platform:'synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},
     visible_captured_turns:1,visible_captured_sources:1,next:null,platform_complete_not_claimed:true,
     turns:[{turn:{turn_id:'turn_1',sequence:1,source:{source_id:'synthetic-source',source_revision:1}},source_record:{reference:{source_id:'synthetic-source',source_revision:1},speaker:'user',source_kind:'export_message'},fields:{}}]};
-  if(q.operation==='recall_preview'){recalls.push(q.query);return {...envelope,kind:'native_recall_preview',complete_in_scope:true,rendered_context:'Synthetic rendered context',
+  if(q.operation==='recall_preview'){recalls.push(q.query);return {...envelope,kind:'native_recall_preview',complete_in_scope:true,rendered_context:'Synthetic rendered context',selected_targets:[{memory:{memory_id:'synthetic-memory-2',revision:1},hash:'e'.repeat(64)}],
     trace:{algorithm:'attention-rank-1',snapshot:selection.snapshot,profile_hash:'a'.repeat(64),at:q.query.at,authorized_at:selection.evaluated_at,considered:3,rendered_bytes:120,
       selected:[{memory:{memory_id:'synthetic-memory-2',revision:1},attention:'active',score:900,reasons:['lexical']}],excluded:[[{memory_id:'synthetic-memory-1',revision:1},'no_cue']]},
     trace_coverage:{excluded_in_scope:2,excluded_returned:1,complete:true,reason_counts:{no_cue:2}},

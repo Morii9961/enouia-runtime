@@ -2389,5 +2389,7 @@ const dict: Record<string, string> = {
   "Hide postponed suggestions": "收起被隐藏的建议",
   "Show postponed suggestions": "显示被隐藏的建议",
   "Postponing only hides a suggestion on this computer; the record and the library do not change.": "隐藏只在这台电脑上生效，记录和库都不变。",
+  "No connector grant on this library yet.": "这个库里还没有连接器的授权。",
+  "Granted · until {date} · up to {max} · {sources} sources": "已授权 · 有效至 {date} · 上限 {max} · 来源 {sources} 条",
 };
 export default dict;
