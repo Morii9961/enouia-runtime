@@ -36,6 +36,9 @@ setCatalogTransport(async(_command,args)=>{
   if(q.operation==='revision_diff')return {...envelope,kind:'memory_revision_diff',header,before:{memory:{memory_id:q.memory_id,revision:q.before},hash:'e'.repeat(64)},after:{memory:{memory_id:q.memory_id,revision:q.after},hash:'e'.repeat(64)},
     fields:[{field:'content',before:'I made a blue pottery cup.',after:'I made a green pottery cup.'}],structural_only:true};
   if(q.operation==='source')return source(q.start,q.limit);
+  if(q.operation==='time_buckets'&&q.query.granularity==='day')return {...envelope,kind:'memory_time_buckets',header,query:q.query,interval_rule:'possible',material_scope:'authorized',unknown_time_in_scope:2,
+    buckets:[{local_start:'2026-03-05',from:'2026-03-04T16:00:00Z',until:'2026-03-05T16:00:00Z',possible_records:1,staged:0,adopted:1,captured_material:2},
+      {local_start:'2026-03-06',from:'2026-03-05T16:00:00Z',until:'2026-03-06T16:00:00Z',possible_records:0,staged:0,adopted:0,captured_material:0}]};
   if(q.operation==='time_buckets')return {...envelope,kind:'memory_time_buckets',header,query:q.query,interval_rule:'possible',material_scope:'authorized',unknown_time_in_scope:2,
     buckets:[{local_start:'2026-02-01',from:'2026-01-31T16:00:00Z',until:'2026-02-28T16:00:00Z',possible_records:0,staged:0,adopted:0,captured_material:0},
       {local_start:'2026-03-01',from:'2026-02-28T16:00:00Z',until:'2026-03-31T16:00:00Z',possible_records:1,staged:0,adopted:1,captured_material:2}]};
@@ -90,6 +93,12 @@ try{
   await wait(()=>memory.textContent!.includes('Records in 2026-03'));
   await wait(()=>memory.textContent!.includes('1 shown'));
   const windowed=calls.filter(c=>c==='catalog:page').length;
+  await wait(()=>!!memory.querySelector('[data-coverage-calendar]'));
+  const cov=memory.querySelector('[data-coverage-calendar]')!;
+  check('month_opens_day_coverage_with_three_layers',cov.querySelectorAll('thead button').length===1&&cov.textContent!.includes('Captured sources')&&cov.textContent!.includes('Staged')&&cov.textContent!.includes('Adopted'));
+  cov.querySelector<HTMLButtonElement>('thead button')!.click();
+  await wait(()=>memory.textContent!.includes('Showing records on 2026-03-05.'));
+  check('day_choice_reads_records_for_that_day',true);
   check('month_choice_reads_records_with_core_time_window',windowed>0&&memory.textContent!.includes('Synthetic item 1'));
   click('Connections',memory.querySelector('.qr28')!);
   await wait(()=>memory.textContent!.includes('3 records and 2 relations loaded.'));

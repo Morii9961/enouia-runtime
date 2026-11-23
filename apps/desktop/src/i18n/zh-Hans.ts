@@ -2320,5 +2320,12 @@ const dict: Record<string, string> = {
   "Annotations": "注记",
   "Content": "内容",
   "Dimensions": "维度",
+  "Reading days…": "正在读取每日数据…",
+  "Coverage by day": "按日覆盖",
+  "{day}: {n} records": "{day}：{n} 条记录",
+  "Captured sources": "捕获的来源",
+  "Captured sources are material, not records. A day with no material shows a dot, not a zero claim about what happened.": "捕获的来源是材料，不是记录。没有材料的日子显示一个点，不表示那天什么也没发生。",
+  "Showing records on {day}.": "正在显示 {day} 的记录。",
+  "Show the whole month": "显示整个月",
 };
 export default dict;

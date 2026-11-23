@@ -37,3 +37,4 @@ Memory 已经提供数据，只差 Runtime 的界面。每片做完都要过合�
 逐片更新：完成后在这里写 PR 与验证记录。
 
 - A1–A3（修订对照、冲突对照、暂存假说）：[验证](../validation/R5-formation-compare-2026-11-23.md)。
+- A4–A5（月 → 日、覆盖日历）：[验证](../validation/R5-time-days-2026-11-23.md)。

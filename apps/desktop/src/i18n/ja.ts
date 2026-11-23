@@ -2320,5 +2320,12 @@ const dict: Record<string, string> = {
   "Annotations": "注記",
   "Content": "内容",
   "Dimensions": "次元",
+  "Reading days…": "日ごとの数を読み込み中…",
+  "Coverage by day": "日ごとの範囲",
+  "{day}: {n} records": "{day}：{n} 件",
+  "Captured sources": "取り込んだ出所",
+  "Captured sources are material, not records. A day with no material shows a dot, not a zero claim about what happened.": "取り込んだ出所は材料で、記録ではありません。材料のない日は点で示し、何も起きなかったとは言いません。",
+  "Showing records on {day}.": "{day} の記録を表示しています。",
+  "Show the whole month": "月全体を表示",
 };
 export default dict;

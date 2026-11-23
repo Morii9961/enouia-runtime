@@ -41,21 +41,35 @@ function TimeView() {
   const [axis, setAxis] = useState<Axis>("event");
   const [months, setMonths] = useState<TimeBuckets | null>(null);
   const [chosen, setChosen] = useState<TimeBuckets["buckets"][number] | null>(null);
+  // R5 A4/A5: the chosen month's days, with material / staged / adopted layers.
+  const [days, setDays] = useState<TimeBuckets | null>(null);
+  const [day, setDay] = useState<TimeBuckets["buckets"][number] | null>(null);
+  const dayReads = useLatestRead();
   const [page, setPage] = useState<CatalogPage | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const reads = useLatestRead(), records = useLatestRead();
   const load = useCallback(() => {
-    setMonths(null); setChosen(null); setPage(null); setSelected(null); records.clear();
+    setMonths(null); setChosen(null); setPage(null); setSelected(null); setDays(null); setDay(null); records.clear(); dayReads.clear();
     const until = `${new Date().getFullYear() + 1}-01-01`;
     return reads.run(() => catalogView({ operation: "time_buckets", filter: CATALOG_FILTER, selection: null,
       query: { axis, timezone: "Asia/Shanghai", granularity: "month", from_date: "2000-01-01", until_date: until } }), setMonths);
-  }, [axis, reads.run, records.clear]);
+  }, [axis, reads.run, records.clear, dayReads.clear]);
   useEffect(() => { void load(); }, [load]);
-  const choose = (bucket: TimeBuckets["buckets"][number]) => {
-    setChosen(bucket); setPage(null); setSelected(null);
+  const list = (bucket: TimeBuckets["buckets"][number]) => {
+    setPage(null); setSelected(null);
     const filter: CatalogFilter = { ...CATALOG_FILTER, time_axis: axis, time_window: { from: bucket.from, until: bucket.until } };
     void records.run(() => catalogRead({ operation: "page", filter, cursor: null, limit: 50 }), setPage);
   };
+  const choose = (bucket: TimeBuckets["buckets"][number]) => {
+    setChosen(bucket); setDay(null); setDays(null);
+    list(bucket);
+    const [y, m] = bucket.local_start.slice(0, 7).split("-").map(Number);
+    const next = `${m === 12 ? y + 1 : y}-${String(m === 12 ? 1 : m + 1).padStart(2, "0")}-01`;
+    void dayReads.run(() => catalogView({ operation: "time_buckets", filter: CATALOG_FILTER, selection: null,
+      query: { axis, timezone: "Asia/Shanghai", granularity: "day", from_date: bucket.local_start.slice(0, 10), until_date: next } }), setDays);
+  };
+  const pickDay = (bucket: TimeBuckets["buckets"][number]) => { setDay(bucket); list(bucket); };
+  const cell = (n: number) => n > 0 ? n : <span className="mem-time-empty" aria-hidden="true">·</span>;
   const years = useMemo(() => {
     const byYear = new Map<string, TimeBuckets["buckets"]>();
     for (const b of months?.buckets ?? []) { const y = b.local_start.slice(0, 4); byYear.set(y, [...(byYear.get(y) ?? []), b]); }
@@ -83,6 +97,19 @@ function TimeView() {
       {chosen && <section className="mem-stack" aria-label={t("Records in {month}", { month: chosen.local_start.slice(0, 7) })} aria-busy={records.busy}>
         <h3>{t("Records in {month}", { month: chosen.local_start.slice(0, 7) })}</h3>
         <p className="mem-row-meta">{t("{adopted} adopted · {staged} staged · {material} captured sources", { adopted: chosen.adopted, staged: chosen.staged, material: chosen.captured_material })}</p>
+        {dayReads.busy && <p role="status">{t("Reading days…")}</p>}
+        <ErrorBox error={dayReads.error} />
+        {days && <div className="mem-table-scroll"><table className="mem-coverage" data-coverage-calendar aria-label={t("Coverage by day")}>
+          <thead><tr><th scope="col">{t("Day")}</th>{days.buckets.map(b => <th key={b.local_start} scope="col">{b.possible_records > 0
+            ? <button type="button" className="mem-link" aria-pressed={day?.local_start === b.local_start} aria-label={t("{day}: {n} records", { day: b.local_start.slice(0, 10), n: b.possible_records })} onClick={() => pickDay(b)}>{Number(b.local_start.slice(8, 10))}</button>
+            : Number(b.local_start.slice(8, 10))}</th>)}</tr></thead>
+          <tbody>
+            <tr><th scope="row">{t("Captured sources")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.captured_material)}</td>)}</tr>
+            <tr><th scope="row">{t("Staged")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.staged)}</td>)}</tr>
+            <tr><th scope="row">{t("Adopted")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.adopted)}</td>)}</tr>
+          </tbody></table></div>}
+        {days && <p className="mem-row-meta">{t("Captured sources are material, not records. A day with no material shows a dot, not a zero claim about what happened.")}</p>}
+        {day && <p className="mem-content" role="status">{t("Showing records on {day}.", { day: day.local_start.slice(0, 10) })} <button type="button" className="mem-link" onClick={() => { setDay(null); list(chosen); }}>{t("Show the whole month")}</button></p>}
         {records.busy && <p role="status">{t("Reading records…")}</p>}
         <ErrorBox error={records.error} />
         {page && <><p className="mem-row-meta">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: page.matched_in_scope })}</p>
