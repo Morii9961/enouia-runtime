@@ -29,7 +29,8 @@ setCatalogTransport(async(_command,args)=>{
   const q=(args as any).request.query;calls.push(`catalog:${q.operation}`);
   if(q.operation==='status'){const r:any={...status(state),mode:'registered_owner_readonly'};if(state==='open'){r.recall_limits={max_items:8,max_bytes:16384};r.corrections=true;}return r;}
   if(state!=='open')throw 'catalog_locked';
-  if(q.operation==='page'){const p:any=page(q.filter.text,q.cursor);p.items=p.items.slice(0,q.filter.time_window?1:q.limit);return p;}
+  if(q.operation==='page'){const p:any=page(q.filter.text,q.cursor);p.items=p.items.slice(0,q.filter.time_window?1:q.limit);
+    if(q.filter.knowledge==='hypothesis'&&p.items[0])p.items[0]={...p.items[0],formation_reason:{interpretation:'inference',rule_version:'admission-rules-3',prompt_version:'chatgpt-connector-theme-1',model_version:'gpt-synthetic-1',mode:'live',note:null,note_is_machine_annotation:true}};return p;}
   if(q.operation==='stats')return {...stats(q.selection,3),groups:[{axis:'adoption',count_scope:'matched',values:[{value:'adopted',label:'adopted',count:2},{value:'staged',label:'staged',count:1}],total_values:2}]};
   if(q.operation==='detail'){const d:any=detail(q.memory_id);if(q.memory_id==='synthetic-memory-1'&&d.item){d.item.base.memory.revision=2;
     d.history=[1,2].map(r=>({memory:{memory:{memory_id:q.memory_id,revision:r},hash:'e'.repeat(64)},title:'t',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:r===1?'initial':'correction',learned_at:'2026-11-03T00:00:00.000Z',effective_sensitivity:'private'}));d.history_count_in_scope=2;}return d;}
@@ -122,6 +123,7 @@ try{
   click('Held hypotheses',memory);
   await wait(()=>memory.textContent!.includes('held hypotheses shown'));
   check('held_hypotheses_read_by_knowledge_filter',memory.textContent!.includes('Keeping one is not confirming it.'));
+  check('chatgpt_theme_is_labelled_as_its_inference',memory.textContent!.includes('Inferred by ChatGPT · gpt-synthetic-1'));
   click('Worth a look',memory.querySelector('.qr28')!);
   await wait(()=>memory.textContent!.includes('1 of 1 records worth a look in the next 30 days.')&&memory.textContent!.includes('Starts fading'));
   check('review_suggestions_are_time_based_and_derived',memory.textContent!.includes('Archived soon')&&memory.textContent!.includes('They say nothing about whether a record is right')&&
