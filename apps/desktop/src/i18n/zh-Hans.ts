@@ -2391,5 +2391,8 @@ const dict: Record<string, string> = {
   "Postponing only hides a suggestion on this computer; the record and the library do not change.": "隐藏只在这台电脑上生效，记录和库都不变。",
   "No connector grant on this library yet.": "这个库里还没有连接器的授权。",
   "Granted · until {date} · up to {max} · {sources} sources": "已授权 · 有效至 {date} · 上限 {max} · 来源 {sources} 条",
+  "{n} recorded formation events in view · marks only, no drawn line between them": "当前范围内有 {n} 个已记录的形成事件 · 只画标记，不在它们之间连线",
+  "No recorded formation events in these days; the latest was {date}.": "这几天没有已记录的形成事件；最近一次在 {date}。",
+  "Formation event": "形成事件",
 };
 export default dict;
