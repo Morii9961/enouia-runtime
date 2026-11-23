@@ -9,7 +9,7 @@ import { describe } from "./client";
 import { recordTimeText, word } from "./catalogWords";
 import { labels, msg, t } from "../i18n";
 
-const ACTIONS = labels({ register: msg("Register…"), renew: msg("Renew for 90 days…"), refresh: msg("Update source scope…"), revoke: msg("Revoke…") });
+const ACTIONS = labels({ register: msg("Register…"), renew: msg("Renew for 90 days…"), refresh: msg("Include new sources…"), revoke: msg("Revoke…") });
 type Action = keyof typeof ACTIONS;
 const day = (at: string) => recordTimeText({ from: at, until: null, precision: "day", bound: "within", tz: null, basis: "source_time" });
 
@@ -32,8 +32,10 @@ export function AgentGrantsPanel() {
         <strong>{a.name}</strong>
         <span role="status" className="mem-row-meta">{!a.grant ? t("Not registered") : !a.grant.active ? t("Revoked") :
           t("Registered · until {date} · up to {max} · {sources} sources · requests {requests}", { date: day(a.grant.valid_until), max: word(a.grant.max_sensitivity), sources: a.grant.sources, requests: t(a.grant.allow_requests ? "allowed" : "not allowed") })}</span>
+        {a.grant?.active && a.coverage && <span className="mem-row-meta">{a.coverage.policies + a.coverage.sources === 0 ? t("Covers every current window and source.")
+          : t("Missing {windows} new windows and {sources} new sources captured since this grant was written.", { windows: a.coverage.policies, sources: a.coverage.sources })}</span>}
         {a.grant?.active && a.pipe && grants.bridge.path && <McpConfig name={a.key} command={grants.bridge.path} args={["--protocol", grants.bridge.protocol, "--pipe", a.pipe, "--vault-id", grants.vault_id]} present={grants.bridge.present} />}
-        <span className="mem-actions">{(!a.grant ? ["register"] : a.grant.active ? ["renew", "refresh", "revoke"] : ["renew"]).map(action =>
+        <span className="mem-actions">{(!a.grant ? ["register"] : a.grant.active ? ["renew", ...(a.coverage?.refreshable ? ["refresh"] : []), "revoke"] : ["renew"]).map(action =>
           <button key={action} type="button" className="mem-link" disabled={busy || !!plan} onClick={() => void propose(a.key, action as Action)}>{t(ACTIONS[action as Action])}</button>)}</span>
       </span>)}
       {grants && grants.other_grants.length > 0 && <span className="mem-row-meta">{t("{n} other grants exist on this library without a name on this computer.", { n: grants.other_grants.length })}</span>}
@@ -50,7 +52,7 @@ export function AgentGrantsPanel() {
 }
 
 // ADR-043 (D1b): what to paste into the Agent's own MCP settings. The bridge
-// beside Runtime connects to this Agent's pipe; one connection at a time.
+// beside Runtime connects to this Agent's pipe; up to four sessions at once.
 function McpConfig({ name, command, args, present }: { name: string; command: string; args: string[]; present: boolean }) {
   const quoted = (v: string) => /[\s"]/.test(v) ? `"${v.replace(/"/g, '\\"')}"` : v;
   const claude = `claude mcp add enouia-memory -- ${[command, ...args].map(quoted).join(" ")}`;
@@ -61,7 +63,7 @@ function McpConfig({ name, command, args, present }: { name: string; command: st
     <pre className="mem-content" data-agent={name}>{claude}</pre>
     <span className="mem-row-meta">{t("Codex: add to ~/.codex/config.toml")}</span>
     <pre className="mem-content">{codex}</pre>
-    <span className="mem-row-meta">{t("One connection at a time per Agent: a second session of the same Agent cannot connect until the first one ends.")}</span>
+    <span className="mem-row-meta">{t("Up to four sessions of each Agent can be connected at once; a fifth waits a few seconds and then fails.")}</span>
   </span>;
 }
 

@@ -29,3 +29,7 @@ Serving the Agents' MCP pipes. Memory's enrollment expects the Agent process id 
 ## Verification
 
 Synthetic: a native test registers, renews, refreshes and revokes a grant on a Morii-layout fixture (plans write nothing, a plan commits once, names stay in the local file), a DOM fixture covers the panel, and the registered native smoke registers Claude Code through Settings. Real library: grants are a real write; the first one is Morii's own confirmation during acceptance, after Memory's verified export. Requires pin ≥ Memory ADR-MEM-160.
+
+## Amendment (2026-11-23, Memory ADR-MEM-168)
+
+Settings shows for each registered Agent how many policy revisions (new capture windows) and captured sources its grant does not list, from `owner_read_grant_coverage`. "Update source scope" becomes "Include new sources…": it plans Memory's `refreshed` revision (all uncovered policies and sources, everything else unchanged and already plan-checked) and appears only when Memory offers one. A grant that already covers everything is refused with `grant_up_to_date`. Registration still lists the policies and sources current at that moment; following future windows automatically stays a separate decision for Morii.

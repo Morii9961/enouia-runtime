@@ -2241,7 +2241,6 @@ const dict: Record<string, string> = {
   "Captured by": "捕获方",
   "Register…": "登记…",
   "Renew for 90 days…": "续期 90 天…",
-  "Update source scope…": "更新来源范围…",
   "Local Agents": "本机 Agent",
   "Not registered": "未登记",
   "Revoked": "已撤销",
@@ -2293,6 +2292,9 @@ const dict: Record<string, string> = {
   "The bridge program is not next to this copy of Runtime, so the Agent cannot connect from it yet.": "这份 Runtime 所在的文件夹里没有连接程序，Agent 暂时无法从这里连接。",
   "Claude Code: run once in a terminal": "Claude Code：在命令行里运行一次",
   "Codex: add to ~/.codex/config.toml": "Codex：加到 ~/.codex/config.toml",
-  "One connection at a time per Agent: a second session of the same Agent cannot connect until the first one ends.": "每个 Agent 同时只能有一条连接：同一个 Agent 的第二个会话要等第一个结束才能连上。",
+  "Include new sources…": "纳入新来源…",
+  "Covers every current window and source.": "已覆盖当前全部窗口和来源。",
+  "Missing {windows} new windows and {sources} new sources captured since this grant was written.": "这份授权写下后新捕获的 {windows} 个窗口、{sources} 条来源还没有纳入。",
+  "Up to four sessions of each Agent can be connected at once; a fifth waits a few seconds and then fails.": "每个 Agent 最多可以同时连接 4 个会话；第 5 个会等几秒后失败。",
 };
 export default dict;

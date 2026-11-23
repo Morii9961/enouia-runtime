@@ -1,5 +1,6 @@
 //! ADR-043 (D1b): serve Morii's registered local Agents (ADR-041) over Memory's
-//! combined Agent protocol (ADR-MEM-166). One named pipe per Agent; the
+//! combined Agent protocol (ADR-MEM-166). One pipe name per Agent with several
+//! shared instances (ADR-MEM-169); the
 //! `enouia-memory-mcp` bridge that Claude Code or Codex starts connects to it.
 //! Memory owns enrollment, the grant checks, renewal and every tool; Runtime
 //! only listens, enrolls the connecting process and stops on lock or exit.
@@ -28,6 +29,9 @@ pub const PROTOCOL: &str = "automation-agent-v1";
 /// A frame's remaining bytes and a reply; idle waiting has no limit (ADR-MEM-166).
 const FRAME_TIMEOUT: Duration = Duration::from_secs(30);
 const SLICE: Duration = Duration::from_millis(250);
+/// Listening instances per Agent (Memory ADR-MEM-169 allows up to 8 per name),
+/// so several sessions of the same Agent can be connected at once.
+const INSTANCES: usize = 4;
 const PERMIT_MS: i64 = 300_000;
 
 /// The fixed pipe name an Agent's MCP configuration names; stable across restarts.
@@ -61,6 +65,9 @@ pub fn start(
     let stop = Arc::new(AtomicBool::new(false));
     let threads = agents
         .into_iter()
+        .flat_map(|(principal, grant_id)| {
+            (0..INSTANCES).map(move |_| (principal.clone(), grant_id.clone()))
+        })
         .map(|(principal, grant_id)| {
             let (vault, profile, stop) = (vault.clone(), profile.clone(), stop.clone());
             std::thread::spawn(move || listen(&vault, &profile, principal, &grant_id, &stop))
@@ -82,7 +89,7 @@ fn listen(
         actor_id: principal,
     };
     while !stop.load(Ordering::SeqCst) {
-        let Ok(mut pipe) = Pipe::listen(&id) else {
+        let Ok(mut pipe) = Pipe::listen_shared(&id) else {
             std::thread::sleep(SLICE * 4);
             continue;
         };

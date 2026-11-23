@@ -1334,6 +1334,37 @@ fn agent_grants_plan_then_commit_and_keep_names_local() {
         Err("grant_stale"),
         "a plan is committed once"
     );
+    // ADR-MEM-168: a grant that already covers everything has nothing to add.
+    assert_eq!(
+        native.call(
+            "main",
+            &packet(json!({"operation":"agent_plan","agent":"claude_code","action":"refresh"}))
+        ),
+        Err("grant_up_to_date")
+    );
+    let vault = native
+        .0
+        .state
+        .lock()
+        .unwrap()
+        .library
+        .as_ref()
+        .unwrap()
+        .vault
+        .clone()
+        .unwrap();
+    connector_capture(
+        &vault,
+        "chatgpt-synthetic-later",
+        &[("oolong", "m1"), ("night trains", "m3")],
+    );
+    let behind = native
+        .call_waiting("main", &packet(json!({"operation":"agent_status"})))
+        .unwrap();
+    let coverage = &behind["agents"][0]["coverage"];
+    assert!(coverage["policies"].as_u64().unwrap() >= 1, "{coverage}");
+    assert!(coverage["sources"].as_u64().unwrap() >= 2, "{coverage}");
+    assert_eq!(coverage["refreshable"], true);
     for (action, revision, active) in [
         ("renew", 2, true),
         ("refresh", 3, true),
@@ -1356,6 +1387,10 @@ fn agent_grants_plan_then_commit_and_keep_names_local() {
             "{action}"
         );
         assert_eq!(status["agents"][0]["grant"]["active"], active, "{action}");
+        if action == "refresh" {
+            assert_eq!(status["agents"][0]["coverage"]["policies"], 0);
+            assert_eq!(status["agents"][0]["coverage"]["sources"], 0);
+        }
     }
     assert_eq!(
         native.call(
@@ -1392,94 +1427,11 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
     let current = || std::fs::read(root.join("vault/CURRENT")).unwrap();
     // Agents may only cite Runtime-captured user statements: capture two
     // synthetic ChatGPT turns through the connector first.
-    {
-        use enouia_memory_contract::{common::SpeakerRole, foundation::Clock, ports::IdSource};
-        use enouia_memory_host::automation::connector_formation::{
-            ConnectorConfig, ConnectorStatement, ConnectorSubmission, ConnectorWriter,
-        };
-        let writer = ConnectorWriter::new(
-            vault.clone(),
-            vault.descriptor().created_by.clone(),
-            ActorRef {
-                actor_type: ActorType::Client,
-                actor_id: enouia_memory_contract::ids::PrincipalId::from_random(
-                    enouia_memory_vault::OsIdSource.random_16(),
-                ),
-            },
-            ConnectorConfig {
-                account_scope: "chatgpt-connector-synthetic".into(),
-                default_timezone: "Asia/Shanghai".into(),
-                max_sensitivity: Sensitivity::Private,
-                allowed_forms: vec![FormationKind::Preference],
-                window_days: 30,
-            },
-        )
-        .unwrap();
-        let unknown = RecordTime {
-            from: None,
-            until: None,
-            precision: RecordPrecision::Unknown,
-            bound: TimeBound::Within,
-            tz: None,
-            basis: TimeBasis::Unknown,
-        };
-        let turn = |n: u32, speaker, text: &str| RuntimeCaptureTurn {
-            message_id: format!("m{n}"),
-            parent_message_id: (n > 1).then(|| format!("m{}", n - 1)),
-            branch_id: "main".into(),
-            sequence: n,
-            speaker,
-            text: text.into(),
-            original_time: None,
-            original_timezone: None,
-            occurred_at: None,
-            content_lang: "en".into(),
-            assistant_model: None,
-            attachments: vec![],
-        };
-        let statement = |m: &str, quote: &str| ConnectorStatement {
-            message_id: m.into(),
-            quote: quote.into(),
-            title: quote.trim_end_matches('.').into(),
-            interpretation: Interpretation::ClearSelfReport,
-            kind: FormationKind::Preference,
-            event_time: unknown.clone(),
-            valid_time: unknown.clone(),
-            note: None,
-        };
-        writer
-            .submit(
-                &ConnectorSubmission {
-                    request: RuntimeCaptureRequest {
-                        schema_version: NextVersion,
-                        kind: RuntimeCaptureKind::Capture,
-                        capability: RuntimeCaptureCapability::OwnerV1,
-                        request_id: RequestId::from_random(
-                            enouia_memory_vault::OsIdSource.random_16(),
-                        ),
-                        conversation_id: "chatgpt-synthetic-requests".into(),
-                        title: None,
-                        turns: vec![
-                            turn(1, SpeakerRole::User, "Synthetic turn: I prefer green tea."),
-                            turn(2, SpeakerRole::Assistant, "Synthetic reply."),
-                            turn(
-                                3,
-                                SpeakerRole::User,
-                                "Synthetic turn: I prefer quiet trains.",
-                            ),
-                        ],
-                    },
-                    analyst_model: "gpt-synthetic-1".into(),
-                    statements: vec![
-                        statement("m1", "I prefer green tea."),
-                        statement("m3", "I prefer quiet trains."),
-                    ],
-                },
-                false,
-                enouia_memory_vault::SystemClock.now_unix_ms(),
-            )
-            .unwrap();
-    }
+    connector_capture(
+        &vault,
+        "chatgpt-synthetic-requests",
+        &[("green tea", "m1"), ("quiet trains", "m3")],
+    );
     let empty = native
         .call_waiting("main", &packet(json!({"operation":"agent_requests"})))
         .unwrap();
@@ -1762,6 +1714,20 @@ fn registered_agent_connects_over_its_pipe_and_lock_cuts_it() {
     ] {
         assert!(names.iter().any(|n| n == tool), "{tool} in {names:?}");
     }
+    // ADR-MEM-169: a second session of the same Agent connects at the same time.
+    let mut second = Client::connect(
+        connect(),
+        ProcessPeer::enroll(std::process::id(), HostSurface::QuickSearch).unwrap(),
+        &vault,
+        std::time::Duration::from_secs(10),
+    )
+    .unwrap();
+    assert!(
+        second
+            .exchange(&json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"synthetic-2","version":"1"}}}))
+            .unwrap()
+            .is_some()
+    );
     // Locking releases the library: the listener stops and the connection ends.
     native.lock();
     std::thread::sleep(std::time::Duration::from_millis(600));
@@ -1770,6 +1736,113 @@ fn registered_agent_connects_over_its_pipe_and_lock_cuts_it() {
             .exchange(&json!({"jsonrpc":"2.0","id":3,"method":"tools/list"}))
             .is_err()
     );
+    assert!(
+        second
+            .exchange(&json!({"jsonrpc":"2.0","id":2,"method":"tools/list"}))
+            .is_err()
+    );
     assert!(Pipe::connect(&pipe).is_err(), "no listener after lock");
     native.shutdown();
+}
+
+/// Two user turns captured through the ChatGPT connector, each yielding one
+/// preference "I prefer {topic}."; every call opens or reuses a capture window.
+fn connector_capture(
+    vault: &Arc<enouia_memory_vault::automation::segmented::SegmentedAutomationVault>,
+    conversation: &str,
+    topics: &[(&str, &str); 2],
+) {
+    use enouia_memory_contract::{
+        common::{ActorRef, ActorType, SpeakerRole},
+        foundation::Clock,
+        ids::RequestId,
+        ports::IdSource,
+    };
+    use enouia_memory_host::automation::connector_formation::{
+        ConnectorConfig, ConnectorStatement, ConnectorSubmission, ConnectorWriter,
+    };
+    let writer = ConnectorWriter::new(
+        vault.clone(),
+        vault.descriptor().created_by.clone(),
+        ActorRef {
+            actor_type: ActorType::Client,
+            actor_id: enouia_memory_contract::ids::PrincipalId::from_random(
+                enouia_memory_vault::OsIdSource.random_16(),
+            ),
+        },
+        ConnectorConfig {
+            account_scope: "chatgpt-connector-synthetic".into(),
+            default_timezone: "Asia/Shanghai".into(),
+            max_sensitivity: Sensitivity::Private,
+            allowed_forms: vec![FormationKind::Preference],
+            window_days: 30,
+        },
+    )
+    .unwrap();
+    let unknown = RecordTime {
+        from: None,
+        until: None,
+        precision: RecordPrecision::Unknown,
+        bound: TimeBound::Within,
+        tz: None,
+        basis: TimeBasis::Unknown,
+    };
+    let turn = |n: u32, speaker, text: String| RuntimeCaptureTurn {
+        message_id: format!("m{n}"),
+        parent_message_id: (n > 1).then(|| format!("m{}", n - 1)),
+        branch_id: "main".into(),
+        sequence: n,
+        speaker,
+        text,
+        original_time: None,
+        original_timezone: None,
+        occurred_at: None,
+        content_lang: "en".into(),
+        assistant_model: None,
+        attachments: vec![],
+    };
+    let statement = |m: &str, topic: &str| ConnectorStatement {
+        message_id: m.into(),
+        quote: format!("I prefer {topic}."),
+        title: format!("I prefer {topic}"),
+        interpretation: Interpretation::ClearSelfReport,
+        kind: FormationKind::Preference,
+        event_time: unknown.clone(),
+        valid_time: unknown.clone(),
+        note: None,
+    };
+    writer
+        .submit(
+            &ConnectorSubmission {
+                request: RuntimeCaptureRequest {
+                    schema_version: NextVersion,
+                    kind: RuntimeCaptureKind::Capture,
+                    capability: RuntimeCaptureCapability::OwnerV1,
+                    request_id: RequestId::from_random(enouia_memory_vault::OsIdSource.random_16()),
+                    conversation_id: conversation.into(),
+                    title: None,
+                    turns: vec![
+                        turn(
+                            1,
+                            SpeakerRole::User,
+                            format!("Synthetic turn: I prefer {}.", topics[0].0),
+                        ),
+                        turn(2, SpeakerRole::Assistant, "Synthetic reply.".into()),
+                        turn(
+                            3,
+                            SpeakerRole::User,
+                            format!("Synthetic turn: I prefer {}.", topics[1].0),
+                        ),
+                    ],
+                },
+                analyst_model: "gpt-synthetic-1".into(),
+                statements: vec![
+                    statement(topics[0].1, topics[0].0),
+                    statement(topics[1].1, topics[1].0),
+                ],
+            },
+            false,
+            enouia_memory_vault::SystemClock.now_unix_ms(),
+        )
+        .unwrap();
 }

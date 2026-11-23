@@ -10,7 +10,7 @@ Morii authorized gate D: Claude Code and Codex read the library through local MC
 - On each connection Runtime reads the client process id, enrolls it with `memory:read` and `source:read`, builds a reader and the note, correction and forget writers under the Agent's active grant (permit valid at most five minutes, renewed in place by Memory), and serves `mcp::agent::native::serve_connection`. A revoked, inactive or expired grant refuses the connection. After a connection ends the listener creates a fresh pipe instance.
 - Locking, exiting or a grant change (register, renew, update scope, revoke) stops the listeners through the stop flag within one 250 ms slice; grant changes then restart them for the current Agents.
 - Runtime builds Memory's bridge (`mcp::bridge::run`) as its own `enouia-memory-mcp.exe` at the same pin. Settings shows, for each registered Agent, the Claude Code command and the Codex `config.toml` entry with the bridge path beside the running Runtime, the protocol, the pipe and the vault id, and says when the bridge is missing.
-- One connection at a time per Agent: Memory creates the pipe as the first and only instance, so a second concurrent session of the same Agent is refused until the first ends. Settings says so.
+- Several sessions per Agent (amended 2026-11-23, Memory ADR-MEM-169): Runtime keeps four shared listening instances of each Agent's pipe name (`Pipe::listen_shared`, up to eight allowed), each serving one connection and then replaced, so up to four sessions of the same Agent are connected at once; the bridge waits up to five seconds when all are busy. Settings says so.
 
 ## Installation
 
