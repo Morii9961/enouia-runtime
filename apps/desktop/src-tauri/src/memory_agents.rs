@@ -86,7 +86,7 @@ impl Agents {
         let view = |g: &OwnerReadGrant| {
             json!({"grant_id":g.grant_id,"revision":g.revision,"active":g.active,"max_sensitivity":g.max_sensitivity,
                 "allow_requests":g.allow_requests,"source_read":g.source_read,"valid_from":g.valid_from,"valid_until":g.valid_until,
-                "policies":g.policies.len(),"sources":g.source_ids.len()})
+                "policies":g.policies.len(),"sources":g.source_ids.len(),"follow_new_sources":g.follow_new_sources})
         };
         let agents: Vec<Value> = AGENTS
             .iter()
@@ -182,6 +182,9 @@ impl Agents {
                         valid_from: at(0)?,
                         valid_until: at(GRANT_DAYS * DAY_MS)?,
                         allow_requests: true,
+                        // Memory ADR-MEM-170 (Morii's choice): later windows and
+                        // captured sources of the same subject join automatically.
+                        follow_new_sources: true,
                     },
                     Some(identity),
                 )
@@ -195,13 +198,14 @@ impl Agents {
                     .ok_or("grant_up_to_date")?,
                 None,
             ),
-            (action @ ("renew" | "revoke"), Some(mut grant)) => {
+            (action @ ("renew" | "revoke" | "follow"), Some(mut grant)) => {
                 grant.revision = Revision::new(grant.revision.get() + 1).ok_or("grant_refused")?;
                 match action {
                     "renew" => {
                         grant.active = true;
                         grant.valid_until = at(GRANT_DAYS * DAY_MS)?;
                     }
+                    "follow" => grant.follow_new_sources = true,
                     _ => grant.active = false,
                 }
                 (grant, None)
@@ -211,7 +215,7 @@ impl Agents {
         let plan = vault.plan_owner_read_grant(&owner, grant).map_err(code)?;
         let summary = json!({"plan_id":null,"agent":key,"action":action,"grant_id":plan.grant.grant_id,
             "revision":plan.grant.revision,"active":plan.grant.active,"max_sensitivity":plan.grant.max_sensitivity,
-            "allow_requests":plan.grant.allow_requests,"valid_until":plan.grant.valid_until,"expires_at":plan.expires_at,
+            "allow_requests":plan.grant.allow_requests,"follow_new_sources":plan.grant.follow_new_sources,"valid_until":plan.grant.valid_until,"expires_at":plan.expires_at,
             "policies":plan.grant.policies.len(),"sources":plan.grant.source_ids.len()});
         let plan_id = RequestId::from_random(OsIdSource.random_16()).to_string();
         let mut summary = summary;

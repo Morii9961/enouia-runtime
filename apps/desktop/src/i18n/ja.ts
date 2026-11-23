@@ -2296,5 +2296,9 @@ const dict: Record<string, string> = {
   "Covers every current window and source.": "現在のすべてのウィンドウと出所を含んでいます。",
   "Missing {windows} new windows and {sources} new sources captured since this grant was written.": "この許可を書いた後に取り込まれた {windows} 個のウィンドウと {sources} 件の出所がまだ含まれていません。",
   "Up to four sessions of each Agent can be connected at once; a fifth waits a few seconds and then fails.": "エージェントごとに同時に 4 つまでのセッションが接続できます。5 つ目は数秒待ってから失敗します。",
+  "Follow new sources automatically…": "新しい出所を自動で含める…",
+  "New windows and sources are included automatically; the ceiling and expiry stay the same.": "新しいウィンドウと出所は自動で含まれます。上限と期限は変わりません。",
+  "New windows and sources join automatically.": "新しいウィンドウと出所は自動で含まれます。",
+  "Only the listed windows and sources.": "一覧にあるウィンドウと出所だけです。",
 };
 export default dict;
