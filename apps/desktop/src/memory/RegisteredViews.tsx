@@ -20,7 +20,7 @@ import { nativeDate } from "../theme/nativeTime";
 import { msg, t } from "../i18n";
 
 /** Renders children only while the registered library is open, keyed by its scope. */
-function Open({ children, title }: { children: (selection: CatalogSelection) => ReactNode; title: string }) {
+export function Open({ children, title }: { children: (selection: CatalogSelection) => ReactNode; title: string }) {
   const { nativeStatus } = useStatus();
   const selection = nativeStatus?.state === "open" ? nativeStatus.selection ?? null : null;
   if (!selection) return <div className="qr45"><div className="mem-gate"><div className="mem-card mem-stack">

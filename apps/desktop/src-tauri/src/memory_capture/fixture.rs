@@ -239,6 +239,7 @@ impl CorrectionAnalyzer for LookupCorrections {
         let mut dimensions = target.dimensions.clone();
         dimensions.change = FormationChange::Correction;
         Err(CaptureAnalysis::Statements(vec![CaptureStatement {
+            entities: vec![],
             quote: source.text.clone(),
             title: CORRECTION_TITLE.into(),
             interpretation: Interpretation::ClearSelfReport,
@@ -280,6 +281,7 @@ impl CaptureAnalyzer for LookupAnalyzer {
         };
         let unknown = unknown_time();
         Err(CaptureAnalysis::Statements(vec![CaptureStatement {
+            entities: vec![],
             quote: (*text).into(),
             title: (*title).into(),
             interpretation: Interpretation::ClearSelfReport,

@@ -1251,7 +1251,7 @@ async function registeredOwnerChecks() {
   await waitFor(s,has('3 shown · 3 matching authorized records'),'registered catalog panel');
   check('OWNER.memory_defaults_to_native_catalog',await s.evaluate("document.querySelector('[data-screen-label=\"Memory Vault\"] button[aria-pressed=true]')?.textContent==='Native memory catalog'"));
   check('OWNER.sidebar_offers_only_registered_catalog',await s.evaluate(`
-    [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog|Time|Connections|Formation|Worth a look|Recall' &&
+    [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog|Time|Connections|Formation|Worth a look|People and places|Recall' &&
     !document.querySelector('[data-screen-label="Memory Vault"] .qr28 form')`));
   check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered library · confirmed changes only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
   await set(s,'.qr44 form[role=search] input','Blue pottery cup');
@@ -1339,6 +1339,7 @@ async function registeredOwnerChecks() {
   // ADR-041: register Claude Code's grant through Settings on this synthetic root.
   await nav(s,'Settings');
   await waitFor(s,has('Local Agents')+' && '+has('Not registered')+' && '+has('Agent requests'),'agents panel');
+  await waitFor(s,"[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Register…'&&!b.disabled)",'register enabled');
   await click(s,'button','Register…');
   await waitFor(s,has('Planned grant: Claude Code'),'grant plan');
   const beforeGrant=readFileSync(currentPath);

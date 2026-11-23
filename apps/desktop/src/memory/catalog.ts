@@ -128,7 +128,8 @@ export type OwnerAction =
   | { action: "theme_rename"; theme: TargetRef; name: string; members: TargetRef[] }
   | { action: "theme_pin" | "theme_dissolve"; theme: TargetRef; members: TargetRef[] }
   | { action: "entity_merge"; from_entity: string; into_entity: string; reason: string | null }
-  | { action: "entity_split"; from_entity: string; into_entity: string; evidence: CatalogEvidence[]; reason: string | null };
+  | { action: "entity_split"; from_entity: string; into_entity: string; evidence: CatalogEvidence[]; reason: string | null }
+  | { action: "entity_identity"; entities: string[]; same: boolean; reason: string | null };
 export type CorrectionFields = { title: string; content_lang: string; sensitivity: string; interpretation: string };
 export type OwnerPreview = { kind: "native_owner_preview"; plan: { operation_id: string; expires_at?: string }; plan_hash: string; effects_hash: string;
   affected_current: TargetRef[]; affected_count_in_scope: number; sensitivity: string; original_sources_retained: boolean; physical_purge: boolean;
@@ -192,6 +193,15 @@ export async function catalogAgents(query: { operation: string } & Record<string
 export type AgentRequest = { kind: "correction" | "forget"; key: string; request_id: string; agent: string | null; target: TargetRef;
   evidence: CatalogEvidence; text: string; committed_in: string; pending: boolean; ignored: boolean };
 export type AgentRequests = { kind: "runtime_agent_requests"; items: AgentRequest[] };
+// Memory ADR-MEM-172: identity groups of entity cards (read only).
+export type EntityIdentities = { kind: "runtime_entity_identities"; total_groups: number; complete: boolean;
+  groups: { basis: "confirmed" | "same_name" | "single"; entity_type: string; name: string;
+    records: { entity_id: string; resolved_entity_id: string; display_name: string; memories: number; opted_out: boolean }[] }[] };
+export async function catalogIdentities(limit: number): Promise<EntityIdentities> {
+  const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: { operation: "entity_identities", limit } } }) as J;
+  if (value?.kind !== "runtime_entity_identities" || value.effect !== "native_read" || !Array.isArray(value.groups)) throw "catalog_response_unsupported";
+  return value;
+}
 type Transport = (command: string, args: Record<string, unknown>) => Promise<unknown>;
 let transport: Transport = (command, args) => invoke(command, args);
 export function setCatalogTransport(next: Transport): void { transport = next; }

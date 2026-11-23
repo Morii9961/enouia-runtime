@@ -189,6 +189,10 @@ enum CatalogQuery {
     /// ADR-042 (D2): saved Agent correction and forget requests for Morii's
     /// desktop queue (read only), and the local "ignore" mark on one of them.
     AgentRequests,
+    /// Memory ADR-MEM-172: identity groups of entity cards for Morii's review.
+    EntityIdentities {
+        limit: usize,
+    },
     AgentRequestIgnore {
         key: String,
         ignored: bool,
@@ -1061,6 +1065,16 @@ impl NativeCatalog {
                 value["schema_version"] = json!(2);
                 value["capability"] = json!("memory-native-read-2");
                 value["kind"] = json!("runtime_agent_requests");
+                value["effect"] = json!("native_read");
+                Ok(value)
+            }
+            CatalogQuery::EntityIdentities { limit } => {
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                let groups = owner.entity_identities(ceiling, limit).map_err(fault)?;
+                let mut value = serde_json::to_value(&groups).map_err(|_| "catalog_read_refused")?;
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("runtime_entity_identities");
                 value["effect"] = json!("native_read");
                 Ok(value)
             }
