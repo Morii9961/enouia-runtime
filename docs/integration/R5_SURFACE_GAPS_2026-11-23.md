@@ -39,3 +39,4 @@ Memory 已经提供数据，只差 Runtime 的界面。每片做完都要过合�
 - A1–A3（修订对照、冲突对照、暂存假说）：[验证](../validation/R5-formation-compare-2026-11-23.md)。
 - A4–A5（月 → 日、覆盖日历）：[验证](../validation/R5-time-days-2026-11-23.md)。
 - A6（星座）：[验证](../validation/R5-constellation-2026-11-23.md)。
+- 人物与地点（Memory ADR-MEM-171/172 的确认界面）：[验证](../validation/R5-entity-identity-2026-11-23.md)。

@@ -61,7 +61,7 @@ try{
   check('settings_and_gates_do_not_offer_writes_or_model_configuration',!text().includes('Create Vault…')&&!text().includes('Open an existing Vault…')&&!calls.some(c=>c.startsWith('memory_provider_')));
   check('memory_defaults_to_native_catalog',fixture.querySelector('[data-screen-label="Memory Vault"] button[aria-pressed=true]')?.textContent==='Native memory catalog');
   const memory=fixture.querySelector('[data-screen-label="Memory Vault"]')!;
-  check('registered_entry_offers_only_read_workspaces',[...memory.querySelectorAll('.qr28 button')].map(button=>button.textContent).join('|')==='Native memory catalog|Time|Connections|Formation|Worth a look|Recall');
+  check('registered_entry_offers_only_read_workspaces',[...memory.querySelectorAll('.qr28 button')].map(button=>button.textContent).join('|')==='Native memory catalog|Time|Connections|Formation|Worth a look|People and places|Recall');
   check('registered_entry_only_offers_catalog_search',!memory.querySelector('.qr28 form[role=search]'));
   const catalogSearch=memory.querySelector<HTMLFormElement>('form:not(.qr22)')!;
   const input=catalogSearch.querySelector('input')!;

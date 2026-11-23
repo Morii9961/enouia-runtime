@@ -1190,6 +1190,7 @@ fn chatgpt_extracted_memory_carries_its_analyst_model_and_note() {
         },
         analyst_model: "gpt-synthetic-1".into(),
         statements: vec![ConnectorStatement {
+            entities: vec![],
             message_id: "m1".into(),
             quote: "I prefer green tea in the afternoon.".into(),
             title: "green tea in the afternoon".into(),
@@ -1812,7 +1813,16 @@ fn connector_capture(
         assistant_model: None,
         attachments: vec![],
     };
+    // ADR-MEM-171: each statement names one person card in this window.
     let statement = |m: &str, topic: &str| ConnectorStatement {
+        entities: vec![
+            enouia_memory_host::automation::connector_formation::ConnectorEntity {
+                name: "Aiko".into(),
+                entity_type: enouia_memory_contract::next::EntityType::Person,
+                reality: enouia_memory_contract::next::EntityReality::Real,
+                role: enouia_memory_contract::next::EntityRole::Participant,
+            },
+        ],
         message_id: m.into(),
         quote: format!("I prefer {topic}."),
         title: format!("I prefer {topic}"),
@@ -1856,4 +1866,86 @@ fn connector_capture(
             enouia_memory_vault::SystemClock.now_unix_ms(),
         )
         .unwrap();
+}
+
+#[test]
+fn entity_identity_groups_and_a_confirmed_decision() {
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
+        })
+        .unwrap();
+    let vault = native
+        .0
+        .state
+        .lock()
+        .unwrap()
+        .library
+        .as_ref()
+        .unwrap()
+        .vault
+        .clone()
+        .unwrap();
+    connector_capture(
+        &vault,
+        "chatgpt-synthetic-aiko-1",
+        &[("green tea", "m1"), ("quiet trains", "m3")],
+    );
+    connector_capture(
+        &vault,
+        "chatgpt-synthetic-aiko-2",
+        &[("oolong", "m1"), ("night trains", "m3")],
+    );
+    let mut groups = Value::Null;
+    for _ in 0..200 {
+        if let Ok(v) = native.call_waiting(
+            "main",
+            &packet(json!({"operation":"entity_identities","limit":50})),
+        ) && v["groups"]
+            .as_array()
+            .is_some_and(|g| g.iter().any(|g| g["name"] == "Aiko"))
+        {
+            groups = v;
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+    assert_eq!(groups["kind"], "runtime_entity_identities");
+    let group = &groups["groups"][0];
+    assert_eq!(group["basis"], "same_name");
+    let ids: Vec<Value> = group["records"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| r["entity_id"].clone())
+        .collect();
+    assert!(ids.len() >= 2);
+    let decide = |entities: Vec<Value>, same: bool| {
+        let plan = native
+            .call("main", &packet(json!({"operation":"plan_action","action":{"action":"entity_identity","entities":entities,"same":same,"reason":null},"correction":null})))
+            .unwrap();
+        native
+            .call("main", &packet(json!({"operation":"confirm_action","operation_id":plan["plan"]["operation_id"],"plan_hash":plan["plan_hash"],"effects_hash":plan["effects_hash"]})))
+            .unwrap();
+        native
+            .call_waiting(
+                "main",
+                &packet(json!({"operation":"entity_identities","limit":50})),
+            )
+            .unwrap()
+    };
+    // Morii confirms the whole same-name group, then separates one card.
+    let confirmed = decide(ids.clone(), true);
+    assert_eq!(confirmed["groups"][0]["basis"], "confirmed", "{confirmed}");
+    let separated = decide(vec![ids[0].clone(), ids[1].clone()], false);
+    let all: Vec<&Value> = separated["groups"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .flat_map(|g| g["records"].as_array().unwrap())
+        .collect();
+    let first = all.iter().find(|r| r["entity_id"] == ids[0]).unwrap();
+    assert_eq!(first["opted_out"], true, "{separated}");
+    native.shutdown();
 }
