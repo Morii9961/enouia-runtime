@@ -3,7 +3,7 @@
 // written only on confirmation. Scores and reasons are not stored: running a
 // Capsule again re-runs the recall preview with its cue.
 import { useCallback, useEffect, useState } from "react";
-import { catalogAction, catalogCapsulePlan, catalogCapsules, type OwnerPreview, type RecallPreview, type SavedCapsules } from "./catalog";
+import { catalogAction, catalogCapsulePlan, catalogCapsules, type OwnerPreview, type RecallPreview, type SavedCapsules, type TargetRef } from "./catalog";
 import { describe } from "./client";
 import { t } from "../i18n";
 
@@ -15,7 +15,7 @@ function usePlanConfirm(after: () => void) {
     setBusy(true); setError(null);
     try { await work(); } catch (cause) { setError(describe(cause)); } finally { setBusy(false); }
   };
-  const plan = (name: string, query: string, members: { memory_id: string; revision: number }[]) =>
+  const plan = (name: string, query: string, members: TargetRef[]) =>
     act(async () => setPreview(await catalogCapsulePlan(name, query, members)));
   const confirm = () => preview && act(async () => {
     await catalogAction({ operation: "confirm_action", operation_id: preview.plan.operation_id, plan_hash: preview.plan_hash, effects_hash: preview.effects_hash });
@@ -28,7 +28,8 @@ export function SaveCapsule({ query, preview, saved }: { query: string; preview:
   const [name, setName] = useState(Array.from(query.trim()).slice(0, 40).join("") || t("Recall preview"));
   const [done, setDone] = useState(false);
   const flow = usePlanConfirm(() => { setDone(true); saved(); });
-  const members = preview.trace.selected.map(s => s.memory);
+  // Memory ADR-MEM-175: full references, in the same order as the trace.
+  const members = preview.selected_targets;
   return <section className="mem-stack" aria-label={t("Save as Capsule")}>
     <label className="mem-label">{t("Capsule name")} <input className="mem-input" maxLength={60} value={name} onChange={e => { setName(e.target.value); setDone(false); }} /></label>
     {!flow.preview && <button type="button" className="mem-button" disabled={flow.busy || !name.trim() || members.length === 0}

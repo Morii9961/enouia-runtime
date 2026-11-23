@@ -198,7 +198,7 @@ enum CatalogQuery {
     PlanCapsule {
         name: String,
         query: String,
-        members: Vec<CapsuleMemberRef>,
+        members: Vec<TargetRef>,
     },
     /// Memory ADR-MEM-172: identity groups of entity cards for Morii's review.
     EntityIdentities {
@@ -210,13 +210,6 @@ enum CatalogQuery {
     },
     Lock,
     Unlock,
-}
-/// A recall preview member to keep in a Capsule; Core supplies its hash.
-#[derive(Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct CapsuleMemberRef {
-    memory_id: MemoryId,
-    revision: Revision,
 }
 /// What Morii confirms for a correction; dimensions come from the current record.
 #[derive(Serialize, Deserialize)]
@@ -1112,21 +1105,8 @@ impl NativeCatalog {
                 if !agents.capsule_saving(vault) {
                     return Err("capsule_saving_off");
                 }
-                let mut targets = Vec::new();
-                for member in members {
-                    let detail = reader
-                        .memory_detail_native(&request_for(&all, 1), &member.memory_id, None)
-                        .map_err(fault)?;
-                    let target = detail
-                        .history
-                        .into_iter()
-                        .map(|h| h.memory)
-                        .find(|t| t.memory.revision == member.revision)
-                        .ok_or("catalog_stale")?;
-                    targets.push(target);
-                }
                 let preview = owner
-                    .plan(OwnerAction::Capsule { name, query, members: targets }, ceiling, None)
+                    .plan(OwnerAction::Capsule { name, query, members }, ceiling, None)
                     .map_err(action_fault)?;
                 let plan_hash = digest(&preview.plan);
                 let mut value = serde_json::to_value(&preview).map_err(|_| "correction_refused")?;

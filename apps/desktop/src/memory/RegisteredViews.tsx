@@ -513,9 +513,16 @@ function SessionsView() {
         <h2 className="qr29">{detail.conversation.title ?? t("Untitled conversation")}</h2>
         <p className="mem-row-meta">{recordTimeText(detail.conversation.started_at)} – {recordTimeText(detail.conversation.ended_at)} · {detail.conversation.platform}</p>
         <p className="mem-row-meta">{t("Only captured turns are shown; this is not the whole platform conversation.")}</p>
-        <ol className="mem-list">{detail.turns.map(turn => {
+        <ol className="mem-list mem-turns">{detail.turns.map((turn, index) => {
           const body = texts[`${turn.turn.source.source_id}:${turn.turn.source.source_revision}`];
-          return <li key={turn.turn.turn_id}><p className="mem-row-meta">{turn.source_record.speaker} · #{turn.turn.sequence}</p>
+          // Memory ADR-MEM-175 note: each turn's source record carries its time.
+          // Space turns by the real gap (2px a minute, at most 48px); unknown
+          // or out-of-order times get no extra space.
+          const at = turn.source_record.occurred_at ?? turn.source_record.captured_at ?? null;
+          const before = index > 0 ? detail.turns[index - 1].source_record.occurred_at ?? detail.turns[index - 1].source_record.captured_at ?? null : null;
+          const gap = at && before ? (Date.parse(at) - Date.parse(before)) / 60000 : 0;
+          return <li key={turn.turn.turn_id} style={{ marginTop: gap > 0 ? Math.min(48, Math.round(gap * 2)) : undefined }} data-turn-gap={gap > 0 ? Math.round(gap) : 0}>
+            <p className="mem-row-meta">{turn.source_record.speaker} · #{turn.turn.sequence}{at ? ` · ${stamp(at)}` : ""}</p>
             {body?.source ? <p className="mem-content">{body.excerpt}{body.complete_in_scope ? "" : " …"}</p> : <p className="mem-row-meta">{t("This source revision is no longer available.")}</p>}</li>;
         })}</ol>
         {detail.next != null && <p className="mem-row-meta">{t("{shown} of {total} captured turns shown.", { shown: detail.turns.length, total: detail.visible_captured_turns })}</p>}

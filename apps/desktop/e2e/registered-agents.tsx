@@ -8,7 +8,7 @@ import { envelope, status } from './fixtures/catalog.mjs';
 const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:any[]=[];
 let registered=false;
-const grants=()=>({...envelope,kind:'runtime_agent_grants',effect:'native_read',other_grants:[],vault_id:'vlt_synthetic',bridge:{path:'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe',present:true,protocol:'automation-agent-v1'},agents:[
+const grants=()=>({...envelope,kind:'runtime_agent_grants',effect:'native_read',other_grants:[],connector:registered?{grant_id:'pol_c',revision:1,active:true,max_sensitivity:'private',allow_requests:true,source_read:true,valid_from:'2026-11-22T00:00:00Z',valid_until:'2027-02-20T00:00:00Z',policies:3,sources:12,follow_new_sources:false,coverage:{policies:1,sources:2,refreshable:true}}:null,vault_id:'vlt_synthetic',bridge:{path:'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe',present:true,protocol:'automation-agent-v1'},agents:[
   {key:'claude_code',name:'Claude Code',registered,grant:registered?{grant_id:'pol_1',revision:1,active:true,max_sensitivity:'private',allow_requests:true,source_read:true,valid_from:'2026-11-22T00:00:00Z',valid_until:'2027-02-20T00:00:00Z',policies:44,sources:2149,follow_new_sources:true}:null,pipe:registered?'a'.repeat(64):null,coverage:registered?{policies:0,sources:0,refreshable:false}:null},
   {key:'codex',name:'Codex',registered:false,grant:null,pipe:null,coverage:null}]});
 setTransport(async(command)=>{
@@ -34,6 +34,7 @@ const check=(id:string,ok:boolean)=>checks.push({id,ok});
 const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.trim()===label);
 try{
   await wait(()=>text().includes('Local Agents')&&text().includes('Not registered'));
+  check('connector_without_grant_is_stated',fixture.querySelector('[data-connector-grant]')!.textContent!.includes('No connector grant on this library yet.'));
   check('agents_listed_with_honest_connection_state',text().includes('Claude Code')&&text().includes('Codex')&&text().includes('locking or exiting disconnects it'));
   button('Register…')!.click();
   await wait(()=>text().includes('Planned grant: Claude Code'));
@@ -45,6 +46,7 @@ try{
   const claude=fixture.querySelector('pre[data-agent=claude_code]')?.textContent??'';
   check('registered_agent_shows_mcp_config_for_its_pipe',claude.includes('claude mcp add enouia-memory -- "C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe" --protocol automation-agent-v1 --pipe '+'a'.repeat(64)+' --vault-id vlt_synthetic')&&
     text().includes("command = 'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe'")&&text().includes('Up to four sessions of each Agent')&&!fixture.querySelector('pre[data-agent=codex]'));
+  check('connector_grant_shows_its_gap',fixture.querySelector('[data-connector-grant]')!.textContent!.includes('Missing 1 new windows and 2 new sources'));
   check('registered_agent_follows_new_sources_and_offers_renew_revoke',!!button('Renew for 90 days…')&&!button('Include new sources…')&&!button('Follow new sources automatically…')&&text().includes('New windows and sources are included automatically')&&!!button('Revoke…'));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.length>0&&checks.every(c=>c.ok)});}

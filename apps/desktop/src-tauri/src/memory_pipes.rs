@@ -8,17 +8,14 @@ use enouia_memory_contract::{
     common::ActorRef, hash::Sha256Hex, ids::*, next::AttentionProfile, policy::Scope,
 };
 use enouia_memory_host::{
-    automation::{application::ApplicationFault, qualified_agent::QualifiedAgentHost},
+    automation::qualified_agent::QualifiedAgentHost,
     mcp::{
         agent::{AgentWriters, native::serve_connection},
         native::Enrollment,
     },
     windows::Pipe,
 };
-use enouia_memory_vault::automation::{
-    AutomationFault as Fault,
-    segmented::{SegmentedAgentScope, SegmentedAutomationVault},
-};
+use enouia_memory_vault::automation::segmented::{SegmentedAgentScope, SegmentedAutomationVault};
 use std::{
     sync::{
         Arc,
@@ -114,25 +111,6 @@ fn listen(
     }
 }
 
-/// Concurrent sessions of one Agent set up at the same moment, and Memory's
-/// non-blocking writer lock answers the loser `Busy`; wait briefly instead of
-/// dropping that session.
-fn settle<T, E>(
-    mut work: impl FnMut() -> Result<T, E>,
-    busy: impl Fn(&E) -> bool,
-) -> Result<T, ()> {
-    let until = std::time::Instant::now() + Duration::from_secs(2);
-    loop {
-        match work() {
-            Ok(value) => return Ok(value),
-            Err(e) if busy(&e) && std::time::Instant::now() < until => {
-                std::thread::sleep(Duration::from_millis(20))
-            }
-            Err(_) => return Err(()),
-        }
-    }
-}
-
 fn serve(
     vault: &Arc<SegmentedAutomationVault>,
     profile: &AttentionProfile,
@@ -149,14 +127,13 @@ fn serve(
         vec![Scope::MemoryRead, Scope::SourceRead],
     )
     .map_err(drop)?;
-    let grant = settle(
-        || vault.owner_read_status(&owner),
-        |e| matches!(e, Fault::Busy),
-    )?
-    .grants
-    .into_iter()
-    .find(|g| &g.grant_id == grant_id && g.active)
-    .ok_or(())?;
+    let grant = vault
+        .owner_read_status(&owner)
+        .map_err(drop)?
+        .grants
+        .into_iter()
+        .find(|g| &g.grant_id == grant_id && g.active)
+        .ok_or(())?;
     let now =
         enouia_memory_contract::foundation::Clock::now_unix_ms(&enouia_memory_vault::SystemClock);
     let scope = SegmentedAgentScope {
@@ -171,41 +148,23 @@ fn serve(
         )
         .ok_or(())?,
     };
-    let busy = |e: &ApplicationFault| matches!(e, ApplicationFault::Vault(Fault::Busy));
-    let host = settle(
-        || QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone()),
-        busy,
-    )?;
-    let reader = settle(
-        || host.reader_with_owner_grant(&owner, principal.clone(), grant_id, scope.clone()),
-        busy,
-    )?;
-    let note = settle(
-        || host.note_writer_with_owner_grant(&owner, principal.clone(), grant_id, scope.clone()),
-        busy,
-    )?;
-    let correction = settle(
-        || {
-            host.correction_reporter_with_owner_grant(
-                &owner,
-                principal.clone(),
-                grant_id,
-                scope.clone(),
-            )
-        },
-        busy,
-    )?;
-    let forget = settle(
-        || {
-            host.forget_requester_with_owner_grant(
-                &owner,
-                principal.clone(),
-                grant_id,
-                scope.clone(),
-            )
-        },
-        busy,
-    )?;
+    // Memory waits briefly for its writer lock here (ADR-MEM-175), so two
+    // sessions of one Agent connecting at the same moment both get through.
+    let host =
+        QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone())
+            .map_err(drop)?;
+    let reader = host
+        .reader_with_owner_grant(&owner, principal.clone(), grant_id, scope.clone())
+        .map_err(drop)?;
+    let note = host
+        .note_writer_with_owner_grant(&owner, principal.clone(), grant_id, scope.clone())
+        .map_err(drop)?;
+    let correction = host
+        .correction_reporter_with_owner_grant(&owner, principal.clone(), grant_id, scope.clone())
+        .map_err(drop)?;
+    let forget = host
+        .forget_requester_with_owner_grant(&owner, principal.clone(), grant_id, scope)
+        .map_err(drop)?;
     serve_connection(
         &reader,
         AgentWriters {
