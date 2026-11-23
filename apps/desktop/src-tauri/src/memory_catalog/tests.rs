@@ -1714,12 +1714,31 @@ fn registered_agent_connects_over_its_pipe_and_lock_cuts_it() {
     ] {
         assert!(names.iter().any(|n| n == tool), "{tool} in {names:?}");
     }
+    // ADR-MEM-169: a second session of the same Agent connects at the same time.
+    let mut second = Client::connect(
+        connect(),
+        ProcessPeer::enroll(std::process::id(), HostSurface::QuickSearch).unwrap(),
+        &vault,
+        std::time::Duration::from_secs(10),
+    )
+    .unwrap();
+    assert!(
+        second
+            .exchange(&json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"synthetic-2","version":"1"}}}))
+            .unwrap()
+            .is_some()
+    );
     // Locking releases the library: the listener stops and the connection ends.
     native.lock();
     std::thread::sleep(std::time::Duration::from_millis(600));
     assert!(
         client
             .exchange(&json!({"jsonrpc":"2.0","id":3,"method":"tools/list"}))
+            .is_err()
+    );
+    assert!(
+        second
+            .exchange(&json!({"jsonrpc":"2.0","id":2,"method":"tools/list"}))
             .is_err()
     );
     assert!(Pipe::connect(&pipe).is_err(), "no listener after lock");

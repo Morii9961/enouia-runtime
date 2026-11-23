@@ -1349,7 +1349,10 @@ async function registeredOwnerChecks() {
   const agentsNow=await s.evaluate("__t.catalog({operation:'agent_status'}).then(r=>r.ok)");
   const claudePipe=agentsNow.agents.find(a=>a.key==='claude_code').pipe;
   const bridgeExe=join(dirname(exe),'enouia-memory-mcp.exe');
-  const tools=existsSync(bridgeExe)?await bridgeTools(bridgeExe,['--protocol',agentsNow.bridge.protocol,'--pipe',claudePipe,'--vault-id',agentsNow.vault_id]):[];
+  const bridgeArgs=['--protocol',agentsNow.bridge.protocol,'--pipe',claudePipe,'--vault-id',agentsNow.vault_id];
+  // ADR-MEM-169: two sessions of the same Agent at once.
+  const [tools,toolsSecond]=existsSync(bridgeExe)?await Promise.all([bridgeTools(bridgeExe,bridgeArgs),bridgeTools(bridgeExe,bridgeArgs)]):[[],[]];
+  check('OWNER.two_bridge_sessions_connect_together',toolsSecond.includes('memory_note'));
   check('OWNER.bundled_bridge_lists_agent_tools',agentsNow.bridge.present&&['memory_note','memory_correction_report','memory_forget_request'].every(n=>tools.includes(n)),tools.join(','));
   await nav(s,'Settings');
   check('OWNER.settings_shows_claude_code_mcp_command',await s.evaluate(`[...document.querySelectorAll('pre[data-agent=claude_code]')].some(p=>p.textContent.includes(${JSON.stringify(claudePipe)}))`));

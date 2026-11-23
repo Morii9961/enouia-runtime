@@ -2292,9 +2292,9 @@ const dict: Record<string, string> = {
   "The bridge program is not next to this copy of Runtime, so the Agent cannot connect from it yet.": "この Runtime と同じフォルダにブリッジのプログラムがないため、エージェントはまだここから接続できません。",
   "Claude Code: run once in a terminal": "Claude Code：ターミナルで一度実行",
   "Codex: add to ~/.codex/config.toml": "Codex：~/.codex/config.toml に追加",
-  "One connection at a time per Agent: a second session of the same Agent cannot connect until the first one ends.": "エージェントごとに接続は一度に一つです。同じエージェントの別のセッションは、最初の接続が終わるまで接続できません。",
   "Include new sources…": "新しい出所を含める…",
   "Covers every current window and source.": "現在のすべてのウィンドウと出所を含んでいます。",
   "Missing {windows} new windows and {sources} new sources captured since this grant was written.": "この許可を書いた後に取り込まれた {windows} 個のウィンドウと {sources} 件の出所がまだ含まれていません。",
+  "Up to four sessions of each Agent can be connected at once; a fifth waits a few seconds and then fails.": "エージェントごとに同時に 4 つまでのセッションが接続できます。5 つ目は数秒待ってから失敗します。",
 };
 export default dict;

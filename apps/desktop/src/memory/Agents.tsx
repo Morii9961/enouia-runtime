@@ -52,7 +52,7 @@ export function AgentGrantsPanel() {
 }
 
 // ADR-043 (D1b): what to paste into the Agent's own MCP settings. The bridge
-// beside Runtime connects to this Agent's pipe; one connection at a time.
+// beside Runtime connects to this Agent's pipe; up to four sessions at once.
 function McpConfig({ name, command, args, present }: { name: string; command: string; args: string[]; present: boolean }) {
   const quoted = (v: string) => /[\s"]/.test(v) ? `"${v.replace(/"/g, '\\"')}"` : v;
   const claude = `claude mcp add enouia-memory -- ${[command, ...args].map(quoted).join(" ")}`;
@@ -63,7 +63,7 @@ function McpConfig({ name, command, args, present }: { name: string; command: st
     <pre className="mem-content" data-agent={name}>{claude}</pre>
     <span className="mem-row-meta">{t("Codex: add to ~/.codex/config.toml")}</span>
     <pre className="mem-content">{codex}</pre>
-    <span className="mem-row-meta">{t("One connection at a time per Agent: a second session of the same Agent cannot connect until the first one ends.")}</span>
+    <span className="mem-row-meta">{t("Up to four sessions of each Agent can be connected at once; a fifth waits a few seconds and then fails.")}</span>
   </span>;
 }
 

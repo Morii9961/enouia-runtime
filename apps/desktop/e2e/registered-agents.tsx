@@ -44,7 +44,7 @@ try{
   check('confirm_commits_the_shown_plan_once',calls.filter(c=>c.operation==='agent_commit').length===1&&calls.find(c=>c.operation==='agent_commit').plan_id==='req_plan');
   const claude=fixture.querySelector('pre[data-agent=claude_code]')?.textContent??'';
   check('registered_agent_shows_mcp_config_for_its_pipe',claude.includes('claude mcp add enouia-memory -- "C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe" --protocol automation-agent-v1 --pipe '+'a'.repeat(64)+' --vault-id vlt_synthetic')&&
-    text().includes("command = 'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe'")&&text().includes('One connection at a time per Agent')&&!fixture.querySelector('pre[data-agent=codex]'));
+    text().includes("command = 'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe'")&&text().includes('Up to four sessions of each Agent')&&!fixture.querySelector('pre[data-agent=codex]'));
   check('registered_agent_offers_renew_refresh_revoke',!!button('Renew for 90 days…')&&!!button('Include new sources…')&&text().includes('Missing 1 new windows and 3 new sources')&&!!button('Revoke…'));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.length>0&&checks.every(c=>c.ok)});}
