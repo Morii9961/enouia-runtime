@@ -193,6 +193,24 @@ export async function catalogAgents(query: { operation: string } & Record<string
 export type AgentRequest = { kind: "correction" | "forget"; key: string; request_id: string; agent: string | null; target: TargetRef;
   evidence: CatalogEvidence; text: string; committed_in: string; pending: boolean; ignored: boolean };
 export type AgentRequests = { kind: "runtime_agent_requests"; items: AgentRequest[] };
+// Memory ADR-MEM-173: saved Capsules; saving is off until Morii turns it on.
+export type SavedCapsules = { kind: "runtime_capsules"; saving_enabled: boolean;
+  capsules: { name: string; query: string; members: { saved: TargetRef; current: TargetRef | null }[] }[] };
+export async function catalogCapsules(enabled?: boolean): Promise<SavedCapsules> {
+  const query = enabled === undefined ? { operation: "capsules" } : { operation: "capsule_saving", enabled };
+  const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query } }) as J;
+  if (enabled !== undefined) {
+    if (value?.kind !== "runtime_capsule_saving" || value.effect !== "local_write") throw "catalog_response_unsupported";
+    return catalogCapsules();
+  }
+  if (value?.kind !== "runtime_capsules" || value.effect !== "native_read" || !Array.isArray(value.capsules)) throw "catalog_response_unsupported";
+  return value;
+}
+export async function catalogCapsulePlan(name: string, query: string, members: { memory_id: string; revision: number }[]): Promise<OwnerPreview> {
+  const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: { operation: "plan_capsule", name, query, members } } }) as J;
+  if (value?.kind !== "native_owner_preview" || value.effect !== "native_plan" || typeof value.plan?.operation_id !== "string" || !hex64(value.plan_hash) || !hex64(value.effects_hash)) throw "catalog_response_unsupported";
+  return value;
+}
 // Memory ADR-MEM-172: identity groups of entity cards (read only).
 export type EntityIdentities = { kind: "runtime_entity_identities"; total_groups: number; complete: boolean;
   groups: { basis: "confirmed" | "same_name" | "single"; entity_type: string; name: string;

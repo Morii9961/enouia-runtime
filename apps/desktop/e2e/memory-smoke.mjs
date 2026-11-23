@@ -1284,7 +1284,7 @@ async function registeredOwnerChecks() {
   await set(s,'.qr44 form input','Blue pottery cup');
   await click(s,'button','Preview recall');
   await waitFor(s,has(' considered · '),'registered recall preview');
-  check('OWNER.recall_preview_reads_core_trace_without_writing',await s.evaluate(`${has('Blue pottery cup')} && ${has('no Capsule is saved')} && !${has('Synthetic preview')}`));
+  check('OWNER.recall_preview_reads_core_trace_without_writing',await s.evaluate(`${has('Blue pottery cup')} && ${has('A preview writes nothing')} && !${has('Synthetic preview')}`));
   await nav(s,'Context');
   await waitFor(s,"!!document.querySelector('[data-screen-label=\"Context Surface\"] form input')",'registered context preview');
   check('OWNER.context_offers_recall_preview_not_saved_capsules',await s.evaluate(`!${has('Read saved Capsules')} && ${has('saves nothing')}`));

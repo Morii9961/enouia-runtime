@@ -2006,3 +2006,66 @@ fn concurrent_agent_sessions_all_connect() {
     assert!(failures.is_empty(), "{failures:?}");
     native.shutdown();
 }
+
+#[test]
+fn capsules_stay_off_until_turned_on_then_save_list_and_delete() {
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
+        })
+        .unwrap();
+    let all = CatalogFilter::default();
+    let list = || {
+        native
+            .call("main", &packet(json!({"operation":"capsules"})))
+            .unwrap()
+    };
+    let empty = list();
+    assert_eq!(empty["saving_enabled"], false);
+    assert_eq!(empty["capsules"], json!([]));
+    let page = native
+        .call(
+            "main",
+            &packet(json!({"operation":"page","filter":all,"cursor":null,"limit":2})),
+        )
+        .unwrap();
+    let members: Vec<Value> = page["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|i| json!({"memory_id":i["base"]["memory"]["memory_id"],"revision":i["base"]["memory"]["revision"]}))
+        .collect();
+    let plan = |members: &Vec<Value>| {
+        native.call("main", &packet(json!({"operation":"plan_capsule","name":"Synthetic capsule","query":"pottery","members":members})))
+    };
+    assert_eq!(
+        plan(&members),
+        Err("capsule_saving_off"),
+        "saving is off by default"
+    );
+    let on = native
+        .call(
+            "main",
+            &packet(json!({"operation":"capsule_saving","enabled":true})),
+        )
+        .unwrap();
+    assert_eq!(on["saving_enabled"], true);
+    let confirm = |preview: Value| {
+        native
+            .call("main", &packet(json!({"operation":"confirm_action","operation_id":preview["plan"]["operation_id"],"plan_hash":preview["plan_hash"],"effects_hash":preview["effects_hash"]})))
+            .unwrap()
+    };
+    confirm(plan(&members).unwrap());
+    let saved = list();
+    assert_eq!(saved["capsules"][0]["name"], "Synthetic capsule");
+    assert_eq!(saved["capsules"][0]["query"], "pottery");
+    assert_eq!(
+        saved["capsules"][0]["members"].as_array().unwrap().len(),
+        members.len()
+    );
+    assert!(saved["capsules"][0]["members"][0]["current"].is_object());
+    confirm(plan(&vec![]).unwrap());
+    assert_eq!(list()["capsules"], json!([]), "an empty save deletes it");
+    native.shutdown();
+}

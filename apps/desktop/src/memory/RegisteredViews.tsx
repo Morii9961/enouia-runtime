@@ -8,6 +8,7 @@ import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogVie
 import { CatalogDetailPanel } from "./CatalogMemory";
 import { ConflictCompare } from "./Compare";
 import { RegisteredConstellation } from "./Constellation";
+import { CapsuleIndex, SaveCapsule } from "./Capsules";
 import { ConnectorStatus } from "./Connector";
 import { analystText, recordTimeText, word } from "./catalogWords";
 import { useLatestRead } from "./hooks";
@@ -386,11 +387,13 @@ function RecallView({ mode }: { mode: "recall" | "context" }) {
   const [text, setText] = useState("");
   const [intent, setIntent] = useState<RecallQuery["intent"]>("current");
   const [preview, setPreview] = useState<RecallPreview | null>(null);
+  const [asked, setAsked] = useState("");
+  const [savedTick, setSavedTick] = useState(0);
   const reads = useLatestRead();
-  const run = () => {
-    if (!limits || (intent !== "browse" && !text.trim())) return;
-    setPreview(null);
-    void reads.run(() => catalogRecall({ text, conditions: [], event_window: null, at: new Date().toISOString(), intent, limit: limits.max_items, max_bytes: limits.max_bytes }), setPreview);
+  const run = (cue = text) => {
+    if (!limits || (intent !== "browse" && !cue.trim())) return;
+    setPreview(null); setAsked(cue);
+    void reads.run(() => catalogRecall({ text: cue, conditions: [], event_window: null, at: new Date().toISOString(), intent, limit: limits.max_items, max_bytes: limits.max_bytes }), setPreview);
   };
   const reasons = preview ? Object.entries(preview.trace_coverage.reason_counts) : [];
   return <>
@@ -418,10 +421,12 @@ function RecallView({ mode }: { mode: "recall" | "context" }) {
         {reasons.length > 0 && <><h3>{t("Why others were left out")}</h3>
           <ul className="mem-list">{reasons.map(([reason, n]) => <li key={reason} className="mem-row-meta">{word(reason)} · {n}</li>)}</ul></>}
         <details open={mode === "context"}><summary>{t("Rendered context")}</summary><pre className="mem-content mem-rendered">{preview.rendered_context}</pre></details>
+        {nativeStatus?.corrections && preview.trace.selected.length > 0 && <SaveCapsule key={`${asked}:${preview.trace.authorized_at}`} query={asked} preview={preview} saved={() => setSavedTick(n => n + 1)} />}
       </>}
     </div></div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
-      <p className="mem-content">{t("Nothing is written: no Capsule is saved and no Agent is enrolled. Selection order and reasons come from Memory's recall algorithm.")}</p>
+      <p className="mem-content">{t("A preview writes nothing and enrols no Agent. Selection order and reasons come from Memory's recall algorithm.")}</p>
+      {nativeStatus?.corrections && <CapsuleIndex refresh={savedTick} use={cue => { setText(cue); run(cue); }} />}
     </div></aside>
   </>;
 }

@@ -189,6 +189,17 @@ enum CatalogQuery {
     /// ADR-042 (D2): saved Agent correction and forget requests for Morii's
     /// desktop queue (read only), and the local "ignore" mark on one of them.
     AgentRequests,
+    /// Memory ADR-MEM-173: saved Capsules (read only), Morii's local switch
+    /// for saving them, and a planned save or delete (written on confirm).
+    Capsules,
+    CapsuleSaving {
+        enabled: bool,
+    },
+    PlanCapsule {
+        name: String,
+        query: String,
+        members: Vec<CapsuleMemberRef>,
+    },
     /// Memory ADR-MEM-172: identity groups of entity cards for Morii's review.
     EntityIdentities {
         limit: usize,
@@ -199,6 +210,13 @@ enum CatalogQuery {
     },
     Lock,
     Unlock,
+}
+/// A recall preview member to keep in a Capsule; Core supplies its hash.
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CapsuleMemberRef {
+    memory_id: MemoryId,
+    revision: Revision,
 }
 /// What Morii confirms for a correction; dimensions come from the current record.
 #[derive(Serialize, Deserialize)]
@@ -532,6 +550,8 @@ impl NativeCatalog {
                     | "agent_plan"
                     | "agent_commit"
                     | "agent_request_ignore"
+                    | "capsule_saving"
+                    | "plan_capsule"
             ) | None
         );
         let until = std::time::Instant::now() + std::time::Duration::from_secs(2);
@@ -1066,6 +1086,55 @@ impl NativeCatalog {
                 value["capability"] = json!("memory-native-read-2");
                 value["kind"] = json!("runtime_agent_requests");
                 value["effect"] = json!("native_read");
+                Ok(value)
+            }
+            CatalogQuery::Capsules => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                let saved = owner.capsules(ceiling).map_err(fault)?;
+                let mut value = serde_json::to_value(&saved).map_err(|_| "catalog_read_refused")?;
+                value["saving_enabled"] = json!(agents.capsule_saving(vault));
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("runtime_capsules");
+                value["effect"] = json!("native_read");
+                Ok(value)
+            }
+            CatalogQuery::CapsuleSaving { enabled } => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                agents.set_capsule_saving(vault, enabled)?;
+                Ok(json!({"schema_version":2,"capability":"memory-native-read-2","kind":"runtime_capsule_saving",
+                    "effect":"local_write","saving_enabled":agents.capsule_saving(vault)}))
+            }
+            CatalogQuery::PlanCapsule { name, query, members } => {
+                let (agents, vault) = fixture.agents.as_ref().zip(fixture.vault.as_ref()).ok_or("correction_unavailable")?;
+                let owner = fixture.owner.as_ref().ok_or("correction_unavailable")?;
+                if !agents.capsule_saving(vault) {
+                    return Err("capsule_saving_off");
+                }
+                let mut targets = Vec::new();
+                for member in members {
+                    let detail = reader
+                        .memory_detail_native(&request_for(&all, 1), &member.memory_id, None)
+                        .map_err(fault)?;
+                    let target = detail
+                        .history
+                        .into_iter()
+                        .map(|h| h.memory)
+                        .find(|t| t.memory.revision == member.revision)
+                        .ok_or("catalog_stale")?;
+                    targets.push(target);
+                }
+                let preview = owner
+                    .plan(OwnerAction::Capsule { name, query, members: targets }, ceiling, None)
+                    .map_err(action_fault)?;
+                let plan_hash = digest(&preview.plan);
+                let mut value = serde_json::to_value(&preview).map_err(|_| "correction_refused")?;
+                value["plan_hash"] = json!(plan_hash);
+                value["schema_version"] = json!(2);
+                value["capability"] = json!("memory-native-read-2");
+                value["kind"] = json!("native_owner_preview");
+                value["effect"] = json!("native_plan");
                 Ok(value)
             }
             CatalogQuery::EntityIdentities { limit } => {

@@ -40,3 +40,4 @@ Memory 已经提供数据，只差 Runtime 的界面。每片做完都要过合�
 - A4–A5（月 → 日、覆盖日历）：[验证](../validation/R5-time-days-2026-11-23.md)。
 - A6（星座）：[验证](../validation/R5-constellation-2026-11-23.md)。
 - 人物与地点（Memory ADR-MEM-171/172 的确认界面）：[验证](../validation/R5-entity-identity-2026-11-23.md)。
+- B1 Capsule（默认关闭）：[验证](../validation/R5-capsules-2026-11-23.md)。B2 主题形成：Memory 说需先由 Morii 定设计，已列入周末待定；B3 仍在队列。
