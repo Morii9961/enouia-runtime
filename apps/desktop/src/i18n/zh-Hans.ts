@@ -2296,5 +2296,9 @@ const dict: Record<string, string> = {
   "Covers every current window and source.": "已覆盖当前全部窗口和来源。",
   "Missing {windows} new windows and {sources} new sources captured since this grant was written.": "这份授权写下后新捕获的 {windows} 个窗口、{sources} 条来源还没有纳入。",
   "Up to four sessions of each Agent can be connected at once; a fifth waits a few seconds and then fails.": "每个 Agent 最多可以同时连接 4 个会话；第 5 个会等几秒后失败。",
+  "Follow new sources automatically…": "自动纳入新来源…",
+  "New windows and sources are included automatically; the ceiling and expiry stay the same.": "新窗口和新来源会自动纳入；上限和到期时间不变。",
+  "New windows and sources join automatically.": "新窗口和新来源自动纳入。",
+  "Only the listed windows and sources.": "只限列出的窗口和来源。",
 };
 export default dict;

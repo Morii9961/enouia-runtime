@@ -9,7 +9,7 @@ import { describe } from "./client";
 import { recordTimeText, word } from "./catalogWords";
 import { labels, msg, t } from "../i18n";
 
-const ACTIONS = labels({ register: msg("Register…"), renew: msg("Renew for 90 days…"), refresh: msg("Include new sources…"), revoke: msg("Revoke…") });
+const ACTIONS = labels({ register: msg("Register…"), renew: msg("Renew for 90 days…"), refresh: msg("Include new sources…"), follow: msg("Follow new sources automatically…"), revoke: msg("Revoke…") });
 type Action = keyof typeof ACTIONS;
 const day = (at: string) => recordTimeText({ from: at, until: null, precision: "day", bound: "within", tz: null, basis: "source_time" });
 
@@ -32,10 +32,11 @@ export function AgentGrantsPanel() {
         <strong>{a.name}</strong>
         <span role="status" className="mem-row-meta">{!a.grant ? t("Not registered") : !a.grant.active ? t("Revoked") :
           t("Registered · until {date} · up to {max} · {sources} sources · requests {requests}", { date: day(a.grant.valid_until), max: word(a.grant.max_sensitivity), sources: a.grant.sources, requests: t(a.grant.allow_requests ? "allowed" : "not allowed") })}</span>
-        {a.grant?.active && a.coverage && <span className="mem-row-meta">{a.coverage.policies + a.coverage.sources === 0 ? t("Covers every current window and source.")
+        {a.grant?.active && a.grant.follow_new_sources && <span className="mem-row-meta">{t("New windows and sources are included automatically; the ceiling and expiry stay the same.")}</span>}
+        {a.grant?.active && !a.grant.follow_new_sources && a.coverage && <span className="mem-row-meta">{a.coverage.policies + a.coverage.sources === 0 ? t("Covers every current window and source.")
           : t("Missing {windows} new windows and {sources} new sources captured since this grant was written.", { windows: a.coverage.policies, sources: a.coverage.sources })}</span>}
         {a.grant?.active && a.pipe && grants.bridge.path && <McpConfig name={a.key} command={grants.bridge.path} args={["--protocol", grants.bridge.protocol, "--pipe", a.pipe, "--vault-id", grants.vault_id]} present={grants.bridge.present} />}
-        <span className="mem-actions">{(!a.grant ? ["register"] : a.grant.active ? ["renew", ...(a.coverage?.refreshable ? ["refresh"] : []), "revoke"] : ["renew"]).map(action =>
+        <span className="mem-actions">{(!a.grant ? ["register"] : a.grant.active ? ["renew", ...(a.grant.follow_new_sources ? [] : ["follow"]), ...(a.coverage?.refreshable ? ["refresh"] : []), "revoke"] : ["renew"]).map(action =>
           <button key={action} type="button" className="mem-link" disabled={busy || !!plan} onClick={() => void propose(a.key, action as Action)}>{t(ACTIONS[action as Action])}</button>)}</span>
       </span>)}
       {grants && grants.other_grants.length > 0 && <span className="mem-row-meta">{t("{n} other grants exist on this library without a name on this computer.", { n: grants.other_grants.length })}</span>}
@@ -43,6 +44,7 @@ export function AgentGrantsPanel() {
         <strong>{t("Planned grant: {agent} · {action}", { agent: grants?.agents.find(a => a.key === plan.agent)?.name ?? plan.agent, action: t(ACTIONS[plan.action as Action] ?? plan.action) })}</strong>
         <span className="mem-row-meta">{t("Revision {revision} · {state} · until {date} · up to {max} · {policies} policies · {sources} sources · requests {requests}",
           { revision: plan.revision, state: t(plan.active ? "active" : "revoked"), date: day(plan.valid_until), max: word(plan.max_sensitivity), policies: plan.policies, sources: plan.sources, requests: t(plan.allow_requests ? "allowed" : "not allowed") })}</span>
+        <span className="mem-row-meta">{t(plan.follow_new_sources ? "New windows and sources join automatically." : "Only the listed windows and sources.")}</span>
         <span className="mem-actions"><button type="button" className="mem-button mem-danger" disabled={busy} onClick={() => void confirm()}>{t("Confirm and write")}</button>
           <button type="button" className="mem-link" disabled={busy} onClick={() => setPlan(null)}>{t("Cancel")}</button></span>
       </span>}

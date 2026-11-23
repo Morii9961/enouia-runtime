@@ -9,7 +9,7 @@ const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:any[]=[];
 let registered=false;
 const grants=()=>({...envelope,kind:'runtime_agent_grants',effect:'native_read',other_grants:[],vault_id:'vlt_synthetic',bridge:{path:'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe',present:true,protocol:'automation-agent-v1'},agents:[
-  {key:'claude_code',name:'Claude Code',registered,grant:registered?{grant_id:'pol_1',revision:1,active:true,max_sensitivity:'private',allow_requests:true,source_read:true,valid_from:'2026-11-22T00:00:00Z',valid_until:'2027-02-20T00:00:00Z',policies:44,sources:2149}:null,pipe:registered?'a'.repeat(64):null,coverage:registered?{policies:1,sources:3,refreshable:true}:null},
+  {key:'claude_code',name:'Claude Code',registered,grant:registered?{grant_id:'pol_1',revision:1,active:true,max_sensitivity:'private',allow_requests:true,source_read:true,valid_from:'2026-11-22T00:00:00Z',valid_until:'2027-02-20T00:00:00Z',policies:44,sources:2149,follow_new_sources:true}:null,pipe:registered?'a'.repeat(64):null,coverage:registered?{policies:0,sources:0,refreshable:false}:null},
   {key:'codex',name:'Codex',registered:false,grant:null,pipe:null,coverage:null}]});
 setTransport(async(command)=>{
   if(command==='shell_status')return {vaultChanging:false,memoryEntry:'registered_owner_readonly'};
@@ -22,7 +22,7 @@ setCatalogTransport(async(_c,args)=>{
   if(q.operation==='status')return {...status('open'),mode:'registered_owner_readonly',corrections:true};
   if(q.operation==='connector_status')return {...envelope,kind:'runtime_connector_status',effect:'native_read',windows:[]};
   if(q.operation==='agent_status')return grants();
-  if(q.operation==='agent_plan')return {...envelope,kind:'runtime_agent_grant_plan',effect:'native_plan',plan_id:'req_plan',agent:q.agent,action:q.action,revision:1,active:true,max_sensitivity:'private',allow_requests:true,valid_until:'2027-02-20T00:00:00Z',expires_at:'2026-11-22T00:05:00Z',policies:44,sources:2149};
+  if(q.operation==='agent_plan')return {...envelope,kind:'runtime_agent_grant_plan',effect:'native_plan',plan_id:'req_plan',agent:q.agent,action:q.action,revision:1,active:true,max_sensitivity:'private',allow_requests:true,valid_until:'2027-02-20T00:00:00Z',expires_at:'2026-11-22T00:05:00Z',policies:44,sources:2149,follow_new_sources:true};
   if(q.operation==='agent_commit'){registered=true;return {...grants(),effect:'native_write'};}
   throw new Error(`Unexpected ${q.operation}`);
 });
@@ -38,13 +38,13 @@ try{
   button('Register…')!.click();
   await wait(()=>text().includes('Planned grant: Claude Code'));
   const plan=calls.find(c=>c.operation==='agent_plan');
-  check('register_plans_claude_code_and_writes_nothing_yet',plan.agent==='claude_code'&&plan.action==='register'&&!calls.some(c=>c.operation==='agent_commit')&&text().includes('2149 sources'));
+  check('register_plans_claude_code_and_writes_nothing_yet',plan.agent==='claude_code'&&plan.action==='register'&&!calls.some(c=>c.operation==='agent_commit')&&text().includes('2149 sources')&&text().includes('New windows and sources join automatically.'));
   button('Confirm and write')!.click();
   await wait(()=>text().includes('Registered · until'));
   check('confirm_commits_the_shown_plan_once',calls.filter(c=>c.operation==='agent_commit').length===1&&calls.find(c=>c.operation==='agent_commit').plan_id==='req_plan');
   const claude=fixture.querySelector('pre[data-agent=claude_code]')?.textContent??'';
   check('registered_agent_shows_mcp_config_for_its_pipe',claude.includes('claude mcp add enouia-memory -- "C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe" --protocol automation-agent-v1 --pipe '+'a'.repeat(64)+' --vault-id vlt_synthetic')&&
     text().includes("command = 'C:\\Program Files\\Enouia Runtime\\enouia-memory-mcp.exe'")&&text().includes('Up to four sessions of each Agent')&&!fixture.querySelector('pre[data-agent=codex]'));
-  check('registered_agent_offers_renew_refresh_revoke',!!button('Renew for 90 days…')&&!!button('Include new sources…')&&text().includes('Missing 1 new windows and 3 new sources')&&!!button('Revoke…'));
+  check('registered_agent_follows_new_sources_and_offers_renew_revoke',!!button('Renew for 90 days…')&&!button('Include new sources…')&&!button('Follow new sources automatically…')&&text().includes('New windows and sources are included automatically')&&!!button('Revoke…'));
 }catch(error){checks.push({id:String(error),ok:false});}
 finally{root.unmount();document.getElementById('results')!.textContent=JSON.stringify({checks,passed:checks.length>0&&checks.every(c=>c.ok)});}

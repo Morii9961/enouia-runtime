@@ -33,3 +33,7 @@ Synthetic: a native test registers, renews, refreshes and revokes a grant on a M
 ## Amendment (2026-11-23, Memory ADR-MEM-168)
 
 Settings shows for each registered Agent how many policy revisions (new capture windows) and captured sources its grant does not list, from `owner_read_grant_coverage`. "Update source scope" becomes "Include new sources…": it plans Memory's `refreshed` revision (all uncovered policies and sources, everything else unchanged and already plan-checked) and appears only when Memory offers one. A grant that already covers everything is refused with `grant_up_to_date`. Registration still lists the policies and sources current at that moment; following future windows automatically stays a separate decision for Morii.
+
+## Amendment (2026-11-23, Memory ADR-MEM-170, Morii's decision)
+
+Registration now sets `follow_new_sources: true`: windows and captured, undeleted sources added later for the same subject join the grant's coverage at every permit check, so connected Agents see them without re-registration. The ceiling (`Private`), `source_read`, `allow_requests` and the 90-day expiry are unchanged, and revoking still ends access at the next check. Settings shows "included automatically" for such a grant and hides "Include new sources…"; a grant written before this change is offered "Follow new sources automatically…", an ordinary planned revision Morii confirms. This replaces the "not automatic" default above.

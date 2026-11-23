@@ -1361,15 +1361,20 @@ fn agent_grants_plan_then_commit_and_keep_names_local() {
     let behind = native
         .call_waiting("main", &packet(json!({"operation":"agent_status"})))
         .unwrap();
+    // ADR-MEM-170: the grant follows new windows, so nothing is left uncovered.
+    assert_eq!(behind["agents"][0]["grant"]["follow_new_sources"], true);
     let coverage = &behind["agents"][0]["coverage"];
-    assert!(coverage["policies"].as_u64().unwrap() >= 1, "{coverage}");
-    assert!(coverage["sources"].as_u64().unwrap() >= 2, "{coverage}");
-    assert_eq!(coverage["refreshable"], true);
-    for (action, revision, active) in [
-        ("renew", 2, true),
-        ("refresh", 3, true),
-        ("revoke", 4, false),
-    ] {
+    assert_eq!(coverage["policies"], 0, "{coverage}");
+    assert_eq!(coverage["sources"], 0, "{coverage}");
+    assert_eq!(coverage["refreshable"], false);
+    assert_eq!(
+        native.call(
+            "main",
+            &packet(json!({"operation":"agent_plan","agent":"claude_code","action":"refresh"}))
+        ),
+        Err("grant_up_to_date")
+    );
+    for (action, revision, active) in [("renew", 2, true), ("revoke", 3, false)] {
         let plan = native
             .call(
                 "main",
@@ -1387,10 +1392,10 @@ fn agent_grants_plan_then_commit_and_keep_names_local() {
             "{action}"
         );
         assert_eq!(status["agents"][0]["grant"]["active"], active, "{action}");
-        if action == "refresh" {
-            assert_eq!(status["agents"][0]["coverage"]["policies"], 0);
-            assert_eq!(status["agents"][0]["coverage"]["sources"], 0);
-        }
+        assert_eq!(
+            status["agents"][0]["grant"]["follow_new_sources"], true,
+            "{action} keeps following"
+        );
     }
     assert_eq!(
         native.call(
@@ -1476,6 +1481,12 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
         source_read: true,
         valid_until: enouia_memory_contract::time::Timestamp::from_unix_ms(now + 120_000).unwrap(),
     };
+    // ADR-MEM-170: a window captured after registration is covered at once.
+    connector_capture(
+        &vault,
+        "chatgpt-synthetic-after-grant",
+        &[("hot cocoa", "m1"), ("slow trains", "m3")],
+    );
     let all = CatalogFilter::default();
     let mut page = Value::Null;
     for _ in 0..200 {
@@ -1488,7 +1499,7 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
             .iter()
             .filter(|i| {
                 i["base"]["content"].as_str().is_some_and(|c| {
-                    c.ends_with("prefer quiet trains.") || c.ends_with("prefer green tea.")
+                    c.ends_with("prefer slow trains.") || c.ends_with("prefer green tea.")
                 })
             })
             .count()
@@ -1546,7 +1557,7 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
             correction: "Synthetic proposed correction.".into(),
         })
         .unwrap();
-    let (forget_target, source, quote_hint) = cited("I prefer quiet trains.");
+    let (forget_target, source, quote_hint) = cited("I prefer slow trains.");
     host.forget_requester_with_owner_grant(&owner, principal, &grant_id, scope)
         .unwrap()
         .submit(&AgentForgetRequest {

@@ -119,6 +119,8 @@ Morii 2026-11-19 要求：交接任务完成后新开会话，把 Runtime 原有
 
 2026-11-19 R4.2：Memory #125（ADR-MEM-152）交付 G22 后，pin 升至 `009b7bc`，[Context 与召回实验接入真实库](../validation/R4-2-recall-preview-009b7bc-2026-11-19.md)（原生合成 34/34、42/42，真实库走查 20/20）。至此 R4.0–R4.2 的只读界面全部改读真实库；R4.3/R4.4 等待授权，R4.5 从 main 打候选。
 
+2026-11-23 夜：按 Morii 的选择接入 Memory ADR-MEM-170，pin 升至 `512ad0c`，Settings 登记的 Agent 授权自动纳入新窗口与来源（上限与到期不变、可撤销）；[候选](../validation/R4-candidate-4fd0e92-2026-11-23.md)改为 `4fd0e92`（模板 26/26、合成 41/41 与 42/42、真实库只读走查 15/15），`1ab7a89` 作废。
+
 2026-11-23 晚：Memory ADR-MEM-167–169 合并后，pin 升至 `bc39dc9`，Settings 显示 Agent 授权覆盖并按 Memory 补全计划“纳入新来源”，同一 Agent 最多 4 个会话同时连接；[候选](../validation/R4-candidate-1ab7a89-2026-11-23.md)改为 `1ab7a89`（模板 26/26、合成 41/41 与 42/42、真实库只读走查 15/15），`73983bd` 作废。
 
 2026-11-23：门槛 A、B（显示部分）、D 接入完成后，[候选](../validation/R4-candidate-73983bd-2026-11-23.md)从 main `73983bd`（pin `29cbe8d`）重建：模板 26/26、合成 40/40 与 42/42、候选程序真实库只读走查 15/15（CURRENT 440 不变）；`884c015` 作废。新增验收步骤 16–18（Agent 请求队列、值得回看、Claude Code / Codex 经 MCP 接入）；ChatGPT 真实连接待域名。
