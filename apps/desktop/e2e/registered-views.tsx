@@ -44,7 +44,7 @@ setCatalogTransport(async(_command,args)=>{
     buckets:[{local_start:'2026-02-01',from:'2026-01-31T16:00:00Z',until:'2026-02-28T16:00:00Z',possible_records:0,staged:0,adopted:0,captured_material:0},
       {local_start:'2026-03-01',from:'2026-02-28T16:00:00Z',until:'2026-03-31T16:00:00Z',possible_records:1,staged:0,adopted:1,captured_material:2}]};
   if(q.operation==='graph'){const more=!!q.cursor;return {...envelope,kind:'memory_graph_page',header,nodes:more?[node(3)]:[node(1),node(2)],
-    edges:more?[{from:'synthetic-memory-1',to:'synthetic-memory-3',relation:'same_conversation',class:'recorded_relation',witness:'w',score_milli:null}]:[{from:'synthetic-memory-1',to:'synthetic-memory-2',relation:'lexical_neighbor',class:'algorithm_suggestion',witness:'shared_terms:alps,hiking',score_milli:420}],
+    edges:more?[{from:'synthetic-memory-1',to:'synthetic-memory-3',relation:'same_conversation',class:'recorded_relation',witness:'w',score_milli:null}]:[{from:'synthetic-memory-1',to:'synthetic-memory-2',relation:'lexical_neighbor',class:'algorithm_suggestion',witness:'shared_terms:alps,hiking',score_milli:420},{from:'synthetic-memory-2',to:'synthetic-memory-1',relation:'derived_from',class:'recorded_relation',witness:'w',score_milli:null}],
     edge_coverage:[{relation:'same_conversation',candidates:1,retained:1},{relation:'lexical_neighbor',candidates:1,retained:1}],semantic_neighbors_available:false,next:more?null:{opaque:1}};}
   if(q.operation==='neighbors')return {...envelope,kind:'native_memory_neighbors',header,selected:null,matched_in_scope:1,next:null,
     items:[{other:{memory:{memory:{memory_id:'synthetic-memory-3',revision:1},hash:'e'.repeat(64)},title:'Synthetic item 3',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:'new',learned_at:selection.evaluated_at,effective_sensitivity:'private'},relations:[{relation:'same_conversation',class:'recorded_relation',direction:'both',witnesses:[],witness_count_in_scope:1,witnesses_complete:true}]}]};
@@ -103,9 +103,10 @@ try{
   check('day_choice_reads_records_for_that_day',true);
   check('month_choice_reads_records_with_core_time_window',windowed>0&&memory.textContent!.includes('Synthetic item 1'));
   click('Connections',memory.querySelector('.qr28')!);
-  await wait(()=>memory.textContent!.includes('3 records and 2 relations loaded.'));
+  await wait(()=>memory.textContent!.includes('3 records and 3 relations loaded.'));
   check('most_connected_records_are_named_by_title',[...memory.querySelectorAll('.qr44 .mem-list button')].map(b=>b.textContent).includes('Synthetic item 3')&&![...memory.querySelectorAll('.qr44 .mem-list button')].some(b=>b.textContent?.startsWith('synthetic-memory')));
   check('graph_reads_every_core_chunk_and_states_semantic_gap',calls.filter(c=>c==='catalog:graph').length>=2&&memory.textContent!.includes('Semantic neighbours are not available yet.'));
+  check('derivation_chain_names_both_records',memory.querySelector('[data-chains]')!.textContent!.includes('Derived from')&&memory.querySelector('[data-chains]')!.querySelectorAll('button').length===2);
   check('shared_word_suggestions_name_terms_and_stay_suggestions',memory.textContent!.includes('Shared-word suggestions')&&memory.textContent!.includes('shared: alps, hiking · score 0.42')&&memory.textContent!.includes('not a recorded or semantic relation'));
   click('Synthetic item 1',memory);
   await wait(()=>memory.textContent!.includes('1 connected records'));
@@ -131,6 +132,12 @@ try{
   click('Synthetic item 1',memory);
   await wait(()=>memory.textContent!.includes('Catalog record detail'));
   check('review_suggestion_opens_its_record',true);
+  click("Don't remind me",memory);
+  await wait(()=>memory.textContent!.includes('Show postponed suggestions'));
+  check('dont_remind_hides_locally_without_a_write',!calls.some(c=>c.startsWith('catalog:plan'))&&!memory.querySelector('[aria-label="Worth a look"] ol li'));
+  click('Show postponed suggestions',memory);
+  await wait(()=>[...memory.querySelectorAll('button')].some(b=>b.textContent==='Show again'));
+  click('Show again',memory);
   click('Recall',memory.querySelector('.qr28')!);
   await wait(()=>!!memory.querySelector('.qr44 form input'));
   const cue=memory.querySelector<HTMLInputElement>('.qr44 form input')!;
