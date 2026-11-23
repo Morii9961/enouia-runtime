@@ -2327,5 +2327,9 @@ const dict: Record<string, string> = {
   "Captured sources are material, not records. A day with no material shows a dot, not a zero claim about what happened.": "捕获的来源是材料，不是记录。没有材料的日子显示一个点，不表示那天什么也没发生。",
   "Showing records on {day}.": "正在显示 {day} 的记录。",
   "Show the whole month": "显示整个月",
+  "The chosen record and the records it is connected to. Every record is drawn the same size; each line names its relation.": "选中的记录和与它相连的记录。每条记录画得一样大，每条线写明关系。",
+  "{n} connected records around {title}": "{title} 周围相连的 {n} 条记录",
+  "suggestion": "建议",
+  "The figure shows {shown} of {total} connected records; the list below has the rest.": "图中显示 {total} 条相连记录中的 {shown} 条，其余在下面的列表里。",
 };
 export default dict;

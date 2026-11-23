@@ -96,3 +96,13 @@
 .mem-coverage{border-collapse:collapse;font-size:12px}
 .mem-coverage th,.mem-coverage td{padding:2px 4px;text-align:center;border-bottom:1px solid var(--hairline)}
 .mem-coverage tbody th{text-align:left;white-space:nowrap;color:var(--tertiary);font-weight:600}
+/* R5 constellation */
+.mem-constellation{display:block;max-width:100%;height:auto;color:var(--ink)}
+.mem-constellation-node rect{fill:var(--paper);stroke:currentColor;stroke-width:1.5}
+.mem-constellation-node text{fill:currentColor;font-size:12px}
+.mem-constellation-node.is-center rect{fill:var(--ink)}
+.mem-constellation-node.is-center text{fill:var(--paper)}
+.mem-constellation-node[role=button]{cursor:pointer}
+.mem-constellation-node[role=button]:focus-visible rect{stroke-width:3}
+.mem-constellation-word{fill:var(--tertiary);font-size:10px;paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
+.mem-constellation-legend{display:flex;flex-wrap:wrap;gap:12px;list-style:none;padding:0;margin:0;font-size:12px}

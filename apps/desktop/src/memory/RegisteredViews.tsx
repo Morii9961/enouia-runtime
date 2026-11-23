@@ -7,6 +7,7 @@ import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogVie
   type CatalogSource, type CatalogStats, type ConversationDetail, type Conversations, type GraphPage, type Neighbors, type TimeBuckets } from "./catalog";
 import { CatalogDetailPanel } from "./CatalogMemory";
 import { ConflictCompare } from "./Compare";
+import { RegisteredConstellation } from "./Constellation";
 import { ConnectorStatus } from "./Connector";
 import { analystText, recordTimeText, word } from "./catalogWords";
 import { useLatestRead } from "./hooks";
@@ -179,6 +180,7 @@ function ConnectionsView() {
       <h2 className="qr29">{t("Connections")}</h2>
       <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Read again")}</button>
       {reads.busy && <p role="status">{t("Reading the relation graph…")}</p>}
+      {selected && neighbors && <RegisteredConstellation key={selected} center={{ id: selected, title: selectedTitle ?? selected }} neighbors={neighbors} pick={pick} />}
       <ErrorBox error={reads.error} />
       {graph && <>
         <Observed at={graph.first.header.authorized_at} />

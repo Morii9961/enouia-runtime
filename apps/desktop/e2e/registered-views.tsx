@@ -107,6 +107,8 @@ try{
   check('shared_word_suggestions_name_terms_and_stay_suggestions',memory.textContent!.includes('Shared-word suggestions')&&memory.textContent!.includes('shared: alps, hiking · score 0.42')&&memory.textContent!.includes('not a recorded or semantic relation'));
   click('Synthetic item 1',memory);
   await wait(()=>memory.textContent!.includes('1 connected records'));
+  await wait(()=>!!memory.querySelector('[data-constellation] svg'));
+  check('constellation_draws_neighbourhood_with_named_lines',memory.querySelectorAll('[data-constellation] .mem-constellation-node').length===2&&memory.querySelector('[data-constellation] [data-relation=same_conversation] text')!.textContent!.includes('Same conversation'));
   check('neighbors_name_recorded_relation',memory.textContent!.includes('Same conversation · Recorded relation'));
   click('Formation',memory.querySelector('.qr28')!);
   await wait(()=>memory.textContent!.includes('1 of 1 events shown'));
