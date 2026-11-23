@@ -1,5 +1,14 @@
 # Runtime 交付路线与问题清单（2026-11-16）
 
+**当前状态（2026-11-24）**：R4、R5 已全部合并，Runtime main `528264d`，Memory pin `ca76892`。验收候选为 [`839e34d`](../validation/R5-candidate-839e34d-2026-11-23.md)，已升级安装到本机。真实库仍只读（CURRENT 440），没有登记任何授权。Runtime 路线上不需要新授权的工作已经做完，剩下的都在等 Morii：
+
+- 周末一次性验收，以及 D1 星图帧率、D2 Capsule 开关：见[周末一页](R5_MORII_DECISIONS_2026-11-23.md)。
+- 外壳：托盘、热键、登录启动、卸载由 Morii 亲手做。
+- ChatGPT 接主库：Morii 已同意先用 Cloudflare 临时隧道直连主库，允许读取来源原文，授权到期日 2026-12-31。Memory #157 已把服务和私有操作单准备好，接通时间待 Morii 定。
+- B3 语义近邻：Morii 定为先不做。
+
+Memory 之后的 pin（如 `1933746`）不改 surface 和命令时，不需要机械跟进。
+
 本文件是当前接续入口（R4 最新状态见下文“R4：原有界面接入真实库”一节，最终验收见 [R4 一次性验收指南](../RUNTIME_R4_ACCEPTANCE_2026-11-19.md)），取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 
 2026-11-18，Memory 完成 351 条真实形成、重开与来源核验，并通过主人选择的同盘备份验证、隔离恢复与幂等重跑。Runtime 已从 `1267268` 构建[本地 R3 候选](../validation/R3-morii-readonly-candidate-1267268-2026-11-18.md)，生成 NSIS 模板 26/26、候选程序合成 WebView2 24/24 通过。Memory 交付会话以原登记的 Windows 账户完成[真实库本机代理实测](../validation/R3-morii-readonly-candidate-1267268-2026-11-18.md#真实登记库的本机代理实测)：打开、检索、引文、锁定与同根重开通过；桌面显示的是当前授权范围（259 条）。接续[Morii 人工验收](../RUNTIME_MORII_READONLY_ACCEPTANCE_2026-11-17.md)，独立介质故障恢复另待验证。下文的早期候选状态保留原时点。
