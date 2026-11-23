@@ -173,6 +173,7 @@ function ConnectionsView() {
   const lexical = useMemo(() => (graph?.edges ?? []).filter(e => e.relation === "lexical_neighbor").sort((a, b) => (b.score_milli ?? 0) - (a.score_milli ?? 0)), [graph]);
   const terms = (witness: string) => witness.startsWith("shared_terms:") ? witness.slice("shared_terms:".length).split(",").map(s => s.trim()).filter(Boolean).join(", ") : witness;
   const score = (e: { score_milli: number | null }) => e.score_milli == null ? "—" : (e.score_milli / 1000).toFixed(2);
+  const chains = useMemo(() => (graph?.edges ?? []).filter(e => e.relation === "derived_from" || e.relation === "reversion"), [graph]);
   const lexicalOf = selected ? lexical.filter(e => e.from === selected || e.to === selected) : [];
   const ranked = [...degree].sort((a, b) => b[1] - a[1]).slice(0, 40);
   const selectedTitle = selected ? title.get(selected) ?? selected : null;
@@ -197,6 +198,15 @@ function ConnectionsView() {
             <button type="button" className="mem-link" onClick={() => pick(e.from)}>{title.get(e.from) ?? e.from}</button> ↔ <button type="button" className="mem-link" onClick={() => pick(e.to)}>{title.get(e.to) ?? e.to}</button>
             <span className="mem-row-meta mem-content"> · {t("shared: {terms} · score {score}", { terms: terms(e.witness), score: score(e) })}</span></li>)}</ul>
         </section>}
+        <section className="mem-stack" aria-label={t("Derivation and reversion chains")} data-chains>
+          <h3>{t("Derivation and reversion chains")}</h3>
+          {chains.length === 0 ? <p className="mem-row-meta">{t("No record in this library is derived from or reverts to another yet. Themes and corrections will show here once they exist.")}</p> :
+            <ul className="mem-list">{chains.map(e => <li key={`${e.relation}|${e.from}|${e.to}`}>
+              <button type="button" className="mem-link" onClick={() => pick(e.from)}>{title.get(e.from) ?? e.from}</button>
+              <span className="mem-row-meta"> {e.relation === "reversion" ? "↺" : "←"} {word(e.relation)} {e.relation === "reversion" ? "↺" : "←"} </span>
+              <button type="button" className="mem-link" onClick={() => pick(e.to)}>{title.get(e.to) ?? e.to}</button>
+            </li>)}</ul>}
+        </section>
         {ranked.length === 0 ? <p className="mem-content">{t("No relations between the loaded records.")}</p> : <>
           <h3>{t("Most connected records")}</h3>
           <ul className="mem-list">{ranked.map(([id, n]) => <li key={id}><button type="button" className="mem-link" aria-pressed={selected === id} onClick={() => pick(id)}>{title.get(id) ?? id}</button><span className="mem-row-meta"> · {t("{n} relations", { n })}</span></li>)}</ul>
@@ -282,6 +292,14 @@ function FormationView() {
 const HORIZONS = [7, 14, 30, 90];
 const REASONS: Record<string, string> = { archives_soon: msg("Archived soon"), validity_ends_soon: msg("Validity ends soon") };
 const TRANSITIONS: Record<string, string> = { fading: msg("Starts fading"), archived: msg("Archived") };
+// R5 A10: "remind me later" / "don't remind me" are marks on this computer only,
+// keyed by record revision; the library is not changed. A newer revision of the
+// record is a new suggestion.
+const MARKS_KEY = "enouia.review-marks.v1";
+type Marks = Record<string, number | null>;
+const readMarks = (): Marks => { try { return JSON.parse(localStorage.getItem(MARKS_KEY) ?? "{}") as Marks; } catch { return {}; } };
+const writeMarks = (marks: Marks) => { try { localStorage.setItem(MARKS_KEY, JSON.stringify(marks)); } catch { /* marks are a convenience */ } };
+const markKey = (m: TargetRef) => `${m.memory.memory_id}:${m.memory.revision}`;
 export function RegisteredReview() {
   return <Open title={t("Worth a look")}>{() => <ReviewView />}</Open>;
 }
@@ -290,6 +308,14 @@ function ReviewView() {
   const [review, setReview] = useState<ReviewSuggestions | null>(null);
   const [schedule, setSchedule] = useState<AttentionSchedule[]>([]);
   const [selected, setSelected] = useState<{ id: string; selection: CatalogSelection } | null>(null);
+  const [marks, setMarks] = useState<Marks>(readMarks);
+  const [showHidden, setShowHidden] = useState(false);
+  const mark = (m: TargetRef, until: number | null | undefined) => setMarks(old => {
+    const next = { ...old };
+    if (until === undefined) delete next[markKey(m)]; else next[markKey(m)] = until;
+    writeMarks(next); return next;
+  });
+  const hidden = (m: TargetRef) => { const v = marks[markKey(m)]; return v === null || (typeof v === "number" && v > Date.now()); };
   const reads = useLatestRead(), plans = useLatestRead();
   const load = useCallback(() => reads.run(() => catalogView({ operation: "review_suggestions", filter: CATALOG_FILTER, query: { horizon_days: horizon }, limit: 50 }), setReview), [horizon, reads.run]);
   const more = useCallback((cursor: unknown | null) => plans.run(() => {
@@ -313,10 +339,16 @@ function ReviewView() {
       {review && <>
         <Observed at={review.header.authorized_at} />
         <p className="mem-content">{t("{shown} of {total} records worth a look in the next {n} days.", { shown: review.items.length, total: review.total_in_horizon, n: horizon })}</p>
-        <ol className="mem-list">{review.items.map(item => <li key={item.memory.memory.memory_id}>
+        <ol className="mem-list">{review.items.filter(item => showHidden || !hidden(item.memory)).map(item => <li key={item.memory.memory.memory_id}>
           <button type="button" className="mem-link" aria-pressed={selected?.id === item.memory.memory.memory_id} onClick={() => pick(item.memory, review.header.selection)}>{item.title}</button>
           <span className="mem-row-meta"> · {day(item.due)} · {item.reasons.map(r => t(REASONS[r] ?? r)).join(" / ")} · {word(item.attention)}</span>
+          <span className="mem-actions">{hidden(item.memory)
+            ? <button type="button" className="mem-link" onClick={() => mark(item.memory, undefined)}>{t("Show again")}</button>
+            : <><button type="button" className="mem-link" onClick={() => mark(item.memory, Date.now() + 7 * 86_400_000)}>{t("Remind me in a week")}</button>
+              <button type="button" className="mem-link" onClick={() => mark(item.memory, null)}>{t("Don't remind me")}</button></>}</span>
         </li>)}</ol>
+        {review.items.some(item => hidden(item.memory)) && <button type="button" className="mem-link" aria-expanded={showHidden} onClick={() => setShowHidden(!showHidden)}>{t(showHidden ? "Hide postponed suggestions" : "Show postponed suggestions")}</button>}
+        <p className="mem-row-meta">{t("Postponing only hides a suggestion on this computer; the record and the library do not change.")}</p>
       </>}
       <section className="mem-stack" aria-label={t("Attention schedule")}>
         <h3>{t("Attention schedule")}</h3>

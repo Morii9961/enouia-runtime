@@ -2380,5 +2380,14 @@ const dict: Record<string, string> = {
   "On": "开",
   "Inferred by ChatGPT · {model}": "ChatGPT 推断 · {model}",
   "Inferred by ChatGPT": "ChatGPT 推断",
+  "Learned date not recorded": "没有记录学到日期",
+  "Derivation and reversion chains": "派生与回退链",
+  "No record in this library is derived from or reverts to another yet. Themes and corrections will show here once they exist.": "这个库里还没有派生自或回退到其他记录的记录。有了主题和纠正后会显示在这里。",
+  "Show again": "重新显示",
+  "Remind me in a week": "一周后再显示",
+  "Don't remind me": "不再显示",
+  "Hide postponed suggestions": "收起被隐藏的建议",
+  "Show postponed suggestions": "显示被隐藏的建议",
+  "Postponing only hides a suggestion on this computer; the record and the library do not change.": "隐藏只在这台电脑上生效，记录和库都不变。",
 };
 export default dict;

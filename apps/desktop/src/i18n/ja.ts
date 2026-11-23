@@ -2380,5 +2380,14 @@ const dict: Record<string, string> = {
   "On": "オン",
   "Inferred by ChatGPT · {model}": "ChatGPT の推論 · {model}",
   "Inferred by ChatGPT": "ChatGPT の推論",
+  "Learned date not recorded": "学んだ日は記録されていません",
+  "Derivation and reversion chains": "派生と元に戻した記録の連なり",
+  "No record in this library is derived from or reverts to another yet. Themes and corrections will show here once they exist.": "このライブラリには、ほかの記録から派生したり元に戻したりした記録はまだありません。主題や訂正ができるとここに表示されます。",
+  "Show again": "もう一度表示",
+  "Remind me in a week": "一週間後にもう一度表示",
+  "Don't remind me": "もう表示しない",
+  "Hide postponed suggestions": "隠した提案をたたむ",
+  "Show postponed suggestions": "隠した提案を表示",
+  "Postponing only hides a suggestion on this computer; the record and the library do not change.": "隠すのはこのコンピュータの中だけで、記録とライブラリは変わりません。",
 };
 export default dict;

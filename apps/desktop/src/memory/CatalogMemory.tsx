@@ -114,12 +114,14 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
           <p className="mem-content">{t("Counts cover currently authorized machine revisions for this selection.")}</p>
           <p className="mem-content">{t("{unknown} records have unknown event dates in this filter scope.", { unknown: page.unknown_time_in_scope })}</p>
           <p className="mem-content">{t("State observed at {time}", { time: page.authorized_at })}</p>
-          <ul className="mem-list">{page.items.map(item => <li key={`${item.base.memory.memory_id}:${item.base.memory.revision}`}>
+          {dayGroups(page.items).map(([day, items]) => <section key={day ?? "unknown"} className="mem-day-group" aria-label={day ? dayText(day) : t("Learned date not recorded")}>
+          <h3 className="mem-day">{day ? dayText(day) : t("Learned date not recorded")}</h3>
+          <ul className="mem-list">{items.map(item => <li key={`${item.base.memory.memory_id}:${item.base.memory.revision}`}>
             <h3 className="mem-content"><button type="button" className="mem-link" aria-pressed={selectedId === item.base.memory.memory_id} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={() => setSelectedId(item.base.memory.memory_id)}>{item.title}</button></h3><p className="mem-content">{item.base.content}</p>
             <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: word(item.base.dimensions.kind), knowledge: word(item.base.knowledge), adoption: word(item.base.adoption), validity: word(item.base.validity), attention: word(item.base.attention) })}</p>
             <p className="mem-row-meta">{shortId(item.base.memory.memory_id)} · r{item.base.memory.revision} · {item.content_lang}</p>
             {item.event_time && <p className="mem-row-meta">{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{item.effective_sensitivity ? ` · ${word(item.effective_sensitivity)}` : ""}{analystText(item.formation_reason) ? ` · ${analystText(item.formation_reason)}` : ""}</p>}
-          </li>)}</ul>
+          </li>)}</ul></section>)}
           {page.items.length === 0 && !page.next && <p className="mem-content">{t(filter.text ? "No authorized record matches this search. Search with an empty field to see the whole catalog." : owner ? "This registered catalog has no records in the current authorized scope." : "This synthetic catalog has no records in the current authorized scope.")}</p>}
           {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void load(page.next)}>{t("Next catalog page")}</button>}
         </>}
@@ -136,6 +138,18 @@ function FacetNote({ groups }: { groups: FacetGroup[] }) {
   return <p className="mem-row-meta">{t(truncated ? "Counts follow the other active filters. Some lists show only their first values." : "Counts follow the other active filters.")}</p>;
 }
 
+/** R5 A11: consecutive records learned on the same local day share one divider. */
+function dayGroups(items: CatalogPage["items"]): [string | null, CatalogPage["items"]][] {
+  const groups: [string | null, CatalogPage["items"]][] = [];
+  for (const item of items) {
+    const at = item.base.learned_at;
+    const day = at ? new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(at)) : null;
+    const last = groups.at(-1);
+    if (last && last[0] === day) last[1].push(item); else groups.push([day, [item]]);
+  }
+  return groups;
+}
+const dayText = (day: string) => recordTimeText({ from: `${day}T00:00:00+08:00`, until: null, precision: "day", bound: "within", tz: null, basis: "source_time" });
 const minute = (at: string) => recordTimeText({ from: at, until: null, precision: "minute", bound: "within", tz: null, basis: "source_time" });
 
 export function CatalogDetailPanel({ memoryId, filter, selection, read, entities, corrections = false }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead; entities: FacetGroup["values"]; corrections?: boolean }) {
