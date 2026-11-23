@@ -88,3 +88,8 @@
 .mem-time-cell[aria-pressed="true"]{outline:2px solid var(--primary);outline-offset:1px}
 .mem-time-empty{display:inline-block;width:30px;text-align:center;color:var(--tertiary)}
 .mem-rendered{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:420px;overflow:auto;border:1px solid var(--hairline);padding:10px;margin:6px 0 0}
+
+/* R5 side-by-side comparisons */
+.mem-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.mem-compare mark,.mem-table mark{background:var(--ink-3, currentColor);color:var(--paper, inherit);padding:0 1px}
+@media (max-width:900px){.mem-compare{grid-template-columns:1fr}}

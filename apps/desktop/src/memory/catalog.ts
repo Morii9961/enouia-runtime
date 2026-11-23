@@ -75,24 +75,27 @@ type ViewQueries = {
   theme_members: { filter: CatalogFilter; theme: string; cursor: unknown | null; limit: number };
   attention_schedule: { filter: CatalogFilter; query: { from: string; until: string }; cursor: unknown | null; limit: number };
   review_suggestions: { filter: CatalogFilter; query: { horizon_days: number }; limit: number };
+  revision_diff: { filter: CatalogFilter; memory_id: string; before: number; after: number };
 };
+export type RevisionDiff = { kind: "memory_revision_diff"; header: ViewHeader; before: TargetRef | null; after: TargetRef | null;
+  fields: { field: string; before: unknown; after: unknown }[]; structural_only: boolean };
 // Memory ADR-MEM-164: derived from capture time and the attention profile; nothing is recorded.
 export type AttentionSchedule = { kind: "memory_attention_schedule"; header: ViewHeader; fade_after_days: number; archive_after_days: number; protected_in_scope: number;
   events: { memory: TargetRef; title: string; transition: "fading" | "archived"; at: string; past: boolean }[]; next: unknown | null };
 export type ReviewSuggestions = { kind: "memory_review_suggestions"; header: ViewHeader; total_in_horizon: number;
   items: { memory: TargetRef; title: string; attention: string; due: string; reasons: ("archives_soon" | "validity_ends_soon")[]; archives_at: string | null; valid_until: string | null }[] };
 type ViewResults = { time_buckets: TimeBuckets; graph: GraphPage; activity: ActivityPage; neighbors: Neighbors; conflicts: Conflicts;
-  conversations: Conversations; conversation_detail: ConversationDetail; theme_members: ThemeMembers; attention_schedule: AttentionSchedule; review_suggestions: ReviewSuggestions };
+  conversations: Conversations; conversation_detail: ConversationDetail; theme_members: ThemeMembers; attention_schedule: AttentionSchedule; review_suggestions: ReviewSuggestions; revision_diff: RevisionDiff };
 const VIEW_KIND: Record<keyof ViewQueries, string> = { time_buckets: "memory_time_buckets", graph: "memory_graph_page", activity: "memory_activity_page",
   neighbors: "native_memory_neighbors", conflicts: "memory_conflict_group", conversations: "native_conversation_page", conversation_detail: "native_conversation_detail", theme_members: "memory_theme_members",
-  attention_schedule: "memory_attention_schedule", review_suggestions: "memory_review_suggestions" };
+  attention_schedule: "memory_attention_schedule", review_suggestions: "memory_review_suggestions", revision_diff: "memory_revision_diff" };
 /** One boundary check per projection read: envelope, kind and a typed selection. */
 export async function catalogView<K extends keyof ViewQueries>(query: { operation: K } & ViewQueries[K]): Promise<ViewResults[K]> {
   const value = await transport("memory_catalog", { request: { schema_version: 2, capability: "memory-native-read-2", query: structuredClone(query) } }) as J;
   if (!value || value.schema_version !== 2 || value.capability !== "memory-native-read-2" || value.effect !== "native_read" ||
       value.kind !== VIEW_KIND[query.operation] || typeof value.header?.authorized_at !== "string" || typeof value.header?.scope !== "string") throw "catalog_response_unsupported";
   selection(value.header.selection);
-  const lists = { time_buckets: "buckets", graph: "nodes", activity: "items", neighbors: "items", conflicts: "items", conversations: "items", conversation_detail: "turns", theme_members: "items", attention_schedule: "events", review_suggestions: "items" } as const;
+  const lists = { time_buckets: "buckets", graph: "nodes", activity: "items", neighbors: "items", conflicts: "items", conversations: "items", conversation_detail: "turns", theme_members: "items", attention_schedule: "events", review_suggestions: "items", revision_diff: "fields" } as const;
   if (!Array.isArray(value[lists[query.operation]])) throw "catalog_response_unsupported";
   return value as ViewResults[K];
 }

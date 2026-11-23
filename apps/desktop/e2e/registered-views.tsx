@@ -31,7 +31,10 @@ setCatalogTransport(async(_command,args)=>{
   if(state!=='open')throw 'catalog_locked';
   if(q.operation==='page'){const p:any=page(q.filter.text,q.cursor);p.items=p.items.slice(0,q.filter.time_window?1:q.limit);return p;}
   if(q.operation==='stats')return {...stats(q.selection,3),groups:[{axis:'adoption',count_scope:'matched',values:[{value:'adopted',label:'adopted',count:2},{value:'staged',label:'staged',count:1}],total_values:2}]};
-  if(q.operation==='detail')return detail(q.memory_id);
+  if(q.operation==='detail'){const d:any=detail(q.memory_id);if(q.memory_id==='synthetic-memory-1'&&d.item){d.item.base.memory.revision=2;
+    d.history=[1,2].map(r=>({memory:{memory:{memory_id:q.memory_id,revision:r},hash:'e'.repeat(64)},title:'t',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:r===1?'initial':'correction',learned_at:'2026-11-03T00:00:00.000Z',effective_sensitivity:'private'}));d.history_count_in_scope=2;}return d;}
+  if(q.operation==='revision_diff')return {...envelope,kind:'memory_revision_diff',header,before:{memory:{memory_id:q.memory_id,revision:q.before},hash:'e'.repeat(64)},after:{memory:{memory_id:q.memory_id,revision:q.after},hash:'e'.repeat(64)},
+    fields:[{field:'content',before:'I made a blue pottery cup.',after:'I made a green pottery cup.'}],structural_only:true};
   if(q.operation==='source')return source(q.start,q.limit);
   if(q.operation==='time_buckets')return {...envelope,kind:'memory_time_buckets',header,query:q.query,interval_rule:'possible',material_scope:'authorized',unknown_time_in_scope:2,
     buckets:[{local_start:'2026-02-01',from:'2026-01-31T16:00:00Z',until:'2026-02-28T16:00:00Z',possible_records:0,staged:0,adopted:0,captured_material:0},
@@ -47,7 +50,8 @@ setCatalogTransport(async(_command,args)=>{
     events:[{memory:node(3).memory,title:'Synthetic item 3',transition:'fading',at:'2026-12-10T00:00:00Z',past:false}],next:null};
   if(q.operation==='activity')return {...envelope,kind:'memory_activity_page',header,matched_in_scope:1,complete_in_scope:true,next:null,time_derived_events_available:false,
     items:[{event_id:'a'.repeat(64),event_kind:'formation',memory:{memory_id:'synthetic-memory-1',revision:1},source:null,title:'Synthetic item 1',change:'new',knowledge:'attributed_statement',adoption:'adopted',effective_sensitivity:'private',formation_reason:null,proof:{commit_id:'c',commit_hash:'d'.repeat(64),actor:{actor_type:'system'},written_at:'2026-11-03T00:00:00Z'},receipt:null}]};
-  if(q.operation==='conflicts')return {...envelope,kind:'memory_conflict_group',header,selected:null,basis:'qualified',counter_evidence:[],matched_in_scope:0,items:[],next:null};
+  if(q.operation==='conflicts'){const pair=[1,2].map(n=>{const d:any=detail(`synthetic-memory-${n}`);return d.item;}).filter(Boolean);
+    return {...envelope,kind:'memory_conflict_group',header,selected:null,basis:'qualified',counter_evidence:[],matched_in_scope:pair.length,items:pair,next:null};}
   if(q.operation==='conversations')return {...envelope,kind:'native_conversation_page',header,matched_in_scope:4,next:null,
     items:[{conversation:{conversation_id:'ses_synthetic',platform:'synthetic',account_scope:'chatgpt-connector-synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},visible_captured_turns:1,visible_captured_sources:1,effective_sensitivity:'private',platform_complete_not_claimed:true}]};
   if(q.operation==='conversation_detail')return {...envelope,kind:'native_conversation_detail',header,conversation:{conversation_id:'ses_synthetic',platform:'synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},
@@ -98,8 +102,14 @@ try{
   click('Formation',memory.querySelector('.qr28')!);
   await wait(()=>memory.textContent!.includes('1 of 1 events shown'));
   click('Synthetic item 1',memory);
-  await wait(()=>memory.textContent!.includes('No contradicting record is held.'));
+  await wait(()=>!!memory.querySelector('[data-conflict-compare]'));
   check('formation_event_opens_detail_and_conflict_group',memory.textContent!.includes('Catalog record detail')&&memory.textContent!.includes('Fading and archiving by time are not recorded as events yet.'));
+  await wait(()=>!!memory.querySelector('[data-revision-diff] mark')&&!!memory.querySelector('[data-conflict-compare]'));
+  check('revision_diff_marks_literal_change_side_by_side',calls.includes('catalog:revision_diff')&&[...memory.querySelectorAll('[data-revision-diff] mark')].map(m=>m.textContent).join('|')==='blue|green');
+  check('conflict_pair_shown_side_by_side_without_resolution',memory.querySelector('[data-conflict-compare]')!.textContent!.includes('Statement A')&&memory.querySelector('[data-conflict-compare]')!.textContent!.includes('Statement B')&&!memory.textContent!.includes('Resolve'));
+  click('Held hypotheses',memory);
+  await wait(()=>memory.textContent!.includes('held hypotheses shown'));
+  check('held_hypotheses_read_by_knowledge_filter',memory.textContent!.includes('Keeping one is not confirming it.'));
   click('Worth a look',memory.querySelector('.qr28')!);
   await wait(()=>memory.textContent!.includes('1 of 1 records worth a look in the next 30 days.')&&memory.textContent!.includes('Starts fading'));
   check('review_suggestions_are_time_based_and_derived',memory.textContent!.includes('Archived soon')&&memory.textContent!.includes('They say nothing about whether a record is right')&&

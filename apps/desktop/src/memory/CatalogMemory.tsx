@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection, type FacetGroup } from "./catalog";
 import { analystText, recordTimeText, word } from "./catalogWords";
 import { CorrectionPanel } from "./CorrectionPanel";
+import { RevisionCompare } from "./Compare";
 
 // Filter axes the registered catalog offers; Core returns each axis's values
 // and counts under the other active filters (FacetCountScope::OtherFilters).
@@ -175,6 +176,7 @@ export function CatalogDetailPanel({ memoryId, filter, selection, read, entities
         <ol className="mem-list">{detail.history.map(h => <li key={h.memory.memory.revision} className="mem-row-meta">r{h.memory.memory.revision} · {word(h.change)} · {word(h.adoption)} · {minute(h.learned_at)}</li>)}</ol>
         {(detail.history_count_in_scope ?? 0) > detail.history.length && <p className="mem-row-meta">{t("{shown} of {total} revisions shown.", { shown: detail.history.length, total: detail.history_count_in_scope ?? 0 })}</p>}
       </section>}
+      {detail.history && detail.history.length > 1 && <RevisionCompare key={detail.item.base.memory.memory_id} memoryId={detail.item.base.memory.memory_id} revisions={detail.history.map(h => h.memory.memory.revision)} />}
       {corrections && <CorrectionPanel key={`${detail.item.base.memory.memory_id}:${detail.item.base.memory.revision}`} detail={detail} entities={entities} />}
       <p>{t("Quoted text evidence; attachment content is not read.")}</p>
       <ul className="mem-list">{detail.fields.evidence.map((evidence, index) => <li key={index}>
