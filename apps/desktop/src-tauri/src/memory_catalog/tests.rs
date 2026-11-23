@@ -1949,3 +1949,60 @@ fn entity_identity_groups_and_a_confirmed_decision() {
     assert_eq!(first["opted_out"], true, "{separated}");
     native.shutdown();
 }
+
+#[test]
+fn concurrent_agent_sessions_all_connect() {
+    use enouia_memory_contract::workspace::HostSurface;
+    use enouia_memory_host::{
+        mcp::agent::native::Client,
+        windows::{Pipe, ProcessPeer},
+    };
+    let native = NativeCatalog::default();
+    native
+        .initialize_with(|stop| {
+            fixture::create_with_clock(stop, Arc::new(enouia_memory_vault::SystemClock), true)
+        })
+        .unwrap();
+    let plan = native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_plan","agent":"claude_code","action":"register"})),
+        )
+        .unwrap();
+    let status = native
+        .call(
+            "main",
+            &packet(json!({"operation":"agent_commit","plan_id":plan["plan_id"]})),
+        )
+        .unwrap();
+    let pipe: enouia_memory_contract::hash::Sha256Hex =
+        serde_json::from_value(status["agents"][0]["pipe"].clone()).unwrap();
+    let vault: enouia_memory_contract::ids::VaultId =
+        serde_json::from_value(status["vault_id"].clone()).unwrap();
+    let mut failures = Vec::new();
+    for round in 0..5 {
+        let results: Vec<String> = std::thread::scope(|s| {
+            let handles: Vec<_> = (0..2).map(|_| s.spawn(|| {
+                let p = Pipe::connect(&pipe).map_err(|e| format!("connect {e:?}"))?;
+                let host = ProcessPeer::enroll(std::process::id(), HostSurface::QuickSearch).map_err(|e| format!("peer {e:?}"))?;
+                let mut c = Client::connect(p, host, &vault, std::time::Duration::from_secs(10)).map_err(|e| format!("client {e:?}"))?;
+                c.exchange(&json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"s","version":"1"}}})).map_err(|e| format!("exchange {e:?}"))?;
+                Ok::<_, String>(())
+            })).collect();
+            handles
+                .into_iter()
+                .map(|h| match h.join().unwrap() {
+                    Ok(()) => "ok".into(),
+                    Err(e) => e,
+                })
+                .collect()
+        });
+        for r in results {
+            if r != "ok" {
+                failures.push(format!("round {round}: {r}"));
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{failures:?}");
+    native.shutdown();
+}
