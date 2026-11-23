@@ -1,6 +1,6 @@
 @AGENTS.md
 
-当前接续入口（2026-11-16）：先读[Runtime交付路线](docs/integration/RUNTIME_ROADMAP_2026-11-16.md)与[新会话提示词](docs/prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)。项目仍处于端到端集成，旧草稿链已合并；下一片是覆盖Memory ADR146的兼容采用，正式Morii入口范围及真实库验收仍独立。当前pin为eb70509，旧候选5175284未更新。Memory负责新库形成和独立恢复，Runtime不重做fresh驱动。
+当前接续入口（2026-11-24）：先读[Runtime交付路线](docs/integration/RUNTIME_ROADMAP_2026-11-16.md)顶部的“当前状态”。R4/R5已合并，pin为ca76892，验收候选为839e34d（已装到本机），剩下的是Morii的周末验收、[周末一页](docs/integration/R5_MORII_DECISIONS_2026-11-23.md)中的决定，以及待约时间的ChatGPT接主库。Memory领域工作在Memory仓库进行，Runtime只负责升级pin和改界面。
 
 [状态报告](docs/status/PROJECT_STATUS.md)及[Dashboard JSON](docs/status/project-status.json)仅为手动快照；历史验证和验收边界见[旧接续记录](docs/integration/RUNTIME_CONTINUATION_2026-11-12.md)。授权内Runtime切片验证后可直接合并；个人库、Provider、安装/部署及待定产品决策的边界保留。
 
