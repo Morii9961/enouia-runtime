@@ -25,7 +25,7 @@ Memory 已经提供数据，只差 Runtime 的界面。每片做完都要过合�
 | # | 需要 | 原因 |
 | --- | --- | --- |
 | B1 | 登记库上保存召回预览为 Capsule，并列出已保存的 Capsule | Context 表面的完整 Capsule 索引和召回实验的“保存”都需要 Morii 原生写入路径；目前只有不写入的预览 |
-| B2 | 主题形成（theme 记录） | 真实库 0 条主题，主题泳道和主题成员没有数据；需要 Memory 的综合形成在真实库上运行 |
+| B2 | 主题形成（theme 记录） | 已定：ChatGPT 经连接器提交主题（ADR-MEM-174），连接器部署后才有数据 |
 | B3 | 关系图里的语义近邻（模型或向量） | 现在只有共同词语建议；语义近邻需要另行授权的模型步骤 |
 
 ## 第三类：需要 Morii 决定（周末一并交给 Morii）
@@ -41,3 +41,4 @@ Memory 已经提供数据，只差 Runtime 的界面。每片做完都要过合�
 - A6（星座）：[验证](../validation/R5-constellation-2026-11-23.md)。
 - 人物与地点（Memory ADR-MEM-171/172 的确认界面）：[验证](../validation/R5-entity-identity-2026-11-23.md)。
 - B1 Capsule（默认关闭）：[验证](../validation/R5-capsules-2026-11-23.md)。B2 主题形成：Memory 说需先由 Morii 定设计，已列入周末待定；B3 仍在队列。
+- B2 主题：Morii 选 ChatGPT 提交（Memory ADR-MEM-174），Runtime 只做“ChatGPT 推断”标注：[验证](../validation/R5-chatgpt-themes-2026-11-23.md)。

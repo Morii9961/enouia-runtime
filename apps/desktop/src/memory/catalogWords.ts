@@ -24,7 +24,11 @@ const WORDS: Record<string, string> = labels({
 export const word = (value: string | null | undefined): string => value == null ? "—" : WORDS[value] ?? value;
 /** Memory ADR-MEM-157: memories ChatGPT distilled through the connector carry this prompt version. */
 export const CHATGPT_PROMPT = "chatgpt-connector-authored-1";
+/** Memory ADR-MEM-174: themes ChatGPT synthesized across daily memories (an inference). */
+export const CHATGPT_THEME_PROMPT = "chatgpt-connector-theme-1";
 export function analystText(reason: { prompt_version: string; model_version: string | null } | undefined | null): string | null {
+  if (reason?.prompt_version === CHATGPT_THEME_PROMPT)
+    return reason.model_version ? t("Inferred by ChatGPT · {model}", { model: reason.model_version }) : t("Inferred by ChatGPT");
   if (reason?.prompt_version !== CHATGPT_PROMPT) return null;
   return reason.model_version ? t("Extracted by ChatGPT · {model}", { model: reason.model_version }) : t("Extracted by ChatGPT");
 }

@@ -2378,5 +2378,7 @@ const dict: Record<string, string> = {
   "Saving Capsules": "Capsule の保存",
   "Off": "オフ",
   "On": "オン",
+  "Inferred by ChatGPT · {model}": "ChatGPT の推論 · {model}",
+  "Inferred by ChatGPT": "ChatGPT の推論",
 };
 export default dict;
