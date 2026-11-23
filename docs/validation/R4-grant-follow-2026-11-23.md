@@ -17,4 +17,4 @@ Morii 选择让本机 Agent 的授权自动跟随新窗口与新来源（上限�
 | clippy、fmt、tsc、i18n 与 CJK 字形子集、`check-memory-integration --memory-checkout <512ad0c>` | 通过 |
 | DOM 夹具全量（`registered-agents`：计划写明自动纳入、跟随的授权不显示“纳入新来源…”与“自动纳入新来源…”）；`npm` 单元测试 | 全部通过；151/151 |
 
-原生 smoke 与真实库只读走查记录在新候选里（见 [候选记录](R4-candidate-follow-2026-11-23.md)）。
+原生 smoke 与真实库只读走查记录在新候选里（见 [候选记录](R4-candidate-4fd0e92-2026-11-23.md)）。
