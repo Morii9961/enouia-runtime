@@ -7,10 +7,10 @@ import { DAY, nativeDate, observedCommit } from '../theme/nativeTime';
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
 type Note = { title: string; line: string; route: { go: () => void }; detail: string; time: string };
-type Props = { nav: J; timeline: MapSpec; now: number; open: boolean; vault: J; reviewLine: string; label: string; phase: string; readonlyEntry?: boolean; readonlyNotes?: Note[] };
+type Props = { nav: J; timeline: MapSpec; now: number; open: boolean; vault: J; reviewLine: string; label: string; phase: string; readonlyEntry?: boolean; readonlyNotes?: Note[]; events?: number[] };
 
 /** The selected Home composition, with only what the current status receipt knows. */
-export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase, readonlyEntry = false, readonlyNotes }: Props) {
+export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase, readonlyEntry = false, readonlyNotes, events }: Props) {
   const view = useTimeView(timeline.key, timeline.init);
   useEffect(() => () => clearViews(timeline.key), [timeline.key]);
   const [start, end] = view.domain;
@@ -18,6 +18,15 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
   const inView = commit != null && commit >= view.start && commit < view.start + view.span;
   const fraction = commit == null ? 0 : (commit - start) / (end - start);
   const layer = { width: `${(end - start) / view.span * 100}%`, transform: `translateX(${-(view.start - start) / (end - start) * 100}%)` };
+  // R5 A9: in the registered entry, one mark per recorded formation event; no
+  // interpolated line between them.
+  const shown = (events ?? []).filter(at => at >= start && at < end);
+  const inWindow = shown.filter(at => at >= view.start && at < view.start + view.span).length;
+  const latest = events?.length ? Math.max(...events) : null;
+  const traceNote = events ? (inWindow === 0 && latest != null
+      ? t("No recorded formation events in these days; the latest was {date}.", { date: nativeDate(latest, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }) })
+      : t("{n} recorded formation events in view · marks only, no drawn line between them", { n: inWindow }))
+    : t(readonlyEntry ? 'Registered library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable');
   const clock = nativeDate(now, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).split(':');
   const notes = readonlyNotes ?? (readonlyEntry ? [
     { title: t('Native memory catalog'), line: reviewLine, route: nav.memory, detail: phase, time: '—' },
@@ -39,18 +48,19 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
       <div className="bg-home-sub"><VaultAdmissionNotice /><span className="bg-recording">{label}{open && vault?.rootName ? ` · ${vault.rootName}` : ''}</span></div>
     </div>
     <div className="bg-home-chart">
-      <div className="bg-paper bg-paper-big" data-by={view.by} data-unavailable={!open || undefined}>
+      <div className="bg-paper bg-paper-big" data-by={view.by} data-unavailable={(!open && !events) || undefined}>
         <div className="bg-pane" style={{ width: '58%' }}>
           <div className="bg-pan bg-pan-grid" style={layer} aria-hidden="true">
             {Array.from({ length: 21 }, (_, i) => <span key={i} className="bg-day" style={{ left: `${i / 21 * 100}%` }}>{nativeDate(start + i * DAY, { month: 'short', day: 'numeric' })}</span>)}
           </div>
-          <div className="bg-draw" role="img" aria-label={t(readonlyEntry ? 'Registered library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}>
+          <div className="bg-draw" role="img" aria-label={traceNote}>
             <div className="bg-pan bg-pan-ink" style={layer}>
+              {shown.map((at, i) => <span key={i} className="bg-mark" data-kind="formation-event" style={{ left: `${(at - start) / (end - start) * 100}%`, top: `${40 + (i % 5) * 8}%` }} />)}
               {commit != null && commit >= start && commit < end ? <span className="bg-mark" data-kind="vault-commit" style={{ left: `${fraction * 100}%`, top: '60%' }} /> : null}
             </div>
           </div>
           <h1 className="qr2 bg-here" lang="en">I'm here.</h1>
-          <p className="bg-native-trace-note">{t(readonlyEntry ? 'Registered library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable')}</p>
+          <p className="bg-native-trace-note">{traceNote}</p>
         </div>
         {inView ? <svg key={view.seq} className="bg-leaders bg-native-leader" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
           <path d={`M${(0.58 * (commit - view.start) / view.span * 1000).toFixed(1)} 600 L587 46 H605`} fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />
@@ -64,7 +74,7 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
       </div>
     </div>
     <div className="bg-home-foot">
-      <div className="qr6 bg-legend"><span className="bg-legend-k">{t('Legend')}</span><span className="bg-legend-key"><i />{open ? t('Last commit') : t('unknown')}</span></div>
+      <div className="qr6 bg-legend"><span className="bg-legend-k">{t('Legend')}</span><span className="bg-legend-key"><i />{open ? t('Last commit') : events ? t('Formation event') : t('unknown')}</span></div>
       <div className="qr15 bg-margin">
         <div className="qr9">{open ? t('Last commit') : label}</div>
         <div className="qr14">{commit == null ? '—' : nativeDate(commit, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) + ' · UTC+8'}</div>

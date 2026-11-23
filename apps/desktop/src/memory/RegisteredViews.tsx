@@ -563,6 +563,15 @@ type Note = { title: string; line: string; route: { go: () => void }; detail: st
 export function RegisteredHome({ nav, timeline, now, phase }: { nav: { memory: { go: () => void }; sessions: { go: () => void }; context: { go: () => void } }; timeline: MapSpec; now: number; phase: string }) {
   const { nativeStatus, nativeError, error } = useStatus();
   const { readings, error: readError } = useRegisteredReadings();
+  // R5 A9: the newest formation events (one page) drawn as marks on the record paper.
+  const [trace, setTrace] = useState<number[] | null>(null);
+  const scope = nativeStatus?.state === "open" && nativeStatus.selection ? catalogScopeKey(nativeStatus.selection) : null;
+  useEffect(() => {
+    setTrace(null);
+    if (!scope) return;
+    catalogView({ operation: "activity", filter: CATALOG_FILTER, query: { memory: null, event_kind: null, include_sources: false }, cursor: null, limit: 100 })
+      .then(page => setTrace(page.items.map(e => Date.parse(e.proof.written_at)).filter(Number.isFinite)), () => setTrace(null));
+  }, [scope]);
   const clock = (at: string) => nativeDate(Date.parse(at), { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   const fallback = nativeError?.text ?? error?.text ?? (nativeStatus?.reason ? describe(nativeStatus.reason) : readError?.text ?? registeredLabel(nativeStatus));
   const notes: Note[] = [
@@ -574,7 +583,7 @@ export function RegisteredHome({ nav, timeline, now, phase }: { nav: { memory: {
       line: readings ? t("{n} captured conversations", { n: readings.conversations }) : fallback },
     { title: t("Context"), route: nav.context, detail: "—", time: "—", line: t("Preview the context an Agent would receive") },
   ];
-  return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry readonlyNotes={notes}
+  return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry readonlyNotes={notes} events={trace ?? undefined}
     label={readings ? t("{label} · {n} records", { label: registeredLabel(nativeStatus), n: readings.stats.matched_in_scope }) : registeredLabel(nativeStatus)} phase={phase} reviewLine={fallback} />;
 }
 

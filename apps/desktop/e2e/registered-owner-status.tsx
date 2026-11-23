@@ -84,7 +84,7 @@ try{
   fail=false;mismatch=true;refresh();await wait(()=>fixture.querySelector('#refresh')?.getAttribute('data-error')==='This automatic Memory version is unsupported');
   check('synthetic_status_cannot_impersonate_registered_entry',badge().includes('Registered library status unknown'));
   mismatch=false;state='open';refresh();await wait(()=>badge().includes('Registered library open'));
-  check('fresh_status_recovers_without_a_write',calls.every(c=>['workspace_status','shell_status','startup_status','catalog:status','catalog:page','catalog:stats'].includes(c)));
+  check('fresh_status_recovers_without_a_write',calls.every(c=>['workspace_status','shell_status','startup_status','catalog:status','catalog:page','catalog:stats','catalog:activity'].includes(c)));
   await wait(()=>Array.from(fixture.querySelectorAll('button')).some(button=>button.textContent==='Lock registered library'));
   hold=true;refresh();await wait(()=>release!==null);
   Array.from(fixture.querySelectorAll('button')).find(button=>button.textContent==='Lock registered library')!.click();

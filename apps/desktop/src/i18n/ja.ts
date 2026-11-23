@@ -2391,5 +2391,8 @@ const dict: Record<string, string> = {
   "Postponing only hides a suggestion on this computer; the record and the library do not change.": "隠すのはこのコンピュータの中だけで、記録とライブラリは変わりません。",
   "No connector grant on this library yet.": "このライブラリにはまだコネクタの許可がありません。",
   "Granted · until {date} · up to {max} · {sources} sources": "許可済み · {date} まで · 上限 {max} · 出所 {sources} 件",
+  "{n} recorded formation events in view · marks only, no drawn line between them": "表示範囲に記録された形成イベント {n} 件 · 印だけで、間を線でつなぎません",
+  "No recorded formation events in these days; the latest was {date}.": "この数日に記録された形成イベントはありません。最新は {date} です。",
+  "Formation event": "形成イベント",
 };
 export default dict;
