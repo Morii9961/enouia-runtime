@@ -107,3 +107,10 @@
 .mem-constellation-word{fill:var(--tertiary);font-size:10px;paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
 .mem-constellation-legend{display:flex;flex-wrap:wrap;gap:12px;list-style:none;padding:0;margin:0;font-size:12px}
 .mem-day{margin:12px 0 4px;padding:2px 6px;background:var(--ink-3);color:var(--paper);font-size:11px;letter-spacing:.08em;text-transform:uppercase;display:inline-block}
+/* R5 star map */
+.mem-starmap{display:block;max-width:100%;height:auto;color:var(--ink)}
+.mem-star{fill:var(--ink);cursor:pointer}
+.mem-star.is-selected{fill:var(--paper);stroke:var(--ink);stroke-width:2}
+.mem-star-edge{stroke:var(--ink-3);stroke-width:.6;opacity:.45}
+.mem-star-edge[data-class=algorithm_suggestion]{stroke-dasharray:2 3;opacity:.35}
+.mem-star-label{fill:var(--tertiary);font-size:11px}

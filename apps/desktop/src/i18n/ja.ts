@@ -2394,5 +2394,7 @@ const dict: Record<string, string> = {
   "{n} recorded formation events in view · marks only, no drawn line between them": "表示範囲に記録された形成イベント {n} 件 · 印だけで、間を線でつなぎません",
   "No recorded formation events in these days; the latest was {date}.": "この数日に記録された形成イベントはありません。最新は {date} です。",
   "Formation event": "形成イベント",
+  "Every loaded record as one dot, gathered by kind. Position means only the kind; lines are relations, dotted ones are suggestions. Choose a dot to read the record and draw its constellation.": "読み込んだ記録を一つずつ点にして、種類ごとに集めています。位置が表すのは種類だけです。線は関係で、点線は提案です。点を選ぶと記録を読み、つながる記録を描きます。",
+  "{n} records in {k} kinds": "{k} 種類・{n} 件の記録",
 };
 export default dict;

@@ -55,3 +55,38 @@ export function RegisteredConstellation({ center, neighbors, pick }: { center: {
     {neighbors.items.length > MAX && <p className="mem-row-meta">{t("The figure shows {shown} of {total} connected records; the list below has the rest.", { shown: MAX, total: neighbors.items.length })}</p>}
   </section>;
 }
+
+// R5 A8: every loaded record at once. Records of one kind gather around one
+// centre (a golden-angle spiral, so the layout is the same on every read);
+// recorded relations are faint lines and suggestions fainter dotted ones.
+// Positions mean nothing beyond kind. Up to a few thousand records stay in
+// SVG; larger libraries are OPEN_ISSUES #24 (Morii's decision).
+export function RegisteredStarMap({ nodes, edges, selected, pick }: {
+  nodes: { memory: { memory: { memory_id: string } }; title: string; form: string }[];
+  edges: { from: string; to: string; relation: string; class: string }[];
+  selected: string | null; pick: (id: string) => void;
+}) {
+  const SW = 900, SH = 560;
+  const forms = [...new Set(nodes.map(n => n.form))].sort();
+  const centre = new Map(forms.map((f, i) => {
+    const a = -Math.PI / 2 + (2 * Math.PI * i) / Math.max(1, forms.length);
+    const r = forms.length > 1 ? Math.min(SW, SH) * 0.3 : 0;
+    return [f, { x: SW / 2 + r * Math.cos(a) * 1.3, y: SH / 2 + r * Math.sin(a) }];
+  }));
+  const seen = new Map<string, number>();
+  const pos = new Map(nodes.map(n => {
+    const k = seen.get(n.form) ?? 0; seen.set(n.form, k + 1);
+    const c = centre.get(n.form)!, a = k * 2.39996, r = 6 * Math.sqrt(k);
+    return [n.memory.memory.memory_id, { x: c.x + r * Math.cos(a), y: c.y + r * Math.sin(a), n }];
+  }));
+  return <section className="mem-stack" aria-label={t("Star map")} data-starmap>
+    <h3>{t("Star map")}</h3>
+    <p className="mem-row-meta">{t("Every loaded record as one dot, gathered by kind. Position means only the kind; lines are relations, dotted ones are suggestions. Choose a dot to read the record and draw its constellation.")}</p>
+    <div className="mem-table-scroll"><svg className="mem-starmap" viewBox={`0 0 ${SW} ${SH}`} width={SW} height={SH} role="img" aria-label={t("{n} records in {k} kinds", { n: nodes.length, k: forms.length })}>
+      {edges.map((e, i) => { const a = pos.get(e.from), b = pos.get(e.to); return a && b ? <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="mem-star-edge" data-class={e.class} /> : null; })}
+      {forms.map(f => <text key={f} x={centre.get(f)!.x} y={centre.get(f)!.y - 6 * Math.sqrt(seen.get(f) ?? 1) - 10} textAnchor="middle" className="mem-star-label">{word(f)} · {seen.get(f)}</text>)}
+      {[...pos.values()].map(({ x, y, n }) => <circle key={n.memory.memory.memory_id} cx={x} cy={y} r={selected === n.memory.memory.memory_id ? 6 : 3.5}
+        className={selected === n.memory.memory.memory_id ? "mem-star is-selected" : "mem-star"} onClick={() => pick(n.memory.memory.memory_id)}><title>{n.title}</title></circle>)}
+    </svg></div>
+  </section>;
+}
