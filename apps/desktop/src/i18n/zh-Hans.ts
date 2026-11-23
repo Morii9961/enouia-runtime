@@ -2394,5 +2394,7 @@ const dict: Record<string, string> = {
   "{n} recorded formation events in view · marks only, no drawn line between them": "当前范围内有 {n} 个已记录的形成事件 · 只画标记，不在它们之间连线",
   "No recorded formation events in these days; the latest was {date}.": "这几天没有已记录的形成事件；最近一次在 {date}。",
   "Formation event": "形成事件",
+  "Every loaded record as one dot, gathered by kind. Position means only the kind; lines are relations, dotted ones are suggestions. Choose a dot to read the record and draw its constellation.": "每条已读取的记录是一个点，按种类聚在一起。位置只表示种类；线是关系，点线是建议。点一个点就能阅读记录并画出与它相连的记录。",
+  "{n} records in {k} kinds": "{k} 个种类中的 {n} 条记录",
 };
 export default dict;

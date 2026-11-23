@@ -45,3 +45,4 @@ Memory 已经提供数据，只差 Runtime 的界面。每片做完都要过合�
 - A7、A10、A11（链条、稍后 / 不再提醒、按天分组）：[验证](../validation/R5-chains-days-remind-2026-11-23.md)。
 - Memory ADR-MEM-175（连接器授权、Capsule 完整引用、并发锁等待、会话时间）：[验证](../validation/R5-adr175-2026-11-23.md)。
 - A9（Home 形成事件标记）：[验证](../validation/R5-home-trace-2026-11-23.md)。
+- A8（全库星图）：[验证](../validation/R5-starmap-2026-11-23.md)。第一类十一项全部完成。

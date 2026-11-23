@@ -7,7 +7,7 @@ import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogVie
   type CatalogSource, type CatalogStats, type ConversationDetail, type Conversations, type GraphPage, type Neighbors, type TimeBuckets } from "./catalog";
 import { CatalogDetailPanel } from "./CatalogMemory";
 import { ConflictCompare } from "./Compare";
-import { RegisteredConstellation } from "./Constellation";
+import { RegisteredConstellation, RegisteredStarMap } from "./Constellation";
 import { CapsuleIndex, SaveCapsule } from "./Capsules";
 import { ConnectorStatus } from "./Connector";
 import { analystText, recordTimeText, word } from "./catalogWords";
@@ -188,6 +188,7 @@ function ConnectionsView() {
         <Observed at={graph.first.header.authorized_at} />
         <p className="mem-content">{t("{nodes} records and {edges} relations loaded.", { nodes: graph.nodes.length, edges: graph.edges.length })}</p>
         {graph.first.header.matched_inputs != null && graph.first.header.matched_inputs > graph.nodes.length && <p role="status">{t("Only the first {n} records are in this graph.", { n: graph.nodes.length })}</p>}
+        <RegisteredStarMap nodes={graph.nodes} edges={graph.edges} selected={selected} pick={pick} />
         <table className="mem-table"><thead><tr><th>{t("Relation")}</th><th>{t("Candidates")}</th><th>{t("Shown")}</th></tr></thead>
           <tbody>{graph.first.edge_coverage.map(c => <tr key={c.relation}><td>{word(c.relation)}</td><td>{c.candidates}</td><td>{byRelation.get(c.relation) ?? 0}</td></tr>)}</tbody></table>
         <p className="mem-row-meta">{t("Same entity and same conversation are recorded mentions, not independent verification.")}{graph.first.semantic_neighbors_available ? "" : ` ${t("Semantic neighbours are not available yet.")}`}</p>
