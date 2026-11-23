@@ -2327,5 +2327,9 @@ const dict: Record<string, string> = {
   "Captured sources are material, not records. A day with no material shows a dot, not a zero claim about what happened.": "取り込んだ出所は材料で、記録ではありません。材料のない日は点で示し、何も起きなかったとは言いません。",
   "Showing records on {day}.": "{day} の記録を表示しています。",
   "Show the whole month": "月全体を表示",
+  "The chosen record and the records it is connected to. Every record is drawn the same size; each line names its relation.": "選んだ記録と、つながっている記録です。どの記録も同じ大きさで描き、線ごとに関係を書きます。",
+  "{n} connected records around {title}": "{title} の周りにつながる {n} 件の記録",
+  "suggestion": "提案",
+  "The figure shows {shown} of {total} connected records; the list below has the rest.": "図には {total} 件のうち {shown} 件を示します。残りは下の一覧にあります。",
 };
 export default dict;
