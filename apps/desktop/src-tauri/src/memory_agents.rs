@@ -94,10 +94,14 @@ impl Agents {
                 let grant = local
                     .get(*key)
                     .and_then(|a| status.grants.iter().find(|g| g.grant_id == a.grant_id));
+                // ADR-MEM-168: what this grant misses since it was written.
+                let coverage = local.get(*key).and_then(|a| vault.owner_read_grant_coverage(&owner, &a.grant_id).ok()).map(|c| {
+                    json!({"policies":c.uncovered_policies.len(),"sources":c.uncovered_sources.len(),"refreshable":c.refreshed.is_some()})
+                });
                 let pipe = local
                     .get(*key)
                     .map(|a| crate::memory_pipes::pipe_id(&vault.descriptor().vault_id, &a.principal));
-                json!({"key":key,"name":name,"registered":grant.is_some(),"grant":grant.map(view),"pipe":pipe})
+                json!({"key":key,"name":name,"registered":grant.is_some(),"grant":grant.map(view),"pipe":pipe,"coverage":coverage})
             })
             .collect();
         let named: Vec<&PolicyId> = local.values().map(|a| &a.grant_id).collect();
@@ -182,14 +186,22 @@ impl Agents {
                     Some(identity),
                 )
             }
-            (action @ ("renew" | "refresh" | "revoke"), Some(mut grant)) => {
+            // ADR-MEM-168: Memory builds the widened revision and checks it.
+            ("refresh", Some(grant)) => (
+                vault
+                    .owner_read_grant_coverage(&owner, &grant.grant_id)
+                    .map_err(code)?
+                    .refreshed
+                    .ok_or("grant_up_to_date")?,
+                None,
+            ),
+            (action @ ("renew" | "revoke"), Some(mut grant)) => {
                 grant.revision = Revision::new(grant.revision.get() + 1).ok_or("grant_refused")?;
                 match action {
                     "renew" => {
                         grant.active = true;
                         grant.valid_until = at(GRANT_DAYS * DAY_MS)?;
                     }
-                    "refresh" => (grant.policies, grant.source_ids) = scope(),
                     _ => grant.active = false,
                 }
                 (grant, None)

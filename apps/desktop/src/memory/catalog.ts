@@ -164,7 +164,8 @@ export async function catalogConnector(): Promise<ConnectorStatus> {
 // ADR-041 local Agent grants. Plans stay native; the page only confirms one.
 type AgentGrantView = { grant_id: string; revision: number; active: boolean; max_sensitivity: string; allow_requests: boolean; source_read: boolean;
   valid_from: string; valid_until: string; policies: number; sources: number };
-export type AgentGrants = { kind: "runtime_agent_grants"; agents: { key: string; name: string; registered: boolean; grant: AgentGrantView | null; pipe: string | null }[]; other_grants: AgentGrantView[];
+export type AgentGrants = { kind: "runtime_agent_grants"; agents: { key: string; name: string; registered: boolean; grant: AgentGrantView | null; pipe: string | null;
+    coverage: { policies: number; sources: number; refreshable: boolean } | null }[]; other_grants: AgentGrantView[];
   vault_id: string; bridge: { path: string | null; present: boolean; protocol: string } };
 export type AgentGrantPlan = { kind: "runtime_agent_grant_plan"; plan_id: string; agent: string; action: string; revision: number; active: boolean;
   max_sensitivity: string; allow_requests: boolean; valid_until: string; expires_at: string; policies: number; sources: number };
