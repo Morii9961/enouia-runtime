@@ -34,6 +34,9 @@ type LocalAgents = BTreeMap<String, BTreeMap<String, LocalAgent>>;
 /// Local file beside it: vault id → request keys Morii chose to ignore (ADR-042).
 type IgnoredRequests = BTreeMap<String, BTreeSet<String>>;
 const IGNORED_FILE: &str = "ignored-agent-requests.json";
+/// Local file beside it: vault id → whether Morii turned on saving Capsules
+/// (Memory ADR-MEM-173). Off unless he turns it on.
+const CAPSULE_FILE: &str = "capsule-saving.json";
 /// A planned grant held natively: agent key, Core's plan, a new identity for register.
 type PendingPlans = BTreeMap<String, (String, OwnerReadGrantPlan, Option<LocalAgent>)>;
 
@@ -232,6 +235,34 @@ impl Agents {
             .and_then(|f| std::fs::read(f.with_file_name(IGNORED_FILE)).ok())
             .and_then(|bytes| serde_json::from_slice(&bytes).ok())
             .unwrap_or_default()
+    }
+    fn capsule_all(&self) -> BTreeMap<String, bool> {
+        self.file
+            .as_ref()
+            .and_then(|f| std::fs::read(f.with_file_name(CAPSULE_FILE)).ok())
+            .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+            .unwrap_or_default()
+    }
+    pub fn capsule_saving(&self, vault: &SegmentedAutomationVault) -> bool {
+        self.capsule_all()
+            .get(&vault.descriptor().vault_id.to_string())
+            .copied()
+            .unwrap_or(false)
+    }
+    pub fn set_capsule_saving(
+        &self,
+        vault: &SegmentedAutomationVault,
+        enabled: bool,
+    ) -> Result<(), &'static str> {
+        let file = self
+            .file
+            .as_ref()
+            .ok_or("agents_file_unavailable")?
+            .with_file_name(CAPSULE_FILE);
+        let mut all = self.capsule_all();
+        all.insert(vault.descriptor().vault_id.to_string(), enabled);
+        let bytes = serde_json::to_vec_pretty(&all).map_err(|_| "agents_file_unavailable")?;
+        std::fs::write(file, bytes).map_err(|_| "agents_file_unavailable")
     }
     /// ADR-042: mark one saved request as ignored (or not) on this computer.
     /// Nothing is written into the library; the request stays there.
