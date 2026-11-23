@@ -119,6 +119,8 @@ Morii 2026-11-19 要求：交接任务完成后新开会话，把 Runtime 原有
 
 2026-11-19 R4.2：Memory #125（ADR-MEM-152）交付 G22 后，pin 升至 `009b7bc`，[Context 与召回实验接入真实库](../validation/R4-2-recall-preview-009b7bc-2026-11-19.md)（原生合成 34/34、42/42，真实库走查 20/20）。至此 R4.0–R4.2 的只读界面全部改读真实库；R4.3/R4.4 等待授权，R4.5 从 main 打候选。
 
+2026-11-23 深夜：R5 完成——[界面缺口清单](R5_SURFACE_GAPS_2026-11-23.md)第一类十一项全部做完，并接入 Memory ADR-MEM-171 至 175（人物与地点、Capsule 默认关闭、ChatGPT 主题标注、连接器授权、会话时间）；[候选](../validation/R5-candidate-839e34d-2026-11-23.md)改为 `839e34d`（pin `ca76892`；模板 26/26、合成 41/41 与 42/42、真实库只读走查 29/29），`4fd0e92` 作废。周末事项见[一页汇总](R5_MORII_DECISIONS_2026-11-23.md)。
+
 2026-11-23 夜：按 Morii 的选择接入 Memory ADR-MEM-170，pin 升至 `512ad0c`，Settings 登记的 Agent 授权自动纳入新窗口与来源（上限与到期不变、可撤销）；[候选](../validation/R4-candidate-4fd0e92-2026-11-23.md)改为 `4fd0e92`（模板 26/26、合成 41/41 与 42/42、真实库只读走查 15/15），`1ab7a89` 作废。
 
 2026-11-23 晚：Memory ADR-MEM-167–169 合并后，pin 升至 `bc39dc9`，Settings 显示 Agent 授权覆盖并按 Memory 补全计划“纳入新来源”，同一 Agent 最多 4 个会话同时连接；[候选](../validation/R4-candidate-1ab7a89-2026-11-23.md)改为 `1ab7a89`（模板 26/26、合成 41/41 与 42/42、真实库只读走查 15/15），`73983bd` 作废。
