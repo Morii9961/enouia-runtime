@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { CATALOG_FILTER, catalogRead, catalogRecall, catalogScopeKey, catalogView, type AttentionSchedule, type ReviewSuggestions, type TargetRef, type RecallPreview, type RecallQuery, type ActivityPage, type CatalogFilter, type CatalogPage, type CatalogSelection, type Conflicts,
   type CatalogSource, type CatalogStats, type ConversationDetail, type Conversations, type GraphPage, type Neighbors, type TimeBuckets } from "./catalog";
 import { CatalogDetailPanel } from "./CatalogMemory";
+import { ConflictCompare } from "./Compare";
 import { ConnectorStatus } from "./Connector";
 import { analystText, recordTimeText, word } from "./catalogWords";
 import { useLatestRead } from "./hooks";
@@ -203,6 +204,7 @@ export function RegisteredFormation() {
   return <Open title={t("Formation")}>{() => <FormationView />}</Open>;
 }
 function FormationView() {
+  const [tab, setTab] = useState<"events" | "held">("events");
   const [kind, setKind] = useState<string | null>(null);
   const [pages, setPages] = useState<ActivityPage[]>([]);
   const [selected, setSelected] = useState<{ id: string; selection: CatalogSelection } | null>(null);
@@ -216,6 +218,11 @@ function FormationView() {
   return <>
     <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack">
       <h2 className="qr29">{t("Formation")}</h2>
+      <div className="mem-actions" role="group" aria-label={t("Formation views")}>
+        <button type="button" className="mem-button" aria-pressed={tab === "events"} onClick={() => setTab("events")}>{t("What the system did")}</button>
+        <button type="button" className="mem-button" aria-pressed={tab === "held"} onClick={() => setTab("held")}>{t("Held hypotheses")}</button>
+      </div>
+      {tab === "held" ? <HeldHypotheses selected={selected?.id ?? null} pick={setSelected} /> : <>
       <label className="mem-label">{t("Event kind")} <select className="mem-input" value={kind ?? ""} disabled={reads.busy} onChange={e => setKind(e.target.value || null)}>
         <option value="">{t("All")}</option>{KINDS.map(k => <option key={k} value={k}>{word(k)}</option>)}</select></label>
       <button type="button" className="mem-button" disabled={reads.busy} onClick={() => { setPages([]); setSelected(null); void read(null); }}>{t("Read again")}</button>
@@ -232,10 +239,11 @@ function FormationView() {
         </li>)}</ol>
         {last?.next != null && <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show older events")}</button>}
       </>}
+      </>}
     </div></div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
       {selected ? <><CatalogDetailPanel key={selected.id} memoryId={selected.id} filter={CATALOG_FILTER} selection={selected.selection} read={catalogRead} entities={[]} />
-        <ConflictGroup key={`c:${selected.id}`} memoryId={selected.id} /></>
+        <ConflictGroup key={`c:${selected.id}`} memoryId={selected.id} open={id => setSelected({ id, selection: selected.selection })} /></>
         : <p className="mem-content">{t("Choose an event to read its record, quoted sources and any held contradiction.")}</p>}
     </div></aside>
   </>;
@@ -297,7 +305,30 @@ function ReviewView() {
     </div></aside>
   </>;
 }
-function ConflictGroup({ memoryId }: { memoryId: string }) {
+// R5 A3: records Memory keeps as hypotheses, with the reason it formed them.
+function HeldHypotheses({ selected, pick }: { selected: string | null; pick: (s: { id: string; selection: CatalogSelection }) => void }) {
+  const [pages, setPages] = useState<CatalogPage[]>([]);
+  const reads = useLatestRead();
+  const filter = useMemo(() => ({ ...CATALOG_FILTER, knowledge: "hypothesis" }), []);
+  const read = useCallback((cursor: CatalogPage["next"] | null) => reads.run(() => catalogRead({ operation: "page", filter, cursor, limit: 50 }),
+    page => setPages(old => cursor ? [...old, page] : [page])), [filter, reads.run]);
+  useEffect(() => { void read(null); }, [read]);
+  const items = pages.flatMap(p => p.items), last = pages.at(-1);
+  return <section className="mem-stack" aria-label={t("Held hypotheses")} aria-busy={reads.busy}>
+    <p className="mem-row-meta">{t("Statements Memory keeps as hypotheses rather than attributed facts, each with why it formed them. Keeping one is not confirming it.")}</p>
+    {reads.busy && <p role="status">{t("Reading records…")}</p>}
+    <ErrorBox error={reads.error} />
+    {pages[0] && <p className="mem-content">{t("{shown} of {matched} held hypotheses shown.", { shown: items.length, matched: pages[0].matched_in_scope })}</p>}
+    {pages[0] && items.length === 0 && <p className="mem-content">{t("No held hypotheses.")}</p>}
+    <ol className="mem-list">{items.map(item => <li key={item.base.memory.memory_id}>
+      <button type="button" className="mem-link" aria-pressed={selected === item.base.memory.memory_id} onClick={() => pick({ id: item.base.memory.memory_id, selection: pages[0].selection })}>{item.title}</button>
+      <span className="mem-row-meta"> · {word(item.base.adoption)} · {word(item.formation_reason?.interpretation)}{analystText(item.formation_reason) ? ` · ${analystText(item.formation_reason)}` : ""}</span>
+      {item.formation_reason?.note && <p className="mem-row-meta mem-content">{t("Model note, not a fact")}: {item.formation_reason.note}</p>}
+    </li>)}</ol>
+    {last?.next != null && <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show more")}</button>}
+  </section>;
+}
+function ConflictGroup({ memoryId, open }: { memoryId: string; open: (memoryId: string) => void }) {
   const reads = useLatestRead();
   const [group, setGroup] = useState<Conflicts | null>(null);
   useEffect(() => { void reads.run(() => catalogView({ operation: "conflicts", filter: CATALOG_FILTER, memory_id: memoryId, cursor: null, limit: 16 }), setGroup); }, [memoryId, reads.run]);
@@ -306,7 +337,8 @@ function ConflictGroup({ memoryId }: { memoryId: string }) {
     {reads.busy && <p role="status">{t("Reading records…")}</p>}
     <ErrorBox error={reads.error} />
     {group && (group.items.length === 0 ? <p className="mem-row-meta">{t("No contradicting record is held.")}</p> :
-      <ul className="mem-list">{group.items.map(item => <li key={item.base.memory.memory_id}><span className="mem-content">{item.title}</span><p className="mem-row-meta">{item.base.content}</p></li>)}</ul>)}
+      <><ConflictCompare items={group.items} open={open} />
+      <ul className="mem-list">{group.items.map(item => <li key={item.base.memory.memory_id}><span className="mem-content">{item.title}</span><p className="mem-row-meta">{item.base.content}</p></li>)}</ul></>)}
   </section>;
 }
 
