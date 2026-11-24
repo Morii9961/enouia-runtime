@@ -6,6 +6,7 @@
 - 外壳：托盘、热键、登录启动、卸载由 Morii 亲手做。
 - ChatGPT 接主库：Morii 已同意先用 Cloudflare 临时隧道直连主库，允许读取来源原文，授权到期日 2026-12-31。Memory #157 已把服务和私有操作单准备好，接通时间待 Morii 定。
 - B3 语义近邻：Morii 定为先不做。
+- ChatGPT 请求署名（Memory ADR-MEM-184，pin 不升）：队列里来自连接器的纠正、遗忘请求写“ChatGPT”，见[验证记录](../validation/R5-chatgpt-requests-2026-11-24.md)；真实库只读走查待已安装实例关闭后补。
 
 Memory 之后的 pin（如 `1933746`）不改 surface 和命令时，不需要机械跟进。
 
