@@ -594,7 +594,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -735,7 +735,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-context"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "enouia-memory-contract",
  "enouia-memory-index",
@@ -747,7 +747,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-contract"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "serde",
  "serde_json",
@@ -756,7 +756,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-govern"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "enouia-memory-contract",
  "enouia-memory-vault",
@@ -766,7 +766,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-host"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "enouia-memory-context",
  "enouia-memory-contract",
@@ -786,7 +786,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-import"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "crc32fast",
  "enouia-memory-contract",
@@ -798,7 +798,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-index"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "enouia-memory-contract",
  "enouia-memory-vault",
@@ -809,7 +809,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-provider"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "enouia-memory-context",
  "enouia-memory-contract",
@@ -829,7 +829,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-vault"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "enouia-memory-contract",
  "libc",
@@ -841,7 +841,7 @@ dependencies = [
 [[package]]
 name = "enouia-memory-workspace"
 version = "0.1.0"
-source = "git+https://github.com/Morii9961/enouia-memory.git?rev=d93b916737e4b6422436ae2521c942a0e1fca635#d93b916737e4b6422436ae2521c942a0e1fca635"
+source = "git+https://github.com/Morii9961/enouia-memory.git?rev=abdcacf041f58baf163454069a51981a0b36be24#abdcacf041f58baf163454069a51981a0b36be24"
 dependencies = [
  "enouia-memory-context",
  "enouia-memory-contract",
@@ -2833,7 +2833,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4335,7 +4335,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

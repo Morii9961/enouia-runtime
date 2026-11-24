@@ -1,6 +1,6 @@
 # Runtime 交付路线与问题清单（2026-11-16）
 
-**当前状态（2026-11-24）**：R4、R5 已全部合并，Runtime main `eaa410c`，Memory pin `ca76892`。验收候选为 [`eaa410c`](../validation/R5-candidate-eaa410c-2026-11-24.md)，已应 Morii 要求装到本机（相对 `839e34d` 多了 ChatGPT 请求署名、Home 真实时间画线、Sessions 分段合并和数字日期标签；`38586e4`、`7021984` 作废）。中文召回：pin 已升到 Memory `d93b916`（ADR-MEM-209，合约层补上中日韩两字片段），整句中文问题开始能召回，但常见片段会带进无关记录，已把真实库数据发给 Memory 改进排序，见[验证记录](../validation/Memory-pin-d93b916-cjk-recall-2026-11-24.md)。真实库仍只读（CURRENT 440），没有登记任何授权。Runtime 路线上不需要新授权的工作已经做完，剩下的都在等 Morii：
+**当前状态（2026-11-24）**：R4、R5 已全部合并，Runtime main `eaa410c`，Memory pin `ca76892`。验收候选为 [`eaa410c`](../validation/R5-candidate-eaa410c-2026-11-24.md)，已应 Morii 要求装到本机（相对 `839e34d` 多了 ChatGPT 请求署名、Home 真实时间画线、Sessions 分段合并和数字日期标签；`38586e4`、`7021984` 作废）。中文召回：pin 已升到 Memory `abdcacf`（ADR-MEM-209/210：合约层补上中日韩片段与单字，按稀有程度加权排序），整句中文问题能召回到相关记录；“我去过某地吗”这类问题仍被“半数门槛”挡掉正确记录，已把真实库数据发给 Memory，见[验证记录](../validation/Memory-pin-d93b916-cjk-recall-2026-11-24.md)。真实库仍只读（CURRENT 440），没有登记任何授权。Runtime 路线上不需要新授权的工作已经做完，剩下的都在等 Morii：
 
 - 周末一次性验收，以及 D1 星图帧率、D2 Capsule 开关：见[周末一页](R5_MORII_DECISIONS_2026-11-23.md)。
 - 外壳：托盘、热键、登录启动、卸载由 Morii 亲手做。
