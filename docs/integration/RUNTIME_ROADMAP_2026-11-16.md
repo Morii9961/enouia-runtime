@@ -1,6 +1,6 @@
 # Runtime 交付路线与问题清单（2026-11-16）
 
-**当前状态（2026-11-24）**：R4、R5 已全部合并，Runtime main `7021984`，Memory pin `ca76892`。验收候选为 [`7021984`](../validation/R5-candidate-7021984-2026-11-24.md)（相对 `839e34d` 只多了 ChatGPT 请求署名）；本机装的是已作废的 `839e34d`，验收前换装。真实库仍只读（CURRENT 440），没有登记任何授权。Runtime 路线上不需要新授权的工作已经做完，剩下的都在等 Morii：
+**当前状态（2026-11-24）**：R4、R5 已全部合并，Runtime main `38586e4`，Memory pin `ca76892`。验收候选为 [`38586e4`](../validation/R5-candidate-38586e4-2026-11-24.md)（相对 `839e34d` 多了 ChatGPT 请求署名、Home 真实时间画线和 Sessions 分段合并；`7021984` 作废）；本机装的是已作废的 `839e34d`，验收前换装。真实库仍只读（CURRENT 440），没有登记任何授权。Runtime 路线上不需要新授权的工作已经做完，剩下的都在等 Morii：
 
 - 周末一次性验收，以及 D1 星图帧率、D2 Capsule 开关：见[周末一页](R5_MORII_DECISIONS_2026-11-23.md)。
 - 外壳：托盘、热键、登录启动、卸载由 Morii 亲手做。
@@ -8,8 +8,8 @@
 - B3 语义近邻：Morii 定为先不做。
 - ChatGPT 请求署名（Memory ADR-MEM-184，pin 不升）：队列里来自连接器的纠正、遗忘请求写“ChatGPT”，见[验证记录](../validation/R5-chatgpt-requests-2026-11-24.md)；候选 `7021984` 真实库只读走查 29/29（队列为空，CURRENT 440）。
 
-- Home 记录纸改用真实时间画线（已捕获轮次的记录时间画线，Memory 写入画成标记，时间小地图打开，记录带不再显示“未载入”），见[验证记录](../validation/R5-home-recorded-trace-2026-11-24.md)；`7021984` 不含这项，合并后出新候选。
-- 跨捕获窗口的 ChatGPT 对话（Memory ADR-MEM-185，pin 不升）：Sessions 把同一对话的各段合在一行，见[验证记录](../validation/R5-chatgpt-segments-2026-11-24.md)；候选 `7021984` 不含这项，接通连接器前再出候选。
+- Home 记录纸改用真实时间画线（已捕获轮次的记录时间画线，Memory 写入画成标记，时间小地图打开，记录带不再显示“未载入”），见[验证记录](../validation/R5-home-recorded-trace-2026-11-24.md)；候选 `38586e4` 真实库只读走查 34/34（打开时 205 个轮次，“Now”可回到今天，CURRENT 440）。
+- 跨捕获窗口的 ChatGPT 对话（Memory ADR-MEM-185，pin 不升）：Sessions 把同一对话的各段合在一行，见[验证记录](../validation/R5-chatgpt-segments-2026-11-24.md)；已包含在候选 `38586e4` 中。
 
 Memory 之后的 pin（`1933746` 至 `c16530b`，ADR-MEM-176 至 188）只改远程服务，不改 surface 和命令，不需要机械跟进。
 
