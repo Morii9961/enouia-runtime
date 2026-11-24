@@ -20,6 +20,8 @@ Memory [ADR-MEM-185](https://github.com/Morii9961/enouia-memory)（main `4dd96b4
 | DOM 夹具 `registered-views`（新增两段合成对话，页内顺序故意与时间相反） | **32/32**，新增“同一对话的各段合在一行且最早在前”“打开第 2 段时写明第 2 段，共 2 段”；全部夹具通过 |
 | `check-memory-integration` | `memory_pin_consistent`（`ca76892`） |
 
+2026-11-24 更正：真实库里同一个原始 ID 下就有 33 段，都是导入时拆开的，没有 `#pol_` 后缀。合并显示没错，但文案改成了“同一段平台对话的后续部分”，见 [Home 记录纸记录](R5-home-recorded-trace-2026-11-24.md#顺带更正sessions-的分段)。
+
 ## 边界
 
 - 没有重新构建安装候选，也没有改原生代码。周末验收仍用 `7021984`，这项不在验收步骤里；真实库现在没有 ChatGPT 对话，接通连接器前会出新候选。
