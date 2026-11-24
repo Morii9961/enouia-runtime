@@ -8,6 +8,7 @@
 - B3 语义近邻：Morii 定为先不做。
 - ChatGPT 请求署名（Memory ADR-MEM-184，pin 不升）：队列里来自连接器的纠正、遗忘请求写“ChatGPT”，见[验证记录](../validation/R5-chatgpt-requests-2026-11-24.md)；候选 `7021984` 真实库只读走查 29/29（队列为空，CURRENT 440）。
 
+- Home 记录纸改用真实时间画线（已捕获轮次的记录时间画线，Memory 写入画成标记，时间小地图打开，记录带不再显示“未载入”），见[验证记录](../validation/R5-home-recorded-trace-2026-11-24.md)；`7021984` 不含这项，合并后出新候选。
 - 跨捕获窗口的 ChatGPT 对话（Memory ADR-MEM-185，pin 不升）：Sessions 把同一对话的各段合在一行，见[验证记录](../validation/R5-chatgpt-segments-2026-11-24.md)；候选 `7021984` 不含这项，接通连接器前再出候选。
 
 Memory 之后的 pin（`1933746` 至 `c16530b`，ADR-MEM-176 至 188）只改远程服务，不改 surface 和命令，不需要机械跟进。

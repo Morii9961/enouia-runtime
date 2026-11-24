@@ -2,6 +2,7 @@
 // documents only: no OS, native IPC or personal library.
 import { createRoot } from 'react-dom/client';
 import { MemoryStatusProvider, ConnectedHome } from '../src/memory/status';
+import { NativeStrip } from '../src/theme/RecordStrip';
 import MemorySurface from '../src/memory/MemorySurface';
 import SessionsSurface from '../src/memory/SessionsSurface';
 import ContextSurface from '../src/memory/ContextSurface';
@@ -17,6 +18,7 @@ let state='open';
 const header={selection,algorithm:'synthetic',version:2,parameters_hash:'e'.repeat(64),permission_hash:'f'.repeat(64),authorized_at:selection.evaluated_at,scope:'authorized_current_dependencies',matched_inputs:3,included_inputs:3,complete_in_scope:true,limits:[]};
 const node=(n:number)=>({memory:{memory:{memory_id:`synthetic-memory-${n}`,revision:1},hash:'e'.repeat(64)},title:n===2?'调试偏好':`Synthetic item ${n}`,form:'preference',knowledge:'attributed_statement',adoption:'adopted',validity:'unspecified',attention:'active',event_time:{from:null,until:null,precision:'unknown',bound:'within',tz:null,basis:'unknown'},entities:[],themes:[]});
 const time={from:'2026-03-01T00:00:00Z',until:null,precision:'month',bound:'within',tz:'Asia/Shanghai',basis:'stated'};
+const talked=new Date(Date.now()-2*86400000).toISOString();
 setTransport(async(command,args)=>{
   calls.push(command==='memory_call'?(args as any).request.command:command);
   if(command==='shell_status')return {vaultChanging:false,memoryEntry:'registered_owner_readonly'};
@@ -54,15 +56,15 @@ setCatalogTransport(async(_command,args)=>{
   if(q.operation==='attention_schedule')return {...envelope,kind:'memory_attention_schedule',header,query:q.query,fade_after_days:30,archive_after_days:180,protected_in_scope:1,
     events:[{memory:node(3).memory,title:'Synthetic item 3',transition:'fading',at:'2026-12-10T00:00:00Z',past:false}],next:null};
   if(q.operation==='activity')return {...envelope,kind:'memory_activity_page',header,matched_in_scope:1,complete_in_scope:true,next:null,time_derived_events_available:false,
-    items:[{event_id:'a'.repeat(64),event_kind:'formation',memory:{memory_id:'synthetic-memory-1',revision:1},source:null,title:'Synthetic item 1',change:'new',knowledge:'attributed_statement',adoption:'adopted',effective_sensitivity:'private',formation_reason:null,proof:{commit_id:'c',commit_hash:'d'.repeat(64),actor:{actor_type:'system'},written_at:'2026-11-03T00:00:00Z'},receipt:null}]};
+    items:[{event_id:'a'.repeat(64),event_kind:'formation',memory:{memory_id:'synthetic-memory-1',revision:1},source:null,title:'Synthetic item 1',change:'new',knowledge:'attributed_statement',adoption:'adopted',effective_sensitivity:'private',formation_reason:null,proof:{commit_id:'c',commit_hash:'d'.repeat(64),actor:{actor_type:'system'},written_at:new Date(Date.now()-20*86400000).toISOString()},receipt:null}]};
   if(q.operation==='conflicts'){const pair=[1,2].map(n=>{const d:any=detail(`synthetic-memory-${n}`);return d.item;}).filter(Boolean);
     return {...envelope,kind:'memory_conflict_group',header,selected:null,basis:'qualified',counter_evidence:[],matched_in_scope:pair.length,items:pair,next:null};}
   if(q.operation==='conversations')return {...envelope,kind:'native_conversation_page',header,matched_in_scope:4,next:null,
-    items:[{conversation:{conversation_id:'ses_synthetic',platform:'synthetic',account_scope:'chatgpt-connector-synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},visible_captured_turns:1,visible_captured_sources:1,effective_sensitivity:'private',platform_complete_not_claimed:true},
+    items:[{conversation:{conversation_id:'ses_synthetic',platform:'synthetic',account_scope:'chatgpt-connector-synthetic',title:'Synthetic conversation',started_at:time,ended_at:{...time,from:talked,precision:'instant'},original_conversation_id:null},visible_captured_turns:1,visible_captured_sources:1,effective_sensitivity:'private',platform_complete_not_claimed:true},
       ...[['ses_part2','2026-03-05T00:00:00Z','gpt-thread#pol_b',3],['ses_part1','2026-03-02T00:00:00Z','gpt-thread',2]].map(([id,from,original,turns])=>({conversation:{conversation_id:id,platform:'chatgpt',account_scope:'chatgpt-connector-synthetic',title:'Long ChatGPT thread',started_at:{...time,from,precision:'instant'},ended_at:time,original_conversation_id:original},visible_captured_turns:turns,visible_captured_sources:turns,effective_sensitivity:'private',platform_complete_not_claimed:true}))]};
   if(q.operation==='conversation_detail')return {...envelope,kind:'native_conversation_detail',header,conversation:{conversation_id:'ses_synthetic',platform:'synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},
     visible_captured_turns:1,visible_captured_sources:1,next:null,platform_complete_not_claimed:true,
-    turns:[{turn:{turn_id:'turn_1',sequence:1,source:{source_id:'synthetic-source',source_revision:1}},source_record:{reference:{source_id:'synthetic-source',source_revision:1},speaker:'user',source_kind:'export_message'},fields:{}}]};
+    turns:[{turn:{turn_id:'turn_1',sequence:1,source:{source_id:'synthetic-source',source_revision:1}},source_record:{reference:{source_id:'synthetic-source',source_revision:1},speaker:'user',source_kind:'export_message',occurred_at:talked},fields:{}}]};
   if(q.operation==='recall_preview'){recalls.push(q.query);return {...envelope,kind:'native_recall_preview',complete_in_scope:true,rendered_context:'Synthetic rendered context',selected_targets:[{memory:{memory_id:'synthetic-memory-2',revision:1},hash:'e'.repeat(64)}],
     trace:{algorithm:'attention-rank-1',snapshot:selection.snapshot,profile_hash:'a'.repeat(64),at:q.query.at,authorized_at:selection.evaluated_at,considered:3,rendered_bytes:120,
       selected:[{memory:{memory_id:'synthetic-memory-2',revision:1},attention:'active',score:900,reasons:['lexical']}],excluded:[[{memory_id:'synthetic-memory-1',revision:1},'no_cue']]},
@@ -73,7 +75,7 @@ setCatalogTransport(async(_command,args)=>{
 });
 const recalls:any[]=[];
 const nav=Object.fromEntries(['memory','context','sessions'].map(name=>[name,{go:()=>{}}]));
-root.render(<MemoryStatusProvider><ConnectedHome nav={nav} ring={null}/><MemorySurface/><SessionsSurface inspect={()=>{}}/><ContextSurface capsuleId={null}/><RuntimeSurface/></MemoryStatusProvider>);
+root.render(<MemoryStatusProvider><NativeStrip page='home' nav={null}/><ConnectedHome nav={nav} ring={null}/><MemorySurface/><SessionsSurface inspect={()=>{}}/><ContextSurface capsuleId={null}/><RuntimeSurface/></MemoryStatusProvider>);
 const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
 const text=()=>fixture.textContent??'';
 const within=(label:string)=>fixture.querySelector(`[data-screen-label="${label}"]`)?.textContent??'';
@@ -83,7 +85,11 @@ const buttons=()=>[...fixture.querySelectorAll<HTMLButtonElement>('button')];
 const click=(label:string,scope:Element=fixture)=>{const b=[...scope.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.trim()===label||b.getAttribute('aria-label')===label);if(!b)throw new Error(`Missing ${label}`);b.click();};
 try{
   await wait(()=>within('Home').includes('3 records · 2 adopted · 1 staged'));
-  check('home_reads_registered_totals_latest_event_and_conversations',within('Home').includes('Latest: Synthetic item 1')&&within('Home').includes('4 captured conversations')&&!within('Home').includes('Read saved Capsules'));
+  await wait(()=>!!fixture.querySelector('[data-screen-label="Home"] .bg-trace path'));
+  const home=fixture.querySelector('[data-screen-label="Home"]')!;
+  check('home_draws_line_from_recorded_turn_times',/^M[\d.]+ [\d.]+( L[\d.]+ [\d.]+)+$/.test(home.querySelector('.bg-trace path')!.getAttribute('d')!.replace(/ ?L/g,' L'))&&!!home.querySelector('.bg-pen')&&within('Home').includes('1 captured turns and 0 Memory writes in these days'));
+  check('home_marks_recorded_writes_in_domain',home.querySelectorAll('.bg-mark[data-kind="canonical"]').length===1&&within('Home').includes('Latest Memory write'));
+  check('strip_shows_time_map_with_turn_bars',!!fixture.querySelector('.bg-strip[data-recorded] .tm')&&!fixture.querySelector('.tm-stopped')&&fixture.querySelector('.bg-strip-meta')!.textContent!.includes('line: captured turns'));  check('home_reads_registered_totals_latest_event_and_conversations',within('Home').includes('Latest: Synthetic item 1')&&within('Home').includes('4 captured conversations')&&!within('Home').includes('Read saved Capsules'));
   await wait(()=>within('Runtime Inspector').includes('Authorized records'));
   await wait(()=>within('Runtime Inspector').includes('Not connected'));
   check('connector_is_shown_as_not_connected_not_faked',within('Runtime Inspector').includes('not deployed yet')&&calls.includes('catalog:connector_status'));
@@ -158,7 +164,7 @@ try{
   check('sessions_show_conversation_account_scope',within('Sessions').includes('chatgpt-connector-synthetic'));
   check('sessions_read_conversations_turns_and_source_text',within('Sessions').includes('Only captured turns are shown')&&within('Sessions').includes('3 of 4 conversations'));
   const thread=fixture.querySelector('[data-screen-label="Sessions"] [data-thread-parts="2"]');
-  check('sessions_show_chatgpt_thread_parts_together_earliest_first',!!thread&&thread.textContent!.includes('Continued in later capture windows:')&&thread.textContent!.includes('Part 2')&&thread.textContent!.includes('3 captured turns')&&thread.querySelectorAll('button').length===2);
+  check('sessions_show_chatgpt_thread_parts_together_earliest_first',!!thread&&thread.textContent!.includes('Later parts of the same platform conversation:')&&thread.textContent!.includes('Part 2')&&thread.textContent!.includes('3 captured turns')&&thread.querySelectorAll('button').length===2);
   click(thread!.querySelectorAll('button')[1].textContent!.trim(),thread!);
   await wait(()=>!!fixture.querySelector('[data-thread-part]'));
   check('sessions_say_which_part_of_a_split_conversation_is_open',fixture.querySelector('[data-thread-part]')!.textContent!.includes('Part 2 of 2'));

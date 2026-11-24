@@ -7,7 +7,9 @@ import type { Page } from '../demo-types';
 import { DAYS, DEMO_CLOCK, earlier, marks, onChart, pct, pen, tracePath, xOf, yAt, dayLabel, type Mark } from './chart';
 import { useStatus, exiting } from '../memory/status';
 import { useAutoMode } from './autoMode';
-import TimeMap, { useLentMap } from './TimeMap';
+import TimeMap, { useLentMap, type MapSpec } from './TimeMap';
+import type { RecordedTrace } from './recordedTrace';
+import { useTimeView } from './timeview';
 import { homeSpec, sessionSpec } from './mapSpecs';
 import { DAY, nativeDate, nativeDay, observedCommit } from './nativeTime';
 
@@ -87,12 +89,15 @@ export function RecordStrip({ page, nav, still, selectedAt, sessionSpan, session
 
 /** Native strip: a real commit marker, never a fabricated continuous trace. */
 export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode }) {
-  const { status, vaultChanging, timeline, now, entry } = useStatus();
+  const { status, vaultChanging, timeline, now, entry, recorded } = useStatus();
   const lent = useLentMap();
   const state = status?.vault?.state;
   const readonly = entry === 'registered_owner_readonly';
+  const trace = readonly ? recorded?.trace ?? null : null;
+  if (trace) return <RecordedStrip page={page} nav={nav} trace={trace} timeline={timeline} now={now} />;
   const stopped = (readonly || !status || exiting(status) || vaultChanging || state !== 'open');
-  const why = t(readonly ? 'registered library' : !status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open');
+  const why = t(!readonly ? !status ? 'reading Memory status' : exiting(status) ? 'Runtime is exiting' : vaultChanging ? 'finishing Vault change' : state === 'locked' ? 'Vault locked' : 'no Vault open'
+    : recorded?.failed ? 'recorded times could not be read' : recorded ? 'reading recorded times' : 'registered library');
   const commit = stopped ? null : observedCommit(status.vault);
   const { domain: [start, end] } = timeline.init();
   const spec = { ...timeline, ticks: commit != null && commit >= start && commit < end ? [{ at: (commit - start) / (end - start), tall: true }] : [] };
@@ -115,6 +120,36 @@ export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode })
         : page === 'home' ? <TimeMap spec={spec} />
         : page === 'sessions' ? lent?.key.startsWith('native-session:') ? <TimeMap spec={lent} /> : <div className="tm tm-note"><span>{t('Time map unavailable · select a saved session with known event times')}</span></div>
         : null}
+    </div>
+  );
+}
+
+/** Registered strip: the same two weeks as Home, drawn from recorded turn and write times. */
+function RecordedStrip({ page, nav, trace, timeline, now }: { page: Page; nav: React.ReactNode; trace: RecordedTrace; timeline: MapSpec; now: number }) {
+  const v = useTimeView(timeline.key, timeline.init);
+  const { start, end } = trace;
+  const days = Math.round(v.span / DAY);
+  const layer = { width: `${(end - start) / v.span * 100}%`, transform: `translateX(${-(v.start - start) / (end - start) * 100}%)` };
+  return (
+    <div className="bg-strip" data-page={page} data-recorded="">
+      <div className="bg-strip-head">
+        {nav}
+        <div className="bg-strip-meta"><b>{t("Registered library")}</b> · {t('line: captured turns · marks: Memory writes')}</div>
+      </div>
+      {page === 'home' ? null : (
+        <div className="bg-strip-chart">
+          <Paper days={false}>
+            {Array.from({ length: days }, (_, i) => <span key={i} className="bg-day" style={{ left: pct(i / days) }}>{nativeDate(v.start + i * DAY, { month: 'short', day: 'numeric' })}</span>)}
+            <div className="bg-pan bg-pan-ink" style={layer}>
+              <div className="bg-trace-clip"><svg className="bg-trace" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+                <path d={trace.path(now)} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+              </svg></div>
+              {trace.marks.map(m => <span key={`${m.at}:${m.kind}`} className="bg-mark" data-kind={m.kind} style={{ left: pct((m.at - start) / (end - start)), top: pct(trace.y(m.at)) }} />)}
+            </div>
+          </Paper>
+        </div>
+      )}
+      {page === 'home' ? <TimeMap spec={timeline} /> : null}
     </div>
   );
 }

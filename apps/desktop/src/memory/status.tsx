@@ -3,14 +3,16 @@
 // gate that keeps Vault-dependent surfaces closed until a Vault is open.
 // A configured registered entry has its own typed status; it never replaces
 // the canonical Workspace slot with a fabricated v1 Vault.
-import { lazy, Suspense, createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { call, describe, pick, shell, type J } from "./client";
-import type { CatalogStatus } from "./catalog";
+import { catalogScopeKey, type CatalogStatus } from "./catalog";
+import { useRecordedTimes } from "./recordedTimes";
+import { recordedSpec, recordedTrace, TRACE_DAYS, type RecordedTrace } from '../theme/recordedTrace';
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 import NativeHome from './NativeHome';
-import { nativeHomeSpec } from '../theme/nativeTime';
+import { DAY, nativeDay, nativeHomeSpec } from '../theme/nativeTime';
 import type { MapSpec } from '../theme/TimeMap';
 
 import { labels, msg, t, tj, tn } from '../i18n/index.ts';
@@ -24,7 +26,9 @@ const ProviderSettingsStatus = lazy(() => import("./ProviderSettingsStatus").the
 
 type StatusValue = { status: J; vaultChanging: boolean; entry: "workspace" | "registered_owner_readonly" | null;
   nativeStatus: CatalogStatus | null; nativeError: Failure; observeNativeControl: (next: CatalogStatus | null) => void;
-  error: Failure; refresh: () => Promise<void>; now: number; timeline: MapSpec };
+  error: Failure; refresh: () => Promise<void>; now: number; timeline: MapSpec;
+  /** Registered entry with an open library: its recorded trace, or null while reading. */
+  recorded: { trace: RecordedTrace | null; failed: boolean } | null };
 const StatusContext = createContext<StatusValue | null>(null);
 
 export function MemoryStatusProvider({ children }: { children: ReactNode }) {
@@ -38,8 +42,17 @@ export function MemoryStatusProvider({ children }: { children: ReactNode }) {
   // lock, status loss, host transition or opening another Vault.
   const scope = !value.vaultChanging && !exiting(value.status) && value.status?.vault?.state === 'open'
     ? value.status.vault.vaultId ?? value.status.vault.rootName : 'unavailable';
-  const timeline = nativeHomeSpec(now, scope);
-  return <StatusContext.Provider value={{ ...value, now, timeline }}>{children}</StatusContext.Provider>;
+  // Registered entry: Home's trace and the strip come from recorded turn and write times.
+  const registered = value.entry === "registered_owner_readonly";
+  const catalogScope = registered && value.nativeStatus?.state === "open" && value.nativeStatus.selection ? catalogScopeKey(value.nativeStatus.selection) : null;
+  const since = nativeDay(now) + DAY - TRACE_DAYS * DAY;
+  const { times, failed } = useRecordedTimes(catalogScope, since);
+  const hour = Math.floor(now / 3_600_000);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const trace = useMemo(() => times ? recordedTrace(times.turns, times.writes, now) : null, [times, hour]);
+  const timeline = catalogScope ? recordedSpec(now, catalogScope, trace) : nativeHomeSpec(now, scope);
+  const recorded = catalogScope ? { trace, failed } : null;
+  return <StatusContext.Provider value={{ ...value, now, timeline, recorded }}>{children}</StatusContext.Provider>;
 }
 
 export function useStatus(): StatusValue {

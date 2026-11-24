@@ -493,9 +493,9 @@ function SessionsView() {
   const loaded = pages.flatMap(p => p.items);
   const scopes = [...new Set(loaded.map(c => c.conversation.account_scope).filter((v): v is string => !!v))];
   const items = scope ? loaded.filter(c => c.conversation.account_scope === scope) : loaded;
-  // Memory ADR-MEM-185: a ChatGPT thread continued after its capture window
-  // rotated is captured once per window; later parts carry the original ID
-  // plus `#pol_…`. Show the parts of one thread together, earliest first.
+  // Parts of one platform conversation share its original ID: an import may split
+  // a long thread, and Memory ADR-MEM-185 captures a thread continued after its
+  // capture window rotated with `#pol_…` appended. Show the parts together, earliest first.
   const threads: (typeof items)[] = [];
   const byOriginal = new Map<string, typeof items>();
   for (const c of items) {
@@ -517,7 +517,7 @@ function SessionsView() {
       <ul className="mem-list mem-pad">{threads.map(([c, ...later]) => <li key={c.conversation.conversation_id} data-thread-parts={later.length + 1}>
         <button type="button" className="mem-link" aria-pressed={chosen === c.conversation.conversation_id} onClick={() => open(c.conversation.conversation_id)}>{c.conversation.title ?? t("Untitled conversation")}</button>
         <p className="mem-row-meta">{recordTimeText(c.conversation.started_at)} · {c.conversation.platform}{c.conversation.account_scope ? ` · ${c.conversation.account_scope}` : ""} · {t("{n} captured turns", { n: c.visible_captured_turns })}</p>
-        {later.length > 0 && <p className="mem-row-meta">{t("Continued in later capture windows:")} {later.map((part, index) =>
+        {later.length > 0 && <p className="mem-row-meta">{t("Later parts of the same platform conversation:")} {later.map((part, index) =>
           <button key={part.conversation.conversation_id} type="button" className="mem-link" aria-pressed={chosen === part.conversation.conversation_id} onClick={() => open(part.conversation.conversation_id)}>
             {t("Part {n}", { n: index + 2 })} · {recordTimeText(part.conversation.started_at)} · {t("{n} captured turns", { n: part.visible_captured_turns })}</button>)}</p>}
       </li>)}</ul>
@@ -531,7 +531,7 @@ function SessionsView() {
         <h2 className="qr29">{detail.conversation.title ?? t("Untitled conversation")}</h2>
         <p className="mem-row-meta">{recordTimeText(detail.conversation.started_at)} – {recordTimeText(detail.conversation.ended_at)} · {detail.conversation.platform}</p>
         <p className="mem-row-meta">{t("Only captured turns are shown; this is not the whole platform conversation.")}</p>
-        {chosenParts && <p className="mem-row-meta" data-thread-part>{t("Part {n} of {total} of one conversation, split where its capture window changed. A later part starts without a link to the earlier turns.", { n: chosenParts.findIndex(c => c.conversation.conversation_id === chosen) + 1, total: chosenParts.length })}</p>}
+        {chosenParts && <p className="mem-row-meta" data-thread-part>{t("Part {n} of {total} loaded parts of one platform conversation (same original conversation ID).",{ n: chosenParts.findIndex(c => c.conversation.conversation_id === chosen) + 1, total: chosenParts.length })}</p>}
         <ol className="mem-list mem-turns">{detail.turns.map((turn, index) => {
           const body = texts[`${turn.turn.source.source_id}:${turn.turn.source.source_revision}`];
           // Memory ADR-MEM-175 note: each turn's source record carries its time.
@@ -580,29 +580,21 @@ export const readingStamp = stamp;
 // ---- Home ---------------------------------------------------------------------
 type Note = { title: string; line: string; route: { go: () => void }; detail: string; time: string };
 export function RegisteredHome({ nav, timeline, now, phase }: { nav: { memory: { go: () => void }; sessions: { go: () => void }; context: { go: () => void } }; timeline: MapSpec; now: number; phase: string }) {
-  const { nativeStatus, nativeError, error } = useStatus();
+  const { nativeStatus, nativeError, error, recorded } = useStatus();
   const { readings, error: readError } = useRegisteredReadings();
-  // R5 A9: the newest formation events (one page) drawn as marks on the record paper.
-  const [trace, setTrace] = useState<number[] | null>(null);
-  const scope = nativeStatus?.state === "open" && nativeStatus.selection ? catalogScopeKey(nativeStatus.selection) : null;
-  useEffect(() => {
-    setTrace(null);
-    if (!scope) return;
-    catalogView({ operation: "activity", filter: CATALOG_FILTER, query: { memory: null, event_kind: null, include_sources: false }, cursor: null, limit: 100 })
-      .then(page => setTrace(page.items.map(e => Date.parse(e.proof.written_at)).filter(Number.isFinite)), () => setTrace(null));
-  }, [scope]);
-  const clock = (at: string) => nativeDate(Date.parse(at), { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const clock = (at: string | number) => nativeDate(typeof at === "number" ? at : Date.parse(at), { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const latestTurn = recorded?.trace?.latestTurn ?? null;
   const fallback = nativeError?.text ?? error?.text ?? (nativeStatus?.reason ? describe(nativeStatus.reason) : readError?.text ?? registeredLabel(nativeStatus));
   const notes: Note[] = [
     { title: t("Native memory catalog"), route: nav.memory, detail: phase, time: readings ? clock(readings.observedAt) : "—",
       line: readings ? t("{total} records · {adopted} adopted · {staged} staged", { total: readings.stats.matched_in_scope, adopted: count(readings.stats, "adoption", "adopted"), staged: count(readings.stats, "adoption", "staged") }) : fallback },
     { title: t("Formation"), route: nav.memory, detail: readings?.latest ? word(readings.latest.event_kind) : "—", time: readings?.latest ? clock(readings.latest.proof.written_at) : "—",
       line: readings ? readings.latest ? t("Latest: {title}", { title: readings.latest.title ?? t("Source material") }) : t("No recorded events.") : fallback },
-    { title: t("Sessions"), route: nav.sessions, detail: "—", time: "—",
-      line: readings ? t("{n} captured conversations", { n: readings.conversations }) : fallback },
+    { title: t("Sessions"), route: nav.sessions, detail: "—", time: latestTurn != null ? clock(latestTurn) : "—",
+      line: readings ? latestTurn != null ? t("{n} captured conversations · latest turn {date}", { n: readings.conversations, date: nativeDate(latestTurn, { month: "short", day: "numeric" }) }) : t("{n} captured conversations", { n: readings.conversations }) : fallback },
     { title: t("Context"), route: nav.context, detail: "—", time: "—", line: t("Preview the context an Agent would receive") },
   ];
-  return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry readonlyNotes={notes} events={trace ?? undefined}
+  return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry readonlyNotes={notes} recorded={recorded}
     label={readings ? t("{label} · {n} records", { label: registeredLabel(nativeStatus), n: readings.stats.matched_in_scope }) : registeredLabel(nativeStatus)} phase={phase} reviewLine={fallback} />;
 }
 
