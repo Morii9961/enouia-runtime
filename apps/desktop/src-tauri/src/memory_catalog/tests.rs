@@ -1611,6 +1611,65 @@ fn agent_requests_queue_names_ignores_locally_and_resolves_through_owner_actions
         .unwrap();
     assert_eq!(after["items"][1]["pending"], false);
     assert_eq!(after["items"][0]["pending"], true);
+    // Memory ADR-MEM-184: a request under the ChatGPT connector's grant (its
+    // purpose tag, no local registration) is named ChatGPT in the queue.
+    let mut connector = grant.clone();
+    connector.grant_id = PolicyId::from_random(enouia_memory_contract::ports::IdSource::random_16(
+        &enouia_memory_vault::OsIdSource,
+    ));
+    connector.revision = enouia_memory_contract::json::Revision::new(1).unwrap();
+    connector.principal.actor_id = enouia_memory_contract::ids::PrincipalId::from_random(
+        enouia_memory_contract::ports::IdSource::random_16(&enouia_memory_vault::OsIdSource),
+    );
+    connector.purpose = Some("chatgpt_connector".into());
+    let planned = vault
+        .plan_owner_read_grant(&owner, connector.clone())
+        .unwrap();
+    vault.commit_owner_read_grant(&owner, &planned).unwrap();
+    let (target, source, quote_hint) = cited("I prefer green tea.");
+    let host =
+        QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone())
+            .unwrap();
+    host.correction_reporter_with_owner_grant(
+        &owner,
+        connector.principal.clone(),
+        &connector.grant_id,
+        SegmentedAgentScope {
+            subject_id: connector.subject_id.clone(),
+            project_id: None,
+            policy_ids: connector
+                .policies
+                .iter()
+                .map(|r| r.policy_id.clone())
+                .collect(),
+            source_ids: connector.source_ids.clone(),
+            max_sensitivity: Sensitivity::Private,
+            source_read: true,
+            valid_until: enouia_memory_contract::time::Timestamp::from_unix_ms(now + 120_000)
+                .unwrap(),
+        },
+    )
+    .unwrap()
+    .submit(&AgentCorrectionRequest {
+        request_id: request_id(),
+        target,
+        source,
+        quote_hint,
+        correction: "Synthetic connector correction.".into(),
+    })
+    .unwrap();
+    drop(host);
+    let queue = native
+        .call("main", &packet(json!({"operation":"agent_requests"})))
+        .unwrap();
+    let from_chatgpt: Vec<&Value> = queue["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|i| i["text"] == "Synthetic connector correction.")
+        .collect();
+    assert_eq!(from_chatgpt.len(), 1);
+    assert_eq!(from_chatgpt[0]["agent"], "ChatGPT");
     native.shutdown();
 }
 

@@ -319,13 +319,29 @@ impl Agents {
             .ignored_all()
             .remove(&vault.descriptor().vault_id.to_string())
             .unwrap_or_default();
+        // Memory ADR-MEM-184: ChatGPT asks under the connector's grant, whose
+        // principal no Agent on this computer registered.
+        let owner = vault.descriptor().created_by.clone();
+        let connector: Vec<PrincipalId> = vault
+            .owner_read_status(&owner)
+            .map_err(code)?
+            .grants
+            .into_iter()
+            .filter(|g| g.purpose.as_deref() == Some("chatgpt_connector"))
+            .map(|g| g.principal.actor_id)
+            .collect();
         let mut items = Vec::new();
         for r in requests {
             let agent = local
                 .iter()
                 .find(|(_, a)| a.principal == r.principal.actor_id)
                 .and_then(|(key, _)| AGENTS.iter().find(|(k, _)| k == key))
-                .map(|(_, name)| *name);
+                .map(|(_, name)| *name)
+                .or_else(|| {
+                    connector
+                        .contains(&r.principal.actor_id)
+                        .then_some("ChatGPT")
+                });
             let skip = ignored.contains(&r.key.to_string());
             let mut value = serde_json::to_value(&r).map_err(|_| "catalog_read_refused")?;
             value["agent"] = json!(agent);

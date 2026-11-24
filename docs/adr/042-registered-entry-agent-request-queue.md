@@ -14,3 +14,7 @@ Morii authorized gate D: Claude Code and Codex may save correction requests and 
 ## Verification
 
 Synthetic: a native test captures two connector turns, registers Claude Code, submits a correction request and a forget request under the grant, reads the queue (names, pending), skips one (library unchanged, local file written), and resolves the forget through plan/confirm (`pending` becomes false). A DOM fixture covers counts, skipping, the prefilled single-action review, one confirm and returning a skipped request. Real library: acting on a request is a real write and is Morii's confirmation during acceptance, after Memory's verified export.
+
+## Amendment (2026-11-24): requests from ChatGPT
+
+Memory ADR-MEM-184 (main `ba09ee7`) lets ChatGPT submit correction and forget requests through the remote connector into the same queue. Their principal is the connector grant's principal, which no Agent on this computer registered. The queue now names a request "ChatGPT" when its principal matches a grant whose purpose is `chatgpt_connector` (ADR-MEM-175, already in pin `ca76892`); locally registered names still come first, and any other unknown principal stays "Unnamed Agent". Review, skip and confirm are unchanged. No pin bump: ADR-MEM-184 changes no IPC, wire or schema. The synthetic native test adds a connector-purpose grant, submits a correction under it and checks the name.
