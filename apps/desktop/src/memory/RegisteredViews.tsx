@@ -493,6 +493,20 @@ function SessionsView() {
   const loaded = pages.flatMap(p => p.items);
   const scopes = [...new Set(loaded.map(c => c.conversation.account_scope).filter((v): v is string => !!v))];
   const items = scope ? loaded.filter(c => c.conversation.account_scope === scope) : loaded;
+  // Memory ADR-MEM-185: a ChatGPT thread continued after its capture window
+  // rotated is captured once per window; later parts carry the original ID
+  // plus `#pol_…`. Show the parts of one thread together, earliest first.
+  const threads: (typeof items)[] = [];
+  const byOriginal = new Map<string, typeof items>();
+  for (const c of items) {
+    const original = c.conversation.original_conversation_id;
+    const base = original ? original.split("#pol_")[0] : null;
+    const thread = base ? byOriginal.get(base) : undefined;
+    if (thread) thread.push(c);
+    else { threads.push([c]); if (base) byOriginal.set(base, threads.at(-1)!); }
+  }
+  for (const thread of threads) thread.sort((a, b) => (a.conversation.started_at.from ?? "").localeCompare(b.conversation.started_at.from ?? ""));
+  const chosenParts = threads.find(thread => thread.length > 1 && thread.some(c => c.conversation.conversation_id === chosen));
   const last = pages.at(-1);
   return <>
     <aside className="qr28" aria-busy={reads.busy}><div className="qr20"><h1 className="qr18">{t("Sessions")}</h1>
@@ -500,9 +514,12 @@ function SessionsView() {
       <ErrorBox error={reads.error} />
       {scopes.length > 1 && <label className="mem-label mem-pad">{t("Captured by")} <select className="mem-input" value={scope} onChange={e => setScope(e.target.value)}>
         <option value="">{t("All")}</option>{scopes.map(v => <option key={v} value={v}>{v}</option>)}</select></label>}
-      <ul className="mem-list mem-pad">{items.map(c => <li key={c.conversation.conversation_id}>
+      <ul className="mem-list mem-pad">{threads.map(([c, ...later]) => <li key={c.conversation.conversation_id} data-thread-parts={later.length + 1}>
         <button type="button" className="mem-link" aria-pressed={chosen === c.conversation.conversation_id} onClick={() => open(c.conversation.conversation_id)}>{c.conversation.title ?? t("Untitled conversation")}</button>
         <p className="mem-row-meta">{recordTimeText(c.conversation.started_at)} · {c.conversation.platform}{c.conversation.account_scope ? ` · ${c.conversation.account_scope}` : ""} · {t("{n} captured turns", { n: c.visible_captured_turns })}</p>
+        {later.length > 0 && <p className="mem-row-meta">{t("Continued in later capture windows:")} {later.map((part, index) =>
+          <button key={part.conversation.conversation_id} type="button" className="mem-link" aria-pressed={chosen === part.conversation.conversation_id} onClick={() => open(part.conversation.conversation_id)}>
+            {t("Part {n}", { n: index + 2 })} · {recordTimeText(part.conversation.started_at)} · {t("{n} captured turns", { n: part.visible_captured_turns })}</button>)}</p>}
       </li>)}</ul>
       {last?.next != null && <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show more conversations")}</button>}
     </aside>
@@ -514,6 +531,7 @@ function SessionsView() {
         <h2 className="qr29">{detail.conversation.title ?? t("Untitled conversation")}</h2>
         <p className="mem-row-meta">{recordTimeText(detail.conversation.started_at)} – {recordTimeText(detail.conversation.ended_at)} · {detail.conversation.platform}</p>
         <p className="mem-row-meta">{t("Only captured turns are shown; this is not the whole platform conversation.")}</p>
+        {chosenParts && <p className="mem-row-meta" data-thread-part>{t("Part {n} of {total} of one conversation, split where its capture window changed. A later part starts without a link to the earlier turns.", { n: chosenParts.findIndex(c => c.conversation.conversation_id === chosen) + 1, total: chosenParts.length })}</p>}
         <ol className="mem-list mem-turns">{detail.turns.map((turn, index) => {
           const body = texts[`${turn.turn.source.source_id}:${turn.turn.source.source_revision}`];
           // Memory ADR-MEM-175 note: each turn's source record carries its time.
