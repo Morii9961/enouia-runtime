@@ -1,6 +1,6 @@
 # Runtime 交付路线与问题清单（2026-11-16）
 
-**当前状态（2026-11-24）**：R4、R5 已全部合并，Runtime main `38586e4`，Memory pin `ca76892`。验收候选为 [`38586e4`](../validation/R5-candidate-38586e4-2026-11-24.md)（相对 `839e34d` 多了 ChatGPT 请求署名、Home 真实时间画线和 Sessions 分段合并；`7021984` 作废）；本机装的是已作废的 `839e34d`，验收前换装。真实库仍只读（CURRENT 440），没有登记任何授权。Runtime 路线上不需要新授权的工作已经做完，剩下的都在等 Morii：
+**当前状态（2026-11-24）**：R4、R5 已全部合并，Runtime main `eaa410c`，Memory pin `ca76892`。验收候选为 [`eaa410c`](../validation/R5-candidate-eaa410c-2026-11-24.md)，已应 Morii 要求装到本机（相对 `839e34d` 多了 ChatGPT 请求署名、Home 真实时间画线、Sessions 分段合并和数字日期标签；`38586e4`、`7021984` 作废）。中文召回只按空格切词、整句问题召回不到，已请 Memory 在合约层修，修好后升级 pin。真实库仍只读（CURRENT 440），没有登记任何授权。Runtime 路线上不需要新授权的工作已经做完，剩下的都在等 Morii：
 
 - 周末一次性验收，以及 D1 星图帧率、D2 Capsule 开关：见[周末一页](R5_MORII_DECISIONS_2026-11-23.md)。
 - 外壳：托盘、热键、登录启动、卸载由 Morii 亲手做。
