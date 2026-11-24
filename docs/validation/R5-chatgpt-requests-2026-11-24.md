@@ -13,11 +13,11 @@ Memory [ADR-MEM-184](https://github.com/Morii9961/enouia-memory)（main `ba09ee7
 | `cargo test --locked`（原生测试新增：写一份 purpose 为连接器的授权，在其下提交纠正请求，队列署名为 ChatGPT）；clippy、fmt；`check-memory-integration --memory-checkout <ca76892>` | 74 通过；通过；通过 |
 | tsc；`npm` 单元测试与 DOM 夹具 | 通过 |
 | 发布版程序原生 `--owner-readonly-only`（新建的合成登记）/ `--catalog-only` | **41/41** / **42/42** |
-| 真实库只读走查 | **未执行**：主库正被已安装的 `839e34d` 实例打开，关闭它需要 Morii 亲手做，见下 |
+| 候选 `7021984` 真实库只读走查 | **29/29**；队列为空，没有可署名的请求；CURRENT 前后均为 440 |
 
 全量 `cargo test` 并行跑时，`concurrent_agent_sessions_all_connect` 偶发一次 `client Io(BrokenPipe)`（4 次全量里 2 次，单独跑 4/4 通过）。该测试不经过请求队列，与本片无关；记为负载下的已知抖动，待查。
 
 ## 边界
 
 - 真实库目前没有连接器授权，也没有 ChatGPT 请求；队列照常为空。连接器接通后，ChatGPT 的请求会在 Settings → Agent 请求里署名“ChatGPT”。
-- 真实库只读走查待补：Morii 关闭已安装实例后，用新候选跑同一走查并把结果补进本记录与候选记录。
+- Morii 退出已安装实例后，用候选 `7021984` 补跑了真实库只读走查，见[候选记录](R5-candidate-7021984-2026-11-24.md)。
