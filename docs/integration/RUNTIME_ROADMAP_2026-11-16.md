@@ -8,7 +8,9 @@
 - B3 语义近邻：Morii 定为先不做。
 - ChatGPT 请求署名（Memory ADR-MEM-184，pin 不升）：队列里来自连接器的纠正、遗忘请求写“ChatGPT”，见[验证记录](../validation/R5-chatgpt-requests-2026-11-24.md)；候选 `7021984` 真实库只读走查 29/29（队列为空，CURRENT 440）。
 
-Memory 之后的 pin（如 `1933746`）不改 surface 和命令时，不需要机械跟进。
+- 跨捕获窗口的 ChatGPT 对话（Memory ADR-MEM-185，pin 不升）：Sessions 把同一对话的各段合在一行，见[验证记录](../validation/R5-chatgpt-segments-2026-11-24.md)；候选 `7021984` 不含这项，接通连接器前再出候选。
+
+Memory 之后的 pin（`1933746` 至 `c16530b`，ADR-MEM-176 至 188）只改远程服务，不改 surface 和命令，不需要机械跟进。
 
 本文件是当前接续入口（R4 最新状态见下文“R4：原有界面接入真实库”一节，最终验收见 [R4 一次性验收指南](../RUNTIME_R4_ACCEPTANCE_2026-11-19.md)），取代旧交接的“下一步”，不改历史验证结论。[状态报告](../status/PROJECT_STATUS.md)、[Dashboard JSON](../status/project-status.json)、[新会话提示词](../prompts/CODEX_RUNTIME_NEXT_2026-11-16.md)分别用于状态、导入和实施。
 

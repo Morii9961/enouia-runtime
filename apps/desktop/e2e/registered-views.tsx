@@ -58,7 +58,8 @@ setCatalogTransport(async(_command,args)=>{
   if(q.operation==='conflicts'){const pair=[1,2].map(n=>{const d:any=detail(`synthetic-memory-${n}`);return d.item;}).filter(Boolean);
     return {...envelope,kind:'memory_conflict_group',header,selected:null,basis:'qualified',counter_evidence:[],matched_in_scope:pair.length,items:pair,next:null};}
   if(q.operation==='conversations')return {...envelope,kind:'native_conversation_page',header,matched_in_scope:4,next:null,
-    items:[{conversation:{conversation_id:'ses_synthetic',platform:'synthetic',account_scope:'chatgpt-connector-synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},visible_captured_turns:1,visible_captured_sources:1,effective_sensitivity:'private',platform_complete_not_claimed:true}]};
+    items:[{conversation:{conversation_id:'ses_synthetic',platform:'synthetic',account_scope:'chatgpt-connector-synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},visible_captured_turns:1,visible_captured_sources:1,effective_sensitivity:'private',platform_complete_not_claimed:true},
+      ...[['ses_part2','2026-03-05T00:00:00Z','gpt-thread#pol_b',3],['ses_part1','2026-03-02T00:00:00Z','gpt-thread',2]].map(([id,from,original,turns])=>({conversation:{conversation_id:id,platform:'chatgpt',account_scope:'chatgpt-connector-synthetic',title:'Long ChatGPT thread',started_at:{...time,from,precision:'instant'},ended_at:time,original_conversation_id:original},visible_captured_turns:turns,visible_captured_sources:turns,effective_sensitivity:'private',platform_complete_not_claimed:true}))]};
   if(q.operation==='conversation_detail')return {...envelope,kind:'native_conversation_detail',header,conversation:{conversation_id:'ses_synthetic',platform:'synthetic',title:'Synthetic conversation',started_at:time,ended_at:time,original_conversation_id:null},
     visible_captured_turns:1,visible_captured_sources:1,next:null,platform_complete_not_claimed:true,
     turns:[{turn:{turn_id:'turn_1',sequence:1,source:{source_id:'synthetic-source',source_revision:1}},source_record:{reference:{source_id:'synthetic-source',source_revision:1},speaker:'user',source_kind:'export_message'},fields:{}}]};
@@ -155,7 +156,12 @@ try{
   click('Synthetic conversation',fixture.querySelector('[data-screen-label="Sessions"]')!);
   await wait(()=>within('Sessions').includes('合成原文'));
   check('sessions_show_conversation_account_scope',within('Sessions').includes('chatgpt-connector-synthetic'));
-  check('sessions_read_conversations_turns_and_source_text',within('Sessions').includes('Only captured turns are shown')&&within('Sessions').includes('1 of 4 conversations'));
+  check('sessions_read_conversations_turns_and_source_text',within('Sessions').includes('Only captured turns are shown')&&within('Sessions').includes('3 of 4 conversations'));
+  const thread=fixture.querySelector('[data-screen-label="Sessions"] [data-thread-parts="2"]');
+  check('sessions_show_chatgpt_thread_parts_together_earliest_first',!!thread&&thread.textContent!.includes('Continued in later capture windows:')&&thread.textContent!.includes('Part 2')&&thread.textContent!.includes('3 captured turns')&&thread.querySelectorAll('button').length===2);
+  click(thread!.querySelectorAll('button')[1].textContent!.trim(),thread!);
+  await wait(()=>!!fixture.querySelector('[data-thread-part]'));
+  check('sessions_say_which_part_of_a_split_conversation_is_open',fixture.querySelector('[data-thread-part]')!.textContent!.includes('Part 2 of 2'));
   await setLang('zh-Hans' as Lang);await wait(()=>within('Sessions').includes('只显示已捕获的轮次'));
   check('zh_registered_views_translate_without_new_reads',within('Home').includes('已采用'));
   await setLang('en' as Lang);
