@@ -1,5 +1,7 @@
 # R5 Windows 候选 `eaa410c`（2026-11-24，已装到本机）
 
+> **已作废（2026-11-24）**：由 [`1324b51`](R5-candidate-1324b51-2026-11-24.md) 取代（整句中文召回不到），本机已换装。
+
 从 Runtime main `eaa410c`（PR252 合并）构建，取代 [`38586e4`](R5-candidate-38586e4-2026-11-24.md)，供 Morii 周末按 [R4 一次性验收指南](../RUNTIME_R4_ACCEPTANCE_2026-11-19.md)验收。内嵌的 Memory pin 仍为 `ca76892303eda0b268237c8b83878bc12f6cfe7e`。x64、当前用户 NSIS 安装方式，产品版本 0.1.0，安装包和程序均未签名。产物在本机忽略目录 `apps/desktop/target/candidate-eaa410c/`。
 
 | 文件 | 字节 | SHA-256 |
