@@ -139,7 +139,7 @@ function RecordedStrip({ page, nav, trace, timeline, now }: { page: Page; nav: R
       {page === 'home' ? null : (
         <div className="bg-strip-chart">
           <Paper days={false}>
-            {Array.from({ length: days }, (_, i) => <span key={i} className="bg-day" style={{ left: pct(i / days) }}>{nativeDate(v.start + i * DAY, { month: 'short', day: 'numeric' })}</span>)}
+            {Array.from({ length: days }, (_, i) => <span key={i} className="bg-day" style={{ left: pct(i / days) }}>{nativeDate(v.start + i * DAY, { month: 'numeric', day: 'numeric' })}</span>)}
             <div className="bg-pan bg-pan-ink" style={layer}>
               <div className="bg-trace-clip"><svg className="bg-trace" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
                 <path d={trace.path(now)} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />

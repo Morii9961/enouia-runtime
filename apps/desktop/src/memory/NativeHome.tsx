@@ -71,7 +71,7 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
       <div className="bg-paper bg-paper-big" data-by={view.by} data-unavailable={(!open && !trace) || undefined}>
         <div className="bg-pane" style={{ width: `${PANE * 100}%` }}>
           <div className="bg-pan bg-pan-grid" style={{ ...layer, backgroundSize: `calc(100% / ${days}) 100%` }} aria-hidden="true">
-            {Array.from({ length: days }, (_, i) => <span key={i} className="bg-day" style={{ left: `${i / days * 100}%` }}>{nativeDate(start + i * DAY, { month: 'short', day: 'numeric' })}</span>)}
+            {Array.from({ length: days }, (_, i) => <span key={i} className="bg-day" style={{ left: `${i / days * 100}%` }}>{nativeDate(start + i * DAY, { month: 'numeric', day: 'numeric' })}</span>)}
           </div>
           <div className="bg-draw" role="img" aria-label={traceNote}>
             <div className="bg-pan bg-pan-ink" style={layer}>
