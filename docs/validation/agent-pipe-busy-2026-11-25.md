@@ -19,4 +19,15 @@
 
 ## 处理
 
-修复属于 Memory 仓库：`from_owner_profile` 里的 `snapshot()` / `check_original_agent_carrier()` 也应等待 `BRIEF_LOCK_WAIT`。证据已交给 Memory 会话。Memory 合入后，Runtime 升级 pin，并改正 `memory_pipes.rs` 中的注释，再连续三次跑单线程和并行全量。本记录不改代码。
+Memory 在 `b7a0269`（[#209](https://github.com/Morii9961/enouia-memory/pull/209)，ADR-MEM-217，审阅头 `99bed54`）修复：`snapshot()` 和 `check_original_agent_carrier()` 取写锁时，也像其他只读操作一样最多等待 `BRIEF_LOCK_WAIT`；提交仍只试一次。Runtime 把 pin 升到 `b7a0269`（只有 `vault` crate 变了，另加一个 host 测试；surface aggregate `d3092dbb…`，仍为 61 条命令），并改正了 `memory_pipes.rs` 中的注释，代码本身不改。
+
+## 验证（pin `b7a0269`）
+
+| 检查 | 结果 |
+|---|---|
+| `node scripts/check-memory-integration.mjs --memory-checkout` / `--self-test` | 一致，surface 与锁定版本相符 / 8 项反例均被拒 |
+| `cargo fmt -- --check`、`cargo clippy --locked --all-targets -- -D warnings` | 通过 |
+| 全量 `cargo test --locked --bin enouia-desktop -- --test-threads=1` | **13/13** 次通过（74 通过，2 忽略） |
+| 全量 `cargo test --locked --bin enouia-desktop`（并行） | **13/13** 次通过 |
+
+`concurrent_agent_sessions_all_connect` 在 26 次全量运行中全部通过。修复前，本机单线程全量约每 8 次失败 1 次，所以 13 次全部通过本身只是中等强度的证据；结论主要依据定位到的那次 `Busy`，以及 Memory 的修复正好改掉了那一处。若以后再出现失败，先像上面那样给 `serve` 的每一步临时加错误输出，再把报错发给 Memory。没有打开真实库，没有安装或部署。

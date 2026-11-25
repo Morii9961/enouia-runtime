@@ -148,8 +148,9 @@ fn serve(
         )
         .ok_or(())?,
     };
-    // Memory waits briefly for its writer lock here (ADR-MEM-175), so two
-    // sessions of one Agent connecting at the same moment both get through.
+    // Memory waits briefly for its writer lock in host creation and permit
+    // issuance (ADR-MEM-175, ADR-MEM-217), so two sessions of one Agent
+    // connecting at the same moment both get through.
     let host =
         QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone())
             .map_err(drop)?;
