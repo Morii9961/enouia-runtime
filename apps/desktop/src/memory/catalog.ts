@@ -31,7 +31,7 @@ export type CatalogDetail = { kind: "native_memory_detail"; header: { selection:
 export type CatalogSourceRef = { source_id: string; source_revision: number };
 export type CatalogSource = { kind: "native_source_excerpt"; header: { selection: CatalogSelection }; source: CatalogSourceRef | null;
   source_record: { reference: CatalogSourceRef; speaker: string; source_kind: string; evidence_class: string; anchor_hash: string;
-    original_conversation_id: string | null; original_message_id: string | null } | null;
+    original_conversation_id: string | null; original_message_id: string | null; occurred_at?: string | null } | null;
   excerpt: string | null; start: number; end: number; total_characters: number; complete_in_scope: boolean };
 type Queries = { status: object; page: { filter: CatalogFilter; cursor: CatalogCursor | null; limit: number; facets?: boolean };
   stats: { filter: CatalogFilter; selection: CatalogSelection }; detail: { filter: CatalogFilter; memory_id: string };

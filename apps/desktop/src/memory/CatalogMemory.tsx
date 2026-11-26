@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection, type FacetGroup } from "./catalog";
+import { CATALOG_FILTER, catalogRead, catalogSelectionKey, catalogScopeKey, type CatalogCursor, type CatalogPage, type CatalogStats, type CatalogStatus, type CatalogDetail, type CatalogSource, type CatalogEvidence, type CatalogFilter, type CatalogSelection, type FacetGroup, type RecordTime } from "./catalog";
 import { analystText, recordTimeText, word } from "./catalogWords";
 import { CorrectionPanel } from "./CorrectionPanel";
 import { RevisionCompare } from "./Compare";
@@ -71,6 +71,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   };
   const open = status?.state === "open";
   const owner = mode === "registered_owner_readonly";
+  const said = useSaidTimes(read, filter, owner ? page : null);
   return <>
     <div className="qr45" aria-busy={reads.busy}>
       <div className="qr31"><h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered library · confirmed changes only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
@@ -117,10 +118,10 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
           {dayGroups(page.items).map(([day, items]) => <section key={day ?? "unknown"} className="mem-day-group" aria-label={day ? dayText(day) : t("Learned date not recorded")}>
           <h3 className="mem-day">{day ? dayText(day) : t("Learned date not recorded")}</h3>
           <ul className="mem-list">{items.map(item => <li key={`${item.base.memory.memory_id}:${item.base.memory.revision}`}>
-            <h3 className="mem-content"><button type="button" className="mem-link" aria-pressed={selectedId === item.base.memory.memory_id} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={() => setSelectedId(item.base.memory.memory_id)}>{item.title}</button></h3><p className="mem-content">{item.base.content}</p>
+            <h3 className="mem-content"><button type="button" className="mem-link" aria-pressed={selectedId === item.base.memory.memory_id} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={() => setSelectedId(item.base.memory.memory_id)}>{item.title}</button></h3><p className="mem-content mem-summary">{item.base.content}</p>
             <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: word(item.base.dimensions.kind), knowledge: word(item.base.knowledge), adoption: word(item.base.adoption), validity: word(item.base.validity), attention: word(item.base.attention) })}</p>
             <p className="mem-row-meta">{shortId(item.base.memory.memory_id)} · r{item.base.memory.revision} · {item.content_lang}</p>
-            {item.event_time && <p className="mem-row-meta">{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{item.effective_sensitivity ? ` · ${word(item.effective_sensitivity)}` : ""}{analystText(item.formation_reason) ? ` · ${analystText(item.formation_reason)}` : ""}</p>}
+            {(item.event_time || said[item.base.memory.memory_id]) && <p className="mem-row-meta">{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{unknownEvent(item) && said[item.base.memory.memory_id] ? ` · ${t("said in conversation {time}", { time: recordTimeText(said[item.base.memory.memory_id]) })}` : ""}{item.effective_sensitivity ? ` · ${word(item.effective_sensitivity)}` : ""}{analystText(item.formation_reason) ? ` · ${analystText(item.formation_reason)}` : ""}</p>}
           </li>)}</ul></section>)}
           {page.items.length === 0 && !page.next && <p className="mem-content">{t(filter.text ? "No authorized record matches this search. Search with an empty field to see the whole catalog." : owner ? "This registered catalog has no records in the current authorized scope." : "This synthetic catalog has no records in the current authorized scope.")}</p>}
           {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void load(page.next)}>{t("Next catalog page")}</button>}
@@ -128,7 +129,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
       </div>
     </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
-      {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} entities={facetGroups.find(g => g.axis === "entity")?.values ?? []} corrections={status?.corrections === true} />}
+      {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} entities={facetGroups.find(g => g.axis === "entity")?.values ?? []} corrections={status?.corrections === true} sourceTimes={owner} />}
     </div></aside>
   </>;
 }
@@ -149,10 +150,58 @@ function dayGroups(items: CatalogPage["items"]): [string | null, CatalogPage["it
   }
   return groups;
 }
+// A record whose event time was not recorded still cites the turns it came
+// from, and each turn keeps when it was said. Read each cited source's record
+// (one character of text) once per scope; the result is the span of those
+// times, shown as source-conversation time, never as event time.
+const unknownEvent = (item: CatalogPage["items"][number]) => !item.event_time || item.event_time.precision === "unknown" || !item.event_time.from;
+const saidTimes = new Map<string, Promise<RecordTime | null>>();
+function saidAt(read: typeof catalogRead, filter: CatalogFilter, selection: CatalogSelection, memoryId: string): Promise<RecordTime | null> {
+  const key = `${catalogScopeKey(selection)}:${memoryId}`;
+  let found = saidTimes.get(key);
+  if (!found) {
+    found = (async () => {
+      const detail = await read({ operation: "detail", memory_id: memoryId, filter });
+      const refs = new Map((detail.fields?.evidence ?? []).map(e => [`${e.reference.source_id}:${e.reference.source_revision}`, e.reference]));
+      const times: number[] = [];
+      for (const ref of refs.values()) {
+        const source = await read({ operation: "source", source: { source_id: ref.source_id, source_revision: ref.source_revision }, start: 0, limit: 1 });
+        const at = Date.parse(source.source_record?.occurred_at ?? "");
+        if (Number.isFinite(at)) times.push(at);
+      }
+      if (!times.length) return null;
+      const [from, until] = [Math.min(...times), Math.max(...times)];
+      return { from: new Date(from).toISOString(), until: until > from ? new Date(until).toISOString() : null, precision: "day", bound: until > from ? "span" : "within", tz: null, basis: "source_time" };
+    })();
+    found.catch(() => saidTimes.delete(key));
+    saidTimes.set(key, found);
+  }
+  return found;
+}
+/** Source-conversation times for the page's records whose event time was not recorded. */
+function useSaidTimes(read: typeof catalogRead, filter: CatalogFilter, page: CatalogPage | null): Record<string, RecordTime | null> {
+  const [said, setSaid] = useState<Record<string, RecordTime | null>>({});
+  useEffect(() => {
+    setSaid({});
+    if (!page) return;
+    let live = true;
+    void (async () => {
+      for (const item of page.items.filter(unknownEvent)) {
+        const id = item.base.memory.memory_id;
+        const time = await saidAt(read, filter, page.selection, id).catch(() => null);
+        if (!live) return;
+        setSaid(old => ({ ...old, [id]: time }));
+      }
+    })();
+    return () => { live = false; };
+  }, [read, filter, page]);
+  return said;
+}
+
 const dayText = (day: string) => recordTimeText({ from: `${day}T00:00:00+08:00`, until: null, precision: "day", bound: "within", tz: null, basis: "source_time" });
 const minute = (at: string) => recordTimeText({ from: at, until: null, precision: "minute", bound: "within", tz: null, basis: "source_time" });
 
-export function CatalogDetailPanel({ memoryId, filter, selection, read, entities, corrections = false }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead; entities: FacetGroup["values"]; corrections?: boolean }) {
+export function CatalogDetailPanel({ memoryId, filter, selection, read, entities, corrections = false, sourceTimes = false }: { memoryId: string; filter: CatalogFilter; selection: CatalogSelection; read: typeof catalogRead; entities: FacetGroup["values"]; corrections?: boolean; sourceTimes?: boolean }) {
   const [detail, setDetail] = useState<CatalogDetail | null>(null);
   const [source, setSource] = useState<CatalogSource | null>(null);
   const details = useLatestRead();
@@ -166,6 +215,14 @@ export function CatalogDetailPanel({ memoryId, filter, selection, read, entities
     }, setDetail);
   }, [read, memoryId, filter, selection, details.run, sources.clear]);
   useEffect(() => { void load(); }, [load]);
+  const [said, setSaid] = useState<RecordTime | null>(null);
+  useEffect(() => {
+    setSaid(null);
+    if (!sourceTimes || !detail?.item || !unknownEvent(detail.item)) return;
+    let live = true;
+    saidAt(read, filter, selection, memoryId).then(time => { if (live) setSaid(time); }, () => undefined);
+    return () => { live = false; };
+  }, [sourceTimes, detail, read, filter, selection, memoryId]);
   const quoted = (evidence: CatalogEvidence) => {
     setSource(null);
     void sources.run(async () => {
@@ -184,7 +241,7 @@ export function CatalogDetailPanel({ memoryId, filter, selection, read, entities
     {detail?.item && detail.fields && <>
       <h4 className="mem-content">{detail.fields.title}</h4><p className="mem-content">{detail.item.base.content}</p>
       <p className="mem-row-meta mem-content">{detail.item.base.memory.memory_id} · r{detail.item.base.memory.revision}</p>
-      <RecordFields item={detail.item} entities={entities} />
+      <RecordFields item={detail.item} entities={entities} said={said} />
       {detail.history && detail.history.length > 0 && <section aria-label={t("Revision history")}>
         <h4>{t("Revision history")}</h4>
         <ol className="mem-list">{detail.history.map(h => <li key={h.memory.memory.revision} className="mem-row-meta">r{h.memory.memory.revision} · {word(h.change)} · {word(h.adoption)} · {minute(h.learned_at)}</li>)}</ol>
@@ -212,10 +269,11 @@ export function CatalogDetailPanel({ memoryId, filter, selection, read, entities
   </section>;
 }
 
-function RecordFields({ item, entities }: { item: NonNullable<CatalogDetail["item"]>; entities: FacetGroup["values"] }) {
+function RecordFields({ item, entities, said = null }: { item: NonNullable<CatalogDetail["item"]>; entities: FacetGroup["values"]; said?: RecordTime | null }) {
   const reason = item.formation_reason;
   return <dl className="mem-facts">
     <dt>{t("Happened")}</dt><dd>{recordTimeText(item.event_time)}</dd>
+    {said && <><dt>{t("Said in conversation")}</dt><dd>{recordTimeText(said)}<br /><span className="mem-row-meta">{t("When the cited turns were said, not necessarily when it happened.")}</span></dd></>}
     <dt>{t("Valid")}</dt><dd>{item.valid_time && item.valid_time.precision !== "unknown" ? recordTimeText(item.valid_time) : t("No window recorded")}</dd>
     {item.base.learned_at && <><dt>{t("Learned")}</dt><dd>{minute(item.base.learned_at)}</dd></>}
     {item.effective_sensitivity && <><dt>{t("Sensitivity")}</dt><dd>{word(item.effective_sensitivity)}</dd></>}
