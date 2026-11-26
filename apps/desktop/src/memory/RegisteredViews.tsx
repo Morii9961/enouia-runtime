@@ -79,7 +79,7 @@ function TimeView() {
   }, [months]);
   const max = Math.max(1, ...(months?.buckets ?? []).map(b => b.possible_records));
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack">
+    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
       <h2 className="qr29">{t("Time")}</h2>
       <label className="mem-label">{t("Time axis")} <select className="mem-input" value={axis} onChange={e => setAxis(e.target.value as Axis)}>
         {AXES.map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}</select></label>
@@ -121,7 +121,7 @@ function TimeView() {
           </li>)}</ul></>}
       </section>}
     </div></div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
       {page && selected ? <CatalogDetailPanel key={selected} memoryId={selected} filter={CATALOG_FILTER} selection={page.selection} read={catalogRead} entities={[]} />
         : <p className="mem-content">{t("Choose a month, then a record, to read its detail and quoted sources.")}</p>}
     </div></aside>
@@ -178,7 +178,7 @@ function ConnectionsView() {
   const ranked = [...degree].sort((a, b) => b[1] - a[1]).slice(0, 40);
   const selectedTitle = selected ? title.get(selected) ?? selected : null;
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack">
+    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
       <h2 className="qr29">{t("Connections")}</h2>
       <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Read again")}</button>
       {reads.busy && <p role="status">{t("Reading the relation graph…")}</p>}
@@ -217,7 +217,7 @@ function ConnectionsView() {
         </details>
       </>}
     </div></div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79" aria-busy={near.busy}>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2" aria-busy={near.busy}>
       {!selected && <p className="mem-content">{t("Choose a record to read what it is connected to.")}</p>}
       {selectedTitle && <h3 className="mem-content">{selectedTitle}</h3>}
       {near.busy && <p role="status">{t("Reading connected records…")}</p>}
@@ -257,7 +257,7 @@ function FormationView() {
   const last = pages.at(-1);
   const events = pages.flatMap(p => p.items);
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack">
+    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
       <h2 className="qr29">{t("Formation")}</h2>
       <div className="mem-actions" role="group" aria-label={t("Formation views")}>
         <button type="button" className="mem-button" aria-pressed={tab === "events"} onClick={() => setTab("events")}>{t("What the system did")}</button>
@@ -282,7 +282,7 @@ function FormationView() {
       </>}
       </>}
     </div></div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
       {selected ? <><CatalogDetailPanel key={selected.id} memoryId={selected.id} filter={CATALOG_FILTER} selection={selected.selection} read={catalogRead} entities={[]} />
         <ConflictGroup key={`c:${selected.id}`} memoryId={selected.id} open={id => setSelected({ id, selection: selected.selection })} /></>
         : <p className="mem-content">{t("Choose an event to read its record, quoted sources and any held contradiction.")}</p>}
@@ -330,7 +330,7 @@ function ReviewView() {
   const first = schedule[0], last = schedule.at(-1);
   const pick = (memory: TargetRef, selection: CatalogSelection) => setSelected({ id: memory.memory.memory_id, selection });
   return <>
-    <div className="qr45" aria-busy={reads.busy || plans.busy}><div className="qr44 mem-pad mem-stack">
+    <div className="qr45" aria-busy={reads.busy || plans.busy}><div className="qr44 mem-pad mem-stack mem-v2">
       <h2 className="qr29">{t("Worth a look")}</h2>
       <p className="mem-row-meta">{t("Suggestions come from time alone: records about to be archived and recorded validity that is about to end. They say nothing about whether a record is right; protecting, correcting or leaving it is your choice.")}</p>
       <label className="mem-label">{t("Look ahead")} <select className="mem-input" value={horizon} disabled={reads.busy} onChange={e => setHorizon(Number(e.target.value))}>
@@ -362,7 +362,7 @@ function ReviewView() {
         {last?.next != null && <button type="button" className="mem-button" disabled={plans.busy} onClick={() => void more(last.next)}>{t("Show later moments")}</button>}
       </section>
     </div></div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
       {selected ? <CatalogDetailPanel key={selected.id} memoryId={selected.id} filter={CATALOG_FILTER} selection={selected.selection} read={catalogRead} entities={[]} />
         : <p className="mem-content">{t("Choose a record to read it and its quoted sources.")}</p>}
     </div></aside>
@@ -430,7 +430,7 @@ function RecallView({ mode }: { mode: "recall" | "context" }) {
   };
   const reasons = preview ? Object.entries(preview.trace_coverage.reason_counts) : [];
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack">
+    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
       <h2 className="qr29">{t(mode === "context" ? "Context" : "Recall")}</h2>
       <p className="mem-content">{t(mode === "context" ? "Preview the context an Agent would receive for a cue. It uses the same recall as the Agent and saves nothing." : "Why these records come to mind for a cue: the same recall an Agent uses, previewed without saving.")}</p>
       <form className="mem-stack" onSubmit={event => { event.preventDefault(); run(); }}>
@@ -457,7 +457,7 @@ function RecallView({ mode }: { mode: "recall" | "context" }) {
         {nativeStatus?.corrections && preview.trace.selected.length > 0 && <SaveCapsule key={`${asked}:${preview.trace.authorized_at}`} query={asked} preview={preview} saved={() => setSavedTick(n => n + 1)} />}
       </>}
     </div></div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
       <p className="mem-content">{t("A preview writes nothing and enrols no Agent. Selection order and reasons come from Memory's recall algorithm.")}</p>
       {nativeStatus?.corrections && <CapsuleIndex refresh={savedTick} use={cue => { setText(cue); run(cue); }} />}
     </div></aside>
