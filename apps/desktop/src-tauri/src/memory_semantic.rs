@@ -31,7 +31,9 @@ fn key(target: &TargetRef) -> String {
 /// One `/api/embed` call to the local Ollama over plain HTTP/1.1; `None` when
 /// it is not installed, not running, too slow or answers anything else.
 fn embed(inputs: &[&str], limit: Duration) -> Option<Vec<Vec<f32>>> {
-    let body = json!({"model": MODEL, "input": inputs}).to_string();
+    // Keep the model loaded between recalls; a cold load takes seconds,
+    // longer than a query may wait.
+    let body = json!({"model": MODEL, "input": inputs, "keep_alive": "30m"}).to_string();
     let addr: SocketAddr = OLLAMA.parse().ok()?;
     let mut stream =
         TcpStream::connect_timeout(&addr, limit.min(Duration::from_millis(500))).ok()?;
@@ -156,6 +158,12 @@ impl OllamaIndex {
                 .collect()
         };
         let held = |index: &Self| index.vectors.read().map_or(0, |v| v.len());
+        // Load the model before the index reports ready: a query only waits
+        // 1.5 s, and a cold load would quietly leave recalls lexical.
+        if embed(&["warm-up"], BATCH_LIMIT).is_none() {
+            self.set("unavailable", held(self), total);
+            return;
+        }
         self.set("indexing", held(self), total);
         for chunk in missing.chunks(BATCH) {
             let inputs: Vec<&str> = chunk.iter().map(|(_, s)| s.as_str()).collect();
