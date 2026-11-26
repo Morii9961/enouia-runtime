@@ -72,68 +72,94 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
   const open = status?.state === "open";
   const owner = mode === "registered_owner_readonly";
   const said = useSaidTimes(read, filter, owner ? page : null);
+  // UI v2 Memory Vault list: a header line, a compact filter bar, day bands and
+  // rows (time · kind line · title · two-line text · meta); a selected row is the
+  // ink block. Class names tests and smokes use (.mem-list, li, the title button)
+  // are kept.
+  const clock = (at?: string) => at ? new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(at)) : "—";
   return <>
     <div className="qr45" aria-busy={reads.busy}>
-      <div className="qr31"><h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2><Tag tone="warn">{t(owner ? "Registered library · confirmed changes only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</Tag></div>
-      <div className="qr44 mem-pad">
-        {mode && <p className="mem-content">{t(owner ? "This entry reads the explicitly registered library. A change is planned first and written only after you confirm it. Nothing is sent to a model." : "This library contains fixed fictional records. It does not open Morii's Vault or run continuous formation.")}</p>}
-        {observationError && <p role="alert">{describe(observationError.cause)}</p>}
-        <ErrorBox error={reads.error} />
-        <p role="status">{status ? t("Library: {state}", { state: status.state }) : observationError ? t("Library state is unknown.") : t("Reading library state…")}</p>
-        {open && reads.busy && <p role="status">{t("Reading catalog page and statistics…")}</p>}
-        {status?.reason && <p role="alert">{describe(status.reason)}</p>}
-        {status?.state === "disabled" && <p className="mem-content">{t(owner ? "No registered library was opened at startup." : "No segmented synthetic library is enabled in this session.")}</p>}
-        {status?.state === "failed" && <p className="mem-content">{t(owner ? "The registered library could not be opened. No other library was selected." : "The synthetic library is unavailable. Start a new synthetic session to recover.")}</p>}
-        {owner && status?.state === "locked" && <p className="mem-content">{t("The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.")}</p>}
-          <form className="mem-stack" role="search" onSubmit={event => { event.preventDefault(); if (!open || reads.pending.current) return; epoch.current += 1; observedScope.current = null; clear(); setFilter({ ...CATALOG_FILTER, text: draft }); }}>
-            <label className="mem-label">{t("Literal catalog search")} <input className="mem-input" value={draft} maxLength={512} autoComplete="off" onChange={event => setDraft(event.target.value)} /></label>
-            <button className="mem-button" disabled={!open || reads.busy}>{t("Search catalog")}</button>
-          </form>
-        {open && facetGroups.length > 0 && <fieldset className="mem-stack" disabled={reads.busy}>
-          <legend className="mem-label">{t("Filter records")}</legend>
-          {AXES.map(axis => {
-            const group = facetGroups.find(g => g.axis === axis);
-            if (!group || (group.values.length === 0 && filter[axis] === null)) return null;
-            return <label key={axis} className="mem-label">{word(axis)} <select className="mem-input" value={filter[axis] ?? ""} onChange={event => {
-              if (reads.pending.current) return;
-              epoch.current += 1; observedScope.current = null; clear();
-              setFilter({ ...filter, [axis]: event.target.value || null });
-            }}>
-              <option value="">{t("All")}</option>
-              {group.values.map(v => <option key={v.value} value={v.value}>{`${axis === "entity" || axis === "project" ? v.label : word(v.value)} · ${v.count}`}</option>)}
-            </select></label>;
-          })}
-          <FacetNote groups={facetGroups} />
-        </fieldset>}
-        {open && <button className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Refresh catalog")}</button>}
-        {(open || (!owner && status?.state === "locked")) && <button className="mem-button" disabled={reads.busy} onClick={event => {
-          if (document.activeElement === event.currentTarget) heading.current?.focus();
-          void control(open ? "lock" : "unlock");
-        }}>{t(owner ? "Lock registered library" : open ? "Lock synthetic library" : "Unlock synthetic library")}</button>}
+      <div className="qr31">
+        <h2 ref={heading} tabIndex={-1} className="qr29">{t("Native memory catalog")}</h2>
+        {open && page && stats && <div className="qr19">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: stats.matched_in_scope })}</div>}
+        <div className="qr30" />
+        <div className="qr19 mem-catalog-mode">{t(owner ? "Registered library · confirmed changes only" : mode ? "Isolated synthetic read-2" : "Reading library state…")}</div>
+      </div>
+      <div className="qr44">
+        <div className="mem-catalog-head">
+          {mode && <p className="am-fine">{t(owner ? "This entry reads the explicitly registered library. A change is planned first and written only after you confirm it. Nothing is sent to a model." : "This library contains fixed fictional records. It does not open Morii's Vault or run continuous formation.")}</p>}
+          {observationError && <p role="alert">{describe(observationError.cause)}</p>}
+          <ErrorBox error={reads.error} />
+          <p role="status" className="am-fine">{status ? t("Library: {state}", { state: status.state }) : observationError ? t("Library state is unknown.") : t("Reading library state…")}</p>
+          {open && reads.busy && <p role="status" className="am-fine">{t("Reading catalog page and statistics…")}</p>}
+          {status?.reason && <p role="alert">{describe(status.reason)}</p>}
+          {status?.state === "disabled" && <p className="am-fine">{t(owner ? "No registered library was opened at startup." : "No segmented synthetic library is enabled in this session.")}</p>}
+          {status?.state === "failed" && <p className="am-fine">{t(owner ? "The registered library could not be opened. No other library was selected." : "The synthetic library is unavailable. Start a new synthetic session to recover.")}</p>}
+          {owner && status?.state === "locked" && <p className="am-fine">{t("The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.")}</p>}
+          <div className="am-filters">
+            <form className="mem-catalog-search" role="search" onSubmit={event => { event.preventDefault(); if (!open || reads.pending.current) return; epoch.current += 1; observedScope.current = null; clear(); setFilter({ ...CATALOG_FILTER, text: draft }); }}>
+              <label className="am-search"><span className="am-lbl">{t("Literal catalog search")}</span><input value={draft} maxLength={512} autoComplete="off" onChange={event => setDraft(event.target.value)} /></label>
+              <button className="am-chip" disabled={!open || reads.busy}>{t("Search catalog")}</button>
+            </form>
+            {open && facetGroups.length > 0 && <fieldset className="mem-catalog-facets" disabled={reads.busy}>
+              <legend className="am-lbl">{t("Filter records")}</legend>
+              {AXES.map(axis => {
+                const group = facetGroups.find(g => g.axis === axis);
+                if (!group || (group.values.length === 0 && filter[axis] === null)) return null;
+                return <label key={axis} className="am-select-filter"><span className="am-lbl">{word(axis)}</span><select value={filter[axis] ?? ""} onChange={event => {
+                  if (reads.pending.current) return;
+                  epoch.current += 1; observedScope.current = null; clear();
+                  setFilter({ ...filter, [axis]: event.target.value || null });
+                }}>
+                  <option value="">{t("All")}</option>
+                  {group.values.map(v => <option key={v.value} value={v.value}>{`${axis === "entity" || axis === "project" ? v.label : word(v.value)} · ${v.count}`}</option>)}
+                </select></label>;
+              })}
+            </fieldset>}
+            <div className="mem-catalog-actions">
+              {open && <button className="am-chip" disabled={reads.busy} onClick={() => void load()}>{t("Refresh catalog")}</button>}
+              {(open || (!owner && status?.state === "locked")) && <button className="am-chip" disabled={reads.busy} onClick={event => {
+                if (document.activeElement === event.currentTarget) heading.current?.focus();
+                void control(open ? "lock" : "unlock");
+              }}>{t(owner ? "Lock registered library" : open ? "Lock synthetic library" : "Unlock synthetic library")}</button>}
+            </div>
+          </div>
+          {open && facetGroups.length > 0 && <FacetNote groups={facetGroups} />}
+          {open && page && stats && <p className="am-fine">{t("Counts cover currently authorized machine revisions for this selection.")} · {t("{unknown} records have unknown event dates in this filter scope.", { unknown: page.unknown_time_in_scope })} · {t("State observed at {time}", { time: page.authorized_at })}</p>}
+        </div>
         {open && page && stats && <>
-          <p className="mem-content">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: stats.matched_in_scope })}</p>
-          <p className="mem-content">{t("Counts cover currently authorized machine revisions for this selection.")}</p>
-          <p className="mem-content">{t("{unknown} records have unknown event dates in this filter scope.", { unknown: page.unknown_time_in_scope })}</p>
-          <p className="mem-content">{t("State observed at {time}", { time: page.authorized_at })}</p>
           {dayGroups(page.items).map(([day, items]) => <section key={day ?? "unknown"} className="mem-day-group" aria-label={day ? dayText(day) : t("Learned date not recorded")}>
-          <h3 className="mem-day">{day ? dayText(day) : t("Learned date not recorded")}</h3>
-          <ul className="mem-list">{items.map(item => <li key={`${item.base.memory.memory_id}:${item.base.memory.revision}`}>
-            <h3 className="mem-content"><button type="button" className="mem-link" aria-pressed={selectedId === item.base.memory.memory_id} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={() => setSelectedId(item.base.memory.memory_id)}>{item.title}</button></h3><p className="mem-content mem-summary">{item.base.content}</p>
-            <p className="mem-content">{t("{kind} · {knowledge} · System {adoption} · validity {validity} · attention {attention}", { kind: word(item.base.dimensions.kind), knowledge: word(item.base.knowledge), adoption: word(item.base.adoption), validity: word(item.base.validity), attention: word(item.base.attention) })}</p>
-            <p className="mem-row-meta">{shortId(item.base.memory.memory_id)} · r{item.base.memory.revision} · {item.content_lang}</p>
-            {(item.event_time || said[item.base.memory.memory_id]) && <p className="mem-row-meta">{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{unknownEvent(item) && said[item.base.memory.memory_id] ? ` · ${t("said in conversation {time}", { time: recordTimeText(said[item.base.memory.memory_id]) })}` : ""}{item.effective_sensitivity ? ` · ${word(item.effective_sensitivity)}` : ""}{analystText(item.formation_reason) ? ` · ${analystText(item.formation_reason)}` : ""}</p>}
-          </li>)}</ul></section>)}
-          {page.items.length === 0 && !page.next && <p className="mem-content">{t(filter.text ? "No authorized record matches this search. Search with an empty field to see the whole catalog." : owner ? "This registered catalog has no records in the current authorized scope." : "This synthetic catalog has no records in the current authorized scope.")}</p>}
-          {page.next && <button className="mem-button" disabled={reads.busy} onClick={() => void load(page.next)}>{t("Next catalog page")}</button>}
+          <h3 className="qr33 mem-day">{day ? dayText(day) : t("Learned date not recorded")}</h3>
+          <ul className="mem-list mem-catalog-rows">{items.map(item => {
+            const id = item.base.memory.memory_id, chosen = selectedId === id;
+            return <li key={`${id}:${item.base.memory.revision}`} className="qr43 mem-catalog-row" data-status={item.base.adoption === "staged" ? "candidate" : "canonical"} data-selected={chosen || undefined} onClick={() => setSelectedId(id)}>
+              <span className="qr34">{clock(item.base.learned_at)}</span>
+              <span className="qr42">
+                <span className="qr38"><span>{word(item.base.dimensions.kind)}</span><span className="qr35">· {word(item.base.knowledge)}</span>{item.base.adoption !== "adopted" && <span className="qr37" data-status="candidate">{word(item.base.adoption)}</span>}</span>
+                <h3 className="mem-catalog-title"><button type="button" className="mem-link" aria-pressed={chosen} aria-label={t("Read catalog detail: {title}", { title: item.title })} onClick={event => { event.stopPropagation(); setSelectedId(id); }}>{item.title}</button></h3>
+                <span className="qr39">{item.base.content}</span>
+                <span className="qr41">
+                  {(item.event_time || said[id]) && <span>{t("Happened: {time}", { time: recordTimeText(item.event_time) })}{unknownEvent(item) && said[id] ? ` · ${t("said in conversation {time}", { time: recordTimeText(said[id]) })}` : ""}</span>}
+                  {item.effective_sensitivity && <span>{word(item.effective_sensitivity)}</span>}
+                  {analystText(item.formation_reason) && <span>{analystText(item.formation_reason)}</span>}
+                  <span className="qr40">{shortId(id)} · r{item.base.memory.revision}</span>
+                </span>
+              </span>
+            </li>;
+          })}</ul></section>)}
+          {page.items.length === 0 && !page.next && <p className="qr32">{t(filter.text ? "No authorized record matches this search. Search with an empty field to see the whole catalog." : owner ? "This registered catalog has no records in the current authorized scope." : "This synthetic catalog has no records in the current authorized scope.")}</p>}
+          {page.next && <div className="mem-catalog-more"><button className="am-chip" disabled={reads.busy} onClick={() => void load(page.next)}>{t("Next catalog page")}</button></div>}
         </>}
       </div>
     </div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79"><p className="mem-content">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p><p className="mem-content">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79">
+      {!(open && page && stats && selectedId) && <p className="qr46">{t(open && page && stats ? "Page statistics were read for the same selection." : "No catalog page is currently observed.")}</p>}
+      {open && page && stats && selectedId && <p className="am-fine">{t("Page statistics were read for the same selection.")}</p>}
+      <p className="am-fine">{t(owner ? "Records and source excerpts come from the same registered library. Formed records are not independent verification." : "System formation preserves what the synthetic subject said. It is not independent verification or confirmation by Morii.")}</p>
       {open && page && stats && selectedId && <CatalogDetailPanel key={`${catalogScopeKey(page.selection)}:${selectedId}`} memoryId={selectedId} filter={filter} selection={page.selection} read={read} entities={facetGroups.find(g => g.axis === "entity")?.values ?? []} corrections={status?.corrections === true} sourceTimes={owner} />}
     </div></aside>
   </>;
 }
-
 function FacetNote({ groups }: { groups: FacetGroup[] }) {
   const truncated = groups.some(g => AXES.includes(g.axis as typeof AXES[number]) && g.values.length < g.total_values);
   return <p className="mem-row-meta">{t(truncated ? "Counts follow the other active filters. Some lists show only their first values." : "Counts follow the other active filters.")}</p>;
@@ -232,43 +258,56 @@ export function CatalogDetailPanel({ memoryId, filter, selection, read, entities
       return result;
     }, setSource);
   };
-  return <section className="mem-stack" aria-label={t("Catalog record detail")} aria-busy={details.busy || sources.busy}>
-    <h3>{t("Catalog record detail")}</h3>
-    <button type="button" className="mem-button" disabled={details.busy} onClick={() => void load()}>{t("Refresh record detail")}</button>
-    {details.busy && <p role="status">{t("Reading record detail…")}</p>}
+  // UI v2 Memory Inspector: status block, kind and id, the title large, then
+  // labelled sections (record, revisions, quoted evidence) with key/value rows.
+  return <section className="mem-detail" aria-label={t("Catalog record detail")} aria-busy={details.busy || sources.busy}>
+    <div className="qr50 mem-detail-bar">
+      <h3 className="qr55">{t("Catalog record detail")}</h3>
+      <div className="qr30" />
+      <button type="button" className="qr49" disabled={details.busy} onClick={() => void load()}>{t("Refresh record detail")}</button>
+    </div>
+    {details.busy && <p role="status" className="am-fine">{t("Reading record detail…")}</p>}
     <ErrorBox error={details.error} />
-    {detail && !detail.item && <p role="status">{t("This record is no longer available in the current scope.")}</p>}
+    {detail && !detail.item && <p role="status" className="am-fine">{t("This record is no longer available in the current scope.")}</p>}
     {detail?.item && detail.fields && <>
-      <h4 className="mem-content">{detail.fields.title}</h4><p className="mem-content">{detail.item.base.content}</p>
-      <p className="mem-row-meta mem-content">{detail.item.base.memory.memory_id} · r{detail.item.base.memory.revision}</p>
-      <RecordFields item={detail.item} entities={entities} said={said} />
-      {detail.history && detail.history.length > 0 && <section aria-label={t("Revision history")}>
-        <h4>{t("Revision history")}</h4>
-        <ol className="mem-list">{detail.history.map(h => <li key={h.memory.memory.revision} className="mem-row-meta">r{h.memory.memory.revision} · {word(h.change)} · {word(h.adoption)} · {minute(h.learned_at)}</li>)}</ol>
+      <div className="qr54">
+        <div className="qr50">
+          <span className="qr48" data-status={detail.item.base.adoption === "staged" ? "candidate" : "canonical"}>{word(detail.item.base.adoption)}</span>
+          <span className="qr9">{word(detail.item.base.dimensions.kind)}</span>
+        </div>
+        <div className="qr51">{detail.item.base.memory.memory_id} · r{detail.item.base.memory.revision}</div>
+        <h4 className="qr52 mem-detail-title">{detail.fields.title}</h4>
+        <p className="qr60 mem-detail-text">{detail.item.base.content}</p>
+      </div>
+      <div className="qr66"><div className="qr55">{t("Record")}</div><RecordFields item={detail.item} entities={entities} said={said} /></div>
+      {detail.history && detail.history.length > 0 && <section className="qr66" aria-label={t("Revision history")}>
+        <h4 className="qr55">{t("Revision history")}</h4>
+        <ol className="mem-list mem-detail-list">{detail.history.map(h => <li key={h.memory.memory.revision} className="mem-row-meta">r{h.memory.memory.revision} · {word(h.change)} · {word(h.adoption)} · {minute(h.learned_at)}</li>)}</ol>
         {(detail.history_count_in_scope ?? 0) > detail.history.length && <p className="mem-row-meta">{t("{shown} of {total} revisions shown.", { shown: detail.history.length, total: detail.history_count_in_scope ?? 0 })}</p>}
       </section>}
       {detail.history && detail.history.length > 1 && <RevisionCompare key={detail.item.base.memory.memory_id} memoryId={detail.item.base.memory.memory_id} revisions={detail.history.map(h => h.memory.memory.revision)} />}
       {corrections && <CorrectionPanel key={`${detail.item.base.memory.memory_id}:${detail.item.base.memory.revision}`} detail={detail} entities={entities} />}
-      <p>{t("Quoted text evidence; attachment content is not read.")}</p>
-      <ul className="mem-list">{detail.fields.evidence.map((evidence, index) => <li key={index}>
-        <blockquote className="mem-content">{evidence.quote}</blockquote>
-        <p className="mem-row-meta mem-content">{evidence.reference.source_id} · r{evidence.reference.source_revision} · {evidence.start}–{evidence.end}</p>
-        <button type="button" className="mem-link" disabled={sources.busy}
-          aria-label={t("Read quoted source {n}", { n: index + 1 })} onClick={() => quoted(evidence)}>{t("Read quoted source")}</button>
-      </li>)}</ul>
+      <div className="qr66">
+        <div className="qr55">{t("Quoted text evidence; attachment content is not read.")}</div>
+        <ul className="mem-list mem-detail-list">{detail.fields.evidence.map((evidence, index) => <li key={index}>
+          <blockquote className="mem-quote">{evidence.quote}</blockquote>
+          <p className="mem-row-meta mem-content">{evidence.reference.source_id} · r{evidence.reference.source_revision} · {evidence.start}–{evidence.end}</p>
+          <button type="button" className="qr63" disabled={sources.busy}
+            aria-label={t("Read quoted source {n}", { n: index + 1 })} onClick={() => quoted(evidence)}>{t("Read quoted source")}</button>
+        </li>)}</ul>
+      </div>
     </>}
-    {sources.busy && <p role="status">{t("Reading quoted source…")}</p>}
+    {sources.busy && <p role="status" className="am-fine">{t("Reading quoted source…")}</p>}
     <ErrorBox error={sources.error} />
-    {source && !source.source && <p role="status">{t("This source revision is no longer available.")}</p>}
-    {source?.source && source.source_record && <section aria-label={t("Quoted source excerpt")}>
-      <h4>{t("Quoted source excerpt")}</h4><blockquote className="mem-content">{source.excerpt}</blockquote>
+    {source && !source.source && <p role="status" className="am-fine">{t("This source revision is no longer available.")}</p>}
+    {source?.source && source.source_record && <section className="qr66" aria-label={t("Quoted source excerpt")}>
+      <h4 className="qr55">{t("Quoted source excerpt")}</h4><blockquote className="mem-quote">{source.excerpt}</blockquote>
       <p className="mem-row-meta mem-content">{source.source.source_id} · r{source.source.source_revision} · {source.start}–{source.end} / {source.total_characters}</p>
-      <p className="mem-content">{source.source_record.speaker} · {source.source_record.evidence_class} · {source.source_record.source_kind}</p>
-      <p className="mem-content">{source.source_record.original_conversation_id} {source.source_record.original_message_id}</p>
+      <p className="mem-row-meta">{source.source_record.speaker} · {source.source_record.evidence_class} · {source.source_record.source_kind}</p>
+      <p className="mem-row-meta">{source.source_record.original_conversation_id} {source.source_record.original_message_id}</p>
     </section>}
   </section>;
 }
-
 function RecordFields({ item, entities, said = null }: { item: NonNullable<CatalogDetail["item"]>; entities: FacetGroup["values"]; said?: RecordTime | null }) {
   const reason = item.formation_reason;
   return <dl className="mem-facts">
