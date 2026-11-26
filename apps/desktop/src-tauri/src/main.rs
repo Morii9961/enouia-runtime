@@ -21,6 +21,7 @@ mod memory_automation;
 mod memory_capture;
 mod memory_catalog;
 mod memory_pipes;
+mod memory_semantic;
 mod provider;
 mod root_lease;
 mod shell;

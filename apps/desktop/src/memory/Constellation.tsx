@@ -9,7 +9,7 @@ import { t } from "../i18n";
 const W = 720, H = 380, NW = 168, NH = 40, MAX = 12;
 const STYLE: Record<string, { dash?: string; arrow?: boolean }> = {
   same_conversation: {}, same_entity: { dash: "6 4" }, theme_cooccurrence: { dash: "10 3 2 3" },
-  derived_from: { arrow: true }, reversion: { dash: "2 3", arrow: true }, lexical_neighbor: { dash: "1 4" }, same_name: { dash: "4 2 1 2" },
+  derived_from: { arrow: true }, reversion: { dash: "2 3", arrow: true }, lexical_neighbor: { dash: "1 4" }, semantic_neighbor: { dash: "1 2" }, same_name: { dash: "4 2 1 2" },
 };
 /** Fit a title in a node: wide (CJK) characters count double against the budget. */
 const short = (s: string, budget = 24) => {

@@ -289,6 +289,7 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
     <div className="qr198">{t("Memory Vault")}</div>
     <Row k={t("State")}>{registeredLabel(nativeStatus)}</Row>
     <RegisteredEntryNotice />
+    {nativeStatus?.state === "open" && nativeStatus.semantic && <Row k={t("Semantic recall")}>{nativeStatus.semantic.state === "ready" ? t("Ready · {n} memories · {model}", { n: nativeStatus.semantic.indexed, model: nativeStatus.semantic.model }) : nativeStatus.semantic.state === "indexing" ? t("Indexing {n} of {total} memories · {model}", { n: nativeStatus.semantic.indexed, total: nativeStatus.semantic.total, model: nativeStatus.semantic.model }) : nativeStatus.semantic.state === "unavailable" ? t("Local model not running; recall uses words only") : t("Checking the local model…")}</Row>}
     <div className="qr216"><span className="qr35">{t("Manage")}</span><button type="button" className="mem-link" onClick={openMemory}>{t("Open native memory catalog")}</button></div>
     {nativeStatus?.state === "open" && nativeStatus.corrections && <Suspense fallback={null}><ConnectorStatus /><AgentGrantsPanel /><AgentRequestsPanel /><CapsuleSavingSetting /></Suspense>}
     <CompanionSettings status={status} />

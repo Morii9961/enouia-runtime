@@ -249,6 +249,8 @@ struct Library {
     /// The opened root: Agent grants (ADR-041) and native test seeding use it.
     vault: Option<Arc<enouia_memory_vault::automation::segmented::SegmentedAutomationVault>>,
     agents: Option<crate::memory_agents::Agents>,
+    /// ADR-MEM-220: the registered entry's semantic index (local bge-m3).
+    semantic: Option<Arc<crate::memory_semantic::OllamaIndex>>,
     profile: AttentionProfile,
     system: ActorRef,
     _root: PathBuf,
@@ -271,7 +273,16 @@ impl Library {
             .map(|a| (a.principal, a.grant_id))
             .collect();
         if !named.is_empty() {
-            *pipes = Some(crate::memory_pipes::start(vault, &self.profile, named));
+            let semantic = self
+                .semantic
+                .clone()
+                .map(|s| s as Arc<dyn enouia_memory_host::automation::semantic::SemanticIndex>);
+            *pipes = Some(crate::memory_pipes::start(
+                vault,
+                &self.profile,
+                named,
+                semantic,
+            ));
         }
     }
 }
@@ -411,9 +422,15 @@ impl NativeCatalog {
                 vault.clone(), descriptor.created_by.clone(),
             ).ok();
             let opened = vault.clone();
+            // ADR-MEM-220: vectors from the local bge-m3, cached beside the
+            // local Agent names in Runtime's own config directory.
+            let semantic = crate::memory_semantic::OllamaIndex::open(
+                self.0.agents_file.lock().ok().and_then(|f| f.clone())
+                    .and_then(|f| f.parent().map(|dir| dir.join("semantic-bge-m3.json"))),
+            );
             let reader = enouia_memory_host::automation::catalog::SegmentedMemoryReader::from_authenticated_system_full_history(
                 vault, descriptor.system_actor.clone(),
-            ).map_err(fault)?;
+            ).map_err(fault)?.with_semantic(semantic.clone());
             let library = Library {
                 pipes: Mutex::new(None),
                 reader,
@@ -422,6 +439,7 @@ impl NativeCatalog {
                 )),
                 owner,
                 vault: Some(opened),
+                semantic: Some(semantic),
                 system: descriptor.system_actor,
                 _root: root.path().to_path_buf(),
                 _lease: Some(lease),
@@ -681,6 +699,10 @@ impl NativeCatalog {
                 view["recall_limits"] = json!({"max_items": fixture.profile.max_items, "max_bytes": fixture.profile.max_bytes});
                 // ADR-039: whether this entry can plan and confirm native corrections.
                 view["corrections"] = json!(fixture.owner.is_some());
+                if let Some(index) = &fixture.semantic {
+                    index.refresh(|| fixture.reader.semantic_texts(ceiling).ok());
+                    view["semantic"] = index.status();
+                }
             }
             return Ok(view);
         }
