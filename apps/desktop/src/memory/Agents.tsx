@@ -25,7 +25,7 @@ export function AgentGrantsPanel() {
   useEffect(() => { void run(async () => setGrants(await catalogAgents({ operation: "agent_status" }))); }, [run]);
   const propose = (agent: string, action: Action) => run(async () => setPlan(await catalogAgents({ operation: "agent_plan", agent, action })));
   const confirm = () => plan && run(async () => { setGrants(await catalogAgents({ operation: "agent_commit", plan_id: plan.plan_id })); setPlan(null); });
-  return <section className="mem-stack" aria-label={t("Local Agents")} aria-busy={busy}>
+  return <section className="mem-stack mem-v2" aria-label={t("Local Agents")} aria-busy={busy}>
     <div className="qr216"><span className="qr35">{t("Local Agents")}</span><span className="mem-stack">
       <span className="mem-muted">{t("Claude Code and Codex read this library through MCP under a grant: up to Private, 90 days, and they may only add notes, correction requests and forget requests. A registered Agent connects through its own local pipe while this library is open; locking or exiting disconnects it.")}</span>
       {grants?.agents.map(a => <span key={a.key} className="mem-stack">
@@ -115,7 +115,7 @@ export function AgentRequestsPanel() {
     <span className="mem-label">{t(r.kind === "correction" ? "Its proposed correction (not checked)" : "Its reason (not checked)")}</span><p className="mem-content">{r.text}</p>
     <span className="mem-actions">{actions}</span>
   </li>;
-  return <section className="mem-stack" aria-label={t("Agent requests")} aria-busy={busy}>
+  return <section className="mem-stack mem-v2" aria-label={t("Agent requests")} aria-busy={busy}>
     <div className="qr216"><span className="qr35">{t("Agent requests")}</span><span className="mem-stack">
       <span className="mem-muted">{t("Agents can only ask. Nothing changes until you review a request and confirm the planned change here.")}</span>
       {queue && <span role="status" className="mem-row-meta">{t("{open} waiting · {ignored} ignored · {resolved} resolved", { open: waiting.length, ignored: ignored.length, resolved })}</span>}

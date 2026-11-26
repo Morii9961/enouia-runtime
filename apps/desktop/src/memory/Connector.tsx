@@ -20,7 +20,7 @@ export function ConnectorStatus() {
     finally { setBusy(false); }
   }, []);
   useEffect(() => { void read(); }, [read]);
-  return <section className="mem-stack" aria-label={t("ChatGPT connector")} aria-busy={busy}>
+  return <section className="mem-stack mem-v2" aria-label={t("ChatGPT connector")} aria-busy={busy}>
     <div className="qr216"><span className="qr35">{t("ChatGPT connector")}</span><span className="mem-stack">
       {status && (status.windows.length === 0
         ? <span role="status">{t("Not connected: no capture window has been opened in this library yet.")}</span>
