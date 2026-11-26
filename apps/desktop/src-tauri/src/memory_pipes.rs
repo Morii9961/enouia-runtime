@@ -61,6 +61,7 @@ pub fn start(
     vault: &Arc<SegmentedAutomationVault>,
     profile: &AttentionProfile,
     agents: Vec<(PrincipalId, PolicyId)>,
+    semantic: Option<Arc<dyn enouia_memory_host::automation::semantic::SemanticIndex>>,
 ) -> Pipes {
     let stop = Arc::new(AtomicBool::new(false));
     let threads = agents
@@ -69,8 +70,22 @@ pub fn start(
             (0..INSTANCES).map(move |_| (principal.clone(), grant_id.clone()))
         })
         .map(|(principal, grant_id)| {
-            let (vault, profile, stop) = (vault.clone(), profile.clone(), stop.clone());
-            std::thread::spawn(move || listen(&vault, &profile, principal, &grant_id, &stop))
+            let (vault, profile, stop, semantic) = (
+                vault.clone(),
+                profile.clone(),
+                stop.clone(),
+                semantic.clone(),
+            );
+            std::thread::spawn(move || {
+                listen(
+                    &vault,
+                    &profile,
+                    principal,
+                    &grant_id,
+                    &stop,
+                    semantic.as_ref(),
+                )
+            })
         })
         .collect();
     Pipes { stop, threads }
@@ -82,6 +97,7 @@ fn listen(
     principal: PrincipalId,
     grant_id: &PolicyId,
     stop: &AtomicBool,
+    semantic: Option<&Arc<dyn enouia_memory_host::automation::semantic::SemanticIndex>>,
 ) {
     let id = pipe_id(&vault.descriptor().vault_id, &principal);
     let principal = ActorRef {
@@ -105,7 +121,9 @@ fn listen(
         };
         if connected {
             // Any refusal ends this connection only; the bridge reports it.
-            let _ = serve(vault, profile, &principal, grant_id, &mut pipe, stop);
+            let _ = serve(
+                vault, profile, &principal, grant_id, &mut pipe, stop, semantic,
+            );
         }
         // Dropping the instance lets the next client connect to a fresh one.
     }
@@ -118,6 +136,7 @@ fn serve(
     grant_id: &PolicyId,
     pipe: &mut Pipe,
     stop: &AtomicBool,
+    semantic: Option<&Arc<dyn enouia_memory_host::automation::semantic::SemanticIndex>>,
 ) -> Result<(), ()> {
     let owner = vault.descriptor().created_by.clone();
     let pid = pipe.client_pid().map_err(drop)?;
@@ -151,9 +170,14 @@ fn serve(
     // Memory waits briefly for its writer lock in host creation and permit
     // issuance (ADR-MEM-175, ADR-MEM-217), so two sessions of one Agent
     // connecting at the same moment both get through.
+    // ADR-MEM-220: the process's one semantic index, when Runtime has it.
     let host =
         QualifiedAgentHost::from_authenticated_initialized_owner(vault.clone(), owner.clone())
             .map_err(drop)?;
+    let host = match semantic {
+        Some(index) => host.with_semantic(index.clone()),
+        None => host,
+    };
     let reader = host
         .reader_with_owner_grant(&owner, principal.clone(), grant_id, scope.clone())
         .map_err(drop)?;

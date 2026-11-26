@@ -83,6 +83,7 @@ pub(super) fn create_with_clock(
     }
     .map_err(|_| "catalog_fixture_invalid")?;
     let library = Library {
+        semantic: None,
         pipes: std::sync::Mutex::new(None),
         reader,
         agents: owner

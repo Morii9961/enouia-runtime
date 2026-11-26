@@ -15,7 +15,9 @@ export type CatalogSelection = {
 };
 export type CatalogCursor = { selection: CatalogSelection; after: string };
 export type CatalogStatus = { kind: "runtime_memory_catalog_status"; mode: "synthetic_segmented_only" | "registered_owner_readonly";
-  state: "disabled" | "initializing" | "open" | "locked" | "failed" | "closing"; available: boolean; selection?: CatalogSelection; reason?: string; recall_limits?: { max_items: number; max_bytes: number }; corrections?: boolean };
+  state: "disabled" | "initializing" | "open" | "locked" | "failed" | "closing"; available: boolean; selection?: CatalogSelection; reason?: string; recall_limits?: { max_items: number; max_bytes: number }; corrections?: boolean;
+  /** ADR-MEM-220: the local semantic index (bge-m3 through Ollama). */
+  semantic?: { model: string; state: "waiting" | "indexing" | "ready" | "unavailable"; indexed: number; total: number } };
 export type CatalogItem = { title: string; content_lang: string; base: {
   memory: { memory_id: string; revision: number }; content: string; system_actor: { actor_type: "system" };
   dimensions: { kind: string }; knowledge: string; adoption: string; validity: string; attention: string;
