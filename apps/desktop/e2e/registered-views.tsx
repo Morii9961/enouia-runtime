@@ -97,7 +97,7 @@ try{
   const memory=fixture.querySelector('[data-screen-label="Memory Vault"]')!;
   await wait(()=>memory.textContent!.includes('said in conversation'));
   check('catalog_shows_source_conversation_time_when_event_time_is_unknown',memory.textContent!.includes('Time not recorded · said in conversation Sep 12, 2026')&&calls.filter(c=>c==='catalog:source').length>0);
-  check('catalog_list_shows_two_line_summaries',memory.querySelectorAll('.mem-list .mem-summary').length>0);
+  check('catalog_list_uses_vault_rows_with_two_line_text',memory.querySelectorAll('.mem-list li.qr43 .qr39').length>0&&!!memory.querySelector('.mem-day.qr33'));
   click('Read catalog detail: Synthetic item 1',memory);
   await wait(()=>memory.textContent!.includes('Said in conversation'));
   check('catalog_detail_names_source_time_as_not_event_time',memory.textContent!.includes('not necessarily when it happened'));

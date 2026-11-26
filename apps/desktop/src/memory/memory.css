@@ -13,8 +13,6 @@
 .mem-h3{margin:0;font-size:13px;font-weight:600;color:var(--secondary);letter-spacing:0.02em}
 .mem-h4{margin:0;font-size:12px;font-weight:600;color:var(--tertiary);letter-spacing:0.02em}
 .mem-content{margin:0;font-size:14px;line-height:21px;color:var(--warm);white-space:pre-wrap;overflow-wrap:anywhere}
-/* Catalog list: a record's text is a two-line summary; the full text is in the detail. */
-.mem-summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;white-space:normal}
 .mem-label{font-size:12.5px;color:var(--secondary)}
 .mem-input,.mem-textarea{box-sizing:border-box;border:1px solid var(--border);border-radius:4px;background:var(--well);color:var(--primary);font-size:13px}
 .mem-input{height:30px;padding:0 10px}
@@ -116,3 +114,36 @@
 .mem-star-edge{stroke:var(--ink-3);stroke-width:.6;opacity:.45}
 .mem-star-edge[data-class=algorithm_suggestion]{stroke-dasharray:2 3;opacity:.35}
 .mem-star-label{fill:var(--tertiary);font-size:11px}
+
+/* ---- UI v2 Memory Vault list for the native catalog (registered and synthetic read-2) ---- */
+.mem-catalog-head{display:flex;flex-direction:column;gap:6px;padding:12px 20px 12px;border-bottom:1px solid var(--grid-major)}
+.mem-catalog-head .am-filters{margin:6px 0 0;align-items:flex-end}
+.mem-catalog-mode{font-family:var(--f-lab);text-transform:uppercase;letter-spacing:.06em}
+.mem-catalog-search{display:flex;align-items:flex-end;gap:8px;margin:0}
+.mem-catalog-facets{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 14px;margin:0;padding:0;border:0;min-width:0}
+.mem-catalog-facets>legend{float:left;width:100%;margin:0 0 2px;padding:0}
+.mem-catalog-actions{display:flex;gap:6px;margin-left:auto}
+.qr44 .mem-day-group{margin:0}
+.qr44 .mem-day.qr33{display:block;margin:0;font-size:12px}
+.qr44 .mem-list.mem-catalog-rows{display:block;margin:0;padding:0;list-style:none;gap:0;font-size:14px}
+.mem-catalog-row.qr43{cursor:pointer}
+.mem-catalog-row.qr43:hover:not([data-selected]){background:var(--wash) !important}
+.mem-catalog-row[data-selected]{--ink:var(--i-ink);--ink-2:var(--i-ink-2);--ink-3:var(--i-ink-3);--paper:var(--i-paper);--wash:var(--i-wash);--wash-2:var(--i-wash-2);--grid-major:var(--i-grid-major);--grid-minor:var(--i-grid-minor);--pen:var(--i-pen);background:var(--i-paper) !important;color:var(--i-ink) !important}
+.mem-catalog-title{margin:0;font-weight:inherit}
+.mem-catalog-row .mem-link{display:block;width:100%;padding:0;font-size:15px;line-height:21px;font-weight:500;color:var(--ink);text-align:left;text-decoration:none}
+.mem-catalog-row .mem-link:hover{color:var(--ink);text-decoration:none}
+.mem-catalog-row .qr39{color:var(--ink-2)}
+.mem-catalog-more{padding:12px 20px}
+.qr88 .qr79>.am-fine{margin-bottom:8px}/* ---- UI v2 Memory Inspector for the native catalog detail ---- */
+.mem-detail{display:flex;flex-direction:column;gap:10px}
+.mem-detail-bar{align-items:center;gap:8px}
+.mem-detail-bar .qr55{margin:0}
+.mem-detail-title{margin:0}
+.mem-detail-text{margin:0;white-space:pre-wrap}
+.mem-detail .qr55{margin:0 0 6px}
+.qr88 .mem-facts{grid-template-columns:116px minmax(0,1fr);gap:0;font-size:13px;line-height:19px}
+.qr88 .mem-facts>dt,.qr88 .mem-facts>dd{padding:7px 0;border-top:1px solid var(--grid-minor)}
+.qr88 .mem-facts>dt{font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
+.qr88 .mem-facts>dd{color:var(--ink)}
+.mem-detail-list{list-style:none;padding:0;gap:10px}
+.mem-quote{margin:0 0 4px;padding:0 0 0 10px;border-left:2px solid var(--grid-major);font-size:14px;line-height:21px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
