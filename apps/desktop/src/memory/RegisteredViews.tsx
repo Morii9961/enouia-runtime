@@ -466,7 +466,7 @@ function RecallView({ mode }: { mode: "recall" | "context" }) {
 
 // ---- Sessions ----------------------------------------------------------------
 export function RegisteredSessions() {
-  return <section data-screen-label="Sessions" className="qr89 mem-registered-sessions"><Open title={t("Sessions")}>{() => <SessionsView />}</Open></section>;
+  return <section data-screen-label="Sessions" className="qr171 mem-registered-sessions"><Open title={t("Sessions")}>{() => <SessionsView />}</Open></section>;
 }
 function SessionsView() {
   const [pages, setPages] = useState<Conversations[]>([]);
@@ -508,31 +508,42 @@ function SessionsView() {
   for (const thread of threads) thread.sort((a, b) => (a.conversation.started_at.from ?? "").localeCompare(b.conversation.started_at.from ?? ""));
   const chosenParts = threads.find(thread => thread.length > 1 && thread.some(c => c.conversation.conversation_id === chosen));
   const last = pages.at(-1);
+  const chosenMeta = loaded.find(c => c.conversation.conversation_id === chosen);
+  const clock = (at: string) => nativeDate(Date.parse(at), { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  // UI v2 Sessions: the list on the left (an inverted row when chosen), the
+  // transcript in the middle spaced by real time, the session's facts on the right.
   return <>
-    <aside className="qr28" aria-busy={reads.busy}><div className="qr20"><h1 className="qr18">{t("Sessions")}</h1>
-      <div className="qr19">{pages[0] ? t("{shown} of {matched} conversations", { shown: items.length, matched: pages[0].matched_in_scope }) : t("Reading conversations…")}</div></div>
+    <aside className="qr136" aria-busy={reads.busy}>
+      <div className="qr20"><h1 className="qr18">{t("Sessions")}</h1>
+        <div className="qr19">{pages[0] ? t("{shown} of {matched} conversations", { shown: items.length, matched: pages[0].matched_in_scope }) : t("Reading conversations…")}</div></div>
       <ErrorBox error={reads.error} />
-      {scopes.length > 1 && <label className="mem-label mem-pad">{t("Captured by")} <select className="mem-input" value={scope} onChange={e => setScope(e.target.value)}>
+      {scopes.length > 1 && <label className="am-select-filter"><span className="am-lbl">{t("Captured by")}</span><select value={scope} onChange={e => setScope(e.target.value)}>
         <option value="">{t("All")}</option>{scopes.map(v => <option key={v} value={v}>{v}</option>)}</select></label>}
-      <ul className="mem-list mem-pad">{threads.map(([c, ...later]) => <li key={c.conversation.conversation_id} data-thread-parts={later.length + 1}>
-        <button type="button" className="mem-link" aria-pressed={chosen === c.conversation.conversation_id} onClick={() => open(c.conversation.conversation_id)}>{c.conversation.title ?? t("Untitled conversation")}</button>
-        <p className="mem-row-meta">{recordTimeText(c.conversation.started_at)} · {c.conversation.platform}{c.conversation.account_scope ? ` · ${c.conversation.account_scope}` : ""} · {t("{n} captured turns", { n: c.visible_captured_turns })}</p>
-        {later.length > 0 && <p className="mem-row-meta">{t("Later parts of the same platform conversation:")} {later.map((part, index) =>
-          <button key={part.conversation.conversation_id} type="button" className="mem-link" aria-pressed={chosen === part.conversation.conversation_id} onClick={() => open(part.conversation.conversation_id)}>
-            {t("Part {n}", { n: index + 2 })} · {recordTimeText(part.conversation.started_at)} · {t("{n} captured turns", { n: part.visible_captured_turns })}</button>)}</p>}
+      <ul className="mem-list qr135 mem-session-list">{threads.map(([c, ...later]) => <li key={c.conversation.conversation_id} data-thread-parts={later.length + 1}>
+        <button type="button" className="qr134" aria-pressed={chosen === c.conversation.conversation_id} aria-label={c.conversation.title ?? t("Untitled conversation")} onClick={() => open(c.conversation.conversation_id)}>
+          <span className="qr133">{c.conversation.title ?? t("Untitled conversation")}</span>
+          <span className="qr19">{recordTimeText(c.conversation.started_at)} · {c.conversation.platform}{c.conversation.account_scope ? ` · ${c.conversation.account_scope}` : ""} · {t("{n} captured turns", { n: c.visible_captured_turns })}</span>
+        </button>
+        {later.length > 0 && <div className="mem-session-parts"><span className="qr19">{t("Later parts of the same platform conversation:")}</span> {later.map((part, index) =>
+          <button key={part.conversation.conversation_id} type="button" className="am-chip" aria-pressed={chosen === part.conversation.conversation_id} onClick={() => open(part.conversation.conversation_id)}>
+            {t("Part {n}", { n: index + 2 })} · {recordTimeText(part.conversation.started_at)} · {t("{n} captured turns", { n: part.visible_captured_turns })}</button>)}</div>}
       </li>)}</ul>
-      {last?.next != null && <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show more conversations")}</button>}
+      {last?.next != null && <button type="button" className="am-chip" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show more conversations")}</button>}
     </aside>
-    <div className="qr45" aria-busy={turns.busy}><div className="qr44 mem-pad mem-stack">
-      {!chosen && pages[0] && <p className="mem-content">{t(pages[0].matched_in_scope === 0 ? "This library has no captured conversations in the current scope." : "Choose a conversation to read its captured turns.")}</p>}
-      {turns.busy && <p role="status">{t("Reading captured turns…")}</p>}
+    <div className="qr161" aria-busy={turns.busy}>
+      {!chosen && pages[0] && <p className="qr32">{t(pages[0].matched_in_scope === 0 ? "This library has no captured conversations in the current scope." : "Choose a conversation to read its captured turns.")}</p>}
+      {turns.busy && <p role="status" className="am-fine">{t("Reading captured turns…")}</p>}
       <ErrorBox error={turns.error} />
       {detail && (detail.conversation ? <>
-        <h2 className="qr29">{detail.conversation.title ?? t("Untitled conversation")}</h2>
-        <p className="mem-row-meta">{recordTimeText(detail.conversation.started_at)} – {recordTimeText(detail.conversation.ended_at)} · {detail.conversation.platform}</p>
-        <p className="mem-row-meta">{t("Only captured turns are shown; this is not the whole platform conversation.")}</p>
-        {chosenParts && <p className="mem-row-meta" data-thread-part>{t("Part {n} of {total} loaded parts of one platform conversation (same original conversation ID).",{ n: chosenParts.findIndex(c => c.conversation.conversation_id === chosen) + 1, total: chosenParts.length })}</p>}
-        <ol className="mem-list mem-turns">{detail.turns.map((turn, index) => {
+        <div className="qr137">
+          <h2 className="qr29">{detail.conversation.title ?? t("Untitled conversation")}</h2>
+          <div className="qr19">{recordTimeText(detail.conversation.started_at)} – {recordTimeText(detail.conversation.ended_at)} · {detail.conversation.platform}</div>
+          <div className="qr30" />
+          <div className="bg-ruler-note">{t("Spacing = real time · 2 px per minute, capped")}</div>
+        </div>
+        <p className="am-fine">{t("Only captured turns are shown; this is not the whole platform conversation.")}</p>
+        {chosenParts && <p className="am-fine" data-thread-part>{t("Part {n} of {total} loaded parts of one platform conversation (same original conversation ID).", { n: chosenParts.findIndex(c => c.conversation.conversation_id === chosen) + 1, total: chosenParts.length })}</p>}
+        <ol className="mem-list qr160 mem-turns">{detail.turns.map((turn, index) => {
           const body = texts[`${turn.turn.source.source_id}:${turn.turn.source.source_revision}`];
           // Memory ADR-MEM-175 note: each turn's source record carries its time.
           // Space turns by the real gap (2px a minute, at most 48px); unknown
@@ -540,13 +551,31 @@ function SessionsView() {
           const at = turn.source_record.occurred_at ?? turn.source_record.captured_at ?? null;
           const before = index > 0 ? detail.turns[index - 1].source_record.occurred_at ?? detail.turns[index - 1].source_record.captured_at ?? null : null;
           const gap = at && before ? (Date.parse(at) - Date.parse(before)) / 60000 : 0;
-          return <li key={turn.turn.turn_id} style={{ marginTop: gap > 0 ? Math.min(48, Math.round(gap * 2)) : undefined }} data-turn-gap={gap > 0 ? Math.round(gap) : 0}>
-            <p className="mem-row-meta">{turn.source_record.speaker} · #{turn.turn.sequence}{at ? ` · ${stamp(at)}` : ""}</p>
-            {body?.source ? <p className="mem-content">{body.excerpt}{body.complete_in_scope ? "" : " …"}</p> : <p className="mem-row-meta">{t("This source revision is no longer available.")}</p>}</li>;
+          const you = turn.source_record.speaker === "user";
+          return <li key={turn.turn.turn_id} className="qr159 bg-turn" style={{ "--gap": `${gap > 0 ? Math.min(48, Math.round(gap * 2)) : 0}px`, marginTop: gap > 0 ? Math.min(48, Math.round(gap * 2)) : undefined } as React.CSSProperties} data-turn-gap={gap > 0 ? Math.round(gap) : 0}>
+            {gap >= 4 && <span className="bg-gap" aria-hidden="true">{t("+{n} min", { n: Math.round(gap) })}</span>}
+            <span className="qr138">{turn.turn.sequence}</span>
+            <span className="qr139">{at ? clock(at) : "—"}</span>
+            <span className="qr142"><span className="qr140" /><span className="qr141" /></span>
+            <div className="qr158"><div className="qr149">
+              <div className="qr145"><span className="qr143" data-speaker={you ? "you" : "agent"}>{you ? t("You") : turn.source_record.speaker}</span><span className="qr144">#{turn.turn.sequence}{at ? ` · ${stamp(at)}` : ""}</span></div>
+              {body?.source ? <div className="qr146" data-speaker={you ? "you" : "agent"}>{body.excerpt}{body.complete_in_scope ? "" : " …"}</div> : <p className="mem-row-meta">{t("This source revision is no longer available.")}</p>}
+            </div></div>
+          </li>;
         })}</ol>
-        {detail.next != null && <p className="mem-row-meta">{t("{shown} of {total} captured turns shown.", { shown: detail.turns.length, total: detail.visible_captured_turns })}</p>}
-      </> : <p role="status">{t("This conversation is no longer available in the current scope.")}</p>)}
-    </div></div>
+        {detail.next != null && <p className="am-fine">{t("{shown} of {total} captured turns shown.", { shown: detail.turns.length, total: detail.visible_captured_turns })}</p>}
+      </> : <p role="status" className="am-fine">{t("This conversation is no longer available in the current scope.")}</p>)}
+    </div>
+    <aside className="qr170" aria-label={t("Session details")}>
+      {chosenMeta ? <section className="qr66"><h3 className="qr55">{t("Session")}</h3><dl className="mem-facts">
+        <dt>{t("Started")}</dt><dd>{recordTimeText(chosenMeta.conversation.started_at)}</dd>
+        <dt>{t("Ended")}</dt><dd>{recordTimeText(chosenMeta.conversation.ended_at)}</dd>
+        <dt>{t("Platform")}</dt><dd>{chosenMeta.conversation.platform}</dd>
+        {chosenMeta.conversation.account_scope && <><dt>{t("Captured by")}</dt><dd>{chosenMeta.conversation.account_scope}</dd></>}
+        <dt>{t("Turns")}</dt><dd>{t("{n} captured turns", { n: chosenMeta.visible_captured_turns })}</dd>
+        <dt>{t("Sensitivity")}</dt><dd>{word(chosenMeta.effective_sensitivity)}</dd>
+      </dl></section> : <p className="qr19">{t("No session selected.")}</p>}
+    </aside>
   </>;
 }
 
