@@ -66,4 +66,22 @@ trace 每次 considered 351 条，排除列表只有约 130 条，其余被条�
 ## 未完成
 
 - 没有打包候选，也没有装到 Morii 电脑上。
-- 人物合并后的读取故障等 Memory 修复，修好后再升 pin、复查。
+- 人物合并后的读取故障已由 `76ef079` 修好，见下文。
+
+## 后续：pin `76ef079`（2026-11-27）
+
+Memory 合并了两项：
+- [#217](https://github.com/Morii9961/enouia-memory/pull/217)（ADR-MEM-223）：关系图页列出语义近邻；
+- [#218](https://github.com/Morii9961/enouia-memory/pull/218)（ADR-MEM-224）：修复上面的读取故障。原因是目录读取项、邻居关系和会话摘要的原生校验，不认人物确认为同一身份时附上的证明，读取器拒绝了自己的输出。数据本身没有问题。
+
+pin 升到 `76ef079328bc6261967e617fb49c85efc4fd31a9`，surface aggregate `daf7ba3a83b68ce1cc4e7c6beff960fc49d473730bb0248b22df3c1a791bc42c`。依赖没有变化，Runtime 的代码也没有改：星图本来就会画 `semantic_neighbor`，图读取器也已经挂着语义索引。
+
+| 检查 | 结果 |
+| --- | --- |
+| `check-memory-integration --memory-checkout <76ef079>` | 一致 |
+| `cargo test --locked -- --test-threads=1` | 75 + 9 通过；clippy 无警告；fmt 通过 |
+| 真实库只读复查（CURRENT 441，前后不变，退出码 0） | 记忆列表翻完 351/351 条，不再出错；之前读不出的 4 条，详情都能打开 |
+| 星图 | 351 个节点；`semantic_neighbors_available` 为 true；语义近邻 466 条，覆盖 466/466；相似度 532–830 |
+| 同一组召回问题 | 与 `561c5a3` 完全相同 |
+
+抽看相似度最高的几对语义近邻：同一段时间的睡眠记录、同一门课的两次考试、两次迁移、两个社交账号，都是合理的关联。
