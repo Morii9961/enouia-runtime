@@ -83,7 +83,7 @@ export function CapsuleSavingSetting() {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => { catalogCapsules().then(d => setEnabled(d.saving_enabled), cause => setError(describe(cause))); }, []);
   const set = (next: boolean) => catalogCapsules(next).then(d => setEnabled(d.saving_enabled), cause => setError(describe(cause)));
-  return <div className="qr216"><span className="qr35">{t("Saved Capsules")}</span><span className="mem-stack">
+  return <div className="qr216"><span className="qr35">{t("Saved Capsules")}</span><span className="mem-stack mem-v2">
     <span className="mem-muted">{t("Off by default. When on, a recall preview can be saved as a named Capsule after you confirm its plan. Saving writes to the library.")}</span>
     {enabled !== null && <span className="mem-actions" role="group" aria-label={t("Saving Capsules")}>
       <button type="button" className="mem-button" aria-pressed={!enabled} onClick={() => void set(false)}>{t("Off")}</button>
