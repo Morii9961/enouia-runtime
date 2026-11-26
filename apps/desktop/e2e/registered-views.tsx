@@ -31,14 +31,14 @@ setCatalogTransport(async(_command,args)=>{
   const q=(args as any).request.query;calls.push(`catalog:${q.operation}`);
   if(q.operation==='status'){const r:any={...status(state),mode:'registered_owner_readonly'};if(state==='open'){r.recall_limits={max_items:8,max_bytes:16384};r.corrections=true;}return r;}
   if(state!=='open')throw 'catalog_locked';
-  if(q.operation==='page'){const p:any=page(q.filter.text,q.cursor);p.items=p.items.slice(0,q.filter.time_window?1:q.limit);
+  if(q.operation==='page'){const p:any=page(q.filter.text,q.cursor);p.items=p.items.slice(0,q.filter.time_window?1:q.limit).map((i:any)=>({...i,event_time:{from:null,until:null,precision:'unknown',bound:'within',tz:null,basis:'unknown'}}));
     if(q.filter.knowledge==='hypothesis'&&p.items[0])p.items[0]={...p.items[0],formation_reason:{interpretation:'inference',rule_version:'admission-rules-3',prompt_version:'chatgpt-connector-theme-1',model_version:'gpt-synthetic-1',mode:'live',note:null,note_is_machine_annotation:true}};return p;}
   if(q.operation==='stats')return {...stats(q.selection,3),groups:[{axis:'adoption',count_scope:'matched',values:[{value:'adopted',label:'adopted',count:2},{value:'staged',label:'staged',count:1}],total_values:2}]};
   if(q.operation==='detail'){const d:any=detail(q.memory_id);if(q.memory_id==='synthetic-memory-1'&&d.item){d.item.base.memory.revision=2;
     d.history=[1,2].map(r=>({memory:{memory:{memory_id:q.memory_id,revision:r},hash:'e'.repeat(64)},title:'t',knowledge:'attributed_statement',adoption:'adopted',interpretation:'clear_self_report',change:r===1?'initial':'correction',learned_at:'2026-11-03T00:00:00.000Z',effective_sensitivity:'private'}));d.history_count_in_scope=2;}return d;}
   if(q.operation==='revision_diff')return {...envelope,kind:'memory_revision_diff',header,before:{memory:{memory_id:q.memory_id,revision:q.before},hash:'e'.repeat(64)},after:{memory:{memory_id:q.memory_id,revision:q.after},hash:'e'.repeat(64)},
     fields:[{field:'content',before:'I made a blue pottery cup.',after:'I made a green pottery cup.'}],structural_only:true};
-  if(q.operation==='source')return source(q.start,q.limit);
+  if(q.operation==='source'){const s:any=source(q.start,q.limit);if(s.source_record)s.source_record.occurred_at='2026-09-12T04:00:00.000Z';return s;}
   if(q.operation==='time_buckets'&&q.query.granularity==='day')return {...envelope,kind:'memory_time_buckets',header,query:q.query,interval_rule:'possible',material_scope:'authorized',unknown_time_in_scope:2,
     buckets:[{local_start:'2026-03-05',from:'2026-03-04T16:00:00Z',until:'2026-03-05T16:00:00Z',possible_records:1,staged:0,adopted:1,captured_material:2},
       {local_start:'2026-03-06',from:'2026-03-05T16:00:00Z',until:'2026-03-06T16:00:00Z',possible_records:0,staged:0,adopted:0,captured_material:0}]};
@@ -95,6 +95,12 @@ try{
   check('connector_is_shown_as_not_connected_not_faked',within('Runtime Inspector').includes('not deployed yet')&&calls.includes('catalog:connector_status'));
   check('inspector_reads_snapshot_and_counts',within('Runtime Inspector').includes('synthetic-commit')&&within('Runtime Inspector').includes('memory-native-read-2'));
   const memory=fixture.querySelector('[data-screen-label="Memory Vault"]')!;
+  await wait(()=>memory.textContent!.includes('said in conversation'));
+  check('catalog_shows_source_conversation_time_when_event_time_is_unknown',memory.textContent!.includes('Time not recorded · said in conversation Sep 12, 2026')&&calls.filter(c=>c==='catalog:source').length>0);
+  check('catalog_list_shows_two_line_summaries',memory.querySelectorAll('.mem-list .mem-summary').length>0);
+  click('Read catalog detail: Synthetic item 1',memory);
+  await wait(()=>memory.textContent!.includes('Said in conversation'));
+  check('catalog_detail_names_source_time_as_not_event_time',memory.textContent!.includes('not necessarily when it happened'));
   click('Time',memory.querySelector('.qr28')!);
   await wait(()=>!!memory.querySelector('.mem-time-cell'));
   check('time_grid_shows_only_dated_months_and_unknown_count',memory.querySelectorAll('.mem-time-cell').length===1&&memory.textContent!.includes('2 records have no recorded time on this axis.'));
