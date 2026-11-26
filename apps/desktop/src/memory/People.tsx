@@ -41,7 +41,7 @@ function PeopleView() {
   const groups = data?.groups ?? [];
   const from = mergeFrom ? groups.flatMap(g => g.records).find(r => r.entity_id === mergeFrom) : null;
   const fromType = mergeFrom ? groups.find(g => g.records.some(r => r.entity_id === mergeFrom))?.entity_type : null;
-  return <div className="qr45" aria-busy={busy}><div className="qr44 mem-pad mem-stack">
+  return <div className="qr45" aria-busy={busy}><div className="qr44 mem-pad mem-stack mem-v2">
     <h2 className="qr29">{t("People and places")}</h2>
     <p className="mem-row-meta">{t("Every mention of a person or place is its own card. Cards with the same type and name are linked automatically as a suggestion; you decide whether they are the same one. Each decision is planned first and written only after you confirm it, and can be changed later.")}</p>
     <button type="button" className="mem-button" disabled={busy} onClick={() => void load()}>{t("Read again")}</button>

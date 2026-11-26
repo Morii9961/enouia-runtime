@@ -158,3 +158,36 @@
 .qr170 .mem-facts>dt,.qr170 .mem-facts>dd{padding:7px 0;border-top:1px solid var(--grid-minor)}
 .qr170 .mem-facts>dt{font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
 .qr170 .mem-facts>dd{color:var(--ink)}
+/* ---- UI v2 vocabulary for the registered sub-views (Time, Connections, Formation,
+   Worth a look, Recall/Context, People) and their inspectors. Class names stay;
+   inside .mem-v2 they take the design's look: one frame per screen, label type,
+   chip buttons, rows ruled by the day grid, no underlined links. ---- */
+.mem-v2{gap:12px}
+.qr44.mem-v2{padding:0 20px 24px}
+.mem-v2>h2.qr29:first-child{margin:0 -20px 4px;padding:16px 20px 10px;border-bottom:1px solid var(--grid-major)}
+.mem-v2 h3:not([class]),.mem-v2 h4:not([class]){margin:10px 0 2px;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.mem-v2 .mem-content{font-size:14px;line-height:21px;color:var(--ink-2)}
+.mem-v2 .mem-row-meta{font-size:12px;line-height:16px;color:var(--ink-3)}
+.mem-v2 .mem-link{padding:0;border:0;background:transparent;color:var(--ink);font-size:14px;line-height:20px;text-align:left;text-decoration:none;cursor:pointer}
+.mem-v2 .mem-link:hover{color:var(--ink);text-decoration:none;background:var(--wash)}
+.mem-v2 .mem-link[aria-pressed="true"]{background:var(--i-paper);color:var(--i-ink)}
+.mem-v2 .mem-button,.mem-v2 .mem-primary{height:auto;min-height:28px;padding:3px 10px;border:1px solid var(--ink-3);border-radius:0;background:transparent;color:var(--ink);font-family:var(--f-lab);font-size:12px;font-weight:500;box-shadow:none}
+.mem-v2 .mem-button:hover:not(:disabled){background:var(--wash)}
+.mem-v2 .mem-button.mem-danger{border-color:var(--ink)}
+.mem-v2 .mem-actions{display:flex;flex-wrap:wrap;gap:6px}
+.mem-v2 .mem-label{display:flex;flex-direction:column;gap:3px;font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.mem-v2 .mem-input{min-height:30px;padding:3px 6px;border:1px solid var(--ink-3);border-radius:0;background:var(--paper);color:var(--ink);font-family:inherit;font-size:13px;letter-spacing:normal;text-transform:none}
+.mem-v2 .mem-list{margin:0;padding:0;list-style:none;display:block;font-size:14px}
+.mem-v2 .mem-list>li{padding:9px 0;border-top:1px solid var(--grid-minor)}
+.mem-v2 .mem-list>li:first-child{border-top:0}
+.mem-v2 .mem-card{padding:12px 0 0;border:0;border-top:1px solid var(--grid-major);border-radius:0;background:transparent;box-shadow:none}
+.mem-v2 .mem-table{border-collapse:collapse;font-size:13px}
+.mem-v2 .mem-table th,.mem-v2 .mem-table td{padding:5px 8px;border-bottom:1px solid var(--grid-minor);text-align:left}
+.mem-v2 .mem-table th{font-family:var(--f-lab);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.mem-v2 .mem-facts{grid-template-columns:116px minmax(0,1fr);gap:0;font-size:13px;line-height:19px}
+.mem-v2 .mem-facts>dt,.mem-v2 .mem-facts>dd{padding:7px 0;border-top:1px solid var(--grid-minor)}
+.mem-v2 .mem-facts>dt{font-family:var(--f-lab);font-size:12px;font-weight:500;color:var(--ink-3)}
+.mem-v2 .mem-facts>dd{color:var(--ink)}
+.mem-v2 .mem-button,.mem-v2>.am-chip{width:auto;align-self:flex-start}
+.mem-v2 .mem-input{width:auto;max-width:320px}
+.mem-v2 textarea.mem-input,.mem-v2 input[type="text"].mem-input,.mem-v2 input:not([type]).mem-input{width:100%;max-width:560px}
