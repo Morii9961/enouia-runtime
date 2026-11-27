@@ -4,7 +4,7 @@ import { RegisteredPeople } from '../src/memory/People';
 import { MemoryStatusProvider } from '../src/memory/status';
 import { setTransport } from '../src/memory/client';
 import { setCatalogTransport } from '../src/memory/catalog';
-import { status } from './fixtures/catalog.mjs';
+import { detail, page, status } from './fixtures/catalog.mjs';
 
 const fixture=document.getElementById('fixture')!,root=createRoot(fixture);
 const checks:{id:string;ok:boolean}[]=[],calls:any[]=[];
@@ -23,6 +23,8 @@ setCatalogTransport(async(_c,args)=>{
   const q=(args as any).request.query;calls.push(structuredClone(q));
   if(q.operation==='status')return {...status('open'),mode:'registered_owner_readonly',corrections:true};
   if(q.operation==='entity_identities')return groups();
+  if(q.operation==='page')return page();
+  if(q.operation==='detail')return detail(q.memory_id);
   if(q.operation==='plan_action')return {...envelope,kind:'native_owner_preview',effect:'native_plan',plan:{operation_id:'op_1'},plan_hash:'a'.repeat(64),effects_hash:'b'.repeat(64),affected_current:[],affected_count_in_scope:2,sensitivity:'private',original_sources_retained:true,physical_purge:false,proposed_correction:null};
   if(q.operation==='confirm_action'){confirmed=true;return {...envelope,kind:'native_owner_outcome',effect:'native_write',operation_id:q.operation_id,plan_hash:q.plan_hash,committed_in:'cmt_1',actor:{actor_type:'owner'},action:'entity_identity',memory_result:null,physical_purge:false};}
   throw new Error(`Unexpected ${q.operation}`);
@@ -37,6 +39,15 @@ const plans=()=>calls.filter(c=>c.operation==='plan_action');
 try{
   await wait(()=>text().includes('Linked by the same name · not confirmed'));
   check('same_name_group_is_marked_unconfirmed_and_single_offers_merge',text().includes('Single card')&&buttons('Merge into…').length===1&&buttons('Confirm they are the same…').length===1);
+  buttons('Show memories')[0].click();
+  await wait(()=>text().includes('Synthetic item 1')&&buttons('Hide memories').length===1);
+  const listed=calls.filter(c=>c.operation==='page');
+  check('a_card_lists_the_memories_of_its_identity_as_text',listed.length===1&&listed[0].filter.entity==='ent_1'&&text().includes('合成示例：我喜欢详细的调试说明。')&&!fixture.querySelector('#catalog-injected'));
+  buttons('Synthetic item 1')[0].click();
+  await wait(()=>text().includes('Synthetic detail'));
+  check('choosing_a_memory_opens_its_detail_and_sources',calls.some(c=>c.operation==='detail'&&c.memory_id==='synthetic-memory-1'));
+  buttons('Hide memories')[0].click();
+  await wait(()=>!text().includes('Synthetic item 1'));
   buttons('Confirm they are the same…')[0].click();
   await wait(()=>text().includes('Planned decision: Aiko: the same one'));
   const same=plans()[0].action;
@@ -44,6 +55,10 @@ try{
   buttons('Confirm and write')[0].click();
   await wait(()=>text().includes('Confirmed as one')&&buttons('Not the same…').length===2&&!buttons('Not the same…')[1].disabled);
   check('confirmed_group_reads_again',calls.filter(c=>c.operation==='confirm_action').length===1);
+  check('confirmed_group_is_one_entry_with_its_cards_folded',text().includes('2 cards')&&buttons('Show memories').length===2&&!!fixture.querySelector('[data-basis="confirmed"] details'));
+  buttons('Show memories')[0].click();
+  await wait(()=>text().includes('These cards are confirmed as one, so their memories are listed together.')&&text().includes('Synthetic item 1'));
+  check('confirmed_group_lists_its_memories_once',calls.filter(c=>c.operation==='page').at(-1).filter.entity==='ent_1');
   buttons('Not the same…')[1].click();
   await wait(()=>text().includes('Planned decision: Aiko is not the same'));
   const apart=plans()[1].action;

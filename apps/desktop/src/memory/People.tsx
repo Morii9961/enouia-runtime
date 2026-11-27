@@ -3,10 +3,13 @@
 // suggestion. Morii decides: the same one, not the same, or merge into another.
 // Every decision is planned by Core first and written only after confirmation.
 import { useCallback, useEffect, useState } from "react";
-import { catalogAction, catalogIdentities, type EntityIdentities, type OwnerPreview } from "./catalog";
+import { CATALOG_FILTER, catalogAction, catalogIdentities, catalogRead, type CatalogPage, type EntityIdentities, type OwnerPreview } from "./catalog";
+import { CatalogDetailPanel } from "./CatalogMemory";
 import { describe } from "./client";
+import { useLatestRead } from "./hooks";
 import { Open } from "./RegisteredViews";
-import { word } from "./catalogWords";
+import { ErrorBox } from "./ui";
+import { recordTimeText, word } from "./catalogWords";
 import { msg, t } from "../i18n";
 
 const BASIS: Record<string, string> = { confirmed: msg("Confirmed as one"), same_name: msg("Linked by the same name · not confirmed"), single: msg("Single card") };
@@ -23,11 +26,23 @@ function PeopleView() {
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The memories behind a group or card: Core's catalog filtered by the
+  // resolved identity, so Morii can read them before deciding (2026-11-27).
+  const [shown, setShown] = useState<string | null>(null);
+  const [page, setPage] = useState<CatalogPage | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const records = useLatestRead();
+  const hide = useCallback(() => { setShown(null); setPage(null); setSelected(null); records.clear(); }, [records.clear]);
+  const show = (key: string, entity: string) => {
+    if (shown === key) return hide();
+    setShown(key); setPage(null); setSelected(null);
+    void records.run(() => catalogRead({ operation: "page", filter: { ...CATALOG_FILTER, entity }, cursor: null, limit: 50 }), setPage);
+  };
   const run = useCallback(async (work: () => Promise<void>) => {
     setBusy(true); setError(null);
     try { await work(); } catch (cause) { setError(describe(cause)); } finally { setBusy(false); }
   }, []);
-  const load = useCallback(() => run(async () => setData(await catalogIdentities(200))), [run]);
+  const load = useCallback(() => { hide(); return run(async () => setData(await catalogIdentities(200))); }, [run, hide]);
   useEffect(() => { void load(); }, [load]);
   const plan = (next: Decision) => run(async () => {
     setNotice(null); setDecision(next); setMergeFrom(null);
@@ -36,12 +51,23 @@ function PeopleView() {
   const confirm = () => preview && run(async () => {
     await catalogAction({ operation: "confirm_action", operation_id: preview.plan.operation_id, plan_hash: preview.plan_hash, effects_hash: preview.effects_hash });
     setPreview(null); setDecision(null); setNotice(t("Written. The groups below are read again."));
+    hide();
     setData(await catalogIdentities(200));
   });
   const groups = data?.groups ?? [];
   const from = mergeFrom ? groups.flatMap(g => g.records).find(r => r.entity_id === mergeFrom) : null;
   const fromType = mergeFrom ? groups.find(g => g.records.some(r => r.entity_id === mergeFrom))?.entity_type : null;
-  return <div className="qr45" aria-busy={busy}><div className="qr44 mem-pad mem-stack mem-v2">
+  const memories = () => <section className="mem-stack" aria-label={t("Memories")} aria-busy={records.busy}>
+    {records.busy && <p role="status">{t("Reading records…")}</p>}
+    <ErrorBox error={records.error} />
+    {page && <><p className="mem-row-meta">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: page.matched_in_scope })}</p>
+      <ul className="mem-list">{page.items.map(item => <li key={item.base.memory.memory_id} className="mem-stack">
+        <span><button type="button" className="mem-link" aria-pressed={selected === item.base.memory.memory_id} onClick={() => setSelected(item.base.memory.memory_id)}>{item.title}</button>
+          <span className="mem-row-meta"> · {recordTimeText(item.event_time)} · {word(item.base.dimensions.kind)}</span></span>
+        <span className="mem-content">{item.base.content}</span>
+      </li>)}</ul></>}
+  </section>;
+  return <><div className="qr45" aria-busy={busy}><div className="qr44 mem-pad mem-stack mem-v2">
     <h2 className="qr29">{t("People and places")}</h2>
     <p className="mem-row-meta">{t("Every mention of a person or place is its own card. Cards with the same type and name are linked automatically as a suggestion; you decide whether they are the same one. Each decision is planned first and written only after you confirm it, and can be changed later.")}</p>
     <button type="button" className="mem-button" disabled={busy} onClick={() => void load()}>{t("Read again")}</button>
@@ -62,16 +88,34 @@ function PeopleView() {
         <span className="mem-row-meta"> · {t(BASIS[g.basis] ?? g.basis)} · {t("{n} cards", { n: g.records.length })}</span></li>)}</ul>
       <button type="button" className="mem-link" onClick={() => setMergeFrom(null)}>{t("Cancel")}</button>
     </section>}
-    <ul className="mem-list" data-identity-groups>{groups.map(g => <li key={g.records[0]?.entity_id ?? g.name} className="mem-stack" data-basis={g.basis}>
-      <strong>{g.name} <span className="mem-row-meta">· {word(g.entity_type)} · {t(BASIS[g.basis] ?? g.basis)}</span></strong>
-      <ul className="mem-list">{g.records.map(r => <li key={r.entity_id}>
-        <span className="mem-content">{r.display_name}</span>
-        <span className="mem-row-meta"> · {t("{n} memories", { n: r.memories })}{r.opted_out ? ` · ${t("kept separate")}` : ""} · <code>{r.entity_id}</code></span>
-        {g.records.length > 1 && <button type="button" className="mem-link" disabled={busy || !!preview} onClick={() => void plan({ label: t("{name} is not the same", { name: r.display_name }), entities: [r.entity_id, g.records.find(o => o.entity_id !== r.entity_id)!.entity_id], same: false })}>{t("Not the same…")}</button>}
-        {g.basis === "single" && <button type="button" className="mem-link" disabled={busy || !!preview} onClick={() => setMergeFrom(r.entity_id)}>{t("Merge into…")}</button>}
-      </li>)}</ul>
-      {g.basis === "same_name" && g.records.length > 1 && <span className="mem-actions"><button type="button" className="mem-button" disabled={busy || !!preview}
-        onClick={() => void plan({ label: t("{name}: the same one", { name: g.name }), entities: g.records.map(r => r.entity_id), same: true })}>{t("Confirm they are the same…")}</button></span>}
-    </li>)}</ul>
-  </div></div>;
+    <ul className="mem-list" data-identity-groups>{groups.map(g => {
+      const one = g.basis === "confirmed" && g.records.length > 1;
+      const groupKey = `group:${g.records[0]?.entity_id}`;
+      const cards = <ul className="mem-list">{g.records.map(r => <li key={r.entity_id} className="mem-stack">
+        <span><span className="mem-content">{r.display_name}</span>
+          <span className="mem-row-meta"> · {t("{n} memories", { n: r.memories })}{r.opted_out ? ` · ${t("kept separate")}` : ""} · <code>{r.entity_id}</code></span></span>
+        <span className="mem-actions">
+          {!one && <button type="button" className="mem-link" aria-expanded={shown === r.entity_id} onClick={() => show(r.entity_id, r.resolved_entity_id)}>{shown === r.entity_id ? t("Hide memories") : t("Show memories")}</button>}
+          {g.records.length > 1 && <button type="button" className="mem-link" disabled={busy || !!preview} onClick={() => void plan({ label: t("{name} is not the same", { name: r.display_name }), entities: [r.entity_id, g.records.find(o => o.entity_id !== r.entity_id)!.entity_id], same: false })}>{t("Not the same…")}</button>}
+          {g.basis === "single" && <button type="button" className="mem-link" disabled={busy || !!preview} onClick={() => setMergeFrom(r.entity_id)}>{t("Merge into…")}</button>}
+        </span>
+        {!one && shown === r.entity_id && memories()}
+      </li>)}</ul>;
+      return <li key={g.records[0]?.entity_id ?? g.name} className="mem-stack" data-basis={g.basis}>
+        <strong>{g.name} <span className="mem-row-meta">· {word(g.entity_type)} · {t(BASIS[g.basis] ?? g.basis)}{one ? ` · ${t("{n} cards", { n: g.records.length })}` : ""}</span></strong>
+        {one ? <>
+          <span className="mem-actions"><button type="button" className="mem-link" aria-expanded={shown === groupKey} onClick={() => show(groupKey, g.records[0].resolved_entity_id)}>{shown === groupKey ? t("Hide memories") : t("Show memories")}</button></span>
+          {shown === groupKey && <>{memories()}<p className="mem-row-meta">{t("These cards are confirmed as one, so their memories are listed together.")}</p></>}
+          <details><summary className="mem-row-meta">{t("Cards in this group: {n}. Each card is one mention of the name in a memory.", { n: g.records.length })}</summary>{cards}</details>
+        </> : cards}
+        {g.basis === "same_name" && g.records.length > 1 && <span className="mem-actions"><button type="button" className="mem-button" disabled={busy || !!preview}
+          onClick={() => void plan({ label: t("{name}: the same one", { name: g.name }), entities: g.records.map(r => r.entity_id), same: true })}>{t("Confirm they are the same…")}</button></span>}
+      </li>;
+    })}</ul>
+  </div></div>
+    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
+      {page && selected ? <CatalogDetailPanel key={selected} memoryId={selected} filter={CATALOG_FILTER} selection={page.selection} read={catalogRead} entities={[]} />
+        : <p className="mem-content">{t("Show the memories of a person or place, then choose one to read its detail and quoted sources.")}</p>}
+    </div></aside>
+  </>;
 }
