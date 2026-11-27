@@ -17,9 +17,10 @@ export const quote = '合成原文🌙 <img id="catalog-source-injected">';
 export const sourceRef = {source_id:'synthetic-source',source_revision:1};
 const header = (algorithm) => ({selection,version:2,algorithm,scope:'authorized_current_dependencies'});
 export function detail(memoryId='synthetic-memory-1') {
+  const item=[...page().items,...page('',{}).items].find(item=>item.base.memory.memory_id===memoryId)??null;
   return {...envelope,kind:'native_memory_detail',header:header('authorized-native-detail-2'),
-    item:page().items.find(item=>item.base.memory.memory_id===memoryId)??null,
-    fields:{title:'Synthetic detail',evidence:[{reference:{...sourceRef,object_hash:'d'.repeat(64)},quote,speaker:'user',start:0,end:Array.from(quote).length}]}};
+    item,
+    fields:!item?null:{title:'Synthetic detail',evidence:[{reference:{...sourceRef,object_hash:'d'.repeat(64)},quote,speaker:'user',start:0,end:Array.from(quote).length}]}};
 }
 export function source(start=0,limit=4096) {
   const chars=Array.from(quote),end=Math.min(start+limit,chars.length);

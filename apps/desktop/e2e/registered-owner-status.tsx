@@ -59,11 +59,11 @@ try{
   check('home_does_not_offer_review_queue_or_saved_context',!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Open or create a Vault')&&!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Read saved Capsules')&&text().includes('Unavailable in this read-only entry'));
   check('no_fabricated_commit_or_time_trace',!fixture.querySelector('[data-kind="vault-commit"]')&&text().includes('Registered library · no time trace is available'));
   check('settings_and_gates_do_not_offer_writes_or_model_configuration',!text().includes('Create Vault…')&&!text().includes('Open an existing Vault…')&&!calls.some(c=>c.startsWith('memory_provider_')));
-  check('memory_defaults_to_native_catalog',fixture.querySelector('[data-screen-label="Memory Vault"] button[aria-pressed=true]')?.textContent==='Native memory catalog');
+  check('memory_defaults_to_native_catalog',fixture.querySelector('[data-screen-label="Memory Vault"] .memory-workspace-nav [aria-current=page]')?.textContent==='Memories');
   const memory=fixture.querySelector('[data-screen-label="Memory Vault"]')!;
-  check('registered_entry_offers_only_read_workspaces',[...memory.querySelectorAll('.qr28 button')].map(button=>button.textContent).join('|')==='Native memory catalog|Time|Connections|Formation|Worth a look|People and places|Recall');
-  check('registered_entry_only_offers_catalog_search',!memory.querySelector('.qr28 form[role=search]'));
-  const catalogSearch=memory.querySelector<HTMLFormElement>('form:not(.qr22)')!;
+  check('registered_entry_offers_only_read_workspaces',[...memory.querySelectorAll('.memory-workspace-nav button')].map(button=>button.textContent).join('|')==='Memories|Time|Connections|Formation|Recall');
+  check('registered_entry_only_offers_catalog_search',memory.querySelectorAll('form[role=search]').length===1&&!!memory.querySelector('.mem-catalog-rail form[role=search]'));
+  const catalogSearch=memory.querySelector<HTMLFormElement>('form[role=search]')!;
   const input=catalogSearch.querySelector('input')!;
   Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(input,'调试');
   input.dispatchEvent(new Event('input',{bubbles:true}));
@@ -71,7 +71,7 @@ try{
   await sleep(30);
   catalogSearch.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
   await wait(()=>text().includes('1 shown · 1 matching authorized records'));
-  check('registered_search_keeps_catalog_selected',memory.querySelector('button[aria-pressed=true]')?.textContent==='Native memory catalog'&&input.value==='调试');
+  check('registered_search_keeps_catalog_selected',memory.querySelector('.memory-workspace-nav [aria-current=page]')?.textContent==='Memories'&&input.value==='调试');
   state='locked';refresh();await wait(()=>badge().includes('Registered library closed'));
   check('closed_state_has_no_unlock_or_fresh_open_controls',!text().includes('Unlock synthetic library')&&!text().includes('Open an existing Vault…'));
   state='open';hold=true;refresh();await wait(()=>release!==null);

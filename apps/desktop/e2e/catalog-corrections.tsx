@@ -67,7 +67,7 @@ try{
   const second=createRoot(fixture);second.render(<CatalogMemory/>);
   await wait(()=>text().includes('Synthetic item 1'));
   click('Synthetic item 1');
-  await wait(()=>text().includes('Catalog record detail')&&!!fixture.querySelector('section[aria-label="Catalog record detail"] blockquote'));
+  await wait(()=>!!fixture.querySelector('section[aria-label="Catalog record detail"] .qr51')&&!!fixture.querySelector('section[aria-label="Catalog record detail"] blockquote'));
   check('no_change_controls_without_native_corrections',!text().includes('Change this record'));
   second.unmount();
 }catch(error){checks.push({id:String(error),ok:false});}

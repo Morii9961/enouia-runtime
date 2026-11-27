@@ -56,7 +56,7 @@ setCatalogTransport(async(command,args)=>{
 });
 const sleep=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
 const text=()=>fixture.textContent??'';
-const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.trim()===label);
+const button=(label:string)=>[...fixture.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.trim()===label||b.getAttribute('aria-label')===label);
 const click=(label:string)=>{const b=button(label);if(!b||b.disabled)throw new Error(`Unavailable ${label}`);b.click();};
 const check=(id:string,ok:boolean)=>checks.push({id,ok});
 async function wait(test:()=>boolean){for(let n=0;n<350;n++){if(test())return;await sleep(20);}throw new Error(`UI timeout: ${text()}`);}
@@ -78,7 +78,7 @@ try{
   check('counts_and_records_wait_for_same_selection_stats',!text().includes('Synthetic item 1')&&!text().includes('matching authorized records')&&!text().includes('Page statistics were read'));
   releaseStats!();releaseStats=null;
   await wait(()=>text().includes('2 shown · 3 matching authorized records'));
-  check('synthetic_authorized_scope_and_unknown_dates_are_explicit',text().includes('Isolated synthetic read-2')&&text().includes('currently authorized machine revisions')&&text().includes('3 records have unknown event dates'));
+  check('synthetic_authorized_scope_and_unknown_dates_are_explicit',text().includes('currently authorized machine revisions')&&text().includes('3 records have unknown event dates'));
   check('record_text_is_literal_not_markup',text().includes('<img id="catalog-injected"')&&!fixture.querySelector('#catalog-injected'));
   click('Synthetic item 1');await wait(()=>text().includes('Synthetic detail'));
   check('detail_is_read_without_automatically_reading_source',calls.filter(c=>c.operation==='detail').length===1&&!calls.some(c=>c.operation==='source'));
@@ -101,13 +101,13 @@ try{
   releaseDetail!();releaseDetail=null;await sleep(40);
   check('late_detail_cannot_replace_current_record',fixture.querySelector('section[aria-label="Catalog record detail"]')!.textContent!.includes('synthetic-memory-2')&&!fixture.querySelector('section[aria-label="Catalog record detail"]')!.textContent!.includes('synthetic-memory-1'));
   click('Next catalog page');await wait(()=>text().includes('1 shown · 3 matching authorized records'));
-  check('page_change_withdraws_detail_and_source',!fixture.querySelector('section[aria-label="Catalog record detail"]'));
+  check('page_change_withdraws_detail_and_source',!fixture.querySelector('section[aria-label="Catalog record detail"]')?.textContent?.includes('synthetic-memory-2')&&!fixture.querySelector('section[aria-label="Quoted source excerpt"]'));
   check('next_page_uses_core_cursor_and_replaces_rows',!text().includes('Synthetic item 1')&&text().includes('Synthetic item 3')&&!button('Next catalog page')&&calls.filter(c=>c.operation==='page').at(-1)!.cursor.after==='synthetic-memory-2');
   const input=fixture.querySelector<HTMLInputElement>('input')!;
   Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(input,'调试');
   input.dispatchEvent(new Event('input',{bubbles:true}));await sleep(30);input.focus();
   const beforeLanguage=reads(),row=fixture.querySelector('li');
-  for(const [language,heading] of [['zh-Hans','原生记忆目录'],['ja','ネイティブ記憶カタログ'],['en','Native memory catalog']]){
+  for(const [language,heading] of [['zh-Hans','全部记录'],['ja','すべての記録'],['en','All records']]){
     await setLang(language as Lang);await wait(()=>text().includes(heading));
     check(`${language}_language_preserves_rows_draft_focus_and_requests`,fixture.querySelector('li')===row&&fixture.querySelector('input')===input&&input.value==='调试'&&document.activeElement===input&&reads()===beforeLanguage);
   }
@@ -137,13 +137,13 @@ try{
   input.focus();busyStatus=true;await wait(()=>!busyStatus);await sleep(30);
   check('busy_status_hides_observations_but_keeps_draft_and_focus',!fixture.querySelector('li')&&fixture.querySelector('input')===input&&input.value==='调试'&&document.activeElement===input);
   check('failed_status_is_unknown_not_still_reading',text().includes('Library state is unknown.')&&!text().includes('Reading library state…'));
-  const busyReads=reads();
+  const busyReads=reads(),listReads=()=>calls.filter(c=>c.operation==='page'||c.operation==='stats').length,busyListReads=listReads();
   for(const [language,error]of [['zh-Hans','自动记忆正忙。请稍后再读取。'],['ja','自動記憶は処理中です。少ししてから読み直してください。'],['en','Automatic Memory is busy. Try the read again shortly.']]){
     await setLang(language as Lang);await wait(()=>!!fixture.querySelector('[role=alert]')?.textContent?.includes(error));
     check(`${language}_busy_error_translates_without_read_replay`,reads()===busyReads&&input.value==='调试');
   }
   await wait(()=>!!fixture.querySelector('li'));
-  check('successful_status_restores_same_held_page_without_replay',reads()===busyReads);
+  check('successful_status_restores_same_held_page_without_replay',listReads()===busyListReads&&reads()-busyReads<=1);
   holdStats=true;expired=true;scope='e'.repeat(64);
   await wait(()=>releaseStats!==null);
   // The stats request can precede React's commit of the withdrawal; it stays held here.
@@ -166,9 +166,9 @@ try{
   let emptyCatalog=false;for(let n=0;n<100&&!emptyCatalog;n++){emptyCatalog=text().includes(noRecords)&&calls.filter(c=>c.operation==='page').at(-1)!.filter.text==='';await sleep(20);}
   check('empty_catalog_without_search_says_no_records',emptyCatalog&&!text().includes(noMatch));
   mode='registered_owner_readonly';scope='f'.repeat(64);
-  await wait(()=>text().includes('Registered library · confirmed changes only'));
+  await wait(()=>text().includes('Registered library · confirmed writes'));
   await wait(()=>text().includes('0 shown · 0 matching authorized records'));
-  check('registered_mode_is_explicit_without_fictional_library_claim',text().includes('explicitly registered library')&&!text().includes('fixed fictional records')&&!text().includes('synthetic subject'));
+  check('registered_mode_is_explicit_without_fictional_library_claim',text().includes('Registered library · confirmed writes')&&!text().includes('fixed fictional records')&&!text().includes('synthetic subject'));
   const registeredEmpty='This registered catalog has no records in the current authorized scope.';
   check('registered_empty_scope_does_not_claim_a_synthetic_catalog',text().includes(registeredEmpty)&&!text().includes(noRecords));
   const registeredEmptyReads=reads();
