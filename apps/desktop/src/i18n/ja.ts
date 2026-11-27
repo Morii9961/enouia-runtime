@@ -2207,7 +2207,6 @@ const dict: Record<string, string> = {
   "Rendered context": "生成されたコンテキスト",
   "Preview the context an Agent would receive": "エージェントが受け取るコンテキストをプレビュー",
   "Preview the context an Agent would receive for a cue. It uses the same recall as the Agent and saves nothing.": "手がかりに対してエージェントが受け取るコンテキストをプレビューします。エージェントと同じ想起を使い、何も保存しません。",
-  "Why these records come to mind for a cue: the same recall an Agent uses, previewed without saving.": "手がかりからこれらの記録が想起される理由です。エージェントと同じ想起を、保存せずにプレビューします。",
   "Correct…": "訂正…",
   "Withdraw…": "取り下げ…",
   "Protect": "保護",
@@ -2444,5 +2443,15 @@ const dict: Record<string, string> = {
   "Connected records": "つながっている記録",
   "Statements kept as hypotheses": "仮説として保持している記述",
   "Memory does not list the records formed from one conversation yet. Open a record in Memory to read the turns it quotes.": "Memory はまだ、1 つの会話から作られた記録を一覧にできません。記憶で記録を開くと、引用している発言を読めます。",
+  "Recall preview · read only. Nothing is saved or sent.": "想起のプレビュー · 読み取り専用。保存も送信もしません。",
+  "What the Agent is asked": "Agent への手がかり",
+  "{used} of {max} bytes used": "{max} バイト中 {used} バイトを使用",
+  "Byte budget {max}": "バイト上限 {max}",
+  "of {max} bytes": "/ {max} バイト",
+  "Context sections": "コンテキストの区分",
+  "Selected": "選ばれた記録",
+  "Left out": "外れた記録",
+  "Nothing was left out.": "外れた記録はありません。",
+  "Enter a cue, or browse without one, to see what an Agent would be given.": "手がかりを入れるか、手がかりなしで見ると、Agent が受け取る内容がわかります。",
 };
 export default dict;
