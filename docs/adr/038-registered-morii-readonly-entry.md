@@ -75,3 +75,29 @@ Packets still cannot set the ceiling, and Core keeps enforcing subject, source,
 policy, deletion and expiry checks, so policy expiry still narrows what is
 visible. This adds no write, grant, Provider, Context or Sessions path. See
 [evidence](../validation/Registered-morii-full-sensitivity-2026-11-19.md).
+
+## Morii decision: remembered entry and one shortcut instance (2026-11-27)
+
+Morii asked that an upgrade keep connecting the library he used before, and
+that a second double-click on the shortcut not start a second Runtime. The
+installer recreates the shortcut without arguments on every upgrade, so the
+explicit launch alone did not survive one.
+
+After an explicit launch opens the registered library, Runtime writes that
+selection (home and operation, nothing else) to
+`%APPDATA%\com.enouia.runtime\owner-entry.json`. A launch without any argument
+reads it and takes the same path as the explicit launch: `registered_owner_root`
+reauthenticates the account, home, operation and descriptor binding before
+anything opens, and a moved home or expired registration fails visibly
+instead of falling back. The installer never touches this file, and deleting it
+returns plain launches to opening nothing. `--autostart` still opens nothing,
+and launches with any other option never read it. This replaces "no home is
+remembered" above only for this entry; the page still cannot select, change or
+read the selection.
+
+Launches without arguments or with only `--autostart` now share one Windows
+instance: a second one hands over to the running Runtime, which shows its main
+window, and exits before opening anything. Launches with explicit Memory or test
+options stay independent, so the directory reservation keeps refusing a root
+another Runtime holds. The desktop smoke points `APPDATA` at its output folder,
+so its synthetic launches never replace the owner's remembered entry.

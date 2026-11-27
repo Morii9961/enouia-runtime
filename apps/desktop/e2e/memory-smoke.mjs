@@ -76,6 +76,9 @@ function launch(args, { port = PORT, profile = 'webview2' } = {}) {
       // system; language matrices still switch explicitly through Settings.
       WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1 --lang=en-US`,
       WEBVIEW2_USER_DATA_FOLDER: join(out, profile),
+      // The remembered Morii entry lives under %APPDATA%; a test launch must
+      // never replace the owner's real one.
+      APPDATA: join(out, 'appdata'),
     },
     stdio: nativeLog === null ? 'ignore' : ['ignore', nativeLog, nativeLog],
     windowsHide: synthetic,
