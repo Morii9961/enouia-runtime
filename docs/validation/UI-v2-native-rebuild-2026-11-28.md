@@ -69,4 +69,19 @@ D1：「值得回看」在「形成」的子视图，「人物与地点」在「
 
 2026-11-28 Morii 同意后安装到本机，按 Morii 的要求直接覆盖旧版：Runtime 当时没有运行，候选以 `/S` 覆盖安装到原来的 `D:\Users\Morii\AppData\Local\Enouia Runtime`，退出码 0；卸载登记里仍只有一个「Enouia Runtime 0.1.0」。安装后的 `enouia-desktop.exe` 为 93,411,460 字节，SHA-256 `65dc9d4513d534209e8b82eb24d1261c127227883d4a9b635e109b2824e066a5`（与构建目录的版本只差 Tauri 写进的打包类型标记）；`enouia-memory-mcp.exe` 与 `WebView2Loader.dll` 与上表一致。安装时有一个独立运行的 Ollama，不归 Runtime 管，没有动它。
 
-安装后没有启动 Runtime，也没有在真实库上看过新界面；需要 Morii 从快捷方式打开，在已登记库模式下逐屏看一遍，确认和设计稿一致。
+随后应 Morii 要求在本机打开，于已登记库模式下逐屏查看真实库（343 条、已采用 311、暂存 32，只读，没有写入）：六个表面和记忆区各工作区都能读出真实数据，排布与设计稿一致；发现五处真实数据才暴露的问题，由 #298 修复（会话转录倒序，因而会话时间小地图也没有出现；记录带把写入次数写成「条记录」；owner_action / initial 没有译名、「纠正 · 纠正」重复；只有一个值「none」的项目分面）。另记两项未改：关联页的星座图在一条记录连着 30 条时方框互相重叠（组件原有问题）；那次启动时语义检索不可用，因为启动时已有一个独立的 Ollama 在跑、之后它自己退出了，与界面无关。
+
+## 候选 `4f595e2`（已装到本机，接替 `b65dc49`）
+
+从 Runtime main `4f595e2`（#298 合并）用同样的命令构建，内嵌的 Memory pin 不变。产物在本机忽略目录 `apps/desktop/target/candidate-4f595e2/`。
+
+| 文件 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `Enouia Runtime_0.1.0_x64-setup.exe` | 39,824,332 | `722e7ed29e5e433efccd1d79d81bc988d957c93846d5645a941971ac33ecadbf` |
+| `enouia-desktop.exe`（构建目录） | 93,411,759 | `3ba63b961c83a89283d5304fac062d53f2c3aaa50cdb70e5b0895f5d21363de8` |
+| `enouia-memory-mcp.exe` | 59,519,844 | `85fb5f9bf59af99a9bc6a03207326922efa73aae68095d0289ba16a5b836a1a2` |
+| `WebView2Loader.dll` | 160,880 | `86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5` |
+
+`template-check.ps1`：26/26。先在设置页点「退出 Enouia Runtime」正常退出（进程全部结束），再以 `/S` 覆盖安装，退出码 0，卸载登记仍只有一个；安装后的 `enouia-desktop.exe` SHA-256 `00006c72c21b14551dd623238d294bb8e03aa189449c218deea79cb4d33b9383`。重新打开后：会话转录按轮次正序、会话时间小地图出现、记录带写「更早的 344 次 Memory 写入」；`ollama.exe` 是 Runtime 的子进程、`llama-server.exe` 已加载，设置页「语义检索 已就绪 · 343 条记忆 · bge-m3」。
+
+还需要 Morii 自己逐屏确认，作为人工验收。
