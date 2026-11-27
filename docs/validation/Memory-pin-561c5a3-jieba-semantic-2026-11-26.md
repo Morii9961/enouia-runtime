@@ -107,3 +107,16 @@ pin 升到 `0024ed01c70de77a7c8fde9c3a1a65ef2b490a61`，surface aggregate `d4351
 | --- | --- |
 | `check-memory-integration --memory-checkout <0024ed0>` | 一致 |
 | `cargo test --locked -- --test-threads=1` | 75 + 9 通过；clippy 无警告；fmt 通过 |
+
+## 后续：pin `e876cc7`（2026-11-27，身份确认和胶囊的结果校验）
+
+[Memory #220](https://github.com/Morii9961/enouia-memory/pull/220)（ADR-MEM-226）：`NativeOwnerOutcome` 的原生检查补上 `entity_identity` 和 `capsule`，schema 本来就允许这两种。之前“确认同一身份”和“保存胶囊”提交成功后，返回的结果（以及用 `outcome` 找回的那份）过不了 `validate()`；提交本身不受影响。
+
+Runtime 从来没有对这些结果调用 `validate()`：适配层直接序列化返回，界面只检查 `action` 是字符串。所以在 Runtime 里做这两种操作，界面本来就显示为已写入，不会误报失败。
+
+pin 升到 `e876cc7164d6f5b793b420b30025ad3743a05f33`，surface aggregate `d28c992834377186e512e0eddeae5fd122f3fcc7b67aea1275a7adcd69c89184`。格式、依赖和 Runtime 代码都没有变。这一版不影响召回，所以没有在真实库上重跑对比。
+
+| 检查 | 结果 |
+| --- | --- |
+| `check-memory-integration` | 一致 |
+| `cargo test --locked -- --test-threads=1` | 75 + 9 通过；clippy 无警告；fmt 通过 |
