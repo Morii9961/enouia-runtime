@@ -2443,5 +2443,6 @@ const dict: Record<string, string> = {
   "{title} and what touches it, one step out. A line is a link, never a cause.": "{title} 以及与它直接相连的记录。线只表示关联，不表示原因。",
   "Connected records": "相连的记录",
   "Statements kept as hypotheses": "作为假说保留的陈述",
+  "Memory does not list the records formed from one conversation yet. Open a record in Memory to read the turns it quotes.": "Memory 暂时还不能列出一段对话形成了哪些记录。在记忆里打开一条记录，可以读到它引用的轮次。",
 };
 export default dict;

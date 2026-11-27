@@ -2443,5 +2443,6 @@ const dict: Record<string, string> = {
   "{title} and what touches it, one step out. A line is a link, never a cause.": "{title} と、それに直接つながる記録。線は関連を示すだけで、原因ではありません。",
   "Connected records": "つながっている記録",
   "Statements kept as hypotheses": "仮説として保持している記述",
+  "Memory does not list the records formed from one conversation yet. Open a record in Memory to read the turns it quotes.": "Memory はまだ、1 つの会話から作られた記録を一覧にできません。記憶で記録を開くと、引用している発言を読めます。",
 };
 export default dict;
