@@ -2205,6 +2205,7 @@ const dict: Record<string, string> = {
   "Validity": "有効期間",
   "No cue match": "手がかりに一致しません",
   "Byte budget": "バイト予算",
+  "Words only, below meaning matches": "単語の一致のみで、意味の一致より下位",
   "Browse without a cue": "手がかりなしで見る",
   "Cue": "手がかり",
   "Scope": "範囲",
