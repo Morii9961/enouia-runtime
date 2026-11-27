@@ -105,7 +105,7 @@ try{
   await wait(()=>!!memory.querySelector('.mem-time-cell'));
   check('time_grid_shows_only_dated_months_and_unknown_count',memory.querySelectorAll('.mem-time-cell').length===1&&memory.textContent!.includes('2 records have no recorded time on this axis.'));
   memory.querySelector<HTMLButtonElement>('.mem-time-cell')!.click();
-  await wait(()=>memory.textContent!.includes('Records in 2026-03'));
+  await wait(()=>!!memory.querySelector('section[aria-label="Records in 2026-03"]'));
   await wait(()=>memory.textContent!.includes('1 shown'));
   const windowed=calls.filter(c=>c==='catalog:page').length;
   await wait(()=>!!memory.querySelector('[data-coverage-calendar]'));
@@ -119,9 +119,12 @@ try{
   await wait(()=>memory.textContent!.includes('3 records and 3 relations loaded.'));
   check('most_connected_records_are_named_by_title',[...memory.querySelectorAll('.qr44 .mem-list button')].map(b=>b.textContent).includes('Synthetic item 3')&&![...memory.querySelectorAll('.qr44 .mem-list button')].some(b=>b.textContent?.startsWith('synthetic-memory')));
   check('graph_reads_every_core_chunk_and_states_semantic_gap',calls.filter(c=>c==='catalog:graph').length>=2&&memory.textContent!.includes('Semantic neighbours are not available yet.'));
+  click('Star map',memory.querySelector('.mem-ws-head')!);await wait(()=>!!memory.querySelector('[data-starmap]'));
   check('star_map_draws_every_loaded_record',memory.querySelectorAll('[data-starmap] circle').length===3&&memory.querySelector('[data-starmap]')!.textContent!.includes('Preference · 3'));
+  click('Chains and suggestions',memory.querySelector('.mem-ws-head')!);await wait(()=>!!memory.querySelector('[data-chains]'));
   check('derivation_chain_names_both_records',memory.querySelector('[data-chains]')!.textContent!.includes('Derived from')&&memory.querySelector('[data-chains]')!.querySelectorAll('button').length===2);
   check('shared_word_suggestions_name_terms_and_stay_suggestions',memory.textContent!.includes('Shared-word suggestions')&&memory.textContent!.includes('shared: alps, hiking · score 0.42')&&memory.textContent!.includes('not a recorded or semantic relation'));
+  click('Constellation',memory.querySelector('.mem-ws-head')!);
   click('Synthetic item 1',memory);
   await wait(()=>memory.textContent!.includes('1 connected records'));
   await wait(()=>!!memory.querySelector('[data-constellation] svg'));

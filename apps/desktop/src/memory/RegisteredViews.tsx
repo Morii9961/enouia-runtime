@@ -13,7 +13,7 @@ import { ConnectorStatus } from "./Connector";
 import { analystText, recordTimeText, word } from "./catalogWords";
 import { useLatestRead } from "./hooks";
 import { useStatus, registeredLabel } from "./status";
-import { ErrorBox } from "./ui";
+import { ErrorBox, shortId } from "./ui";
 import { describe } from "./client";
 import NativeHome from "./NativeHome";
 import type { MapSpec } from "../theme/TimeMap";
@@ -31,6 +31,38 @@ export function Open({ children, title }: { children: (selection: CatalogSelecti
 }
 const stamp = (at: string) => nativeDate(Date.parse(at), { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 function Observed({ at }: { at: string }) { return <p className="mem-row-meta">{t("State observed at {time}", { time: stamp(at) })}</p>; }
+
+// ---- Shared workspace pieces (UI v2) --------------------------------------------
+/** A workspace's header line: title, a short reading, then its own controls. */
+function WorkspaceHead({ title, reading, children }: { title: string; reading?: ReactNode; children?: ReactNode }) {
+  return <div className="qr31 mem-ws-head"><h2 className="qr29">{title}</h2>{reading != null && <div className="qr19">{reading}</div>}<div className="qr30" />{children}</div>;
+}
+/** A button group in the design's bordered view-button style. */
+function Views<K extends string>({ label, items, value, onChange, disabled }: { label: string; items: readonly (readonly [K, string])[]; value: K; onChange: (k: K) => void; disabled?: boolean }) {
+  return <div className="am-views mem-ws-views" role="group" aria-label={label}>
+    {items.map(([k, text]) => <button key={k} type="button" className="am-view" aria-pressed={value === k} disabled={disabled} onClick={() => onChange(k)}><span className="am-vn">{text}</span></button>)}
+  </div>;
+}
+/** One record row in the design's list style: time column, kind line, title, meta. */
+function RecordRow({ time, kind, status, title, meta, selected, onPick }: { time: ReactNode; kind: ReactNode; status?: string | null; title: string; meta?: ReactNode; selected: boolean; onPick: () => void }) {
+  return <li className="qr43 mem-catalog-row" data-status={status === "staged" ? "candidate" : "canonical"} data-selected={selected || undefined} onClick={onPick}>
+    <span className="qr34">{time}</span>
+    <span className="qr42">
+      <span className="qr38">{kind}{status && status !== "adopted" && <span className="qr37" data-status="candidate">{word(status)}</span>}</span>
+      <h3 className="mem-catalog-title"><button type="button" className="mem-link" aria-pressed={selected} onClick={event => { event.stopPropagation(); onPick(); }}>{title}</button></h3>
+      {meta != null && <span className="qr41">{meta}</span>}
+    </span>
+  </li>;
+}
+const hhmm = (at: string | number) => nativeDate(typeof at === "number" ? at : Date.parse(at), { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const localDay = (at: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(at));
+const dayBand = (day: string) => nativeDate(Date.parse(`${day}T12:00:00+08:00`), { weekday: "long", day: "numeric", month: "long" });
+/** Consecutive items on the same local day share one band. */
+function byDay<T>(items: T[], at: (item: T) => string | null | undefined): [string | null, T[]][] {
+  const groups: [string | null, T[]][] = [];
+  for (const item of items) { const when = at(item); const day = when ? localDay(when) : null; const last = groups.at(-1); if (last && last[0] === day) last[1].push(item); else groups.push([day, [item]]); }
+  return groups;
+}
 
 // ---- Time --------------------------------------------------------------------
 const AXES = [["event", msg("When it happened")], ["learned", msg("When it was learned")], ["source_captured", msg("When the source was captured")]] as const;
@@ -60,7 +92,7 @@ function TimeView() {
   const list = (bucket: TimeBuckets["buckets"][number]) => {
     setPage(null); setSelected(null);
     const filter: CatalogFilter = { ...CATALOG_FILTER, time_axis: axis, time_window: { from: bucket.from, until: bucket.until } };
-    void records.run(() => catalogRead({ operation: "page", filter, cursor: null, limit: 50 }), setPage);
+    void records.run(() => catalogRead({ operation: "page", filter, cursor: null, limit: 50 }), next => { setPage(next); setSelected(next.items[0]?.base.memory.memory_id ?? null); });
   };
   const choose = (bucket: TimeBuckets["buckets"][number]) => {
     setChosen(bucket); setDay(null); setDays(null);
@@ -74,56 +106,72 @@ function TimeView() {
   const cell = (n: number) => n > 0 ? n : <span className="mem-time-empty" aria-hidden="true">·</span>;
   const years = useMemo(() => {
     const byYear = new Map<string, TimeBuckets["buckets"]>();
-    for (const b of months?.buckets ?? []) { const y = b.local_start.slice(0, 4); byYear.set(y, [...(byYear.get(y) ?? []), b]); }
-    return [...byYear].filter(([, list]) => list.some(b => b.possible_records > 0)).reverse();
+    for (const b of months?.buckets ?? []) if (b.possible_records > 0) { const y = b.local_start.slice(0, 4); byYear.set(y, [...(byYear.get(y) ?? []), b]); }
+    return [...byYear].reverse();
   }, [months]);
-  const max = Math.max(1, ...(months?.buckets ?? []).map(b => b.possible_records));
+  // Open on the newest month with records, as the design opens on the newest month.
+  useEffect(() => { const newest = years[0]?.[1].at(-1); if (months && newest && !chosen) choose(newest); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [months]);
+  const monthName = (b: TimeBuckets["buckets"][number]) => nativeDate(Date.parse(`${b.local_start.slice(0, 7)}-15T12:00:00+08:00`), { month: "short" });
+  const monthTitle = (b: TimeBuckets["buckets"][number]) => nativeDate(Date.parse(`${b.local_start.slice(0, 7)}-15T12:00:00+08:00`), { month: "long", year: "numeric" });
+  const axisTime = (item: CatalogPage["items"][number]) => axis === "event" ? item.event_time?.from ?? null : axis === "learned" ? item.base.learned_at ?? null : item.base.source_captured_at ?? null;
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
-      <h2 className="qr29">{t("Time")}</h2>
-      <label className="mem-label">{t("Time axis")} <select className="mem-input" value={axis} onChange={e => setAxis(e.target.value as Axis)}>
-        {AXES.map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}</select></label>
-      <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Read again")}</button>
-      {reads.busy && <p role="status">{t("Reading time buckets…")}</p>}
-      <ErrorBox error={reads.error} />
-      {months && <>
-        <Observed at={months.header.authorized_at} />
-        <p className="mem-content">{t("{n} records have no recorded time on this axis.", { n: months.unknown_time_in_scope })}</p>
-        <p className="mem-row-meta">{t("A record whose time spans several months is counted in each of them, so month counts do not add up to the total.")}</p>
-        {years.length === 0 && <p className="mem-content">{t("No dated records on this axis.")}</p>}
-        <table className="mem-time-grid"><thead><tr><td />{Array.from({ length: 12 }, (_, i) => <th key={i} scope="col">{i + 1}</th>)}</tr></thead><tbody>{years.map(([year, list]) => <tr key={year}><th scope="row">{year}</th>
-          {list.map(b => <td key={b.local_start}>{b.possible_records > 0 ? <button type="button" className="mem-time-cell" aria-pressed={chosen?.local_start === b.local_start}
-            style={{ ["--fill" as string]: String(0.18 + 0.82 * b.possible_records / max) }} aria-label={t("{month}: {n} records", { month: b.local_start.slice(0, 7), n: b.possible_records })}
-            onClick={() => choose(b)}>{b.possible_records}</button> : <span className="mem-time-empty" aria-hidden="true">·</span>}</td>)}</tr>)}</tbody></table>
-      </>}
-      {chosen && <section className="mem-stack" aria-label={t("Records in {month}", { month: chosen.local_start.slice(0, 7) })} aria-busy={records.busy}>
-        <h3>{t("Records in {month}", { month: chosen.local_start.slice(0, 7) })}</h3>
-        <p className="mem-row-meta">{t("{adopted} adopted · {staged} staged · {material} captured sources", { adopted: chosen.adopted, staged: chosen.staged, material: chosen.captured_material })}</p>
-        {dayReads.busy && <p role="status">{t("Reading days…")}</p>}
-        <ErrorBox error={dayReads.error} />
-        {days && <div className="mem-table-scroll"><table className="mem-coverage" data-coverage-calendar aria-label={t("Coverage by day")}>
-          <thead><tr><th scope="col">{t("Day")}</th>{days.buckets.map(b => <th key={b.local_start} scope="col">{b.possible_records > 0
-            ? <button type="button" className="mem-link" aria-pressed={day?.local_start === b.local_start} aria-label={t("{day}: {n} records", { day: b.local_start.slice(0, 10), n: b.possible_records })} onClick={() => pickDay(b)}>{Number(b.local_start.slice(8, 10))}</button>
-            : Number(b.local_start.slice(8, 10))}</th>)}</tr></thead>
-          <tbody>
-            <tr><th scope="row">{t("Captured sources")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.captured_material)}</td>)}</tr>
-            <tr><th scope="row">{t("Staged")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.staged)}</td>)}</tr>
-            <tr><th scope="row">{t("Adopted")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.adopted)}</td>)}</tr>
-          </tbody></table></div>}
-        {days && <p className="mem-row-meta">{t("Captured sources are material, not records. A day with no material shows a dot, not a zero claim about what happened.")}</p>}
-        {day && <p className="mem-content" role="status">{t("Showing records on {day}.", { day: day.local_start.slice(0, 10) })} <button type="button" className="mem-link" onClick={() => { setDay(null); list(chosen); }}>{t("Show the whole month")}</button></p>}
-        {records.busy && <p role="status">{t("Reading records…")}</p>}
-        <ErrorBox error={records.error} />
-        {page && <><p className="mem-row-meta">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: page.matched_in_scope })}</p>
-          <ul className="mem-list">{page.items.map(item => <li key={item.base.memory.memory_id}>
-            <button type="button" className="mem-link" aria-pressed={selected === item.base.memory.memory_id} onClick={() => setSelected(item.base.memory.memory_id)}>{item.title}</button>
-            <span className="mem-row-meta"> · {recordTimeText(axis === "event" ? item.event_time : { from: axis === "learned" ? item.base.learned_at ?? null : item.base.source_captured_at ?? null, until: null, precision: "day", bound: "within", tz: null, basis: "source_time" })} · {word(item.base.dimensions.kind)}</span>
-          </li>)}</ul></>}
-      </section>}
-    </div></div>
+    <div className="qr45" aria-busy={reads.busy}>
+      <WorkspaceHead title={t("Timeline")} reading={months ? t("{n} records have no recorded time on this axis.", { n: months.unknown_time_in_scope }) : reads.busy ? t("Reading time buckets…") : undefined}>
+        <Views label={t("Time axis")} items={AXES.map(([id, label]) => [id, t(label)] as const)} value={axis} onChange={setAxis} disabled={reads.busy} />
+        <button type="button" className="mem-link mem-ws-reload" disabled={reads.busy} onClick={() => void load()}>{t("Read again")}</button>
+      </WorkspaceHead>
+      <div className="qr44 mem-time-body">
+        <ErrorBox error={reads.error} />
+        {months && <div className="mem-time-layout">
+          <nav className="mem-time-rail" aria-label={t("Months with records")}>
+            {years.length === 0 && <p className="mem-row-meta">{t("No dated records on this axis.")}</p>}
+            {years.map(([year, list]) => <div key={year} className="mem-time-year"><div className="qr23">{year}</div>
+              {list.map(b => <button key={b.local_start} type="button" className="mem-time-cell" aria-pressed={chosen?.local_start === b.local_start}
+                aria-label={t("{month}: {n} records", { month: b.local_start.slice(0, 7), n: b.possible_records })} onClick={() => choose(b)}>
+                <span>{monthName(b)}</span><span className="qr25">{b.possible_records}</span></button>)}
+            </div>)}
+          </nav>
+          <div className="mem-time-main">
+            {chosen ? <section className="mem-stack" aria-label={t("Records in {month}", { month: chosen.local_start.slice(0, 7) })} aria-busy={records.busy}>
+              <h3 className="mem-time-title">{monthTitle(chosen)}</h3>
+              <p className="mem-row-meta">{t("{adopted} adopted · {staged} staged · {material} captured sources", { adopted: chosen.adopted, staged: chosen.staged, material: chosen.captured_material })} · {t("A record whose time spans several months is counted in each of them, so month counts do not add up to the total.")}</p>
+              {dayReads.busy && <p role="status">{t("Reading days…")}</p>}
+              <ErrorBox error={dayReads.error} />
+              {days && <div className="mem-table-scroll"><table className="mem-coverage" data-coverage-calendar aria-label={t("Coverage by day")}>
+                <thead><tr><th scope="col">{t("Day")}</th>{days.buckets.map(b => <th key={b.local_start} scope="col">{b.possible_records > 0
+                  ? <button type="button" className="mem-link" aria-pressed={day?.local_start === b.local_start} aria-label={t("{day}: {n} records", { day: b.local_start.slice(0, 10), n: b.possible_records })} onClick={() => pickDay(b)}>{Number(b.local_start.slice(8, 10))}</button>
+                  : Number(b.local_start.slice(8, 10))}</th>)}</tr></thead>
+                <tbody>
+                  <tr><th scope="row">{t("Captured sources")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.captured_material)}</td>)}</tr>
+                  <tr><th scope="row">{t("Staged")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.staged)}</td>)}</tr>
+                  <tr><th scope="row">{t("Adopted")}</th>{days.buckets.map(b => <td key={b.local_start}>{cell(b.adopted)}</td>)}</tr>
+                </tbody></table></div>}
+              {days && <p className="mem-row-meta">{t("Captured sources are material, not records. A day with no material shows a dot, not a zero claim about what happened.")}</p>}
+              {day && <p className="mem-content" role="status">{t("Showing records on {day}.", { day: day.local_start.slice(0, 10) })} <button type="button" className="mem-link" onClick={() => { setDay(null); list(chosen); }}>{t("Show the whole month")}</button></p>}
+              {records.busy && <p role="status">{t("Reading records…")}</p>}
+              <ErrorBox error={records.error} />
+              {page && <><p className="mem-row-meta">{t("{shown} shown · {matched} matching authorized records", { shown: page.items.length, matched: page.matched_in_scope })}</p>
+                {byDay(page.items, axisTime).map(([d, items], i) => <section key={`${d}:${i}`} className="mem-day-group">
+                  <h4 className="qr33 mem-day">{d ? dayBand(d) : monthTitle(chosen)}</h4>
+                  <ul className="mem-list mem-catalog-rows">{items.map(item => { const at = axisTime(item); return <RecordRow key={item.base.memory.memory_id}
+                    time={at && (axis !== "event" || item.event_time?.precision === "instant" || item.event_time?.precision === "minute") ? hhmm(at) : "—"}
+                    kind={word(item.base.dimensions.kind)} status={item.base.adoption} title={item.title}
+                    meta={<span>{recordTimeText(axis === "event" ? item.event_time : { from: at, until: null, precision: "day", bound: "within", tz: null, basis: "source_time" })}</span>}
+                    selected={selected === item.base.memory.memory_id} onPick={() => setSelected(item.base.memory.memory_id)} />; })}</ul>
+                </section>)}</>}
+            </section> : months && years.length > 0 && <p className="qr32">{t("Choose a month, then a record, to read its detail and quoted sources.")}</p>}
+            <section className="mem-time-unknown" aria-label={t("Time not recorded")}>
+              <h3 className="mem-time-title">{t("Time not recorded")}</h3>
+              <p className="mem-row-meta">{t("{n} records have no recorded time on this axis.", { n: months.unknown_time_in_scope })}</p>
+            </section>
+          </div>
+        </div>}
+      </div>
+    </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
-      {page && selected ? <CatalogDetailPanel key={selected} memoryId={selected} filter={CATALOG_FILTER} selection={page.selection} read={catalogRead} entities={[]} />
-        : <p className="mem-content">{t("Choose a month, then a record, to read its detail and quoted sources.")}</p>}
+      {page && selected ? <CatalogDetailPanel key={selected} memoryId={selected} filter={CATALOG_FILTER} selection={page.selection} read={catalogRead} entities={[]} sourceTimes />
+        : <p className="qr46">{t("Choose a month, then a record, to read its detail and quoted sources.")}</p>}
     </div></aside>
   </>;
 }
@@ -133,10 +181,13 @@ export function RegisteredConnections() {
   return <Open title={t("Connections")}>{() => <ConnectionsView />}</Open>;
 }
 type Graph = { nodes: GraphPage["nodes"]; edges: GraphPage["edges"]; first: GraphPage };
+const CONNECTION_VIEWS = [["constellation", msg("Constellation")], ["starmap", msg("Star map")], ["chains", msg("Chains and suggestions")]] as const;
+type ConnectionView = typeof CONNECTION_VIEWS[number][0];
 function ConnectionsView() {
   const [graph, setGraph] = useState<Graph | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [neighbors, setNeighbors] = useState<Neighbors | null>(null);
+  const [view, setView] = useState<ConnectionView>("constellation");
   const reads = useLatestRead(), near = useLatestRead();
   const load = useCallback(() => {
     setGraph(null); setSelected(null); setNeighbors(null); near.clear();
@@ -176,65 +227,74 @@ function ConnectionsView() {
   const chains = useMemo(() => (graph?.edges ?? []).filter(e => e.relation === "derived_from" || e.relation === "reversion"), [graph]);
   const lexicalOf = selected ? lexical.filter(e => e.from === selected || e.to === selected) : [];
   const ranked = [...degree].sort((a, b) => b[1] - a[1]).slice(0, 40);
+  // Open on the most connected record, as the design opens on a selected record's neighbourhood.
+  useEffect(() => { if (graph && !selected && ranked[0]) pick(ranked[0][0]); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graph]);
   const selectedTitle = selected ? title.get(selected) ?? selected : null;
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
-      <h2 className="qr29">{t("Connections")}</h2>
-      <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void load()}>{t("Read again")}</button>
-      {reads.busy && <p role="status">{t("Reading the relation graph…")}</p>}
-      {selected && neighbors && <RegisteredConstellation key={selected} center={{ id: selected, title: selectedTitle ?? selected }} neighbors={neighbors} pick={pick} />}
-      <ErrorBox error={reads.error} />
-      {graph && <>
-        <Observed at={graph.first.header.authorized_at} />
-        <p className="mem-content">{t("{nodes} records and {edges} relations loaded.", { nodes: graph.nodes.length, edges: graph.edges.length })}</p>
-        {graph.first.header.matched_inputs != null && graph.first.header.matched_inputs > graph.nodes.length && <p role="status">{t("Only the first {n} records are in this graph.", { n: graph.nodes.length })}</p>}
-        <RegisteredStarMap nodes={graph.nodes} edges={graph.edges} selected={selected} pick={pick} />
-        <table className="mem-table"><thead><tr><th>{t("Relation")}</th><th>{t("Candidates")}</th><th>{t("Shown")}</th></tr></thead>
-          <tbody>{graph.first.edge_coverage.map(c => <tr key={c.relation}><td>{word(c.relation)}</td><td>{c.candidates}</td><td>{byRelation.get(c.relation) ?? 0}</td></tr>)}</tbody></table>
-        <p className="mem-row-meta">{t("Same entity and same conversation are recorded mentions, not independent verification.")}{graph.first.semantic_neighbors_available ? "" : ` ${t("Semantic neighbours are not available yet.")}`}</p>
-        {lexical.length > 0 && <section className="mem-stack" aria-label={t("Shared-word suggestions")}>
-          <h3>{t("Shared-word suggestions")}</h3>
-          <p className="mem-row-meta">{t("Records that use several of the same words. A suggestion to look at, not a recorded or semantic relation.")}</p>
-          <ul className="mem-list">{lexical.slice(0, 40).map(e => <li key={`${e.from}|${e.to}`}>
-            <button type="button" className="mem-link" onClick={() => pick(e.from)}>{title.get(e.from) ?? e.from}</button> ↔ <button type="button" className="mem-link" onClick={() => pick(e.to)}>{title.get(e.to) ?? e.to}</button>
-            <span className="mem-row-meta mem-content"> · {t("shared: {terms} · score {score}", { terms: terms(e.witness), score: score(e) })}</span></li>)}</ul>
-        </section>}
-        <section className="mem-stack" aria-label={t("Derivation and reversion chains")} data-chains>
-          <h3>{t("Derivation and reversion chains")}</h3>
-          {chains.length === 0 ? <p className="mem-row-meta">{t("No record in this library is derived from or reverts to another yet. Themes and corrections will show here once they exist.")}</p> :
-            <ul className="mem-list">{chains.map(e => <li key={`${e.relation}|${e.from}|${e.to}`}>
-              <button type="button" className="mem-link" onClick={() => pick(e.from)}>{title.get(e.from) ?? e.from}</button>
-              <span className="mem-row-meta"> {e.relation === "reversion" ? "↺" : "←"} {word(e.relation)} {e.relation === "reversion" ? "↺" : "←"} </span>
-              <button type="button" className="mem-link" onClick={() => pick(e.to)}>{title.get(e.to) ?? e.to}</button>
-            </li>)}</ul>}
-        </section>
-        {ranked.length === 0 ? <p className="mem-content">{t("No relations between the loaded records.")}</p> : <>
-          <h3>{t("Most connected records")}</h3>
-          <ul className="mem-list">{ranked.map(([id, n]) => <li key={id}><button type="button" className="mem-link" aria-pressed={selected === id} onClick={() => pick(id)}>{title.get(id) ?? id}</button><span className="mem-row-meta"> · {t("{n} relations", { n })}</span></li>)}</ul>
+    <div className="qr45" aria-busy={reads.busy}>
+      <WorkspaceHead title={t("Connections")} reading={graph ? t("{nodes} records and {edges} relations loaded.", { nodes: graph.nodes.length, edges: graph.edges.length }) : reads.busy ? t("Reading the relation graph…") : undefined}>
+        <Views label={t("Connection views")} items={CONNECTION_VIEWS.map(([k, label]) => [k, t(label)] as const)} value={view} onChange={setView} />
+        <button type="button" className="mem-link mem-ws-reload" disabled={reads.busy} onClick={() => void load()}>{t("Read again")}</button>
+      </WorkspaceHead>
+      <div className="qr44 mem-pad mem-stack mem-v2">
+        <ErrorBox error={reads.error} />
+        {graph && graph.first.header.matched_inputs != null && graph.first.header.matched_inputs > graph.nodes.length && <p role="status">{t("Only the first {n} records are in this graph.", { n: graph.nodes.length })}</p>}
+        {graph && view === "constellation" && <>
+          {selectedTitle ? <p className="mem-row-meta">{t("{title} and what touches it, one step out. A line is a link, never a cause.", { title: selectedTitle })}</p> : null}
+          {selected && neighbors && <RegisteredConstellation key={selected} center={{ id: selected, title: selectedTitle ?? selected }} neighbors={neighbors} pick={pick} />}
+          {ranked.length === 0 ? <p className="mem-content">{t("No relations between the loaded records.")}</p> : <section className="mem-stack" aria-label={t("Most connected records")}>
+            <h3 className="qr55">{t("Most connected records")}</h3>
+            <ul className="mem-list mem-ws-list">{ranked.map(([id, n]) => <li key={id}><button type="button" className="mem-link" aria-pressed={selected === id} onClick={() => pick(id)}>{title.get(id) ?? id}</button><span className="mem-row-meta"> · {t("{n} relations", { n })}</span></li>)}</ul>
+          </section>}
         </>}
-        <details><summary>{t("All loaded records")}</summary>
-          <ul className="mem-list">{graph.nodes.map(n => <li key={n.memory.memory.memory_id}><button type="button" className="mem-link" aria-pressed={selected === n.memory.memory.memory_id} onClick={() => pick(n.memory.memory.memory_id)}>{n.title}</button><span className="mem-row-meta"> · {word(n.form)}</span></li>)}</ul>
-        </details>
-      </>}
-    </div></div>
+        {graph && view === "starmap" && <RegisteredStarMap nodes={graph.nodes} edges={graph.edges} selected={selected} pick={pick} />}
+        {graph && view === "chains" && <>
+          <section className="mem-stack" aria-label={t("Derivation and reversion chains")} data-chains>
+            <h3 className="qr55">{t("Derivation and reversion chains")}</h3>
+            {chains.length === 0 ? <p className="mem-row-meta">{t("No record in this library is derived from or reverts to another yet. Themes and corrections will show here once they exist.")}</p> :
+              <ul className="mem-list mem-ws-list">{chains.map(e => <li key={`${e.relation}|${e.from}|${e.to}`}>
+                <button type="button" className="mem-link" onClick={() => pick(e.from)}>{title.get(e.from) ?? e.from}</button>
+                <span className="mem-row-meta"> {e.relation === "reversion" ? "↺" : "←"} {word(e.relation)} {e.relation === "reversion" ? "↺" : "←"} </span>
+                <button type="button" className="mem-link" onClick={() => pick(e.to)}>{title.get(e.to) ?? e.to}</button>
+              </li>)}</ul>}
+          </section>
+          {lexical.length > 0 && <section className="mem-stack" aria-label={t("Shared-word suggestions")}>
+            <h3 className="qr55">{t("Shared-word suggestions")}</h3>
+            <p className="mem-row-meta">{t("Records that use several of the same words. A suggestion to look at, not a recorded or semantic relation.")}</p>
+            <ul className="mem-list mem-ws-list">{lexical.slice(0, 40).map(e => <li key={`${e.from}|${e.to}`}>
+              <button type="button" className="mem-link" onClick={() => pick(e.from)}>{title.get(e.from) ?? e.from}</button> ↔ <button type="button" className="mem-link" onClick={() => pick(e.to)}>{title.get(e.to) ?? e.to}</button>
+              <span className="mem-row-meta mem-content"> · {t("shared: {terms} · score {score}", { terms: terms(e.witness), score: score(e) })}</span></li>)}</ul>
+          </section>}
+        </>}
+        {graph && <section className="mem-stack" aria-label={t("Relations")}>
+          <h3 className="qr55">{t("Relations")}</h3>
+          <table className="mem-table"><thead><tr><th>{t("Relation")}</th><th>{t("Candidates")}</th><th>{t("Shown")}</th></tr></thead>
+            <tbody>{graph.first.edge_coverage.map(c => <tr key={c.relation}><td>{word(c.relation)}</td><td>{c.candidates}</td><td>{byRelation.get(c.relation) ?? 0}</td></tr>)}</tbody></table>
+          <p className="mem-row-meta">{t("Same entity and same conversation are recorded mentions, not independent verification.")}{graph.first.semantic_neighbors_available ? "" : ` ${t("Semantic neighbours are not available yet.")}`}</p>
+          <Observed at={graph.first.header.authorized_at} />
+        </section>}
+      </div>
+    </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2" aria-busy={near.busy}>
-      {!selected && <p className="mem-content">{t("Choose a record to read what it is connected to.")}</p>}
-      {selectedTitle && <h3 className="mem-content">{selectedTitle}</h3>}
+      {!selected && <p className="qr46">{t("Choose a record to read what it is connected to.")}</p>}
+      {selected && graph && <CatalogDetailPanel key={selected} memoryId={selected} filter={CATALOG_FILTER} selection={graph.first.header.selection} read={catalogRead} entities={[]} sourceTimes />}
       {near.busy && <p role="status">{t("Reading connected records…")}</p>}
       <ErrorBox error={near.error} />
-      {lexicalOf.length > 0 && <section aria-label={t("Shared-word suggestions")}>
-        <h4>{t("Shared-word suggestions")}</h4>
+      {lexicalOf.length > 0 && <section className="qr66" aria-label={t("Shared-word suggestions")}>
+        <h4 className="qr55">{t("Shared-word suggestions")}</h4>
         <ul className="mem-list">{lexicalOf.map(e => { const other = e.from === selected ? e.to : e.from; return <li key={other}>
           <button type="button" className="mem-link" onClick={() => pick(other)}>{title.get(other) ?? other}</button>
           <p className="mem-row-meta mem-content">{t("shared: {terms} · score {score}", { terms: terms(e.witness), score: score(e) })}</p></li>; })}</ul>
       </section>}
-      {neighbors && <>
+      {neighbors && <section className="qr66" aria-label={t("Connected records")}>
+        <h4 className="qr55">{t("Connected records")}</h4>
         <p className="mem-row-meta">{t("{n} connected records", { n: neighbors.matched_in_scope })}</p>
         <ul className="mem-list">{neighbors.items.map(item => <li key={item.other.memory.memory.memory_id}>
           <button type="button" className="mem-link" onClick={() => pick(item.other.memory.memory.memory_id)}>{item.other.title}</button>
           <p className="mem-row-meta">{item.relations.map(r => `${word(r.relation)} · ${word(r.class)}`).join(" / ")}</p>
         </li>)}</ul>
-      </>}
+      </section>}
     </div></aside>
   </>;
 }
@@ -252,40 +312,46 @@ function FormationView() {
   const reads = useLatestRead();
   const read = useCallback((cursor: unknown | null) => reads.run(
     () => catalogView({ operation: "activity", filter: CATALOG_FILTER, query: { memory: null, event_kind: kind, include_sources: false }, cursor, limit: 50 }),
-    page => setPages(old => cursor ? [...old, page] : [page])), [kind, reads.run]);
+    page => {
+      setPages(old => cursor ? [...old, page] : [page]);
+      // Open on the newest event's record, as the design opens with the Inspector filled.
+      const first = page.items.find(e => e.memory)?.memory;
+      if (!cursor && first) setSelected(old => old ?? { id: first.memory_id, selection: page.header.selection });
+    }), [kind, reads.run]);
   useEffect(() => { setPages([]); setSelected(null); void read(null); }, [read]);
   const last = pages.at(-1);
   const events = pages.flatMap(p => p.items);
+  const reading = tab === "held" ? t("Statements kept as hypotheses") : pages[0] ? t("{shown} of {matched} events shown, newest first.", { shown: events.length, matched: pages[0].matched_in_scope }) : reads.busy ? t("Reading what the system did…") : undefined;
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
-      <h2 className="qr29">{t("Formation")}</h2>
-      <div className="mem-actions" role="group" aria-label={t("Formation views")}>
-        <button type="button" className="mem-button" aria-pressed={tab === "events"} onClick={() => setTab("events")}>{t("What the system did")}</button>
-        <button type="button" className="mem-button" aria-pressed={tab === "held"} onClick={() => setTab("held")}>{t("Held hypotheses")}</button>
+    <div className="qr45" aria-busy={reads.busy}>
+      <WorkspaceHead title={t("Formation")} reading={reading}>
+        <Views label={t("Formation views")} items={[["events", t("What the system did")], ["held", t("Held hypotheses")]] as const} value={tab} onChange={setTab} />
+        {tab === "events" && <button type="button" className="mem-link mem-ws-reload" disabled={reads.busy} onClick={() => { setPages([]); setSelected(null); void read(null); }}>{t("Read again")}</button>}
+      </WorkspaceHead>
+      <div className="qr44">
+        {tab === "held" ? <div className="mem-pad"><HeldHypotheses selected={selected?.id ?? null} pick={setSelected} /></div> : <>
+          <div className="mem-ws-filters">
+            <Views label={t("Event kind")} items={[["", t("All")], ...KINDS.map(k => [k, word(k)] as const)] as const} value={kind ?? ""} onChange={k => setKind(k || null)} disabled={reads.busy} />
+            {pages[0] && !pages[0].time_derived_events_available && <p className="mem-row-meta">{t("Fading and archiving by time are not recorded as events yet.")}</p>}
+          </div>
+          <ErrorBox error={reads.error} />
+          {byDay(events, e => e.proof.written_at).map(([d, items], i) => <section key={`${d}:${i}`} className="mem-day-group">
+            <h3 className="qr33 mem-day">{d ? dayBand(d) : t("Time not recorded")}</h3>
+            <ul className="mem-list mem-catalog-rows">{items.map(e => e.memory
+              ? <RecordRow key={e.event_id} time={hhmm(e.proof.written_at)} status={e.adoption}
+                kind={<span>{word(e.event_kind)}{e.change ? ` · ${word(e.change)}` : ""}</span>} title={e.title ?? e.memory.memory_id}
+                meta={<>{analystText(e.formation_reason) && <span>{analystText(e.formation_reason)}</span>}<span className="qr40">{shortId(e.memory.memory_id)}</span></>}
+                selected={selected?.id === e.memory.memory_id} onPick={() => setSelected({ id: e.memory!.memory_id, selection: pages[0].header.selection })} />
+              : <li key={e.event_id} className="qr43 mem-catalog-row"><span className="qr34">{hhmm(e.proof.written_at)}</span><span className="qr42"><span className="qr38">{word(e.event_kind)}</span><span className="qr39">{e.title ?? t("Source material")}</span></span></li>)}</ul>
+          </section>)}
+          {last?.next != null && <div className="mem-catalog-more"><button type="button" className="am-chip" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show older events")}</button></div>}
+        </>}
       </div>
-      {tab === "held" ? <HeldHypotheses selected={selected?.id ?? null} pick={setSelected} /> : <>
-      <label className="mem-label">{t("Event kind")} <select className="mem-input" value={kind ?? ""} disabled={reads.busy} onChange={e => setKind(e.target.value || null)}>
-        <option value="">{t("All")}</option>{KINDS.map(k => <option key={k} value={k}>{word(k)}</option>)}</select></label>
-      <button type="button" className="mem-button" disabled={reads.busy} onClick={() => { setPages([]); setSelected(null); void read(null); }}>{t("Read again")}</button>
-      {reads.busy && <p role="status">{t("Reading what the system did…")}</p>}
-      <ErrorBox error={reads.error} />
-      {pages[0] && <>
-        <Observed at={pages[0].header.authorized_at} />
-        <p className="mem-content">{t("{shown} of {matched} events shown, newest first.", { shown: events.length, matched: pages[0].matched_in_scope })}</p>
-        {!pages[0].time_derived_events_available && <p className="mem-row-meta">{t("Fading and archiving by time are not recorded as events yet.")}</p>}
-        <ol className="mem-list">{events.map(e => <li key={e.event_id}>
-          <span className="mem-row-meta">{stamp(e.proof.written_at)} · {word(e.event_kind)}{e.change ? ` · ${word(e.change)}` : ""}{e.adoption ? ` · ${word(e.adoption)}` : ""}{analystText(e.formation_reason) ? ` · ${analystText(e.formation_reason)}` : ""}</span><br />
-          {e.memory ? <button type="button" className="mem-link" aria-pressed={selected?.id === e.memory.memory_id} onClick={() => setSelected({ id: e.memory!.memory_id, selection: pages[0].header.selection })}>{e.title ?? e.memory.memory_id}</button>
-            : <span className="mem-content">{e.title ?? t("Source material")}</span>}
-        </li>)}</ol>
-        {last?.next != null && <button type="button" className="mem-button" disabled={reads.busy} onClick={() => void read(last.next)}>{t("Show older events")}</button>}
-      </>}
-      </>}
-    </div></div>
+    </div>
     <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
-      {selected ? <><CatalogDetailPanel key={selected.id} memoryId={selected.id} filter={CATALOG_FILTER} selection={selected.selection} read={catalogRead} entities={[]} />
+      {selected ? <><CatalogDetailPanel key={selected.id} memoryId={selected.id} filter={CATALOG_FILTER} selection={selected.selection} read={catalogRead} entities={[]} sourceTimes />
         <ConflictGroup key={`c:${selected.id}`} memoryId={selected.id} open={id => setSelected({ id, selection: selected.selection })} /></>
-        : <p className="mem-content">{t("Choose an event to read its record, quoted sources and any held contradiction.")}</p>}
+        : <p className="qr46">{t("Choose an event to read its record, quoted sources and any held contradiction.")}</p>}
     </div></aside>
   </>;
 }

@@ -2117,7 +2117,6 @@ const dict: Record<string, string> = {
   "No relations between the loaded records.": "読み込んだ記録の間に関係はありません。",
   "Most connected records": "よく関係する記録",
   "{n} relations": "{n} 件の関係",
-  "All loaded records": "読み込んだすべての記録",
   "Choose a record to read what it is connected to.": "記録を選ぶと、関係する記録を読めます。",
   "Reading connected records…": "関係する記録を読み込み中…",
   "{n} connected records": "関係する記録 {n} 件",
@@ -2438,5 +2437,11 @@ const dict: Record<string, string> = {
   "{n} records are shown by when they were first mentioned.": "{n} 件は最初の会話の日付で表示しています。",
   "Choose a record to read why it is kept.": "記録を選ぶと、残している理由を読めます。",
   "Nothing to inspect in this selection.": "この範囲に表示できる記録はありません。",
+  "Months with records": "記録のある月",
+  "Chains and suggestions": "連なりと提案",
+  "Connection views": "関連の表示",
+  "{title} and what touches it, one step out. A line is a link, never a cause.": "{title} と、それに直接つながる記録。線は関連を示すだけで、原因ではありません。",
+  "Connected records": "つながっている記録",
+  "Statements kept as hypotheses": "仮説として保持している記述",
 };
 export default dict;
