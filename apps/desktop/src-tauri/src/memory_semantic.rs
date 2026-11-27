@@ -83,6 +83,69 @@ fn embed(inputs: &[&str], limit: Duration) -> Option<Vec<Vec<f32>>> {
     (out.len() == inputs.len()).then_some(out)
 }
 
+/// The local Ollama server Runtime started; dropping it, or Runtime's exit
+/// however it happens, ends the server and everything it started.
+#[cfg(windows)]
+pub struct OllamaJob {
+    _job: Option<std::os::windows::io::OwnedHandle>,
+}
+
+/// Morii, 2026-11-27: the registered library starts the local Ollama with it
+/// and closes it on exit. An Ollama already answering on its port is not
+/// Runtime's and is left alone. The server runs without a window inside a job
+/// that kills it and its model runners when the job's last handle closes.
+#[cfg(windows)]
+pub fn start_ollama() -> OllamaJob {
+    use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
+    use std::os::windows::process::CommandExt;
+    use std::process::{Command, Stdio};
+    use windows_sys::Win32::System::JobObjects::{
+        AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JobObjectExtendedLimitInformation,
+        SetInformationJobObject,
+    };
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    let Ok(addr) = OLLAMA.parse::<SocketAddr>() else {
+        return OllamaJob { _job: None };
+    };
+    if TcpStream::connect_timeout(&addr, Duration::from_millis(300)).is_ok() {
+        return OllamaJob { _job: None };
+    }
+    let installed = std::env::var_os("LOCALAPPDATA")
+        .map(|dir| PathBuf::from(dir).join(r"Programs\Ollama\ollama.exe"))
+        .filter(|exe| exe.is_file());
+    let Ok(mut child) = Command::new(installed.unwrap_or_else(|| "ollama".into()))
+        .arg("serve")
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn()
+    else {
+        return OllamaJob { _job: None };
+    };
+    // SAFETY: an unnamed job with default security; owned once non-null.
+    let raw = unsafe { CreateJobObjectW(std::ptr::null(), std::ptr::null()) };
+    let job = (!raw.is_null()).then(|| unsafe { OwnedHandle::from_raw_handle(raw) });
+    let mut limits: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = unsafe { std::mem::zeroed() };
+    limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    // SAFETY: valid job and child handles; the limits struct outlives the call.
+    let owned = job.filter(|job| unsafe {
+        SetInformationJobObject(
+            job.as_raw_handle(),
+            JobObjectExtendedLimitInformation,
+            (&raw const limits).cast(),
+            size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
+        ) != 0
+            && AssignProcessToJobObject(job.as_raw_handle(), child.as_raw_handle()) != 0
+    });
+    if owned.is_none() {
+        // Never leave a server running that Runtime cannot close.
+        let _ = child.kill();
+    }
+    OllamaJob { _job: owned }
+}
+
 pub struct OllamaIndex {
     file: Option<PathBuf>,
     vectors: RwLock<HashMap<String, SemanticVector>>,

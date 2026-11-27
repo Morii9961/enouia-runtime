@@ -245,3 +245,7 @@ Activity is untouched. The installer followed in ADR-027.
 ## ADR-038 — Explicit registered Morii read-only native entry
 
 [ADR-038](038-registered-morii-readonly-entry.md) adds an explicit trusted native launch for the original registered Morii home/operation. It uses Memory's existing reauthentication and System catalog/process APIs, with no page bootstrap, Agent grant, Workspace reinterpretation, recovery or write path. Lock releases the Core and directory reservation; reopening requires another trusted launch. Synthetic native and desktop verification activates the development capability on merge; personal-library use, a production candidate, graphical selection and human acceptance remain separate. On 2026-11-27 Morii added a remembered entry that launches without arguments reopen, and one Windows instance for the shortcut and login startup.
+
+## ADR-044 — The registered entry runs its local Ollama
+
+[ADR-044](044-registered-entry-local-ollama.md) starts `ollama serve` in a kill-on-close job when the registered entry starts and nothing answers on Ollama's port, so the semantic index has its model and Ollama ends with Runtime; an Ollama already running is left alone.

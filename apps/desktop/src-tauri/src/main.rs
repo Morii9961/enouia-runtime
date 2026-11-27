@@ -135,6 +135,10 @@ fn main() {
             // settings file (ADR-032).
             if let Some(launch) = owner_launch {
                 if !autostart {
+                    // The semantic index's local Ollama runs while this
+                    // Runtime does (Morii, 2026-11-27).
+                    #[cfg(windows)]
+                    app.manage(memory_semantic::start_ollama());
                     let native = app.state::<MemoryHost>().catalog().clone();
                     // ADR-041: local Agent names stay in Runtime's own config.
                     native.set_agents_file(
