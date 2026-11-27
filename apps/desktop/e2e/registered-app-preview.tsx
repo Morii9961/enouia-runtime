@@ -50,22 +50,24 @@ const turnText = (sourceId: string) => {
 const item = (m: typeof D.MEM[number]) => ({
   title: words(m.content), content_lang: 'en',
   base: { memory: { memory_id: `mem_${m.key}`, revision: 1 }, content: m.content, system_actor: { actor_type: 'system' },
-    dimensions: { kind: m.kind }, knowledge: m.src.kind === 'conversation' ? 'attributed_statement' : 'self_report',
+    dimensions: { kind: m.kind === 'project_state' ? 'fact' : m.kind === 'session_checkpoint' ? 'episode' : m.kind }, knowledge: m.src.kind === 'conversation' ? 'attributed_statement' : 'self_report',
     adoption: m.status === 'candidate' ? 'staged' : 'adopted', validity: 'unspecified', attention: 'active',
     project_id: m.project ?? null, learned_at: at(m.created), source_captured_at: at(m.created) },
-  event_time: instant(m.created), entities: [], effective_sensitivity: 'private',
+  event_time: m.kind === 'episode' ? instant(m.created) : { from: null, until: null, precision: 'unknown', bound: 'within', tz: null, basis: 'unknown' }, entities: [], effective_sensitivity: 'private',
+  formation_reason: { interpretation: 'clear_self_report', rule_version: 'admission-rules-3', prompt_version: 'fictional', model_version: null, mode: m.status === 'candidate' ? 'live' : 'backfill', note: null, note_is_machine_annotation: false },
 });
 const target = (m: typeof D.MEM[number]) => ({ memory: { memory: { memory_id: `mem_${m.key}`, revision: 1 }, hash: 'e'.repeat(64) } });
 const summary = (m: typeof D.MEM[number]) => ({ ...target(m), title: words(m.content), knowledge: 'attributed_statement', adoption: m.status === 'candidate' ? 'staged' : 'adopted',
   interpretation: 'clear_self_report', change: 'new', learned_at: at(m.created), effective_sensitivity: 'private' });
+const kind = (m: typeof current[number]) => m.kind === 'project_state' ? 'fact' : m.kind === 'session_checkpoint' ? 'episode' : m.kind;
 const match = (f: any) => current.filter(m => (!f?.text || m.content.toLowerCase().includes(String(f.text).toLowerCase()))
-  && (!f?.form || m.kind === f.form) && (!f?.adoption || (m.status === 'candidate' ? 'staged' : 'adopted') === f.adoption)
+  && (!f?.form || kind(m) === f.form) && (!f?.adoption || (m.status === 'candidate' ? 'staged' : 'adopted') === f.adoption)
   && (!f?.time_window || (Date.parse(at(m.created)) >= Date.parse(f.time_window.from) && (!f.time_window.until || Date.parse(at(m.created)) < Date.parse(f.time_window.until)))))
   .sort((a, b) => b.created.localeCompare(a.created));
 const groups = (list: typeof current) => {
   const count = (key: (m: typeof current[number]) => string) => { const c = new Map<string, number>(); list.forEach(m => c.set(key(m), (c.get(key(m)) ?? 0) + 1)); return [...c].map(([value, count]) => ({ value, label: value, count })); };
   return [
-    { axis: 'form', count_scope: 'matched', values: count(m => m.kind), total_values: count(m => m.kind).length },
+    { axis: 'form', count_scope: 'matched', values: count(kind), total_values: count(kind).length },
     { axis: 'adoption', count_scope: 'matched', values: count(m => m.status === 'candidate' ? 'staged' : 'adopted'), total_values: 2 },
   ];
 };
@@ -88,7 +90,7 @@ setCatalogTransport(async (_command, args) => {
     case 'status': return { ...envelope, kind: 'runtime_memory_catalog_status', mode: 'registered_owner_readonly', state: 'open', available: true, selection,
       recall_limits: { max_items: 8, max_bytes: 16384 }, corrections: true, semantic: { model: 'bge-m3', state: 'ready', indexed: current.length, total: current.length } };
     case 'page': { const list = match(q.filter); return { ...envelope, kind: 'catalog_memory_page', selection, authorized_at: selection.evaluated_at, count_exact: true,
-      scope: 'authorized_current_machine_revisions', matched_in_scope: list.length, unknown_time_in_scope: 0, items: list.slice(0, q.limit).map(item), complete_in_scope: true, next: null, facets: q.facets ? groups(list) : [] }; }
+      scope: 'authorized_current_machine_revisions', matched_in_scope: list.length, unknown_time_in_scope: list.filter(m => m.kind !== 'episode').length, items: list.slice(0, q.limit).map(item), complete_in_scope: true, next: null, facets: q.facets ? groups(list) : [] }; }
     case 'stats': { const list = match(q.filter); return { ...envelope, kind: 'catalog_memory_stats', selection, authorized_at: selection.evaluated_at, count_exact: true,
       scope: 'authorized_current_machine_revisions', matched_in_scope: list.length, groups: groups(list), theme_membership: 'authorized' }; }
     case 'detail': { const m = current.find(x => `mem_${x.key}` === q.memory_id); const src = m ? sourceOf(m) : null; const quote = src ? turnText(src.source_id).text : '';
@@ -97,7 +99,7 @@ setCatalogTransport(async (_command, args) => {
     case 'source': { const t = turnText(q.source.source_id); const chars = Array.from(t.text);
       return { ...envelope, kind: 'native_source_excerpt', header: { ...header, algorithm: 'selected-source-excerpt-2' }, source: q.source,
         source_record: { reference: q.source, speaker: t.speaker, source_kind: 'export_message', evidence_class: 'user_statement', anchor_hash: 'd'.repeat(64), original_conversation_id: null, original_message_id: null, occurred_at: at(t.at) },
-        excerpt: t.text, start: 0, end: chars.length, total_characters: chars.length, complete_in_scope: true }; }
+        excerpt: chars.slice(q.start, Math.min(chars.length, q.start + q.limit)).join(''), start: q.start, end: Math.min(chars.length, q.start + q.limit), total_characters: chars.length, complete_in_scope: q.start + q.limit >= chars.length }; }
     case 'time_buckets': { const day = q.query.granularity === 'day'; const buckets: any[] = [];
       const start = new Date(q.query.from_date + 'T00:00:00+08:00'), end = new Date(q.query.until_date + 'T00:00:00+08:00');
       for (let d = new Date(start); d < end;) { const next = new Date(d); if (day) next.setDate(next.getDate() + 1); else next.setMonth(next.getMonth() + 1);

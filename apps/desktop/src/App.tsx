@@ -449,7 +449,7 @@ Enouia Runtime
 {connected ? <ConnectedHome nav={view.nav} ring={penMark} /> : <Home view={{ ...view, still }} />}
 </> : null}
 {isMemory ? <>
-{connected ? <MemorySurface initialCollection={this.state.memInitialCollection} openSession={this.openSavedSession} /> : <Memory view={view} />}
+{connected ? <MemorySurface initialCollection={this.state.memInitialCollection} openSession={this.openSavedSession} openContext={() => this.go('context')} /> : <Memory view={view} />}
 </> : null}
 {isContext ? <>
 {connected ? <ContextSurface capsuleId={this.state.memCapsule} /> : <Context view={view} />}

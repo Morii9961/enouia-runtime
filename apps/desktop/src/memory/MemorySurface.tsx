@@ -25,7 +25,6 @@ const Registered = {
   time: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredTime }))),
   connections: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredConnections }))),
   formation: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredFormation }))),
-  recall: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredRecall }))),
   review: lazy(() => import("./RegisteredViews").then(module => ({ default: module.RegisteredReview }))),
   people: lazy(() => import("./People").then(module => ({ default: module.RegisteredPeople }))),
 };
@@ -59,8 +58,10 @@ function dayOf(iso: string): string {
   return d.toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function MemorySurface({ initialCollection = "current", openSession }: {
+export default function MemorySurface({ initialCollection = "current", openSession, openContext }: {
   initialCollection?: "current" | "inbox"; openSession?: (vaultId: string, sessionId: string) => void;
+  /** Registered entry: Recall lives on the Context surface (decision 2026-11-27, D2). */
+  openContext?: () => void;
 }) {
   const { status, vaultChanging, entry, observeNativeControl } = useStatus();
   const registered = entry === "registered_owner_readonly";
@@ -71,7 +72,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   const open = status?.vault?.state === "open";
   const pending: number | null = status?.pendingCandidates ?? null;
   const groups: { label: string; items: [Collection, string, ReactNode?][] }[] = entry === null ? [] : registered ? [
-    { label: t("Memories"), items: [["catalog", TITLES.catalog], ["time", TITLES.time], ["connections", TITLES.connections], ["formation", TITLES.formation], ["review", TITLES.review], ["people", TITLES.people], ["recall", TITLES.recall]] },
+    { label: t("Memories"), items: [["catalog", TITLES.catalog]] },
   ] : [
     { label: t("Review"), items: [["inbox", TITLES.inbox, open && pending != null ? pending : "—"]] },
     { label: t("Canonical"), items: [["current", TITLES.current], ["history", TITLES.history]] },
@@ -82,6 +83,7 @@ export default function MemorySurface({ initialCollection = "current", openSessi
   // A switch can finish between two status polls without an observed change;
   // remount per Vault so the previous Vault's rows, detail and drafts go.
   const vaultKey = status?.vault?.vaultId ?? status?.vault?.rootName ?? "";
+  if (registered) return <RegisteredMemory openContext={openContext} />;
   return (
     <section data-screen-label="Memory Vault" className="qr89">
       <aside className="qr28">
@@ -141,6 +143,37 @@ export default function MemorySurface({ initialCollection = "current", openSessi
       )}
     </section>
   );
+}
+
+/** Registered entry: the UI v2 Memory workspaces (decision 2026-11-27, D1 and D2). */
+type Workspace = "memories" | "time" | "connections" | "formation" | "recall";
+type RegisteredChoice = "catalog" | RegisteredView;
+const WORKSPACES: { id: Workspace; label: string; view?: RegisteredChoice }[] = [
+  { id: "memories", label: msg("Memories"), view: "catalog" }, { id: "time", label: msg("Time"), view: "time" },
+  { id: "connections", label: msg("Connections"), view: "connections" }, { id: "formation", label: msg("Formation"), view: "formation" },
+  { id: "recall", label: msg("Recall") },
+];
+const SUBVIEWS: Partial<Record<Workspace, RegisteredChoice[]>> = { connections: ["connections", "people"], formation: ["formation", "review"] };
+const workspaceOf = (view: RegisteredChoice): Workspace => view === "catalog" ? "memories" : view === "people" ? "connections" : view === "review" ? "formation" : view;
+function RegisteredMemory({ openContext }: { openContext?: () => void }) {
+  const { observeNativeControl } = useStatus();
+  const [view, setView] = useState<RegisteredChoice>("catalog");
+  const workspace = workspaceOf(view);
+  const sub = SUBVIEWS[workspace];
+  return <section data-screen-label="Memory Vault" className="memory-region mem-registered">
+    <nav className="am-views memory-workspace-nav" aria-label={t("Memory workspaces")}>
+      {WORKSPACES.map(w => <button key={w.id} type="button" className="am-view" data-memory-workspace={w.id} aria-current={workspace === w.id ? "page" : undefined}
+        disabled={!w.view && !openContext} onClick={() => w.view ? setView(w.view) : openContext?.()}><span className="am-vn">{t(w.label)}</span></button>)}
+    </nav>
+    {sub && <div className="am-views memory-view-nav" role="group" aria-label={t("Memory workspace views")}>
+      {sub.map(id => <button key={id} type="button" className="am-view" data-memory-view={id} aria-pressed={view === id} onClick={() => setView(id)}><span className="am-vn">{TITLES[id]}</span></button>)}
+    </div>}
+    <div className="memory-region-body">
+      <section className="qr89" data-workspace={workspace}>
+        <Suspense fallback={<StatusPending />}>{view === "catalog" ? <CatalogMemory onControl={observeNativeControl} /> : (() => { const View = Registered[view]; return <View />; })()}</Suspense>
+      </section>
+    </div>
+  </section>;
 }
 
 function Center({ title, count, children, busy }: { title: string; count?: string; children: ReactNode; busy?: boolean }) {

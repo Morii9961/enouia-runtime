@@ -1256,7 +1256,7 @@ async function registeredOwnerChecks() {
   check('OWNER.sidebar_offers_only_registered_catalog',await s.evaluate(`
     [...document.querySelectorAll('[data-screen-label="Memory Vault"] .qr28 button')].map(b=>b.textContent.trim()).join('|')==='Native memory catalog|Time|Connections|Formation|Worth a look|People and places|Recall' &&
     !document.querySelector('[data-screen-label="Memory Vault"] .qr28 form')`));
-  check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered library · confirmed changes only')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
+  check('OWNER.panel_is_not_labelled_as_fiction',await s.evaluate(`${has('Registered library · confirmed writes')} && !${has('This library contains fixed fictional records.')} && !${has('synthetic subject')}`));
   await set(s,'.qr44 form[role=search] input','Blue pottery cup');
   await click(s,'button','Search catalog');
   await waitFor(s,has('1 shown · 1 matching authorized records'),'registered catalog search');
