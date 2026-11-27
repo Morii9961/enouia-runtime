@@ -31,6 +31,8 @@
 
 ## 1. 六个主表面
 
+2026-11-28：原生已登记库模式的六个表面已按设计稿逐屏重建（#290–#295，D1–D5 见决定记录 2026-11-27），差距清单逐条结果与例外见[重建记录](../../validation/UI-v2-native-rebuild-2026-11-28.md)。下表「原生」一列的旧状态描述的是 Workspace 入口。
+
 Activity / Usage 界面已于 2026-10-25 移除（决定记录「移除 Activity / Usage 界面」）：不加回导航、页面、统计卡、状态或链接，不做占位页，不加 tokens.ci 面板。[ADR-037](../../adr/037-activity-usage-desktop-retirement.md) 已退役桌面原生命令与 grants；独立生产者、任务和数据保留，不由本轮前端工作清理。
 
 | # | 表面 | `data-screen-label` | 浏览器演示 | 原生 | 截图 |
