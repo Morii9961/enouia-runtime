@@ -114,6 +114,7 @@ export function CatalogMemory({ read = catalogRead, onControl }: { read?: typeof
         {RAIL.map(axis => {
           const group = facetGroups.find(g => g.axis === axis);
           if (!group || (group.values.length === 0 && filter[axis] === null)) return null;
+          if (filter[axis] === null && group.values.length === 1 && total != null && group.values[0].count === total) return null;
           return <div className="qr27" key={axis} role="group" aria-label={t(RAIL_TITLE[axis])}>
             <div className="qr23">{t(RAIL_TITLE[axis])}</div>
             {group.values.map(v => {

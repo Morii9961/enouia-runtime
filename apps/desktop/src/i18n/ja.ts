@@ -2456,5 +2456,9 @@ const dict: Record<string, string> = {
   "Writes": "書き込み",
   "Reopen": "開き直す",
   "Open Memory": "記憶を開く",
+  "Owner action": "本人の操作",
+  "Initial": "初回の書き込み",
+  "New": "新規",
+  "{n} earlier Memory writes": "それ以前の Memory の書き込み {n} 件",
 };
 export default dict;

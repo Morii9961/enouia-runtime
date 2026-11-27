@@ -2456,5 +2456,9 @@ const dict: Record<string, string> = {
   "Writes": "写入",
   "Reopen": "重新打开",
   "Open Memory": "打开记忆",
+  "Owner action": "本人操作",
+  "Initial": "初次写入",
+  "New": "新建",
+  "{n} earlier Memory writes": "更早的 {n} 次 Memory 写入",
 };
 export default dict;

@@ -341,7 +341,7 @@ function FormationView() {
             <h3 className="qr33 mem-day">{d ? dayBand(d) : t("Time not recorded")}</h3>
             <ul className="mem-list mem-catalog-rows">{items.map(e => e.memory
               ? <RecordRow key={e.event_id} time={hhmm(e.proof.written_at)} status={e.adoption}
-                kind={<span>{word(e.event_kind)}{e.change ? ` · ${word(e.change)}` : ""}</span>} title={e.title ?? e.memory.memory_id}
+                kind={<span>{word(e.event_kind)}{e.change && e.change !== e.event_kind ? ` · ${word(e.change)}` : ""}</span>} title={e.title ?? e.memory.memory_id}
                 meta={<>{analystText(e.formation_reason) && <span>{analystText(e.formation_reason)}</span>}<span className="qr40">{shortId(e.memory.memory_id)}</span></>}
                 selected={selected?.id === e.memory.memory_id} onPick={() => setSelected({ id: e.memory!.memory_id, selection: pages[0].header.selection })} />
               : <li key={e.event_id} className="qr43 mem-catalog-row"><span className="qr34">{hhmm(e.proof.written_at)}</span><span className="qr42"><span className="qr38">{word(e.event_kind)}</span><span className="qr39">{e.title ?? t("Source material")}</span></span></li>)}</ul>
@@ -580,7 +580,8 @@ function SessionsView() {
     if (id === chosen && (detail || turns.busy)) return;
     setChosen(id); setDetail(null); setTexts({});
     void turns.run(async () => {
-      const found = await catalogView({ operation: "conversation_detail", conversation_id: id, cursor: null, limit: 50 });
+      const read = await catalogView({ operation: "conversation_detail", conversation_id: id, cursor: null, limit: 50 });
+      const found = { ...read, turns: [...read.turns].sort((a, b) => a.turn.sequence - b.turn.sequence) };
       const bodies: Record<string, CatalogSource> = {};
       for (const turn of found.turns) {
         const ref = turn.turn.source;
