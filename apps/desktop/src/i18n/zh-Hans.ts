@@ -1238,7 +1238,7 @@ const dict: Record<string, string> = {
   "one slip each": "一条一张",
   "Timeline": "时间线",
   "when it happened": "什么时候发生",
-  "Constellation": "关联",
+  "Constellation": "相连",
   "what touches it": "与什么相连",
   "Star map": "记忆星图",
   "the whole generated sample": "整份生成的样本",
@@ -2117,7 +2117,6 @@ const dict: Record<string, string> = {
   "No relations between the loaded records.": "已读取的记录之间没有关系。",
   "Most connected records": "关联最多的记录",
   "{n} relations": "{n} 条关系",
-  "All loaded records": "全部已读取的记录",
   "Choose a record to read what it is connected to.": "选一条记录，查看它与哪些记录相关。",
   "Reading connected records…": "正在读取相关记录…",
   "{n} connected records": "{n} 条相关记录",
@@ -2438,5 +2437,11 @@ const dict: Record<string, string> = {
   "{n} records are shown by when they were first mentioned.": "{n} 条按首次提及日期显示。",
   "Choose a record to read why it is kept.": "选一条记录，查看为什么记得它。",
   "Nothing to inspect in this selection.": "这个范围里没有可查看的记录。",
+  "Months with records": "有记录的月份",
+  "Chains and suggestions": "关系链与建议",
+  "Connection views": "关联视图",
+  "{title} and what touches it, one step out. A line is a link, never a cause.": "{title} 以及与它直接相连的记录。线只表示关联，不表示原因。",
+  "Connected records": "相连的记录",
+  "Statements kept as hypotheses": "作为假说保留的陈述",
 };
 export default dict;
