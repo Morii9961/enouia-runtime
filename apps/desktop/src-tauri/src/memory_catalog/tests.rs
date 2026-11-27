@@ -23,7 +23,27 @@ fn registered_launch_requires_explicit_complete_native_arguments_without_fallbac
         "--memory-owner-operation",
         &operation,
     ];
-    assert!(parse(&valid).unwrap().is_ok());
+    let launch = parse(&valid).unwrap().unwrap();
+    // The remembered entry round-trips; a missing or unreadable file selects
+    // nothing and a malformed selection fails like a malformed launch.
+    let dir = std::env::temp_dir().join(format!("enouia-runtime-owner-entry-{operation}"));
+    std::fs::create_dir_all(&dir).unwrap();
+    let file = dir.join("owner-entry.json");
+    assert!(remembered_owner_launch(&file).is_none());
+    std::fs::write(&file, launch.entry().unwrap()).unwrap();
+    let remembered = remembered_owner_launch(&file).unwrap().unwrap();
+    assert_eq!(remembered.home, launch.home);
+    assert_eq!(remembered.operation, launch.operation);
+    std::fs::write(&file, "not json").unwrap();
+    assert!(remembered_owner_launch(&file).is_none());
+    for entry in [
+        json!({"home": "relative", "operation": operation}),
+        json!({"home": home, "operation": "invalid"}),
+    ] {
+        std::fs::write(&file, entry.to_string()).unwrap();
+        assert!(remembered_owner_launch(&file).unwrap().is_err());
+    }
+    std::fs::remove_dir_all(&dir).unwrap();
     for args in [
         vec!["runtime", "--memory-owner-readonly"],
         vec![

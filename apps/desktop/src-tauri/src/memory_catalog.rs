@@ -301,6 +301,33 @@ pub struct OwnerLaunch {
     pub home: PathBuf,
     pub operation: OperationId,
 }
+impl OwnerLaunch {
+    /// The selection a launch without arguments reopens (Morii, 2026-11-27).
+    pub fn entry(&self) -> Option<Vec<u8>> {
+        serde_json::to_vec_pretty(&json!({"home": self.home, "operation": self.operation.as_str()}))
+            .ok()
+    }
+}
+#[derive(Deserialize)]
+struct OwnerEntry {
+    home: PathBuf,
+    operation: String,
+}
+/// Reads the selection the last successful explicit launch remembered. It is
+/// only the launch selection: `registered_owner_root` still reauthenticates the
+/// account, home, operation and descriptor binding before anything opens.
+pub fn remembered_owner_launch(
+    file: &std::path::Path,
+) -> Option<Result<OwnerLaunch, &'static str>> {
+    let entry: OwnerEntry = serde_json::from_slice(&std::fs::read(file).ok()?).ok()?;
+    Some(match OperationId::parse(&entry.operation) {
+        Ok(operation) if entry.home.is_absolute() => Ok(OwnerLaunch {
+            home: entry.home,
+            operation,
+        }),
+        _ => Err("catalog_owner_launch_invalid"),
+    })
+}
 pub fn owner_launch(args: &[String]) -> Option<Result<OwnerLaunch, &'static str>> {
     if !args.iter().any(|arg| arg.starts_with("--memory-owner")) {
         return None;

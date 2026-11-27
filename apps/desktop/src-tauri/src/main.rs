@@ -32,9 +32,29 @@ use tauri::{Manager, RunEvent, WindowEvent};
 
 fn main() {
     let host = MemoryHost::new();
+    let mut context = tauri::generate_context!();
     let args: Vec<String> = std::env::args().collect();
     let autostart = args.iter().any(|arg| arg == "--autostart");
-    let owner_launch = memory_catalog::owner_launch(&args);
+    // Morii decision (2026-11-27, amends ADR-038): a launch without arguments,
+    // such as the shortcut the installer recreates on every upgrade, reopens
+    // the library the last successful explicit launch opened. Login startup
+    // still opens nothing.
+    let entry_file = std::env::var_os("APPDATA").map(|dir| {
+        std::path::PathBuf::from(dir)
+            .join(&context.config().identifier)
+            .join("owner-entry.json")
+    });
+    let explicit_owner = memory_catalog::owner_launch(&args);
+    let remember = explicit_owner
+        .as_ref()
+        .and_then(|launch| launch.as_ref().ok())
+        .and_then(memory_catalog::OwnerLaunch::entry);
+    let owner_launch = explicit_owner.or_else(|| {
+        (args.len() == 1)
+            .then_some(entry_file.as_deref())
+            .flatten()
+            .and_then(memory_catalog::remembered_owner_launch)
+    });
     let owner_requested = owner_launch.is_some();
     let catalog_requested = args.iter().any(|arg| arg == "--memory-catalog-synthetic");
     // Precedence when several synthetic flags are supplied: catalog, capture,
@@ -63,7 +83,6 @@ fn main() {
     {
         host.open_root(&root);
     }
-    let mut context = tauri::generate_context!();
     #[cfg(windows)]
     appearance::apply(context.config_mut());
     // Login startup (`--autostart`) starts in the tray: the main window is
@@ -75,7 +94,17 @@ fn main() {
             }
         }
     }
-    let app = tauri::Builder::default()
+    let mut builder = tauri::Builder::default();
+    // The shortcut and login startup run one Runtime: launching either again
+    // shows the running window instead of starting another process. Launches
+    // with explicit Memory or test options stay independent; the directory
+    // reservation still refuses a root another Runtime holds.
+    if args.iter().skip(1).all(|arg| arg == "--autostart") {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            let _ = shell::show_main(app);
+        }));
+    }
+    let app = builder
         .manage(host)
         .manage(shell::ShellState::default())
         .invoke_handler(tauri::generate_handler![
@@ -115,7 +144,14 @@ fn main() {
                             .map(|dir| dir.join("registered-agents.json")),
                     );
                     tauri::async_runtime::spawn_blocking(move || {
-                        let _ = native.initialize_registered(launch);
+                        if native.initialize_registered(launch).is_ok()
+                            && let (Some(entry), Some(file)) = (remember, entry_file)
+                        {
+                            if let Some(dir) = file.parent() {
+                                let _ = std::fs::create_dir_all(dir);
+                            }
+                            let _ = std::fs::write(file, entry);
+                        }
                     });
                 }
             } else if synthetic_requested {
