@@ -198,9 +198,9 @@ export function VaultGate({ children }: { children: ReactNode }) {
 function RegisteredEntryNotice() {
   const { nativeStatus, nativeError, error } = useStatus();
   return <div className="mem-card mem-stack">
-    <h2 className="mem-h2">{t("Registered library · confirmed changes only")}</h2>
+    <h2 className="mem-h2">{t("Registered library · confirmed writes")}</h2>
     <p role="status">{registeredLabel(nativeStatus)}</p>
-    <p className="mem-muted">{t("Read and correct records in Memory → Native memory catalog. Every change is written only after you confirm its plan. This entry does not offer Workspace editing or model configuration.")}</p>
+    <p className="mem-muted">{t("Read and correct records in Memory. Every change is written only after you confirm its plan. This entry does not offer Workspace editing or model configuration.")}</p>
     {nativeStatus?.state === "locked" && <p className="mem-muted">{t("The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.")}</p>}
     {nativeStatus?.reason && <p role="alert">{describe(nativeStatus.reason)}</p>}
     <ErrorBox error={nativeError ?? error} />
@@ -288,9 +288,11 @@ export function MemorySettings({ openMemory }: { openMemory: () => void }) {
   if (entry === "registered_owner_readonly") return <div className="qr65">
     <div className="qr198">{t("Memory Vault")}</div>
     <Row k={t("State")}>{registeredLabel(nativeStatus)}</Row>
-    <RegisteredEntryNotice />
+    <Row k={t("Writes")}><span>{t("Registered library · confirmed writes")}</span><br /><span className="mem-muted">{t("Read and correct records in Memory. Every change is written only after you confirm its plan. This entry does not offer Workspace editing or model configuration.")}</span></Row>
+    {nativeStatus?.state === "locked" && <Row k={t("Reopen")}>{t("The library is closed. Exit Runtime and explicitly launch the registered library again to reopen it.")}</Row>}
+    {nativeStatus?.reason && <p role="alert">{describe(nativeStatus.reason)}</p>}
     {nativeStatus?.state === "open" && nativeStatus.semantic && <Row k={t("Semantic recall")}>{nativeStatus.semantic.state === "ready" ? t("Ready · {n} memories · {model}", { n: nativeStatus.semantic.indexed, model: nativeStatus.semantic.model }) : nativeStatus.semantic.state === "indexing" ? t("Indexing {n} of {total} memories · {model}", { n: nativeStatus.semantic.indexed, total: nativeStatus.semantic.total, model: nativeStatus.semantic.model }) : nativeStatus.semantic.state === "unavailable" ? t("Local model not running; recall uses words only") : t("Checking the local model…")}</Row>}
-    <div className="qr216"><span className="qr35">{t("Manage")}</span><button type="button" className="mem-link" onClick={openMemory}>{t("Open native memory catalog")}</button></div>
+    <div className="qr216"><span className="qr35">{t("Manage")}</span><button type="button" className="mem-link" onClick={openMemory}>{t("Open Memory")}</button></div>
     {nativeStatus?.state === "open" && nativeStatus.corrections && <Suspense fallback={null}><ConnectorStatus /><AgentGrantsPanel /><AgentRequestsPanel /><CapsuleSavingSetting /></Suspense>}
     <CompanionSettings status={status} />
   </div>;

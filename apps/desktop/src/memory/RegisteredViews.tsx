@@ -764,8 +764,15 @@ export function RegisteredInspectorFacts() {
   const { readings, busy, error, reload } = useRegisteredReadings();
   const selection = nativeStatus?.state === "open" ? nativeStatus.selection : undefined;
   if (!selection) return null;
+  const semantic = nativeStatus?.state === "open" ? nativeStatus.semantic : undefined;
+  const health: [string, "ok" | "pending" | "failed", string][] = [
+    [t("Registered library"), "ok", registeredLabel(nativeStatus)],
+    [t("Semantic recall"), !semantic ? "pending" : semantic.state === "ready" ? "ok" : semantic.state === "unavailable" ? "failed" : "pending",
+      !semantic ? t("unknown") : semantic.state === "ready" ? t("Ready · {n} memories · {model}", { n: semantic.indexed, model: semantic.model }) : semantic.state === "indexing" ? t("Indexing {n} of {total} memories · {model}", { n: semantic.indexed, total: semantic.total, model: semantic.model }) : semantic.state === "unavailable" ? t("Local model not running; recall uses words only") : t("Checking the local model…")],
+    [t("Confirmed changes"), nativeStatus?.corrections ? "ok" : "pending", nativeStatus?.corrections ? t("Available") : t("Unavailable in this read-only entry")],
+  ];
   return <section className="mem-stack" aria-label={t("Registered library readings")} aria-busy={busy}>
-    <button type="button" className="mem-button" disabled={busy} onClick={reload}>{t("Read library totals again")}</button>
+    <div className="runtime-panel-head"><h3 className="qr55">{t("State")}</h3><button type="button" className="mem-link runtime-reread" disabled={busy} onClick={reload}>{t("Read library totals again")}</button></div>
     {busy && <p role="status">{t("Reading library totals…")}</p>}
     <ErrorBox error={error} />
     <dl className="mem-facts">
@@ -781,6 +788,8 @@ export function RegisteredInspectorFacts() {
         <dt>{t("Observed")}</dt><dd>{stamp(readings.observedAt)}</dd>
       </>}
     </dl>
+    <h3 className="qr55">{t("Health")}</h3>
+    <ul className="runtime-health">{health.map(([name, state, text]) => <li key={name} data-state={state}><span className="runtime-mark" aria-hidden="true" /><span className="runtime-health-name">{name}</span><span className="runtime-health-text">{text}</span></li>)}</ul>
     {nativeStatus?.corrections && <ConnectorStatus />}
   </section>;
 }

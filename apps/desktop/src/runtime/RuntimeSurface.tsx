@@ -95,17 +95,14 @@ export default function RuntimeSurface() {
           <span id={`runtime-nav-${component.key}`} className="qr188">{component.label}</span><span className="qr189">{component.state}</span>
         </button>)}
       </nav>
-      <p className="mem-muted">{t("Memory and the Windows shell keep their own status. Each observation describes its own component.")}</p>
-      <p className="mem-muted">{t("Memory refreshes every few seconds. The shell shows its last explicit read; read it again after a change.")}</p>
     </aside>
     <div className="qr209"><div className="qr208">
       <div className="qr193 runtime-observation-summary" aria-label={t('Observed component status')}>
         {components.map(component => <div key={component.key} className="qr192"><span className="qr56">{component.label}</span><span className="qr61">{component.state}</span></div>)}
       </div>
       <section id="runtime-memory-panel" className="mem-stack runtime-panel" hidden={selected !== 'memory'} aria-labelledby="runtime-memory-title">
-        <h2 id="runtime-memory-title" className="qr194">{t("Memory Core")}</h2>
-        <p role="status" className="mem-muted">{memoryState}</p>
-        <button type="button" className="mem-button" onClick={() => void refresh()}>{t("Read Memory status again")}</button>
+        <div className="runtime-panel-head"><h2 id="runtime-memory-title" className="qr194">{t("Memory Core")}</h2><span role="status" className="runtime-state">{memoryState}</span>
+          <button type="button" className="mem-link runtime-reread" onClick={() => void refresh()}>{t("Read Memory status again")}</button></div>
         {memoryError && <p role="alert" className="mem-error">{memoryError}</p>}
         {registered && <Suspense fallback={null}><RegisteredInspectorFacts /></Suspense>}
         {!registered && status && !exiting(status) && !vaultChanging && <>
