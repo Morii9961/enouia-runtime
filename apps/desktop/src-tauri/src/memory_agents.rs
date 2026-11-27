@@ -34,8 +34,8 @@ type LocalAgents = BTreeMap<String, BTreeMap<String, LocalAgent>>;
 /// Local file beside it: vault id → request keys Morii chose to ignore (ADR-042).
 type IgnoredRequests = BTreeMap<String, BTreeSet<String>>;
 const IGNORED_FILE: &str = "ignored-agent-requests.json";
-/// Local file beside it: vault id → whether Morii turned on saving Capsules
-/// (Memory ADR-MEM-173). Off unless he turns it on.
+/// Local file beside it: vault id → whether saving Capsules is on (Memory
+/// ADR-MEM-173). On unless Morii turns it off (his decision D2, 2026-11-27).
 const CAPSULE_FILE: &str = "capsule-saving.json";
 /// A planned grant held natively: agent key, Core's plan, a new identity for register.
 type PendingPlans = BTreeMap<String, (String, OwnerReadGrantPlan, Option<LocalAgent>)>;
@@ -262,7 +262,7 @@ impl Agents {
         self.capsule_all()
             .get(&vault.descriptor().vault_id.to_string())
             .copied()
-            .unwrap_or(false)
+            .unwrap_or(true)
     }
     pub fn set_capsule_saving(
         &self,
