@@ -152,7 +152,7 @@
 .mem-registered-sessions .mem-session-list .qr134{width:100%}
 .mem-session-parts{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:6px 10px 10px;border-bottom:1px solid var(--grid-major)}
 .mem-session-parts .am-chip{height:auto;min-height:24px;padding:2px 8px;text-align:left;font-family:inherit;font-weight:400;border-color:var(--grid-major)}
-.mem-registered-sessions .mem-turns.qr160{display:flex;flex-direction:column;margin:0;padding:0;list-style:none;gap:16px;font-size:14px}
+.mem-registered-sessions .mem-turns.qr160{display:flex;flex-direction:column;margin:0;padding:0;list-style:none;gap:0;font-size:14px}
 .mem-registered-sessions .qr137{margin-bottom:6px}
 .qr170 .mem-facts{grid-template-columns:96px minmax(0,1fr);gap:0;font-size:13px;line-height:19px}
 .qr170 .mem-facts>dt,.qr170 .mem-facts>dd{padding:7px 0;border-top:1px solid var(--grid-minor)}
@@ -240,3 +240,7 @@
 .mem-time-title{margin:0;font:400 22px/28px var(--f-text);color:var(--ink)}
 .mem-time-main .mem-day-group{margin:0 -20px}
 .mem-time-unknown{border-top:1px solid var(--grid-major);padding-top:16px}
+/* Registered Sessions (slice 4): one continuous time rail down the transcript. */
+.mem-registered-sessions .mem-turns{gap:0}
+.mem-registered-sessions .mem-turns>li{margin:0}
+.mem-registered-sessions .mem-turns .qr158{padding-bottom:10px}

@@ -125,6 +125,7 @@ export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode })
 
 /** Registered strip: this week, Monday to Sunday, drawn from recorded turn and write times up to now. */
 function RecordedStrip({ page, nav, trace, timeline, now }: { page: Page; nav: React.ReactNode; trace: RecordedTrace; timeline: MapSpec; now: number }) {
+  const lent = useLentMap();
   const { start, end } = trace;
   const week = weekStartOf(now), weekEnd = week + 7 * DAY;
   const layer = { width: `${(end - start) / (7 * DAY) * 100}%`, transform: `translateX(${-(week - start) / (end - start) * 100}%)` };
@@ -151,7 +152,7 @@ function RecordedStrip({ page, nav, trace, timeline, now }: { page: Page; nav: R
           </Paper>
         </div>
       )}
-      {page === 'home' ? <TimeMap spec={timeline} /> : null}
+      {page === 'home' ? <TimeMap spec={timeline} /> : page === 'sessions' && lent?.key.startsWith('native-session:') ? <TimeMap spec={lent} /> : null}
     </div>
   );
 }

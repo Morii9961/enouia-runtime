@@ -74,7 +74,7 @@ export default function SessionTranscript({ detail, branch, disabled, mapUnavail
 }
 
 
-function TranscriptTimeMap({ spec, times, scroller, track }: {
+export function TranscriptTimeMap({ spec, times, scroller, track }: {
   spec: MapSpec; times: number[]; scroller: RefObject<HTMLDivElement | null>; track: RefObject<HTMLOListElement | null>;
 }) {
   const key = spec.key;
