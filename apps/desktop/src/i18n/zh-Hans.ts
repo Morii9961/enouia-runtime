@@ -2207,7 +2207,6 @@ const dict: Record<string, string> = {
   "Rendered context": "生成的上下文",
   "Preview the context an Agent would receive": "预览 Agent 会收到的上下文",
   "Preview the context an Agent would receive for a cue. It uses the same recall as the Agent and saves nothing.": "预览 Agent 针对某个提示会收到的上下文。它与 Agent 使用同一套召回，不保存任何内容。",
-  "Why these records come to mind for a cue: the same recall an Agent uses, previewed without saving.": "某个提示为什么会想起这些记录：与 Agent 使用同一套召回，只预览不保存。",
   "Correct…": "纠正…",
   "Withdraw…": "撤回…",
   "Protect": "保护",
@@ -2444,5 +2443,15 @@ const dict: Record<string, string> = {
   "Connected records": "相连的记录",
   "Statements kept as hypotheses": "作为假说保留的陈述",
   "Memory does not list the records formed from one conversation yet. Open a record in Memory to read the turns it quotes.": "Memory 暂时还不能列出一段对话形成了哪些记录。在记忆里打开一条记录，可以读到它引用的轮次。",
+  "Recall preview · read only. Nothing is saved or sent.": "召回预览 · 只读，不保存也不发送。",
+  "What the Agent is asked": "Agent 收到的问题",
+  "{used} of {max} bytes used": "已用 {used} / {max} 字节",
+  "Byte budget {max}": "字节上限 {max}",
+  "of {max} bytes": "/ {max} 字节",
+  "Context sections": "上下文分区",
+  "Selected": "已选入",
+  "Left out": "未选入",
+  "Nothing was left out.": "没有记录被排除。",
+  "Enter a cue, or browse without one, to see what an Agent would be given.": "输入提示，或选择不带提示，查看 Agent 会收到什么。",
 };
 export default dict;

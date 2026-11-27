@@ -473,16 +473,13 @@ function ConflictGroup({ memoryId, open }: { memoryId: string; open: (memoryId: 
   </section>;
 }
 
-// ---- Recall ------------------------------------------------------------------
-export function RegisteredRecall() {
-  return <Open title={t("Recall")}>{() => <RecallView mode="recall" />}</Open>;
-}
+// ---- Context (recall preview; D2: the only place recall is previewed) --------------
 /** Context in the registered entry: the same recall an Agent would receive, previewed without saving. */
 export function RegisteredContext() {
-  return <section data-screen-label="Context Surface" className="qr89 mem-registered-context"><Open title={t("Context")}>{() => <RecallView mode="context" />}</Open></section>;
+  return <section data-screen-label="Context Surface" className="mem-registered-context mem-ctx"><Open title={t("Context")}>{() => <RecallView />}</Open></section>;
 }
 const INTENTS = [["current", msg("Current memories")], ["historical", msg("Including history")], ["browse", msg("Browse without a cue")]] as const;
-function RecallView({ mode }: { mode: "recall" | "context" }) {
+function RecallView() {
   const { nativeStatus } = useStatus();
   const limits = nativeStatus?.recall_limits;
   const [text, setText] = useState("");
@@ -491,44 +488,74 @@ function RecallView({ mode }: { mode: "recall" | "context" }) {
   const [asked, setAsked] = useState("");
   const [savedTick, setSavedTick] = useState(0);
   const reads = useLatestRead();
+  const main = useRef<HTMLDivElement>(null);
   const run = (cue = text) => {
     if (!limits || (intent !== "browse" && !cue.trim())) return;
     setPreview(null); setAsked(cue);
     void reads.run(() => catalogRecall({ text: cue, conditions: [], event_window: null, at: new Date().toISOString(), intent, limit: limits.max_items, max_bytes: limits.max_bytes }), setPreview);
   };
+  const jump = (id: string) => { const el = main.current?.querySelector<HTMLElement>(`#${id}`); if (el && main.current) main.current.scrollTo({ top: el.offsetTop - 8 }); };
   const reasons = preview ? Object.entries(preview.trace_coverage.reason_counts) : [];
+  const max = limits?.max_bytes ?? 0;
+  const used = preview?.trace.rendered_bytes ?? 0;
+  const fmt = (n: number) => new Intl.NumberFormat("en-GB").format(n);
   return <>
-    <div className="qr45" aria-busy={reads.busy}><div className="qr44 mem-pad mem-stack mem-v2">
-      <h2 className="qr29">{t(mode === "context" ? "Context" : "Recall")}</h2>
-      <p className="mem-content">{t(mode === "context" ? "Preview the context an Agent would receive for a cue. It uses the same recall as the Agent and saves nothing." : "Why these records come to mind for a cue: the same recall an Agent uses, previewed without saving.")}</p>
-      <form className="mem-stack" onSubmit={event => { event.preventDefault(); run(); }}>
-        <label className="mem-label">{t("Cue")} <input className="mem-input" value={text} maxLength={2048} autoComplete="off" onChange={event => setText(event.target.value)} /></label>
-        <label className="mem-label">{t("Scope")} <select className="mem-input" value={intent} onChange={event => setIntent(event.target.value as RecallQuery["intent"])}>
-          {INTENTS.map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}</select></label>
-        <button className="mem-button" disabled={reads.busy || !limits || (intent !== "browse" && !text.trim())}>{t("Preview recall")}</button>
+    <header className="mem-ctx-head">
+      <div className="mem-ctx-title">
+        <h1 className="qr18">{t("Context Surface")}</h1>
+        <span className="mem-ctx-tag">{t("Recall preview · read only. Nothing is saved or sent.")}</span>
+      </div>
+      <form className="mem-ctx-form" onSubmit={event => { event.preventDefault(); run(); }}>
+        <label className="qr22 mem-ctx-cue"><span className="am-lbl">{t("Cue")}</span><input className="qr21" value={text} maxLength={2048} autoComplete="off" placeholder={t("What the Agent is asked")} onChange={event => setText(event.target.value)} /></label>
+        <div className="am-views mem-ws-views" role="group" aria-label={t("Scope")}>
+          {INTENTS.map(([id, label]) => <button key={id} type="button" className="am-view" aria-pressed={intent === id} onClick={() => setIntent(id)}><span className="am-vn">{t(label)}</span></button>)}
+        </div>
+        <button className="mem-primary mem-ctx-go" disabled={reads.busy || !limits || (intent !== "browse" && !text.trim())}>{t("Preview recall")}</button>
       </form>
-      {limits && <p className="mem-row-meta">{t("Up to {items} records and {bytes} bytes, the limits of this entry.", { items: limits.max_items, bytes: limits.max_bytes })}</p>}
-      {reads.busy && <p role="status">{t("Previewing recall…")}</p>}
-      <ErrorBox error={reads.error} />
-      {preview && <>
-        <Observed at={preview.trace.authorized_at} />
-        <p className="mem-content">{t("{considered} considered · {selected} selected · {excluded} excluded · {bytes} bytes", { considered: preview.trace.considered, selected: preview.trace.selected.length, excluded: preview.trace_coverage.excluded_in_scope, bytes: preview.trace.rendered_bytes })}</p>
-        {!preview.complete_in_scope && <p role="status">{t("The byte budget ran out; more records matched than were included.")}</p>}
-        {preview.trace.selected.length === 0 ? <p className="mem-content">{t("Nothing was selected for this cue.")}</p> :
-          <ol className="mem-list">{preview.trace.selected.map((s, i) => <li key={s.memory.memory_id}>
-            <span className="mem-content">{preview.items[i].record.fields.title}</span>
-            <p className="mem-row-meta">{t("score {score}", { score: s.score })} · {word(s.attention)} · {s.reasons.map(word).join(" · ")}</p>
-          </li>)}</ol>}
-        {reasons.length > 0 && <><h3>{t("Why others were left out")}</h3>
-          <ul className="mem-list">{reasons.map(([reason, n]) => <li key={reason} className="mem-row-meta">{word(reason)} · {n}</li>)}</ul></>}
-        <details open={mode === "context"}><summary>{t("Rendered context")}</summary><pre className="mem-content mem-rendered">{preview.rendered_context}</pre></details>
-        {nativeStatus?.corrections && preview.trace.selected.length > 0 && <SaveCapsule key={`${asked}:${preview.trace.authorized_at}`} query={asked} preview={preview} saved={() => setSavedTick(n => n + 1)} />}
-      </>}
-    </div></div>
-    <aside className="qr88" aria-label={t("Automatic Memory Inspector")}><div className="qr79 mem-v2">
-      <p className="mem-content">{t("A preview writes nothing and enrols no Agent. Selection order and reasons come from Memory's recall algorithm.")}</p>
-      {nativeStatus?.corrections && <CapsuleIndex refresh={savedTick} use={cue => { setText(cue); run(cue); }} />}
-    </div></aside>
+      <p className="mem-row-meta">{t("Preview the context an Agent would receive for a cue. It uses the same recall as the Agent and saves nothing.")}{limits ? ` ${t("Up to {items} records and {bytes} bytes, the limits of this entry.", { items: limits.max_items, bytes: limits.max_bytes })}` : ""}</p>
+    </header>
+    {max > 0 && <div className="mem-ctx-budget" role="img" aria-label={preview ? t("{used} of {max} bytes used", { used: fmt(used), max: fmt(max) }) : t("Byte budget {max}", { max: fmt(max) })}>
+      <div className="mem-ctx-scale">{[0, 0.25, 0.5, 0.75, 1].map(f => <span key={f} style={{ left: `${f * 100}%` }}>{fmt(Math.round(max * f))}</span>)}</div>
+      <div className="mem-ctx-bar"><span style={{ width: `${Math.min(100, used / max * 100)}%` }} /></div>
+      <div className="mem-ctx-reading"><b>{preview ? fmt(used) : "—"}</b> {t("of {max} bytes", { max: fmt(max) })}{preview && <span className="mem-row-meta"> · {t("{considered} considered · {selected} selected · {excluded} excluded · {bytes} bytes", { considered: preview.trace.considered, selected: preview.trace.selected.length, excluded: preview.trace_coverage.excluded_in_scope, bytes: preview.trace.rendered_bytes })}</span>}</div>
+    </div>}
+    <div className="mem-ctx-body">
+      <nav className="mem-ctx-nav" aria-label={t("Context sections")}>
+        <button type="button" className="qr26" disabled={!preview} onClick={() => jump("ctx-selected")}><span className="qr24">{t("Selected")}</span><span className="qr25">{preview ? preview.trace.selected.length : "—"}</span></button>
+        <button type="button" className="qr26" disabled={!preview} onClick={() => jump("ctx-excluded")}><span className="qr24">{t("Left out")}</span><span className="qr25">{preview ? preview.trace_coverage.excluded_in_scope : "—"}</span></button>
+        <button type="button" className="qr26" disabled={!preview} onClick={() => jump("ctx-rendered")}><span className="qr24">{t("Rendered context")}</span><span className="qr25">{preview ? fmt(used) : "—"}</span></button>
+        <p className="am-fine mem-ctx-note">{t("A preview writes nothing and enrols no Agent. Selection order and reasons come from Memory's recall algorithm.")}</p>
+        <div className="mem-ctx-capsules">{nativeStatus?.corrections && <CapsuleIndex refresh={savedTick} use={cue => { setText(cue); run(cue); }} />}</div>
+      </nav>
+      <div className="mem-ctx-main" ref={main} aria-busy={reads.busy}>
+        {reads.busy && <p role="status">{t("Previewing recall…")}</p>}
+        <ErrorBox error={reads.error} />
+        {!preview && !reads.busy && <p className="qr32">{t("Enter a cue, or browse without one, to see what an Agent would be given.")}</p>}
+        {preview && <>
+          {!preview.complete_in_scope && <p role="status">{t("The byte budget ran out; more records matched than were included.")}</p>}
+          <section id="ctx-selected" className="mem-ctx-section" aria-label={t("Selected")}>
+            <div className="mem-ctx-section-head"><h2>{t("Selected")}</h2><span className="mem-row-meta">{asked ? `“${asked}”` : t(INTENTS.find(i => i[0] === intent)![1])}</span></div>
+            {preview.trace.selected.length === 0 ? <p className="mem-content">{t("Nothing was selected for this cue.")}</p> :
+              <ol className="mem-list mem-ctx-items">{preview.trace.selected.map((s, i) => <li key={s.memory.memory_id}>
+                <div><span className="mem-content">{preview.items[i].record.fields.title}</span>
+                  <p className="mem-row-meta">{preview.items[i].base.content !== preview.items[i].record.fields.title ? preview.items[i].base.content : null}</p>
+                  <p className="mem-row-meta">{word(s.attention)} · {s.reasons.map(word).join(" · ")} · <span className="mem-mono">{shortId(s.memory.memory_id)}</span></p></div>
+                <span className="mem-ctx-rank">#{i + 1}</span><span className="mem-ctx-score">{t("score {score}", { score: s.score })}</span>
+              </li>)}</ol>}
+          </section>
+          <section id="ctx-excluded" className="mem-ctx-section" aria-label={t("Why others were left out")}>
+            <div className="mem-ctx-section-head"><h2>{t("Why others were left out")}</h2><span className="mem-row-meta">{preview.trace_coverage.excluded_in_scope}</span></div>
+            {reasons.length === 0 ? <p className="mem-row-meta">{t("Nothing was left out.")}</p> :
+              <ul className="mem-list">{reasons.map(([reason, n]) => <li key={reason} className="mem-row-meta">{word(reason)} · {n}</li>)}</ul>}
+          </section>
+          <section id="ctx-rendered" className="mem-ctx-section" aria-label={t("Rendered context")}>
+            <div className="mem-ctx-section-head"><h2>{t("Rendered context")}</h2><Observed at={preview.trace.authorized_at} /></div>
+            <pre className="mem-content mem-rendered">{preview.rendered_context}</pre>
+          </section>
+          {nativeStatus?.corrections && preview.trace.selected.length > 0 && <SaveCapsule key={`${asked}:${preview.trace.authorized_at}`} query={asked} preview={preview} saved={() => setSavedTick(n => n + 1)} />}
+        </>}
+      </div>
+    </div>
   </>;
 }
 
