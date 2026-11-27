@@ -54,7 +54,7 @@ D1：「值得回看」在「形成」的子视图，「人物与地点」在「
 - 截图里的数据全是虚构演示数据，没有在真实库上截图。
 - 候选安装包见下节；安装到本机要先问 Morii。
 
-## 候选 `b65dc49`（未安装）
+## 候选 `b65dc49`（已装到本机）
 
 从 Runtime main `b65dc49`（#295 合并）构建：`npm run desktop:bundle -- --no-sign -- --offline --locked`，x64、当前用户 NSIS 安装方式，产品版本 0.1.0，未签名。内嵌的 Memory pin 与 `e31b6d7` 相同，没有升级。产物复制到本机忽略目录 `apps/desktop/target/candidate-b65dc49/`。
 
@@ -67,4 +67,6 @@ D1：「值得回看」在「形成」的子视图，「人物与地点」在「
 
 `template-check.ps1` 对渲染出的 `installer.nsi`：26/26 通过。
 
-没有安装到本机，也没有在真实库上运行；安装要先问 Morii。安装后需要 Morii 在已登记库模式下逐屏看一遍，确认和设计稿一致。
+2026-11-28 Morii 同意后安装到本机，按 Morii 的要求直接覆盖旧版：Runtime 当时没有运行，候选以 `/S` 覆盖安装到原来的 `D:\Users\Morii\AppData\Local\Enouia Runtime`，退出码 0；卸载登记里仍只有一个「Enouia Runtime 0.1.0」。安装后的 `enouia-desktop.exe` 为 93,411,460 字节，SHA-256 `65dc9d4513d534209e8b82eb24d1261c127227883d4a9b635e109b2824e066a5`（与构建目录的版本只差 Tauri 写进的打包类型标记）；`enouia-memory-mcp.exe` 与 `WebView2Loader.dll` 与上表一致。安装时有一个独立运行的 Ollama，不归 Runtime 管，没有动它。
+
+安装后没有启动 Runtime，也没有在真实库上看过新界面；需要 Morii 从快捷方式打开，在已登记库模式下逐屏看一遍，确认和设计稿一致。
