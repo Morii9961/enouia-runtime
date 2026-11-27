@@ -17,7 +17,7 @@ const WORDS: Record<string, string> = labels({
   lexical: msg("Matched words"), semantic: msg("Similar meaning"), alias: msg("Matched an alias"), conditions: msg("Conditions"), time_window: msg("Time window"), fresh: msg("Recent"), historical_rescue: msg("Kept from history"),
   not_adopted: msg("Not adopted"), validity: msg("Validity"), no_cue: msg("No cue match"), budget: msg("Byte budget"), unsupported: msg("Words only, below meaning matches"),
   material_captured: msg("Material captured"), formation: msg("Formation"), reevaluation: msg("Re-evaluation"), synthesis: msg("Synthesis"),
-  correction: msg("Correction"), reversion: msg("Reversion"), state_change: msg("State change"),
+  correction: msg("Correction"), reversion: msg("Reversion"), state_change: msg("State change"), owner_action: msg("Owner action"), initial: msg("Initial"), new: msg("New"),
   derived_from: msg("Derived from"), same_conversation: msg("Same conversation"), same_entity: msg("Same entity"), theme_cooccurrence: msg("Theme co-occurrence"), lexical_neighbor: msg("Shared words"), semantic_neighbor: msg("Similar meaning"), same_name: msg("Same name"), person: msg("Person"), thing: msg("Thing"), pet: msg("Pet"), annotations: msg("Annotations"), content: msg("Content"), dimensions: msg("Dimensions"), evidence: msg("Evidence"),
   recorded_relation: msg("Recorded relation"), algorithm_suggestion: msg("Algorithm suggestion"),
 });

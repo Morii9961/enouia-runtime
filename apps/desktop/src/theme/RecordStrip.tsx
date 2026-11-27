@@ -148,7 +148,7 @@ function RecordedStrip({ page, nav, trace, timeline, now }: { page: Page; nav: R
               {trace.marks.filter(m => m.at >= week && m.at < weekEnd).map(m => <span key={`${m.at}:${m.kind}`} className="bg-mark" data-kind={m.kind} style={{ left: pct((m.at - start) / (end - start)), top: pct(trace.y(m.at)) }} />)}
             </div>
             {now < weekEnd ? <span className="bg-pen" style={{ left: pct((now - week) / (7 * DAY)), top: pct(trace.y(now)) }} aria-hidden="true"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M0 0L10 4L0 8z" fill="currentColor" /></svg></span> : null}
-            {earlierWrites ? <span className="bg-earlier">{t('{n} earlier records', { n: earlierWrites })} ◂</span> : null}
+            {earlierWrites ? <span className="bg-earlier">{t('{n} earlier Memory writes', { n: earlierWrites })} ◂</span> : null}
           </Paper>
         </div>
       )}
