@@ -2087,7 +2087,7 @@ fn concurrent_agent_sessions_all_connect() {
 }
 
 #[test]
-fn capsules_stay_off_until_turned_on_then_save_list_and_delete() {
+fn capsules_save_by_default_stay_off_when_turned_off_then_save_list_and_delete() {
     let native = NativeCatalog::default();
     native
         .initialize_with(|stop| {
@@ -2101,7 +2101,7 @@ fn capsules_stay_off_until_turned_on_then_save_list_and_delete() {
             .unwrap()
     };
     let empty = list();
-    assert_eq!(empty["saving_enabled"], false);
+    assert_eq!(empty["saving_enabled"], true, "saving is on by default");
     assert_eq!(empty["capsules"], json!([]));
     let page = native
         .call(
@@ -2123,10 +2123,17 @@ fn capsules_stay_off_until_turned_on_then_save_list_and_delete() {
     let plan = |members: &Vec<Value>| {
         native.call("main", &packet(json!({"operation":"plan_capsule","name":"Synthetic capsule","query":"pottery","members":members})))
     };
+    let off = native
+        .call(
+            "main",
+            &packet(json!({"operation":"capsule_saving","enabled":false})),
+        )
+        .unwrap();
+    assert_eq!(off["saving_enabled"], false);
     assert_eq!(
         plan(&members),
         Err("capsule_saving_off"),
-        "saving is off by default"
+        "turning saving off refuses saving"
     );
     let on = native
         .call(
