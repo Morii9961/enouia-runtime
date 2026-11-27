@@ -8,7 +8,7 @@ import { DAY, nativeDate, nativeDay } from './nativeTime';
 import { t } from '../i18n/index';
 
 export const TRACE_DAYS = 42;
-export const TRACE_SPAN = 14 * DAY;
+export const TRACE_SPAN = 4 * DAY;
 const STEP = 3_600_000;
 const SIGMA = 3 * STEP;
 
@@ -53,7 +53,7 @@ export function recordedTrace(turns: number[], writes: RecordedWrite[], now: num
     turnsInDomain: counts.reduce((a, b) => a + b, 0), latestTurn: turns.length ? Math.max(...turns) : null };
 }
 
-/** The registered Home's time map: six weeks of days, two weeks on screen. */
+/** The registered Home's time map: six weeks of days, four days on screen. */
 export function recordedSpec(now: number, scope: string, trace: RecordedTrace | null): MapSpec {
   const end = nativeDay(now) + DAY, start = end - TRACE_DAYS * DAY;
   const latest = trace?.latestTurn ?? null;

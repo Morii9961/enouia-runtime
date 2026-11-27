@@ -4,12 +4,11 @@
 // commit and covers the calendar when no Vault can be observed.
 import React from 'react';
 import type { Page } from '../demo-types';
-import { DAYS, DEMO_CLOCK, earlier, marks, onChart, pct, pen, tracePath, xOf, yAt, dayLabel, type Mark } from './chart';
+import { DAYS, DEMO_CLOCK, earlier, marks, onChart, pct, pen, tracePath, xOf, yAt, dayLabel, dayColumn, weekStartOf, type Mark } from './chart';
 import { useStatus, exiting } from '../memory/status';
 import { useAutoMode } from './autoMode';
 import TimeMap, { useLentMap, type MapSpec } from './TimeMap';
 import type { RecordedTrace } from './recordedTrace';
-import { useTimeView } from './timeview';
 import { homeSpec, sessionSpec } from './mapSpecs';
 import { DAY, nativeDate, nativeDay, observedCommit } from './nativeTime';
 
@@ -124,34 +123,43 @@ export function NativeStrip({ page, nav }: { page: Page; nav: React.ReactNode })
   );
 }
 
-/** Registered strip: the same two weeks as Home, drawn from recorded turn and write times. */
+/** Registered strip: this week, Monday to Sunday, drawn from recorded turn and write times up to now. */
 function RecordedStrip({ page, nav, trace, timeline, now }: { page: Page; nav: React.ReactNode; trace: RecordedTrace; timeline: MapSpec; now: number }) {
-  const v = useTimeView(timeline.key, timeline.init);
   const { start, end } = trace;
-  const days = Math.round(v.span / DAY);
-  const layer = { width: `${(end - start) / v.span * 100}%`, transform: `translateX(${-(v.start - start) / (end - start) * 100}%)` };
+  const week = weekStartOf(now), weekEnd = week + 7 * DAY;
+  const layer = { width: `${(end - start) / (7 * DAY) * 100}%`, transform: `translateX(${-(week - start) / (end - start) * 100}%)` };
+  const earlierWrites = trace.marks.filter(m => m.at < week).reduce((sum, m) => sum + m.count, 0);
+  const today = Math.floor((now - week) / DAY);
   return (
     <div className="bg-strip" data-page={page} data-recorded="">
       <div className="bg-strip-head">
         {nav}
-        <div className="bg-strip-meta"><b>{t("Registered library")}</b> · {t('line: captured turns · marks: Memory writes')}</div>
+        <StripMeta now={now} />
       </div>
       {page === 'home' ? null : (
-        <div className="bg-strip-chart">
+        <div className="bg-strip-chart" role="img" aria-label={t('Registered library, week of {date}, captured turns and Memory writes up to the device clock.', { date: nativeDate(week, { day: 'numeric', month: 'short', year: 'numeric' }) })}>
           <Paper days={false}>
-            {Array.from({ length: days }, (_, i) => <span key={i} className="bg-day" style={{ left: pct(i / days) }}>{nativeDate(v.start + i * DAY, { month: 'numeric', day: 'numeric' })}</span>)}
+            {Array.from({ length: 7 }, (_, i) => { const c = dayColumn(week + i * DAY); return <span key={i} className="bg-day" data-today={i === today || undefined} style={{ left: pct(i / 7) }}>{c.dow} <b>{c.date}</b></span>; })}
             <div className="bg-pan bg-pan-ink" style={layer}>
               <div className="bg-trace-clip"><svg className="bg-trace" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
                 <path d={trace.path(now)} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
               </svg></div>
-              {trace.marks.map(m => <span key={`${m.at}:${m.kind}`} className="bg-mark" data-kind={m.kind} style={{ left: pct((m.at - start) / (end - start)), top: pct(trace.y(m.at)) }} />)}
+              {trace.marks.filter(m => m.at >= week && m.at < weekEnd).map(m => <span key={`${m.at}:${m.kind}`} className="bg-mark" data-kind={m.kind} style={{ left: pct((m.at - start) / (end - start)), top: pct(trace.y(m.at)) }} />)}
             </div>
+            {now < weekEnd ? <span className="bg-pen" style={{ left: pct((now - week) / (7 * DAY)), top: pct(trace.y(now)) }} aria-hidden="true"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M0 0L10 4L0 8z" fill="currentColor" /></svg></span> : null}
+            {earlierWrites ? <span className="bg-earlier">{t('{n} earlier records', { n: earlierWrites })} ◂</span> : null}
           </Paper>
         </div>
       )}
       {page === 'home' ? <TimeMap spec={timeline} /> : null}
     </div>
   );
+}
+
+/** The strip's right-hand reading in the native shell: this week and the device clock. */
+function StripMeta({ now }: { now: number }) {
+  const week = weekStartOf(now);
+  return <div className="bg-strip-meta"><b>{t('Week of {date}', { date: nativeDate(week, { day: 'numeric', month: 'short', year: 'numeric' }) })}</b> · <span className="bg-clock">{t('device clock {time}', { time: nativeDate(now, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) })}</span></div>;
 }
 
 export { DEMO_CLOCK, yAt };

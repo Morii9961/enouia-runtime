@@ -6,7 +6,7 @@
 import { lazy, Suspense, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { call, describe, pick, shell, type J } from "./client";
 import { catalogScopeKey, type CatalogStatus } from "./catalog";
-import { useRecordedTimes } from "./recordedTimes";
+import { useRecordedTimes, type RecordedTimes } from "./recordedTimes";
 import { recordedSpec, recordedTrace, TRACE_DAYS, type RecordedTrace } from '../theme/recordedTrace';
 import { useAction, useLatestRead, useMemoryStatus, type Failure } from "./hooks";
 import { ErrorBox, Operation, Tag, when } from "./ui";
@@ -28,7 +28,7 @@ type StatusValue = { status: J; vaultChanging: boolean; entry: "workspace" | "re
   nativeStatus: CatalogStatus | null; nativeError: Failure; observeNativeControl: (next: CatalogStatus | null) => void;
   error: Failure; refresh: () => Promise<void>; now: number; timeline: MapSpec;
   /** Registered entry with an open library: its recorded trace, or null while reading. */
-  recorded: { trace: RecordedTrace | null; failed: boolean } | null };
+  recorded: { trace: RecordedTrace | null; failed: boolean; latest: RecordedTimes["latest"] } | null };
 const StatusContext = createContext<StatusValue | null>(null);
 
 export function MemoryStatusProvider({ children }: { children: ReactNode }) {
@@ -51,7 +51,7 @@ export function MemoryStatusProvider({ children }: { children: ReactNode }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const trace = useMemo(() => times ? recordedTrace(times.turns, times.writes, now) : null, [times, hour]);
   const timeline = catalogScope ? recordedSpec(now, catalogScope, trace) : nativeHomeSpec(now, scope);
-  const recorded = catalogScope ? { trace, failed } : null;
+  const recorded = catalogScope ? { trace, failed, latest: times?.latest ?? null } : null;
   return <StatusContext.Provider value={{ ...value, now, timeline, recorded }}>{children}</StatusContext.Provider>;
 }
 
@@ -97,9 +97,9 @@ export function StatusPending() {
 /** Header badge: what this window is connected to, stated plainly. */
 export function MemoryBadge() {
   const { status, error, vaultChanging, entry, nativeStatus } = useStatus();
-  if (entry === "registered_owner_readonly") return <div className="qr224" role="status" title={t("Registered library. Changes are written only after you confirm them; model use is unavailable.")}>
+  if (entry === "registered_owner_readonly") return <div className="qr224" role="status" title={`${registeredLabel(nativeStatus)} · ${t("Registered library. Changes are written only after you confirm them; model use is unavailable.")}`}>
     <span className="qr223" style={{ background: nativeStatus?.state === "open" ? "var(--ok)" : "var(--pending)" }} />
-    {t("Memory")} · {registeredLabel(nativeStatus)}<span className="qr4">·</span>{t("Registered library · confirmed changes only")}
+    {nativeStatus?.state === "open" ? t("Registered library · confirmed writes") : registeredLabel(nativeStatus)}
   </div>;
   const open = status?.vault?.state === "open" && !vaultChanging && !exiting(status);
   const text = status ? `${t("Memory")} · ${vaultLabel(status, vaultChanging)}` : error ? t("Memory status unavailable") : t("Memory · checking…");

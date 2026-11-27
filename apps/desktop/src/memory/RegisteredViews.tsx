@@ -607,24 +607,32 @@ export const count = (stats: CatalogStats, axis: string, value: string) => stats
 export const readingStamp = stamp;
 
 // ---- Home ---------------------------------------------------------------------
-type Note = { title: string; line: string; route: { go: () => void }; detail: string; time: string };
+type Note = { title: string; line: string; route: { go: () => void }; detail: string; time: string; idle?: boolean };
 export function RegisteredHome({ nav, timeline, now, phase }: { nav: { memory: { go: () => void }; sessions: { go: () => void }; context: { go: () => void } }; timeline: MapSpec; now: number; phase: string }) {
   const { nativeStatus, nativeError, error, recorded } = useStatus();
   const { readings, error: readError } = useRegisteredReadings();
   const clock = (at: string | number) => nativeDate(typeof at === "number" ? at : Date.parse(at), { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   const latestTurn = recorded?.trace?.latestTurn ?? null;
   const fallback = nativeError?.text ?? error?.text ?? (nativeStatus?.reason ? describe(nativeStatus.reason) : readError?.text ?? registeredLabel(nativeStatus));
+  const short = (id: string) => id.length > 14 ? `${id.slice(0, 10)}…${id.slice(-4)}` : id;
+  const left = recorded?.latest ?? null;
   const notes: Note[] = [
-    { title: t("Native memory catalog"), route: nav.memory, detail: phase, time: readings ? clock(readings.observedAt) : "—",
+    { title: t("Memory Vault"), route: nav.memory, time: readings ? clock(readings.observedAt) : "—",
+      detail: readings ? short(readings.stats.selection.snapshot.base_commit_id) : "—",
       line: readings ? t("{total} records · {adopted} adopted · {staged} staged", { total: readings.stats.matched_in_scope, adopted: count(readings.stats, "adoption", "adopted"), staged: count(readings.stats, "adoption", "staged") }) : fallback },
-    { title: t("Formation"), route: nav.memory, detail: readings?.latest ? word(readings.latest.event_kind) : "—", time: readings?.latest ? clock(readings.latest.proof.written_at) : "—",
+    { title: t("Formation"), route: nav.memory, time: readings?.latest ? clock(readings.latest.proof.written_at) : "—",
+      detail: readings?.latest?.memory ? short(readings.latest.memory.memory_id) : "—",
       line: readings ? readings.latest ? t("Latest: {title}", { title: readings.latest.title ?? t("Source material") }) : t("No recorded events.") : fallback },
-    { title: t("Sessions"), route: nav.sessions, detail: "—", time: latestTurn != null ? clock(latestTurn) : "—",
-      line: readings ? latestTurn != null ? t("{n} captured conversations · latest turn {date}", { n: readings.conversations, date: nativeDate(latestTurn, { month: "short", day: "numeric" }) }) : t("{n} captured conversations", { n: readings.conversations }) : fallback },
-    { title: t("Context"), route: nav.context, detail: "—", time: "—", line: t("Preview the context an Agent would receive") },
+    { title: t("Current session"), route: nav.sessions, time: latestTurn != null ? clock(latestTurn) : "—",
+      detail: left ? short(left.id) : "—", idle: !left,
+      line: left ? t("{title} · {n} turns, last at {time}", { title: left.title ?? t("Untitled conversation"), n: left.turns, time: clock(left.at) })
+        : readings ? t("{n} captured conversations", { n: readings.conversations }) : fallback },
+    { title: t("Context"), route: nav.context, detail: "—", time: "—", idle: true, line: t("Preview the context an Agent would receive") },
   ];
-  return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry readonlyNotes={notes} recorded={recorded}
-    label={readings ? t("{label} · {n} records", { label: registeredLabel(nativeStatus), n: readings.stats.matched_in_scope }) : registeredLabel(nativeStatus)} phase={phase} reviewLine={fallback} />;
+  const recording = readings ? t("{total} records, {adopted} adopted, {staged} staged.", { total: readings.stats.matched_in_scope, adopted: count(readings.stats, "adoption", "adopted"), staged: count(readings.stats, "adoption", "staged") }) : undefined;
+  const margin = left ? { title: t("Left off"), lines: [left.title ?? t("Untitled conversation"), `${nativeDate(left.at, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })} · UTC+8`] } : undefined;
+  return <NativeHome nav={nav} timeline={timeline} now={now} open={false} vault={null} readonlyEntry readonlyNotes={notes} recorded={recorded} recording={recording} margin={margin}
+    label={registeredLabel(nativeStatus)} phase={phase} reviewLine={fallback} />;
 }
 
 // ---- Runtime Inspector ----------------------------------------------------------

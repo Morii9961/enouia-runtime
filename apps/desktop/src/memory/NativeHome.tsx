@@ -5,10 +5,13 @@ import type { MapSpec } from '../theme/TimeMap';
 import type { RecordedTrace } from '../theme/recordedTrace';
 import { clearViews, useTimeView } from '../theme/timeview';
 import { DAY, nativeDate, observedCommit } from '../theme/nativeTime';
+import { dayColumn } from '../theme/chart';
 import VaultAdmissionNotice from '../shell/VaultAdmissionNotice';
 
-type Note = { title: string; line: string; route: { go: () => void }; detail: string; time: string };
+type Note = { title: string; line: string; route: { go: () => void }; detail: string; time: string; idle?: boolean };
 type Props = { nav: J; timeline: MapSpec; now: number; open: boolean; vault: J; reviewLine: string; label: string; phase: string; readonlyEntry?: boolean; readonlyNotes?: Note[];
+  /** Registered entry: the sentence after "Recording.", and the bottom-right "left off" lines. */
+  recording?: string; margin?: { title: string; lines: string[] };
   /** Registered entry: the trace from recorded times; null while it is read, undefined when there is none. */
   recorded?: { trace: RecordedTrace | null; failed: boolean } | null };
 
@@ -17,7 +20,7 @@ const PANE = 0.58, NOTES_LEFT = 0.605;
 const full = (at: number) => nativeDate(at, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
 /** The selected Home composition, with only what the current status receipt knows. */
-export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase, readonlyEntry = false, readonlyNotes, recorded }: Props) {
+export default function NativeHome({ nav, timeline, now, open, vault, reviewLine, label, phase, readonlyEntry = false, readonlyNotes, recorded, recording, margin }: Props) {
   const view = useTimeView(timeline.key, timeline.init);
   useEffect(() => () => clearViews(timeline.key), [timeline.key]);
   const [start, end] = view.domain;
@@ -42,7 +45,7 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
     : t(readonlyEntry ? 'Registered library · no time trace is available' : 'Latest Vault commit only; continuous trace unavailable');
   const penOn = trace != null && visible(now);
   const clock = nativeDate(now, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).split(':');
-  const notes = readonlyNotes ?? (readonlyEntry ? [
+  const notes: Note[] = readonlyNotes ?? (readonlyEntry ? [
     { title: t('Native memory catalog'), line: reviewLine, route: nav.memory, detail: phase, time: '—' },
     { title: t('Sources'), line: t('Open a record to inspect its quoted source.'), route: nav.memory, detail: '—', time: '—' },
     { title: t('Context'), line: t('Unavailable in this read-only entry'), route: nav.context, detail: '—', time: '—' },
@@ -65,13 +68,13 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
         <div className="qr1">Enouia Runtime · {nativeDate(now, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} · {t('Device clock')} · UTC+8</div>
         <div className="bg-now" aria-label={`${t('Device clock')} ${clock.join(':')} UTC+8`}>{clock[0]}<span>:</span>{clock[1]}</div>
       </div>
-      <div className="bg-home-sub"><VaultAdmissionNotice /><span className="bg-recording">{label}{open && vault?.rootName ? ` · ${vault.rootName}` : ''}</span></div>
+      <div className="bg-home-sub"><VaultAdmissionNotice />{recording ? <><span className="bg-recording">{t("Recording.")}</span> {recording}</> : <span className="bg-recording">{label}{open && vault?.rootName ? ` · ${vault.rootName}` : ''}</span>}</div>
     </div>
     <div className="bg-home-chart">
       <div className="bg-paper bg-paper-big" data-by={view.by} data-unavailable={(!open && !trace) || undefined}>
         <div className="bg-pane" style={{ width: `${PANE * 100}%` }}>
           <div className="bg-pan bg-pan-grid" style={{ ...layer, backgroundSize: `calc(100% / ${days}) 100%` }} aria-hidden="true">
-            {Array.from({ length: days }, (_, i) => <span key={i} className="bg-day" style={{ left: `${i / days * 100}%` }}>{nativeDate(start + i * DAY, { month: 'numeric', day: 'numeric' })}</span>)}
+            {Array.from({ length: days }, (_, i) => { const c = dayColumn(start + i * DAY); return <span key={i} className="bg-day" data-today={start + (i + 1) * DAY > now && start + i * DAY <= now || undefined} style={{ left: `${i / days * 100}%` }}>{c.dow} <b>{c.date}</b></span>; })}
           </div>
           <div className="bg-draw" role="img" aria-label={traceNote}>
             <div className="bg-pan bg-pan-ink" style={layer}>
@@ -88,14 +91,13 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
           </div>
           <h1 className="qr2 bg-here" lang="en" data-away={(trace && !penOn) || undefined}
             style={trace && penOn ? { right: `${Math.max(0, (1 - inPane(now) + 0.04) * 100)}%` } : undefined}>I'm here.</h1>
-          <p className="bg-native-trace-note">{traceNote}</p>
         </div>
         {leaders.length ? <svg key={view.seq} className="bg-leaders bg-native-leader" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
           {leaders.map(l => <path key={l.note} d={`M${(PANE * inPane(l.at) * 1000).toFixed(1)} ${(l.y * 1000).toFixed(1)} L${(NOTES_LEFT * 1000 - 18).toFixed(1)} ${((l.note / 4 + 0.03) * 1000).toFixed(1)} H${NOTES_LEFT * 1000}`}
             fill="none" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
         </svg> : null}
         <div className="qr13 bg-notes" style={{ left: `${NOTES_LEFT * 100}%` }}>
-          {notes.map((note, i) => <button key={i} onClick={note.route.go} className="qr12 bg-note" type="button">
+          {notes.map((note, i) => <button key={i} onClick={note.route.go} className="qr12 bg-note" data-idle={note.idle || undefined} type="button">
             <span className="bg-note-time">{note.time}</span><span className="qr9">{note.title}</span>
             <span className="qr10">{note.line}</span><span className="qr11">{note.detail}</span>
           </button>)}
@@ -106,11 +108,12 @@ export default function NativeHome({ nav, timeline, now, open, vault, reviewLine
       <div className="qr6 bg-legend"><span className="bg-legend-k">{t('Legend')}</span>
         {trace ? <span className="bg-legend-key"><span className="bg-legend-line" aria-hidden="true" /> {t('captured turns')} <i data-kind="canonical" /> {t(MARK.canonical)} <i data-kind="candidate" /> {t(MARK.candidate)} <i data-kind="superseded" /> {t(MARK.superseded)}</span>
           : <span className="bg-legend-key"><i />{open ? t('Last commit') : t('unknown')}</span>}
+        <span className="bg-legend-note">{traceNote}</span>
       </div>
-      <div className="qr15 bg-margin">
+      {margin ? <div className="qr15 bg-margin"><div className="qr9">{margin.title}</div>{margin.lines.map((line, i) => <div key={i} className="qr14">{line}</div>)}</div> : <div className="qr15 bg-margin">
         <div className="qr9">{open ? t('Last commit') : trace ? t('Latest Memory write') : label}</div>
         <div className="qr14">{commit != null ? full(commit) + ' · UTC+8' : latestWrite != null ? full(latestWrite) + ' · UTC+8' : '—'}</div>
-      </div>
+      </div>}
     </div>
   </section>;
 }

@@ -49,6 +49,10 @@ export const DOM_CELLS = Array.from({ length: DOM_DAYS }, (_, i) => {
   const d = parts(DOM_START + i * DAY);
   return { i, at: DOM_START + i * DAY, monday: d.getUTCDay() === 1, get dow() { return dow(d.getUTCDay()); }, get label() { return monthDay(d); }, date: d.getUTCDate(), month: MON[d.getUTCMonth()], today: DOM_START + (i + 1) * DAY > DEMO_CLOCK && DOM_START + i * DAY <= DEMO_CLOCK };
 });
+/** Weekday and day of month for a strip column (Asia/Shanghai): MON 28 / 周一 28. */
+export const dayColumn = (ms: number) => { const d = parts(ms); return { dow: dow(d.getUTCDay()), date: String(d.getUTCDate()) }; };
+/** Monday 00:00 (Asia/Shanghai) of the week holding a timestamp. */
+export const weekStartOf = (ms: number) => { const d = parts(ms); return ms - ((d.getUTCDay() + 6) % 7) * DAY - (d.getUTCHours() * H + d.getUTCMinutes() * 6e4 + d.getUTCSeconds() * 1e3 + d.getUTCMilliseconds()); };
 /** "28 SEP" style label for a timestamp (Asia/Shanghai). */
 export const dayShort = (ms: number) => monthDay(parts(ms));
 

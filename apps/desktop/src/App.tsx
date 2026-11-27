@@ -31,6 +31,8 @@ export type DemoView = ReturnType<App['renderVals']> & {
 };
 import { NativeStrip, RecordStrip } from './theme/RecordStrip.tsx';
 import { moveAlong, settleMoves } from './theme/motion.ts';
+import { weekStartOf } from './theme/chart.ts';
+import { nativeDate } from './theme/nativeTime.ts';
 
 import { msg, t, tn } from './i18n/index.ts';
 // Inside the native shell the Memory, Context and Sessions surfaces use the
@@ -400,7 +402,7 @@ export default class App extends React.Component<AppProps, AppState> {
 <div className="qr221" lang="en">
 Enouia Runtime
 </div>
-{connected ? null : <div className="bg-chartno">{t("Negative No. 40 · week of 28 Sep 2026")}</div>}
+<div className="bg-chartno">{connected ? t('week of {date}', { date: nativeDate(weekStartOf(Date.now()), { day: 'numeric', month: 'short', year: 'numeric' }) }) : t("Negative No. 40 · week of 28 Sep 2026")}</div>
 <div className="qr222">
 {pageTitle}
 </div>
