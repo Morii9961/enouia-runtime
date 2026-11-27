@@ -2205,6 +2205,7 @@ const dict: Record<string, string> = {
   "Validity": "有效期",
   "No cue match": "与提示不匹配",
   "Byte budget": "字节预算",
+  "Words only, below meaning matches": "只有字面匹配，分数不及语义匹配的结果",
   "Browse without a cue": "不带提示，全部查看",
   "Cue": "提示",
   "Scope": "范围",
