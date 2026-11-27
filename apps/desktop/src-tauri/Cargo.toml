@@ -20,15 +20,15 @@ tauri = { version = "=2.12.0", features = ["tray-icon"] }
 # Enouia Memory's embedded workspace Core at a pinned revision (ADR-025,
 # ADR-MEM-45). Change `rev` only together with Cargo.lock and
 # docs/integration/memory-pin.json; never a branch, path or [patch].
-enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "364c361d6e7a493269a088e845a8372b057856f5" }
+enouia-memory-workspace = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "bcaa77b686030871f1428cf0617ad394fbb4b8ec" }
 # The pinned contract's command catalog (long-running and write commands).
-enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "364c361d6e7a493269a088e845a8372b057856f5" }
+enouia-memory-contract = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "bcaa77b686030871f1428cf0617ad394fbb4b8ec" }
 # Native text Provider dispatch the Core hosts (Enouia Memory ADR-MEM-48):
 # HTTPS transport, Windows credential store and capability types.
-enouia-memory-provider = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "364c361d6e7a493269a088e845a8372b057856f5" }
+enouia-memory-provider = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "bcaa77b686030871f1428cf0617ad394fbb4b8ec" }
 # Separate opt-in synthetic automation adapter; never the v1 workspace writer.
-enouia-memory-host = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "364c361d6e7a493269a088e845a8372b057856f5" }
-enouia-memory-vault = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "364c361d6e7a493269a088e845a8372b057856f5" }
+enouia-memory-host = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "bcaa77b686030871f1428cf0617ad394fbb4b8ec" }
+enouia-memory-vault = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "bcaa77b686030871f1428cf0617ad394fbb4b8ec" }
 # Native dialogs for the Memory picker; pinned to the reference shell's version.
 rfd = { version = "=0.17.2", default-features = false }
 # Must equal Enouia Memory's exact workspace pins.
@@ -54,7 +54,7 @@ windows-sys = { version = "=0.61.2", features = [
 [dev-dependencies]
 # Tests only: seeds a synthetic Identity and public records for the public
 # persona export consumer test (Workspace IPC v1 has no Identity write).
-enouia-memory-govern = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "364c361d6e7a493269a088e845a8372b057856f5" }
+enouia-memory-govern = { git = "https://github.com/Morii9961/enouia-memory.git", rev = "bcaa77b686030871f1428cf0617ad394fbb4b8ec" }
 
 # Same debug-info policy as the domain workspace: line tables for our code only.
 [profile.dev]

@@ -151,3 +151,27 @@ pin 升到 `364c361d6e7a493269a088e845a8372b057856f5`，surface aggregate `4849e
 | `check-memory-integration` | 一致 |
 | `cargo test --locked -- --test-threads=1` | 75 + 9 通过；clippy 无警告；fmt 通过 |
 | `npm test`（含 i18n 和 CJK 字形覆盖） | 151 通过、3 跳过、0 失败；DOM 夹具通过；`tsc` 通过 |
+
+## 后续：pin `bcaa77b`（2026-11-27，连接器向量与去重建议）
+
+Memory 合并了两项：
+- [#225](https://github.com/Morii9961/enouia-memory/pull/225)（ADR-MEM-229）：ChatGPT 连接器用本机回环地址的 Ollama 建自己的语义索引，缓存和 Runtime 分开。Agent 的 `related` 有索引时，`unavailable` 为 `["same_conversation"]`。Runtime 不把 `unavailable` 当常量检查，不受影响。
+- [#226](https://github.com/Morii9961/enouia-memory/pull/226)（ADR-MEM-230）：只读的去重建议，判定条件是字对 Jaccard ≥ 600 或语义 cosine ≥ 900，修订链不算重复。
+
+pin 升到 `bcaa77b686030871f1428cf0617ad394fbb4b8ec`，surface aggregate `133e7d12d9b4d5890a7d4902e522c31742b1bcbdd430a928db4b7395d34e3d0d`。依赖和 Runtime 代码都没有变。
+
+应 Memory 要求，我用一个临时实验程序（未提交）在真实库上只读调用了去重建议（CURRENT 441，前后不变，退出码 0）：
+- 开语义和不开语义，都是 0 对，约 0.1 秒。
+- 我在本地按同样的算法把 351 条两两比较，共 61425 对：语义最高 831，≥ 800 的有 16 对；字面最高只有 188。
+- 相似度最高的 12 对，我看下来没有一对是重复：11 对只是同一主题、不同时间的事，1 对内容互相补充。
+- 所以 Runtime 暂时不做“可能重复”列表。
+
+同一次还记下了存储数字（只记类型和大小）：
+- 登记 home 共 2994 个文件、2.05 GB，其中 Vault 本体 121 MB，其余是初始化留下的导出和工作区。
+- Vault 里有 441 个提交 segment，共 21.7 MB，中位 18 KB；234 个原始材料文件，共 90.7 MB。
+- release 程序冷启动，约 2.3–2.6 秒打开库；第一页 50 条约 22 毫秒。
+
+| 检查 | 结果 |
+| --- | --- |
+| `check-memory-integration` | 一致 |
+| `cargo test --locked -- --test-threads=1` | 75 + 9 通过；clippy 无警告；fmt 通过 |

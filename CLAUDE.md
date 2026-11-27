@@ -1,6 +1,6 @@
 @AGENTS.md
 
-当前接续入口（2026-11-24）：先读[Runtime交付路线](docs/integration/RUNTIME_ROADMAP_2026-11-16.md)顶部的“当前状态”。R4/R5已合并，pin为364c361（本机bge-m3语义索引、jieba名词加权与分词认词、星图语义近邻、语义支持线，已修好人物合并后的读取故障和身份确认结果的校验），验收候选为c450785（已装到本机，内嵌e876cc7），剩下的是Morii的周末验收、[周末一页](docs/integration/R5_MORII_DECISIONS_2026-11-23.md)中的决定，以及待约时间的ChatGPT接主库。Memory领域工作在Memory仓库进行，Runtime只负责升级pin和改界面。
+当前接续入口（2026-11-24）：先读[Runtime交付路线](docs/integration/RUNTIME_ROADMAP_2026-11-16.md)顶部的“当前状态”。R4/R5已合并，pin为bcaa77b（本机bge-m3语义索引、jieba名词加权与分词认词、星图语义近邻、语义支持线，已修好人物合并后的读取故障和身份确认结果的校验），验收候选为c450785（已装到本机，内嵌e876cc7），剩下的是Morii的周末验收、[周末一页](docs/integration/R5_MORII_DECISIONS_2026-11-23.md)中的决定，以及待约时间的ChatGPT接主库。Memory领域工作在Memory仓库进行，Runtime只负责升级pin和改界面。
 
 [状态报告](docs/status/PROJECT_STATUS.md)及[Dashboard JSON](docs/status/project-status.json)仅为手动快照；历史验证和验收边界见[旧接续记录](docs/integration/RUNTIME_CONTINUATION_2026-11-12.md)。授权内Runtime切片验证后可直接合并；个人库、Provider、安装/部署及待定产品决策的边界保留。
 
