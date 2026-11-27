@@ -6,15 +6,17 @@ import { useEffect, useState } from "react";
 import { CATALOG_FILTER, catalogView } from "./catalog";
 import type { RecordedWrite } from "../theme/recordedTrace";
 
-export type RecordedTimes = { turns: number[]; writes: RecordedWrite[] };
+/** `latest`: the conversation holding the newest recorded turn (Home's "left off"). */
+export type RecordedTimes = { turns: number[]; writes: RecordedWrite[]; latest: { id: string; title: string | null; turns: number; at: number } | null };
 const loads = new Map<string, Promise<RecordedTimes>>();
 
 async function read(since: number): Promise<RecordedTimes> {
   const turns: number[] = [];
+  let latest: RecordedTimes["latest"] = null;
   let cursor: unknown | null = null;
   do {
     const page = await catalogView({ operation: "conversations", cursor, limit: 50 });
-    for (const { conversation } of page.items) {
+    for (const { conversation, visible_captured_turns } of page.items) {
       // Only conversations that may have turns in the drawn weeks; an unknown end is read.
       if (Date.parse(conversation.ended_at.until ?? conversation.ended_at.from ?? "") < since) continue;
       let turn: unknown | null = null;
@@ -22,7 +24,9 @@ async function read(since: number): Promise<RecordedTimes> {
         const detail = await catalogView({ operation: "conversation_detail", conversation_id: conversation.conversation_id, cursor: turn, limit: 50 });
         for (const { source_record } of detail.turns) {
           const at = Date.parse(source_record.occurred_at ?? "");
-          if (Number.isFinite(at)) turns.push(at);
+          if (!Number.isFinite(at)) continue;
+          turns.push(at);
+          if (!latest || at > latest.at) latest = { id: conversation.conversation_id, title: conversation.title, turns: visible_captured_turns, at };
         }
         turn = detail.next;
       } while (turn != null);
@@ -37,7 +41,7 @@ async function read(since: number): Promise<RecordedTimes> {
     for (const e of page.items) writes.push({ at: Date.parse(e.proof.written_at), kind: e.event_kind, adoption: e.adoption });
     cursor = page.items.some(e => Date.parse(e.proof.written_at) < since) ? null : page.next;
   } while (cursor != null);
-  return { turns, writes: writes.filter(w => Number.isFinite(w.at)) };
+  return { turns, writes: writes.filter(w => Number.isFinite(w.at)), latest };
 }
 
 export function useRecordedTimes(scope: string | null, since: number): { times: RecordedTimes | null; failed: boolean } {

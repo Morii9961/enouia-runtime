@@ -1233,7 +1233,7 @@ async function registeredOwnerChecks() {
   check('OWNER.registered_root_and_readonly_mode',status.mode==='registered_owner_readonly'&&status.selection.snapshot.vault_id===manifest.vault_id);
   check('OWNER.workspace_is_not_reinterpreted_as_owner_root',(await statusOf(s)).vault.state==='none');
   check('OWNER.shell_reports_independent_readonly_entry',(await s.evaluate("__t.invoke('shell_status')")).ok.memoryEntry==='registered_owner_readonly');
-  await waitFor(s,"document.querySelector('.qr224')?.textContent.includes('Registered library open')",'registered shell status');
+  await waitFor(s,"document.querySelector('.qr224')?.textContent.includes('Registered library · confirmed writes')",'registered shell status');
   await waitFor(s,has('3 records · '),'registered Home readings');
   check('OWNER.home_has_no_workspace_commit_or_create_prompt',await s.evaluate(`!${has('Open or create a Vault to begin')} && !document.querySelector('[data-kind="vault-commit"]') && ${has('captured conversations')} && !${has('Read saved Capsules')}`));
   await nav(s,'Settings');

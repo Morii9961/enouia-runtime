@@ -51,9 +51,9 @@ try{
   await wait(()=>calls.includes('shell_status'));
   check('unknown_launch_mode_does_not_offer_workspace_navigation',!fixture.querySelector('[data-screen-label="Memory Vault"] .qr28 button'));
   releaseEntry!();
-  await wait(()=>badge().includes('Registered library open')&&text().includes('2 shown · 3 matching authorized records'));
+  await wait(()=>badge().includes('Registered library · confirmed writes')&&text().includes('2 shown · 3 matching authorized records'));
   check('real_native_status_does_not_rewrite_workspace_slot',fixture.querySelector('#refresh')?.getAttribute('data-workspace')==='none');
-  check('badge_is_readonly_not_connected_workspace',badge().includes('Registered library · confirmed changes only')&&!badge().includes('Connected workspace'));
+  check('badge_is_readonly_not_connected_workspace',badge().includes('Registered library · confirmed writes')&&!badge().includes('Connected workspace'));
   const inspector=fixture.querySelector('[data-screen-label="Runtime Inspector"]')!;
   check('inspector_reports_native_scope_and_unavailable_operations',inspector.querySelector('#runtime-memory-panel')!.textContent!.includes('Registered library open')&&inspector.querySelector('#runtime-operations-panel')!.textContent!.includes('Unavailable in this read-only entry')&&!inspector.textContent!.includes('No Vault open'));
   check('home_does_not_offer_review_queue_or_saved_context',!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Open or create a Vault')&&!fixture.querySelector('[data-screen-label=Home]')!.textContent!.includes('Read saved Capsules')&&text().includes('Unavailable in this read-only entry'));
@@ -79,11 +79,11 @@ try{
   release!();release=null;await sleep(50);
   check('late_open_status_cannot_replace_newer_close',badge().includes('Registered library closed'));
   fail=true;refresh();await wait(()=>badge().includes('Registered library status unknown'));
-  check('failure_retains_readonly_configuration_but_withdraws_open_claim',!badge().includes('Registered library open')&&!text().includes('Create Vault…')&&!calls.some(c=>c.startsWith('memory_provider_'))&&fixture.querySelector('#refresh')?.getAttribute('data-workspace')==='none');
+  check('failure_retains_readonly_configuration_but_withdraws_open_claim',!badge().includes('Registered library · confirmed writes')&&!text().includes('Create Vault…')&&!calls.some(c=>c.startsWith('memory_provider_'))&&fixture.querySelector('#refresh')?.getAttribute('data-workspace')==='none');
   check('inspector_withdraws_open_state_and_reports_native_error',inspector.querySelector('#runtime-memory-panel')!.textContent!.includes('Registered library status unknown')&&inspector.querySelector('#runtime-memory-panel [role=alert]')?.textContent==='The automatic Memory read was refused');
   fail=false;mismatch=true;refresh();await wait(()=>fixture.querySelector('#refresh')?.getAttribute('data-error')==='This automatic Memory version is unsupported');
   check('synthetic_status_cannot_impersonate_registered_entry',badge().includes('Registered library status unknown'));
-  mismatch=false;state='open';refresh();await wait(()=>badge().includes('Registered library open'));
+  mismatch=false;state='open';refresh();await wait(()=>badge().includes('Registered library · confirmed writes'));
   check('fresh_status_recovers_without_a_write',calls.every(c=>['workspace_status','shell_status','startup_status','catalog:status','catalog:page','catalog:stats','catalog:activity','catalog:conversations','catalog:conversation_detail','catalog:detail','catalog:source'].includes(c)));
   await wait(()=>Array.from(fixture.querySelectorAll('button')).some(button=>button.textContent==='Lock registered library'));
   hold=true;refresh();await wait(()=>release!==null);

@@ -141,11 +141,13 @@
 .bg-native-home .bg-home-sub{min-width:0;overflow-wrap:anywhere}
 .bg-native-home .bg-here{right:3%}
 .bg-native-home .bg-pane{background-image:none}
-.bg-native-trace-note{position:absolute;left:16px;right:16px;top:12px;margin:0;font-size:13px;line-height:20px;color:var(--ink-2)}
+.bg-native-home .bg-note[data-idle] .bg-note-time,.bg-native-home .bg-note[data-idle] .qr9,.bg-native-home .bg-note[data-idle] .qr10,.bg-native-home .bg-note[data-idle] .qr11{color:var(--ink-3)}
+.bg-native-home .bg-note[data-idle]{border-top-color:var(--grid-major)}
+.bg-legend-note{display:block;flex-basis:100%;margin-top:2px;font-size:13px;line-height:20px;color:var(--ink-3)}
 .bg-native-home .bg-paper[data-unavailable] .bg-pane{background-image:repeating-linear-gradient(135deg,var(--grid-minor) 0 1px,transparent 1px 7px)}
 .bg-native-home .bg-notes{display:grid;grid-template-rows:repeat(4,minmax(min-content,1fr));gap:8px;padding:12px 0;overflow:auto}
 .bg-native-home .bg-notes .bg-note{position:relative;align-content:start;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"time label id" "line line line";min-width:0}
-.bg-native-home .bg-note .qr9{white-space:normal;overflow-wrap:anywhere}
+.bg-native-home .bg-note .qr9{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bg-native-home .bg-note .qr10{white-space:normal;overflow-wrap:anywhere}
 .bg-native-home .bg-paper[data-by="map"] .bg-native-leader{animation:nativeLeaderIn 360ms step-end both}
 @keyframes nativeLeaderIn{from{opacity:0}to{opacity:1}}

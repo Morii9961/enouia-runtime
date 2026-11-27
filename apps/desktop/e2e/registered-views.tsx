@@ -88,8 +88,8 @@ try{
   await wait(()=>!!fixture.querySelector('[data-screen-label="Home"] .bg-trace path'));
   const home=fixture.querySelector('[data-screen-label="Home"]')!;
   check('home_draws_line_from_recorded_turn_times',/^M[\d.]+ [\d.]+( L[\d.]+ [\d.]+)+$/.test(home.querySelector('.bg-trace path')!.getAttribute('d')!.replace(/ ?L/g,' L'))&&!!home.querySelector('.bg-pen')&&within('Home').includes('1 captured turns and 0 Memory writes in these days'));
-  check('home_marks_recorded_writes_in_domain',home.querySelectorAll('.bg-mark[data-kind="canonical"]').length===1&&within('Home').includes('Latest Memory write'));
-  check('strip_shows_time_map_with_turn_bars',!!fixture.querySelector('.bg-strip[data-recorded] .tm')&&!fixture.querySelector('.tm-stopped')&&fixture.querySelector('.bg-strip-meta')!.textContent!.includes('line: captured turns'));  check('home_reads_registered_totals_latest_event_and_conversations',within('Home').includes('Latest: Synthetic item 1')&&within('Home').includes('4 captured conversations')&&!within('Home').includes('Read saved Capsules'));
+  check('home_marks_recorded_writes_in_domain',home.querySelectorAll('.bg-mark[data-kind="canonical"]').length===1&&within('Home').includes('Left off')&&within('Home').includes('Synthetic conversation'));
+  check('strip_shows_time_map_with_turn_bars',!!fixture.querySelector('.bg-strip[data-recorded] .tm')&&!fixture.querySelector('.tm-stopped')&&fixture.querySelector('.bg-strip-meta')!.textContent!.includes('Week of')&&fixture.querySelector('.bg-strip-meta')!.textContent!.includes('device clock'));  check('home_reads_registered_totals_latest_event_and_conversations',within('Home').includes('Latest: Synthetic item 1')&&within('Home').includes('Synthetic conversation · 1 turns, last at')&&!within('Home').includes('Read saved Capsules'));
   await wait(()=>within('Runtime Inspector').includes('Authorized records'));
   await wait(()=>within('Runtime Inspector').includes('Not connected'));
   check('connector_is_shown_as_not_connected_not_faked',within('Runtime Inspector').includes('not deployed yet')&&calls.includes('catalog:connector_status'));
