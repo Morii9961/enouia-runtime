@@ -120,3 +120,17 @@ pin 升到 `e876cc7164d6f5b793b420b30025ad3743a05f33`，surface aggregate `d28c9
 | --- | --- |
 | `check-memory-integration` | 一致 |
 | `cargo test --locked -- --test-threads=1` | 75 + 9 通过；clippy 无警告；fmt 通过 |
+
+## 后续：pin `a361404`（2026-11-27，trace 先列差一点进前 8 的记录）
+
+[Memory #223](https://github.com/Morii9961/enouia-memory/pull/223)（ADR-MEM-227）：`trace.excluded` 最多返回 128 条，现在先按排名列出因预算没排进去的（`budget`），再列被过滤的（`no_cue` 等）；`trace_coverage.reason_counts` 统计全部排除。选择结果不变。pin 升到 `a361404ef9c04b1d3a8698192b1bd3d962a31187`，surface aggregate `70c8ea8671657580b0206a088f8e26c39ea8a926513dcfd45f1d5c3eb4505bc2`。依赖和 Runtime 代码都没有变。
+
+| 检查 | 结果 |
+| --- | --- |
+| `check-memory-integration` | 一致 |
+| `cargo test --locked -- --test-threads=1` | 75 + 9 通过；clippy 无警告；fmt 通过 |
+
+应 Memory 要求，在这个 pin 上只读测了各条结果的分数和命中方式，供它定下一条召回规则（CURRENT 441，前后不变，退出码 0）。9 个问题，16KB 和 64KB 两档，相关与否由我按标题判断：
+- 64KB 下共 70 条结果。带语义命中的 19 条全部相关或沾边。只有字面命中的 51 条里，35 条无关。
+- 库里没有答案的两类日常偏好问题，所有结果都只有字面命中，没有一条相关。
+- 每题排除的记录里，33 条是还没采纳，244–289 条没有线索，21–71 条是预算不够。
