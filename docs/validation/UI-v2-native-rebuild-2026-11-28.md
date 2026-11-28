@@ -84,4 +84,17 @@ D1：「值得回看」在「形成」的子视图，「人物与地点」在「
 
 `template-check.ps1`：26/26。先在设置页点「退出 Enouia Runtime」正常退出（进程全部结束），再以 `/S` 覆盖安装，退出码 0，卸载登记仍只有一个；安装后的 `enouia-desktop.exe` SHA-256 `00006c72c21b14551dd623238d294bb8e03aa189449c218deea79cb4d33b9383`。重新打开后：会话转录按轮次正序、会话时间小地图出现、记录带写「更早的 344 次 Memory 写入」；`ollama.exe` 是 Runtime 的子进程、`llama-server.exe` 已加载，设置页「语义检索 已就绪 · 343 条记忆 · bge-m3」。
 
+## 候选 `287f885`（已装到本机，接替 `4f595e2`）
+
+从 Runtime main `287f885`（#300 合并，Memory pin `9b54d9035d774cc43af27567e533df73f7af5204`，ADR-MEM-232 纠正合并来源记忆的修复）用同样的命令构建，界面与 `4f595e2` 相同。产物在本机忽略目录 `apps/desktop/target/candidate-287f885/`。
+
+| 文件 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `Enouia Runtime_0.1.0_x64-setup.exe` | 39,827,752 | `70861682eb7e86116b7011d86fd19447c54060d651cc0913fcce638a13ce4bb9` |
+| `enouia-desktop.exe`（构建目录） | 93,397,101 | `92d12d7e7381376e525da72c733d7248f659cfd050962ed4d1a2f0bfbfc0ddbe` |
+| `enouia-memory-mcp.exe` | 59,508,342 | `6f70d6087d7f880eb59918f70888da77e8882b9a06af29415ce6e01b4e2171f0` |
+| `WebView2Loader.dll` | 160,880 | `86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5` |
+
+`template-check.ps1`：26/26。Runtime 当时没有运行，以 `/S` 覆盖安装，退出码 0，卸载登记仍只有一个；安装后的 `enouia-desktop.exe` SHA-256 `7be29de7ec379f1a2c62033943ebf0ac81e012ac79aaa6e0bb5fd7fa17dbf66a`。打开后读真实库（此前 Memory 会话已清理：会话 289 段，记忆 343 条，其中 17 条经 Owner 纠正为 r2 / live）：首页 343 条（已采用 311、暂存 32）；记忆目录里经纠正的记录按规则显示写入日期与时刻，其余仍归在「初始化」；左栏的人物与地点分面出现；设置页「语义检索 已就绪 · 343 条记忆 · bge-m3」。只读，没有写入。
+
 还需要 Morii 自己逐屏确认，作为人工验收。
